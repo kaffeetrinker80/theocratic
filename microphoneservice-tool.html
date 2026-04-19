@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Augsburg English - Microphone Assignments (Hall Mode V2.2.1)</title>
+  <title>Augsburg English - Microphone Assignments (Hall Mode V2.1.6)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root{
@@ -386,7 +386,7 @@
       </table>
     </div>
 
-    <footer>Made with Love © – Microphone Planner V 2.2.1</footer>
+    <footer>Made with Love © – Microphone Planner V 2.2.2</footer>
   </div>
 </div>
 
@@ -646,7 +646,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "2.2.1";
+const APP_VERSION = "2.2.2";
 
 let appData = {
   brothers: [
@@ -1352,6 +1352,39 @@ function importJSONFile(file){
     }
   };
   reader.readAsText(file);
+}
+
+
+window.addEventListener("beforeunload", (event) => {
+  if(!odFileHandle) return;
+  if(!hasUnsavedOneDriveChanges) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
+
+async function saveCurrentDataToOneDrive(showAlert=true){
+  if(!odSupported()){
+    alert("Your browser does not support OneDrive file access. Please use Microsoft Edge or Google Chrome.");
+    return false;
+  }
+
+  if(!odFileHandle){
+    alert("Please choose your OneDrive JSON file first in the JSON & Stats tab.");
+    return false;
+  }
+
+  try{
+    updatePlannerSyncButton("working");
+    await odWriteJson(buildOneDrivePayload());
+    odLastWriteMs = Date.now();
+    markOneDriveSaved("saved");
+    if(showAlert) alert("Saved to OneDrive.");
+    return true;
+  }catch(e){
+    odUpdateUI("save failed");
+    alert("Save failed: " + (e?.message || e));
+    return false;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
