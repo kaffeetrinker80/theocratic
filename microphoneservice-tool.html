@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Augsburg English - Microphone Assignments (V2.1.8)</title>
+  <title>Augsburg English - Microphone Assignments (Hall Mode V2.1.6)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root{
@@ -156,6 +156,60 @@
     .sync-kv{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:.85rem;color:var(--text-muted)}
     .sync-kv b{color:var(--text-main);font-weight:600}
 
+    .planner-sync-btn{
+      margin-left:auto;
+      min-width:190px;
+      font-weight:600;
+      border-radius:999px;
+      padding:8px 14px;
+      border:1px solid transparent;
+      cursor:pointer;
+      transition:transform .05s ease, opacity .15s ease;
+    }
+    .planner-sync-btn:hover{opacity:.95}
+    .planner-sync-btn:active{transform:translateY(1px)}
+    .planner-sync-btn.state-disabled{
+      background:#e5e7eb;
+      color:#4b5563;
+      border-color:#cbd5e1;
+    }
+    .planner-sync-btn.state-unsaved{
+      background:#b91c1c;
+      color:#fff;
+      border-color:#991b1b;
+    }
+    .planner-sync-btn.state-saved{
+      background:#15803d;
+      color:#fff;
+      border-color:#166534;
+    }
+    .planner-sync-btn.state-working{
+      background:#b45309;
+      color:#fff;
+      border-color:#92400e;
+    }
+
+    body.dark-mode .planner-sync-btn.state-disabled{
+      background:#374151;
+      color:#e5e7eb;
+      border-color:#4b5563;
+    }
+    body.dark-mode .planner-sync-btn.state-unsaved{
+      background:#dc2626;
+      color:#fff;
+      border-color:#b91c1c;
+    }
+    body.dark-mode .planner-sync-btn.state-saved{
+      background:#16a34a;
+      color:#fff;
+      border-color:#15803d;
+    }
+    body.dark-mode .planner-sync-btn.state-working{
+      background:#d97706;
+      color:#fff;
+      border-color:#b45309;
+    }
+
     .bar-cell{min-width:180px}
     .bar-wrap{width:100%;height:12px;border-radius:999px;border:1px solid var(--table-border);background:rgba(148,163,184,.15);overflow:hidden}
     .bar-fill{height:100%;width:0%;background:var(--bar-fill)}
@@ -173,6 +227,17 @@
     body.dark-mode select option.stat-green{background:#214b2f;color:#e9ffe9}
     body.dark-mode select option.stat-orange{background:#4b3a18;color:#fff3d6}
     body.dark-mode select option.stat-red{background:#4b1f1f;color:#ffe6e6}
+
+    select option.no-meeting-option{
+      background:#dbeafe;
+      color:#1e3a8a;
+      font-style:italic;
+      font-weight:600;
+    }
+    body.dark-mode select option.no-meeting-option{
+      background:#1e3a5f;
+      color:#bfdbfe;
+    }
 
     @media (max-width:720px){
       header{padding:12px 10px 14px}
@@ -227,6 +292,7 @@
         <button class="secondary" id="add4WeeksBtn" type="button">Add 4 weeks</button>
         <button class="secondary" id="clearMeetingsBtn" type="button">Clear all meetings</button>
         <button class="secondary" id="printBtn" type="button">Print planner</button>
+        <button class="planner-sync-btn state-disabled" id="plannerSyncBtn" type="button" title="Save current data to OneDrive">OneDrive not connected</button>
       </div>
 
       <div class="controls">
@@ -320,7 +386,7 @@
       </table>
     </div>
 
-    <footer>Made with Love © – Microphone Planner V 2.1.8</footer>
+    <footer>Made with Love © – Microphone Planner V 2.2.1</footer>
   </div>
 </div>
 
@@ -337,6 +403,7 @@ const OD_KEY = "onedrive_file_handle";
 let odFileHandle = null;
 let odLastWriteMs = 0;
 let odLastReadMs = 0;
+let hasUnsavedOneDriveChanges = false;
 
 function odSupported(){
   return typeof window.showOpenFilePicker === "function" && typeof FileSystemFileHandle !== "undefined";
@@ -387,12 +454,72 @@ function odUpdateUI(extra=""){
   const fileTxt = hasFile ? "set" : "—";
   const lastW = odFormatTs(odLastWriteMs);
   const lastR = odFormatTs(odLastReadMs);
-  const statusTxt = hasFile ? ("ready" + (extra ? " · " + extra : "")) : ("pick file" + (extra ? " · " + extra : ""));
+  let baseStatus = hasFile ? "ready" : "pick file";
+  if(hasFile && hasUnsavedOneDriveChanges) baseStatus = "unsaved changes";
+  const statusTxt = baseStatus + (extra ? " · " + extra : "");
 
   if(line){
     line.innerHTML =
       `<span><b>Status:</b> ${statusTxt}</span><span><b>File:</b> ${fileTxt}</span><span><b>Last write:</b> ${lastW}</span><span><b>Last read:</b> ${lastR}</span>`;
   }
+
+  updatePlannerSyncButton();
+}
+
+
+function markOneDriveDirty(){
+  if(!odFileHandle) return;
+  hasUnsavedOneDriveChanges = true;
+  odUpdateUI();
+}
+
+function markOneDriveSaved(extra="saved"){
+  hasUnsavedOneDriveChanges = false;
+  odUpdateUI(extra);
+}
+
+function updatePlannerSyncButton(stateOverride=""){
+  const btn = document.getElementById("plannerSyncBtn");
+  if(!btn) return;
+
+  const supported = odSupported();
+  const hasFile = !!odFileHandle;
+
+  btn.classList.remove("state-disabled","state-unsaved","state-saved","state-working");
+  btn.disabled = false;
+
+  if(!supported){
+    btn.classList.add("state-disabled");
+    btn.textContent = "OneDrive unsupported";
+    btn.title = "This browser does not support file access for OneDrive saving.";
+    btn.disabled = true;
+    return;
+  }
+
+  if(stateOverride === "working"){
+    btn.classList.add("state-working");
+    btn.textContent = "Saving to OneDrive...";
+    btn.title = "Saving current planner data to OneDrive.";
+    return;
+  }
+
+  if(!hasFile){
+    btn.classList.add("state-disabled");
+    btn.textContent = "OneDrive not connected";
+    btn.title = "Choose your OneDrive JSON file first.";
+    return;
+  }
+
+  if(hasUnsavedOneDriveChanges){
+    btn.classList.add("state-unsaved");
+    btn.textContent = "Save to OneDrive";
+    btn.title = "There are unsaved OneDrive changes. Click to save now.";
+    return;
+  }
+
+  btn.classList.add("state-saved");
+  btn.textContent = "Saved to OneDrive";
+  btn.title = "Current planner data matches the last OneDrive save.";
 }
 
 function odIdbOpen(){
@@ -464,6 +591,7 @@ async function odChooseFile(){
   if(!handle) return;
 
   odFileHandle = handle;
+  hasUnsavedOneDriveChanges = false;
   await odIdbSet(OD_KEY, handle);
   odUpdateUI("file selected");
 }
@@ -481,6 +609,7 @@ async function odReadJson(){
   }
   const file = await odFileHandle.getFile();
   const txt = await file.text();
+  hasUnsavedOneDriveChanges = false;
   return JSON.parse(txt);
 }
 
@@ -498,6 +627,7 @@ async function odWriteJson(payload){
   const writable = await odFileHandle.createWritable();
   await writable.write(JSON.stringify(payload, null, 2));
   await writable.close();
+  hasUnsavedOneDriveChanges = false;
 }
 
 async function odInit(){
@@ -516,7 +646,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "2.1.8";
+const APP_VERSION = "2.2.1";
 
 let appData = {
   brothers: [
@@ -584,6 +714,7 @@ function saveLocal(){
   if(snapshot !== null && snapshot === __lastSavedSnapshot) return;
   __lastSavedSnapshot = snapshot;
   localStorage.setItem(STORAGE_KEY, snapshot ?? JSON.stringify(appData));
+  markOneDriveDirty();
 }
 
 function loadLocal(){
@@ -678,8 +809,8 @@ function buildStats(uptoDateISO=null){
   const list=[...appData.assignments].sort((a,b)=>a.dateISO.localeCompare(b.dateISO));
   list.forEach(a=>{
     if(uptoDateISO && a.dateISO>=uptoDateISO) return;
-    if(a.mic1 && stats[a.mic1]){ stats[a.mic1].mic1++; stats[a.mic1].last=a.dateISO; }
-    if(a.mic2 && stats[a.mic2]){ stats[a.mic2].mic2++; stats[a.mic2].last=a.dateISO; }
+    if(a.mic1 && a.mic1!=="__NO_MEETING__" && stats[a.mic1]){ stats[a.mic1].mic1++; stats[a.mic1].last=a.dateISO; }
+    if(a.mic2 && a.mic2!=="__NO_MEETING__" && stats[a.mic2]){ stats[a.mic2].mic2++; stats[a.mic2].last=a.dateISO; }
   });
   return stats;
 }
@@ -717,13 +848,26 @@ function restoreSelectFullLabels(sel){
 function compactSelectSelectedLabel(sel){
   if(sel.selectedIndex<0) return;
   const opt = sel.options[sel.selectedIndex];
+  if(opt?.value==="__NO_MEETING__"){
+    opt.textContent="⛔ No Meeting";
+    return;
+  }
   if(opt?.dataset?.nameOnly) opt.textContent = opt.dataset.nameOnly;
 }
 
 function populateSelect(sel, selected, meetingDateISO){
   sel.innerHTML="";
+  const noMeeting=document.createElement("option");
+  noMeeting.value="__NO_MEETING__";
+  noMeeting.textContent="⛔ No Meeting";
+  noMeeting.classList.add("no-meeting-option");
+  if(selected==="__NO_MEETING__") noMeeting.selected=true;
+  sel.appendChild(noMeeting);
+
   const empty=document.createElement("option");
-  empty.value=""; empty.textContent="— none —";
+  empty.value="";
+  empty.textContent="— none —";
+  if(selected==="") empty.selected=true;
   sel.appendChild(empty);
 
   const meetDate = meetingDateISO ? parseISODate(meetingDateISO) : null;
@@ -1281,14 +1425,19 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   };
 
   document.getElementById("odSaveBtn").onclick = async ()=>{
-    try{
-      await odWriteJson(buildOneDrivePayload());
-      odLastWriteMs = Date.now();
-      odUpdateUI("saved");
-    }catch(e){
-      odUpdateUI("save failed");
-      alert("Save failed: " + (e?.message || e));
+    await saveCurrentDataToOneDrive(true);
+  };
+
+  document.getElementById("plannerSyncBtn").onclick = async ()=>{
+    if(!odFileHandle){
+      document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+      document.querySelector('.tab-button[data-tab="json-tab"]').classList.add("active");
+      document.getElementById("json-tab").classList.add("active");
+      alert("Please choose your OneDrive JSON file first.");
+      return;
     }
+    await saveCurrentDataToOneDrive(true);
   };
 
   document.getElementById("odReadBtn").onclick = async ()=>{
@@ -1316,6 +1465,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   };
 
   await odInit();
+  updatePlannerSyncButton();
 
   updateFilterOptions();
   renderBrothers();
