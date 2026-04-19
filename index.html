@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theocratic Tools</title>
+  <style>
+    :root{
+      --bg:#f5f7f6;
+      --surface:#ffffff;
+      --surface-soft:#f8faf9;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow:0 10px 28px rgba(15,23,42,.08);
+
+      --primary:#2e7d32;
+      --primary-soft:#e8f5e9;
+
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:16px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#f8faf9 0%, #f3f5f4 100%);
+      color:var(--text);
+    }
+
+    .container{
+      max-width:1000px;
+      margin:0 auto;
+      padding:24px 16px 40px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:22px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      font-size:1rem;
+      font-weight:700;
+    }
+
+    .back{
+      text-decoration:none;
+      color:var(--muted);
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:10px 14px;
+      box-shadow:var(--shadow);
+      font-size:.92rem;
+    }
+
+    .hero{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow);
+      padding:30px 26px;
+      margin-bottom:22px;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      background:var(--primary-soft);
+      color:var(--primary);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:.82rem;
+      font-weight:700;
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:2rem;
+      line-height:1.1;
+      letter-spacing:-0.02em;
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.7;
+      max-width:760px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:18px;
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow);
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      min-height:240px;
+    }
+
+    .icon{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      background:var(--primary-soft);
+      color:var(--primary);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.4rem;
+      margin-bottom:16px;
+      font-weight:700;
+    }
+
+    h2{
+      margin:0 0 10px;
+      font-size:1.25rem;
+    }
+
+    .card p{
+      margin:0 0 16px;
+      color:var(--muted);
+      line-height:1.65;
+      flex:1;
+    }
+
+    .meta{
+      font-size:.88rem;
+      color:var(--muted);
+      margin-bottom:16px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      background:var(--primary-soft);
+      color:var(--primary);
+      border:1px solid #cfe8d1;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:700;
+      transition:transform .16s ease, filter .16s ease;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      filter:brightness(.98);
+    }
+
+    .placeholder{
+      background:var(--surface-soft);
+      border-style:dashed;
+    }
+
+    .footer{
+      margin-top:28px;
+      text-align:center;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    @media (max-width:700px){
+      .hero{
+        padding:24px 20px;
+      }
+
+      h1{
+        font-size:1.7rem;
+      }
+
+      .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">kaffeetrinker80 / Theocratic Tools</div>
+      <a class="back" href="https://kaffeetrinker80.github.io/">← Back to Home</a>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">Theocratic Tools</div>
+      <h1>Planning and coordination tools</h1>
+      <p>
+        Browser-based tools for planning, scheduling and internal coordination.
+        No personal data is stored on this page itself.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="icon">🎤</div>
+        <h2>Microphone Service Tool</h2>
+        <p>
+          Tool for planning microphone assignments, shifts and support during meetings and events.
+        </p>
+        <div class="meta">Available now</div>
+        <a class="btn" href="./microphoneservice-tool.html">Open Tool</a>
+      </article>
+
+      <article class="card placeholder">
+        <div class="icon">+</div>
+        <h2>More tools later</h2>
+        <p>
+          Future planning, scheduling and coordination tools can be added here later.
+        </p>
+        <div class="meta">Placeholder</div>
+        <a class="btn" href="#" onclick="return false;" style="background:#f3f4f6;color:#6b7280;border-color:#d1d5db;">Coming later</a>
+      </article>
+    </section>
+
+    <div class="footer">
+      Made with Love © · kaffeetrinker80
+    </div>
+  </div>
+</body>
+</html>
