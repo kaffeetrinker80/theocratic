@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RC Counting Munich</title>
+  <link rel="manifest" href="rc-counting-manifest.json" />
+  <link rel="icon" type="image/png" sizes="16x16" href="RC-counting-icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="RC-counting-icon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="RC-counting-icon-180.png" />
+  <meta name="theme-color" content="#1e3a8a" />
+  <style>
+    :root {
+      --bg: #f3f5f7;
+      --card: #ffffff;
+      --ink: #22303c;
+      --muted: #627282;
+      --line: #d6dee6;
+      --accent: #214b69;
+      --accent-soft: #eef4f8;
+      --danger: #8a2f2f;
+      --print-line: #8f99a2;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(243,245,247,.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar-inner,
+    .app {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 14px 18px;
+    }
+
+    .toolbar-panel {
+      background: linear-gradient(180deg, #fdfefe, #eef4f8);
+      border: 1px solid #d8e1e8;
+      border-radius: 18px;
+      padding: 14px 16px 12px;
+      box-shadow: 0 10px 22px rgba(33, 75, 105, 0.08);
+    }
+
+    .headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 13px;
+      white-space: nowrap;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .control-grid {
+      display: grid;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .control-row-primary {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .control-row-secondary {
+      display: grid;
+      grid-template-columns: minmax(300px, 1.6fr) minmax(220px, 1fr) minmax(154px, 170px);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .control-row-actions {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(148px, 1fr));
+      gap: 10px;
+      align-items: center;
+    }
+
+    .event-stack,
+    .days-stack {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    .toolbar input[type="text"],
+    .toolbar textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      min-width: 0;
+    }
+
+    button {
+      padding: 9px 12px;
+      min-height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    button.danger { color: var(--danger); }
+
+    .action-btn {
+      width: 100%;
+      min-width: 0;
+      justify-self: stretch;
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .action-btn.add-btn { min-width: 154px; }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .day-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: grid;
+      gap: 8px;
+      box-shadow: 0 6px 16px rgba(20,35,50,.04);
+    }
+
+    .day-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 8px 20px rgba(33,75,105,.12);
+      background: linear-gradient(180deg, #ffffff 0%, #f3f8fb 100%);
+    }
+
+    .day-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .day-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .day-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .time-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .time-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      flex: 1 1 104px;
+    }
+
+    .time-chip input {
+      width: 70px;
+      border: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      text-align: center;
+      font-weight: 700;
+      color: var(--ink) !important;
+    }
+
+    .day-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .day-totals {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .day-total-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f4f8fb 100%);
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .day-total-label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .day-total-value {
+      display: block;
+      margin-top: 4px;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .list-shell {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 18px rgba(20, 35, 50, 0.045);
+    }
+
+    .list-head,
+    .list-row {
+      display: grid;
+      grid-template-columns: minmax(300px, 2fr) 92px 92px minmax(180px, 1.05fr) 108px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .list-head {
+      padding: 10px 14px;
+      background: linear-gradient(180deg, var(--accent-soft), #fff);
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+    }
+
+    .list-row {
+      padding: 10px 14px;
+      border-bottom: 1px solid #edf2f6;
+    }
+
+    .list-row:last-child { border-bottom: 0; }
+
+    .position-cell { min-width: 0; }
+
+    .position-meta {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .position-type {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--accent);
+      cursor: text;
+    }
+
+    .position-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+      cursor: text;
+    }
+
+    .position-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 16px;
+      cursor: text;
+    }
+
+    .row-count input,
+    .row-name input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px 10px;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--ink);
+      -moz-appearance: textfield;
+    }
+
+    .row-count input::-webkit-outer-spin-button,
+    .row-count input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .row-name input {
+      text-align: left;
+      font-size: 15px;
+      font-weight: 400;
+      padding: 10px 11px;
+    }
+
+    .row-action {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .screen-list-empty {
+      padding: 18px 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .print-slips { display: none; }
+
+    .slips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 14px;
+    }
+
+    .slip {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 18px rgba(20, 35, 50, 0.045);
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slip-head {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--accent-soft), #fff);
+    }
+
+    .slip-type {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .slip-day {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .slip-title {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.12;
+    }
+
+    .slip-subtitle {
+      min-height: 16px;
+      margin-top: 5px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .slip-body {
+      padding: 12px 14px 10px;
+      display: grid;
+      gap: 9px;
+      flex: 1;
+    }
+
+    .counters,
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .counter-box,
+    .field,
+    .guideline {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 9px 11px;
+    }
+
+    .counter-title,
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .counter-value {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      text-align: center;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 700;
+      padding: 8px 2px;
+      color: var(--ink);
+      -moz-appearance: textfield;
+    }
+
+    .field input {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--ink);
+      padding: 0;
+      font-size: 15px;
+    }
+
+    .guideline {
+      border-style: dashed;
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--muted);
+      background: #fcfdfe;
+    }
+
+    .guideline strong { color: var(--ink); }
+    .guideline-ref { margin-top: 4px; font-size: 11px; color: var(--muted); }
+
+    .slip-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px 10px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .summary-print-view {
+      display: none;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .summary-sheet {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 18px rgba(20, 35, 50, 0.045);
+    }
+
+    .summary-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .summary-top h2 { margin: 0 0 4px; font-size: 24px; }
+    .summary-sub { font-size: 13px; color: var(--muted); }
+    .summary-top > div:first-child { flex: 1 1 auto; min-width: 0; }
+
+    .summary-box {
+      flex: 0 1 46%;
+      max-width: 46%;
+      min-width: 320px;
+      border: 1.5px solid #c7d2db;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f6fafc 100%);
+    }
+
+    .summary-overall-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .summary-total-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .summary-total-card .big {
+      display: block;
+      margin-top: 4px;
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .summary-delta {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--ink);
+    }
+
+    .summary-attendance-trend {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #ccd6de;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #4d6272;
+    }
+
+    .summary-attendance-trend strong {
+      color: var(--accent);
+    }
+
+    .summary-mini-chart {
+      display: grid;
+      gap: 7px;
+    }
+
+    .summary-chart-section {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #d7e0e7;
+    }
+
+    .summary-chart-title {
+      margin: 0 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+    }
+
+    .summary-chart-day + .summary-chart-day {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #d7e0e7;
+    }
+
+    .summary-chart-day-title {
+      margin: 0 0 7px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .summary-chart-overall {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #cdd8e1;
+    }
+
+    .mini-chart-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.35fr) minmax(260px, 1.65fr) minmax(78px, auto);
+      gap: 12px;
+      align-items: center;
+      font-size: 11px;
+      width: 100%;
+    }
+
+    .mini-chart-label {
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+      padding-right: 4px;
+      min-width: 0;
+      width: 100%;
+      display: block;
+      font-size: 10.5px;
+    }
+
+    .mini-chart-track {
+      position: relative;
+      height: 8px;
+      width: 100%;
+      max-width: none;
+      justify-self: stretch;
+      border-radius: 999px;
+      background: #e9eff4;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    .mini-chart-bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #9fb7c8 0%, #214b69 100%);
+    }
+
+    .mini-chart-value {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .summary-box-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      border: 1px solid #aebbc7;
+      padding: 7px 8px;
+      font-size: 12px;
+      vertical-align: top;
+    }
+
+    .summary-table th { background: #edf3f7; text-align: left; }
+    .summary-table td.num,
+    .summary-table th.num { text-align: right; white-space: nowrap; }
+
+    .summary-day-block + .summary-day-block { margin-top: 18px; }
+
+    .summary-stats {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #ccd6de;
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .summary-table tfoot td {
+      font-weight: 800;
+      font-size: 13px;
+      background: #eef3f7;
+      border-top: 2px solid #8ea3b5;
+    }
+
+    .app-footer {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 18px 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 28, 39, 0.42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 18px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: min(480px, 100%);
+      background: #fff;
+      border-radius: 18px;
+      border: 1px solid #d9e1e8;
+      box-shadow: 0 18px 50px rgba(13, 25, 37, .18);
+      padding: 18px;
+    }
+
+    .modal h3 { margin: 0 0 8px; font-size: 22px; }
+    .modal p { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+    .modal-grid { display: grid; gap: 10px; }
+    .modal-day-option {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .modal-day-option:hover { border-color: var(--accent); }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 1180px) {
+      .control-row-primary,
+      .control-row-secondary,
+      .control-row-actions,
+      .days-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .list-head,
+      .list-row { grid-template-columns: 1fr; }
+      .list-head { display: none; }
+      .row-action { justify-content: flex-start; }
+      .counters,
+      .meta { grid-template-columns: 1fr; }
+    }
+
+    @page { size: A4 portrait; margin: 0; }
+
+    @media print {
+      .toolbar-panel {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      html, body { width: 210mm; height: auto; background: #fff; }
+      .toolbar, .screen-only, .modal-backdrop, .screen-list { display: none !important; }
+      .app, .summary-print-view { max-width: none; padding: 0; }
+      .print-slips { display: block !important; }
+      body.summary-print-mode .app { display: none !important; }
+      body.summary-print-mode .summary-print-view { display: block !important; }
+      body.summary-print-mode .summary-sheet {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 7mm 8mm 16mm;
+        min-height: 297mm;
+        position: relative;
+      }
+      body.summary-print-mode .summary-top { margin-bottom: 12px; }
+      body.summary-print-mode .summary-top h2 { font-size: 19px; }
+      body.summary-print-mode .summary-sub { font-size: 11px; }
+      body.summary-print-mode .summary-box { flex: 0 1 44%; max-width: 44%; min-width: 220px; padding: 9px 10px; }
+      body.summary-print-mode .summary-box-title { font-size: 10px; margin-bottom: 4px; }
+      body.summary-print-mode .summary-attendance-trend { font-size: 10px; margin-top: 7px; padding-top: 5px; }
+      body.summary-print-mode .summary-chart-section { margin-top: 8px; padding-top: 6px; }
+      body.summary-print-mode .summary-chart-title { margin-bottom: 6px; font-size: 10px; }
+      body.summary-print-mode .mini-chart-label { font-size: 10px; }
+      body.summary-print-mode .mini-chart-row { grid-template-columns: minmax(240px, 1.25fr) minmax(180px, 1.75fr) minmax(54px, auto); gap: 8px; font-size: 10px; }
+      body.summary-print-mode .mini-chart-track { height: 7px; }
+      body.summary-print-mode .mini-chart-value { font-size: 10px; }
+
+      body.summary-print-mode .summary-table { margin-top: 12px; }
+      body.summary-print-mode .summary-peak-line { margin-top: 10px; padding-top: 6px; font-size: 10px; }
+      body.summary-print-mode .summary-print-footer {
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 6mm;
+        margin: 0;
+        padding: 0;
+        font-size: 10px;
+        text-align: center;
+      }
+      body.summary-print-mode .summary-table th,
+      body.summary-print-mode .summary-table td { font-size: 10px; padding: 4px 5px; }
+      body.summary-print-mode .summary-table tfoot td { font-size: 11px; }
+
+      body:not(.summary-print-mode) .slips { display: block; gap: 0; }
+      .slip {
+        width: 210mm;
+        height: 148.5mm;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        position: relative;
+        padding: 8mm 10mm 8mm 10mm;
+      }
+      .slip:nth-child(odd) { border-bottom: 1px dashed var(--print-line); }
+      .slip:nth-child(even) { page-break-after: always; }
+      .slip-head, .counter-box, .field { background: #fff; }
+      .slip-head { border: 1px solid #b8c0c7; border-bottom: 0; padding: 10px 12px 8px; }
+      .slip-body { border: 1px solid #b8c0c7; border-top: 0; padding: 10px 12px 8px; }
+      .counter-box, .field { border-color: #bcc4cb; }
+      .counter-value { color: transparent !important; text-shadow: none !important; caret-color: transparent; }
+      .counter-value::placeholder { color: transparent; }
+      .guideline { border-color: #c3cad1; background: #fff; }
+      .slip-footer { padding: 8px 12px 0; border-top: 1px dashed #c3cad1; color: #56626d; }
+      .app-footer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <div class="toolbar-panel">
+        <div class="headline">
+          <div>
+            <h1 contenteditable="true" id="mainTitle">RC Counting Munich</h1>
+            <div class="sub" id="subtitle" contenteditable="true">Regional Convention Munich 2026 · Attendance Counting Department · Data saved locally in your browser</div>
+          </div>
+          <div class="summary">
+            <div class="pill">Days: <strong id="daysCount">3</strong></div>
+            <div class="pill">Active day: <strong id="activeDayName">Friday</strong></div>
+            <div class="pill">Positions: <strong id="positionsCount">0</strong></div>
+          </div>
+        </div>
+
+        <div class="control-grid screen-only">
+          <div class="control-row-primary">
+            <div class="event-stack wide">
+              <input type="text" id="globalEvent" placeholder="Event / date for all slips" title="Set one event/date for all slips" />
+            </div>
+          </div>
+
+          <div class="days-stack wide">
+            <div class="days-grid" id="daysGrid"></div>
+          </div>
+
+          <div class="control-row-secondary">
+            <input type="text" id="newPositionName" placeholder="New position" title="Enter a new position title" />
+            <input type="text" id="newPositionSubtitle" placeholder="Optional area / description" title="Enter an optional subtitle or area" />
+            <button class="primary action-btn add-btn" id="addPositionBtn" title="Add a new position to the active day">+ Add position</button>
+          </div>
+
+          <div class="control-row-actions">
+            <button class="action-btn" id="exportJsonBtn" title="Export positions and settings as JSON">💾 Export JSON</button>
+            <button class="action-btn" id="importJsonBtn" title="Import positions and settings from JSON">📂 Import JSON</button>
+            <button class="action-btn" id="printSlipsBtn" title="Choose a day and print slips">🖨️ Print slips</button>
+            <button class="action-btn" id="printSummaryBtn" title="Print summary for filled days only">📊 Print summary</button>
+            <button class="action-btn danger" id="resetCountsBtn" title="Reset all counting values for the active day">⚠️ Reset counts</button>
+            <input type="file" id="jsonFileInput" accept=".json,application/json" hidden />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <div id="screenList" class="screen-list"></div>
+    <div class="print-slips">
+      <div id="slips" class="slips"></div>
+    </div>
+  </div>
+
+  <div id="summaryPrintView" class="summary-print-view"></div>
+  <div class="app-footer screen-only">Made with ♥ © · v.1.28</div>
+
+  <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
+      <h3 id="printDayTitle">Print slips</h3>
+      <p>Select the day you want to print. The slips will clearly show the chosen day.</p>
+      <div id="printDayOptions" class="modal-grid"></div>
+      <div class="modal-actions">
+        <button id="cancelPrintDayBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'rc-counting-munich-v118';
+    const LEGACY_STORAGE_KEYS = [
+      'counting-slips-munich-v19',
+      'counting-slips-munich-v113',
+      'counting-slips-munich-v112',
+      'counting-slips-munich-v111',
+      'counting-slips-munich-v110',
+      'counting-slips-munich-v18',
+      'counting-slips-munich-v17',
+      'counting-slips-munich-v16',
+      'counting-slips-munich-v15'
+    ];
+
+    const defaultGuidelineText = 'Attendance count: Please take the count at the exact assigned time so the figures remain as accurate and synchronized as possible. Count without causing unnecessary distraction to those attending. All adults should be counted, as should young children who are listening and benefiting, even to a limited extent.';
+    const defaultGuidelineRef = 'Reference: CO-23 ¶12';
+
+    const defaultPositions = [
+      { type: 'TC Lobby', title: 'Lobby', subtitle: 'Entire Lobby · Outdoors (if applicable) · Cloakroom · Assembly Office' },
+      { type: 'Position 5', title: 'Allergic Room', subtitle: 'Counting Point for Allergic Room / Related Seating Area' },
+      { type: 'Block', title: 'Block J', subtitle: '' },
+      { type: 'Position 18', title: 'Block A', subtitle: 'Block A' },
+      { type: 'Position 18', title: 'Block B', subtitle: 'Block B' },
+      { type: 'Position 22', title: 'Block C', subtitle: 'Block C' },
+      { type: 'Position 24', title: 'Block D', subtitle: 'Block D' },
+      { type: 'Position 31', title: 'Block E+F', subtitle: 'Block E+F' },
+      { type: 'Position 32', title: 'Balcony', subtitle: 'Balcony' },
+      { type: 'TC Cafeteria', title: 'Cafeteria', subtitle: 'Cafeteria (Main Floor) + Behind Stage' },
+      { type: 'Position 33', title: 'Restrooms, Parents & Children, First Aid', subtitle: 'First Aid' }
+    ];
+
+    const presetDays = [
+      { key: 'friday', label: 'Friday', time1: '10.30', time2: '14.30' },
+      { key: 'saturday', label: 'Saturday', time1: '10.30', time2: '14.30' },
+      { key: 'sunday', label: 'Sunday', time1: '10.30', time2: '14.30' }
+    ];
+
+    let state = loadState();
+    let pendingPrintDayId = null;
+
+    function makeId(seed) {
+      return (crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${seed}`);
+    }
+
+    function normalizeDayLabel(label, index = 0) {
+      const raw = String(label || '').trim().toLowerCase();
+      const fallback = (presetDays[index] && presetDays[index].label) || `Day ${index + 1}`;
+      if (!raw) return fallback;
+      if (['day 1', 'day1', '1', 'friday', 'fri'].includes(raw)) return 'Friday';
+      if (['day 2', 'day2', '2', 'saturday', 'sat'].includes(raw)) return 'Saturday';
+      if (['day 3', 'day3', '3', 'sunday', 'sun'].includes(raw)) return 'Sunday';
+      return label;
+    }
+
+    function toDisplayTitleCase(value) {
+      return String(value || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .split(' ')
+        .map(word => {
+          if (!word) return word;
+          if (/^TC$/i.test(word)) return 'TC';
+          if (/^CO-\d+/i.test(word)) return word.toUpperCase();
+          if (word.includes('+')) {
+            return word.split('+').map(part => {
+              if (!part) return part;
+              if (/^[A-Za-z]$/.test(part)) return part.toUpperCase();
+              if (/^[A-Z]\d+$/i.test(part)) return part.charAt(0).toUpperCase() + part.slice(1);
+              return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+            }).join('+');
+          }
+          if (/^[A-Za-z]$/.test(word)) return word.toUpperCase();
+          if (/^\d+[A-Za-z]?$/.test(word)) return word.toUpperCase();
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join(' ')
+        .replace(/\bAnd\b/g, '&')
+        .replace(/\bTc\b/g, 'TC');
+    }
+
+    function normalizePositionText(field, value) {
+      const v = String(value || '').trim();
+      if (!v) return '';
+      return toDisplayTitleCase(v);
+    }
+
+    function createPosition(source = {}, i = 0) {
+      return {
+        id: source.id || makeId(i),
+        type: normalizePositionText('type', source.type || 'Additional Position'),
+        title: normalizePositionText('title', source.title || `Position ${i + 1}`),
+        subtitle: String(source.subtitle || '').trim(),
+        count1: Math.max(0, Number(source.count1 ?? source.count1030) || 0),
+        count2: Math.max(0, Number(source.count2 ?? source.count1430) || 0),
+        name: source.name || ''
+      };
+    }
+
+    function createDay(day = {}, i = 0) {
+      const preset = presetDays[i] || { key: `day-${i+1}`, label: `Day ${i+1}`, time1: '10.30', time2: '14.30' };
+      return {
+        id: day.id || makeId(`day-${preset.key}`),
+        key: day.key || preset.key,
+        label: normalizeDayLabel(day.label || preset.label, i),
+        time1: String(day.time1 || day.globalTime1 || preset.time1),
+        time2: String(day.time2 || day.globalTime2 || preset.time2),
+        positions: Array.isArray(day.positions) && day.positions.length
+          ? day.positions.map((p, index) => createPosition(p, index))
+          : defaultPositions.map((p, index) => createPosition(p, index))
+      };
+    }
+
+    function normalizeState(raw) {
+      const mainTitle = raw.mainTitle || raw.title || 'RC Counting Munich';
+      const globalEvent = raw.globalEvent || 'Regional Convention / Munich';
+
+      let days = [];
+      if (Array.isArray(raw.days) && raw.days.length) {
+        days = raw.days.slice(0, 3).map((day, index) => createDay(day, index));
+      } else if (Array.isArray(raw.positions)) {
+        days = presetDays.map((preset, index) => createDay({
+          key: preset.key,
+          label: preset.label,
+          time1: raw.globalTime1 || preset.time1,
+          time2: raw.globalTime2 || preset.time2,
+          positions: index === 0 ? raw.positions : raw.positions.map(p => ({ ...p, count1030: 0, count1430: 0, count1: 0, count2: 0, name: '' }))
+        }, index));
+      } else {
+        days = presetDays.map((preset, index) => createDay(preset, index));
+      }
+
+      while (days.length < 3) {
+        days.push(createDay(presetDays[days.length], days.length));
+      }
+
+      const activeDayId = days.some(day => day.id === raw.activeDayId) ? raw.activeDayId : days[0].id;
+
+      return {
+        mainTitle,
+        globalEvent,
+        activeDayId,
+        days,
+        globalGuidelineText: raw.globalGuidelineText || defaultGuidelineText,
+        subtitle: raw.subtitle || 'Regional Convention Munich 2026 · Attendance Counting Department · Data saved locally in your browser'
+      };
+    }
+
+    function loadState() {
+      const keysToTry = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+      for (const key of keysToTry) {
+        const saved = localStorage.getItem(key);
+        if (!saved) continue;
+        try {
+          const parsed = JSON.parse(saved);
+          const incoming = parsed && parsed.data ? parsed.data : parsed;
+          const normalized = normalizeState(incoming);
+          if (key !== STORAGE_KEY) localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+          return normalized;
+        } catch (e) {}
+      }
+      return normalizeState({});
+    }
+
+    function getActiveDay() {
+      return state.days.find(day => day.id === state.activeDayId) || state.days[0];
+    }
+
+    function getDayById(dayId) {
+      return state.days.find(day => day.id === dayId) || state.days[0];
+    }
+
+    function saveState() {
+      state.mainTitle = document.getElementById('mainTitle').innerText.trim() || 'RC Counting Munich';
+      state.subtitle = document.getElementById('subtitle').innerText.trim() || 'Regional Convention Munich 2026 · Attendance Counting Department · Data saved locally in your browser';
+      state.globalEvent = document.getElementById('globalEvent').value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateHeaderInfo();
+    }
+
+    function safeFilePart(value, fallback = 'rc-counting-munich') {
+      return String(value || fallback)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/gi, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 60) || fallback;
+    }
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function buildTimestamp() {
+      const d = new Date();
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/"/g, '&quot;');
+    }
+
+    function dayTotals(day) {
+      return {
+        count1: day.positions.reduce((sum, p) => sum + (Number(p.count1) || 0), 0),
+        count2: day.positions.reduce((sum, p) => sum + (Number(p.count2) || 0), 0)
+      };
+    }
+
+    function dayHasAnyData(day) {
+      return day.positions.some(p => (Number(p.count1) || 0) > 0 || (Number(p.count2) || 0) > 0 || String(p.name || '').trim());
+    }
+
+    function updateHeaderInfo() {
+      const activeDay = getActiveDay();
+      document.getElementById('daysCount').textContent = state.days.length;
+      document.getElementById('activeDayName').textContent = activeDay.label;
+      document.getElementById('positionsCount').textContent = activeDay.positions.length;
+    }
+
+    function setActiveDay(dayId) {
+      state.activeDayId = dayId;
+      render();
+    }
+
+    function setDayTimeDraft(dayId, field, value) {
+      const day = getDayById(dayId);
+      if (!day) return;
+      day[field] = value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function commitDayTime(dayId, field, input) {
+      const day = getDayById(dayId);
+      if (!day) return;
+      const normalized = String((input && input.value) || day[field] || '').trim() || (field === 'time1' ? '10.30' : '14.30');
+      day[field] = normalized;
+      if (input) input.value = normalized;
+      saveState();
+      renderScreenList();
+      renderPrintSlips();
+      renderSummaryView();
+      renderDaysGrid();
+    }
+
+    function handleDayTimeKey(event, dayId, field, input) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitDayTime(dayId, field, input);
+        input.blur();
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        const day = getDayById(dayId);
+        if (!day) return;
+        input.value = day[field] || (field === 'time1' ? '10.30' : '14.30');
+        input.blur();
+      }
+    }
+
+    function setCount(id, field, value) {
+      const pos = getActiveDay().positions.find(p => p.id === id);
+      if (!pos) return;
+      pos[field] = Math.max(0, Number(value) || 0);
+      saveState();
+      renderDaysGrid();
+    }
+
+    function setField(id, field, value) {
+      const pos = getActiveDay().positions.find(p => p.id === id);
+      if (!pos) return;
+      pos[field] = value;
+      saveState();
+    }
+
+    function updateEditableField(id, field, value) {
+      setField(id, field, normalizePositionText(field, value));
+      renderScreenList();
+      renderPrintSlips();
+      renderSummaryView();
+    }
+
+    function addPosition() {
+      const title = document.getElementById('newPositionName').value.trim();
+      const subtitle = document.getElementById('newPositionSubtitle').value.trim();
+      if (!title) return;
+      getActiveDay().positions.push(createPosition({ type: 'Additional Position', title, subtitle, count1: 0, count2: 0, name: '' }, getActiveDay().positions.length + 1));
+      document.getElementById('newPositionName').value = '';
+      document.getElementById('newPositionSubtitle').value = '';
+      render();
+    }
+
+    function removePosition(id) {
+      const day = getActiveDay();
+      const pos = day.positions.find(p => p.id === id);
+      const label = pos ? `${pos.type} – ${pos.title}` : 'this position';
+      if (!window.confirm(`Remove ${label} from ${day.label}?`)) return;
+      day.positions = day.positions.filter(p => p.id !== id);
+      render();
+    }
+
+    function resetCounts() {
+      const day = getActiveDay();
+      if (!window.confirm(`Reset all counts for ${day.label}?\n\nThis will clear both counting columns for the active day.`)) return;
+      day.positions = day.positions.map(p => ({ ...p, count1: 0, count2: 0 }));
+      render();
+    }
+
+    function exportJson() {
+      saveState();
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        app: 'RC Counting Munich',
+        version: '1.26',
+        data: state
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${safeFilePart(state.mainTitle)}_${buildTimestamp()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(link.href);
+        link.remove();
+      }, 0);
+    }
+
+    function importJsonFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const imported = normalizeState(parsed && parsed.data ? parsed.data : parsed);
+          if (!window.confirm('Import JSON and replace the current RC counting data and settings?')) return;
+          state = imported;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          render();
+        } catch (err) {
+          alert('The selected JSON file could not be imported.');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function renderDaysGrid() {
+      const host = document.getElementById('daysGrid');
+      host.innerHTML = state.days.map(day => {
+        const totals = dayTotals(day);
+        const filled = dayHasAnyData(day) ? 'Filled day' : 'Empty day';
+        return `
+          <div class="day-card ${day.id === state.activeDayId ? 'active' : ''}">
+            <div class="day-top">
+              <button type="button" onclick="setActiveDay('${day.id}')" class="${day.id === state.activeDayId ? 'primary' : ''}">${escapeHtml(day.label)}</button>
+              <span class="day-tag">${filled}</span>
+            </div>
+            <div class="time-row">
+              <span class="time-chip">Count 1 <input type="text" value="${escapeAttr(day.time1)}" spellcheck="false" oninput="setDayTimeDraft('${day.id}','time1',this.value)" onkeydown="handleDayTimeKey(event,'${day.id}','time1',this)" onblur="commitDayTime('${day.id}','time1',this)" /></span>
+              <span class="time-chip">Count 2 <input type="text" value="${escapeAttr(day.time2)}" spellcheck="false" oninput="setDayTimeDraft('${day.id}','time2',this.value)" onkeydown="handleDayTimeKey(event,'${day.id}','time2',this)" onblur="commitDayTime('${day.id}','time2',this)" /></span>
+            </div>
+            <div class="day-totals">
+              <div class="day-total-box">
+                <span class="day-total-label">${escapeHtml(day.time1)}</span>
+                <span class="day-total-value">${totals.count1}</span>
+              </div>
+              <div class="day-total-box">
+                <span class="day-total-label">${escapeHtml(day.time2)}</span>
+                <span class="day-total-value">${totals.count2}</span>
+              </div>
+            </div>
+            <div class="day-meta">Quick totals for easy forwarding / reading.</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderScreenList() {
+      const wrap = document.getElementById('screenList');
+      const day = getActiveDay();
+      const time1 = day.time1 || '10.30';
+      const time2 = day.time2 || '14.30';
+
+      if (!day.positions.length) {
+        wrap.innerHTML = `<div class="list-shell"><div class="screen-list-empty">No positions yet.</div></div>`;
+        return;
+      }
+
+      const rows = day.positions.map((p) => `
+        <div class="list-row">
+          <div class="position-cell">
+            <div class="position-meta">
+              <span class="position-type" contenteditable="true" oninput="updateEditableField('${p.id}','type',this.innerText)">${escapeHtml(p.type)}</span>
+              <span class="position-title" contenteditable="true" oninput="updateEditableField('${p.id}','title',this.innerText)">${escapeHtml(p.title)}</span>
+            </div>
+            <div class="position-subtitle" contenteditable="true" oninput="updateEditableField('${p.id}','subtitle',this.innerText)">${escapeHtml(p.subtitle)}</div>
+          </div>
+          <div class="row-count">
+            <input type="number" min="0" inputmode="numeric" value="${Number(p.count1) || 0}" oninput="setCount('${p.id}','count1',this.value)" title="Enter the count for ${escapeAttr(time1)}" />
+          </div>
+          <div class="row-count">
+            <input type="number" min="0" inputmode="numeric" value="${Number(p.count2) || 0}" oninput="setCount('${p.id}','count2',this.value)" title="Enter the count for ${escapeAttr(time2)}" />
+          </div>
+          <div class="row-name">
+            <input type="text" value="${escapeAttr(p.name)}" oninput="setField('${p.id}','name',this.value)" placeholder="Brother name" />
+          </div>
+          <div class="row-action">
+            <button class="danger" onclick="removePosition('${p.id}')">Remove</button>
+          </div>
+        </div>
+      `).join('');
+
+      wrap.innerHTML = `
+        <div class="list-shell">
+          <div class="list-head">
+            <div>${escapeHtml(day.label)} · Position / area</div>
+            <div>${escapeHtml(time1)}</div>
+            <div>${escapeHtml(time2)}</div>
+            <div>Name</div>
+            <div></div>
+          </div>
+          ${rows}
+        </div>
+      `;
+    }
+
+    function renderPrintSlips() {
+      const wrap = document.getElementById('slips');
+      const day = pendingPrintDayId ? getDayById(pendingPrintDayId) : getActiveDay();
+      const guidelineText = state.globalGuidelineText || defaultGuidelineText;
+      const eventText = [state.globalEvent || '', day.label].filter(Boolean).join(' · ');
+
+      wrap.innerHTML = day.positions.map((p, index) => `
+        <section class="slip">
+          <div class="slip-head">
+            <div class="slip-type">${escapeHtml(p.type)}</div>
+            <div class="slip-day">${escapeHtml(day.label)}</div>
+            <h2 class="slip-title">${escapeHtml(p.title)}</h2>
+            <div class="slip-subtitle">${escapeHtml(p.subtitle)}</div>
+          </div>
+          <div class="slip-body">
+            <div class="counters">
+              <div class="counter-box">
+                <label class="counter-title">${escapeHtml(day.time1)}</label>
+                <input class="counter-value" type="number" min="0" inputmode="numeric" value="${Number(p.count1) || 0}" />
+              </div>
+              <div class="counter-box">
+                <label class="counter-title">${escapeHtml(day.time2)}</label>
+                <input class="counter-value" type="number" min="0" inputmode="numeric" value="${Number(p.count2) || 0}" />
+              </div>
+            </div>
+            <div class="meta">
+              <div class="field">
+                <label>Name</label>
+                <input type="text" value="${escapeAttr(p.name)}" readonly />
+              </div>
+              <div class="field">
+                <label>Event / day</label>
+                <input type="text" value="${escapeAttr(eventText)}" readonly />
+              </div>
+            </div>
+            <div class="guideline">
+              <strong>${escapeHtml(guidelineText.split(':')[0] || 'Attendance count')}</strong>${guidelineText.includes(':') ? escapeHtml(':' + guidelineText.split(':').slice(1).join(':')) : ''}
+              <div class="guideline-ref">${escapeHtml(defaultGuidelineRef)}</div>
+            </div>
+          </div>
+          <div class="slip-footer">
+            <div>${escapeHtml(day.label)} · Slip ${index + 1}</div>
+            <div>${escapeHtml(day.time1)} / ${escapeHtml(day.time2)}</div>
+          </div>
+        </section>
+      `).join('');
+    }
+
+    function buildAttendanceTrend(days) {
+      if (!days.length) return '';
+
+      const trendParts = [];
+      const allMoments = [];
+      let highest = null;
+      let lowest = null;
+      let largestIncrease = null;
+      let largestDecrease = null;
+
+      days.forEach(day => {
+        const totals = dayTotals(day);
+        const diff = totals.count2 - totals.count1;
+        const morningLabel = `${day.label} ${day.time1}`;
+        const afternoonLabel = `${day.label} ${day.time2}`;
+
+        allMoments.push({ label: morningLabel, value: totals.count1 });
+        allMoments.push({ label: afternoonLabel, value: totals.count2 });
+
+        if (highest === null || totals.count1 > highest.value) highest = { label: morningLabel, value: totals.count1 };
+        if (highest === null || totals.count2 > highest.value) highest = { label: afternoonLabel, value: totals.count2 };
+        if (lowest === null || totals.count1 < lowest.value) lowest = { label: morningLabel, value: totals.count1 };
+        if (lowest === null || totals.count2 < lowest.value) lowest = { label: afternoonLabel, value: totals.count2 };
+
+        if (diff > 0 && (largestIncrease === null || diff > largestIncrease.diff)) {
+          largestIncrease = { label: day.label, diff };
+        }
+        if (diff < 0 && (largestDecrease === null || diff < largestDecrease.diff)) {
+          largestDecrease = { label: day.label, diff };
+        }
+
+        if (diff === 0) {
+          trendParts.push(`${day.label}: no change`);
+        } else if (diff > 0) {
+          trendParts.push(`${day.label}: <strong>+${diff}</strong> in the afternoon`);
+        } else {
+          trendParts.push(`${day.label}: <strong>${diff}</strong> in the afternoon`);
+        }
+      });
+
+      const trendLine = trendParts.length ? trendParts.join(' · ') : '';
+      const highlightParts = [];
+      if (largestIncrease) highlightParts.push(`Largest increase: <strong>${largestIncrease.label} +${largestIncrease.diff}</strong>`);
+      if (largestDecrease) highlightParts.push(`Largest decrease: <strong>${largestDecrease.label} ${largestDecrease.diff}</strong>`);
+      if (highest) highlightParts.push(`Highest attendance: <strong>${highest.label}</strong> (${highest.value})`);
+      if (lowest) highlightParts.push(`Lowest attendance: <strong>${lowest.label}</strong> (${lowest.value})`);
+
+      const lines = [trendLine, highlightParts.join(' · ')].filter(Boolean);
+      return lines.length ? `<div class="summary-attendance-trend">${lines.join('<br>')}</div>` : '';
+    }
+
+
+    function buildPeakAttendanceLine(days) {
+      if (!days.length) return '';
+
+      const parts = days.map(day => {
+        const totals = dayTotals(day);
+        const peak = Math.max(Number(totals.count1) || 0, Number(totals.count2) || 0);
+        return `${day.label} ${peak}`;
+      });
+
+      return `<div class="summary-peak-line"><strong>Peak attendance:</strong> ${parts.join(' · ')}</div>`;
+    }
+
+    function buildCompactSummaryTable(days) {
+
+      const headerCols = days.map(day => `
+        <th class="num">${escapeHtml(day.label)}<br><span style="font-weight:400">${escapeHtml(day.time1)}</span></th>
+        <th class="num">${escapeHtml(day.label)}<br><span style="font-weight:400">${escapeHtml(day.time2)}</span></th>
+      `).join('');
+
+      const maxPositions = Math.max(...days.map(day => day.positions.length), 0);
+      const rows = Array.from({ length: maxPositions }, (_, index) => {
+        const basePosition = days.find(day => day.positions[index])?.positions[index] || {};
+        const dayCells = days.map(day => {
+          const pos = day.positions[index];
+          return `<td class="num">${pos ? (Number(pos.count1) || 0) : '—'}</td><td class="num">${pos ? (Number(pos.count2) || 0) : '—'}</td>`;
+        }).join('');
+        return `
+          <tr>
+            <td class="num">${index + 1}</td>
+            <td>${escapeHtml(toDisplayTitleCase(basePosition.type || ''))}</td>
+            <td>${escapeHtml(toDisplayTitleCase(basePosition.title || ''))}</td>
+            <td>${escapeHtml(toDisplayTitleCase(basePosition.subtitle || ''))}</td>
+            ${dayCells}
+          </tr>
+        `;
+      }).join('');
+
+      const footerCells = days.map(day => {
+        const totals = dayTotals(day);
+        return `<td class="num">${totals.count1}</td><td class="num">${totals.count2}</td>`;
+      }).join('');
+
+      return `
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th class="num">#</th>
+              <th>Position</th>
+              <th>Section</th>
+              <th>Area / description</th>
+              ${headerCols}
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">Grand total</td>
+              ${footerCells}
+            </tr>
+          </tfoot>
+        </table>
+      `;
+    }
+
+    function renderSummaryView() {
+      const target = document.getElementById('summaryPrintView');
+      const filledDays = state.days.filter(dayHasAnyData);
+
+      if (!filledDays.length) {
+        target.innerHTML = `
+          <section class="summary-sheet">
+            <div class="summary-top">
+              <div>
+                <h2>Attendance Summary</h2>
+                <div><strong>${escapeHtml(state.mainTitle || 'RC Counting Munich')}</strong></div>
+                <div class="summary-sub">${escapeHtml(state.globalEvent || '')}</div>
+              </div>
+              <div class="summary-box">
+                <div class="summary-box-title">No filled days yet</div>
+              </div>
+            </div>
+            <div class="summary-print-footer">Made with ♥ © · v.1.28</div>
+          </section>
+        `;
+        return;
+      }
+
+      const overallCount1 = filledDays.reduce((sum, day) => sum + dayTotals(day).count1, 0);
+      const overallCount2 = filledDays.reduce((sum, day) => sum + dayTotals(day).count2, 0);
+      const overallDelta = overallCount2 - overallCount1;
+      const overallPercent = overallCount1 > 0 ? ((overallDelta / overallCount1) * 100) : 0;
+      const overallPercentText = `${overallPercent >= 0 ? '+' : ''}${overallPercent.toFixed(1)}%`;
+
+      target.innerHTML = `
+        <section class="summary-sheet">
+          <div class="summary-top">
+            <div>
+              <h2>Attendance Summary</h2>
+              <div><strong>${escapeHtml(state.mainTitle || 'RC Counting Munich')}</strong></div>
+              <div class="summary-sub">${escapeHtml(state.globalEvent || '')}</div>
+              <div class="summary-sub">Filled days only: ${filledDays.map(day => escapeHtml(day.label)).join(' · ')}</div>
+            </div>
+            <div class="summary-box">
+              <div class="summary-box-title">Attendance changes</div>
+              <div class="summary-delta">Overall afternoon vs. morning: <strong>${overallPercentText}</strong></div>
+              ${buildAttendanceTrend(filledDays)}
+            </div>
+          </div>
+          ${buildCompactSummaryTable(filledDays)}
+          ${buildPeakAttendanceLine(filledDays)}
+          <div class="summary-print-footer">Made with ♥ © · v.1.28</div>
+        </section>
+      `;
+    }
+
+    let summaryPrintCleanupPending = false;
+
+    function exitSummaryPrintMode() {
+      if (!summaryPrintCleanupPending) return;
+      document.body.classList.remove('summary-print-mode');
+      summaryPrintCleanupPending = false;
+      pendingPrintDayId = null;
+      renderPrintSlips();
+    }
+
+    function printSummary() {
+      saveState();
+      renderSummaryView();
+      summaryPrintCleanupPending = true;
+      document.body.classList.add('summary-print-mode');
+      setTimeout(() => window.print(), 50);
+    }
+
+    function openPrintDayModal() {
+      const host = document.getElementById('printDayOptions');
+      host.innerHTML = state.days.map(day => {
+        const totals = dayTotals(day);
+        return `
+          <button type="button" class="modal-day-option" onclick="printSlipsForDay('${day.id}')">
+            <span><strong>${escapeHtml(day.label)}</strong><br><span style="color: var(--muted);">${escapeHtml(day.time1)} / ${escapeHtml(day.time2)}</span></span>
+            <span style="color: var(--muted);">${totals.count1} / ${totals.count2}</span>
+          </button>
+        `;
+      }).join('');
+      document.getElementById('printDayModal').classList.add('open');
+    }
+
+    function closePrintDayModal() {
+      document.getElementById('printDayModal').classList.remove('open');
+    }
+
+    function printSlipsForDay(dayId) {
+      pendingPrintDayId = dayId;
+      closePrintDayModal();
+      renderPrintSlips();
+      setTimeout(() => window.print(), 50);
+    }
+
+    function render() {
+      document.getElementById('mainTitle').innerText = state.mainTitle || 'RC Counting Munich';
+      document.getElementById('subtitle').innerText = state.subtitle || 'Regional Convention Munich 2026 · Attendance Counting Department · Data saved locally in your browser';
+      document.getElementById('globalEvent').value = state.globalEvent || '';
+      renderDaysGrid();
+      renderScreenList();
+      renderPrintSlips();
+      renderSummaryView();
+      saveState();
+    }
+
+    document.getElementById('addPositionBtn').addEventListener('click', addPosition);
+    document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+    document.getElementById('importJsonBtn').addEventListener('click', () => document.getElementById('jsonFileInput').click());
+    document.getElementById('jsonFileInput').addEventListener('change', (e) => {
+      importJsonFile(e.target.files && e.target.files[0]);
+      e.target.value = '';
+    });
+    document.getElementById('printSummaryBtn').addEventListener('click', printSummary);
+    document.getElementById('printSlipsBtn').addEventListener('click', openPrintDayModal);
+    document.getElementById('resetCountsBtn').addEventListener('click', resetCounts);
+    document.getElementById('cancelPrintDayBtn').addEventListener('click', closePrintDayModal);
+    document.getElementById('printDayModal').addEventListener('click', (e) => {
+      if (e.target.id === 'printDayModal') closePrintDayModal();
+    });
+
+    document.getElementById('mainTitle').addEventListener('input', saveState);
+    document.getElementById('subtitle').addEventListener('input', saveState);
+    document.getElementById('globalEvent').addEventListener('input', () => {
+      state.globalEvent = document.getElementById('globalEvent').value;
+      saveState();
+      renderPrintSlips();
+      renderSummaryView();
+    });
+    document.getElementById('newPositionName').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addPosition();
+    });
+    document.getElementById('newPositionSubtitle').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addPosition();
+    });
+
+    window.addEventListener('afterprint', exitSummaryPrintMode);
+    window.addEventListener('focus', () => setTimeout(exitSummaryPrintMode, 150));
+
+    render();
+  </script>
+</body>
+</html>
