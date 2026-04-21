@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <title>Microphone Service Tool</title>
+
+<link rel="icon" type="image/png" sizes="32x32" href="microphone-service-icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="microphone-service-icon-180.png">
+<link rel="manifest" href="microphone-service-manifest.json">
+<meta name="theme-color" content="#1557b0">
+
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <style>
+ :root{
+ --bg-body:#f4f6fa;
+ --bg-header-grad1:#304ffe;
+ --bg-header-grad2:#00bfa5;
+ --text-main:#222;
+ --text-muted:#777;
+ --card-bg:#fff;
+ --card-border:#e0e4ef;
+ --tab-border:#e0e4ef;
+ --input-bg:#fff;
+ --input-border:#cfd4e5;
+ --table-header-bg:#f3f5ff;
+ --table-border:#e2e6f0;
+ --table-row-hover:#eef2ff;
+ --badge-midweek-bg:#e3f2fd;
+ --badge-midweek-text:#1565c0;
+ --badge-weekend-bg:#e8f5e9;
+ --badge-weekend-text:#2e7d32;
+ --footer-text:#888;
+ --button-secondary-bg:#e3e7ff;
+ --button-secondary-border:transparent;
+ --button-secondary-text:#1a237e;
+ --brother-row-border:#eceff5;
+
+ /* bar fill color (light mode) */
+ --bar-fill: var(--bg-header-grad1);
+ }
+
+ body.dark-mode{
+ --bg-body:#2b2f36;
+ --bg-header-grad1:#2a2f36;
+ --bg-header-grad2:#3a414d;
+ --text-main:#f3f4f6;
+ --text-muted:#cbd5e1;
+ --card-bg:#323842;
+ --card-border:#46505f;
+ --tab-border:#46505f;
+ --input-bg:#2f3540;
+ --input-border:#556175;
+ --table-header-bg:#3a414d;
+ --table-border:#46505f;
+ --table-row-hover:#404857;
+ --badge-midweek-bg:#2b3f7a;
+ --badge-midweek-text:#e5edff;
+ --badge-weekend-bg:#1f6b5b;
+ --badge-weekend-text:#d7fff3;
+ --footer-text:#aab4c4;
+ --button-secondary-bg:#2f3540;
+ --button-secondary-border:#556175;
+ --button-secondary-text:#f3f4f6;
+ --brother-row-border:#46505f;
+
+ /* make bars clearly visible in dark mode */
+ --bar-fill: #93c5fd;
+ }
+
+ *{box-sizing:border-box}
+ body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg-body);color:var(--text-main)}
+ header{
+ background:linear-gradient(135deg,var(--bg-header-grad1),var(--bg-header-grad2));
+ color:#fff;padding:16px 20px 18px;box-shadow:0 2px 8px rgba(0,0,0,.35)
+ }
+ .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+ header h1{margin:0;font-size:1.6rem;letter-spacing:.03em}
+ header p{margin:4px 0 0;font-size:.95rem;opacity:.95}
+
+ .header-actions{display:flex;align-items:center;gap:10px}
+ .theme-toggle-btn{
+ background:rgba(15,23,42,.25);border:1px solid rgba(148,163,184,.7);color:#e5e7eb;
+ border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.8rem;display:inline-flex;align-items:center;gap:6px
+ }
+ .theme-toggle-btn span.icon{font-size:1rem}
+
+ .onedrive-chip{
+ display:inline-flex;align-items:center;gap:8px;
+ padding:6px 10px;border-radius:999px;
+ background:rgba(15,23,42,.20);
+ border:1px solid rgba(148,163,184,.65);
+ color:#e5e7eb;font-size:.8rem;user-select:none;
+ }
+ .dot{width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 2px rgba(255,255,255,.15) inset}
+ .dot.ok{background:#22c55e}
+ .dot.warn{background:#f59e0b}
+ .dot.bad{background:#ef4444}
+
+ .container{max-width:1100px;margin:20px auto;padding:0 16px 30px}
+ .card{
+ background:var(--card-bg);border-radius:10px;box-shadow:0 2px 8px rgba(15,23,42,.15);
+ padding:16px 18px 20px;border:1px solid var(--card-border)
+ }
+ .tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--tab-border)}
+ .tab-button{
+ border:none;background:transparent;padding:10px 14px;cursor:pointer;font-size:.95rem;border-radius:8px 8px 0 0;
+ border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;color:var(--text-muted)
+ }
+ .tab-button.active{background:var(--card-bg);border-color:#3b82f6;font-weight:600;color:var(--text-main)}
+ .tab-content{display:none;margin-top:4px}
+ .tab-content.active{display:block}
+
+ .controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;align-items:flex-end}
+ .form-group{display:flex;flex-direction:column;font-size:.9rem}
+ label{margin-bottom:3px;color:var(--text-muted)}
+ input[type="text"],input[type="date"],select{
+ padding:6px 8px;border-radius:6px;border:1px solid var(--input-border);font-size:.9rem;background:var(--input-bg);color:var(--text-main)
+ }
+ input::placeholder{color:var(--text-muted)}
+ button.primary{background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:.9rem;font-weight:500}
+ button.secondary{background:var(--button-secondary-bg);color:var(--button-secondary-text);border:1px solid var(--button-secondary-border);border-radius:6px;padding:8px 12px;cursor:pointer;font-size:.85rem}
+ button.danger{background:#7f1d1d;color:#fee2e2;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.8rem}
+ button.primary:hover{background:#2563eb}
+ button.secondary:hover{opacity:.9}
+ button.danger:hover{background:#b91c1c}
+
+ table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.9rem}
+ th,td{border-bottom:1px solid var(--table-border);padding:6px 6px;text-align:left}
+ th{
+ background:var(--table-header-bg);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)
+ }
+ tr:hover td{background:var(--table-row-hover)}
+ .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.75rem}
+ .badge-midweek{background:var(--badge-midweek-bg);color:var(--badge-midweek-text)}
+ .badge-weekend{background:var(--badge-weekend-bg);color:var(--badge-weekend-text)}
+ .muted{color:var(--text-muted);font-size:.85rem}
+
+ .brother-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--brother-row-border);font-size:.9rem;gap:10px}
+ .brother-row .left{display:flex;flex-direction:column;min-width:210px}
+ .brother-row .right{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+ .brother-row input[type="date"]{padding:5px 7px;font-size:.82rem}
+ .chip{
+ display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;border:1px solid var(--table-border);
+ font-size:.78rem;color:var(--text-muted);background:rgba(148,163,184,.10);white-space:nowrap;
+ }
+ .select-info{margin-top:4px;font-size:.75rem;color:var(--text-muted);line-height:1.15;white-space:nowrap}
+
+ footer{margin-top:18px;font-size:.75rem;color:var(--footer-text);text-align:right}
+
+ @media print{
+ body{background:#fff!important;color:#000!important}
+ header{background:#fff!important;color:#000!important;box-shadow:none!important;border-bottom:1px solid #000}
+ .tabs,#brothers-tab,#json-tab,#plan-controls,footer{display:none!important}
+ th{background:#f3f4f6!important;color:#111827!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ tr:hover td{background:#fff!important}
+ }
+
+ .sync-panel{
+ margin-top:10px;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:rgba(148,163,184,.06);
+ }
+ .sync-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px}
+ .sync-kv{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:.85rem;color:var(--text-muted)}
+ .sync-kv b{color:var(--text-main);font-weight:600}
+
+ .planner-sync-btn{
+ margin-left:auto;
+ min-width:190px;
+ font-weight:600;
+ border-radius:999px;
+ padding:8px 14px;
+ border:1px solid transparent;
+ cursor:pointer;
+ transition:transform .05s ease, opacity .15s ease;
+ }
+ .planner-sync-btn:hover{opacity:.95}
+ .planner-sync-btn:active{transform:translateY(1px)}
+ .planner-sync-btn.state-disabled{
+ background:#e5e7eb;
+ color:#4b5563;
+ border-color:#cbd5e1;
+ }
+ .planner-sync-btn.state-unsaved{
+ background:#b91c1c;
+ color:#fff;
+ border-color:#991b1b;
+ }
+ .planner-sync-btn.state-saved{
+ background:#15803d;
+ color:#fff;
+ border-color:#166534;
+ }
+ .planner-sync-btn.state-working{
+ background:#b45309;
+ color:#fff;
+ border-color:#92400e;
+ }
+
+ .planner-sync-wrap{
+ margin-left:auto;
+ display:flex;
+ align-items:center;
+ gap:10px;
+ flex-wrap:wrap;
+ }
+
+ .planner-sync-status{
+ font-size:.82rem;
+ color:var(--text-muted);
+ white-space:nowrap;
+ min-width:140px;
+ text-align:right;
+ }
+
+ body.dark-mode .planner-sync-btn.state-disabled{
+ background:#374151;
+ color:#e5e7eb;
+ border-color:#4b5563;
+ }
+ body.dark-mode .planner-sync-btn.state-unsaved{
+ background:#dc2626;
+ color:#fff;
+ border-color:#b91c1c;
+ }
+ body.dark-mode .planner-sync-btn.state-saved{
+ background:#16a34a;
+ color:#fff;
+ border-color:#15803d;
+ }
+ body.dark-mode .planner-sync-btn.state-working{
+ background:#d97706;
+ color:#fff;
+ border-color:#b45309;
+ }
+
+ .bar-cell{min-width:180px}
+ .bar-wrap{width:100%;height:12px;border-radius:999px;border:1px solid var(--table-border);background:rgba(148,163,184,.15);overflow:hidden}
+ .bar-fill{height:100%;width:0%;background:var(--bar-fill)}
+ .stat-heat{border-left:6px solid transparent}
+ .stat-green{border-left-color:#16a34a}
+ .stat-orange{border-left-color:#f59e0b}
+ .stat-red{border-left-color:#ef4444}
+ body.dark-mode .stat-green{border-left-color:#22c55e}
+ body.dark-mode .stat-orange{border-left-color:#fbbf24}
+ body.dark-mode .stat-red{border-left-color:#f87171}
+
+ select option.stat-green{background:#d2f1da;color:#0f3d20}
+ select option.stat-orange{background:#fde7c2;color:#5a3b00}
+ select option.stat-red{background:#ffd6d6;color:#5a0b0b}
+ body.dark-mode select option.stat-green{background:#214b2f;color:#e9ffe9}
+ body.dark-mode select option.stat-orange{background:#4b3a18;color:#fff3d6}
+ body.dark-mode select option.stat-red{background:#4b1f1f;color:#ffe6e6}
+
+ select option.no-meeting-option{
+ background:#dbeafe;
+ color:#1e3a8a;
+ font-style:italic;
+ font-weight:600;
+ }
+ body.dark-mode select option.no-meeting-option{
+ background:#1e3a5f;
+ color:#bfdbfe;
+ }
+
+ @media (max-width:720px){
+ header{padding:12px 10px 14px}
+ .header-inner{flex-direction:column;align-items:flex-start}
+ .card{padding:12px 12px 16px}
+ th,td{padding:4px 4px}
+ .tabs{flex-wrap:wrap}
+ }
+ </style>
+</head>
+
+<body>
+<header>
+ <div class="header-inner">
+ <div>
+ <h1>Augsburg English - Microphone Assignments</h1>
+ <p>Midweek Meeting (Wednesday 7:00 pm) · Weekend Meeting (Sunday 1:00 pm)</p>
+ </div>
+
+ <div class="header-actions">
+ <div class="onedrive-chip" title="OneDrive manual file status">
+ <span id="odDot" class="dot bad"></span>
+ <span id="odLabel">OneDrive: pick file</span>
+ </div>
+
+ <button id="themeToggle" class="theme-toggle-btn" type="button">
+ <span class="icon">🌙</span>
+ <span class="label">Dark mode</span>
+ </button>
+ </div>
+ </div>
+</header>
+
+<div class="container">
+ <div class="card">
+
+ <div class="tabs">
+ <button class="tab-button active" data-tab="plan-tab">📋 Planner</button>
+ <button class="tab-button" data-tab="brothers-tab">👤 Brothers</button>
+ <button class="tab-button" data-tab="json-tab">📊 JSON & Stats</button>
+ </div>
+
+ <div id="plan-tab" class="tab-content active">
+ <p class="muted">Microphone assignments overview – data is stored locally in this browser. Use the filters to keep the view short.</p>
+
+ <div class="controls" id="plan-controls">
+ <div class="form-group">
+ <label for="startDate">Start date</label>
+ <input type="date" id="startDate">
+ </div>
+ <button class="primary" id="addWeekBtn" type="button">Add 1 week</button>
+ <button class="secondary" id="add4WeeksBtn" type="button">Add 4 weeks</button>
+ <button class="secondary" id="clearMeetingsBtn" type="button">Clear all meetings</button>
+ <button class="secondary" id="printBtn" type="button">Print planner</button>
+ <div class="planner-sync-wrap">
+ <div class="planner-sync-status" id="plannerSyncStatus">not saved yet</div>
+ <button class="planner-sync-btn state-disabled" id="plannerSyncBtn" type="button" title="Save current data to OneDrive">OneDrive not connected</button>
+</div>
+ </div>
+
+ <div class="controls">
+ <div class="form-group">
+ <label for="filterYear">Filter year</label>
+ <select id="filterYear"><option value="all">All years</option></select>
+ </div>
+ <div class="form-group">
+ <label for="filterMonth">Filter month</label>
+ <select id="filterMonth"><option value="all">All months</option></select>
+ </div>
+ <div class="form-group">
+ <label for="filterRange">View range</label>
+ <select id="filterRange">
+ <option value="focus">Focus (next free in middle)</option>
+ <option value="around90">Around today (~3 months)</option>
+ <option value="next90">Next ~3 months</option>
+ <option value="last90">Last ~3 months</option>
+ <option value="all">All (incl. history)</option>
+ </select>
+ </div>
+ </div>
+
+ <table id="assignmentsTable">
+ <thead>
+ <tr>
+ <th>Date</th><th>Day</th><th>Time</th><th>Meeting</th><th>Mic 1</th><th>Mic 2</th>
+ </tr>
+ </thead>
+ <tbody></tbody>
+ </table>
+ </div>
+
+ <div id="brothers-tab" class="tab-content">
+ <p class="muted">List of brothers for microphone duty. You can mark someone as inactive or unavailable until a date (e.g., sick / vacation). They appear in the Mic 1 / Mic 2 dropdowns.</p>
+
+ <div class="controls">
+ <div class="form-group">
+ <label for="newBrotherName">New brother</label>
+ <input type="text" id="newBrotherName" placeholder="e.g. Aigner Ulrich">
+ </div>
+ <button class="primary" id="addBrotherBtn" type="button">Add brother</button>
+ <button class="secondary" id="clearBrothersBtn" type="button">Clear all brothers</button>
+ </div>
+
+ <div id="brothersList"></div>
+ </div>
+
+ <div id="json-tab" class="tab-content">
+ <h3>JSON export / import</h3>
+ <p class="muted">Export the current data as JSON (backup) or import a previously saved JSON file.</p>
+
+ <div class="controls">
+ <button class="primary" id="exportJsonBtn" type="button">Export JSON</button>
+ <button class="secondary" id="importJsonBtn" type="button">Import JSON</button>
+ <input type="file" id="jsonFileInput" accept="application/json" style="display:none;">
+ </div>
+
+ <div class="sync-panel">
+ <h3 style="margin-top:0;">OneDrive (Manual Save + Optional Read)</h3>
+ <p class="muted" style="margin-top:4px;">
+ Choose your OneDrive JSON file once (recommended name: <b>microphone_autosave.json</b>).
+ No autosave. No background sync. Only actions when you click.
+ </p>
+
+ <div class="sync-row">
+ <button class="secondary" id="odChooseBtn" type="button">📄 Choose OneDrive file…</button>
+ <button class="secondary" id="odReadBtn" type="button" disabled>📥 Read from OneDrive</button>
+ <button class="primary" id="odSaveBtn" type="button" disabled>💾 Save to OneDrive</button>
+ </div>
+
+ <div class="sync-kv" id="odStatusLine">
+ <span><b>Status:</b> —</span>
+ <span><b>File:</b> —</span>
+ <span><b>Last write:</b> —</span>
+ <span><b>Last read:</b> —</span>
+ </div>
+ </div>
+
+ <h3 style="margin-top:18px;">Microphone duty statistics</h3>
+ <p class="muted">Overview of how often each brother had microphone duty (Mic 1, Mic 2, total).</p>
+
+ <table id="statsTable" class="stats-table">
+ <thead>
+ <tr>
+ <th>Brother</th><th>Mic 1</th><th>Mic 2</th><th>Total</th>
+ <th class="bar-cell">Distribution</th><th>Last served</th><th>Weeks ago</th>
+ </tr>
+ </thead>
+ <tbody></tbody>
+ </table>
+ </div>
+
+ <footer>Made with Love © – Microphone Service Tool V 2.2.3</footer>
+ </div>
+</div>
+
+<script>
+/* =========================
+ OneDrive Manual Save
+ - no autosave
+ - no background checks
+ - stores file handle in IndexedDB if possible
+========================= */
+
+const OD_DB = { name: "microphone_service_db", store: "kv", version: 1 };
+const OD_KEY = "onedrive_file_handle";
+let odFileHandle = null;
+let odLastWriteMs = 0;
+let odLastReadMs = 0;
+let hasUnsavedOneDriveChanges = false;
+
+function odSupported(){
+ return typeof window.showOpenFilePicker === "function" && typeof FileSystemFileHandle !== "undefined";
+}
+
+function odFormatTs(ms){
+ if(!ms) return "—";
+ const d = new Date(ms);
+ if(isNaN(d.getTime())) return "—";
+ return d.toLocaleString("de-DE");
+}
+
+function odUpdateUI(extra=""){
+ const dot = document.getElementById("odDot");
+ const lbl = document.getElementById("odLabel");
+ const line = document.getElementById("odStatusLine");
+ const saveBtn = document.getElementById("odSaveBtn");
+ const readBtn = document.getElementById("odReadBtn");
+ const chooseBtn = document.getElementById("odChooseBtn");
+
+ const supported = odSupported();
+ const hasFile = !!odFileHandle;
+
+ dot.classList.remove("ok","warn","bad");
+ if(!supported){
+ dot.classList.add("bad");
+ lbl.textContent = "OneDrive: unsupported";
+ if(saveBtn) saveBtn.disabled = true;
+ if(readBtn) readBtn.disabled = true;
+ if(chooseBtn) chooseBtn.disabled = true;
+ if(line) line.innerHTML =
+ `<span><b>Status:</b> unsupported</span><span><b>File:</b> —</span><span><b>Last write:</b> —</span><span><b>Last read:</b> —</span>`;
+ return;
+ }
+
+ if(!hasFile){
+ dot.classList.add("warn");
+ lbl.textContent = "OneDrive: pick file";
+ if(saveBtn) saveBtn.disabled = true;
+ if(readBtn) readBtn.disabled = true;
+ } else {
+ dot.classList.add("ok");
+ lbl.textContent = "OneDrive: ready";
+ if(saveBtn) saveBtn.disabled = false;
+ if(readBtn) readBtn.disabled = false;
+ }
+
+ const fileTxt = hasFile ? "set" : "—";
+ const lastW = odFormatTs(odLastWriteMs);
+ const lastR = odFormatTs(odLastReadMs);
+ let baseStatus = hasFile ? "ready" : "pick file";
+ if(hasFile && hasUnsavedOneDriveChanges) baseStatus = "unsaved changes";
+ const statusTxt = baseStatus + (extra ? " · " + extra : "");
+
+ if(line){
+ line.innerHTML =
+ `<span><b>Status:</b> ${statusTxt}</span><span><b>File:</b> ${fileTxt}</span><span><b>Last write:</b> ${lastW}</span><span><b>Last read:</b> ${lastR}</span>`;
+ }
+
+ updatePlannerSyncButton();
+}
+
+
+function markOneDriveDirty(){
+ if(!odFileHandle) return;
+ hasUnsavedOneDriveChanges = true;
+ odUpdateUI();
+}
+
+function markOneDriveSaved(extra="saved"){
+ hasUnsavedOneDriveChanges = false;
+ odUpdateUI(extra);
+}
+
+function updatePlannerSyncButton(stateOverride=""){
+ const btn = document.getElementById("plannerSyncBtn");
+ if(!btn) return;
+ updatePlannerSyncStatus();
+
+ const supported = odSupported();
+ const hasFile = !!odFileHandle;
+
+ btn.classList.remove("state-disabled","state-unsaved","state-saved","state-working");
+ btn.disabled = false;
+
+ if(!supported){
+ btn.classList.add("state-disabled");
+ btn.textContent = "OneDrive unsupported";
+ btn.title = "This browser does not support file access for OneDrive saving.";
+ btn.disabled = true;
+ return;
+ }
+
+ if(stateOverride === "working"){
+ btn.classList.add("state-working");
+ btn.textContent = "Saving to OneDrive...";
+ btn.title = "Saving current planner data to OneDrive.";
+ return;
+ }
+
+ if(!hasFile){
+ btn.classList.add("state-disabled");
+ btn.textContent = "OneDrive not connected";
+ btn.title = "Choose your OneDrive JSON file first.";
+ return;
+ }
+
+ if(hasUnsavedOneDriveChanges){
+ btn.classList.add("state-unsaved");
+ btn.textContent = "Save to OneDrive";
+ btn.title = "There are unsaved OneDrive changes. Click to save now.";
+ return;
+ }
+
+ btn.classList.add("state-saved");
+ btn.textContent = "Saved to OneDrive";
+ btn.title = "Current planner data matches the last OneDrive save.";
+}
+
+
+function updatePlannerSyncStatus(){
+ const el = document.getElementById("plannerSyncStatus");
+ if(!el) return;
+
+ if(!odFileHandle){
+ el.textContent = "OneDrive not connected";
+ return;
+ }
+
+ if(odLastWriteMs){
+ const d = new Date(odLastWriteMs);
+ const hh = String(d.getHours()).padStart(2,"0");
+ const mm = String(d.getMinutes()).padStart(2,"0");
+
+ el.textContent = hasUnsavedOneDriveChanges
+ ? `unsaved · last save ${hh}:${mm}`
+ : `last saved ${hh}:${mm}`;
+ return;
+ }
+
+ el.textContent = hasUnsavedOneDriveChanges ? "unsaved changes" : "not saved yet";
+}
+
+function odIdbOpen(){
+ return new Promise((resolve, reject)=>{
+ const req = indexedDB.open(OD_DB.name, OD_DB.version);
+ req.onupgradeneeded = ()=>{
+ const db = req.result;
+ if(!db.objectStoreNames.contains(OD_DB.store)) db.createObjectStore(OD_DB.store);
+ };
+ req.onsuccess = ()=>resolve(req.result);
+ req.onerror = ()=>reject(req.error);
+ });
+}
+
+async function odIdbGet(key){
+ try{
+ const db = await odIdbOpen();
+ return await new Promise((resolve,reject)=>{
+ const tx = db.transaction(OD_DB.store, "readonly");
+ const st = tx.objectStore(OD_DB.store);
+ const r = st.get(key);
+ r.onsuccess = ()=>resolve(r.result ?? null);
+ r.onerror = ()=>reject(r.error);
+ });
+ }catch{
+ return null;
+ }
+}
+
+async function odIdbSet(key, value){
+ try{
+ const db = await odIdbOpen();
+ return await new Promise((resolve,reject)=>{
+ const tx = db.transaction(OD_DB.store, "readwrite");
+ const st = tx.objectStore(OD_DB.store);
+ const r = st.put(value, key);
+ r.onsuccess = ()=>resolve(true);
+ r.onerror = ()=>reject(r.error);
+ });
+ }catch{
+ return false;
+ }
+}
+
+async function odVerifyPermission(handle, mode="readwrite"){
+ if(!handle) return false;
+ try{
+ if(handle.queryPermission){
+ const q = await handle.queryPermission({ mode });
+ if(q === "granted") return true;
+ const r = await handle.requestPermission({ mode });
+ return r === "granted";
+ }
+ return true;
+ }catch{
+ return false;
+ }
+}
+
+async function odChooseFile(){
+ if(!odSupported()){
+ alert("Your browser does not support OneDrive file access. Please use Microsoft Edge or Google Chrome.");
+ return;
+ }
+ const [handle] = await window.showOpenFilePicker({
+ multiple:false,
+ types:[{ description:"JSON", accept:{ "application/json":[".json"] } }]
+ });
+ if(!handle) return;
+
+ odFileHandle = handle;
+ hasUnsavedOneDriveChanges = false;
+ await odIdbSet(OD_KEY, handle);
+ odUpdateUI("file selected");
+}
+
+async function odReadJson(){
+ if(!odFileHandle){
+ odUpdateUI("pick file first");
+ return null;
+ }
+ const ok = await odVerifyPermission(odFileHandle, "read");
+ if(!ok){
+ odUpdateUI("permission denied");
+ alert("No permission to read the selected OneDrive file. Please choose the file again.");
+ return null;
+ }
+ const file = await odFileHandle.getFile();
+ const txt = await file.text();
+ hasUnsavedOneDriveChanges = false;
+ return JSON.parse(txt);
+}
+
+async function odWriteJson(payload){
+ if(!odFileHandle){
+ odUpdateUI("pick file first");
+ return;
+ }
+ const ok = await odVerifyPermission(odFileHandle, "readwrite");
+ if(!ok){
+ odUpdateUI("permission denied");
+ alert("No permission to write to the selected OneDrive file. Please choose the file again.");
+ return;
+ }
+ const writable = await odFileHandle.createWritable();
+ await writable.write(JSON.stringify(payload, null, 2));
+ await writable.close();
+ hasUnsavedOneDriveChanges = false;
+}
+
+async function odInit(){
+ if(odSupported()){
+ const h = await odIdbGet(OD_KEY);
+ if(h) odFileHandle = h;
+ }
+ odUpdateUI();
+}
+
+/* =========================
+ App Data / Planner
+========================= */
+
+const STORAGE_KEY = "micPlannerAugsburg";
+const THEME_KEY = "micPlannerTheme";
+let __lastSavedSnapshot = null;
+
+const APP_VERSION = "2.2.3";
+
+let appData = {
+ brothers: [],
+ assignments: []
+};
+
+let filterYear = "all";
+let filterMonth = "all";
+let filterRange = "focus";
+
+function buildOneDrivePayload(){
+ return { ...appData, version: APP_VERSION, generatedAt: new Date().toISOString() };
+}
+
+function normalizeIncomingData(obj){
+ if(!obj || !Array.isArray(obj.brothers) || !Array.isArray(obj.assignments)){
+ throw new Error("Invalid JSON structure (expected { brothers:[], assignments:[] }).");
+ }
+
+ let data = obj;
+
+ if(data.brothers.length && typeof data.brothers[0] === "string"){
+ data.brothers = data.brothers.map(n=>({ name:String(n), active:true, unavailableUntil:"", note:"" }));
+ }
+
+ data.brothers = data.brothers.map(b=>{
+ if(typeof b === "string") return { name:b, active:true, unavailableUntil:"", note:"" };
+ const name = (typeof b?.name === "string") ? b.name.trim() : String(b?.name ?? "").trim();
+ return { name, active: b.active !== false, unavailableUntil: b.unavailableUntil || "", note: b.note || "" };
+ }).filter(b=>b.name);
+
+ data.brothers.sort((a,b)=>a.name.localeCompare(b.name));
+
+ if(!Array.isArray(data.assignments)) data.assignments = [];
+ return data;
+}
+
+function saveLocal(){
+ let snapshot = null;
+ try{ snapshot = JSON.stringify(appData); } catch { snapshot = null; }
+ if(snapshot !== null && snapshot === __lastSavedSnapshot) return;
+ __lastSavedSnapshot = snapshot;
+ localStorage.setItem(STORAGE_KEY, snapshot ?? JSON.stringify(appData));
+ markOneDriveDirty();
+}
+
+function loadLocal(){
+ const raw = localStorage.getItem(STORAGE_KEY);
+ if(raw){
+ try{
+ const parsed = JSON.parse(raw);
+ if(parsed && Array.isArray(parsed.brothers) && Array.isArray(parsed.assignments)){
+ appData = parsed;
+ }
+ }catch{}
+ }
+
+ if(appData.brothers.length && typeof appData.brothers[0] === "string"){
+ appData.brothers = appData.brothers.map(n=>({ name:String(n), active:true, unavailableUntil:"", note:"" }));
+ }
+
+ appData.brothers = appData.brothers.map(b=>{
+ if(typeof b === "string") return { name:b, active:true, unavailableUntil:"", note:"" };
+ const name = (typeof b?.name === "string") ? b.name.trim() : String(b?.name ?? "").trim();
+ return { name, active: b.active !== false, unavailableUntil: b.unavailableUntil || "", note: b.note || "" };
+ }).filter(b=>b.name);
+
+ appData.brothers.sort((a,b)=>a.name.localeCompare(b.name));
+ if(!Array.isArray(appData.assignments)) appData.assignments = [];
+ try{ __lastSavedSnapshot = JSON.stringify(appData); } catch { __lastSavedSnapshot = null; }
+}
+
+function applyTheme(theme){
+ const body = document.body;
+ const btn = document.getElementById("themeToggle");
+ const labelSpan = btn.querySelector(".label");
+ const iconSpan = btn.querySelector(".icon");
+
+ if(theme === "dark"){
+ body.classList.add("dark-mode");
+ labelSpan.textContent = "Light mode";
+ iconSpan.textContent = "☀️";
+ } else {
+ body.classList.remove("dark-mode");
+ labelSpan.textContent = "Dark mode";
+ iconSpan.textContent = "🌙";
+ }
+ localStorage.setItem(THEME_KEY, theme);
+}
+
+function dateToISO(d){
+ const y=d.getFullYear();
+ const m=String(d.getMonth()+1).padStart(2,"0");
+ const day=String(d.getDate()).padStart(2,"0");
+ return `${y}-${m}-${day}`;
+}
+function parseISODate(dateISO){
+ const p=String(dateISO||"").split("-");
+ if(p.length!==3) return null;
+ const d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+ if(isNaN(d.getTime())) return null;
+ return d;
+}
+function weekdayShort(d){ return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()]; }
+function formatDate(dateISO){
+ const d = parseISODate(dateISO);
+ return d ? d.toLocaleDateString("de-DE") : dateISO;
+}
+function daysBetween(a,b){
+ const ms=b.getTime()-a.getTime();
+ return Math.round(ms/(1000*60*60*24));
+}
+
+function ensureAssignment(dateISO, meetingType, timeStr){
+ const id = dateISO + "_" + meetingType;
+ let a = appData.assignments.find(x=>x.id===id);
+ if(!a){
+ const d=parseISODate(dateISO);
+ a={ id, dateISO, weekday: d?weekdayShort(d):"", meetingType, timeStr, mic1:"", mic2:"", note:"" };
+ appData.assignments.push(a);
+ }
+}
+
+function isBrotherAvailable(b, meetingDateISO){
+ if(!b.active) return false;
+ if(!b.unavailableUntil) return true;
+ const until = parseISODate(b.unavailableUntil);
+ const meet = parseISODate(meetingDateISO);
+ if(!until || !meet) return true;
+ return meet.getTime() > until.getTime();
+}
+
+function buildStats(uptoDateISO=null){
+ const stats = {};
+ appData.brothers.forEach(b=> stats[b.name]={ mic1:0, mic2:0, last:null });
+ const list=[...appData.assignments].sort((a,b)=>a.dateISO.localeCompare(b.dateISO));
+ list.forEach(a=>{
+ if(uptoDateISO && a.dateISO>=uptoDateISO) return;
+ if(a.mic1 && a.mic1!=="__NO_MEETING__" && stats[a.mic1]){ stats[a.mic1].mic1++; stats[a.mic1].last=a.dateISO; }
+ if(a.mic2 && a.mic2!=="__NO_MEETING__" && stats[a.mic2]){ stats[a.mic2].mic2++; stats[a.mic2].last=a.dateISO; }
+ });
+ return stats;
+}
+
+function servedInfoLine(brotherName, meetingDateISO){
+ if(!brotherName) return "—";
+ const stats=buildStats(meetingDateISO);
+ const s=stats[brotherName];
+ if(!s) return "served 0× · last —";
+ const total=s.mic1+s.mic2;
+ if(!s.last) return `served ${total}× · last —`;
+ const meet=parseISODate(meetingDateISO);
+ const last=parseISODate(s.last);
+ let weeksAgo="—";
+ if(meet && last) weeksAgo=Math.max(0, Math.round(daysBetween(last, meet)/7));
+ return `served ${total}× · last ${formatDate(s.last)} (${weeksAgo} weeks ago)`;
+}
+
+function heatClassForBrother(row, maxTotal, maxWeeks){
+ const totalNorm = maxTotal ? (row.total/maxTotal) : 0;
+ const w = (row.weeksAgo==="—"||row.weeksAgo==null) ? maxWeeks : Number(row.weeksAgo);
+ const weeksCapped = Math.min(Math.max(0,w), maxWeeks);
+ const recentScore = 1 - (weeksCapped/maxWeeks);
+ const score = (0.65*totalNorm)+(0.35*recentScore);
+ if(score<0.33) return "stat-green";
+ if(score<0.66) return "stat-orange";
+ return "stat-red";
+}
+
+function restoreSelectFullLabels(sel){
+ for(const opt of sel.options){
+ if(opt?.dataset?.fullLabel) opt.textContent = opt.dataset.fullLabel;
+ }
+}
+function compactSelectSelectedLabel(sel){
+ if(sel.selectedIndex<0) return;
+ const opt = sel.options[sel.selectedIndex];
+ if(opt?.value==="__NO_MEETING__"){
+ opt.textContent="⛔ No Meeting";
+ return;
+ }
+ if(opt?.dataset?.nameOnly) opt.textContent = opt.dataset.nameOnly;
+}
+
+function populateSelect(sel, selected, meetingDateISO){
+ sel.innerHTML="";
+ const noMeeting=document.createElement("option");
+ noMeeting.value="__NO_MEETING__";
+ noMeeting.textContent="⛔ No Meeting";
+ noMeeting.classList.add("no-meeting-option");
+ if(selected==="__NO_MEETING__") noMeeting.selected=true;
+ sel.appendChild(noMeeting);
+
+ const empty=document.createElement("option");
+ empty.value="";
+ empty.textContent="— none —";
+ if(selected==="") empty.selected=true;
+ sel.appendChild(empty);
+
+ const meetDate = meetingDateISO ? parseISODate(meetingDateISO) : null;
+ const stats = meetingDateISO ? buildStats(meetingDateISO) : buildStats(null);
+
+ const candidates = appData.brothers
+ .filter(b=> !meetingDateISO || isBrotherAvailable(b, meetingDateISO))
+ .map(b=>{
+ const s = stats[b.name] || { mic1:0, mic2:0, last:null };
+ const total = s.mic1+s.mic2;
+ let weeksAgo="—";
+ if(s.last && meetDate){
+ const lastDate=parseISODate(s.last);
+ if(lastDate) weeksAgo = Math.max(0, Math.round(daysBetween(lastDate, meetDate)/7));
+ }
+ return { name:b.name, total, last:s.last, weeksAgo };
+ })
+ .sort((a,b)=>a.name.localeCompare(b.name));
+
+ const maxTotal = Math.max(1, ...candidates.map(c=>c.total));
+
+ candidates.forEach(c=>{
+ const opt=document.createElement("option");
+ opt.value=c.name;
+
+ let fullLabel;
+ if(!c.last) fullLabel = `${c.name} — last —`;
+ else{
+ const w = (c.weeksAgo==="—") ? "—" : Number(c.weeksAgo);
+ const wText = (w==="—") ? "—" : `${w} week${w===1?"":"s"} ago`;
+ fullLabel = `${c.name} — last ${formatDate(c.last)} (${wText})`;
+ }
+
+ opt.dataset.nameOnly = c.name;
+ opt.dataset.fullLabel = fullLabel;
+ opt.textContent = fullLabel;
+
+ const heat = heatClassForBrother({ total:c.total, weeksAgo:c.weeksAgo }, maxTotal, 26);
+ opt.classList.add(heat);
+
+ if(c.name===selected) opt.selected=true;
+ sel.appendChild(opt);
+ });
+
+ if(!sel.__hasSmartLabels){
+ sel.__hasSmartLabels = true;
+ const restore = ()=>restoreSelectFullLabels(sel);
+ sel.addEventListener("mousedown", restore);
+ sel.addEventListener("focus", restore);
+ sel.addEventListener("keydown",(e)=>{
+ const keys=["ArrowDown","ArrowUp","Enter"," "];
+ if(keys.includes(e.key)) restore();
+ });
+ sel.addEventListener("change", ()=> compactSelectSelectedLabel(sel));
+ sel.addEventListener("blur", ()=> compactSelectSelectedLabel(sel));
+ }
+
+ compactSelectSelectedLabel(sel);
+}
+
+let __focusExtending=false;
+function ensureFutureMeetingsForFocus(minVisibleAfter){
+ if(__focusExtending) return;
+ __focusExtending=true;
+ try{
+ const sorted=[...appData.assignments].sort((a,b)=>a.dateISO.localeCompare(b.dateISO)||a.meetingType.localeCompare(b.meetingType));
+ let idx = sorted.findIndex(a=>!a.mic1 || !a.mic2);
+ if(idx<0) idx=sorted.length;
+
+ const needUntil = idx + minVisibleAfter;
+ if(sorted.length >= needUntil) return;
+
+ if(!sorted.length) return;
+ const latestISO = sorted.map(a=>a.dateISO).sort().slice(-1)[0];
+ const latest = parseISODate(latestISO);
+ if(!latest) return;
+
+ const d = new Date(latest.getFullYear(), latest.getMonth(), latest.getDate());
+ d.setDate(d.getDate()+1);
+
+ const weeks = 8;
+ const daysToScan = 7*weeks;
+ for(let i=0;i<daysToScan;i++){
+ const day=d.getDay();
+ const iso=dateToISO(d);
+ if(day===3) ensureAssignment(iso,"Midweek","19:00");
+ if(day===0) ensureAssignment(iso,"Weekend","13:00");
+ d.setDate(d.getDate()+1);
+ }
+ saveLocal();
+ updateFilterOptions();
+ }finally{
+ __focusExtending=false;
+ }
+}
+
+function updateFilterOptions(){
+ const yearSelect=document.getElementById("filterYear");
+ const monthSelect=document.getElementById("filterMonth");
+ const years=new Set();
+ appData.assignments.forEach(a=>{
+ if(a.dateISO && a.dateISO.length>=4) years.add(a.dateISO.slice(0,4));
+ });
+ const yearsArr=[...years].sort();
+ yearSelect.innerHTML="";
+ const optAllY=document.createElement("option");
+ optAllY.value="all"; optAllY.textContent="All years";
+ yearSelect.appendChild(optAllY);
+ yearsArr.forEach(y=>{
+ const opt=document.createElement("option");
+ opt.value=y; opt.textContent=y;
+ yearSelect.appendChild(opt);
+ });
+
+ const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+ monthSelect.innerHTML="";
+ const optAllM=document.createElement("option");
+ optAllM.value="all"; optAllM.textContent="All months";
+ monthSelect.appendChild(optAllM);
+ for(let m=1;m<=12;m++){
+ const opt=document.createElement("option");
+ opt.value=String(m); opt.textContent=monthNames[m-1];
+ monthSelect.appendChild(opt);
+ }
+
+ yearSelect.value = yearsArr.includes(filterYear) ? filterYear : "all";
+ if(yearSelect.value==="all") filterYear="all";
+ monthSelect.value = (filterMonth!=="all") ? filterMonth : "all";
+}
+
+function renderAssignments(){
+ const tbody=document.querySelector("#assignmentsTable tbody");
+ tbody.innerHTML="";
+
+ let list=[...appData.assignments].sort((a,b)=>
+ a.dateISO.localeCompare(b.dateISO) ||
+ a.meetingType.localeCompare(b.meetingType)
+ );
+
+ list = list.filter(a=>{
+ if(filterYear!=="all" && a.dateISO.slice(0,4)!==filterYear) return false;
+
+ if(filterMonth!=="all"){
+ const month=parseInt(a.dateISO.slice(5,7),10);
+ if(String(month)!==String(filterMonth)) return false;
+ }
+
+ if(filterRange!=="all" && filterRange!=="focus"){
+ const d=parseISODate(a.dateISO);
+ if(d){
+ const today=new Date();
+ today.setHours(0,0,0,0);
+
+ if(filterRange==="next90"){
+ const from=new Date(today);
+ const to=new Date(today);
+ to.setDate(to.getDate()+90);
+ if(d<from || d>to) return false;
+
+ }else if(filterRange==="last90"){
+ const from=new Date(today);
+ from.setDate(from.getDate()-90);
+ const to=new Date(today);
+ if(d<from || d>to) return false;
+
+ }else if(filterRange==="around90"){
+ const from=new Date(today);
+ from.setDate(from.getDate()-45);
+ const to=new Date(today);
+ to.setDate(to.getDate()+45);
+ if(d<from || d>to) return false;
+ }
+ }
+ }
+
+ return true;
+ });
+
+ if(filterRange==="focus"){
+ ensureFutureMeetingsForFocus(16);
+
+ list=[...appData.assignments].sort((a,b)=>
+ a.dateISO.localeCompare(b.dateISO) ||
+ a.meetingType.localeCompare(b.meetingType)
+ );
+
+ list = list.filter(a=>{
+ if(filterYear!=="all" && a.dateISO.slice(0,4)!==filterYear) return false;
+
+ if(filterMonth!=="all"){
+ const month=parseInt(a.dateISO.slice(5,7),10);
+ if(String(month)!==String(filterMonth)) return false;
+ }
+
+ return true;
+ });
+
+ let idx=list.findIndex(a=>!a.mic1 || !a.mic2);
+ if(idx<0) idx=list.length;
+
+ let visibleFree = list.slice(idx, idx + 12)
+ .filter(a => !a.mic1 || !a.mic2).length;
+
+ if(visibleFree < 8){
+ ensureFutureMeetingsForFocus(24);
+
+ list=[...appData.assignments].sort((a,b)=>
+ a.dateISO.localeCompare(b.dateISO) ||
+ a.meetingType.localeCompare(b.meetingType)
+ );
+
+ list = list.filter(a=>{
+ if(filterYear!=="all" && a.dateISO.slice(0,4)!==filterYear) return false;
+
+ if(filterMonth!=="all"){
+ const month=parseInt(a.dateISO.slice(5,7),10);
+ if(String(month)!==String(filterMonth)) return false;
+ }
+
+ return true;
+ });
+
+ idx=list.findIndex(a=>!a.mic1 || !a.mic2);
+ if(idx<0) idx=list.length;
+ }
+
+ const start=Math.max(0, idx-6);
+ const end=Math.min(list.length, idx+16);
+
+ list=list.slice(start,end);
+ }
+
+ if(list.length===0){
+ const tr=document.createElement("tr");
+ const td=document.createElement("td");
+ td.colSpan=6;
+ td.className="muted";
+
+ td.textContent = appData.assignments.length
+ ? "No meetings match the selected filter."
+ : 'No meetings generated yet. Choose a start date and use "Add 1 week".';
+
+ tr.appendChild(td);
+ tbody.appendChild(tr);
+ return;
+ }
+
+ list.forEach(a=>{
+ const tr=document.createElement("tr");
+
+ tr.innerHTML = `
+ <td>${formatDate(a.dateISO)}</td>
+ <td>${a.weekday}</td>
+ <td>${a.timeStr}</td>
+ <td><span class="badge ${a.meetingType==="Midweek"?"badge-midweek":"badge-weekend"}">${a.meetingType}</span></td>
+ `;
+
+ const mic1Sel=document.createElement("select");
+ populateSelect(mic1Sel, a.mic1, a.dateISO);
+
+ const info1=document.createElement("div");
+ info1.className="select-info";
+ info1.textContent=servedInfoLine(mic1Sel.value, a.dateISO);
+
+ mic1Sel.onchange=()=>{
+ a.mic1=mic1Sel.value;
+ saveLocal();
+ info1.textContent=servedInfoLine(mic1Sel.value, a.dateISO);
+ renderAssignments();
+ renderStats();
+ };
+
+ const mic2Sel=document.createElement("select");
+ populateSelect(mic2Sel, a.mic2, a.dateISO);
+
+ const info2=document.createElement("div");
+ info2.className="select-info";
+ info2.textContent=servedInfoLine(mic2Sel.value, a.dateISO);
+
+ mic2Sel.onchange=()=>{
+ a.mic2=mic2Sel.value;
+ saveLocal();
+ info2.textContent=servedInfoLine(mic2Sel.value, a.dateISO);
+ renderAssignments();
+ renderStats();
+ };
+
+ const td1=document.createElement("td");
+ td1.appendChild(mic1Sel);
+ td1.appendChild(info1);
+
+ const td2=document.createElement("td");
+ td2.appendChild(mic2Sel);
+ td2.appendChild(info2);
+
+ tr.appendChild(td1);
+ tr.appendChild(td2);
+ tbody.appendChild(tr);
+ });
+}
+
+function renderBrothers(){
+ const box=document.getElementById("brothersList");
+ box.innerHTML="";
+ if(appData.brothers.length===0){
+ const p=document.createElement("p"); p.className="muted"; p.textContent="No brothers defined. Add names above.";
+ box.appendChild(p); return;
+ }
+
+ appData.brothers.forEach((b,i)=>{
+ const row=document.createElement("div"); row.className="brother-row";
+
+ const left=document.createElement("div"); left.className="left";
+ const nameSpan=document.createElement("span"); nameSpan.textContent=b.name;
+ const mini=document.createElement("span"); mini.className="muted"; mini.style.fontSize="0.75rem"; mini.textContent=b.note?b.note:"";
+ left.appendChild(nameSpan); left.appendChild(mini);
+
+ const right=document.createElement("div"); right.className="right";
+
+ const activeChip=document.createElement("label"); activeChip.className="chip";
+ const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=(b.active!==false);
+ cb.onchange=()=>{ b.active=cb.checked; saveLocal(); renderAssignments(); renderStats(); };
+ const cbTxt=document.createElement("span"); cbTxt.textContent="Active";
+ activeChip.appendChild(cb); activeChip.appendChild(cbTxt);
+
+ const untilLabel=document.createElement("label"); untilLabel.className="chip"; untilLabel.textContent="Unavailable until";
+ const until=document.createElement("input"); until.type="date"; until.value=b.unavailableUntil||"";
+ until.onchange=()=>{ b.unavailableUntil=until.value||""; saveLocal(); renderAssignments(); };
+ untilLabel.appendChild(until);
+
+ const note=document.createElement("input");
+ note.type="text"; note.placeholder="note (optional)"; note.value=b.note||"";
+ note.oninput=()=>{ b.note=note.value; mini.textContent=b.note?b.note:""; saveLocal(); renderAssignments(); };
+
+ const del=document.createElement("button"); del.className="danger"; del.textContent="Remove";
+ del.onclick=()=>{
+ if(confirm(`Delete brother "${b.name}"? Assignments keep the name as text.`)){
+ appData.brothers.splice(i,1);
+ appData.brothers.sort((a,b)=>a.name.localeCompare(b.name));
+ saveLocal(); renderBrothers(); renderAssignments(); renderStats();
+ }
+ };
+
+ right.appendChild(activeChip);
+ right.appendChild(untilLabel);
+ right.appendChild(note);
+ right.appendChild(del);
+
+ row.appendChild(left); row.appendChild(right);
+ box.appendChild(row);
+ });
+}
+
+function renderStats(){
+ const tbody=document.querySelector("#statsTable tbody");
+ tbody.innerHTML="";
+ if(appData.brothers.length===0){
+ const tr=document.createElement("tr");
+ const td=document.createElement("td");
+ td.colSpan=7; td.className="muted"; td.textContent="No brothers defined.";
+ tr.appendChild(td); tbody.appendChild(tr); return;
+ }
+
+ const stats=buildStats(null);
+ const rows=appData.brothers.map(b=>{
+ const s=stats[b.name]||{ mic1:0, mic2:0, last:null };
+ const total=s.mic1+s.mic2;
+ let weeksAgo="—";
+ let lastServed=s.last ? formatDate(s.last) : "—";
+ if(s.last){
+ const lastD=parseISODate(s.last);
+ const now=new Date();
+ if(lastD) weeksAgo=Math.max(0, Math.round(daysBetween(lastD, now)/7));
+ }
+ return { name:b.name, mic1:s.mic1, mic2:s.mic2, total, lastServed, weeksAgo };
+ });
+
+ const maxTotal=Math.max(1,...rows.map(r=>r.total));
+ rows.sort((a,b)=>(a.total-b.total) || ((b.weeksAgo==="—")-(a.weeksAgo==="—")) || (Number(b.weeksAgo)-Number(a.weeksAgo)) || a.name.localeCompare(b.name));
+
+ rows.forEach(r=>{
+ const tr=document.createElement("tr");
+ tr.classList.add("stat-heat");
+ const heat=heatClassForBrother(r,maxTotal,26);
+ tr.classList.add(heat);
+ const barPct=Math.round((r.total/maxTotal)*100);
+
+ tr.innerHTML=`
+ <td>${r.name}</td>
+ <td>${r.mic1}</td>
+ <td>${r.mic2}</td>
+ <td>${r.total}</td>
+ <td class="bar-cell"><div class="bar-wrap"><div class="bar-fill" style="width:${barPct}%"></div></div></td>
+ <td>${r.lastServed}</td>
+ <td>${r.weeksAgo}</td>
+ `;
+ tbody.appendChild(tr);
+ });
+}
+
+function addWeeks(countWeeks){
+ const w=Math.max(1, parseInt(countWeeks||1,10));
+ let start;
+
+ if(!appData.assignments.length){
+ const startISO = document.getElementById("startDate").value;
+ start = parseISODate(startISO);
+ if(!start){ alert("Please select a valid Start date first."); return; }
+ }else{
+ const latestISO = [...appData.assignments].map(a=>a.dateISO).sort().slice(-1)[0];
+ const latest = parseISODate(latestISO);
+ if(!latest){ alert("Could not read the last meeting date."); return; }
+ start = new Date(latest.getFullYear(), latest.getMonth(), latest.getDate());
+ start.setDate(start.getDate()+1);
+ }
+
+ const d=new Date(start.getFullYear(), start.getMonth(), start.getDate());
+ const daysToScan=7*w;
+ for(let i=0;i<daysToScan;i++){
+ const day=d.getDay();
+ const iso=dateToISO(d);
+ if(day===3) ensureAssignment(iso,"Midweek","19:00");
+ if(day===0) ensureAssignment(iso,"Weekend","13:00");
+ d.setDate(d.getDate()+1);
+ }
+
+ saveLocal();
+ updateFilterOptions();
+ renderAssignments();
+ renderStats();
+}
+
+function clearMeetings(){
+ if(!appData.assignments.length){ alert("No meetings to clear."); return; }
+ if(confirm("Delete ALL meetings and assignments?")){
+ appData.assignments=[];
+ saveLocal();
+ updateFilterOptions();
+ renderAssignments();
+ renderStats();
+ }
+}
+
+function exportJSON(){
+ try{
+ const dataStr = JSON.stringify(appData, null, 2);
+ const blob = new Blob([dataStr], { type:"application/json" });
+ const url = URL.createObjectURL(blob);
+ const now=new Date();
+ const pad=n=>String(n).padStart(2,"0");
+ const stamp=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+
+ const a=document.createElement("a");
+ a.href=url;
+ a.download=`mic_planner_english_${stamp}.json`;
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ URL.revokeObjectURL(url);
+ }catch(e){
+ alert("Export failed: " + e.message);
+ }
+}
+
+function importJSONFile(file){
+ const reader=new FileReader();
+ reader.onload=()=>{
+ try{
+ const obj=JSON.parse(reader.result);
+ const normalized = normalizeIncomingData(obj);
+
+ if(!confirm("Import JSON data? Existing data will be overwritten.")) return;
+ appData = normalized;
+ saveLocal();
+ updateFilterOptions();
+ renderBrothers();
+ renderAssignments();
+ renderStats();
+ alert("JSON data imported successfully.");
+ }catch(e){
+ alert("Error parsing JSON file: " + e.message);
+ }
+ };
+ reader.readAsText(file);
+}
+
+
+window.addEventListener("beforeunload", (event) => {
+ if(!odFileHandle) return;
+ if(!hasUnsavedOneDriveChanges) return;
+ event.preventDefault();
+ event.returnValue = "";
+});
+
+async function saveCurrentDataToOneDrive(showAlert=true){
+ if(!odSupported()){
+ alert("Your browser does not support OneDrive file access. Please use Microsoft Edge or Google Chrome.");
+ return false;
+ }
+
+ if(!odFileHandle){
+ alert("Please choose your OneDrive JSON file first in the JSON & Stats tab.");
+ return false;
+ }
+
+ try{
+ updatePlannerSyncButton("working");
+ await odWriteJson(buildOneDrivePayload());
+ odLastWriteMs = Date.now();
+ markOneDriveSaved("saved");
+ if(showAlert) alert("Saved to OneDrive.");
+ return true;
+ }catch(e){
+ odUpdateUI("save failed");
+ alert("Save failed: " + (e?.message || e));
+ return false;
+ }
+}
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+ loadLocal();
+
+ const storedTheme = localStorage.getItem(THEME_KEY) || "light";
+ applyTheme(storedTheme);
+
+ document.getElementById("startDate").value = dateToISO(new Date());
+
+ document.getElementById("addWeekBtn").onclick = (e)=>{ e?.preventDefault?.(); addWeeks(1); };
+ document.getElementById("add4WeeksBtn").onclick = (e)=>{ e?.preventDefault?.(); addWeeks(4); };
+ document.getElementById("clearMeetingsBtn").onclick = clearMeetings;
+ document.getElementById("printBtn").onclick = ()=>window.print();
+
+ document.getElementById("addBrotherBtn").onclick=()=>{
+ const input=document.getElementById("newBrotherName");
+ const name=input.value.trim();
+ if(!name) return alert("Please enter a name.");
+ if(appData.brothers.some(b=>b.name===name)) return alert("This brother is already in the list.");
+ appData.brothers.push({ name, active:true, unavailableUntil:"", note:"" });
+ appData.brothers.sort((a,b)=>a.name.localeCompare(b.name));
+ input.value="";
+ saveLocal();
+ renderBrothers();
+ renderAssignments();
+ renderStats();
+ };
+
+ document.getElementById("clearBrothersBtn").onclick=()=>{
+ if(!appData.brothers.length) return alert("No brothers to clear.");
+ if(confirm("Delete ALL brothers? Assignments keep the text values.")){
+ appData.brothers=[];
+ saveLocal();
+ renderBrothers();
+ renderAssignments();
+ renderStats();
+ }
+ };
+
+ document.getElementById("exportJsonBtn").onclick = exportJSON;
+ document.getElementById("importJsonBtn").onclick = ()=>document.getElementById("jsonFileInput").click();
+ document.getElementById("jsonFileInput").onchange = (e)=>{
+ const file=e.target.files[0];
+ if(file) importJSONFile(file);
+ e.target.value="";
+ };
+
+ document.getElementById("themeToggle").onclick=()=>{
+ const current = document.body.classList.contains("dark-mode") ? "dark" : "light";
+ applyTheme(current==="dark" ? "light" : "dark");
+ };
+
+ document.getElementById("filterYear").onchange=(e)=>{ filterYear=e.target.value; renderAssignments(); };
+ document.getElementById("filterMonth").onchange=(e)=>{ filterMonth=e.target.value; renderAssignments(); };
+ document.getElementById("filterRange").onchange=(e)=>{ filterRange=e.target.value; renderAssignments(); };
+
+ document.querySelectorAll(".tab-button").forEach(btn=>{
+ btn.onclick=()=>{
+ document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
+ document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+ btn.classList.add("active");
+ document.getElementById(btn.dataset.tab).classList.add("active");
+ };
+ });
+
+ // OneDrive buttons
+ document.getElementById("odChooseBtn").onclick = async ()=>{
+ try{ await odChooseFile(); }
+ catch(e){ alert("Could not choose OneDrive file: " + (e?.message || e)); odUpdateUI("error"); }
+ };
+
+ document.getElementById("odSaveBtn").onclick = async ()=>{
+ await saveCurrentDataToOneDrive(true);
+ };
+
+ document.getElementById("plannerSyncBtn").onclick = async ()=>{
+ if(!odFileHandle){
+ document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
+ document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+ document.querySelector('.tab-button[data-tab="json-tab"]').classList.add("active");
+ document.getElementById("json-tab").classList.add("active");
+ alert("Please choose your OneDrive JSON file first.");
+ return;
+ }
+ await saveCurrentDataToOneDrive(true);
+ };
+
+ document.getElementById("odReadBtn").onclick = async ()=>{
+ try{
+ const obj = await odReadJson();
+ if(!obj) return;
+ const normalized = normalizeIncomingData(obj);
+ const ok = confirm("Read from OneDrive and overwrite the current local data?");
+ if(!ok) return;
+
+ appData = normalized;
+ saveLocal();
+
+ odLastReadMs = Date.now();
+ odUpdateUI("read");
+
+ updateFilterOptions();
+ renderBrothers();
+ renderAssignments();
+ renderStats();
+ }catch(e){
+ odUpdateUI("read failed");
+ alert("Read failed: " + (e?.message || e));
+ }
+ };
+
+ await odInit();
+ updatePlannerSyncButton();
+
+ updateFilterOptions();
+ renderBrothers();
+ renderAssignments();
+ renderStats();
+});
+</script>
+
+</body>
+</html>
