@@ -1,1 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Regional Convention Planner</title>
+
+<style>
+    /* Global - Material Design & Animations */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+    :root {
+      --entry-font: 'Roboto', sans-serif;
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --text-main: #202124;
+      --text-muted: #5f6368;
+      --border: #dadce0;
+      --shadow-1: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      --shadow-2: 0 4px 6px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+      --shadow-3: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
+      --radius: 8px;
+      --trans: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0 0 2rem;
+      background: var(--bg);
+      color: var(--text-main);
+      animation: fadeInPage 0.6s ease-out;
+    }
+
+    @keyframes fadeInPage {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* HEADER */
+    .header {
+      margin: 0 0 1rem 0;
+      padding: 1.5rem 2rem;
+      background: linear-gradient(135deg, #1a73e8, #4285f4);
+      color: #fff;
+      box-shadow: var(--shadow-2);
+      position: relative;
+      animation: slideDown 0.5s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .header-title { font-size: 1.8rem; font-weight: 500; letter-spacing: 0.5px; }
+    .header-subtitle { margin-top: 0.4rem; font-size: 1rem; opacity: 0.9; font-weight: 300; }
+
+    /* Editable header */
+    .editable-header {
+      display: inline-block;
+      border-radius: 4px;
+      padding: 0.2rem 0.4rem;
+      outline: none;
+      cursor: text;
+      transition: background var(--trans), box-shadow var(--trans);
+    }
+    .editable-header:focus {
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 2px 0 0 #fff; 
+    }
+    .edit-hint { margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.8; font-weight: 300; }
+
+    .header-actions { position: absolute; right: 1.5rem; top: 1.5rem; display: flex; gap: 0.5rem; z-index: 2; }
+
+    h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 500; color: var(--primary-dark); }
+    
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      box-shadow: var(--shadow-1);
+      margin: 1rem;
+      transition: box-shadow var(--trans), transform var(--trans);
+    }
+    .card:hover { box-shadow: var(--shadow-2); transform: translateY(-2px); }
+    .small { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* GLOBAL TOOLBAR */
+    .global-toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 0.6rem 1.2rem;
+      box-shadow: var(--shadow-1);
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin: 1rem 1rem 1.5rem;
+      transition: box-shadow var(--trans);
+    }
+    .global-toolbar:hover { box-shadow: var(--shadow-2); }
+    .toolbar-left, .toolbar-right { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+    .toolbar-label { font-size: 0.85rem; color: var(--text-main); font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+    
+    .whereami {
+      font-size: 0.85rem;
+      color: #fff;
+      background: var(--primary);
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      box-shadow: var(--shadow-1);
+      font-weight: 500;
+      white-space: nowrap;
+      transition: transform var(--trans);
+    }
+    .whereami:hover { transform: scale(1.05); }
+
+    /* MAIN SECTIONS & TABS */
+    .main-tabs { display: flex; gap: 1rem; margin: 0 1rem 1rem; flex-wrap: wrap; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+    .main-tab-button {
+      background: transparent; border: none; box-shadow: none; color: var(--text-muted); border-radius: 0; padding: 0.8rem 1.2rem;
+      border-bottom: 3px solid transparent; text-transform: uppercase; font-weight: 500; transition: color var(--trans), border-color var(--trans); cursor: pointer; font-size:0.9rem;
+    }
+    .main-tab-button:hover { background: rgba(26,115,232,0.05); color: var(--primary); }
+    .main-tab-button.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: transparent; }
+
+    .main-section { display: none; padding: 0 0.5rem; animation: fadeIn 0.4s ease; }
+    .main-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ROLE MANAGEMENT */
+    .role-container { display: flex; flex-direction: column; gap: 1rem; }
+    .role-section-program { max-width: 520px; margin: 0 auto; background: #f8faff; border-radius: var(--radius); padding: 1rem; border: 1px solid #d2e3fc; }
+    .role-grid-program { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+    .role-section-two-column, .role-section-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    
+    .role-card { border-radius: var(--radius); padding: 1rem; border: 1px solid var(--border); background: var(--surface); transition: box-shadow var(--trans); }
+    .role-card:hover { box-shadow: var(--shadow-1); }
+    .role-card-title { font-weight: 500; margin-bottom: 0.8rem; font-size: 1rem; color: var(--primary-dark); border-bottom: 2px solid var(--bg); padding-bottom: 0.4rem; }
+    
+    .role-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+    .role-row { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 0.5rem; align-items: start; font-size: 0.85rem; }
+    .role-label { text-align: right; padding-right: 0.2rem; color: var(--text-main); white-space: nowrap; padding-top: 0.6rem; font-weight: 500;}
+    
+    .role-input, .role-textarea {
+      width: 100%; box-sizing: border-box; font-size: 0.9rem; padding: 0.5rem; font-family: var(--entry-font);
+      border: 1px solid var(--border); border-radius: 4px; background: var(--bg); transition: all var(--trans);
+    }
+    .role-input:focus, .role-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); background: var(--surface); outline: none;}
+    .role-textarea { min-height: 4rem; resize: vertical; line-height: 1.4; }
+    .role-controls { margin-top: 1rem; display: flex; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
+
+    /* CHIP TABS */
+    .sub-tabs { display: flex; gap: 0.6rem; margin: 0 1rem 1rem; flex-wrap: wrap; }
+    .tab-bar { display: flex; gap: 0.6rem; margin: 1rem; justify-content: center; flex-wrap: wrap; }
+    .area-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; justify-content: flex-start; }
+    
+    .sub-tab-button, .tab-button, .area-tab-button {
+      padding: 0.4rem 1.2rem; border-radius: 50px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all var(--trans);
+    }
+    .sub-tab-button:hover, .tab-button:hover, .area-tab-button:hover { background: rgba(0,0,0,0.04); color: var(--text-main); }
+    .sub-tab-button.active, .tab-button.active, .area-tab-button.active { background: #e8f0fe; color: var(--primary-dark); border-color: #aecbfa; font-weight: 500; }
+
+    /* DAY PANELS & TABLES */
+    .day-panel { display: none; background: var(--surface); border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow-1); overflow-x: auto; margin: 0 1rem 1rem; animation: fadeIn 0.4s ease; }
+    .day-panel.active { display: block; }
+
+    table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 0.85rem; min-width: 1450px; }
+    th, td { border-bottom: 1px solid var(--border); padding: 0.6rem 0.5rem; text-align: center; vertical-align: middle; transition: background var(--trans); }
+    th { background: var(--bg); position: sticky; top: 0; z-index: 1; color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;}
+    tr:hover td { background: rgba(26,115,232,0.02); }
+    .time-col { width: 90px; }
+
+    input[type="time"], select, textarea { font-family: var(--entry-font); }
+    input[type="time"] { width: 100%; box-sizing: border-box; border: 1px solid transparent; font-size: 0.9rem; padding: 0.4rem; text-align: center; background: transparent; border-radius: 4px; transition: all var(--trans); cursor: pointer; }
+    input[type="time"]:hover { background: rgba(0,0,0,0.04); }
+    input[type="time"]:focus { outline: none; border-color: var(--primary); background: #e8f0fe; box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+    
+    select { width: 100%; box-sizing: border-box; font-size: 0.85rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); transition: all var(--trans); cursor: pointer; }
+    select:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+    
+    .entry-filled { font-weight: 500; background: #e8f0fe !important; border-color: #aecbfa !important; color: #1967d2; }
+
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; gap: 0.5rem; flex-wrap: wrap; }
+    .controls-left, .controls-right { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+    /* BUTTONS */
+    button {
+      padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; border-radius: 4px; border: none; background: #e0e0e0; color: var(--text-main); box-shadow: var(--shadow-1); transition: background var(--trans), box-shadow var(--trans), transform 0.1s; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    button:hover { background: #d5d5d5; box-shadow: var(--shadow-2); }
+    button:active { transform: scale(0.96); box-shadow: var(--shadow-1); }
+    .danger-btn { background: #d32f2f; color: #fff; }
+    .danger-btn:hover { background: #b71c1c; }
+    .help-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.5); box-shadow: none; border-radius: 50px;}
+    .help-btn:hover { background: #fff; color: var(--primary); }
+
+    /* Helpers */
+    .helper-cell { min-width: 120px; }
+    .helper-select-container { display: flex; flex-direction: column; gap: 4px; }
+    .helper-select-row { display: flex; align-items: center; gap: 4px; }
+    .helper-select-row button { padding: 0 0.4rem; font-size: 0.8rem; box-shadow: none; background: transparent; border: 1px solid var(--border); }
+    .helper-select-row button:hover { background: #f1f3f4; }
+    .helper-add-btn { margin-top: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; background: transparent; border: 1px dashed var(--border); box-shadow: none; width: 100%;}
+    .helper-add-btn:hover { background: #f1f3f4; }
+
+    /* BAPTISM */
+    .baptism-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .baptism-role-card { border-radius: var(--radius); padding: 1rem; border: 1px solid var(--border); background: var(--surface); transition: box-shadow var(--trans); }
+    .baptism-role-card:hover { box-shadow: var(--shadow-1); }
+    .baptism-role-title { font-weight: 500; margin-bottom: 0.8rem; font-size: 1rem; color: var(--primary-dark); border-bottom: 2px solid var(--bg); padding-bottom: 0.4rem; }
+    .baptism-field { margin-bottom: 0.8rem; text-align: left; }
+    .baptism-field label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; font-weight: 500;}
+    .baptism-note { width: 100%; box-sizing: border-box; font-size: 0.9rem; min-height: 4rem; resize: vertical; padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); transition: all var(--trans); }
+    .baptism-note:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+
+    /* MODAL OVERLAYS (Animiert) */
+    .modal-backdrop, .help-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    .modal-backdrop[data-open="1"], .help-backdrop[data-open="1"] { display: flex !important; opacity: 1; pointer-events: auto; }
+    .modal, .help-modal {
+      background: var(--surface); border-radius: 12px; box-shadow: var(--shadow-3); transform: scale(0.95) translateY(10px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-backdrop[data-open="1"] .modal, .help-backdrop[data-open="1"] .help-modal { transform: scale(1) translateY(0); }
+    
+    .modal { max-width: 560px; width: 100%; padding: 1.5rem; }
+    .modal h3 { margin: 0 0 0.5rem; color: var(--primary-dark); font-weight: 500; }
+    .modal .modal-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.5rem; justify-content: flex-end; }
+    .modal .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1rem; }
+    .modal label { font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+    .modal .hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.4; }
+
+    .help-backdrop { background: rgba(0,0,0,0.7); z-index: 10000; }
+    .help-modal { max-width: 950px; width: 100%; max-height: 90vh; overflow: auto; padding: 2rem; font-size: 0.95rem; line-height: 1.6; }
+    .help-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;}
+    .help-modal h2 { margin: 0; font-weight: 500; color: var(--primary-dark); }
+    .help-modal hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .help-modal pre { background: var(--bg); border: 1px solid var(--border); padding: 1rem; border-radius: 8px; overflow: auto; font-size: 0.85rem; }
+    .help-pill { display: inline-block; padding: 0.2rem 0.8rem; border-radius: 50px; background: #e8f0fe; border: 1px solid #aecbfa; color: var(--primary-dark); font-size: 0.8rem; margin-right: 0.4rem; white-space: nowrap; font-weight: 500; }
+
+    /* FOOTER */
+    .custom-footer {
+      text-align: center; padding: 2rem 1rem 1rem; font-size: 0.85rem; color: var(--text-muted); animation: fadeIn 1.2s ease-in-out; font-weight: 500; margin-top: 2rem; letter-spacing: 0.5px;
+    }
+
+    /* PRINT */
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      body { background: #fff; padding: 0; font-size: 9px; animation: none; }
+      .header { margin: 0; box-shadow: none; padding: 0.5rem 0.8rem 0.3rem; background: #fff; color: #000; }
+      .header-title { font-size: 0.95rem; color: #000;}
+      .header-subtitle { font-size: 0.7rem; color: #000;}
+      .header-actions, .global-toolbar, .edit-hint, .custom-footer { display: none !important; }
+      .main-tabs, .tab-bar, .sub-tabs { display: none !important; }
+      .main-section { display: none !important; }
+      .main-section.active { display: block !important; }
+      #av-container .day-panel { display: none !important; box-shadow: none; padding: 0.2rem 0; margin-top: 0.15rem; }
+      #av-container .day-panel.active { display: block !important; }
+      #av-container .area-tabs { display: none !important; }
+      .card { box-shadow: none; padding: 0.3rem 0.4rem; border: none; margin: 0; }
+      .role-section-program, .role-card, .baptism-role-card { padding: 0.3rem 0.4rem; border: 1px solid #ccc; box-shadow: none; }
+      .role-row { font-size: 0.65rem; grid-template-columns: 110px minmax(0,1fr); }
+      .role-card-title, .baptism-role-title { font-size: 0.7rem; color: #000; border-bottom: 1px solid #000;}
+      .role-input, .role-textarea, .baptism-note { font-size: 0.65rem; padding: 0.08rem; border: 1px solid #ccc; background: #fff; }
+      .role-textarea { min-height: 2.2rem; }
+      table { font-size: 0.6rem; min-width: auto; }
+      th, td { padding: 0.08rem 0.14rem; border: 1px solid #000; }
+      th { background: #f0f0f0; color: #000; }
+      .modal-backdrop, .help-backdrop { display: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-actions">
+      <button id="helpBtn" class="help-btn" type="button">Help</button>
+    </div>
+
+    <div id="hdrTitle" class="header-title editable-header" contenteditable="true" spellcheck="false"></div>
+    <div id="hdrSubtitle" class="header-subtitle editable-header" contenteditable="true" spellcheck="false"></div>
+    <div class="edit-hint">Tip: click title/subtitle to edit (saved locally + optional on Import)</div>
+  </div>
+
+  <!-- GLOBAL TOOLBAR -->
+  <div class="global-toolbar">
+    <div class="toolbar-left">
+      <button id="exportBtnTop" type="button">Export as JSON</button>
+
+      <label class="toolbar-label">
+        Import JSON:
+        <input type="file" id="importFileTop" accept=".json" style="font-size:0.8rem;">
+      </label>
+
+      <button id="printCurrentBtn" type="button">Print (current view)</button>
+    </div>
+
+    <div class="toolbar-right">
+      <span id="whereAmI" class="whereami">Role Management</span>
+      <span class="small">Merge-by-Area import (Program/Audio/Video/Stage/Streaming) + optional Baptism.</span>
+    </div>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab-button active" data-section="roles" type="button">Role Management</button>
+    <button class="main-tab-button" data-section="planner" type="button">Shift Plan</button>
+  </div>
+
+  <!-- ROLE MANAGEMENT -->
+  <div id="section-roles" class="main-section active">
+    <div class="card">
+      <h2>Role Management</h2>
+      <p class="small">
+        Enter names as a <strong>comma-separated list</strong> (e.g.: <em>John Friendly, Peter Kind, Markus Helpful</em>).
+      </p>
+      <div id="role-management-container" class="role-container"></div>
+
+      <div class="role-controls">
+        <button id="printRolesBtn" type="button">Print Role Management</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHIFT PLANNER -->
+  <div id="section-planner" class="main-section">
+    <div class="sub-tabs">
+      <button class="sub-tab-button active" data-mode="av" type="button">A/V Shifts</button>
+      <button class="sub-tab-button" data-mode="baptism" type="button">Baptism</button>
+    </div>
+
+    <div id="av-container">
+      <div class="tab-bar">
+        <button class="tab-button active" data-day="Friday" type="button">Friday</button>
+        <button class="tab-button" data-day="Saturday" type="button">Saturday</button>
+        <button class="tab-button" data-day="Sunday" type="button">Sunday</button>
+      </div>
+
+      <div id="day-panels"></div>
+    </div>
+
+    <div id="baptism-container" style="display:none;">
+      <div class="card">
+        <h2>Baptism Assignments</h2>
+        <p class="small">
+          No time slots here — assign who does what (pool, stairs, changing rooms, towels, doors, etc.).
+        </p>
+        <div id="baptism-roles" class="baptism-grid"></div>
+
+        <div class="controls">
+          <div class="controls-left">
+            <button id="printBaptismBtn" type="button">Print Baptism</button>
+          </div>
+          <div class="controls-right small">
+            Included in export/import. Merge optional in import dialog.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERGE MODAL -->
+  <div class="modal-backdrop" id="mergeModalBackdrop" data-open="0" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Merge Import Options">
+      <h3>Merge Import Options</h3>
+      <div class="hint">
+        Select what to merge. Shifts are matched by <strong>Day + Start + End</strong>. Unselected areas remain unchanged.
+      </div>
+
+      <div class="checklist">
+        <label><input type="checkbox" id="m_program"> Program</label>
+        <label><input type="checkbox" id="m_audio"> Audio</label>
+        <label><input type="checkbox" id="m_video"> Video</label>
+        <label><input type="checkbox" id="m_stage"> Stage</label>
+        <label><input type="checkbox" id="m_streaming"> Streaming Team (IT)</label>
+        <label><input type="checkbox" id="m_oversight"> A/V Oversight (optional)</label>
+        <label><input type="checkbox" id="m_baptism"> Baptism (optional)</label>
+        <label><input type="checkbox" id="m_meta"> Import title/subtitle (meta)</label>
+      </div>
+
+      <div class="modal-row">
+        <button id="mergeCancelBtn" class="danger-btn" type="button">Cancel</button>
+        <button id="mergeApplyBtn" type="button">Merge selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP MODAL -->
+  <div class="help-backdrop" id="helpBackdrop" data-open="0" aria-hidden="true">
+    <div class="help-modal" role="dialog" aria-modal="true" aria-label="Help">
+      <div class="help-top">
+        <h2>Help – A/V, Streaming &amp; Baptism Planner</h2>
+        <button id="helpCloseBtn" class="danger-btn" type="button">✕</button>
+      </div>
+      <hr>
+
+      <!-- QUICK START -->
+      <div style="
+        background:#f6f7fb;
+        border:1px solid #e3e6f5;
+        border-radius:12px;
+        padding:0.8rem 0.9rem;
+        margin:0.6rem 0 0.9rem;
+      ">
+        <div style="font-weight:bold; color:#163b7b; margin-bottom:0.35rem;">
+          Quick Start (3 steps)
+        </div>
+
+        <ol style="margin:0; padding-left:1.2rem;">
+          <li style="margin:0.2rem 0;">
+            <strong>Role Management:</strong> enter name pools (comma-separated) for each role.
+          </li>
+          <li style="margin:0.2rem 0;">
+            <strong>Shift Plan:</strong> choose Day → choose Area tab → add shifts and assign brothers.
+          </li>
+          <li style="margin:0.2rem 0;">
+            <strong>Teamwork:</strong> Export JSON → Import JSON in master file → select only the area to merge.
+          </li>
+        </ol>
+      </div>
+
+      <h3>What this tool is for</h3>
+      <p>
+        Maintain <strong>role pools</strong> and plan <strong>shifts</strong> for:
+        <span class="help-pill">Program</span>
+        <span class="help-pill">Audio</span>
+        <span class="help-pill">Video</span>
+        <span class="help-pill">Stage</span>
+        <span class="help-pill">Streaming (IT)</span>
+        plus a separate planning view for <span class="help-pill">Baptism</span>.
+      </p>
+
+      <h3>Main sections</h3>
+
+      <h4>1) Role Management (Pools)</h4>
+      <ul>
+        <li>Enter names as a <strong>comma-separated list</strong> for each role.</li>
+        <li>These names become options in Shift Plan dropdowns.</li>
+        <li>Helper roles use a bigger input area (good for 10–15 names).</li>
+      </ul>
+
+      <h4>2) Shift Plan – A/V Shifts</h4>
+      <ul>
+        <li>Day tabs: <strong>Friday / Saturday / Sunday</strong></li>
+        <li>Area tabs: <strong>Program / Audio / Video / Stage / Streaming (IT)</strong></li>
+        <li><strong>Helpers are flexible:</strong> add/remove helper dropdowns per shift row.</li>
+      </ul>
+
+      <h4>3) Shift Plan – Baptism</h4>
+      <ul>
+        <li>No time slots.</li>
+        <li>Assign a brother and write a short responsibility note (pool / stairs / changing rooms / towels / doors, etc.).</li>
+        <li>Add as many Baptism Helpers as needed (each with a name + description).</li>
+      </ul>
+
+      <h3>Saving &amp; data persistence</h3>
+      <ul>
+        <li>The tool auto-saves to your browser <strong>local storage</strong>.</li>
+        <li>Re-open the file in the <strong>same device + same browser</strong> to restore data.</li>
+        <li>For another device/browser, use <strong>Export / Import</strong>.</li>
+      </ul>
+
+      <h3>Export (JSON)</h3>
+      <ul>
+        <li>Export includes: <code>meta</code> (title/subtitle), <code>rolesConfig</code>, <code>scheduleData</code>, <code>baptismData</code>.</li>
+        <li>The filename timestamp uses your <strong>local time</strong>.</li>
+      </ul>
+
+      <h3>Import (Merge by Area)</h3>
+      <p>
+        Import is a <strong>merge</strong>, not a full overwrite. After selecting a JSON file, you choose what to merge.
+      </p>
+
+      <h4>How shifts are matched</h4>
+      <pre>Day + Start Time + End Time</pre>
+
+      <h4>Meta (title/subtitle) import</h4>
+      <ul>
+        <li>Title/subtitle are imported only if you tick <strong>Import title/subtitle (meta)</strong>.</li>
+      </ul>
+
+      <h4>Recommended teamwork workflow</h4>
+      <ol>
+        <li>Each team works on its own area tab (e.g., Video).</li>
+        <li>Export JSON.</li>
+        <li>Coordinator imports and selects only that area in the merge dialog.</li>
+        <li>Repeat for other areas.</li>
+      </ol>
+
+      <h3>Printing</h3>
+      <ul>
+        <li><strong>Print (current view)</strong> prints what you currently see.</li>
+        <li>Switch to Baptism tab to print Baptism.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    /* =========================
+       CONFIG / DATA STRUCTURES
+    ========================== */
+
+    const days = ["Friday","Saturday","Sunday"];
+
+    const PROGRAM_ROLES = ["Program Overseer","Program Assistant"];
+    const OVERSIGHT_ROLES = ["A/V Overseer","A/V Assistant"];
+
+    const fixedRolesSchedule = [
+      ...PROGRAM_ROLES,
+      ...OVERSIGHT_ROLES,
+      "Audio Captain","Audio Trainee",
+      "Video Captain","Video Trainee",
+      "Stage Captain","Stage Trainee",
+      "Streaming Overseer","Streaming Assistant"
+    ];
+    const helperRolesCommon = ["Audio Helper","Video Helper","Stage Helper","Streaming Helper"];
+
+    const fixedRolesBaptism = ["Baptism Overseer","Baptism Assistant","Baptism Trainee"];
+    const helperRolesBaptism = ["Baptism Helper"];
+
+    const allRolesSet = new Set([
+      ...fixedRolesSchedule,
+      ...helperRolesCommon,
+      ...fixedRolesBaptism,
+      ...helperRolesBaptism
+    ]);
+    const allRoles = Array.from(allRolesSet);
+
+    const STORAGE_KEY = "av_shiftplanner_local_v4_global_whereami_meta_localtime_helpers";
+
+    const rolesConfig = {};
+    const scheduleData = {};
+    let baptismData = { roles: {}, helpers: [] };
+
+    const defaultMeta = {
+      title: "Regional Convention Munich 2026",
+      subtitle: "A/V & Baptism Department – Serving under the direction of the Program Overseer"
+    };
+    let meta = { ...defaultMeta };
+
+    days.forEach(d => scheduleData[d] = []);
+    allRoles.forEach(r => rolesConfig[r] = []);
+
+    // Defaults (editable)
+    rolesConfig["Program Overseer"] = ["Stefan Fellinger"];
+    rolesConfig["Program Assistant"] = ["Marco Neudecker"];
+
+    function safeParseJSON(s){ try { return JSON.parse(s); } catch { return null; } }
+
+    function persistToLocalStorage(){
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ meta, rolesConfig, scheduleData, baptismData }));
+      }catch(e){
+        console.warn("Could not save to localStorage", e);
+      }
+    }
+
+    function restoreFromLocalStorage(){
+      try{
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return;
+        const parsed = safeParseJSON(stored);
+        if (!parsed) return;
+
+        if (parsed.meta){
+          meta = { ...defaultMeta, ...parsed.meta };
+        }
+        if (parsed.rolesConfig){
+          allRoles.forEach(role => {
+            rolesConfig[role] = parsed.rolesConfig[role] || rolesConfig[role] || [];
+          });
+        }
+        if (parsed.scheduleData){
+          days.forEach(day => {
+            scheduleData[day] = parsed.scheduleData[day] || [];
+          });
+        }
+        if (parsed.baptismData){
+          baptismData = parsed.baptismData;
+        }
+      }catch(e){
+        console.warn("Could not restore from localStorage", e);
+      }
+    }
+
+    function setHeaderFromMeta(){
+      const t = document.getElementById("hdrTitle");
+      const s = document.getElementById("hdrSubtitle");
+      t.textContent = meta.title || defaultMeta.title;
+      s.textContent = meta.subtitle || defaultMeta.subtitle;
+      document.title = (meta.title || defaultMeta.title) + " – Shift Planner";
+    }
+
+    function readMetaFromHeader(){
+      const t = document.getElementById("hdrTitle");
+      const s = document.getElementById("hdrSubtitle");
+      meta.title = (t.textContent || "").trim() || defaultMeta.title;
+      meta.subtitle = (s.textContent || "").trim() || defaultMeta.subtitle;
+      persistToLocalStorage();
+      document.title = meta.title + " – Shift Planner";
+    }
+
+    // Local timestamp for filename (avoids UTC shift)
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function localTimestampForFilename(d = new Date()){
+      const yyyy = d.getFullYear();
+      const mm = pad2(d.getMonth()+1);
+      const dd = pad2(d.getDate());
+      const hh = pad2(d.getHours());
+      const mi = pad2(d.getMinutes());
+      const ss = pad2(d.getSeconds());
+      return `${yyyy}-${mm}-${dd}_${hh}-${mi}-${ss}`;
+    }
+
+    /* =========================
+       OVERLAYS
+    ========================== */
+    const modalBackdrop = document.getElementById("mergeModalBackdrop");
+    const helpBackdrop = document.getElementById("helpBackdrop");
+    function modalOpen(el){ el.setAttribute("data-open","1"); el.setAttribute("aria-hidden","false"); }
+    function modalClose(el){ el.setAttribute("data-open","0"); el.setAttribute("aria-hidden","true"); }
+
+    /* =========================
+       WHERE AM I (GLOBAL)
+    ========================== */
+    const whereAmIEl = document.getElementById("whereAmI");
+    const uiState = {
+      main: "roles",      // roles | planner
+      sub: "av",          // av | baptism
+      day: "Friday",
+      area: "program"
+    };
+
+    function updateWhereAmI(){
+      if (!whereAmIEl) return;
+      if (uiState.main === "roles"){
+        whereAmIEl.textContent = "Role Management";
+        return;
+      }
+      if (uiState.main === "planner" && uiState.sub === "baptism"){
+        whereAmIEl.textContent = "Shift Plan → Baptism";
+        return;
+      }
+      whereAmIEl.textContent = `Shift Plan → ${uiState.day} → ${cap(uiState.area)}`;
+    }
+
+    function cap(s){ return (s||"").charAt(0).toUpperCase() + (s||"").slice(1); }
+
+    /* =========================
+       UI NAV
+    ========================== */
+    function setActiveMainSection(sectionKey){
+      uiState.main = sectionKey;
+      document.querySelectorAll(".main-tab-button").forEach(b => b.classList.toggle("active", b.dataset.section === sectionKey));
+      document.querySelectorAll(".main-section").forEach(sec => sec.classList.toggle("active", sec.id === `section-${sectionKey}`));
+      updateWhereAmI();
+    }
+    document.querySelectorAll(".main-tab-button").forEach(btn => btn.addEventListener("click", () => setActiveMainSection(btn.dataset.section)));
+
+    function setSubMode(mode){
+      uiState.sub = mode;
+      document.getElementById("av-container").style.display = (mode === "av") ? "" : "none";
+      document.getElementById("baptism-container").style.display = (mode === "baptism") ? "" : "none";
+      document.querySelectorAll(".sub-tab-button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+      updateWhereAmI();
+    }
+    document.querySelectorAll(".sub-tab-button").forEach(btn => btn.addEventListener("click", () => setSubMode(btn.dataset.mode)));
+
+    /* =========================
+       FILLED HIGHLIGHTS
+    ========================== */
+    function setFilledClass(el){
+      if (!el) return;
+      const tag = el.tagName.toLowerCase();
+      let filled = false;
+      if (tag === "select") filled = !!(el.value && el.value.trim());
+      else if (tag === "input") filled = !!(el.value && el.value.trim());
+      else if (tag === "textarea") filled = !!(el.value && el.value.trim());
+      if (filled) el.classList.add("entry-filled");
+      else el.classList.remove("entry-filled");
+    }
+    function refreshFilledHighlights(){
+      document.querySelectorAll("input[type='time'], select, textarea, .role-input, .role-textarea").forEach(setFilledClass);
+    }
+
+    function getGroupForRole(role){
+      if (PROGRAM_ROLES.includes(role)) return "program";
+      if (OVERSIGHT_ROLES.includes(role)) return "oversight";
+      if (role.startsWith("Audio")) return "audio";
+      if (role.startsWith("Video")) return "video";
+      if (role.startsWith("Stage")) return "stage";
+      if (role.startsWith("Streaming")) return "streaming";
+      if (role.startsWith("Baptism")) return "baptism";
+      return "oversight";
+    }
+
+    /* =========================
+       ROLE MANAGEMENT
+    ========================== */
+    const roleManagementContainer = document.getElementById("role-management-container");
+
+    function isLargeRoleField(role){
+      // Bigger pools for helpers (audio/video/stage/streaming/baptism helpers)
+      return role.toLowerCase().includes("helper");
+    }
+
+    function createRoleRow(role){
+      const row = document.createElement("div");
+      row.className = "role-row";
+
+      const label = document.createElement("div");
+      label.className = "role-label";
+      label.textContent = role + ":";
+      row.appendChild(label);
+
+      const val = (rolesConfig[role] || []).join(", ");
+
+      if (isLargeRoleField(role)){
+        const ta = document.createElement("textarea");
+        ta.className = "role-textarea";
+        ta.placeholder = "e.g. John Friendly, Peter Kind, Markus Helpful";
+        ta.value = val;
+        ta.dataset.role = role;
+        ta.addEventListener("input", () => updateRoleConfigFromField(ta));
+        row.appendChild(ta);
+        setFilledClass(ta);
+      } else {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "role-input";
+        input.placeholder = "e.g. John Friendly, Peter Kind";
+        input.value = val;
+        input.dataset.role = role;
+        input.addEventListener("input", () => updateRoleConfigFromField(input));
+        row.appendChild(input);
+        setFilledClass(input);
+      }
+
+      return row;
+    }
+
+    function renderRoleManagement(){
+      roleManagementContainer.innerHTML = "";
+
+      const programSection = document.createElement("div");
+      programSection.className = "role-section-program";
+      programSection.innerHTML = `<div class="role-card-title">Program Oversight</div>`;
+      const programGrid = document.createElement("div");
+      programGrid.className = "role-grid-program";
+      PROGRAM_ROLES.forEach(role => programGrid.appendChild(createRoleRow(role)));
+      programSection.appendChild(programGrid);
+      roleManagementContainer.appendChild(programSection);
+
+      const twoCol = document.createElement("div");
+      twoCol.className = "role-section-two-column";
+
+      const baptismCard = document.createElement("div");
+      baptismCard.className = "role-card";
+      baptismCard.innerHTML = `<div class="role-card-title">Baptism</div>`;
+      const bapRows = document.createElement("div");
+      bapRows.className = "role-rows";
+      [...fixedRolesBaptism, ...helperRolesBaptism].forEach(r => bapRows.appendChild(createRoleRow(r)));
+      baptismCard.appendChild(bapRows);
+      twoCol.appendChild(baptismCard);
+
+      const avCard = document.createElement("div");
+      avCard.className = "role-card";
+      avCard.innerHTML = `<div class="role-card-title">A/V Oversight</div>`;
+      const avRows = document.createElement("div");
+      avRows.className = "role-rows";
+      OVERSIGHT_ROLES.forEach(r => avRows.appendChild(createRoleRow(r)));
+      avCard.appendChild(avRows);
+      twoCol.appendChild(avCard);
+
+      roleManagementContainer.appendChild(twoCol);
+
+      const teams = document.createElement("div");
+      teams.className = "role-section-teams";
+
+      function teamCard(title, roles){
+        const card = document.createElement("div");
+        card.className = "role-card";
+        card.innerHTML = `<div class="role-card-title">${title}</div>`;
+        const rows = document.createElement("div");
+        rows.className = "role-rows";
+        roles.forEach(r => rows.appendChild(createRoleRow(r)));
+        card.appendChild(rows);
+        return card;
+      }
+
+      teams.appendChild(teamCard("Audio Team", ["Audio Captain","Audio Trainee","Audio Helper"]));
+      teams.appendChild(teamCard("Video Team", ["Video Captain","Video Trainee","Video Helper"]));
+      teams.appendChild(teamCard("Stage Team", ["Stage Captain","Stage Trainee","Stage Helper"]));
+      teams.appendChild(teamCard("Streaming Team (IT)", ["Streaming Overseer","Streaming Assistant","Streaming Helper"]));
+
+      roleManagementContainer.appendChild(teams);
+
+      refreshFilledHighlights();
+    }
+
+    function updateRoleConfigFromField(fieldEl){
+      const role = fieldEl.dataset.role;
+      const names = (fieldEl.value || "").split(",").map(x => x.trim()).filter(Boolean);
+      rolesConfig[role] = names;
+      setFilledClass(fieldEl);
+      refreshAllSelectOptions();
+      renderBaptism();
+      persistToLocalStorage();
+    }
+
+    /* =========================
+       SHIFT PLAN
+    ========================== */
+    const dayPanelsContainer = document.getElementById("day-panels");
+    function getDayFixedRoles(){ return [...fixedRolesSchedule]; }
+    function getDayHelperRoles(){ return [...helperRolesCommon]; }
+
+    function updateDayCount(day){
+      const tbody = document.querySelector(`tbody[data-day="${day}"]`);
+      const countSpan = document.querySelector(`[data-day-count="${day}"]`);
+      if (tbody && countSpan) countSpan.textContent = tbody.querySelectorAll("tr").length;
+    }
+
+    function createNameSelect(role, preselected=""){
+      const select = document.createElement("select");
+      select.dataset.role = role;
+
+      const names = rolesConfig[role] || [];
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "";
+      select.appendChild(empty);
+
+      names.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+
+      select.value = (preselected && names.includes(preselected)) ? preselected : "";
+      select.title = select.value || "";
+
+      select.addEventListener("change", () => {
+        select.title = select.value || "";
+        setFilledClass(select);
+        saveFromDom();
+      });
+
+      setFilledClass(select);
+      return select;
+    }
+
+    function createHelperCell(role, valuesArray=[]){
+      const td = document.createElement("td");
+      td.className = "helper-cell";
+      td.dataset.group = getGroupForRole(role);
+      td.dataset.role = role;
+
+      const container = document.createElement("div");
+      container.className = "helper-select-container";
+      td.appendChild(container);
+
+      function addHelperSelect(preselected=""){
+        const row = document.createElement("div");
+        row.className = "helper-select-row";
+
+        const select = createNameSelect(role, preselected);
+        row.appendChild(select);
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.textContent = "×";
+        removeBtn.className = "danger-btn";
+        removeBtn.addEventListener("click", () => {
+          row.remove();
+          saveFromDom();
+        });
+        row.appendChild(removeBtn);
+
+        container.appendChild(row);
+      }
+
+      if (Array.isArray(valuesArray) && valuesArray.length > 0) valuesArray.forEach(v => addHelperSelect(v));
+      else addHelperSelect("");
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.textContent = "+";
+      addBtn.title = "Add helper";
+      addBtn.className = "helper-add-btn";
+      addBtn.addEventListener("click", () => {
+        addHelperSelect("");
+        saveFromDom();
+      });
+
+      td.appendChild(addBtn);
+      return td;
+    }
+
+    function applyAreaFilter(day, area){
+      const panel = document.querySelector(`.day-panel[data-day="${day}"]`);
+      if (!panel) return;
+
+      let showGroups = new Set(["time","action"]);
+      if (area === "program") showGroups = new Set(["time","program","action"]);
+      if (area === "audio") showGroups = new Set(["time","oversight","audio","action"]);
+      if (area === "video") showGroups = new Set(["time","oversight","video","action"]);
+      if (area === "stage") showGroups = new Set(["time","oversight","stage","action"]);
+      if (area === "streaming") showGroups = new Set(["time","oversight","streaming","action"]);
+
+      panel.querySelectorAll("th[data-group], td[data-group]").forEach(cell => {
+        const g = cell.dataset.group || "";
+        cell.style.display = showGroups.has(g) ? "" : "none";
+      });
+
+      panel.dataset.activeArea = area;
+      uiState.area = area;
+      uiState.day = day;
+      updateWhereAmI();
+
+      refreshFilledHighlights();
+    }
+
+    function addRow(day, dataRow=null){
+      const tbody = document.querySelector(`tbody[data-day="${day}"]`);
+      if (!tbody) return;
+
+      const tr = document.createElement("tr");
+
+      const tdFrom = document.createElement("td");
+      tdFrom.dataset.group = "time";
+      const inputFrom = document.createElement("input");
+      inputFrom.type = "time";
+      inputFrom.value = dataRow ? (dataRow.start || "") : "";
+      inputFrom.addEventListener("change", () => { setFilledClass(inputFrom); saveFromDom(); });
+      tdFrom.appendChild(inputFrom);
+      tr.appendChild(tdFrom);
+
+      const tdTo = document.createElement("td");
+      tdTo.dataset.group = "time";
+      const inputTo = document.createElement("input");
+      inputTo.type = "time";
+      inputTo.value = dataRow ? (dataRow.end || "") : "";
+      inputTo.addEventListener("change", () => { setFilledClass(inputTo); saveFromDom(); });
+      tdTo.appendChild(inputTo);
+      tr.appendChild(tdTo);
+
+      getDayFixedRoles().forEach(role => {
+        const td = document.createElement("td");
+        td.dataset.group = getGroupForRole(role);
+        td.dataset.role = role;
+
+        let pre = "";
+        if (dataRow && dataRow.assignments && typeof dataRow.assignments[role] === "string"){
+          pre = dataRow.assignments[role];
+        }
+        td.appendChild(createNameSelect(role, pre));
+        tr.appendChild(td);
+      });
+
+      getDayHelperRoles().forEach(role => {
+        let arr = [];
+        if (dataRow && dataRow.assignments && dataRow.assignments[role]){
+          const v = dataRow.assignments[role];
+          if (Array.isArray(v)) arr = v;
+          else if (typeof v === "string" && v.trim()) arr = [v.trim()];
+        }
+        tr.appendChild(createHelperCell(role, arr));
+      });
+
+      const tdAction = document.createElement("td");
+      tdAction.dataset.group = "action";
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.textContent = "–";
+      delBtn.className = "danger-btn";
+      delBtn.title = "Delete this row";
+      delBtn.addEventListener("click", () => {
+        tr.remove();
+        saveFromDom();
+        updateDayCount(day);
+      });
+      tdAction.appendChild(delBtn);
+      tr.appendChild(tdAction);
+
+      tbody.appendChild(tr);
+      updateDayCount(day);
+
+      setFilledClass(inputFrom);
+      setFilledClass(inputTo);
+    }
+
+    function createDayPanel(day){
+      const panel = document.createElement("div");
+      panel.className = "day-panel";
+      panel.dataset.day = day;
+      panel.dataset.activeArea = "program";
+
+      const areaTabs = document.createElement("div");
+      areaTabs.className = "area-tabs";
+      const areas = ["program","audio","video","stage","streaming"];
+      const labels = { program:"Program", audio:"Audio", video:"Video", stage:"Stage", streaming:"Streaming (IT)" };
+
+      areas.forEach((area, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "area-tab-button" + (idx === 0 ? " active" : "");
+        btn.textContent = labels[area];
+        btn.dataset.area = area;
+        btn.dataset.day = day;
+        areaTabs.appendChild(btn);
+      });
+      panel.appendChild(areaTabs);
+
+      const table = document.createElement("table");
+      table.dataset.day = day;
+
+      const thead = document.createElement("thead");
+      const hr = document.createElement("tr");
+
+      const thFrom = document.createElement("th");
+      thFrom.className = "time-col";
+      thFrom.textContent = "Time from";
+      thFrom.dataset.group = "time";
+      hr.appendChild(thFrom);
+
+      const thTo = document.createElement("th");
+      thTo.className = "time-col";
+      thTo.textContent = "Time to";
+      thTo.dataset.group = "time";
+      hr.appendChild(thTo);
+
+      getDayFixedRoles().forEach(role => {
+        const th = document.createElement("th");
+        th.textContent = role;
+        th.dataset.group = getGroupForRole(role);
+        th.dataset.role = role;
+        hr.appendChild(th);
+      });
+
+      getDayHelperRoles().forEach(role => {
+        const th = document.createElement("th");
+        th.textContent = role + "s";
+        th.dataset.group = getGroupForRole(role);
+        th.dataset.role = role;
+        hr.appendChild(th);
+      });
+
+      const thAct = document.createElement("th");
+      thAct.textContent = "Action";
+      thAct.dataset.group = "action";
+      hr.appendChild(thAct);
+
+      thead.appendChild(hr);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      tbody.dataset.day = day;
+      table.appendChild(tbody);
+
+      panel.appendChild(table);
+
+      const controls = document.createElement("div");
+      controls.className = "controls";
+      controls.innerHTML = `
+        <div class="controls-left">
+          <button data-action="add-row" data-day="${day}" type="button">+ Add shift (${day})</button>
+        </div>
+        <div class="controls-right small">
+          <span>${day} – number of shifts: <span data-day-count="${day}">0</span></span>
+        </div>
+      `;
+      panel.appendChild(controls);
+
+      return panel;
+    }
+
+    function saveFromDom(){
+      days.forEach(day => {
+        const tbody = document.querySelector(`tbody[data-day="${day}"]`);
+        if (!tbody) return;
+
+        const rows = [];
+        tbody.querySelectorAll("tr").forEach(tr => {
+          const cells = tr.querySelectorAll("td");
+          let idx = 0;
+
+          const start = cells[idx++].querySelector("input").value || "";
+          const end   = cells[idx++].querySelector("input").value || "";
+
+          const assignments = {};
+
+          getDayFixedRoles().forEach(role => {
+            const select = cells[idx].querySelector("select");
+            assignments[role] = select ? (select.value || "") : "";
+            idx++;
+          });
+
+          getDayHelperRoles().forEach(role => {
+            const cell = cells[idx];
+            const values = [];
+            if (cell){
+              cell.querySelectorAll("select[data-role]").forEach(sel => {
+                if (sel.value && sel.value.trim()) values.push(sel.value.trim());
+              });
+            }
+            assignments[role] = values;
+            idx++;
+          });
+
+          rows.push({ start, end, assignments });
+        });
+
+        scheduleData[day] = rows;
+      });
+
+      persistToLocalStorage();
+      refreshFilledHighlights();
+    }
+
+    function refreshAllSelectOptions(){
+      document.querySelectorAll("select[data-role]").forEach(select => {
+        const role = select.dataset.role;
+        const names = rolesConfig[role] || [];
+        const current = select.value || "";
+
+        while (select.firstChild) select.removeChild(select.firstChild);
+
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "";
+        select.appendChild(empty);
+
+        names.forEach(name => {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          select.appendChild(opt);
+        });
+
+        select.value = (current && names.includes(current)) ? current : "";
+        select.title = select.value || "";
+        setFilledClass(select);
+      });
+
+      saveFromDom();
+    }
+
+    /* =========================
+       BAPTISM
+    ========================== */
+    function getBaptismRoleData(role){
+      if (!baptismData.roles) baptismData.roles = {};
+      if (!baptismData.roles[role]) baptismData.roles[role] = { name:"", note:"" };
+      return baptismData.roles[role];
+    }
+
+    function renderBaptism(){
+      const container = document.getElementById("baptism-roles");
+      if (!container) return;
+      container.innerHTML = "";
+
+      fixedRolesBaptism.forEach(role => {
+        const data = getBaptismRoleData(role);
+
+        const card = document.createElement("div");
+        card.className = "baptism-role-card";
+        card.innerHTML = `<div class="baptism-role-title">${role}</div>`;
+
+        const nameField = document.createElement("div");
+        nameField.className = "baptism-field";
+        nameField.innerHTML = `<label>Name</label>`;
+        const nameSelect = createNameSelect(role, data.name || "");
+        nameSelect.addEventListener("change", () => {
+          data.name = nameSelect.value || "";
+          baptismData.roles[role] = data;
+          persistToLocalStorage();
+          refreshFilledHighlights();
+        });
+        nameField.appendChild(nameSelect);
+        card.appendChild(nameField);
+
+        const noteField = document.createElement("div");
+        noteField.className = "baptism-field";
+        noteField.innerHTML = `<label>Responsibility / Location</label>`;
+        const noteArea = document.createElement("textarea");
+        noteArea.className = "baptism-note";
+        noteArea.value = data.note || "";
+        noteArea.addEventListener("input", () => {
+          data.note = noteArea.value || "";
+          baptismData.roles[role] = data;
+          persistToLocalStorage();
+          setFilledClass(noteArea);
+        });
+        noteField.appendChild(noteArea);
+        card.appendChild(noteField);
+
+        container.appendChild(card);
+        setFilledClass(noteArea);
+      });
+
+      if (!Array.isArray(baptismData.helpers)) baptismData.helpers = [];
+
+      const helperCard = document.createElement("div");
+      helperCard.className = "baptism-role-card";
+      helperCard.innerHTML = `
+        <div class="baptism-role-title">Baptism Helpers</div>
+        <div class="small">Add as many helpers as needed. Each helper has a name and a description.</div>
+      `;
+
+      const list = document.createElement("div");
+
+      baptismData.helpers.forEach((h, i) => {
+        const row = document.createElement("div");
+        row.style.borderTop = "1px dashed #ccc";
+        row.style.marginTop = "0.3rem";
+        row.style.paddingTop = "0.3rem";
+
+        const nameField = document.createElement("div");
+        nameField.className = "baptism-field";
+        nameField.innerHTML = `<label>Name</label>`;
+        const nameSelect = createNameSelect("Baptism Helper", h.name || "");
+        nameSelect.addEventListener("change", () => {
+          h.name = nameSelect.value || "";
+          baptismData.helpers[i] = h;
+          persistToLocalStorage();
+          refreshFilledHighlights();
+        });
+        nameField.appendChild(nameSelect);
+        row.appendChild(nameField);
+
+        const noteField = document.createElement("div");
+        noteField.className = "baptism-field";
+        noteField.innerHTML = `<label>Responsibility / Location</label>`;
+        const noteArea = document.createElement("textarea");
+        noteArea.className = "baptism-note";
+        noteArea.value = h.note || "";
+        noteArea.addEventListener("input", () => {
+          h.note = noteArea.value || "";
+          baptismData.helpers[i] = h;
+          persistToLocalStorage();
+          setFilledClass(noteArea);
+        });
+        noteField.appendChild(noteArea);
+        row.appendChild(noteField);
+
+        const rm = document.createElement("button");
+        rm.type = "button";
+        rm.textContent = "Remove helper";
+        rm.className = "danger-btn";
+        rm.style.marginTop = "0.2rem";
+        rm.addEventListener("click", () => {
+          baptismData.helpers.splice(i, 1);
+          renderBaptism();
+          persistToLocalStorage();
+        });
+        row.appendChild(rm);
+
+        list.appendChild(row);
+        setFilledClass(noteArea);
+      });
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.textContent = "+ Add helper";
+      addBtn.style.marginTop = "0.4rem";
+      addBtn.addEventListener("click", () => {
+        baptismData.helpers.push({ name:"", note:"" });
+        renderBaptism();
+        persistToLocalStorage();
+      });
+
+      helperCard.appendChild(list);
+      helperCard.appendChild(addBtn);
+      container.appendChild(helperCard);
+
+      refreshFilledHighlights();
+    }
+
+    /* =========================
+       MERGE IMPORT (Variant A)
+    ========================== */
+    const mergeCancelBtn = document.getElementById("mergeCancelBtn");
+    const mergeApplyBtn = document.getElementById("mergeApplyBtn");
+
+    function showMergeDialog(){
+      return new Promise((resolve) => {
+        document.getElementById("m_program").checked = false;
+        document.getElementById("m_audio").checked = false;
+        document.getElementById("m_video").checked = false;
+        document.getElementById("m_stage").checked = false;
+        document.getElementById("m_streaming").checked = false;
+        document.getElementById("m_oversight").checked = false;
+        document.getElementById("m_baptism").checked = false;
+        document.getElementById("m_meta").checked = false;
+
+        modalOpen(modalBackdrop);
+
+        function cleanup(){
+          modalClose(modalBackdrop);
+          mergeCancelBtn.removeEventListener("click", onCancel);
+          mergeApplyBtn.removeEventListener("click", onApply);
+          modalBackdrop.removeEventListener("click", onBackdrop);
+        }
+        function onBackdrop(e){
+          if (e.target === modalBackdrop){ cleanup(); resolve(null); }
+        }
+        function onCancel(){ cleanup(); resolve(null); }
+        function onApply(){
+          const selected = {
+            program: document.getElementById("m_program").checked,
+            audio: document.getElementById("m_audio").checked,
+            video: document.getElementById("m_video").checked,
+            stage: document.getElementById("m_stage").checked,
+            streaming: document.getElementById("m_streaming").checked,
+            oversight: document.getElementById("m_oversight").checked,
+            baptism: document.getElementById("m_baptism").checked,
+            meta: document.getElementById("m_meta").checked
+          };
+          cleanup();
+          resolve(selected);
+        }
+
+        mergeCancelBtn.addEventListener("click", onCancel);
+        mergeApplyBtn.addEventListener("click", onApply);
+        modalBackdrop.addEventListener("click", onBackdrop);
+      });
+    }
+
+    function uniqueUnion(a,b){
+      const set = new Set([...(a||[]), ...(b||[])].filter(Boolean));
+      return Array.from(set);
+    }
+
+    function areaRoleList(selection){
+      const roles = [];
+      if (selection.program) roles.push(...PROGRAM_ROLES);
+      if (selection.audio) roles.push("Audio Captain","Audio Trainee","Audio Helper");
+      if (selection.video) roles.push("Video Captain","Video Trainee","Video Helper");
+      if (selection.stage) roles.push("Stage Captain","Stage Trainee","Stage Helper");
+      if (selection.streaming) roles.push("Streaming Overseer","Streaming Assistant","Streaming Helper");
+      if (selection.oversight) roles.push(...OVERSIGHT_ROLES);
+      return roles;
+    }
+
+    // Include Baptism roles into role-pool merge if Baptism selected
+    function rolesToMergeForRoleManagement(selection){
+      const roles = areaRoleList(selection);
+      if (selection.baptism) roles.push(...fixedRolesBaptism, ...helperRolesBaptism);
+      return roles;
+    }
+
+    function makeEmptyAssignments(){
+      const assignments = {};
+      fixedRolesSchedule.forEach(r => assignments[r] = "");
+      helperRolesCommon.forEach(r => assignments[r] = []);
+      return assignments;
+    }
+
+    function hasAnyAreaData(importRow, selectedRoles){
+      if (!importRow || !importRow.assignments) return false;
+      for (const r of selectedRoles){
+        const v = importRow.assignments[r];
+        if (Array.isArray(v) && v.length > 0) return true;
+        if (typeof v === "string" && v.trim() !== "") return true;
+      }
+      return false;
+    }
+
+    function mergeScheduleData(importedSchedule, selectedRoles){
+      days.forEach(day => {
+        const importedRows = (importedSchedule && importedSchedule[day]) ? importedSchedule[day] : null;
+        if (!importedRows || importedRows.length === 0) return;
+
+        const existing = scheduleData[day] || [];
+        const map = new Map();
+        existing.forEach((row, idx) => {
+          const key = `${row.start || ""}|${row.end || ""}`;
+          map.set(key, idx);
+        });
+
+        importedRows.forEach(impRow => {
+          const start = impRow.start || "";
+          const end = impRow.end || "";
+          if (!start && !end) return;
+
+          const key = `${start}|${end}`;
+          const impAss = impRow.assignments || {};
+
+          if (map.has(key)){
+            const target = existing[map.get(key)];
+            if (!target.assignments) target.assignments = makeEmptyAssignments();
+
+            selectedRoles.forEach(role => {
+              const val = impAss[role];
+              if (Array.isArray(val)) target.assignments[role] = [...val];
+              else if (typeof val === "string") target.assignments[role] = val;
+            });
+          } else {
+            if (!hasAnyAreaData(impRow, selectedRoles)) return;
+
+            const newRow = { start, end, assignments: makeEmptyAssignments() };
+            selectedRoles.forEach(role => {
+              const val = impAss[role];
+              if (Array.isArray(val)) newRow.assignments[role] = [...val];
+              else if (typeof val === "string") newRow.assignments[role] = val;
+            });
+
+            existing.push(newRow);
+            map.set(key, existing.length - 1);
+          }
+        });
+
+        scheduleData[day] = existing;
+      });
+    }
+
+    function mergeRolesConfig(importedRolesConfig, selectedRoles){
+      if (!importedRolesConfig) return;
+      selectedRoles.forEach(role => {
+        const incoming = importedRolesConfig[role] || [];
+        rolesConfig[role] = uniqueUnion(rolesConfig[role], incoming);
+      });
+    }
+
+    function mergeBaptism(importedBaptism){
+      if (!importedBaptism) return;
+      baptismData = importedBaptism;
+    }
+
+    function rerenderScheduleFromData(){
+      days.forEach(day => {
+        const tbody = document.querySelector(`tbody[data-day="${day}"]`);
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        const rows = scheduleData[day] || [];
+        if (rows.length > 0) rows.forEach(r => addRow(day, r));
+        else addRow(day);
+
+        updateDayCount(day);
+
+        const panel = document.querySelector(`.day-panel[data-day="${day}"]`);
+        const area = (panel && panel.dataset.activeArea) ? panel.dataset.activeArea : "program";
+        applyAreaFilter(day, area);
+      });
+
+      refreshAllSelectOptions();
+    }
+
+    /* =========================
+       HELP MODAL
+    ========================== */
+    const helpBtn = document.getElementById("helpBtn");
+    const helpCloseBtn = document.getElementById("helpCloseBtn");
+    function openHelp(){ modalOpen(helpBackdrop); }
+    function closeHelp(){ modalClose(helpBackdrop); }
+    helpBtn.addEventListener("click", openHelp);
+    helpCloseBtn.addEventListener("click", closeHelp);
+    helpBackdrop.addEventListener("click", (e) => { if (e.target === helpBackdrop) closeHelp(); });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape"){
+        if (helpBackdrop.getAttribute("data-open") === "1") closeHelp();
+        if (modalBackdrop.getAttribute("data-open") === "1") modalClose(modalBackdrop);
+      }
+    });
+
+    /* =========================
+       EXPORT / IMPORT (GLOBAL)
+    ========================== */
+    function doExport(){
+      saveFromDom();
+      readMetaFromHeader();
+
+      const exportData = { meta, rolesConfig, scheduleData, baptismData };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      const ts = localTimestampForFilename(new Date());
+      a.href = url;
+      a.download = `av_shiftplanner_${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function doImport(file){
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try{
+          const data = safeParseJSON(evt.target.result);
+          if (!data) throw new Error("Invalid JSON");
+
+          const selection = await showMergeDialog();
+          if (!selection) return;
+
+          const selectedAreaRoles = areaRoleList(selection);
+          const selectedRolesForPools = rolesToMergeForRoleManagement(selection);
+
+          if (selectedAreaRoles.length === 0 && !selection.baptism && !selection.meta){
+            alert("No areas selected. Import cancelled.");
+            return;
+          }
+
+          if (selection.meta && data.meta){
+            meta = { ...defaultMeta, ...data.meta };
+            setHeaderFromMeta();
+          }
+
+          // merge role pools
+          mergeRolesConfig(data.rolesConfig || null, selectedRolesForPools);
+
+          // merge schedule (A/V shifts only)
+          mergeScheduleData(data.scheduleData || null, selectedAreaRoles);
+
+          // merge baptism section
+          if (selection.baptism) mergeBaptism(data.baptismData || null);
+
+          renderRoleManagement();
+          rerenderScheduleFromData();
+          renderBaptism();
+
+          persistToLocalStorage();
+        }catch(err){
+          console.error(err);
+          alert("Error while importing JSON file.");
+          modalClose(modalBackdrop);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById("exportBtnTop").addEventListener("click", doExport);
+    document.getElementById("importFileTop").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      await doImport(file);
+      e.target.value = "";
+    });
+
+    /* =========================
+       PRINT
+    ========================== */
+    document.getElementById("printCurrentBtn").addEventListener("click", () => window.print());
+    document.getElementById("printRolesBtn").addEventListener("click", () => {
+      setActiveMainSection("roles");
+      window.print();
+    });
+    document.getElementById("printBaptismBtn").addEventListener("click", () => {
+      setActiveMainSection("planner");
+      setSubMode("baptism");
+      window.print();
+    });
+
+    /* =========================
+       INIT
+    ========================== */
+    restoreFromLocalStorage();
+    setHeaderFromMeta();
+    document.getElementById("hdrTitle").addEventListener("input", readMetaFromHeader);
+    document.getElementById("hdrSubtitle").addEventListener("input", readMetaFromHeader);
+
+    renderRoleManagement();
+
+    // Build day panels
+    days.forEach(day => dayPanelsContainer.appendChild(createDayPanel(day)));
+
+    // initial render from data
+    days.forEach(day => {
+      const rows = scheduleData[day] || [];
+      if (rows.length > 0) rows.forEach(r => addRow(day, r));
+      else addRow(day);
+      updateDayCount(day);
+      applyAreaFilter(day, "program");
+    });
+
+    // activate Friday panel
+    document.querySelector('.day-panel[data-day="Friday"]').classList.add("active");
+
+    // day switching
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const day = btn.dataset.day;
+        uiState.day = day;
+
+        document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        document.querySelectorAll(".day-panel").forEach(p => p.classList.remove("active"));
+        const panel = document.querySelector(`.day-panel[data-day="${day}"]`);
+        if (panel) panel.classList.add("active");
+
+        // reset area to Program on day change
+        panel.querySelectorAll(".area-tab-button").forEach(b => b.classList.remove("active"));
+        const firstBtn = panel.querySelector('.area-tab-button[data-area="program"]');
+        if (firstBtn) firstBtn.classList.add("active");
+        applyAreaFilter(day, "program");
+
+        updateWhereAmI();
+      });
+    });
+
+    // area switching + add-row
+    dayPanelsContainer.addEventListener("click", (e) => {
+      const t = e.target;
+
+      if (t.matches(".area-tab-button")){
+        const day = t.dataset.day;
+        const area = t.dataset.area;
+        const panel = document.querySelector(`.day-panel[data-day="${day}"]`);
+        if (!panel) return;
+
+        panel.querySelectorAll(".area-tab-button").forEach(b => b.classList.remove("active"));
+        t.classList.add("active");
+
+        applyAreaFilter(day, area);
+      }
+
+      if (t.matches('button[data-action="add-row"]')){
+        const day = t.dataset.day;
+        addRow(day);
+        saveFromDom();
+      }
+    });
+
+    // Initial UI state
+    uiState.main = "roles";
+    uiState.sub = "av";
+    uiState.day = "Friday";
+    uiState.area = "program";
+    updateWhereAmI();
+
+    // initial baptism render + overlay safety
+    renderBaptism();
+    modalClose(modalBackdrop);
+    modalClose(helpBackdrop);
+    refreshFilledHighlights();
+  </script>
+<div class="custom-footer">Made with Love &copy; v. 1.1</div>
+</body>
+</html>
+
 
