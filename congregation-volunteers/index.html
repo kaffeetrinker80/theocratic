@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Volunteers List</title>
+<style>
+    :root{
+      --bg:#f4f8fc;
+      --panel:#ffffff;
+      --stroke:#dbe6f3;
+      --stroke2:#cfdced;
+      --text:#1c2430;
+      --muted:#5a6b82;
+      --muted2:#7a8aa0;
+      --btn:#f0f5fb;
+      --btn2:#e6eef8;
+      --accent:#2f6fb3;
+      --accentDark:#1f4f85;
+      --shadow: 0 10px 26px rgba(18, 38, 63, .12);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:var(--sans); color:var(--text); background:var(--bg); }
+
+    header{
+      background: linear-gradient(180deg, rgba(47,111,179,.20), rgba(47,111,179,.07) 55%, #ffffff);
+      border-bottom:1px solid var(--stroke);
+      box-shadow: 0 6px 18px rgba(18, 38, 63, .10);
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px 16px 14px; }
+    .headrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
+    /* Editable header blocks (multi-line, print-safe) */
+    .titleBox{ display:flex; flex-direction:column; gap:6px; min-width: 280px; }
+    .editBlock{
+      border:1px solid rgba(47,111,179,.28);
+      background: rgba(255,255,255,.92);
+      padding:8px 10px;
+      border-radius:12px;
+      outline:none;
+      max-width: 720px;
+      overflow-wrap:anywhere;
+      word-break: break-word;
+      white-space: pre-wrap; /* allow manual line breaks */
+    }
+    .editTitle{
+      font-weight:800;
+      font-size:18px;
+      color:#11233a;
+      line-height:1.2;
+    }
+    .editSubtitle{
+      border-color: var(--stroke);
+      background: rgba(255,255,255,.86);
+      font-size:12.5px;
+      color: var(--muted);
+      line-height:1.25;
+    }
+    .editBlock:focus{
+      border-color: rgba(47,111,179,.55);
+      box-shadow: 0 0 0 3px rgba(47,111,179,.12);
+    }
+    .hint{
+      font-size:11.5px;
+      color:var(--muted2);
+      margin-top:2px;
+    }
+
+    .meta{ margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:var(--muted2); font-size:12px; }
+    .pill{
+      background:#fff;
+      border:1px solid var(--stroke);
+      padding:6px 10px;
+      border-radius:999px;
+      display:inline-flex; gap:8px; align-items:center;
+    }
+    .pill strong{ color:var(--text); }
+
+    main{ max-width:1100px; margin:0 auto; padding:16px; }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .toolbar{
+      padding:10px 12px;
+      border-bottom:1px solid var(--stroke);
+      background:#fbfdff;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+
+    .input, select{
+      border:1px solid var(--stroke2);
+      background:#fff;
+      color:var(--text);
+      padding:7px 9px;
+      border-radius:10px;
+      font-size:13px;
+      outline:none;
+    }
+    .input:focus, select:focus{
+      border-color: rgba(47,111,179,.55);
+      box-shadow: 0 0 0 3px rgba(47,111,179,.12);
+    }
+
+    .btn{
+      border:1px solid var(--stroke2);
+      background:var(--btn);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:13px;
+      cursor:pointer;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+    .btn:hover{ background:var(--btn2); }
+    .btn.primary{
+      background: rgba(47,111,179,.12);
+      border-color: rgba(47,111,179,.28);
+      color: var(--accentDark);
+      font-weight: 600;
+    }
+    .btn.danger{
+      background: rgba(190, 35, 60, .08);
+      border-color: rgba(190, 35, 60, .20);
+      color:#8a1f2f;
+    }
+    .btn.small{ padding:6px 9px; font-size:12px; border-radius:10px; }
+    .spacer{ flex:1; }
+
+    .content{ padding: 10px 12px 12px; }
+
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    thead th{
+      text-align:left;
+      padding:8px 8px;
+      background:#f6f9fe;
+      border-bottom:1px solid var(--stroke);
+      color:#2b3a4f;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    tbody td{
+      padding:6px 6px;
+      border-bottom:1px solid rgba(219,230,243,.85);
+      vertical-align:middle;
+    }
+    tbody tr:hover{ background:#fbfdff; }
+
+    .rowTop{
+      display:grid;
+      grid-template-columns: 1.65fr 0.85fr 2.05fr 2.25fr auto;
+      gap:6px;
+      align-items:center;
+    }
+    .rowTop.sisters{
+      grid-template-columns: 1.55fr 2.25fr 2.10fr auto;
+    }
+    .rowBottom{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding: 2px 0 4px;
+    }
+
+    .mono{ font-family: var(--mono); }
+    .field{ min-width:0; }
+    .field .input, .field select{ width:100%; min-width:0; }
+
+    .copyField{ display:flex; align-items:center; gap:6px; min-width:0; }
+    .miniBtn{
+      position:static;
+      transform:none;
+      border: 1px solid rgba(47,111,179,.28);
+      background: rgba(47,111,179,.10);
+      color: var(--accentDark);
+      padding: 4px 6px;
+      border-radius: 9px;
+      font-size: 12px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      line-height: 1;
+      user-select:none;
+    }
+    .copyField input{ flex:1; min-width:0; }
+
+    .notesLine{
+      width:100%;
+      border:1px solid var(--stroke2);
+      border-radius:10px;
+      padding:7px 9px;
+      font-size:13px;
+      outline:none;
+    }
+    .notesLine:focus{
+      border-color: rgba(47,111,179,.55);
+      box-shadow: 0 0 0 3px rgba(47,111,179,.12);
+    }
+
+    .checks{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size:12.5px;
+      white-space:nowrap;
+    }
+    .checks label{
+      display:inline-flex;
+      gap:5px;
+      align-items:center;
+      padding: 2px 5px;
+      border: 1px solid rgba(219,230,243,.9);
+      background: #fbfdff;
+      border-radius: 999px;
+    }
+
+    /* Standing selector / pill inside checks (compact) */
+    .standingWrap{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 2px 6px;
+      border: 1px solid rgba(219,230,243,.9);
+      background: #fbfdff;
+      border-radius: 999px;
+    }
+    .standingWrap span{
+      color: var(--muted);
+      font-size:12.5px;
+      line-height:1;
+      white-space:nowrap;
+    }
+    .standingSelect{
+      border:1px solid var(--stroke2);
+      background: var(--panel);
+      color:var(--text);
+      padding:3px 7px;
+      border-radius:999px;
+      font-size:12.5px;
+      line-height:1;
+      outline:none;
+    }
+    .standingPill{
+      display:inline-flex;
+      align-items:center;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(47,111,179,.28);
+      background: rgba(47,111,179,.10);
+      color: var(--accentDark);
+      font-size:12.5px;
+      white-space:nowrap;
+    }
+
+
+    .lblShort{ display:none; }
+    input[type="checkbox"]{ width: 14px; height: 14px; }
+
+    .actions{ display:flex; justify-content:flex-end; gap:8px; white-space:nowrap; }
+
+    .emptyState{
+      display:none;
+      color: var(--muted);
+      padding: 12px 2px 2px;
+      font-size: 13px;
+    }
+
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: #ffffff;
+      border: 1px solid var(--stroke2);
+      box-shadow: var(--shadow);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: var(--text);
+      display:none;
+      z-index: 999;
+      max-width: min(420px, calc(100vw - 32px));
+    }
+    .toast.show{ display:block; }
+
+    footer{
+      max-width:1100px;
+      margin:0 auto;
+      padding: 12px 16px 26px;
+      color: var(--muted2);
+      font-size: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .footerStorage{ font-family:var(--mono); }
+
+    .printGroup{
+      display:none;
+      font-weight:800;
+      font-size:15px;
+      padding: 4px 0 0;
+      color:#000;
+    }
+
+    @media (max-width: 980px){
+      .rowTop, .rowTop.sisters{ grid-template-columns: 1fr; }
+      .rowBottom{ grid-template-columns: 1fr; }
+      .actions{ justify-content:flex-start; }
+      .editBlock{ max-width: 100%; }
+    }
+
+    @media print{
+      .headerActions{ display:none !important; }
+      header .meta, .hint{ display:none !important; }
+      .toolbar, .toast{ display:none !important; }
+
+      body{ background:#fff !important; }
+      body{ margin:0 !important; }
+      .panel{ padding: 0 4px !important; }
+
+      main{ max-width:none; padding:0; }
+      .panel{ border:none; box-shadow:none; }
+
+      .actions, .miniBtn{ display:none !important; }
+
+      table{ font-size: 11.5px !important; }
+      tbody td{ padding:4px 6px !important; }
+
+      .notesLine{
+        font-size: 11px !important;
+        padding: 2px 6px !important;
+      }
+
+
+
+      /* PRINT: fixed footer at page bottom (centered) without stealing space */
+      @page{ margin: 10mm 10mm 16mm 10mm; }
+      footer{
+        position: fixed !important;
+        left: 0; right: 0;
+        bottom: 3mm;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        text-align: center !important;
+      }
+      footer .footerStorage{ display:none !important; }
+/* PRINT: keep each volunteer entry together + page breaks (max 18 entries per page) */
+tbody tr{
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+tr, td, .rowTop, .rowBottom{
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+tbody tr:nth-child(18n){
+  break-after: page;
+  page-break-after: always;
+}
+
+      /* PRINT: more side-by-side */
+      .rowTop{
+        grid-template-columns: 2.3fr 0.95fr 1.45fr 2.3fr;
+        gap:6px !important;
+      }
+      .rowTop.sisters{
+        grid-template-columns: 2.5fr 1.7fr 2.8fr;
+        gap:6px !important;
+      }
+      .rowBottom{
+        /* Give notes maximum width; keep checkboxes tight and anchored to the right */
+        grid-template-columns: 1fr auto;
+        gap:6px !important;
+        padding: 1px 0 2px !important;
+        align-items:center !important;
+      }
+      .rowBottom .checks{
+        justify-self:end !important;
+        text-align:right !important;
+      }
+      /* Compact checkbox row in PRINT without hurting readability */
+      .checks{
+        gap:6px !important;
+        font-size:11px !important;
+      }
+      .checks label{
+        padding: 1px 3px !important;
+        border: 1px solid rgba(219,230,243,.65) !important;
+      }
+
+      /* Print-safe header blocks: wrap, no clipping */
+      .editBlock{
+        border:none !important;
+        box-shadow:none !important;
+        background:transparent !important;
+        padding:0 !important;
+        max-width: none !important;
+        width: 100% !important;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+        overflow-wrap:anywhere !important;
+        word-break: break-word !important;
+      }
+      .editTitle{ font-size: 17pt !important; font-weight: 800 !important; }
+      .editSubtitle{ font-size: 11.5px !important; color:#000 !important; }
+
+      .printGroup{ display:block !important; font-size: 15pt !important; color:#000 !important; }
+
+      input, select, .notesLine{
+        border:none !important;
+        box-shadow:none !important;
+        background:transparent !important;
+        padding:0 !important;
+        font-size: 11.5px !important;
+      }
+
+      .checks{
+        font-size: 10.8px !important;
+        gap:6px !important;
+        white-space:nowrap !important;
+        flex-wrap:nowrap !important;
+      }
+      .checks label{
+        border:none !important;
+        background:transparent !important;
+        padding:0 !important;
+        margin:0 !important;
+      }
+      input[type="checkbox"]{ width: 12px !important; height: 12px !important; }
+      .checks{
+        gap:6px !important;
+        flex-wrap:nowrap !important;
+        font-size:10.5px !important;
+        white-space:nowrap !important;
+      }
+      .checks label{
+        padding:0 !important;
+        border:none !important;
+        background:transparent !important;
+        border-radius:0 !important;
+      }
+
+      .standingWrap{ border:none !important; background:transparent !important; padding:0 !important; }
+      .standingPill{ border:none !important; background:transparent !important; padding:0 !important; }
+
+      .lblLong{ display:inline !important; }
+      .lblShort{ display:none !important; }
+
+      
+@page{
+  /* bottom margin reserved for the fixed footer */
+  margin: 10mm 10mm 16mm 10mm;
+}
+.footerStorage{ display:none !important; }
+body{ padding-bottom: 14mm !important; }
+footer{
+  display:block !important;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 6mm;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+footer > div{ width:100%; }
+    
+      /* PRINT OVERRIDES: keep header readable even if Dark Mode is enabled */
+      :root{
+        --bg:#ffffff;
+        --panel:#ffffff;
+        --text:#000000;
+        --muted:#1f2937;
+        --muted2:#374151;
+        --stroke:#d1d5db;
+        --stroke2:#cbd5e1;
+        --btn:#ffffff;
+        --btn2:#ffffff;
+      }
+      body, body.dark{
+        background:#fff !important;
+        color:#000 !important;
+      }
+      header{
+        background:#fff !important;
+        border-bottom: 1px solid #d1d5db !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .headrow{ justify-content:center !important; }
+      .titleBox{ text-align:center !important; align-items:center !important; }
+      .editTitle, .editSubtitle{
+        color:#000 !important;
+        background: transparent !important;
+        border:none !important;
+        box-shadow:none !important;
+      }
+      .editTitle{ font-weight:800 !important; }
+      #printGroup{
+        display:block !important;
+        color:#000 !important;
+      }
+
+}
+
+    /* --- Soft Dark Mode (toggle via data-theme on <html>) --- */
+    :root[data-theme="dark"]{
+      /* slightly lighter + more neutral grey dark mode */
+      --bg:#20242b;
+      --panel:#2a3038;
+      --stroke:#3a424e;
+      --stroke2:#465062;
+      --text:#e8effa;
+      --muted:#b3bfd2;
+      --muted2:#97a6bd;
+      --btn:#2a3447;
+      --btn2:#324056;
+      --accent:#6aa7ff;
+      --accentDark:#c6ddff;
+      --shadow: 0 10px 26px rgba(0,0,0,.35);
+    }
+    :root[data-theme="dark"] header{
+      background: linear-gradient(180deg, rgba(106,167,255,.22), rgba(106,167,255,.09) 55%, rgba(35,44,61,1));
+      box-shadow: 0 6px 18px rgba(0,0,0,.30);
+    }
+    :root[data-theme="dark"] .editBlock{
+      background: rgba(20,26,36,.72);
+      border-color: rgba(106,167,255,.22);
+    }
+    :root[data-theme="dark"] .editSubtitle{
+      background: rgba(20,26,36,.55);
+      border-color: var(--stroke);
+      color: var(--muted);
+    }
+    :root[data-theme="dark"] .pill{
+      background: rgba(255,255,255,.03);
+      border-color: var(--stroke);
+    }
+    :root[data-theme="dark"] .toolbar{
+      background: rgba(20,26,36,.55);
+    }
+    :root[data-theme="dark"] .input,
+    :root[data-theme="dark"] select,
+    :root[data-theme="dark"] .notesLine{
+      background: rgba(255,255,255,.04);
+      border-color: var(--stroke2);
+      color: var(--text);
+    }
+    
+    :root[data-theme="dark"] .editTitle{
+      color: var(--text);
+    }
+    :root[data-theme="dark"] select option,
+    :root[data-theme="dark"] select optgroup{
+      background: var(--panel);
+      color: var(--text);
+    }
+:root[data-theme="dark"] thead th{
+      background: rgba(20,26,36,.55);
+      color: var(--text);
+    }
+    :root[data-theme="dark"] tbody tr:hover{ background: rgba(255,255,255,.04); }
+    :root[data-theme="dark"] .checks label{
+      background: rgba(255,255,255,.04);
+      border-color: rgba(52,67,90,.95);
+    }
+    :root[data-theme="dark"] .standingWrap{
+      background: rgba(255,255,255,.04);
+      border-color: rgba(52,67,90,.95);
+    }
+    :root[data-theme="dark"] .standingSelect{
+      background: rgba(255,255,255,.04);
+      border-color: var(--stroke2);
+      color: var(--text);
+    }
+    :root[data-theme="dark"] .toast{
+      background: var(--panel);
+      border-color: var(--stroke2);
+    }
+
+  </style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="headrow">
+<div class="titleBox">
+<div class="editBlock editTitle" contenteditable="true" id="hdrTitle" spellcheck="false"></div>
+<div class="editBlock editSubtitle" contenteditable="true" id="hdrSubtitle" spellcheck="false"></div>
+<div class="hint" id="hintLine">Tip: you can write multiple lines (Enter) – printing will wrap without cutting.</div>
+<div class="meta">
+<span class="pill"><strong id="countLabel">0</strong> <span id="countUnit">volunteers</span></span>
+<span class="pill"><span id="viewPrefix">View:</span> <strong id="viewLabel">Brothers</strong></span>
+<span class="pill"><span id="lastSavedPrefix">Last saved:</span> <strong id="lastSaved">—</strong></span>
+<span class="pill" id="langPill" title="Language / Sprache">
+<select class="input" id="langSwitch" style="padding:5px 8px; border-radius:999px; min-width:74px;">
+<option value="en">EN</option>
+<option value="de">DE</option>
+</select>
+</span><span class="pill" title="Theme">
+<button class="btn small" id="themeBtn" style="border-radius:999px; padding:6px 10px;" title="Toggle light/dark">🌙</button>
+</span>
+</div>
+<div class="printGroup" id="printGroup">Brothers</div>
+</div>
+<div class="headerActions" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+<button class="btn primary" id="addBtn">➕ Add</button>
+<button class="btn" id="printBtn">🖨️ Print / PDF</button>
+</div>
+</div>
+</div>
+</header>
+<main>
+<div class="panel">
+<div class="toolbar">
+<select id="groupFilter" style="min-width: 170px;">
+<option id="optBrothers" selected="" value="Brothers">Brothers</option>
+<option id="optSisters" value="Sisters">Sisters</option>
+</select>
+<input class="input" id="search" placeholder="Search (name / phone / email / notes) …" style="min-width:240px; flex:1;"/>
+<select id="privFilter" style="min-width: 170px;">
+<option id="optAllPriv" value="">All privileges</option>
+<option id="optElder" value="Elder">${t("elder")}</option>
+<option id="optMS" value="MS">${t("ms")}</option>
+<option id="optPublisher" value="Publisher">${t("publisher")}</option>
+</select>
+<div class="spacer"></div>
+<button class="btn" id="exportBtn">⬇️ Export JSON</button>
+<button class="btn" id="importBtn">⬆️ Import JSON</button>
+<input accept="application/json" hidden="" id="importFile" type="file"/>
+<button class="btn danger" id="clearBtn">🧹 Clear</button>
+</div>
+<div class="content">
+<table>
+<thead>
+<tr><th id="tableHeadLabel">Volunteer</th></tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+<div class="emptyState" id="emptyState"><span id="emptyText">No volunteers found.</span> <span id="emptyText2">Click</span> <strong id="emptyAddWord">Add</strong> <span id="emptyText3">or import JSON.</span></div>
+</div>
+</div>
+</main>
+<footer>
+<div>Made with Love © – Volunteers list v 2.3</div>
+<div class="footerStorage">Storage: LocalStorage</div>
+</footer>
+<div class="toast" id="toast"></div>
+<script>
+
+(() => {
+  try{
+
+  const KEY_DATA = "volunteers_list_universal_v1_data";
+  const KEY_CFG  = "volunteers_list_universal_v1_cfg";
+  const KEY_THEME = "volunteers_list_universal_v1_theme";
+  const KEY_LANG  = "volunteers_list_universal_v1_lang";
+
+  let data = [];
+  let cfg = { title: "Volunteers Sample-Congregation", subtitle: "Local file • printable • JSON import/export • copy + one-click call/mail" };
+
+  // --- i18n (EN/DE) ---
+  const LANG = {
+    en: {
+      volunteersUnit: "volunteers",
+      viewPrefix: "View:",
+      lastSavedPrefix: "Last saved:",
+      brothers: "Brothers",
+      sisters: "Sisters",
+      add: "Add",
+      print: "Print / PDF",
+      searchPh: "Search (name / phone / email / notes) …",
+      allPrivileges: "All privileges",
+      elder: "Elder",
+      ms: "Ministerial Servant",
+      publisher: "Publisher",
+      namePh: "Name",
+      phonePh: "+49 …",
+      emailPh: "Email",
+      notesPh: "Notes…",
+      volunteerHead: "Volunteer",
+      empty: "No volunteers found. Click Add or import JSON.",
+      standing: "Standing",
+      goodStanding: "Good standing",
+      exemplary: "Exemplary",
+      single: "Single",
+      familyHead: "Family head",
+      smallChildren: "Small children",
+      firstAid: "First aid course (≤2y)",
+      firstAidTitle: "First-aid course not older than 2 years (certified first-aider level).",
+
+      hintLine: "Tip: you can write multiple lines (Enter) – printing will wrap without cutting.",
+      langTitle: "Language",
+      ttCopyMobile: "Copy mobile",
+      ttCall: "Call",
+      ttWhatsApp: "WhatsApp",
+      ttCopyEmail: "Copy email",
+      ttWriteEmail: "Write email",
+      ttDelete: "Delete",
+      emptyText: "No volunteers found.",
+      emptyClick: "Click",
+      emptyOrImport: "or import JSON.",
+      ttTheme: "Toggle light/dark",
+      toggleDark: "Dark",
+      toggleLight: "Light",
+      exportJson: "Export JSON",
+      importJson: "Import JSON",
+      clear: "Clear",
+      delete: "Delete",
+      deleteConfirm: "Delete {name}?",
+      added: "Added ✔",
+      deleted: "Deleted ✔",
+      exported: "Exported JSON ✔",
+      imported: "Imported {n} ✔",
+      cleared: "Cleared ✔",
+      noPhone: "No phone number",
+      noEmail: "No email address",
+      nothingCopy: "Nothing to copy",
+      copied: "Copied ✔",
+      importFailed: "Import failed. Please select a valid JSON export from this tool.",
+      clearConfirm: "Clear ALL volunteers (Brothers + Sisters) on this device?",
+      exemplaryTip: "Elders and ministerial servants are exemplary by appointment."
+    },
+    de: {
+      volunteersUnit: "Freiwillige",
+      viewPrefix: "Ansicht:",
+      lastSavedPrefix: "Zuletzt gespeichert:",
+      brothers: "Brüder",
+      sisters: "Schwestern",
+      add: "Hinzufügen",
+      print: "Drucken / PDF",
+      searchPh: "Suche (Name / Telefon / E-Mail / Notizen) …",
+      allPrivileges: "Alle Vorrechte",
+      elder: "Ältester",
+      ms: "Dienstamtgehilfe",
+      publisher: "Verkündiger",
+      namePh: "Name",
+      phonePh: "+49 …",
+      emailPh: "E-Mail",
+      notesPh: "Notizen…",
+      volunteerHead: "Freiwilliger",
+      empty: "Keine Freiwilligen gefunden. Klicke auf Hinzufügen oder importiere JSON.",
+      standing: "Ruf",
+      goodStanding: "In gutem Ruf",
+      exemplary: "Vorbildlich",
+      single: "Single",
+      familyHead: "Familienhaupt",
+      smallChildren: "Kleinkinder",
+      firstAid: "Erste-Hilfe-Kurs (≤2J)",
+      firstAidTitle: "Erste-Hilfe-Kurs nicht älter als 2 Jahre (ausgebildeter Ersthelfer).",
+
+      hintLine: "Tipp: Du kannst mehrere Zeilen schreiben (Enter) – beim Drucken wird sauber umgebrochen.",
+      langTitle: "Sprache",
+      ttCopyMobile: "Handy kopieren",
+      ttCall: "Anrufen",
+      ttWhatsApp: "WhatsApp",
+      ttCopyEmail: "E-Mail kopieren",
+      ttWriteEmail: "E-Mail schreiben",
+      ttDelete: "Löschen",
+      emptyText: "Keine Freiwilligen gefunden.",
+      emptyClick: "Klicke",
+      emptyOrImport: "oder importiere JSON.",
+      ttTheme: "Hell/Dunkel umschalten",
+      toggleDark: "Dunkel",
+      toggleLight: "Hell",
+      exportJson: "JSON exportieren",
+      importJson: "JSON importieren",
+      clear: "Leeren",
+      delete: "Löschen",
+      deleteConfirm: "{name} löschen?",
+      added: "Hinzugefügt ✔",
+      deleted: "Gelöscht ✔",
+      exported: "JSON exportiert ✔",
+      imported: "{n} importiert ✔",
+      cleared: "Geleert ✔",
+      noPhone: "Keine Telefonnummer",
+      noEmail: "Keine E-Mail-Adresse",
+      nothingCopy: "Nichts zum Kopieren",
+      copied: "Kopiert ✔",
+      importFailed: "Import fehlgeschlagen. Bitte eine gültige JSON-Datei aus diesem Tool auswählen.",
+      clearConfirm: "ALLE Freiwilligen (Brüder + Schwestern) auf diesem Gerät löschen?",
+      exemplaryTip: "Älteste und Dienstamtgehilfen gelten durch Ernennung als vorbildlich."
+    }
+  };
+
+  let currentLang = "en";
+  function t(key, vars){
+    let s = (LANG[currentLang] && LANG[currentLang][key]) ? LANG[currentLang][key] : key;
+    if(vars && typeof s === "string"){
+      for(const k of Object.keys(vars)){
+        s = s.replaceAll("{" + k + "}", String(vars[k]));
+      }
+    }
+    return s;
+  }
+
+  function applyLang(lang){
+    if(!LANG[lang]) lang = "en";
+    currentLang = lang;
+
+    // Persist
+    try{ localStorage.setItem(KEY_LANG, lang); }catch(e){}
+
+    // Header pills
+    const cu = document.getElementById("countUnit");
+    if(cu) cu.textContent = t("volunteersUnit");
+    const vp = document.getElementById("viewPrefix");
+    if(vp) vp.textContent = t("viewPrefix");
+    const lsp = document.getElementById("lastSavedPrefix");
+    if(lsp) lsp.textContent = t("lastSavedPrefix");
+
+    const hint = document.getElementById("hintLine");
+    if(hint) hint.textContent = t("hintLine");
+
+    const langPill = document.getElementById("langPill");
+    if(langPill) langPill.title = t("langTitle");
+    const themeBtn = document.getElementById("themeBtn");
+    if(themeBtn) themeBtn.title = t("ttTheme");
+
+    // Empty state (split parts)
+    const e1 = document.getElementById("emptyText");
+    const e2 = document.getElementById("emptyText2");
+    const e3 = document.getElementById("emptyText3");
+    const eAdd = document.getElementById("emptyAddWord");
+    if(e1) e1.textContent = t("emptyText");
+    if(e2) e2.textContent = t("emptyClick");
+    if(eAdd) eAdd.textContent = t("add");
+    if(e3) e3.textContent = t("emptyOrImport");
+
+    // Toolbar texts
+    const addBtn = document.getElementById("addBtn");
+    if(addBtn) addBtn.textContent = "➕ " + t("add");
+    const printBtn = document.getElementById("printBtn");
+    if(printBtn) printBtn.textContent = "🖨️ " + t("print");
+    const exportBtn = document.getElementById("exportBtn");
+    if(exportBtn) exportBtn.textContent = "⬇️ " + t("exportJson");
+    const importBtn = document.getElementById("importBtn");
+    if(importBtn) importBtn.textContent = "⬆️ " + t("importJson");
+    const clearBtn = document.getElementById("clearBtn");
+    if(clearBtn) clearBtn.textContent = "🧹 " + t("clear");
+
+    const search = document.getElementById("search");
+    if(search) search.placeholder = t("searchPh");
+
+    // Toolbar option labels
+    const ob = document.getElementById("optBrothers");
+    const os = document.getElementById("optSisters");
+    if(ob) ob.textContent = t("brothers");
+    if(os) os.textContent = t("sisters");
+
+    const oAll = document.getElementById("optAllPriv");
+    const oE = document.getElementById("optElder");
+    const oM = document.getElementById("optMS");
+    const oP = document.getElementById("optPublisher");
+    if(oAll) oAll.textContent = t("allPrivileges");
+    if(oE) oE.textContent = t("elder");
+    if(oM) oM.textContent = t("ms");
+    if(oP) oP.textContent = t("publisher");
+
+    // Re-render to update per-row labels & tooltips
+    render();
+  }
+
+  function initLang(){
+    let lang = null;
+    try{ lang = localStorage.getItem(KEY_LANG); }catch(e){}
+    if(lang !== "de" && lang !== "en"){
+      const nav = (navigator.language || "").toLowerCase();
+      lang = nav.startsWith("de") ? "de" : "en";
+    }
+    const ls = document.getElementById("langSwitch");
+    if(ls){
+      ls.value = lang;
+      ls.addEventListener("change", () => applyLang(ls.value));
+    }
+    applyLang(lang);
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const tbody = $("tbody");
+  const emptyState = $("emptyState");
+
+  const groupFilter = $("groupFilter");
+  const search = $("search");
+  const privFilter = $("privFilter");
+
+  const countLabel = $("countLabel");
+  const viewLabel = $("viewLabel");
+  const lastSaved = $("lastSaved");
+  const printGroup = $("printGroup");
+
+  const hdrTitle = $("hdrTitle");
+  const hdrSubtitle = $("hdrSubtitle");
+
+  // Theme (soft dark mode)
+  function applyTheme(mode){
+    const root = document.documentElement;
+    if(mode === "dark") root.setAttribute("data-theme","dark");
+    else root.removeAttribute("data-theme");
+
+    try{ localStorage.setItem(KEY_THEME, mode); }catch(e){}
+
+    const b = $("themeBtn");
+    if(b){
+      const darkOn = (mode === "dark");
+      b.textContent = darkOn ? ("☀️ " + t("toggleLight")) : ("🌙 " + t("toggleDark"));
+      b.title = t("ttTheme");
+    }
+  }
+  function initTheme(){
+    let mode = null;
+    try{ mode = localStorage.getItem(KEY_THEME); }catch(e){}
+    if(mode !== "dark" && mode !== "light"){
+      mode = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+    }
+    applyTheme(mode);
+  }
+
+  const pad = (n) => String(n).padStart(2, "0");
+  function nowStamp(ts = Date.now()){
+    const d = new Date(ts);
+    return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1600);
+  }
+  function uid(){
+    return "v_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+  }
+  function normalize(str){
+    return (str || "").toString().toLowerCase().trim();
+  }
+  function escapeHtml(s){
+    return (s ?? "").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
+
+  function cleanTel(s){
+    const raw = (s || "").toString().trim();
+    // keep leading +, strip spaces, slashes, etc.
+    const cleaned = raw.replace(/(?!^\+)[^0-9]/g, "").replace(/\s+/g,"");
+    return cleaned;
+  }
+
+  function load(){
+    try{
+      const rawCfg = localStorage.getItem(KEY_CFG);
+      if(rawCfg){
+        const parsed = JSON.parse(rawCfg);
+        if(parsed && typeof parsed === "object") cfg = { ...cfg, ...parsed };
+      }
+    }catch(e){}
+
+    hdrTitle.textContent = cfg.title || "";
+    hdrSubtitle.textContent = cfg.subtitle || "";
+    document.title = (cfg.title || "Volunteers List");
+
+    try{
+      const raw = localStorage.getItem(KEY_DATA);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)) data = parsed;
+      } else {
+        data = [];
+        localStorage.setItem(KEY_DATA, JSON.stringify(data));
+      }
+    }catch(e){
+      console.warn(e);
+      data = [];
+    }
+    lastSaved.textContent = nowStamp(Date.now());
+  }
+
+  function persist(){
+    localStorage.setItem(KEY_DATA, JSON.stringify(data));
+    lastSaved.textContent = nowStamp(Date.now());
+  }
+
+  function persistCfg(){
+    cfg.title = (hdrTitle.textContent || "").trim();
+    cfg.subtitle = (hdrSubtitle.textContent || "").trim();
+    localStorage.setItem(KEY_CFG, JSON.stringify(cfg));
+    document.title = (cfg.title || "Volunteers List");
+  }
+
+  function currentGroup(){ return groupFilter.value; }
+
+  function matches(v){
+    const g = currentGroup();
+    if(v.group !== g) return false;
+
+    const q = normalize(search.value);
+    const pf = privFilter.value;
+
+    if(g === "Brothers" && pf && v.privilege !== pf) return false;
+    if(!q) return true;
+
+    const hay = [v.name, v.privilege, v.standing, v.phone, v.email, v.notes].map(normalize).join(" | ");
+    return hay.includes(q);
+  }
+
+  function getById(id){ return data.find(x => x.id === id); }
+
+  function setHeaderState(){
+    const g = currentGroup();
+    viewLabel.textContent = (g === "Brothers") ? t("brothers") : t("sisters");
+    printGroup.textContent = (g === "Brothers") ? t("brothers") : t("sisters");
+
+    // Table header label: German gendered for Brothers/Sisters
+    const th = document.getElementById("tableHeadLabel");
+    if(th){
+      if(currentLang === "de"){
+        th.textContent = (g === "Brothers") ? "Freiwilliger" : "Freiwillige";
+      } else {
+        th.textContent = t("volunteerHead");
+      }
+    }
+
+    privFilter.style.display = (g === "Brothers") ? "inline-block" : "none";
+    if(g !== "Brothers") privFilter.value = "";
+  }
+
+  function render(){
+    setHeaderState();
+
+    // Ensure appointed brothers are marked exemplary
+    for(const v of data){
+      if(v && v.group === "Brothers" && (v.privilege === "Elder" || v.privilege === "MS")){
+        v.standing = "exemplary";
+      }
+      if(v && !v.standing && v.group && v.group !== "Brothers"){
+        // leave empty for sisters unless set
+      }
+    }
+
+    const filtered = data.filter(matches)
+      .sort((a,b) => (a.name||"").localeCompare(b.name||"", undefined, {sensitivity:"base"}));
+
+    countLabel.textContent = filtered.length;
+
+    const g = currentGroup();
+
+    tbody.innerHTML = filtered.map(v => {
+      const topClass = (g === "Sisters") ? "rowTop sisters" : "rowTop";
+
+      const top = (g === "Brothers")
+        ? `
+          <div class="${topClass}">
+            <div class="field">
+              <input class="input" data-field="name" value="${escapeAttr(v.name||"")}" placeholder="${escapeAttr(t("namePh"))}" />
+            </div>
+
+            <div class="field">
+              <select data-field="privilege">
+                <option value="Elder" ${v.privilege==="Elder"?"selected":""}>${t("elder")}</option>
+                <option value="MS" ${v.privilege==="MS"?"selected":""}>${t("ms")}</option>
+                <option value="Publisher" ${v.privilege==="Publisher"?"selected":""}>${t("publisher")}</option>
+              </select>
+            </div>
+
+            <div class="field copyField">
+              <input class="input mono" data-field="phone" value="${escapeAttr(v.phone||"")}" placeholder="${escapeAttr(t("phonePh"))}" />
+              <button class="miniBtn" data-pos="1" data-copy="phone" title="${t("ttCopyMobile")}">⧉</button>
+              <button class="miniBtn" data-pos="2" data-call="1" title="${t("ttCall")}">📞</button>
+              <button class="miniBtn" data-pos="3" data-wa="1" title="${t("ttWhatsApp")}">💬</button>
+            </div>
+
+            <div class="field copyField">
+              <input class="input mono" data-field="email" value="${escapeAttr(v.email||"")}" placeholder="${escapeAttr(t("emailPh"))}" />
+              <button class="miniBtn" data-pos="1" data-copy="email" title="${t("ttCopyEmail")}">⧉</button>
+              <button class="miniBtn" data-pos="2" data-mail="1" title="${t("ttWriteEmail")}">✉️</button>
+            </div>
+
+            <div class="actions">
+              <button class="btn small danger" data-del="1" title="${t("ttDelete")}">🗑️</button>
+            </div>
+          </div>
+        `
+        : `
+          <div class="${topClass}">
+            <div class="field">
+              <input class="input" data-field="name" value="${escapeAttr(v.name||"")}" placeholder="${escapeAttr(t("namePh"))}" />
+            </div>
+
+            <div class="field copyField">
+              <input class="input mono" data-field="phone" value="${escapeAttr(v.phone||"")}" placeholder="${escapeAttr(t("phonePh"))}" />
+              <button class="miniBtn" data-pos="1" data-copy="phone" title="${t("ttCopyMobile")}">⧉</button>
+              <button class="miniBtn" data-pos="2" data-call="1" title="${t("ttCall")}">📞</button>
+              <button class="miniBtn" data-pos="3" data-wa="1" title="${t("ttWhatsApp")}">💬</button>
+            </div>
+
+            <div class="field copyField">
+              <input class="input mono" data-field="email" value="${escapeAttr(v.email||"")}" placeholder="${escapeAttr(t("emailPh"))}" />
+              <button class="miniBtn" data-pos="1" data-copy="email" title="${t("ttCopyEmail")}">⧉</button>
+              <button class="miniBtn" data-pos="2" data-mail="1" title="${t("ttWriteEmail")}">✉️</button>
+            </div>
+
+            <div class="actions">
+              <button class="btn small danger" data-del="1" title="${t("ttDelete")}">🗑️</button>
+            </div>
+          </div>
+        `;
+
+      const checks = (g === "Brothers")
+        ? `
+          ${
+            (v.privilege === "Elder" || v.privilege === "MS")
+              ? `<span class="standingPill" title="${escapeAttr(t("exemplaryTip"))}">${t("exemplary")}</span>`
+              : `
+                <span class="standingWrap">
+                  <span>${t("standing")}:</span>
+                  <select class="standingSelect" data-field="standing" title="Standing (either/or)">
+                    <option value="" ${(!v.standing) ? "selected" : ""}>—</option>
+                    <option value="good" ${(v.standing==="good")?"selected":""}>${t("goodStanding")}</option>
+                    <option value="exemplary" ${(v.standing==="exemplary")?"selected":""}>${t("exemplary")}</option>
+                  </select>
+                </span>
+              `
+          }
+          <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
+          <label><input type="checkbox" data-check="familyHead" ${v.familyHead ? "checked":""}/> <span class="lblLong">${t("familyHead")}</span><span class="lblShort">Fam.head</span></label>
+          <label><input type="checkbox" data-check="smallChildren" ${v.smallChildren ? "checked":""}/> <span class="lblLong">${t("smallChildren")}</span><span class="lblShort">Kids</span></label>
+        `
+        : `
+          <span class="standingWrap">
+            <span>${t("standing")}:</span>
+            <select class="standingSelect" data-field="standing" title="Standing (either/or)">
+              <option value="" ${(!v.standing) ? "selected" : ""}>—</option>
+              <option value="good" ${(v.standing==="good")?"selected":""}>${t("goodStanding")}</option>
+              <option value="exemplary" ${(v.standing==="exemplary")?"selected":""}>${t("exemplary")}</option>
+            </select>
+          </span>
+          <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
+          <label><input type="checkbox" data-check="smallChildren" ${v.smallChildren ? "checked":""}/> <span class="lblLong">${t("smallChildren")}</span><span class="lblShort">Kids</span></label>
+          <label><input type="checkbox" data-check="medicalExperience" ${v.medicalExperience ? "checked":""}/> <span class="faShort" title="${escapeAttr(t("firstAidTitle"))}">${t("firstAid")}</span></label>
+        `;
+
+      const bottom = `
+        <div class="rowBottom">
+          <input class="notesLine" data-field="notes" value="${escapeAttr(v.notes||"")}" placeholder="${escapeAttr(t("notesPh"))}" />
+          <div class="checks">${checks}</div>
+        </div>
+      `;
+
+      return `
+        <tr data-id="${escapeAttr(v.id)}">
+          <td>
+            ${top}
+            ${bottom}
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    emptyState.style.display = filtered.length ? "none" : "block";
+  }
+
+  function addRow(){
+    const g = currentGroup();
+    const base = {
+      id: uid(),
+      group: g,
+      name:"",
+      phone:"",
+      email:"",
+      notes:"",
+      single:false,
+      smallChildren:false,
+      standing:"good",
+      updatedAt: Date.now()
+    };
+
+    if(g === "Brothers"){
+      base.privilege = "Publisher";
+      base.familyHead = false;
+    } else {
+      base.medicalExperience = false;
+    }
+
+    data.push(base);
+    persist();
+    toast(t("added"));
+    render();
+
+    setTimeout(() => {
+      const rows = tbody.querySelectorAll("tr");
+      const last = rows[rows.length - 1];
+      last?.querySelector('input[data-field="name"]')?.focus();
+    }, 0);
+  }
+
+  function removeRow(id){
+    const v = getById(id);
+    const nm = (v?.name || "this volunteer").trim();
+    if(!confirm(t("deleteConfirm",{name:nm}))) return;
+    data = data.filter(x => x.id !== id);
+    persist();
+    toast(t("deleted"));
+    render();
+  }
+
+  // Header editing (save on input)
+  hdrTitle.addEventListener("input", persistCfg);
+  hdrSubtitle.addEventListener("input", persistCfg);
+
+  // prevent rich formatting paste (keep plain text)
+  function pastePlain(e){
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+    document.execCommand("insertText", false, text);
+  }
+  hdrTitle.addEventListener("paste", pastePlain);
+  hdrSubtitle.addEventListener("paste", pastePlain);
+
+  // Toolbar events
+  document.getElementById("addBtn").addEventListener("click", addRow);
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const dark = document.documentElement.getAttribute("data-theme") === "dark";
+    applyTheme(dark ? "light" : "dark");
+  });
+  groupFilter.addEventListener("change", () => render());
+  search.addEventListener("input", render);
+  privFilter.addEventListener("change", render);
+
+  // Delegated edits + copy + delete
+  tbody.addEventListener("input", (e) => {
+    const el = e.target;
+    const tr = el.closest("tr");
+    if(!tr) return;
+    const id = tr.getAttribute("data-id");
+    if(!id) return;
+
+    if(el.matches("input[data-field]")){
+      const field = el.getAttribute("data-field");
+      const v = getById(id);
+      if(!v) return;
+      v[field] = el.value;
+      v.updatedAt = Date.now();
+      persist();
+    }
+  });
+
+  tbody.addEventListener("change", (e) => {
+    const el = e.target;
+    const tr = el.closest("tr");
+    if(!tr) return;
+    const id = tr.getAttribute("data-id");
+    if(!id) return;
+
+    if(el.matches("select[data-field]")){
+      const field = el.getAttribute("data-field");
+      const v = getById(id);
+      if(!v) return;
+
+      v[field] = el.value;
+
+      // If privilege changes to Elder/MS -> standing becomes Exemplary automatically
+      if(field === "privilege"){
+        if(v.privilege === "Elder" || v.privilege === "MS"){
+          v.standing = "exemplary";
+        }
+        v.updatedAt = Date.now();
+        persist();
+        render(); // update UI (pill vs dropdown)
+        return;
+      }
+
+      v.updatedAt = Date.now();
+      persist();
+    }
+
+    if(el.matches('input[type="checkbox"][data-check]')){
+      const key = el.getAttribute("data-check");
+      const v = getById(id);
+      if(!v) return;
+      v[key] = !!el.checked;
+      v.updatedAt = Date.now();
+      persist();
+    }
+  });
+
+  tbody.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const tr = btn.closest("tr");
+    if(!tr) return;
+    const id = tr.getAttribute("data-id");
+    if(!id) return;
+
+    if(btn.dataset.call){
+      const v = getById(id);
+      if(!v) return;
+      const tel = cleanTel(v.phone);
+      if(!tel){ toast(t("noPhone")); return; }
+      window.location.href = `tel:${tel}`;
+      return;
+    }
+    if(btn.dataset.wa){
+      const v = getById(id);
+      if(!v) return;
+      const tel = cleanTel(v.phone).replace(/^\+/, "");
+      if(!tel){ toast(t("noPhone")); return; }
+      // WhatsApp Click-to-Chat
+      window.location.href = `https://wa.me/${tel}`;
+      return;
+    }
+    if(btn.dataset.mail){
+      const v = getById(id);
+      if(!v) return;
+      const mail = (v.email || "").trim();
+      if(!mail){ toast(t("noEmail")); return; }
+      window.location.href = `mailto:${encodeURI(mail)}`;
+      return;
+    }
+    if(btn.dataset.copy){
+      const v = getById(id);
+      if(!v) return;
+      const val = (v[btn.dataset.copy] || "").trim();
+      if(!val){ toast(t("nothingCopy")); return; }
+      navigator.clipboard.writeText(val).then(()=>toast(t("copied"))).catch(()=>toast(t("copied")));
+      return;
+    }
+    if(btn.dataset.del){
+      removeRow(id);
+      return;
+    }
+  });
+
+  // Export / Import / Clear (includes header cfg)
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const payload = {
+      app: "Volunteers List (Universal)",
+      version: "1.0",
+      exportedAt: new Date().toISOString(),
+      header: { title: cfg.title, subtitle: cfg.subtitle },
+      lang: currentLang,
+      count: data.length,
+      data
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `volunteers_list_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(t("exported"));
+  });
+
+  const importFile = document.getElementById("importFile");
+  document.getElementById("importBtn").addEventListener("click", () => importFile.click());
+
+  importFile.addEventListener("change", async () => {
+    const file = importFile.files?.[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      if(parsed && typeof parsed.lang === "string"){
+        const ls = document.getElementById("langSwitch");
+        if(ls && (parsed.lang === "de" || parsed.lang === "en")){
+          ls.value = parsed.lang;
+          applyLang(parsed.lang);
+        }
+      }
+
+      if(parsed && parsed.header && typeof parsed.header === "object"){
+        cfg.title = String(parsed.header.title || cfg.title);
+        cfg.subtitle = String(parsed.header.subtitle || cfg.subtitle);
+        hdrTitle.textContent = cfg.title;
+        hdrSubtitle.textContent = cfg.subtitle;
+        persistCfg();
+      }
+
+      let incoming = null;
+      if(Array.isArray(parsed)) incoming = parsed;
+      else if(parsed && Array.isArray(parsed.data)) incoming = parsed.data;
+      if(!incoming) throw new Error("JSON format not recognized");
+
+      const cleaned = incoming
+        .filter(x => x && typeof x === "object")
+        .map(x => ({
+          id: String(x.id || uid()),
+          group: (x.group === "Sisters") ? "Sisters" : "Brothers",
+          name: String(x.name || "").trim(),
+          privilege: (x.privilege === "Elder" || x.privilege === "MS") ? x.privilege : "Publisher",
+          phone: String(x.phone || "").trim(),
+          email: String(x.email || "").trim(),
+          notes: String(x.notes || "").trim(),
+          single: !!x.single,
+          familyHead: !!x.familyHead,
+          smallChildren: !!x.smallChildren,
+          medicalExperience: !!x.medicalExperience,
+          standing: ((x.privilege === "Elder" || x.privilege === "MS") ? "exemplary" : ((x.standing === "exemplary" || x.standing === "good") ? x.standing : "")),
+          updatedAt: Number(x.updatedAt || Date.now())
+        }));
+
+      const map = new Map(data.map(v => [v.id, v]));
+      for(const v of cleaned) map.set(v.id, v);
+      data = Array.from(map.values());
+
+      persist();
+      toast(t("imported",{n: cleaned.length}));
+      render();
+    }catch(err){
+      console.error(err);
+      alert(t("importFailed"));
+    }finally{
+      importFile.value = "";
+    }
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if(!confirm(t("clearConfirm"))) return;
+    data = [];
+    persist();
+    toast(t("cleared"));
+    render();
+  });
+
+  // PRINT: trim Notes a bit so checkbox line stays on one row
+  const __printNotes = new Map();
+  function __truncateNotesForPrint(){
+    __printNotes.clear();
+    document.querySelectorAll(".notesLine").forEach(inp => {
+      const orig = inp.value || "";
+      __printNotes.set(inp, orig);
+      const max = 45; // change if you want more/less
+      if(orig.length > max){
+        inp.value = orig.slice(0, max-1) + "…";
+      }
+    });
+  }
+  function __restoreNotesAfterPrint(){
+    for(const [inp, orig] of __printNotes.entries()){
+      if(inp) inp.value = orig;
+    }
+    __printNotes.clear();
+  }
+  window.addEventListener("beforeprint", __truncateNotesForPrint);
+  window.addEventListener("afterprint", __restoreNotesAfterPrint);
+
+  initLang();
+  initTheme();
+  load();
+  groupFilter.value = "Brothers";
+  render();
+
+  }catch(err){
+    console.error(err);
+    try{ alert('Error: ' + (err && err.message ? err.message : err)); }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
