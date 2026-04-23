@@ -288,6 +288,43 @@
     .help-btn { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.5); box-shadow: none; border-radius: 50px;}
     .help-btn:hover { background: #fff; color: var(--primary); }
 
+
+
+    /* =========================================
+       CUSTOM FILE INPUT (Material Blue Style)
+       ========================================= */
+    #import-json-input {
+      display: none !important;
+    }
+
+    .file-input-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #e8f0fe;
+      color: var(--primary-dark);
+      border: 1px solid #aecbfa;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all var(--trans);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .file-input-label:hover {
+      background: #d2e3fc;
+      border-color: #8ab4f8;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-1);
+    }
+
+    .file-input-label:active {
+      transform: scale(0.96);
+    }
+
     /* Helpers */
     .helper-cell { min-width: 120px; }
     .helper-select-container { display: flex; flex-direction: column; gap: 4px; }
@@ -381,10 +418,8 @@
     <div class="toolbar-left">
       <button id="exportBtnTop" type="button">Export as JSON</button>
 
-      <label class="toolbar-label">
-        Import JSON:
-        <input type="file" id="importFileTop" accept=".json" style="font-size:0.8rem;">
-      </label>
+      <label for="import-json-input" class="file-input-label">⬆ Import JSON</label>
+      <input type="file" id="import-json-input" accept=".json">
 
       <button id="printCurrentBtn" type="button">Print (current view)</button>
     </div>
@@ -1632,7 +1667,7 @@
     }
 
     document.getElementById("exportBtnTop").addEventListener("click", doExport);
-    document.getElementById("importFileTop").addEventListener("change", async (e) => {
+    document.getElementById("import-json-input").addEventListener("change", async (e) => {
       const file = e.target.files[0];
       await doImport(file);
       e.target.value = "";
