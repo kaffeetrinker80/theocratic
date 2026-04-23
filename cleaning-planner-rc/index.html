@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+<link rel="icon" href="favicon.ico">
+
+<link rel="manifest" href="site.webmanifest">
+
+<meta name="theme-color" content="#1565c0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cleaning Department Planner - RC Edition</title>
+  <style>
+    :root{
+      --bg:#f3f5f7;
+      --surface:#ffffff;
+      --surface-2:#f8fafc;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#d8e1ea;
+      --primary:#1565c0;
+      --primary-soft:#eaf2fd;
+      --accent:#2e7d32;
+      --warn:#ef6c00;
+      --danger:#c62828;
+      --chip:#eef3f8;
+      --shadow:0 10px 28px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding:18px}
+    .app{max-width:1800px;margin:0 auto}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero{padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,#f4f8ff 100%)}
+    .hero-top{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+    .hero-top > :first-child{flex:1 1 560px;min-width:0}
+    .hero-top > :last-child{flex:0 0 340px}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:18px}
+    .hero-simple{display:grid;gap:14px}
+    .event-stack{display:grid;gap:12px}
+    .hero-title-input{width:100%;border:0;border-bottom:2px solid #d7e4f2;border-radius:0;padding:0 0 8px;background:transparent;font-size:32px;font-weight:800;line-height:1.15;color:var(--text)}
+    .hero-title-area{resize:none;overflow:hidden;white-space:normal;word-break:break-word;min-height:84px;font-family:Arial,Helvetica,sans-serif}
+    .hero-title-input:focus{box-shadow:none;border-color:#90caf9}
+    .hero-title-input::placeholder{color:#7b8794;opacity:1}
+    .top-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:10px}
+    .lang-switch{display:flex;gap:8px;justify-content:flex-end}
+    .lang-btn{border:1px solid #cfe1f7;background:#fff;color:var(--primary);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer}
+    .lang-btn.active{background:var(--primary);color:#fff}
+    .event-stack input{font-size:18px;font-weight:700;padding:13px 14px}
+    h2{margin:0 0 14px;font-size:18px}
+    h3{margin:0 0 12px;font-size:16px}
+    .sub{color:var(--muted);font-size:15px;margin-top:8px}
+    .badge{display:grid;gap:6px;padding:14px 16px;border-radius:16px;border:1px solid #cfe1f7;background:var(--primary-soft);color:var(--primary);font-size:13px;font-weight:700;min-width:0;width:100%}
+    .badge .big{font-size:14px;font-weight:800}
+    .badge .small{font-size:12px;color:#35506f;font-weight:600}
+    .section{padding:18px;margin-bottom:16px}
+    .grid{display:grid;gap:14px}
+    .grid-2{grid-template-columns:repeat(2,minmax(280px,1fr))}
+    .summary{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:12px}
+    .metric{padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
+    .metric .k{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:700}
+    .metric .v{font-size:26px;font-weight:800;margin-top:6px}
+    .split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+    .overview-grid{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:14px}
+    .day-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+    .day-total{font-size:24px;font-weight:800;margin-bottom:8px}
+    label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;background:#fff;color:var(--text);outline:none}
+    input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.12)}
+    textarea{min-height:110px;resize:vertical}
+    button,.file-label{border:0;border-radius:12px;padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;transition:transform .08s ease}
+    button:hover,.file-label:hover{transform:translateY(-1px)}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .primary{background:var(--primary);color:#fff}
+    .secondary{background:#eef3f8;color:var(--text)}
+    .success{background:#e8f5e9;color:var(--accent)}
+    .warn{background:#fff3e0;color:var(--warn)}
+    .danger{background:#ffebee;color:var(--danger)}
+    .file-label input{display:none}
+    .mini{font-size:12px;color:var(--muted)}
+    .footer-note{color:var(--muted);font-size:12px;margin-top:12px}
+    .search-row{display:grid;grid-template-columns:1.2fr .75fr .75fr 1fr 160px;gap:12px;align-items:end;margin-bottom:14px}
+    .table-wrap,.schedule-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+    table,.schedule-table{width:100%;border-collapse:collapse;min-width:980px}
+    thead th,.schedule-table thead th{position:sticky;top:0;z-index:2;background:#edf4fb;color:#26415f;font-size:12px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}
+    tbody td,.schedule-table td{border-bottom:1px solid #edf1f4;padding:8px;vertical-align:top;font-size:14px}
+    tbody tr:hover{background:#fafcff}
+    .compact-stack,.stack{display:grid;gap:8px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px}
+    .chip{border:1px solid var(--line);background:var(--chip);padding:12px;border-radius:14px;min-width:220px;display:grid;gap:8px}
+    .chip b{display:block;font-size:14px}
+    .chip span{color:var(--muted);font-size:12px}
+    .tag-box{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .tag{padding:8px 10px;border-radius:999px;background:#eef3f8;border:1px solid var(--line);font-size:12px;font-weight:700}
+    .message-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;line-height:1.5;min-height:190px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .tab-btn{background:#eef3f8;color:var(--text)}
+    .tab-btn.active{background:var(--primary);color:#fff}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .type-select{font-weight:700;border-radius:999px;padding:9px 12px;text-align:center;border:1px solid var(--line);appearance:none;-webkit-appearance:none}
+    .type-select.cong{background:#e3f2fd;color:#1565c0}
+    .type-select.group{background:#fff8e1;color:#8d6e00}
+    .status-select.no-reply{background:#eceff1;color:#455a64}
+    .status-select.replied{background:#fff3e0;color:#ef6c00}
+    .status-select.confirmed{background:#e8f5e9;color:#2e7d32}
+    .small-btn{font-size:12px;padding:8px 10px}
+    .scroll-top-btn{position:fixed;right:22px;bottom:22px;z-index:40;width:48px;height:48px;border-radius:999px;border:1px solid #cfe1f7;background:var(--primary);color:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:20px}
+    .print-only{display:none}
+    .day-section{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2);margin-bottom:16px}
+    .day-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+    .day-meta{color:var(--muted);font-size:13px}
+    .assigned-badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#e8f5e9;color:#2e7d32;font-size:12px;font-weight:700}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:5000}
+    .modal-backdrop.show{display:flex}
+    .modal{max-width:920px;width:100%;max-height:90vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+    .modal-body{padding:20px}
+    .help-grid{display:grid;gap:14px}
+    .help-card{border:1px solid var(--line);border-radius:16px;background:var(--surface-2);padding:14px}
+    .help-card h4{margin:0 0 10px;font-size:15px}
+    .help-card ul{margin:0;padding-left:18px}
+    .help-card li{margin:6px 0}
+    .close-btn{background:#eef3f8;color:var(--text)}
+
+    .field-with-actions{position:relative}
+    .field-with-actions input{padding-right:40px}
+    .field-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px}
+    .mini-copy{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;border:1px solid #d4dde7;background:#f7f9fc;color:#35506f;cursor:pointer;font-size:13px;line-height:1}
+    .mini-copy:hover{background:#edf4fb}
+    .preview-contact-card{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#f8fafc}
+    .preview-contact-title{font-size:13px;font-weight:800;color:#35506f;margin-bottom:10px}
+    .preview-contact-grid{display:grid;gap:8px}
+    .preview-contact-row{display:grid;grid-template-columns:120px 1fr 28px;gap:8px;align-items:center}
+    .preview-contact-row .label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .preview-contact-value{min-height:38px;display:flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .footer-bar{margin:18px 0 4px;text-align:center;color:var(--muted);font-size:12px}
+    @media(max-width:1280px){
+      .hero-grid,.grid-2,.summary,.search-row,.split,.overview-grid{grid-template-columns:1fr}
+      .hero-top > :last-child{flex:1 1 100%}
+      body{padding:10px}
+      .hero-title-input{font-size:24px}
+    }
+    @media print{
+      body{background:#fff;padding:0}
+      .card{box-shadow:none;border-color:#cfd8dc}
+      .toolbar,.tabs,.hero,#tab-dashboard,#tab-areas,#tab-backup,.no-print,.modal-backdrop{display:none !important}
+      .print-only{display:block}
+      #tab-schedule{display:block !important}
+      #tab-schedule .card{border:none}
+      input,textarea,select{border:none;padding:0;background:transparent}
+      .table-wrap,.schedule-wrap{overflow:visible;border-radius:0;border:none}
+      table,.schedule-table{min-width:0;font-size:11.5px}
+      thead th{position:static}
+      .day-section{break-inside:avoid;page-break-inside:avoid;border:1px solid #cfd8dc;background:#fff}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="card hero">
+    <div class="top-actions no-print">
+      <div class="lang-switch">
+        <button class="lang-btn active" id="langBtn-en" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" id="langBtn-de" onclick="setLanguage('de')">DE</button>
+      </div>
+      <button class="secondary" onclick="openHelp()" data-i18n="helpButton">Help</button>
+    </div>
+
+    <div class="hero-top">
+      <div>
+        <textarea id="plannerTitle" class="hero-title-input hero-title-area" rows="2">Cleaning Department Planner - RC Edition</textarea>
+        <div class="sub" id="heroSubline"></div>
+      </div>
+      <div class="badge" id="badgePreview">
+        <div class="big" id="badgeBig"></div>
+        <div class="small" id="badgeLine1"></div>
+        <div class="small" id="badgeLine2"></div>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-simple">
+        <div class="event-stack">
+          <div>
+            <label for="eventName" data-i18n="eventNameLabel"></label>
+            <input id="eventName" value="Regional Convention 2026 Munich">
+          </div>
+          <div>
+            <label for="eventDate" data-i18n="eventDateLabel"></label>
+            <input id="eventDate">
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div>
+            <label for="venue" data-i18n="venueLabel"></label>
+            <input id="venue" value="Munich Convention Venue">
+          </div>
+          <div>
+            <label for="targetHelpers" data-i18n="targetHelpersLabel"></label>
+            <input id="targetHelpers" type="number" min="0" value="100">
+          </div>
+        </div>
+      </div>
+
+      <div class="card section" style="margin:0">
+        <h3 data-i18n="toolNoteTitle"></h3>
+        <div class="mini" data-i18n="toolNoteText"></div>
+        <div style="margin-top:14px">
+          <label for="assemblySubtitle" data-i18n="subtitleLabel"></label>
+          <input id="assemblySubtitle" value="Simple overview for congregation and group coordination">
+        </div>
+        <div class="footer-note" id="privacyNote"></div>
+      </div>
+    </div>
+
+    <div class="toolbar no-print">
+      <button class="primary" onclick="addRow()" data-i18n="addRow"></button>
+      <button class="secondary" onclick="printDayOverview()" data-i18n="printOverview"></button>
+      <button class="warn" onclick="resetPlanning()" data-i18n="resetPlanning"></button>
+      <button class="danger" onclick="clearAllRows()" data-i18n="clearAllRows"></button>
+    </div>
+  </section>
+
+  <div class="tabs no-print">
+    <button class="tab-btn active" id="tabBtn-dashboard" onclick="showTab('dashboard')"></button>
+    <button class="tab-btn" id="tabBtn-areas" onclick="showTab('areas')"></button>
+    <button class="tab-btn" id="tabBtn-schedule" onclick="showTab('schedule')"></button>
+    <button class="tab-btn" id="tabBtn-backup" onclick="showTab('backup')"></button>
+  </div>
+
+  <div class="tab-panel active" id="tab-dashboard">
+    <section class="card section">
+      <h2 data-i18n="quickOverview"></h2>
+      <div class="summary">
+        <div class="metric"><div class="k" id="metricEntriesLabel"></div><div class="v" id="mEntries">0</div></div>
+        <div class="metric"><div class="k" id="metricCongsLabel"></div><div class="v" id="mCongs">0</div></div>
+        <div class="metric"><div class="k" id="metricGroupsLabel"></div><div class="v" id="mGroups">0</div></div>
+        <div class="metric"><div class="k" id="metricPublishersLabel"></div><div class="v" id="mPublishers">0</div></div>
+        <div class="metric"><div class="k" id="metricSuggestedLabel"></div><div class="v" id="mSuggested">0</div></div>
+        <div class="metric"><div class="k" id="metricHelpersLabel"></div><div class="v" id="mHelpers">0</div></div>
+        <div class="metric"><div class="k" id="metricOpenLabel"></div><div class="v" id="mOpen">0</div></div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2 data-i18n="plannerSection"></h2>
+      <div class="search-row no-print">
+        <div>
+          <label for="searchBox" data-i18n="searchLabel"></label>
+          <input id="searchBox" oninput="renderTable()">
+        </div>
+        <div>
+          <label for="filterType" data-i18n="typeLabel"></label>
+          <select id="filterType" onchange="renderTable()"></select>
+        </div>
+        <div>
+          <label for="filterStatus" data-i18n="statusLabel"></label>
+          <select id="filterStatus" onchange="renderTable()"></select>
+        </div>
+        <div>
+          <label for="bulkArea" data-i18n="bulkAreaLabel"></label>
+          <input id="bulkArea" list="areas">
+        </div>
+        <div>
+          <button class="secondary" style="margin-top:22px" onclick="fillEmptyAreas()" id="fillEmptyAreasBtn"></button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th id="thCong"></th>
+              <th id="thType"></th>
+              <th id="thContact"></th>
+              <th id="thPublishers"></th>
+              <th id="thArea"></th>
+              <th id="thSuggested"></th>
+              <th id="thHelpers"></th>
+              <th id="thStatus"></th>
+              <th class="no-print" id="thActions"></th>
+            </tr>
+          </thead>
+          <tbody id="plannerBody"></tbody>
+        </table>
+      </div>
+      <div class="footer-note" id="plannerFootnote"></div>
+    </section>
+
+    <section class="card section">
+      <h2 data-i18n="areaOverview"></h2>
+      <div class="chips" id="areaSummary"></div>
+      <div class="footer-note" id="areaOverviewFootnote"></div>
+    </section>
+
+    <section class="card section">
+      <h2 data-i18n="messageTemplate"></h2>
+      <div class="split">
+        <div>
+          <label for="defaultMessage" data-i18n="templateLabel"></label>
+          <textarea id="defaultMessage"></textarea>
+          <div class="toolbar no-print">
+            <button class="primary" onclick="copySelectedMessage()" data-i18n="copySelectedMessage"></button>
+            <button class="secondary" onclick="copyTemplateOnly()" data-i18n="copyTemplateOnly"></button>
+          </div>
+        </div>
+        <div>
+          <label data-i18n="previewLabel"></label>
+          <div class="message-box" id="previewBox"></div>
+          <div class="preview-contact-card">
+            <div class="preview-contact-title" data-i18n="contactShortcutsTitle"></div>
+            <div class="preview-contact-grid" id="previewContactActions"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tab-panel" id="tab-areas">
+    <section class="card section">
+      <h2 data-i18n="cleaningAreas"></h2>
+      <div class="split">
+        <div>
+          <label for="areaEditor" data-i18n="editAreaSuggestions"></label>
+          <textarea id="areaEditor"></textarea>
+          <div class="toolbar">
+            <button class="primary" onclick="saveAreaOptions()" data-i18n="saveAreaList"></button>
+            <button class="secondary" onclick="resetAreaOptions()" data-i18n="restoreDefaultAreas"></button>
+          </div>
+          <div class="footer-note" id="areaEditorFootnote"></div>
+        </div>
+        <div>
+          <label data-i18n="currentSuggestions"></label>
+          <div class="tag-box" id="areaTags"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2 data-i18n="generalNotes"></h2>
+      <div class="grid grid-2">
+        <div>
+          <label for="generalInstructions" data-i18n="generalInstructionsLabel"></label>
+          <textarea id="generalInstructions"></textarea>
+        </div>
+        <div>
+          <label for="notesBox" data-i18n="internalNotesLabel"></label>
+          <textarea id="notesBox"></textarea>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tab-panel" id="tab-schedule">
+    <section class="card section print-only">
+      <div style="font-size:24px;font-weight:800;margin-bottom:4px" id="printScheduleTitle"></div>
+      <div style="font-size:14px;color:var(--muted)" id="printScheduleSubtitle"></div>
+    </section>
+
+    <section class="card section">
+      <h2 data-i18n="rcDayOverview"></h2>
+      <div class="overview-grid">
+        <div class="day-card">
+          <h3 id="friLabel"></h3>
+          <div class="day-total" id="friTotal">0</div>
+          <div class="mini" id="dayCardMini1"></div>
+        </div>
+        <div class="day-card">
+          <h3 id="satLabel"></h3>
+          <div class="day-total" id="satTotal">0</div>
+          <div class="mini" id="dayCardMini2"></div>
+        </div>
+        <div class="day-card">
+          <h3 id="sunLabel"></h3>
+          <div class="day-total" id="sunTotal">0</div>
+          <div class="mini" id="dayCardMini3"></div>
+        </div>
+      </div>
+      <div class="footer-note" id="scheduleTopFootnote"></div>
+    </section>
+
+    <section class="card section">
+      <h2 class="no-print" data-i18n="dayAssignments"></h2>
+      <div class="footer-note no-print" id="dayAssignmentsFootnote" style="margin-top:0;margin-bottom:14px"></div>
+      <div id="daySectionsWrap"></div>
+    </section>
+  </div>
+
+  <div class="tab-panel" id="tab-backup">
+    <section class="card section">
+      <h2 data-i18n="backupImport"></h2>
+      <div class="grid grid-2">
+        <div>
+          <label data-i18n="jsonBackup"></label>
+          <div class="toolbar no-print" style="margin-top:0">
+            <button class="primary" onclick="saveJson()" data-i18n="jsonExport"></button>
+            <label class="file-label secondary"><span data-i18n="jsonImport"></span><input type="file" accept="application/json" onchange="loadJsonFile(event)"></label>
+          </div>
+          <div class="footer-note" id="backupInfo"></div>
+        </div>
+        <div>
+          <label data-i18n="publicNotesLabel"></label>
+          <div class="message-box" style="min-height:120px" id="publicNotesBox"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+  <datalist id="areas"></datalist>
+  <div class="footer-bar">Made with Love © – Cleaning Department Planner RC Edition 1.5.1</div>
+</div>
+
+<div class="modal-backdrop" id="helpModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:20px;font-weight:800" id="helpModalTitle"></div>
+        <div class="mini" id="helpModalSub"></div>
+      </div>
+      <button class="close-btn" onclick="closeHelp()" data-i18n="close"></button>
+    </div>
+    <div class="modal-body">
+      <div class="help-grid" id="helpContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'cleaningPlannerRC2026_public_bilingual_v1_5_1';
+const DEFAULT_AREA_OPTIONS = [
+  'Auditorium - Left section',
+  'Auditorium - Center section',
+  'Auditorium - Right section',
+  'Corridors',
+  'Offices',
+  'Restrooms',
+  'Exterior grounds',
+  'Entrance / lobby',
+  'Cafeteria / dining area',
+  'Preassembly cleaning',
+  'Trash / recycling'
+];
+
+const INITIAL_ROWS = [
+  { congregation:'Sample Congregation', type:'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', publishers:0, area:'', helpers:0, friArea:'', friTime1:'', friTime2:'', satArea:'', satTime1:'', satTime2:'', sunArea:'', sunTime1:'', sunTime2:'', status:'No reply' }
+];
+
+const I18N = {
+  en: {
+    languageName: 'English',
+    helpButton: 'Help', close: 'Close',
+    heroSublineDefault: 'Simple overview for congregation and group coordination',
+    badgeActive: 'Local data active', noImportYet: 'No import yet', lastSave: 'Last save', notYet: 'not yet', imported: 'Imported', copied: 'Copied', copySuccess: 'Copy success', copyFailed: 'Copy failed in this browser.',
+    eventNameLabel: 'Event / Assembly', eventDateLabel: 'Date', venueLabel: 'Venue', targetHelpersLabel: 'Overall helper goal', subtitleLabel: 'Subtitle / note line',
+    toolNoteTitle: 'Planner note',
+    toolNoteText: 'This tool helps organize congregation and group assignments for the Cleaning Department at the Regional Convention.',
+    privacyNote: 'Enter local contact details only when you need them for planning or communication.',
+    addRow: 'Add congregation / group', printOverview: 'Print RC day overview', resetPlanning: 'Reset planning', clearAllRows: 'Clear all rows',
+    tabDashboard: 'Dashboard & template', tabAreas: 'Areas & settings', tabSchedule: 'RC day overview', tabBackup: 'Backup',
+    quickOverview: 'Quick overview', metricEntries: 'Entries', metricCongs: 'Congregations', metricGroups: 'Groups', metricPublishers: 'Total publishers', metricSuggested: 'Suggested helpers', metricHelpers: 'Confirmed helpers', metricOpen: 'Open to target',
+    plannerSection: 'Congregation / group planner', searchLabel: 'Search', searchPlaceholder: 'Search congregation, area, status...', typeLabel: 'Type', statusLabel: 'Status', bulkAreaLabel: 'Bulk area for empty rows', bulkAreaPlaceholder: 'Select or type area', fillEmptyAreas: 'Fill empty areas',
+    typeAll: 'All', typeCongregation: 'Congregation', typeGroup: 'Group',
+    statusAll: 'All', statusNoReply: 'No reply', statusReplied: 'Replied', statusConfirmed: 'Confirmed',
+    thCong: 'Congregation / Group', thType: 'Type', thContact: 'Cleaning coordinator / Contact', thPublishers: 'Publishers', thArea: 'Cleaning area', thSuggested: 'Suggested', thHelpers: 'Confirmed helpers', thStatus: 'Status', thActions: 'Actions',
+    plannerFootnote: 'Publishers form the basis for the suggested helper key. Suggested helpers are calculated proportionally from all rows with a publisher count above 0.',
+    areaOverview: 'Area overview', areaOverviewFootnote: 'Practical overview of which areas are already assigned and how many confirmed helpers are currently linked to them.',
+    messageTemplate: 'Message template', templateLabel: 'Template', copySelectedMessage: 'Copy selected message', copyTemplateOnly: 'Copy template only', previewLabel: 'Preview', previewDefault: 'Choose “Preview” in a row to generate the specific message.',
+    cleaningAreas: 'Cleaning areas', editAreaSuggestions: 'Edit area suggestions (one line = one area)', areaEditorPlaceholder: 'e.g. Restrooms\nCorridors\nExterior grounds', saveAreaList: 'Save area list', restoreDefaultAreas: 'Restore default areas', currentSuggestions: 'Current suggestions',
+    areaEditorFootnote: 'This list controls the suggestions in the cleaning area field and the bulk fill helper. Custom free text is still possible in every row.',
+    generalNotes: 'General notes & letter intro', generalInstructionsLabel: 'General instructions / reminders', internalNotesLabel: 'Internal notes', internalNotesPlaceholder: 'Optional notes for yourself. These stay local in the browser.',
+    rcDayOverview: 'RC day overview', assignedHelpersMini: 'Assigned helpers based on confirmed helpers', scheduleTopFootnote: 'The helper count is taken automatically from the confirmed helpers on the dashboard. In the RC day overview you only assign where and when a congregation or group is scheduled.',
+    dayAssignments: 'Day-based assignments', dayAssignmentsFootnote: 'Each day has its own overview. Use Area plus up to two time slots. The day totals count the confirmed helpers from all assigned congregations/groups.',
+    friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday',
+    assignment: 'assignment', assignments: 'assignments', assignedHelpers: 'assigned helpers', anchoredBadge: 'Confirmed helpers anchored from dashboard', areaWhere: 'Area / Where', timeSlot1: 'Time slot 1', timeSlot2: 'Time slot 2', optionalSecondSlot: 'Optional second slot',
+    backupImport: 'Backup & import', jsonBackup: 'JSON backup', jsonExport: 'JSON export', jsonImport: 'JSON import', publicNotesLabel: 'What is included in this public version',
+    publicNotesBox: 'This version focuses on planning, helper tracking, and daily assignments. Data is stored locally in your browser until you export it as JSON.',
+    saveAreaAlert: 'Please enter at least one area.', resetAreaConfirm: 'Reset the area list to the default suggestions?', fillAreaAlert: 'Please select or type an area first.', deleteRowConfirm: 'Delete this entry?',
+    resetPlanningConfirm: 'Reset assignments, helper numbers and statuses in all rows?', clearAllRowsConfirm: 'Clear all congregation names, helper numbers, assignments and statuses from all rows?', invalidJson: 'Invalid JSON file.',
+    previewFirstAlert: 'Please preview a congregation or group first.', noAreaAssigned: 'No area assigned yet', entry: 'entry', entries: 'entries',
+    messageDear: 'Dear brothers,', messageLine1: 'for the Regional Convention, we are aiming for about [TARGET] helpers for the Cleaning Department in total.', messageLine2: 'Based on your total number of publishers, we would suggest a contribution of about [SUGGESTED] helpers from your congregation/group. [AREA_LINE]', messageLine3: 'Could you please check with the publishers and let me know how many helpers your congregation/group can confirm for the RC?', messageLine4: 'Warm Christian greetings,', messageAreaLine: 'Suggested cleaning area: [AREA].', messageAreaLater: 'The specific cleaning assignment can be added later.',
+    previewTo: 'To', previewFallbackCong: 'Congregation / Group', contactShortcutsTitle: 'Contact shortcuts for this message', previewContactHint: 'Preview a congregation or group to show the contact shortcuts here.', contactCongEmail: 'Cong. email', contactCoordinator: 'Coordinator', contactMobile: 'Mobile', coordinatorPlaceholder: 'Cleaning coordinator / contact', personalEmailPlaceholder: 'Personal JWPub / Email', mobilePlaceholder: 'Mobile', congEmailPlaceholder: 'Congregation JWPub / Email',
+    rowPreview: 'Preview', rowCopy: 'Copy', rowDelete: 'Delete',
+    printTitleSuffix: 'RC day overview', regionalConvention: 'Regional Convention', backupInfoPrefix: 'Everything is stored locally in the browser.',
+    helpTitle: 'Help / Quickstart Guide', helpSub: 'Integrated public guide for the RC cleaning planner',
+    helpCards: [
+      {title:'1. General idea', items:['This tool has two main working areas: Dashboard and RC Day Overview.','You normally start in the Dashboard and finish in the RC Day Overview.','The goal is simple: first collect numbers, then assign where and when each congregation or group will help.']},
+      {title:'2. Step 1 - Dashboard (very important)', items:['Enter or review the congregation or group name.','Fill in contact details when needed: cleaning coordinator/contact, personal JWPub or email, mobile, and congregation JWPub or email.','Enter the total number of publishers.','Enter the number of confirmed helpers.','The Suggested field is calculated automatically from the overall helper goal, so you can quickly see a fair recommendation.','Use Preview to generate the message for that congregation/group.']},
+      {title:'3. Step 2 - RC Day Overview (very important)', items:['Go to RC Day Overview only after you have entered confirmed helpers in the Dashboard.','For Friday, Saturday, and Sunday you assign Area, Time slot 1, and optionally Time slot 2.','You do not enter helper numbers there.','The RC Day Overview automatically uses the confirmed helpers from the Dashboard, so the same number follows the congregation/group into the schedule.']},
+      {title:'4. Preview and contact shortcuts', items:['Preview creates a ready-to-copy message for the selected congregation or group.','Below the preview you can see quick contact fields for congregation email, coordinator email, and mobile.','Use the copy icon to copy individual contact details quickly.']},
+      {title:'5. Print, backup, and editing tips', items:['The print view is optimized for the RC Day Overview.','Only assigned congregations/groups appear in the print.','Areas and time slots can be changed anytime.','You can export and import JSON backups whenever needed.']}
+    ]
+  },
+  de: {
+    languageName: 'Deutsch',
+    helpButton: 'Hilfe', close: 'Schließen',
+    heroSublineDefault: 'Einfache Übersicht für die Koordination von Versammlungen und Gruppen',
+    badgeActive: 'Lokale Daten aktiv', noImportYet: 'Noch kein Import', lastSave: 'Letztes Speichern', notYet: 'noch nicht', imported: 'Importiert', copied: 'Kopiert', copySuccess: 'Kopiert', copyFailed: 'Kopieren ist in diesem Browser fehlgeschlagen.',
+    eventNameLabel: 'Veranstaltung / Kongress', eventDateLabel: 'Datum', venueLabel: 'Ort', targetHelpersLabel: 'Gesamtziel Helfer', subtitleLabel: 'Untertitel / Hinweiszeile',
+    toolNoteTitle: 'Kurzinfo',
+    toolNoteText: 'Dieses Tool hilft dabei, Einsätze von Versammlungen und Gruppen für die Reinigungsabteilung beim Regionalkongress zu planen.',
+    privacyNote: 'Trage Kontaktdaten nur dann ein, wenn du sie für Planung oder Kommunikation wirklich brauchst.',
+    addRow: 'Versammlung / Gruppe hinzufügen', printOverview: 'RC-Tagesübersicht drucken', resetPlanning: 'Planung zurücksetzen', clearAllRows: 'Alle Zeilen leeren',
+    tabDashboard: 'Dashboard & Vorlage', tabAreas: 'Bereiche & Einstellungen', tabSchedule: 'RC-Tagesübersicht', tabBackup: 'Backup',
+    quickOverview: 'Schnellübersicht', metricEntries: 'Einträge', metricCongs: 'Versammlungen', metricGroups: 'Gruppen', metricPublishers: 'Verkündiger gesamt', metricSuggested: 'Vorgeschlagen', metricHelpers: 'Bestätigte Helfer', metricOpen: 'Offen bis Ziel',
+    plannerSection: 'Planer für Versammlungen / Gruppen', searchLabel: 'Suche', searchPlaceholder: 'Versammlung, Bereich, Status suchen ...', typeLabel: 'Typ', statusLabel: 'Status', bulkAreaLabel: 'Sammelbereich für leere Zeilen', bulkAreaPlaceholder: 'Bereich wählen oder eingeben', fillEmptyAreas: 'Leere Bereiche füllen',
+    typeAll: 'Alle', typeCongregation: 'Versammlung', typeGroup: 'Gruppe',
+    statusAll: 'Alle', statusNoReply: 'Keine Antwort', statusReplied: 'Geantwortet', statusConfirmed: 'Bestätigt',
+    thCong: 'Versammlung / Gruppe', thType: 'Typ', thContact: 'Cleaning coordinator / Kontakt', thPublishers: 'Verkündiger', thArea: 'Reinigungsbereich', thSuggested: 'Vorschlag', thHelpers: 'Bestätigte Helfer', thStatus: 'Status', thActions: 'Aktionen',
+    plannerFootnote: 'Die Zahl der Verkündiger ist die Grundlage für den Helferschlüssel. Vorgeschlagene Helfer werden anteilig aus allen Zeilen mit einer Verkündigerzahl größer 0 berechnet.',
+    areaOverview: 'Bereichsübersicht', areaOverviewFootnote: 'Praktische Übersicht, welche Bereiche schon vergeben sind und wie viele bestätigte Helfer momentan damit verbunden sind.',
+    messageTemplate: 'Nachrichten-Vorlage', templateLabel: 'Vorlage', copySelectedMessage: 'Ausgewählte Nachricht kopieren', copyTemplateOnly: 'Nur Vorlage kopieren', previewLabel: 'Vorschau', previewDefault: 'Wähle in einer Zeile „Vorschau“, um die konkrete Nachricht zu erzeugen.',
+    cleaningAreas: 'Reinigungsbereiche', editAreaSuggestions: 'Bereichsvorschläge bearbeiten (eine Zeile = ein Bereich)', areaEditorPlaceholder: 'z. B. Toiletten\nGänge\nAußenbereich', saveAreaList: 'Bereichsliste speichern', restoreDefaultAreas: 'Standardbereiche wiederherstellen', currentSuggestions: 'Aktuelle Vorschläge',
+    areaEditorFootnote: 'Diese Liste steuert die Vorschläge im Feld Reinigungsbereich und die Sammel-Funktion. Freier Text ist in jeder Zeile trotzdem möglich.',
+    generalNotes: 'Allgemeine Hinweise & Einleitung', generalInstructionsLabel: 'Allgemeine Hinweise / Erinnerungen', internalNotesLabel: 'Interne Notizen', internalNotesPlaceholder: 'Optionale Notizen für dich. Diese bleiben lokal im Browser.',
+    rcDayOverview: 'RC-Tagesübersicht', assignedHelpersMini: 'Zugeordnete Helfer auf Basis der bestätigten Helfer', scheduleTopFootnote: 'Die Helferzahl wird automatisch aus den bestätigten Helfern im Dashboard übernommen. In der RC-Tagesübersicht legst du nur fest, wer wann und wo eingeplant ist.',
+    dayAssignments: 'Tagesbezogene Einteilungen', dayAssignmentsFootnote: 'Jeder Tag hat seine eigene Übersicht. Verwende Bereich plus bis zu zwei Zeitslots. Die Tagessummen zählen die bestätigten Helfer aller zugewiesenen Versammlungen/Gruppen.',
+    friday: 'Freitag', saturday: 'Samstag', sunday: 'Sonntag',
+    assignment: 'Einteilung', assignments: 'Einteilungen', assignedHelpers: 'zugeordnete Helfer', anchoredBadge: 'Bestätigte Helfer aus dem Dashboard verankert', areaWhere: 'Bereich / Wo', timeSlot1: 'Zeitslot 1', timeSlot2: 'Zeitslot 2', optionalSecondSlot: 'Optionaler zweiter Slot',
+    backupImport: 'Backup & Import', jsonBackup: 'JSON-Backup', jsonExport: 'JSON-Export', jsonImport: 'JSON-Import', publicNotesLabel: 'Was diese öffentliche Version enthält',
+    publicNotesBox: 'Diese Version konzentriert sich auf Planung, Helferübersicht und tägliche Einteilungen. Daten bleiben lokal in deinem Browser, bis du sie als JSON exportierst.',
+    saveAreaAlert: 'Bitte gib mindestens einen Bereich ein.', resetAreaConfirm: 'Soll die Bereichsliste auf die Standardvorschläge zurückgesetzt werden?', fillAreaAlert: 'Bitte zuerst einen Bereich wählen oder eingeben.', deleteRowConfirm: 'Diesen Eintrag löschen?',
+    resetPlanningConfirm: 'Einteilungen, Helferzahlen und Status in allen Zeilen zurücksetzen?', clearAllRowsConfirm: 'Alle Versammlungsnamen, Helferzahlen, Einteilungen und Status aus allen Zeilen leeren?', invalidJson: 'Ungültige JSON-Datei.',
+    previewFirstAlert: 'Bitte zuerst eine Versammlung oder Gruppe in der Vorschau öffnen.', noAreaAssigned: 'Noch kein Bereich zugewiesen', entry: 'Eintrag', entries: 'Einträge',
+    messageDear: 'Liebe Brüder,', messageLine1: 'für den Regionalkongress streben wir insgesamt etwa [TARGET] Helfer für die Reinigungsabteilung an.', messageLine2: 'Auf Grundlage eurer Gesamtzahl an Verkündigern würden wir einen Beitrag von etwa [SUGGESTED] Helfern aus eurer Versammlung / Gruppe vorschlagen. [AREA_LINE]', messageLine3: 'Könnt ihr bitte mit den Verkündigern sprechen und mir mitteilen, wie viele Helfer eure Versammlung / Gruppe für den RC bestätigen kann?', messageLine4: 'Mit herzlichen christlichen Grüßen,', messageAreaLine: 'Vorgeschlagener Reinigungsbereich: [AREA].', messageAreaLater: 'Der genaue Reinigungsbereich kann später ergänzt werden.',
+    previewTo: 'An', previewFallbackCong: 'Versammlung / Gruppe', contactShortcutsTitle: 'Kontakt-Kurzinfos für diese Nachricht', previewContactHint: 'Öffne zuerst eine Versammlung oder Gruppe in der Vorschau, um hier die Kontaktdaten zu sehen.', contactCongEmail: 'Vers.-E-Mail', contactCoordinator: 'Koordinator', contactMobile: 'Mobil', coordinatorPlaceholder: 'Cleaning coordinator / Kontakt', personalEmailPlaceholder: 'Persönliche JWPub / E-Mail', mobilePlaceholder: 'Mobil', congEmailPlaceholder: 'Versammlungs-JWPub / E-Mail',
+    rowPreview: 'Vorschau', rowCopy: 'Kopieren', rowDelete: 'Löschen',
+    printTitleSuffix: 'RC-Tagesübersicht', regionalConvention: 'Regionalkongress', backupInfoPrefix: 'Alles wird lokal im Browser gespeichert.',
+    helpTitle: 'Hilfe / Kurzanleitung', helpSub: 'Integrierte öffentliche Anleitung für den RC-Reinigungsplaner',
+    helpCards: [
+      {title:'1. Grundidee', items:['Dieses Tool hat zwei Hauptbereiche: Dashboard und RC-Tagesübersicht.','Normalerweise beginnst du im Dashboard und gehst danach in die RC-Tagesübersicht.','Das Ziel ist einfach: zuerst Zahlen sammeln, danach festlegen, wer wann und wo hilft.']},
+      {title:'2. Schritt 1 - Dashboard (sehr wichtig)', items:['Prüfe oder ergänze zuerst den Namen der Versammlung oder Gruppe.','Trage bei Bedarf die Kontaktdaten ein: Cleaning coordinator / Kontakt, persönliche JWPub oder E-Mail, Mobilnummer sowie Versammlungs-JWPub oder E-Mail.','Trage die Gesamtzahl der Verkündiger ein.','Trage die Zahl der bestätigten Helfer ein.','Das Feld Vorschlag wird automatisch aus dem Gesamtziel berechnet und zeigt dir schnell einen fairen Richtwert.','Mit Vorschau erzeugst du direkt die passende Nachricht für diese Versammlung oder Gruppe.']},
+      {title:'3. Schritt 2 - RC-Tagesübersicht (sehr wichtig)', items:['Gehe erst dann in die RC-Tagesübersicht, wenn im Dashboard bestätigte Helfer eingetragen sind.','Für Freitag, Samstag und Sonntag trägst du Bereich, Zeitslot 1 und optional Zeitslot 2 ein.','Dort gibst du keine Helferzahlen ein.','Die RC-Tagesübersicht übernimmt automatisch die bestätigten Helfer aus dem Dashboard, sodass dieselbe Zahl direkt in der Einteilung erscheint.']},
+      {title:'4. Vorschau und Kontakt-Kurzinfos', items:['Mit Vorschau wird eine kopierfertige Nachricht für die ausgewählte Versammlung oder Gruppe erstellt.','Unter der Vorschau siehst du die Kurzinfos für Versammlungs-E-Mail, Koordinator-E-Mail und Mobilnummer.','Mit dem Kopier-Symbol kannst du einzelne Kontaktdaten schnell übernehmen.']},
+      {title:'5. Drucken, Backup und Bearbeitungstipps', items:['Die Druckansicht ist für die RC-Tagesübersicht optimiert.','Im Ausdruck erscheinen nur zugewiesene Versammlungen oder Gruppen.','Bereiche und Zeitslots können jederzeit geändert werden.','JSON-Backups lassen sich jederzeit exportieren und wieder importieren.']}
+    ]
+  }
+};
+
+function t(key){ return I18N[state.meta.language || 'en'][key] ?? key; }
+function el(id){ return document.getElementById(id); }
+function esc(str){ return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function js(str){ return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' '); }
+function statusClass(status){ return String(status || 'No reply').toLowerCase().replace(/\s+/g,'-'); }
+function autoResizeTitle(){ const t = el('plannerTitle'); if(!t) return; t.style.height='auto'; t.style.height=Math.max(92, t.scrollHeight) + 'px'; }
+
+function getDefaultMessageTemplate(lang){
+  const d = I18N[lang || 'en'];
+  return `${d.messageDear}\n\n${d.messageLine1}\n\n${d.messageLine2}\n\n${d.messageLine3}\n\n${d.messageLine4}\n[RESPONSIBLE]`;
+}
+
+function defaultState(){
+  return {
+    meta:{
+      language:'en',
+      plannerTitle:'Cleaning Department Planner - RC Edition',
+      eventName:'Regional Convention 2026 Munich',
+      eventDate:'',
+      venue:'Munich Convention Venue',
+      targetHelpers:100,
+      assemblySubtitle:I18N.en.heroSublineDefault,
+      generalInstructions:'Congregations and groups can be assigned to seating sections, corridors, offices, restrooms, exterior grounds and similar cleaning areas for the Regional Convention. Cleaning should be organized, loving and safety-conscious.',
+      defaultMessageEn:getDefaultMessageTemplate('en'),
+      defaultMessageDe:getDefaultMessageTemplate('de'),
+      notesBox:'',
+      responsibleName:'Cleaning Department',
+      lastImportText:'',
+      lastSavedAt:''
+    },
+    areaOptions: structuredClone(DEFAULT_AREA_OPTIONS),
+    rows: structuredClone(INITIAL_ROWS)
+  };
+}
+
+let state = loadState();
+let selectedRowIndex = null;
+normalizeState();
+
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return defaultState();
+  try{
+    const data = JSON.parse(raw);
+    return {
+      meta: { ...defaultState().meta, ...(data.meta || {}) },
+      areaOptions: Array.isArray(data.areaOptions) && data.areaOptions.length ? data.areaOptions : structuredClone(DEFAULT_AREA_OPTIONS),
+      rows: Array.isArray(data.rows) && data.rows.length ? data.rows.map(normalizeRow) : structuredClone(INITIAL_ROWS)
+    };
+  }catch{
+    return defaultState();
+  }
+}
+
+function normalizeState(){
+  const def = defaultState();
+  state.meta = { ...def.meta, ...(state.meta || {}) };
+  state.meta.language = ['en','de'].includes(state.meta.language) ? state.meta.language : 'en';
+  state.meta.defaultMessageEn = state.meta.defaultMessageEn || getDefaultMessageTemplate('en');
+  state.meta.defaultMessageDe = state.meta.defaultMessageDe || getDefaultMessageTemplate('de');
+  state.areaOptions = Array.isArray(state.areaOptions) && state.areaOptions.length ? [...new Set(state.areaOptions.map(v => String(v || '').trim()).filter(Boolean))] : structuredClone(DEFAULT_AREA_OPTIONS);
+  state.rows = Array.isArray(state.rows) && state.rows.length ? state.rows.map(normalizeRow) : structuredClone(INITIAL_ROWS).map(normalizeRow);
+}
+
+function normalizeRow(row){
+  return {
+    congregation: row.congregation || '',
+    type: row.type === 'Group' ? 'Group' : 'Congregation',
+    congJwpub: row.congJwpub || '',
+    coordinator: row.coordinator || '',
+    jwpub: row.jwpub || '',
+    mobile: row.mobile || '',
+    publishers: Number(row.publishers || 0),
+    area: row.area || '',
+    helpers: Number(row.helpers || 0),
+    friArea: row.friArea || '', friTime1: row.friTime1 || '', friTime2: row.friTime2 || '',
+    satArea: row.satArea || '', satTime1: row.satTime1 || '', satTime2: row.satTime2 || '',
+    sunArea: row.sunArea || '', sunTime1: row.sunTime1 || '', sunTime2: row.sunTime2 || '',
+    status: ['No reply','Replied','Confirmed'].includes(row.status) ? row.status : 'No reply'
+  };
+}
+
+function currentTemplate(){ return state.meta.language === 'de' ? state.meta.defaultMessageDe : state.meta.defaultMessageEn; }
+function setCurrentTemplate(value){ if(state.meta.language === 'de') state.meta.defaultMessageDe = value; else state.meta.defaultMessageEn = value; }
+function getPublisherRows(){ return state.rows.filter(r => Number(r.publishers || 0) > 0); }
+function calcSuggestedHelpers(row){
+  const publisherRows = getPublisherRows();
+  const totalPublishers = publisherRows.reduce((sum,r)=>sum + Number(r.publishers || 0),0);
+  const target = Number(state.meta.targetHelpers || 0);
+  const publishers = Number(row?.publishers || 0);
+  if(!totalPublishers || !target || !publishers) return 0;
+  return Math.round((publishers / totalPublishers) * target);
+}
+function formatStamp(iso){ if(!iso) return t('notYet'); try{return new Date(iso).toLocaleString(state.meta.language === 'de' ? 'de-DE' : 'en-GB');}catch{return iso;} }
+
+function writeMetaToInputs(){
+  ['plannerTitle','eventName','eventDate','venue','targetHelpers','assemblySubtitle','generalInstructions','notesBox'].forEach(id => { if(el(id)) el(id).value = state.meta[id] ?? ''; });
+  el('defaultMessage').value = currentTemplate();
+  el('areaEditor').value = state.areaOptions.join('\n');
+}
+
+function syncMetaFromInputs(){
+  ['plannerTitle','eventName','eventDate','venue','targetHelpers','assemblySubtitle','generalInstructions','notesBox'].forEach(id => {
+    if(el(id)) state.meta[id] = id === 'targetHelpers' ? Number(el(id).value || 0) : el(id).value;
+  });
+  if(el('defaultMessage')) setCurrentTemplate(el('defaultMessage').value);
+}
+
+function saveState(){
+  syncMetaFromInputs();
+  state.meta.lastSavedAt = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state, null, 2));
+  refreshHeader();
+  updateMetrics();
+  renderAreaSummary();
+  renderAreaEditorPreview();
+  refreshAreaDatalist();
+  renderScheduleTab();
+  updateBackupInfo();
+}
+
+function updateBackupInfo(){
+  el('backupInfo').textContent = `${t('backupInfoPrefix')} ${t('lastSave')}: ${formatStamp(state.meta.lastSavedAt)}.`;
+}
+
+function applyTranslations(){
+  document.documentElement.lang = state.meta.language;
+  document.title = state.meta.language === 'de' ? 'Reinigungsabteilungs-Planer - RC Edition 1.5.1' : 'Cleaning Department Planner - RC Edition 1.5.1';
+  document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t(node.getAttribute('data-i18n')); });
+  el('heroSubline').textContent = state.meta.assemblySubtitle || t('heroSublineDefault');
+  el('badgeBig').textContent = t('badgeActive');
+  el('privacyNote').textContent = t('privacyNote');
+  el('searchBox').placeholder = t('searchPlaceholder');
+  el('bulkArea').placeholder = t('bulkAreaPlaceholder');
+  el('areaEditor').placeholder = t('areaEditorPlaceholder');
+  el('notesBox').placeholder = t('internalNotesPlaceholder');
+  el('fillEmptyAreasBtn').textContent = t('fillEmptyAreas');
+  el('metricEntriesLabel').textContent = t('metricEntries');
+  el('metricCongsLabel').textContent = t('metricCongs');
+  el('metricGroupsLabel').textContent = t('metricGroups');
+  el('metricPublishersLabel').textContent = t('metricPublishers');
+  el('metricSuggestedLabel').textContent = t('metricSuggested');
+  el('metricHelpersLabel').textContent = t('metricHelpers');
+  el('metricOpenLabel').textContent = t('metricOpen');
+  el('thCong').textContent = t('thCong'); el('thType').textContent = t('thType'); el('thContact').textContent = t('thContact'); el('thPublishers').textContent = t('thPublishers'); el('thArea').textContent = t('thArea'); el('thSuggested').textContent = t('thSuggested'); el('thHelpers').textContent = t('thHelpers'); el('thStatus').textContent = t('thStatus'); el('thActions').textContent = t('thActions');
+  el('previewContactActions').innerHTML = `<div class="muted">${esc(t('previewContactHint'))}</div>`;
+  el('plannerFootnote').textContent = t('plannerFootnote');
+  el('areaOverviewFootnote').textContent = t('areaOverviewFootnote');
+  el('areaEditorFootnote').textContent = t('areaEditorFootnote');
+  el('scheduleTopFootnote').textContent = t('scheduleTopFootnote');
+  el('dayAssignmentsFootnote').textContent = t('dayAssignmentsFootnote');
+  el('dayCardMini1').textContent = t('assignedHelpersMini'); el('dayCardMini2').textContent = t('assignedHelpersMini'); el('dayCardMini3').textContent = t('assignedHelpersMini');
+  el('friLabel').textContent = t('friday'); el('satLabel').textContent = t('saturday'); el('sunLabel').textContent = t('sunday');
+  el('tabBtn-dashboard').textContent = t('tabDashboard'); el('tabBtn-areas').textContent = t('tabAreas'); el('tabBtn-schedule').textContent = t('tabSchedule'); el('tabBtn-backup').textContent = t('tabBackup');
+  el('publicNotesBox').textContent = t('publicNotesBox');
+  updateSelectOptions();
+  updateHelpModal();
+  updateBackupInfo();
+  el('langBtn-en').classList.toggle('active', state.meta.language === 'en');
+  el('langBtn-de').classList.toggle('active', state.meta.language === 'de');
+}
+
+function updateSelectOptions(){
+  const typeValue = el('filterType').value || 'all';
+  const statusValue = el('filterStatus').value || 'all';
+  el('filterType').innerHTML = `
+    <option value="all">${t('typeAll')}</option>
+    <option value="Congregation">${t('typeCongregation')}</option>
+    <option value="Group">${t('typeGroup')}</option>`;
+  el('filterType').value = typeValue;
+  el('filterStatus').innerHTML = `
+    <option value="all">${t('statusAll')}</option>
+    <option value="No reply">${t('statusNoReply')}</option>
+    <option value="Replied">${t('statusReplied')}</option>
+    <option value="Confirmed">${t('statusConfirmed')}</option>`;
+  el('filterStatus').value = statusValue;
+}
+
+function refreshHeader(){
+  autoResizeTitle();
+  el('heroSubline').textContent = state.meta.assemblySubtitle || t('heroSublineDefault');
+  el('badgeLine1').textContent = state.meta.lastImportText || t('noImportYet');
+  const bits = [state.meta.eventName, state.meta.eventDate, state.meta.venue].filter(Boolean);
+  el('badgeLine2').textContent = bits.length ? bits.join(' · ') : `${t('lastSave')}: ${formatStamp(state.meta.lastSavedAt)}`;
+}
+
+function updateMetrics(){
+  const rows = state.rows;
+  const publisherRows = getPublisherRows();
+  const confirmedHelpers = rows.reduce((sum,r)=>sum + Number(r.helpers || 0),0);
+  const congs = rows.filter(r=>r.type==='Congregation').length;
+  const groups = rows.filter(r=>r.type==='Group').length;
+  const totalPublishers = publisherRows.reduce((sum,r)=>sum + Number(r.publishers || 0),0);
+  const suggestedTotal = rows.reduce((sum,r)=>sum + calcSuggestedHelpers(r),0);
+  const open = Math.max(0, Number(state.meta.targetHelpers || 0) - confirmedHelpers);
+  el('mEntries').textContent = rows.length;
+  el('mCongs').textContent = congs;
+  el('mGroups').textContent = groups;
+  el('mPublishers').textContent = totalPublishers;
+  el('mSuggested').textContent = suggestedTotal;
+  el('mHelpers').textContent = confirmedHelpers;
+  el('mOpen').textContent = open;
+}
+
+function showTab(tab){ ['dashboard','areas','schedule','backup'].forEach(name => { el('tab-' + name).classList.toggle('active', name === tab); el('tabBtn-' + name).classList.toggle('active', name === tab); }); }
+
+function localizedStatusLabel(status){ return status === 'Confirmed' ? t('statusConfirmed') : status === 'Replied' ? t('statusReplied') : t('statusNoReply'); }
+function localizedTypeLabel(type){ return type === 'Group' ? t('typeGroup') : t('typeCongregation'); }
+
+function renderTable(){
+  syncMetaFromInputs();
+  const q = el('searchBox').value.trim().toLowerCase();
+  const typeFilter = el('filterType').value;
+  const statusFilter = el('filterStatus').value;
+  const body = el('plannerBody');
+  body.innerHTML = '';
+
+  state.rows.forEach((row,index)=>{
+    const hay = [row.congregation,row.type,row.coordinator,row.jwpub,row.mobile,row.congJwpub,row.publishers,row.area,row.status].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return;
+    if(typeFilter !== 'all' && row.type !== typeFilter) return;
+    if(statusFilter !== 'all' && row.status !== statusFilter) return;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="compact-stack">
+          <input data-field="congregation" value="${esc(row.congregation)}" oninput="updateRow(${index}, 'congregation', this.value, this, {skipRender:true})" placeholder="${esc(t('previewFallbackCong'))}">
+        </div>
+      </td>
+      <td>
+        <select data-field="type" class="type-select ${row.type === 'Group' ? 'group' : 'cong'}" onchange="updateRow(${index}, 'type', this.value, this)">
+          <option value="Congregation" ${row.type === 'Congregation' ? 'selected' : ''}>${esc(t('typeCongregation'))}</option>
+          <option value="Group" ${row.type === 'Group' ? 'selected' : ''}>${esc(t('typeGroup'))}</option>
+        </select>
+      </td>
+      <td>
+        <div class="compact-stack">
+          <input data-field="coordinator" value="${esc(row.coordinator)}" oninput="updateRow(${index}, 'coordinator', this.value, this, {skipRender:true})" placeholder="${esc(t('coordinatorPlaceholder'))}">
+          <div class="field-with-actions">
+            <input data-field="jwpub" value="${esc(row.jwpub)}" oninput="updateRow(${index}, 'jwpub', this.value, this, {skipRender:true})" placeholder="${esc(t('personalEmailPlaceholder'))}">
+            <div class="field-actions no-print">${row.jwpub ? `<span class="mini-copy" title="${esc(t('rowCopy'))}" onclick="copyText('${js(row.jwpub)}', false, this)">⧉</span>` : ''}</div>
+          </div>
+          <div class="field-with-actions">
+            <input data-field="mobile" value="${esc(row.mobile)}" oninput="updateRow(${index}, 'mobile', this.value, this, {skipRender:true})" placeholder="${esc(t('mobilePlaceholder'))}">
+            <div class="field-actions no-print">${row.mobile ? `<span class="mini-copy" title="${esc(t('rowCopy'))}" onclick="copyText('${js(row.mobile)}', false, this)">⧉</span>` : ''}</div>
+          </div>
+          <div class="field-with-actions">
+            <input data-field="congJwpub" value="${esc(row.congJwpub)}" oninput="updateRow(${index}, 'congJwpub', this.value, this, {skipRender:true})" placeholder="${esc(t('congEmailPlaceholder'))}">
+            <div class="field-actions no-print">${row.congJwpub ? `<span class="mini-copy" title="${esc(t('rowCopy'))}" onclick="copyText('${js(row.congJwpub)}', false, this)">⧉</span>` : ''}</div>
+          </div>
+        </div>
+      </td>
+      <td><input type="number" min="0" value="${Number(row.publishers || 0)}" oninput="updatePublisherLive(${index}, this)"></td>
+      <td><div class="field-with-actions"><input list="areas" value="${esc(row.area)}" oninput="updateTextLive(${index}, 'area', this)" onchange="commitField(${index}, 'area', this)" placeholder="${esc(t('bulkAreaPlaceholder'))}"></div></td>
+      <td><input type="number" data-suggested-index="${index}" value="${calcSuggestedHelpers(row)}" readonly></td>
+      <td><input type="number" min="0" value="${Number(row.helpers || 0)}" oninput="updateNumberLive(${index}, 'helpers', this)" onchange="commitField(${index}, 'helpers', this)"></td>
+      <td>
+        <select data-field="status" class="type-select status-select ${statusClass(row.status)}" onchange="updateRow(${index}, 'status', this.value, this)">
+          <option value="No reply" ${row.status === 'No reply' ? 'selected' : ''}>${esc(t('statusNoReply'))}</option>
+          <option value="Replied" ${row.status === 'Replied' ? 'selected' : ''}>${esc(t('statusReplied'))}</option>
+          <option value="Confirmed" ${row.status === 'Confirmed' ? 'selected' : ''}>${esc(t('statusConfirmed'))}</option>
+        </select>
+      </td>
+      <td class="no-print">
+        <div class="stack">
+          <button class="secondary small-btn" onclick="previewRow(${index})">${esc(t('rowPreview'))}</button>
+          <button class="secondary small-btn" onclick="copyRowMessage(${index})">${esc(t('rowCopy'))}</button>
+          <button class="danger small-btn" onclick="deleteRow(${index})">${esc(t('rowDelete'))}</button>
+        </div>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+
+  renderAreaSummary();
+  updateMetrics();
+  if(selectedRowIndex !== null && !state.rows[selectedRowIndex]){ selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); }
+}
+
+function renderAreaSummary(){
+  const wrap = el('areaSummary');
+  const map = new Map();
+  for(const row of state.rows){
+    const key = row.area?.trim() || t('noAreaAssigned');
+    const entry = map.get(key) || { count:0, helpers:0 };
+    entry.count += 1; entry.helpers += Number(row.helpers || 0); map.set(key, entry);
+  }
+  const entries = [...map.entries()].sort((a,b)=> a[0].localeCompare(b[0], state.meta.language));
+  wrap.innerHTML = entries.map(([name,data]) => `<div class="chip"><b>${esc(name)}</b><span>${data.count} ${data.count===1 ? t('entry') : t('entries')} · ${data.helpers} ${esc(t('metricHelpers').toLowerCase())}</span></div>`).join('');
+}
+
+function renderAreaEditorPreview(){ el('areaTags').innerHTML = state.areaOptions.map(v => `<span class="tag">${esc(v)}</span>`).join(''); }
+function refreshAreaDatalist(){ el('areas').innerHTML = state.areaOptions.map(v => `<option value="${esc(v)}"></option>`).join(''); }
+
+function renderScheduleTab(){
+  const wrap = el('daySectionsWrap');
+  const days = [
+    { key:'fri', label:t('friday') },
+    { key:'sat', label:t('saturday') },
+    { key:'sun', label:t('sunday') }
+  ];
+  const assignedForDay = day => state.rows.filter(row => String(row[`${day.key}Area`] || '').trim() || String(row[`${day.key}Time1`] || '').trim() || String(row[`${day.key}Time2`] || '').trim());
+  wrap.innerHTML = days.map(day => {
+    const rows = assignedForDay(day);
+    const total = rows.reduce((sum, row) => sum + Number(row.helpers || 0), 0);
+    const plural = rows.length === 1 ? t('assignment') : t('assignments');
+    return `
+      <div class="day-section">
+        <div class="day-header">
+          <div>
+            <h3>${esc(day.label)}</h3>
+            <div class="day-meta">${rows.length} ${esc(plural)} · ${total} ${esc(t('assignedHelpers'))}</div>
+          </div>
+          <div class="assigned-badge">${esc(t('anchoredBadge'))}</div>
+        </div>
+        <div class="schedule-wrap">
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th>${esc(t('thCong'))}</th>
+                <th>${esc(t('thHelpers'))}</th>
+                <th>${esc(t('areaWhere'))}</th>
+                <th>${esc(t('timeSlot1'))}</th>
+                <th>${esc(t('timeSlot2'))}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.rows.map((row,index) => `
+                <tr>
+                  <td><b>${esc(row.congregation || t('previewFallbackCong'))}</b></td>
+                  <td>${Number(row.helpers || 0)}</td>
+                  <td><input list="areas" value="${esc(row[`${day.key}Area`] || '')}" oninput="updateTextLive(${index}, '${day.key}Area', this)" onchange="commitField(${index}, '${day.key}Area', this)"></td>
+                  <td><input value="${esc(row[`${day.key}Time1`] || '')}" oninput="updateRow(${index}, '${day.key}Time1', this.value, this, {skipRender:true, noRefresh:true})" onchange="updateRow(${index}, '${day.key}Time1', this.value, this)"></td>
+                  <td><input value="${esc(row[`${day.key}Time2`] || '')}" oninput="updateRow(${index}, '${day.key}Time2', this.value, this, {skipRender:true, noRefresh:true})" onchange="updateRow(${index}, '${day.key}Time2', this.value, this)"></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  el('friTotal').textContent = assignedForDay(days[0]).reduce((s,r)=>s + Number(r.helpers || 0),0);
+  el('satTotal').textContent = assignedForDay(days[1]).reduce((s,r)=>s + Number(r.helpers || 0),0);
+  el('sunTotal').textContent = assignedForDay(days[2]).reduce((s,r)=>s + Number(r.helpers || 0),0);
+  el('printScheduleTitle').textContent = [state.meta.plannerTitle || '', t('printTitleSuffix')].filter(Boolean).join(' - ');
+  el('printScheduleSubtitle').textContent = [state.meta.eventName || '', state.meta.eventDate || '', state.meta.venue || ''].filter(Boolean).join(' · ') || t('regionalConvention');
+}
+
+function printDayOverview(){ showTab('schedule'); window.print(); }
+
+function saveAreaOptions(){
+  const lines = el('areaEditor').value.split(/\r?\n/).map(v => v.trim()).filter(Boolean);
+  if(!lines.length){ alert(t('saveAreaAlert')); return; }
+  state.areaOptions = [...new Set(lines)]; saveState(); renderTable();
+}
+function resetAreaOptions(){ if(!confirm(t('resetAreaConfirm'))) return; state.areaOptions = structuredClone(DEFAULT_AREA_OPTIONS); el('areaEditor').value = state.areaOptions.join('\n'); saveState(); renderTable(); }
+
+function refreshCalculatedDisplays(){
+  document.querySelectorAll('[data-suggested-index]').forEach(input => { const idx = Number(input.getAttribute('data-suggested-index')); if(Number.isFinite(idx) && state.rows[idx]) input.value = calcSuggestedHelpers(state.rows[idx]); });
+  updateMetrics(); if(selectedRowIndex !== null && state.rows[selectedRowIndex]) previewRow(selectedRowIndex); renderScheduleTab();
+}
+function updatePublisherLive(index, sourceEl){ state.rows[index].publishers = Number(sourceEl.value || 0); refreshCalculatedDisplays(); clearTimeout(updatePublisherLive._saveTimer); updatePublisherLive._saveTimer = setTimeout(() => saveState(), 120); }
+function updateNumberLive(index, key, sourceEl){ state.rows[index][key] = Number(sourceEl.value || 0); renderAreaSummary(); updateMetrics(); if(selectedRowIndex === index) previewRow(index); clearTimeout(updateNumberLive._saveTimer); updateNumberLive._saveTimer = setTimeout(() => saveState(), 120); }
+function updateTextLive(index, key, sourceEl){ state.rows[index][key] = sourceEl.value; clearTimeout(updateTextLive._saveTimer); updateTextLive._saveTimer = setTimeout(() => saveState(), 120); }
+function commitField(index, key, sourceEl){ updateRow(index, key, sourceEl.value, sourceEl); }
+
+function updateRow(index,key,value,sourceEl,options = {}){
+  state.rows[index][key] = (key === 'helpers' || key === 'publishers') ? Number(value || 0) : value;
+  saveState();
+  if(options.skipRender){ if(!options.noRefresh){ renderAreaSummary(); updateMetrics(); if(selectedRowIndex === index) previewRow(index); if(key === 'publishers' || key === 'helpers') refreshCalculatedDisplays(); } return; }
+  renderTable(); if(selectedRowIndex === index) previewRow(index);
+}
+
+function addRow(){ state.rows.push({ congregation:'', type:'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', publishers:0, area:'', helpers:0, friArea:'', friTime1:'', friTime2:'', satArea:'', satTime1:'', satTime2:'', sunArea:'', sunTime1:'', sunTime2:'', status:'No reply' }); saveState(); renderTable(); }
+function deleteRow(index){ if(!confirm(t('deleteRowConfirm'))) return; state.rows.splice(index,1); saveState(); renderTable(); selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); clearPreviewContacts(); }
+function fillEmptyAreas(){ const txt = el('bulkArea').value.trim(); if(!txt){ alert(t('fillAreaAlert')); return; } state.rows.forEach(r => { if(!r.area) r.area = txt; }); saveState(); renderTable(); }
+function resetPlanning(){ if(!confirm(t('resetPlanningConfirm'))) return; state.rows = state.rows.map(r => ({ ...r, publishers:0, area:'', helpers:0, friArea:'', friTime1:'', friTime2:'', satArea:'', satTime1:'', satTime2:'', sunArea:'', sunTime1:'', sunTime2:'', status:'No reply' })); saveState(); renderTable(); selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); clearPreviewContacts(); }
+function clearAllRows(){ if(!confirm(t('clearAllRowsConfirm'))) return; state.rows = state.rows.map(r => ({ congregation:'', type:r.type === 'Group' ? 'Group' : 'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', publishers:0, area:'', helpers:0, friArea:'', friTime1:'', friTime2:'', satArea:'', satTime1:'', satTime2:'', sunArea:'', sunTime1:'', sunTime2:'', status:'No reply' })); saveState(); renderTable(); selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); clearPreviewContacts(); }
+
+function buildMessage(row){
+  const tpl = currentTemplate();
+  const suggested = calcSuggestedHelpers(row);
+  const areaLine = row.area ? t('messageAreaLine').replace('[AREA]', row.area) : t('messageAreaLater');
+  return tpl
+    .replaceAll('[TARGET]', Number(state.meta.targetHelpers || 0))
+    .replaceAll('[SUGGESTED]', suggested)
+    .replaceAll('[AREA_LINE]', areaLine)
+    .replaceAll('[RESPONSIBLE]', state.meta.responsibleName || 'Cleaning Department');
+}
+function previewRow(index){
+  selectedRowIndex = index;
+  const row = state.rows[index];
+  const targetName = row.coordinator || row.congregation || t('previewFallbackCong');
+  const header = `${t('previewTo')}: ${targetName}`;
+  el('previewBox').textContent = `${header}\n\n${buildMessage(row)}`.trim();
+  renderPreviewContacts(row);
+}
+async function copyRowMessage(index){ selectedRowIndex = index; await copyText(buildMessage(state.rows[index]), true); previewRow(index); }
+async function copySelectedMessage(){ if(selectedRowIndex === null){ alert(t('previewFirstAlert')); return; } await copyText(buildMessage(state.rows[selectedRowIndex]), true); }
+async function copyTemplateOnly(){ await copyText(currentTemplate(), true); }
+function renderPreviewContacts(row){
+  const wrap = el('previewContactActions');
+  const entries = [
+    [t('contactCongEmail'), row?.congJwpub || '—'],
+    [t('contactCoordinator'), row?.jwpub || '—'],
+    [t('contactMobile'), row?.mobile || '—']
+  ];
+  wrap.innerHTML = entries.map(([label, value]) => `
+    <div class="preview-contact-row">
+      <div class="label">${esc(label)}</div>
+      <div class="preview-contact-value" title="${esc(value)}">${esc(value)}</div>
+      <div class="no-print">${value && value !== '—' ? `<span class="mini-copy" title="${esc(t('rowCopy'))}" onclick="copyText('${js(value)}', false, this)">⧉</span>` : ''}</div>
+    </div>
+  `).join('');
+}
+function clearPreviewContacts(){
+  el('previewContactActions').innerHTML = `<div class="muted">${esc(t('previewContactHint'))}</div>`;
+}
+async function copyText(text, silent){ try{ await navigator.clipboard.writeText(text); if(!silent) flashBadge(t('copied')); }catch{ alert(t('copyFailed')); } }
+function flashBadge(msg){ const line = el('badgeLine1'); const old = line.textContent; line.textContent = msg; setTimeout(() => { line.textContent = state.meta.lastImportText || t('noImportYet'); }, 900); }
+
+function saveJson(){
+  syncMetaFromInputs();
+  const payload = { exportedAt: new Date().toISOString(), app: 'Cleaning Department Planner RC Edition Public', version: '1.5.1', ...state };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cleaning-planner-rc-public-${stamp}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function loadJsonFile(event){
+  const file = event.target.files?.[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(String(e.target.result));
+      state = { meta: { ...defaultState().meta, ...(data.meta || {}) }, areaOptions: Array.isArray(data.areaOptions) ? data.areaOptions : structuredClone(DEFAULT_AREA_OPTIONS), rows: Array.isArray(data.rows) ? data.rows.map(normalizeRow) : structuredClone(INITIAL_ROWS).map(normalizeRow) };
+      state.meta.lastImportText = `${t('imported')}: ${file.name}`;
+      normalizeState(); writeMetaToInputs(); applyTranslations(); saveState(); renderTable();
+    }catch{ alert(t('invalidJson')); }
+  };
+  reader.readAsText(file);
+}
+
+function updateHelpModal(){
+  el('helpModalTitle').textContent = t('helpTitle');
+  el('helpModalSub').textContent = t('helpSub');
+  el('helpContent').innerHTML = I18N[state.meta.language].helpCards.map(card => `
+    <div class="help-card">
+      <h4>${esc(card.title)}</h4>
+      <ul>${card.items.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
+    </div>`).join('');
+}
+function openHelp(){ el('helpModal').classList.add('show'); }
+function closeHelp(){ el('helpModal').classList.remove('show'); }
+function setLanguage(lang){
+  if(!['en','de'].includes(lang)) return;
+  syncMetaFromInputs();
+  state.meta.language = lang;
+  if(!state.meta.assemblySubtitle || state.meta.assemblySubtitle === I18N.en.heroSublineDefault || state.meta.assemblySubtitle === I18N.de.heroSublineDefault){ state.meta.assemblySubtitle = t('heroSublineDefault'); }
+  writeMetaToInputs();
+  applyTranslations();
+  refreshHeader();
+  renderTable();
+  renderScheduleTab();
+  if(selectedRowIndex !== null && state.rows[selectedRowIndex]) previewRow(selectedRowIndex); else el('previewBox').textContent = t('previewDefault');
+  saveState();
+}
+
+writeMetaToInputs();
+autoResizeTitle();
+['plannerTitle','eventName','eventDate','venue','targetHelpers','assemblySubtitle','generalInstructions','notesBox','defaultMessage'].forEach(id => {
+  if(el(id)) el(id).addEventListener('input', () => { if(id === 'plannerTitle') autoResizeTitle(); if(id === 'defaultMessage') setCurrentTemplate(el('defaultMessage').value); saveState(); if(selectedRowIndex !== null) previewRow(selectedRowIndex); });
+});
+
+window.addEventListener('keydown', e => { if(e.key === 'Escape') closeHelp(); });
+el('helpModal').addEventListener('click', e => { if(e.target === el('helpModal')) closeHelp(); });
+
+applyTranslations();
+refreshHeader();
+refreshAreaDatalist();
+renderAreaEditorPreview();
+renderTable();
+renderScheduleTab();
+el('previewBox').textContent = t('previewDefault');
+clearPreviewContacts();
+saveState();
+</script>
+</body>
+</html>
