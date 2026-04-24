@@ -154,17 +154,38 @@
       color: var(--muted);
       line-height: 1.6;
       font-size: 1.15rem;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
 
-    .privacy-note {
-      padding: 18px 24px;
+    .notices {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .notice-box {
+      padding: 20px 24px;
       background: rgba(0, 0, 0, 0.25);
       border: 1px solid var(--border);
-      border-left: 4px solid var(--primary);
       border-radius: 12px;
       color: var(--muted);
       font-size: .95rem;
+      line-height: 1.6;
+    }
+
+    .notice-box.privacy {
+      border-left: 4px solid var(--primary);
+    }
+
+    .notice-box.tip {
+      border-left: 4px solid #8dc2ff;
+    }
+
+    .notice-box strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.05rem;
+      margin-bottom: 6px;
     }
 
     .grid {
@@ -274,8 +295,16 @@
       <div class="hero-subtitle">Planning and coordination tools.</div>
       <p>Browser-based tools for planning, scheduling and internal coordination.</p>
       
-      <div class="privacy-note">
-        <strong>Important note about data:</strong> These tools run directly in your browser. Data stays only on your device or inside files you explicitly import/export. Nothing is automatically uploaded.
+      <div class="notices">
+        <div class="notice-box privacy">
+          <strong>🔒 Strict Privacy & Data Security</strong>
+          Although these tools are hosted on GitHub, your data is never uploaded there. Whenever you open a file or import data, it is read <strong>strictly locally</strong> inside your own browser on your own device. The data never leaves your device and is not sent to me, to GitHub, or to any external server.
+        </div>
+        
+        <div class="notice-box tip">
+          <strong>📱 Tablet & Mobile Experience</strong>
+          If you are not working on a PC or laptop, you can still get the best experience on a tablet. Simply use your browser's zoom function (e.g., zoom out to 80% or 90%) to fit the interfaces perfectly onto your screen.
+        </div>
       </div>
     </section>
 
