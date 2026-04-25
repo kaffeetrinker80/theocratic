@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en">
+<head>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+<link rel="icon" href="favicon.ico">
+
+<link rel="manifest" href="site.webmanifest">
+
+<meta name="theme-color" content="#1565c0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RC Volunteers Management Tool</title>
+  <style>
+    :root{--bg:#f3f5f7;--surface:#fff;--surface2:#f8fafc;--text:#1f2937;--muted:#6b7280;--line:#d8e1ea;--primary:#1565c0;--primarySoft:#eaf2fd;--accent:#2e7d32;--warn:#ef6c00;--danger:#c62828;--chip:#eef3f8;--shadow:0 10px 28px rgba(15,23,42,.08);--radius:18px}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif} body{padding:18px}
+    .app{max-width:1800px;margin:0 auto}.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero{padding:22px;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,#f4f8ff 100%)}
+    .hero-top{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}.hero-top>:first-child{flex:1 1 560px;min-width:0}.hero-top>:last-child{flex:0 0 310px}
+    h2{margin:0 0 14px;font-size:18px}.sub{color:var(--muted);font-size:15px}
+    .badge{display:grid;gap:6px;padding:14px 16px;border-radius:16px;border:1px solid #cfe1f7;background:var(--primarySoft);color:var(--primary);font-size:13px;font-weight:700;min-width:0;width:100%}.badge .big{font-size:14px;font-weight:800}.badge .small{font-size:12px;color:#35506f;font-weight:600}
+    .section{padding:18px;margin-bottom:16px}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .tab-btn{background:#eef3f8;color:var(--text);border:0;border-radius:12px;padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer}.tab-btn.active{background:var(--primary);color:#fff}
+    .tab-panel{display:none}.tab-panel.active{display:block}.grid{display:grid;gap:14px}.grid-2{grid-template-columns:repeat(2,minmax(280px,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(220px,1fr))}
+    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:18px}.hero-title-input{width:100%;border:0;border-bottom:2px solid #d7e4f2;border-radius:0;padding:0 0 8px;background:transparent;font-size:32px;font-weight:800;line-height:1.15;color:var(--text)}.hero-title-input:focus{outline:none;box-shadow:none;border-color:#90caf9}
+    label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;background:#fff;color:var(--text);outline:none} input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.12)} textarea{min-height:110px;resize:vertical}
+    button,.file-label{border:0;border-radius:12px;padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;transition:transform .08s ease} button:hover,.file-label:hover{transform:translateY(-1px)} .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .primary{background:var(--primary);color:#fff}.secondary{background:#eef3f8;color:var(--text)}.success{background:#e8f5e9;color:var(--accent)}.warn{background:#fff3e0;color:var(--warn)}.danger{background:#ffebee;color:var(--danger)}.brother-btn{background:#e3f2fd !important;color:#1565c0 !important}.sister-btn{background:#f3e5f5 !important;color:#7b1fa2 !important} .file-label input{display:none}
+    .summary{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));gap:12px}.metric{padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface2)}.metric .k{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:700}.metric .v{font-size:26px;font-weight:800;margin-top:6px}
+    .search-row{display:grid;grid-template-columns:1.2fr .9fr .9fr .9fr .85fr 160px;gap:12px;align-items:end;margin-bottom:14px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff} table{width:100%;border-collapse:collapse;min-width:1080px}
+    thead th{position:sticky;top:0;z-index:2;background:#edf4fb;color:#26415f;font-size:11px;text-transform:uppercase;letter-spacing:.035em;text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)} tbody td{border-bottom:1px solid #edf1f4;padding:8px;vertical-align:top;font-size:14px} tbody tr:hover{background:#fafcff}
+    .stack{display:grid;gap:8px}.footer-note{color:var(--muted);font-size:12px;margin-top:12px}.message-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;line-height:1.5;min-height:220px}
+    .preview-contact-card{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#f8fafc}.preview-contact-title{font-size:13px;font-weight:800;color:#35506f;margin-bottom:10px}.preview-contact-grid{display:grid;gap:8px}.preview-contact-row{display:grid;grid-template-columns:110px 1fr 28px;gap:8px;align-items:center}.preview-contact-row .label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.preview-contact-value{min-height:38px;display:flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mini-copy{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;border:1px solid #d4dde7;background:#f7f9fc;color:#35506f;cursor:pointer;font-size:13px;line-height:1}.mini-copy:hover{background:#edf4fb}
+    .split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.group-row td{background:#fafcff;border-bottom-color:#dde7f2}.group-header{font-size:15px;font-weight:800;color:#234263;padding:6px 2px}.subgroup-header{font-size:13px;font-weight:800;color:#566b85;padding:3px 2px 3px 18px}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}.pill.brothers{background:#e3f2fd;color:#1565c0}.pill.sisters{background:#f3e5f5;color:#7b1fa2}.pill.good{background:#e8f5e9;color:#2e7d32}.pill.exemplary{background:#ede7f6;color:#5e35b1}.pill.unknown{background:#eceff1;color:#455a64}.pill.to-check{background:#fff3e0;color:#ef6c00}.pill.contacted{background:#e8f5e9;color:#2e7d32}.pill.replied{background:#fff3e0;color:#ef6c00}.pill.open{background:#eceff1;color:#455a64}
+    .row-actions{display:flex;gap:8px;justify-content:flex-end}.actions-header{text-align:right;padding-right:18px !important}.small-btn{padding:9px 12px;font-size:13px}.right{text-align:right}.contact-card{padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface2)}.contact-grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px}.span-2{grid-column:span 2}
+    .check-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:4px}.check-row label{display:flex;align-items:center;gap:7px;margin:0;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text)}.check-row input[type="checkbox"]{width:auto;margin:0}
+    .chips-inline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chips-inline .mini-chip{padding:5px 8px;border-radius:999px;background:#eef3f8;font-size:12px;border:1px solid var(--line)}
+    .dept-check-grid{display:flex;flex-wrap:wrap;gap:6px 10px}.dept-check-grid label{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text);padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:#f8fafc;white-space:nowrap}.dept-check-grid input[type="checkbox"]{width:auto;margin:0}.dept-stack{display:grid;gap:4px}.dept-more{font-size:12px;color:var(--muted)}
+    .scroll-top-btn{position:fixed;right:22px;bottom:22px;z-index:40;width:48px;height:48px;border-radius:999px;border:1px solid #cfe1f7;background:var(--primary);color:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:20px} .help-grid{display:grid;gap:12px}.help-card{padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface2)}.help-card h3{margin:0 0 8px;font-size:16px}.help-card p{margin:0;color:var(--muted);line-height:1.5}.help-steps{margin:10px 0 0 18px;padding:0;display:grid;gap:6px}.help-steps li{line-height:1.45}.help-callout{padding:12px 14px;border:1px solid #cfe1f7;border-radius:14px;background:var(--primarySoft);color:#234263;font-size:13px;line-height:1.5}.help-accordion{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}.help-accordion details+details{border-top:1px solid var(--line)}.help-accordion summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:12px}.help-accordion summary::-webkit-details-marker{display:none}.help-accordion details[open] summary{background:#f8fbff}.help-body{padding:0 16px 16px 16px;color:var(--text)}.help-body p{margin:0 0 10px;line-height:1.55}.help-body ul{margin:8px 0 0 18px;padding:0;display:grid;gap:6px}.help-body code{background:#eef3f8;padding:2px 6px;border-radius:8px}
+    .dialog-grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center} dialog{border:none;border-radius:16px;padding:0;box-shadow:0 20px 50px rgba(18,38,63,.22);width:min(760px, calc(100vw - 24px));background:#fff;color:var(--text)} dialog::backdrop{background:rgba(16,24,40,.32)} .dialog-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.dialog-body{padding:16px 18px;display:grid;gap:14px}.dialog-list{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;max-height:320px;overflow:auto}.dialog-section{display:grid;gap:10px}.dialog-section-title{font-size:13px;font-weight:800;color:#35506f;text-transform:uppercase;letter-spacing:.04em}.dialog-section-note{font-size:12px;color:var(--muted);line-height:1.4}.dialog-chip{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:#f8fafc;font-size:12px}.dialog-row-list{display:grid;gap:10px;max-height:320px;overflow:auto}.dialog-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}.dialog-row-main{min-width:0;display:grid;gap:4px}.dialog-row-title{font-size:14px;font-weight:700;color:var(--text);word-break:break-word}.dialog-row-sub{font-size:12px;color:var(--muted);line-height:1.35}.dialog-row-actions{display:flex;justify-content:flex-end}.dialog-row-actions .danger{min-width:132px}.dialog-row-actions .secondary{min-width:132px}.dialog-section{display:grid;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}.dialog-section-title{font-size:12px;font-weight:800;color:#35506f;text-transform:uppercase;letter-spacing:.04em}.dialog-section-note{font-size:12px;color:var(--muted);line-height:1.4}.dialog-list.two-col{grid-template-columns:1fr auto}.dialog-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:13px}.dialog-chip strong{font-size:12px;color:#35506f;text-transform:uppercase;letter-spacing:.04em}
+    .small-muted{font-size:12px;color:var(--muted)} input[data-field="name"]{direction:ltr !important;text-align:left !important;} .dept-tools{display:grid;gap:10px}.dept-tools-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dept-tools select{min-width:220px;max-width:260px}.toast{position:fixed;right:16px;bottom:16px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--text);display:none;z-index:999;max-width:min(420px,calc(100vw - 32px))}.toast.show{display:block}.inline-count{font-size:12px;color:var(--muted)}.dept-summary{font-size:13px;line-height:1.35}.dept-inline{display:flex;align-items:center;gap:6px;min-width:0}.dept-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dept-toggle{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:8px;background:#f7f9fc;color:#35506f;font-size:11px;font-weight:800;cursor:pointer;flex:0 0 auto}.dept-toggle:hover{background:#edf4fb}.dept-popover{position:fixed;z-index:2000;min-width:260px;max-width:340px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 18px 42px rgba(15,23,42,.18);display:none}.dept-popover.open{display:block}.dept-popover-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.dept-popover-title{font-size:12px;font-weight:800;color:#35506f;text-transform:uppercase;letter-spacing:.04em}.dept-popover-close{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:1px solid var(--line);border-radius:8px;background:#f7f9fc;color:#35506f;font-size:14px;font-weight:800;cursor:pointer}.dept-check-grid{display:grid;gap:8px}.dept-check-grid label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);text-transform:none;letter-spacing:0}.dept-check-grid input{width:auto;margin:0}
+    @media(max-width:1280px){.summary,.search-row,.split,.hero-grid,.contact-grid,.grid-2,.grid-3{grid-template-columns:1fr} body{padding:10px} .span-2{grid-column:auto}}
+    @media print{
+      body{background:#fff !important;padding:0 !important}
+      .hero,.tabs,.toolbar,.no-print,.footer-note,.scroll-top-btn,.print-hide,.tab-panel,.tabs,#printHeader{display:none !important}
+      .card,.app,.table-wrap{box-shadow:none !important;border:none !important;padding:0 !important;max-width:none !important}
+      #printOnlyArea{display:block !important}
+      .po-header{text-align:center;margin:0 0 12px 0}
+      .po-main{font-size:13px;font-weight:700;color:#111827;line-height:1.25}
+      .po-sub{font-size:17px;font-weight:800;color:#1f2937;margin-top:3px}
+      .po-list-head,
+      .po-row{
+        display:grid;
+        grid-template-columns: 2.2fr .9fr 1.5fr 1fr 2.3fr;
+        gap:12px;
+        align-items:start;
+      }
+      .po-list-head{
+        font-size:10px;
+        text-transform:uppercase;
+        letter-spacing:.04em;
+        color:#475569;
+        padding:7px 8px;
+        border-bottom:1px solid #d7dde5;
+        background:#f5f7fa;
+        font-weight:700;
+      }
+      .po-row{
+        padding:7px 8px;
+        border-bottom:1px solid #eceff3;
+      }
+      .po-name{
+        font-size:13px;
+        font-weight:700;
+        color:#111827;
+        line-height:1.15;
+        white-space:nowrap;
+      }
+      .po-type,.po-cong,.po-standing,.po-depts{
+        font-size:8.5px;
+        line-height:1.2;
+        font-weight:500;
+        color:#6b7280;
+      }
+      .po-type.brothers{color:#5b84a8}
+      .po-type.sisters{color:#8a6a97}
+      .po-depts{word-break:normal}
+    }
+  
+.dept-summary{
+  font-size:13px !important;
+  color:var(--text) !important;
+  font-weight:500 !important;
+  line-height:1.3 !important;
+}
+
+</style>
+
+<style>
+label.file-label.secondary:has(#importFile){
+  display:none !important;
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <section class="card hero">
+    <div class="hero-top">
+      <div>
+        <input id="plannerTitle" class="hero-title-input" value="RC Volunteers Management Tool" placeholder="RC Volunteers Management Tool">
+        <div class="sub" style="margin-top:10px"><input id="plannerSubtitle" value="Central merge, congregation overview, and volunteer confirmation workflow · Multi-department mode active" style="border:0;padding:0;background:transparent;font-size:15px;color:#6b7280"></div>
+      </div>
+      <div class="badge"><div class="big">Local data active</div><div class="small" id="badgeLine1">No import yet</div><div class="small" id="badgeLine2">Last save: not yet</div></div>
+    </div>
+    <div class="hero-grid">
+      <div>
+        <div class="grid grid-2">
+          <div><label for="eventName">Event / Convention</label><input id="eventName" value=""></div>
+          <div><label for="eventDate">Date / Place</label><input id="eventDate" value=""></div>
+        </div>
+        <div class="toolbar no-print">
+          <button class="primary brother-btn" id="addBrotherBtn">+ Brother</button>
+          <button class="primary sister-btn" id="addSisterBtn">+ Sister</button>
+          <label class="file-label secondary">JSON import<input id="importFile" type="file" accept="application/json" multiple></label>
+          <button class="secondary" id="printBtn">Print / PDF</button>
+          <button class="secondary" id="copyVisibleBtn">Copy visible list</button>
+          <button class="secondary" id="manageDepartmentsBtn">Departments</button>
+          <button class="secondary" id="manageCongregationsBtn">Congregations</button>
+        </div>
+      </div>
+      <div class="contact-card">
+        <h3>Volunteer Service contact</h3>
+        <div class="contact-grid">
+          <div><label for="senderName">Name</label><input id="senderName" value=""></div>
+          <div><label for="senderRole">Role</label><input id="senderRole" value=""></div>
+          <div class="span-2"><label for="senderCong">Congregation</label><input id="senderCong" value=""></div>
+          <div><label for="senderPhone">Phone</label><input id="senderPhone" value=""></div>
+          <div><label for="senderMail">JWPub / Email</label><input id="senderMail" value=""></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="tabs no-print">
+    <button class="tab-btn active" id="tabBtn-volunteers" onclick="showTab('volunteers')">Volunteers</button>
+    <button class="tab-btn" id="tabBtn-congregations" onclick="showTab('congregations')">Congregations & messages</button>
+    <button class="tab-btn" id="tabBtn-backup" onclick="showTab('backup')">Backup & tools</button>
+    <button class="tab-btn" id="tabBtn-help" onclick="showTab('help')">Help</button>
+  </div>
+
+  
+<div id="printOnlyArea" style="display:none">
+  <div class="po-header">
+    <div class="po-main" id="printOnlyMain"></div>
+    <div class="po-sub" id="printOnlySub">All volunteers</div>
+  </div>
+  <div class="po-list-head">
+    <div>Name</div><div>Type</div><div>Congregation</div><div>Standing</div><div>Departments</div>
+  </div>
+  <div id="printOnlyList"></div>
+</div>
+
+<div id="printHeader" style="display:none">
+    <div class="main" id="printHeaderMain"></div>
+    <div class="sub" id="printHeaderSub">All volunteers</div>
+  </div>
+  <div class="tab-panel active" id="tab-volunteers">
+    <section class="card section print-hide">
+      <h2>Quick overview</h2>
+      <div class="summary">
+        <div class="metric"><div class="k">Congregations</div><div class="v" id="mCongs">0</div></div>
+        <div class="metric"><div class="k">Departments</div><div class="v" id="mDepts">0</div></div>
+        <div class="metric"><div class="k">Volunteers</div><div class="v" id="mVol">0</div></div>
+        <div class="metric"><div class="k">Brothers</div><div class="v" id="mBro">0</div></div>
+        <div class="metric"><div class="k">Sisters</div><div class="v" id="mSis">0</div></div>
+        <div class="metric"><div class="k">Active</div><div class="v" id="mActive">0</div></div>
+        <div class="metric"><div class="k">Unknown</div><div class="v" id="mUnknown">0</div></div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Volunteer master list</h2>
+      <div class="search-row no-print">
+        <div><label for="globalSearch">Search</label><input id="globalSearch" placeholder="Search name, congregation, departments, standing..."></div>
+        <div><label for="filterGroup">Brothers / Sisters</label><select id="filterGroup"><option value="all">All</option><option value="Brothers">Brothers</option><option value="Sisters">Sisters</option></select></div>
+        <div><label for="filterCong">Congregation</label><select id="filterCong"></select></div>
+        <div><label for="filterDept">Department</label><select id="filterDept"></select></div>
+        <div><label for="filterStanding">Standing</label><select id="filterStanding"><option value="all">All</option><option value="good">Good</option><option value="exemplary">Exemplary</option><option value="unknown">Unknown</option></select></div>
+        <div><label for="filterActive">Active</label><select id="filterActive"><option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+        <div><button class="secondary" style="margin-top:22px" id="clearFiltersBtn">Clear</button></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:280px">Name</th><th style="width:120px">Type</th><th style="width:230px">Congregation</th><th style="width:150px">Standing</th><th style="width:260px">Departments</th><th style="width:74px" class="active-header">Active</th><th style="width:120px" class="no-print actions-header">Actions</th></tr></thead>
+          <tbody id="volunteerBody"></tbody>
+        </table>
+      </div>
+      <div class="footer-note">Volunteers stay in one master list. Department checkboxes only define where they can serve. Use the department filter to show everyone assigned to a selected department.</div>
+      <div id="emptyVolunteers" class="footer-note" style="display:none">No volunteers match the current filters.</div>
+    </section>
+  </div>
+
+  <div class="tab-panel" id="tab-congregations">
+    <section class="card section">
+      <h2>Congregation overview & message workflow</h2>
+      <div class="search-row no-print" style="grid-template-columns:1.2fr .9fr .9fr .9fr .85fr 160px">
+        <div><label for="congSearch">Search</label><input id="congSearch" placeholder="Search congregation, city, country, email..."></div>
+        <div><label for="msgFilterCountry">Country</label><select id="msgFilterCountry"></select></div>
+        <div><label for="msgFilterStatus">Follow-up</label><select id="msgFilterStatus"><option value="all">All</option><option value="open">Open</option><option value="contacted">Contacted</option><option value="replied">Replied</option></select></div>
+        <div><label for="msgFilterDept">Volunteers in department</label><select id="msgFilterDept"></select></div>
+        <div><label for="msgFilterStanding">Standing focus</label><select id="msgFilterStanding"><option value="all">All</option><option value="good">Good</option><option value="exemplary">Exemplary</option><option value="unknown">Unknown</option></select></div>
+        <div><button class="secondary" style="margin-top:22px" id="clearCongFiltersBtn">Clear</button></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:220px">Congregation</th><th style="width:180px">City / Country</th><th style="width:220px">Email</th><th style="width:80px">Vol.</th><th style="width:140px">Follow-up</th><th>Note</th><th style="width:170px" class="no-print">Actions</th></tr></thead>
+          <tbody id="congBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Message template</h2>
+      <div class="split">
+        <div>
+          <label for="messageTemplate">Template</label>
+          <textarea id="messageTemplate">Dear brothers,
+
+warm greetings.
+
+For the upcoming [EVENT_NAME] ([EVENT_DATE]), we currently have the following volunteers from your congregation in our overview:
+
+[VOLUNTEER_LIST]
+
+Could you please have a look and let us know if the standing is correct, or if anything is still unknown / needs to be checked?
+
+Thank you very much for your help and support.
+
+Warm Christian greetings,
+
+[SENDER_SIGNATURE]</textarea>
+          <div class="chips-inline"><span class="mini-chip">[EVENT_NAME]</span><span class="mini-chip">[EVENT_DATE]</span><span class="mini-chip">[CONGREGATION]</span><span class="mini-chip">[VOLUNTEER_LIST]</span><span class="mini-chip">[SENDER_SIGNATURE]</span></div>
+        </div>
+        <div><label>Preview</label><div class="message-box" id="previewBox">Choose a congregation and click Preview or Copy.</div><div class="preview-contact-card"><div class="preview-contact-title">Congregation email</div><div class="preview-contact-grid" id="previewContactActions"><div class="small-muted">Preview a congregation to show the congregation email here.</div></div></div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tab-panel" id="tab-backup">
+    <section class="card section">
+      <h2>Backup & tools</h2>
+      <div class="grid grid-2">
+        <div>
+          <label>Import / export</label>
+          <div class="chips-inline"><span class="mini-chip" id="notesImportInfo">Last import: none</span><span class="mini-chip" id="notesSaveInfo">Last local save: not yet</span><span class="mini-chip">JSON = full backup</span></div>
+          <div class="toolbar no-print" style="margin-top:12px"><label class="file-label secondary">Restore full backup<input id="importFile2" type="file" accept="application/json" multiple></label><button class="primary" id="exportBtn2">Full backup export</button><button class="warn" id="resetStatusBtn">Reset contacted / replied</button><button class="danger" id="resetAllBtn">Reset all local data</button></div>
+          <div class="footer-note" style="margin-top:12px">Starter congregations from the recruiting contacts file are kept as the base list and can be extended locally.</div>
+<div style="margin-top:14px;padding:12px;border:1px solid #d8e1ea;border-radius:12px;background:#eef5ff">
+  <div style="font-weight:700;margin-bottom:10px">Department import / export</div>
+  <div class="dept-tools no-print">
+    <div class="dept-tools-row">
+      <label class="file-label secondary">Import department volunteers<input id="departmentImportFile" type="file" accept="application/json" multiple></label>
+    </div>
+    <div class="dept-tools-row">
+      <select id="departmentExportSelect"></select>
+      <button class="secondary" id="departmentExportBtn">Export selected department</button>
+    </div>
+  </div>
+  <div class="footer-note" style="margin-top:8px">Import merges only department assignments into existing volunteers when name + congregation match. New departments are added automatically.</div>
+</div>
+
+        </div>
+        <div><label for="generalNotes">Notes</label><textarea id="generalNotes" placeholder="Internal notes, reminders, open items..."></textarea></div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Bulk congregation rename</h2>
+      <div class="grid grid-3">
+        <div><label for="bulkCongFrom">Current congregation</label><select id="bulkCongFrom"></select></div>
+        <div><label for="bulkCongTo">New congregation name</label><input id="bulkCongTo" placeholder="Enter new congregation name"></div>
+        <div><button class="secondary" style="margin-top:22px" id="bulkRenameBtn">Rename for all volunteers</button></div>
+      </div>
+      <div class="footer-note">Helpful after imports if one congregation name needs to be unified for all volunteers at once.</div>
+    </section>
+  </div>
+
+  <div class="tab-panel" id="tab-help">
+    <section class="card section">
+      <h2>Quick help</h2>
+      <div class="help-grid">
+        <div class="help-callout">This help section is built directly into the tool and stays lightweight on purpose: mostly static HTML, no heavy extra logic, no large libraries, and no background processing.</div>
+        <div class="grid grid-2">
+          <div class="help-card">
+            <h3>What the tool does</h3>
+            <p>The tool keeps one central volunteer master list for the Regional Convention. Every helper can be assigned to one congregation, marked as brother or sister, reviewed for standing, and ticked for one or several departments.</p>
+          </div>
+          <div class="help-card">
+            <h3>Main strength</h3>
+            <p>You do not need duplicate entries. One helper can be used for multiple departments simply by ticking several department boxes in the same volunteer record.</p>
+          </div>
+        </div>
+        <div class="help-accordion">
+          <details open>
+            <summary>Templates to congregations</summary>
+            <div class="help-body">
+              <p>The message template section prepares congregation correspondence almost completely for you.</p>
+              <ul>
+                <li>The congregation email is shown directly in the preview area.</li>
+                <li>The helper list for the selected congregation is inserted automatically.</li>
+                <li>You can copy the prepared text instead of writing every message manually.</li>
+                <li>The placeholders <code>[EVENT_NAME]</code>, <code>[EVENT_DATE]</code>, <code>[CONGREGATION]</code>, <code>[VOLUNTEER_LIST]</code>, and <code>[SENDER_SIGNATURE]</code> are replaced automatically in the preview.</li>
+              </ul>
+              <p>In practice that means the mail is already largely prepared: recipient context, congregation email, and volunteer list are ready, so you usually only need a quick final check before sending.</p>
+            </div>
+          </details>
+          <details>
+            <summary>Typical workflow for congregation messages</summary>
+            <div class="help-body">
+              <ol class="help-steps">
+                <li>Import or enter volunteers in the master list.</li>
+                <li>Check whether each helper is linked to the correct congregation.</li>
+                <li>Open <strong>Congregations &amp; messages</strong>.</li>
+                <li>Select or preview a congregation.</li>
+                <li>Let the tool build the message preview automatically.</li>
+                <li>Copy the text and use the shown congregation email for sending.</li>
+                <li>Afterwards, mark the congregation as contacted or replied.</li>
+              </ol>
+            </div>
+          </details>
+          <details>
+            <summary>Multiple departments for one helper</summary>
+            <div class="help-body">
+              <p>A helper can serve in several departments at the same time. Example: the same brother can be marked for Attendants, Parking, and Safety.</p>
+              <ul>
+                <li>No duplicate person entries are needed.</li>
+                <li>The department ticks only define where the helper can serve.</li>
+                <li>Department filters help you quickly see all helpers for one area.</li>
+              </ul>
+            </div>
+          </details>
+          <details>
+            <summary>Official congregations, extra names, and pool helpers</summary>
+            <div class="help-body">
+              <p>The official congregation overview is the base for the congregation communication workflow. Extra or unmatched congregation names can still exist for volunteers, especially after imports.</p>
+              <ul>
+                <li>If imported helpers cannot be matched cleanly, they can remain in the pool until you assign them manually.</li>
+                <li>This prevents volunteers from getting lost just because the congregation name is not yet perfect.</li>
+                <li>Only the official congregation list is meant to drive the message workflow.</li>
+              </ul>
+            </div>
+          </details>
+          <details>
+            <summary>Filters, review, and backups</summary>
+            <div class="help-body">
+              <p>Use the filters to answer practical questions quickly, for example which congregation already has volunteers, who is marked for Safety, or where standing is still unknown.</p>
+              <ul>
+                <li>Export backups regularly, especially after larger imports or many edits.</li>
+                <li>Use congregation follow-up states to keep track of open, contacted, and replied congregations.</li>
+                <li>Bulk rename is useful if one imported congregation name needs to be unified everywhere.</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+  <dialog id="deptDialog"><div class="dialog-head"><strong>Departments</strong><button class="secondary" onclick="document.getElementById('deptDialog').close()">Close</button></div><div class="dialog-body"><div class="dialog-grid"><input id="newDeptInput" placeholder="Add department"><button class="primary" id="addDeptBtn">Add</button></div><div class="dialog-list" id="deptList"></div></div></dialog>
+  <dialog id="congDialog"><div class="dialog-head"><strong>Congregations</strong><button class="secondary" onclick="document.getElementById('congDialog').close()">Close</button></div><div class="dialog-body"><div class="dialog-section"><div class="dialog-section-title">Official congregation overview</div><div class="dialog-section-note">These congregations are shown under <strong>Congregations &amp; messages</strong> and are used for the official message workflow.</div><div class="dialog-grid"><input id="newCongInput" placeholder="Add official congregation"><button class="primary" id="addCongBtn">Add</button></div><div class="dialog-row-list" id="congList"></div></div><div class="dialog-section"><div class="dialog-section-title">Volunteer pool / extra congregation names</div><div class="dialog-section-note">This is only for the volunteer master list and dropdowns. Imported helpers without a matching official congregation are moved to the pool automatically and can be reassigned manually later.</div><div class="dialog-chip"><strong>Pool</strong><span id="poolCongLabel"></span></div><div class="dialog-row-list" id="extraCongList"></div></div></div></dialog>
+
+  <div class="dept-popover" id="deptPopover"><div class="dept-popover-head"><div class="dept-popover-title">Departments</div><button type="button" class="dept-popover-close" id="deptPopoverClose">×</button></div><div class="dept-check-grid" id="deptPopoverOptions"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="footer-note" style="text-align:center;margin-bottom:24px">Made with love · RC Volunteers Management Tool v2.8.2</div>
+</div>
+
+<script>
+// --- DEBOUNCE FUNCTION: The Secret to Performance ---
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+const DEFAULT_CONTACTS = [];
+const DEFAULT_DEPARTMENTS = ['Attendants','Cleaning','Baptism','Parking','Hospitality','Information','Volunteer Service'];
+const DEFAULT_META = {
+  plannerTitle:'RC Volunteers Management Tool',
+  plannerSubtitle:'Central merge, congregation overview, and volunteer confirmation workflow · Multi-department mode active',
+  eventName:'',
+  eventDate:'',
+  senderName:'',
+  senderRole:'',
+  senderCong:'',
+  senderPhone:'',
+  senderMail:'',
+  messageTemplate: document.getElementById('messageTemplate').value,
+  generalNotes:'',
+  lastImportText:'No import yet',
+  lastSavedAt:''
+};
+const STORAGE_KEY = 'rc_volunteers_management_tool_v2_8_0';
+const POOL_CONGREGATION = 'Unassigned / external helpers';
+let state = loadState();
+let selectedCongregation = null;
+let editingVolunteerId = null;
+let pendingVolunteerNameFocus = false;
+
+function $(id){ return document.getElementById(id); }
+function normalize(s){ return String(s ?? '').trim(); }
+function lower(s){ return normalize(s).toLowerCase(); }
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function uid(){ return 'v_' + Math.random().toString(16).slice(2) + '_' + Date.now().toString(16); }
+function showTab(tab){ ['volunteers','congregations','backup','help'].forEach(name => { $('tab-' + name).classList.toggle('active', name === tab); $('tabBtn-' + name).classList.toggle('active', name === tab); }); }
+window.showTab = showTab;
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1800); }
+function nowIso(){ return new Date().toISOString(); }
+function formatStamp(iso){ if(!iso) return 'not yet'; try{ return new Date(iso).toLocaleString('de-DE'); }catch{ return iso; } }
+function standingLabel(v){ return v ? v.charAt(0).toUpperCase()+v.slice(1) : 'Unknown'; }
+function standingClass(v){ return v || 'unknown'; }
+function normalizeStanding(v){ const x=lower(v); if(x==='good') return 'good'; if(x==='exemplary') return 'exemplary'; return 'unknown'; }
+function normalizeGroup(v){ return lower(v)==='sisters' ? 'Sisters' : 'Brothers'; }
+function inferCongregationFromTitle(title){ const raw = normalize(title).replace(/^volunteers\s*/i,'').replace(/^rc\s*volunteers\s*[-–—:]?\s*/i,'').trim(); return raw.replace(/[·|].*$/,'').trim(); }
+function normalizeContact(row){ return { congregation: normalize(row.congregation), city: normalize(row.city), country: normalize(row.country), email: normalize(row.email), note: normalize(row.note), contacted: !!row.contacted, contacted_timestamp: normalize(row.contacted_timestamp || '–'), replied: !!row.replied, replied_timestamp: normalize(row.replied_timestamp || '–') }; }
+function normalizeVolunteer(row, fallbackCong=''){ const departments = Array.isArray(row.departments) ? row.departments.map(normalize).filter(Boolean) : normalize(row.department || row.dept) ? [normalize(row.department || row.dept)] : []; return { id: String(row.id || uid()), name: normalize(row.name || row.fullName), group: normalizeGroup(row.group), congregation: normalize(row.congregation || row.congregationName || fallbackCong), sourceCongregation: normalize(row.sourceCongregation || row.originalCongregation || ''), standing: normalizeStanding(row.standing), departments: uniq(departments), active: row.active === false ? false : true, updatedAt: Number(row.updatedAt || Date.now()) }; }
+function defaultState(){ return { meta: {...DEFAULT_META}, volunteers: [], departments: [...DEFAULT_DEPARTMENTS], contacts: DEFAULT_CONTACTS.map(normalizeContact) }; }
+function loadState(){ try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw){ const parsed=JSON.parse(raw); return { meta: {...DEFAULT_META, ...(parsed.meta||{})}, volunteers: Array.isArray(parsed.volunteers)? parsed.volunteers.map(v=>normalizeVolunteer(v)):[], departments: Array.isArray(parsed.departments)&&parsed.departments.length ? parsed.departments.map(normalize).filter(Boolean) : [...DEFAULT_DEPARTMENTS], contacts: Array.isArray(parsed.contacts)&&parsed.contacts.length ? parsed.contacts.map(normalizeContact) : DEFAULT_CONTACTS.map(normalizeContact) }; } }catch(e){} return defaultState(); }
+function uniq(list){ return [...new Set((list||[]).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'})); }
+function officialCongregations(){ return uniq((state.contacts||[]).map(c=>c.congregation)); }
+function extraVolunteerCongregations(){ return uniq((state.volunteers||[]).map(v=>v.congregation).filter(Boolean).filter(name => name!==POOL_CONGREGATION && !officialCongregations().includes(name))); }
+function allCongregations(){ return uniq([POOL_CONGREGATION, ...officialCongregations(), ...extraVolunteerCongregations(), ...(state.volunteers||[]).map(v=>v.congregation)]); }
+function allCountries(){ return uniq((state.contacts||[]).map(c=>c.country)); }
+function isOfficialCongregation(name){ return officialCongregations().includes(normalize(name)); }
+function mapImportedCongregation(name){ const clean = normalize(name); if(!clean) return { congregation: POOL_CONGREGATION, sourceCongregation: '' }; if(isOfficialCongregation(clean) || clean===POOL_CONGREGATION) return { congregation: clean, sourceCongregation: '' }; return { congregation: POOL_CONGREGATION, sourceCongregation: clean }; }
+function syncMetaFromInputs(){ ['plannerTitle','plannerSubtitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes'].forEach(id => state.meta[id] = $(id).value); }
+function refreshHeader(){ $('plannerTitle').value = state.meta.plannerTitle; $('plannerSubtitle').value = state.meta.plannerSubtitle; $('eventName').value = state.meta.eventName; $('eventDate').value = state.meta.eventDate; $('senderName').value = state.meta.senderName; $('senderRole').value = state.meta.senderRole; $('senderCong').value = state.meta.senderCong; $('senderPhone').value = state.meta.senderPhone; $('senderMail').value = state.meta.senderMail; $('messageTemplate').value = state.meta.messageTemplate; $('generalNotes').value = state.meta.generalNotes; $('badgeLine1').textContent = state.meta.lastImportText || 'No import yet'; $('badgeLine2').textContent = 'Last save: ' + formatStamp(state.meta.lastSavedAt); $('notesImportInfo').textContent = 'Last import: ' + (state.meta.lastImportText || 'none'); $('notesSaveInfo').textContent = 'Last local save: ' + formatStamp(state.meta.lastSavedAt); document.title = state.meta.plannerTitle || 'RC Volunteers Management Tool'; }
+function updateCounts(){ const vols = state.volunteers; $('mCongs').textContent = allCongregations().length; $('mDepts').textContent = uniq(state.departments).length; $('mVol').textContent = vols.length; $('mBro').textContent = vols.filter(v=>v.group==='Brothers').length; $('mSis').textContent = vols.filter(v=>v.group==='Sisters').length; $('mActive').textContent = vols.filter(v=>v.active !== false).length; $('mUnknown').textContent = vols.filter(v=>v.standing==='unknown').length; }
+function fillSelect(select, values, firstLabel='All'){ const cur=select.value; select.innerHTML = `<option value="all">${firstLabel}</option>` + values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join(''); if([...select.options].some(o=>o.value===cur)) select.value=cur; }
+function renderDeptDialogList(){ const box=$('deptList'); const list=uniq(state.departments); box.innerHTML = list.length ? list.map(d=>`<div class="input" style="background:#fff">${esc(d)}</div><button class="secondary small-btn" data-edit-dept="${esc(d)}">Edit</button><button class="danger small-btn" data-remove-dept="${esc(d)}">Remove</button>`).join('') : '<div class="small-muted">No departments yet.</div>'; }
+function renderCongDialogList(){ const box=$('congList'); const extraBox=$('extraCongList'); const official=officialCongregations(); const extra=extraVolunteerCongregations(); if($('poolCongLabel')) $('poolCongLabel').textContent = POOL_CONGREGATION; box.innerHTML = official.length ? official.map(c=>`<div class="input" style="background:#fff">${esc(c)}</div><button class="danger small-btn" title="Removes the congregation from the official overview and moves linked volunteers to the pool" data-remove-cong="${esc(c)}">Remove</button>`).join('') : '<div class="small-muted">No official congregations yet.</div>'; if(extraBox){ extraBox.innerHTML = extra.length ? extra.map(c=>`<div class="input" style="background:#fff">${esc(c)}</div><button class="secondary small-btn" title="Moves linked volunteers into the pool" data-move-extra-cong="${esc(c)}">Move to pool</button>`).join('') : '<div class="small-muted">No extra congregation names at the moment.</div>'; } }
+function fillFilterOptions(){ const congs = allCongregations(); const depts = uniq(state.departments); fillSelect($('filterCong'), congs, 'All'); fillSelect($('filterDept'), depts, 'All'); fillSelect($('msgFilterDept'), depts, 'All'); fillSelect($('msgFilterCountry'), allCountries(), 'All'); $('bulkCongFrom').innerHTML = '<option value="">Choose congregation…</option>' + congs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''); renderDeptDialogList(); renderCongDialogList(); invalidateVolunteerRenderCaches(); }
+
+const volunteerRenderCache = {
+  congregationOptionsByValue: new Map(),
+  congregationOptionsKey: '',
+  searchHaystackById: new Map()
+};
+function invalidateVolunteerRenderCaches(){ volunteerRenderCache.congregationOptionsByValue.clear(); volunteerRenderCache.congregationOptionsKey=''; volunteerRenderCache.searchHaystackById.clear(); }
+function currentCongregationCacheKey(){ return allCongregations().join('||'); }
+function getCongregationOptionsHtml(selectedCongregation=''){
+  const key = currentCongregationCacheKey();
+  if(volunteerRenderCache.congregationOptionsKey !== key){
+    volunteerRenderCache.congregationOptionsByValue.clear();
+    volunteerRenderCache.congregationOptionsKey = key;
+  }
+  const selected = selectedCongregation || '';
+  if(volunteerRenderCache.congregationOptionsByValue.has(selected)) return volunteerRenderCache.congregationOptionsByValue.get(selected);
+  const html = '<option value="">Select congregation</option>' + allCongregations().map(c=>`<option value="${esc(c)}" ${selected===c?'selected':''}>${esc(c)}</option>`).join('');
+  volunteerRenderCache.congregationOptionsByValue.set(selected, html);
+  return html;
+}
+function buildVolunteerSearchHaystack(v){ return [v.name,v.group,v.congregation,(v.departments||[]).join(' | '),v.standing, v.active===false ? 'inactive' : 'active'].map(lower).join(' | '); }
+function getVolunteerSearchHaystack(v){ const key = String(v.id || ''); const stamp = `${v.name||''}|${v.group||''}|${v.congregation||''}|${Array.isArray(v.departments)?v.departments.join('||'):''}|${v.standing||''}|${v.active===false?'0':'1'}`; const cached = volunteerRenderCache.searchHaystackById.get(key); if(cached && cached.stamp === stamp) return cached.haystack; const haystack = buildVolunteerSearchHaystack(v); volunteerRenderCache.searchHaystackById.set(key, {stamp, haystack}); return haystack; }
+
+// --- DEBOUNCED SAVING ---
+const debouncedSave = debounce(() => {
+  saveStateOnly();
+}, 1200);
+
+function saveStateOnly(skipSync=false){ 
+  if(!skipSync) syncMetaFromInputs(); 
+  state.departments = uniq([...(state.departments||[]), ...state.volunteers.flatMap(v=>Array.isArray(v.departments)?v.departments:[])]); 
+  state.meta.lastSavedAt = nowIso(); 
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
+  refreshHeader(); 
+}
+
+// Persist is now only for major actions (Imports, Resets, Adding people)
+function persist(options={}){ 
+  saveStateOnly(!!options.skipSync); 
+  refreshHeader(); 
+  updateCounts(); 
+  fillFilterOptions(); 
+  renderVolunteers(); 
+  renderCongregations(); 
+  if(selectedCongregation) previewCongregation(selectedCongregation); 
+}
+
+let activeDeptVolunteerId = null;
+function closeDeptPopover(){ const pop=$('deptPopover'); pop.classList.remove('open'); pop.dataset.volunteerId=''; activeDeptVolunteerId = null; }
+function openDeptPopover(volunteerId, button){
+  const v=getVolunteer(volunteerId); if(!v) return;
+  activeDeptVolunteerId = volunteerId;
+  const pop=$('deptPopover');
+  pop.dataset.volunteerId = volunteerId;
+  const opts=$('deptPopoverOptions');
+  const selected = new Set(Array.isArray(v.departments)? v.departments : []);
+  opts.innerHTML = uniq(state.departments).map(d=>`<label><input type="checkbox" data-popover-department="${esc(d)}" ${selected.has(d)?'checked':''}> ${esc(d)}</label>`).join('') || '<div class="small-muted">No departments available yet.</div>';
+  pop.classList.add('open');
+  const rect = button.getBoundingClientRect();
+  const popWidth = Math.min(340, Math.max(260, pop.offsetWidth || 320));
+  const popHeight = Math.min(360, Math.max(140, pop.offsetHeight || 220));
+  let left = rect.left;
+  if(left + popWidth > window.innerWidth - 12) left = Math.max(12, window.innerWidth - popWidth - 12);
+
+  const spaceBelow = window.innerHeight - rect.bottom - 12;
+  const spaceAbove = rect.top - 12;
+  let top = rect.bottom + 8;
+  if(spaceBelow < Math.min(popHeight, 220) && spaceAbove > spaceBelow){
+    top = rect.top - popHeight - 8;
+  }
+  if(top + popHeight > window.innerHeight - 12) top = window.innerHeight - popHeight - 12;
+  if(top < 12) top = 12;
+
+  pop.style.left = `${Math.max(12,left)}px`;
+  pop.style.top = `${top}px`;
+}
+document.addEventListener('click', e=>{
+  const toggle=e.target.closest('[data-dept-toggle]');
+  if(toggle){
+    const volunteerId = toggle.getAttribute('data-dept-toggle');
+    if(activeDeptVolunteerId===volunteerId && $('deptPopover').classList.contains('open')){ closeDeptPopover(); }
+    else openDeptPopover(volunteerId, toggle);
+    e.stopPropagation();
+    return;
+  }
+  if(e.target.closest('#deptPopover')) return;
+  closeDeptPopover();
+});
+$('deptPopoverClose').addEventListener('click', closeDeptPopover);
+
+function formatDepartments(v){ const list = uniq(Array.isArray(v.departments)? v.departments : []); if(!list.length) return '<span class="small-muted">—</span>'; return `<div class="dept-summary">${esc(list.join(', '))}</div>`; }
+function departmentKey(v){ const list = uniq(Array.isArray(v.departments)? v.departments : []); return list.length ? list.join(' | ') : 'Without department'; }
+function renderDepartmentChecks(v){ return `<button type="button" class="dept-toggle" data-dept-toggle="${esc(v.id)}" title="Select departments">▼</button>`; }
+function volunteerMatches(v, filters){ const q = filters?.q ?? lower($('globalSearch').value); if(q && !getVolunteerSearchHaystack(v).includes(q)) return false; const group = filters?.group ?? $('filterGroup').value; if(group !== 'all' && v.group !== group) return false; const congregation = filters?.congregation ?? $('filterCong').value; if(congregation !== 'all' && v.congregation !== congregation) return false; const department = filters?.department ?? $('filterDept').value; if(department !== 'all' && !(Array.isArray(v.departments) && v.departments.includes(department))) return false; const standing = filters?.standing ?? $('filterStanding').value; if(standing !== 'all' && v.standing !== standing) return false; const active = filters?.active ?? $('filterActive').value; if(active === 'active' && v.active === false) return false; if(active === 'inactive' && v.active !== false) return false; return true; }
+function volunteerSortKey(v){ return (($('filterDept').value !== 'all' ? '' : (v.congregation||'')) + '|' + (v.name||'')).toLowerCase(); }
+function volunteerRow(v, congOptions){ const sourceHint = v.congregation===POOL_CONGREGATION && v.sourceCongregation ? `<div class="small-muted">Imported as: ${esc(v.sourceCongregation)}</div>` : ''; return `
+<tr data-id="${esc(v.id)}" data-active="${v.active===false?'false':'true'}"><td><input data-field="name" value="${esc(v.name)}" placeholder="Name"></td><td><span class="pill ${v.group==='Sisters'?'sisters':'brothers'}">${esc(v.group==='Sisters'?'Sisters':'Brothers')}</span></td><td><div class="stack"><select data-field="congregation">${congOptions}</select>${sourceHint}</div></td><td><select data-field="standing"><option value="good" ${v.standing==='good'?'selected':''}>Good</option><option value="exemplary" ${v.standing==='exemplary'?'selected':''}>Exemplary</option><option value="unknown" ${v.standing==='unknown'?'selected':''}>Unknown</option></select></td><td><div class="dept-inline"><div class="dept-text">${formatDepartments(v)}</div><div class="no-print">${renderDepartmentChecks(v)}</div></div></td><td class="active-col"><div class="check-row" style="justify-content:center"><label title="Active volunteer"><input type="checkbox" data-field="active" ${v.active===false?'':'checked'}></label></div></td><td class="no-print"><div class="row-actions"><button class="danger small-btn" data-del="1">🗑️</button></div></td></tr>`; }
+
+// --- DEBOUNCED RENDERERS ---
+const debouncedRenderVolunteers = debounce(renderVolunteers, 300);
+const debouncedRenderCongregations = debounce(renderCongregations, 300);
+
+function renderVolunteers(){ const body = $('volunteerBody'); const filters = { q: lower($('globalSearch').value), group: $('filterGroup').value, congregation: $('filterCong').value, department: $('filterDept').value, standing: $('filterStanding').value, active: $('filterActive').value }; const filtered = state.volunteers.filter(v => volunteerMatches(v, filters)).sort((a,b) => { const c=(a.congregation||'').localeCompare(b.congregation||'',undefined,{sensitivity:'base'}); if(c) return c; return (a.name||'').localeCompare(b.name||'',undefined,{sensitivity:'base'}); }); body.innerHTML = filtered.map(v => volunteerRow(v, getCongregationOptionsHtml(v.congregation))).join(''); $('emptyVolunteers').style.display = filtered.length ? 'none':'block'; if(editingVolunteerId && pendingVolunteerNameFocus){
+    setTimeout(()=>{
+      const input = body.querySelector(`tr[data-id="${CSS.escape(editingVolunteerId)}"] [data-field="name"]`);
+      if(input){
+        input.focus();
+        try{
+          const len = input.value.length;
+          input.setSelectionRange(len, len);
+        }catch(e){}
+      }
+      pendingVolunteerNameFocus = false;
+      editingVolunteerId = null;
+    },0);
+  } }
+function congregationVolunteers(congName, opts={}){ return state.volunteers.filter(v => v.congregation===congName).filter(v => opts.department && opts.department!=='all' ? ((v.departments||[]).includes(opts.department)) : true).filter(v => opts.standing && opts.standing!=='all' ? v.standing===opts.standing : true).sort((a,b)=>{ const d=departmentKey(a).localeCompare(departmentKey(b),undefined,{sensitivity:'base'}); if(d) return d; return (a.name||'').localeCompare(b.name||'',undefined,{sensitivity:'base'}); }); }
+function followStatus(c){ if(c.replied) return 'replied'; if(c.contacted) return 'contacted'; return 'open'; }
+function followBadge(c){ const s=followStatus(c); return `<span class="pill ${s}">${s==='replied'?'Replied':s==='contacted'?'Contacted':'Open'}</span>`; }
+function congregationMatches(c){ const vols = congregationVolunteers(c.congregation, {department:$('msgFilterDept').value, standing:$('msgFilterStanding').value}); const hay = [c.congregation,c.city,c.country,c.email,c.note].map(lower).join(' | ') + ' | ' + vols.map(v=>[v.name,(v.departments||[]).join(', '),v.standing].map(lower).join(' ')).join(' | '); const q = lower($('congSearch').value); if(q && !hay.includes(q)) return false; if($('msgFilterCountry').value !== 'all' && c.country !== $('msgFilterCountry').value) return false; if($('msgFilterStatus').value !== 'all' && followStatus(c) !== $('msgFilterStatus').value) return false; if($('msgFilterDept').value !== 'all' && vols.length===0) return false; if($('msgFilterStanding').value !== 'all' && vols.length===0) return false; return true; }
+function renderCongregations(){ const body=$('congBody'); const rows = state.contacts.filter(congregationMatches).sort((a,b)=>(a.congregation||'').localeCompare(b.congregation||'',undefined,{sensitivity:'base'})); body.innerHTML = rows.map(c => { const realIdx = state.contacts.findIndex(x=>x.congregation===c.congregation); const vols = congregationVolunteers(c.congregation, {department:$('msgFilterDept').value, standing:$('msgFilterStanding').value}); return `\n<tr><td><div class="stack"><strong>${esc(c.congregation)}</strong><span class="inline-count">${vols.length} volunteer(s) in current filter</span></div></td><td>${esc([c.city,c.country].filter(Boolean).join(' · ') || '—')}</td><td><input value="${esc(c.email)}" data-contact-index="${realIdx}" data-contact-field="email" placeholder="Email"></td><td><strong>${vols.length}</strong></td><td><div class="stack">${followBadge(c)}<div class="check-row no-print"><label><input type="checkbox" ${c.contacted?'checked':''} onchange="updateContact(${realIdx}, 'contacted', this.checked)"> contacted</label><label><input type="checkbox" ${c.replied?'checked':''} onchange="updateContact(${realIdx}, 'replied', this.checked)"> replied</label></div></div></td><td><input value="${esc(c.note)}" data-contact-index="${realIdx}" data-contact-field="note" placeholder="Note"></td><td class="no-print right"><div class="stack"><button class="secondary small-btn" onclick="previewCongregation('${esc(c.congregation)}')">Preview</button><button class="secondary small-btn" onclick="copyCongregationMessage('${esc(c.congregation)}')">Copy</button></div></td></tr>`; }).join(''); if(selectedCongregation && !rows.some(r=>r.congregation===selectedCongregation)){ $('previewBox').textContent = 'Choose a congregation and click Preview or Copy.'; const wrap=$('previewContactActions'); if(wrap) wrap.innerHTML = '<div class="small-muted">Preview a congregation to show the congregation email here.</div>'; selectedCongregation = null; } }
+function buildSignature(){ const parts = [state.meta.senderName, state.meta.senderRole, state.meta.senderCong].filter(Boolean); const contacts = [state.meta.senderPhone, state.meta.senderMail].filter(Boolean).join(' · '); return parts.join('\n') + (contacts ? `\n${contacts}` : ''); }
+function buildVolunteerList(congName){ const vols = congregationVolunteers(congName, {department:$('msgFilterDept').value, standing:$('msgFilterStanding').value}); if(!vols.length) return '[no volunteers currently listed]'; return vols.map(v => { const dept = (v.departments||[]).length ? ` – ${(v.departments||[]).join(', ')}` : ''; const standing = v.standing ? ` (${standingLabel(v.standing)})` : ''; return `• ${v.name}${dept}${standing}${v.active===false ? ' [inactive]' : ''}`; }).join('\n'); }
+function buildMessage(congName){ return state.meta.messageTemplate.replaceAll('[EVENT_NAME]', state.meta.eventName || '').replaceAll('[EVENT_DATE]', state.meta.eventDate || '').replaceAll('[CONGREGATION]', congName || '').replaceAll('[VOLUNTEER_LIST]', buildVolunteerList(congName)).replaceAll('[SENDER_SIGNATURE]', buildSignature()); }
+function renderPreviewContacts(congName){ const c = state.contacts.find(x=>x.congregation===congName); const wrap=$('previewContactActions'); if(!wrap) return; const email=(c?.email||'').trim(); wrap.innerHTML = email ? `<div class="preview-contact-row"><div class="label">Email</div><div class="preview-contact-value" title="${esc(email)}">${esc(email)}</div><div class="no-print"><span class="mini-copy" title="Copy congregation email" onclick="copyPreviewEmail()">⧉</span></div></div>` : '<div class="small-muted">No congregation email entered yet.</div>'; }
+function copyPreviewEmail(){ if(!selectedCongregation) return; const c = state.contacts.find(x=>x.congregation===selectedCongregation); const email=(c?.email||'').trim(); if(!email) return; navigator.clipboard.writeText(email).then(()=>toast('Congregation email copied ✔')).catch(()=>alert('Copy failed in this browser.')); }
+window.copyPreviewEmail = copyPreviewEmail;
+function previewCongregation(congName){ selectedCongregation = congName; $('previewBox').textContent = `To: ${congName}\n\n${buildMessage(congName)}`; renderPreviewContacts(congName); }
+window.previewCongregation = previewCongregation;
+async function copyCongregationMessage(congName){ previewCongregation(congName); try{ await navigator.clipboard.writeText(buildMessage(congName)); toast('Message copied ✔'); }catch{ alert('Copy failed in this browser.'); } }
+window.copyCongregationMessage = copyCongregationMessage;
+function addVolunteer(group){ const selectedDept = $('filterDept')?.value; const initialDepartments = selectedDept && selectedDept !== 'all' ? [selectedDept] : []; state.volunteers.unshift({ id: uid(), name:'', group, congregation:'', standing:'unknown', departments: initialDepartments, active:true, updatedAt: Date.now() }); editingVolunteerId = state.volunteers[0].id; pendingVolunteerNameFocus = true; persist(); if(selectedDept && selectedDept !== 'all') toast(`${group==='Sisters' ? 'Sister' : 'Brother'} added in ${selectedDept} ✔`); }
+function getVolunteer(id){ return state.volunteers.find(v=>v.id===id); }
+function updateContact(index, key, value){ const c=state.contacts[index]; if(!c) return; if(key==='contacted'){ c.contacted=!!value; c.contacted_timestamp = value ? nowIso() : '–'; if(!value){ c.replied=false; c.replied_timestamp='–'; } } else if(key==='replied'){ c.replied=!!value; c.replied_timestamp = value ? nowIso() : '–'; if(value && !c.contacted){ c.contacted=true; c.contacted_timestamp=nowIso(); } } else c[key]=value; persist(); }
+window.updateContact = updateContact;
+function mergeMeaningful(existing, incoming){ const merged={...existing}; ['name','group','congregation','standing','department'].forEach(k=>{ const val=incoming[k]; if(typeof val==='string'){ if(normalize(val)!=='') merged[k]=normalize(val); } else if(val!==undefined && val!==null) merged[k]=val; }); merged.updatedAt = Math.max(Number(existing.updatedAt||0), Number(incoming.updatedAt||0), Date.now()); return merged; }
+function volunteerKey(v){ return lower([v.name,v.group,v.congregation].join('|')); }
+function mergeVolunteers(rows){ const byId = new Map(state.volunteers.map(v=>[String(v.id), v])); const byNatural = new Map(state.volunteers.map(v=>[volunteerKey(v), v])); let added=0, merged=0; rows.forEach(r=>{ if(!r.name && !r.id) return; (Array.isArray(r.departments)? r.departments : (r.department ? [r.department] : [])).forEach(d=>{ if(d) state.departments.push(d); }); const id = String(r.id||''); if(id && byId.has(id)){ const existing=byId.get(id); const newRow=mergeMeaningful(existing, r); byId.set(id, newRow); byNatural.set(volunteerKey(newRow), newRow); merged++; return; } const nat = volunteerKey(r); if(nat && nat !== '||' && byNatural.has(nat)){ const existing=byNatural.get(nat); const newRow=mergeMeaningful(existing, r); byId.set(existing.id, newRow); byNatural.set(nat, newRow); merged++; return; } const newRow = normalizeVolunteer(r); byId.set(newRow.id, newRow); byNatural.set(volunteerKey(newRow), newRow); added++; }); state.volunteers = Array.from(byId.values()); return {added, merged}; }
+function mergeContacts(rows){ const map = new Map(state.contacts.map(c=>[lower(c.congregation), c])); let added=0, updated=0; rows.forEach(raw=>{ const c=normalizeContact(raw); if(!c.congregation) return; const key=lower(c.congregation); if(map.has(key)){ const ex=map.get(key); ['city','country','email','note'].forEach(k=>{ if(normalize(c[k])) ex[k]=c[k]; }); if(raw.contacted!==undefined) ex.contacted=!!raw.contacted; if(raw.replied!==undefined) ex.replied=!!raw.replied; if(normalize(raw.contacted_timestamp)) ex.contacted_timestamp=normalize(raw.contacted_timestamp); if(normalize(raw.replied_timestamp)) ex.replied_timestamp=normalize(raw.replied_timestamp); updated++; } else { state.contacts.push(c); added++; } }); return {added, updated}; }
+function importPayload(parsed){
+  const messages=[];
+  const isFullBackup = !!(parsed && typeof parsed==='object' && !Array.isArray(parsed) && parsed.meta && Array.isArray(parsed.volunteers) && Array.isArray(parsed.contacts));
+  if(isFullBackup){
+    state = {
+      meta: {...DEFAULT_META, ...(parsed.meta||{})},
+      volunteers: Array.isArray(parsed.volunteers) ? parsed.volunteers.map(v=>normalizeVolunteer(v)) : [],
+      departments: Array.isArray(parsed.departments)&&parsed.departments.length ? parsed.departments.map(normalize).filter(Boolean) : [...DEFAULT_DEPARTMENTS],
+      contacts: Array.isArray(parsed.contacts) ? parsed.contacts.map(normalizeContact) : DEFAULT_CONTACTS.map(normalizeContact)
+    };
+    state.departments = uniq([...(state.departments||[]), ...state.volunteers.flatMap(v => Array.isArray(v.departments) ? v.departments : (v.department ? [v.department] : []))]);
+    state.meta.lastImportText = 'Full backup restored';
+    state._justRestoredFullBackup = true;
+    return `Full backup restored: ${state.volunteers.length} volunteers · ${state.contacts.length} congregations`;
+  }
+  if(Array.isArray(parsed) && parsed.every(x => x && typeof x==='object' && ('congregation' in x) && ('email' in x) && !('name' in x))){
+    const r=mergeContacts(parsed);
+    messages.push(`Contacts added: ${r.added} · updated: ${r.updated}`);
+  } else {
+    let rows=[];
+    if(Array.isArray(parsed)) rows=parsed;
+    else if(Array.isArray(parsed.data)) rows=parsed.data;
+    else if(Array.isArray(parsed.volunteers)) rows=parsed.volunteers;
+    else throw new Error('JSON format not recognized');
+    const title = normalize(parsed?.header?.title || parsed?.title || parsed?.app || '');
+    const fallbackCong = inferCongregationFromTitle(title);
+    const normalizedRows = rows.map(r => { const row = normalizeVolunteer(r, fallbackCong); const mapped = mapImportedCongregation(row.congregation); row.congregation = mapped.congregation; if(mapped.sourceCongregation) row.sourceCongregation = mapped.sourceCongregation; return row; });
+    const r=mergeVolunteers(normalizedRows);
+    messages.push(`Volunteers added: ${r.added} · merged: ${r.merged}`);
+    if(Array.isArray(parsed.contacts)){
+      const c=mergeContacts(parsed.contacts);
+      messages.push(`Contacts added: ${c.added} · updated: ${c.updated}`);
+    }
+  }
+  return messages.join(' • ');
+}
+async function handleImport(files){
+  if(!files?.length) return;
+  const parts=[];
+  let restoredFullBackup = false;
+  for(const file of files){
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    parts.push(`${file.name} (${importPayload(parsed)})`);
+    if(state._justRestoredFullBackup){
+      restoredFullBackup = true;
+      delete state._justRestoredFullBackup;
+    }
+  }
+  if(restoredFullBackup){
+    persist({skipSync:true});
+    toast('Full backup restored ✔');
+    return;
+  }
+  state.meta.lastImportText = 'Imported: ' + parts.join(' • ');
+  persist();
+  toast('Import finished ✔');
+}
+function exportJson(){ syncMetaFromInputs(); const payload = { app:'RC Volunteers Management Tool', version:'2.8.2', exportedAt: nowIso(), meta: state.meta, departments: uniq(state.departments), contacts: state.contacts, volunteers: state.volunteers }; const stamp = new Date(); const pad = n => String(n).padStart(2,'0'); const fileStamp = `${stamp.getFullYear()}-${pad(stamp.getMonth()+1)}-${pad(stamp.getDate())}_${pad(stamp.getHours())}:${pad(stamp.getMinutes())}:${pad(stamp.getSeconds())}`; const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `RC_Volunteers_Backup_${fileStamp}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Full backup exported ✔'); }
+function bulkRenameCongregation(){ const from=normalize($('bulkCongFrom').value); const to=normalize($('bulkCongTo').value); if(!from) return alert('Please choose the congregation you want to change.'); if(!to) return alert('Please enter the new congregation name.'); const hits=state.volunteers.filter(v=>v.congregation===from); if(!hits.length) return alert('No volunteers found for the selected congregation.'); if(!confirm(`Change congregation "${from}" to "${to}" for ${hits.length} volunteer(s)?`)) return; hits.forEach(v=>{ v.congregation=to; if(to!==POOL_CONGREGATION) v.sourceCongregation=''; v.updatedAt=Date.now(); }); const contact = state.contacts.find(c=>c.congregation===from); if(contact) contact.congregation=to; persist(); $('bulkCongFrom').value=''; $('bulkCongTo').value=''; toast(`Congregation updated for ${hits.length} volunteer(s) ✔`); }
+function editDepartment(name){ const next = normalize(prompt(`Edit department name:`, name) || ''); if(!next || next===name) return; state.departments = uniq(state.departments.map(d=>d===name ? next : d)); state.volunteers.forEach(v=>{ if(Array.isArray(v.departments) && v.departments.includes(name)){ v.departments = uniq(v.departments.map(dep=>dep===name ? next : dep)); v.updatedAt=Date.now(); } }); persist(); toast('Department updated ✔'); }
+function removeDepartment(name){ if(!confirm(`Remove department "${name}" from the list? Existing rows keep their text until changed manually.`)) return; state.departments = state.departments.filter(d=>d!==name); persist(); }
+function removeCongregation(name){
+  const linkedVolunteers = state.volunteers.filter(v=>v.congregation===name).length;
+  const msg = linkedVolunteers
+    ? `Remove congregation "${name}" from the list and clear it from ${linkedVolunteers} volunteer row(s)?`
+    : `Remove congregation "${name}" from the list?`;
+  if(!confirm(msg)) return;
+  state.contacts = state.contacts.filter(c=>c.congregation!==name);
+  if(linkedVolunteers){
+    state.volunteers.forEach(v=>{ if(v.congregation===name){ v.congregation=POOL_CONGREGATION; if(!v.sourceCongregation) v.sourceCongregation=name; v.updatedAt=Date.now(); } });
+  }
+  if(selectedCongregation===name) selectedCongregation = null;
+  persist();
+  toast(linkedVolunteers ? `Congregation removed and ${linkedVolunteers} volunteer(s) moved to the pool ✔` : 'Congregation removed ✔');
+}
+function addDepartment(){ const val=normalize($('newDeptInput').value); if(!val) return; state.departments = uniq([...(state.departments||[]), val]); $('newDeptInput').value=''; persist(); toast('Department added ✔'); }
+function addCongregation(){ const val=normalize($('newCongInput').value); if(!val) return; if(!state.contacts.some(c=>c.congregation===val)) state.contacts.push(normalizeContact({congregation:val})); $('newCongInput').value=''; persist(); toast('Congregation added ✔'); }
+function moveExtraCongregationToPool(name){ const clean=normalize(name); if(!clean || clean===POOL_CONGREGATION) return; const hits=state.volunteers.filter(v=>v.congregation===clean); if(!hits.length) return toast('Nothing to move ✔'); if(!confirm(`Move ${hits.length} volunteer(s) from "${clean}" to "${POOL_CONGREGATION}"?`)) return; hits.forEach(v=>{ v.congregation=POOL_CONGREGATION; if(!v.sourceCongregation) v.sourceCongregation=clean; v.updatedAt=Date.now(); }); persist(); toast(`Moved ${hits.length} volunteer(s) to the pool ✔`); }
+window.moveExtraCongregationToPool = moveExtraCongregationToPool;
+function resetStatuses(){ if(!confirm('Reset contacted / replied for all congregations?')) return; state.contacts.forEach(c=>{ c.contacted=false; c.replied=false; c.contacted_timestamp='–'; c.replied_timestamp='–'; }); persist(); toast('Statuses reset ✔'); }
+function resetAll(){ if(!confirm('Reset all local data and reload the starter congregations?')) return; localStorage.removeItem(STORAGE_KEY); state = defaultState(); editingVolunteerId=null; pendingVolunteerNameFocus=false; selectedCongregation=null; refreshHeader(); persist(); toast('Local data reset ✔'); }
+
+$('addBrotherBtn').addEventListener('click', ()=>addVolunteer('Brothers'));
+$('addSisterBtn').addEventListener('click', ()=>addVolunteer('Sisters'));
+$('manageDepartmentsBtn').addEventListener('click', ()=>$('deptDialog').showModal());
+$('manageCongregationsBtn').addEventListener('click', ()=>$('congDialog').showModal());
+$('addDeptBtn').addEventListener('click', addDepartment);
+$('addCongBtn').addEventListener('click', addCongregation);
+$('bulkRenameBtn').addEventListener('click', bulkRenameCongregation);
+$('newDeptInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addDepartment(); } });
+$('newCongInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addCongregation(); } });
+$('bulkCongTo').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); bulkRenameCongregation(); } });
+$('deptList').addEventListener('click', e=>{ const editBtn=e.target.closest('[data-edit-dept]'); if(editBtn){ editDepartment(editBtn.getAttribute('data-edit-dept')); return; } const btn=e.target.closest('[data-remove-dept]'); if(btn) removeDepartment(btn.getAttribute('data-remove-dept')); });
+$('congList').addEventListener('click', e=>{ const btn=e.target.closest('[data-remove-cong]'); if(btn) removeCongregation(btn.getAttribute('data-remove-cong')); });
+$('extraCongList')?.addEventListener('click', e=>{ const btn=e.target.closest('[data-move-extra-cong]'); if(btn) moveExtraCongregationToPool(btn.getAttribute('data-move-extra-cong')); });
+$('importFile').addEventListener('change', async e=>{ await handleImport(e.target.files); e.target.value=''; });
+$('importFile2').addEventListener('change', async e=>{ await handleImport(e.target.files); e.target.value=''; });
+$('exportBtn2').addEventListener('click', exportJson);
+$('resetStatusBtn').addEventListener('click', resetStatuses);
+$('resetAllBtn').addEventListener('click', resetAll);
+
+// GEÄNDERT: Header Inputs lösen debouncedSave aus, kein komplettes Neuzeichnen mehr!
+['plannerTitle','plannerSubtitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes'].forEach(id=>$(id).addEventListener('input', debouncedSave));
+
+// GEÄNDERT: Suchleiste bekommt den entprellten Render-Befehl!
+$('globalSearch').addEventListener('input', debouncedRenderVolunteers);
+['filterGroup','filterCong','filterDept','filterStanding','filterActive'].forEach(id=>$(id).addEventListener('change', renderVolunteers));
+
+// GEÄNDERT: Congregation Suche entprellt!
+$('congSearch').addEventListener('input', ()=>{ debouncedRenderCongregations(); if(selectedCongregation) previewCongregation(selectedCongregation); });
+['msgFilterCountry','msgFilterStatus','msgFilterDept','msgFilterStanding'].forEach(id=>$(id).addEventListener('change', ()=>{ renderCongregations(); if(selectedCongregation) previewCongregation(selectedCongregation); }));
+
+$('clearFiltersBtn').addEventListener('click', ()=>{ $('globalSearch').value=''; $('filterGroup').value='all'; $('filterCong').value='all'; $('filterDept').value='all'; $('filterStanding').value='all'; $('filterActive').value='all'; renderVolunteers(); });
+$('clearCongFiltersBtn').addEventListener('click', ()=>{ $('congSearch').value=''; $('msgFilterCountry').value='all'; $('msgFilterStatus').value='all'; $('msgFilterDept').value='all'; $('msgFilterStanding').value='all'; renderCongregations(); if(selectedCongregation) previewCongregation(selectedCongregation); });
+
+// --- DIE WICHTIGSTEN FIXES FÜR DIE TABELLE ---
+// Input = Jemand tippt Buchstaben ein
+$('volunteerBody').addEventListener('input', e=>{ 
+  const el=e.target.closest('[data-field]'); 
+  if(!el || el.type==='checkbox') return; 
+  const tr=el.closest('tr[data-id]'); 
+  const v=getVolunteer(tr.getAttribute('data-id')); 
+  if(!v) return; 
+  const field = el.getAttribute('data-field'); 
+  v[field] = el.value; 
+  v.updatedAt = Date.now(); 
+  debouncedSave(); // NUR Speichern, keine HTML-Tabelle zerschießen
+});
+
+// Change = Ein Dropdown oder eine Checkbox ändert sich
+$('volunteerBody').addEventListener('change', e=>{ 
+  const el=e.target.closest('[data-field]'); 
+  if(!el) return; 
+  const tr=el.closest('tr[data-id]'); 
+  const v=getVolunteer(tr.getAttribute('data-id')); 
+  if(!v) return; 
+  const field = el.getAttribute('data-field'); 
+  if(field==='active'){ 
+    v.active = !!el.checked; 
+  } else { 
+    v[field] = field==='standing' ? normalizeStanding(el.value) : normalize(el.value); 
+    if(field==='department' && v[field]) state.departments.push(v[field]); 
+  } 
+  v.updatedAt = Date.now(); 
+  debouncedSave(); 
+  
+  // Wir rendern nur neu, wenn es die Filterlogik beeinflussen könnte.
+  if(['active', 'standing', 'congregation'].includes(field)){
+    debouncedRenderVolunteers();
+    updateCounts();
+  }
+});
+
+// Focusout = Jemand verlässt das Textfeld (Tab oder Klick woanders)
+$('volunteerBody').addEventListener('focusout', e=>{ 
+  const el=e.target.closest('[data-field]'); 
+  if(!el || el.type==='checkbox') return; 
+  const tr=el.closest('tr[data-id]'); 
+  const v=getVolunteer(tr.getAttribute('data-id')); 
+  if(!v) return; 
+  const field = el.getAttribute('data-field'); 
+  v[field] = field==='standing' ? normalizeStanding(el.value) : normalize(el.value); 
+  v.updatedAt = Date.now(); 
+  debouncedSave(); 
+  // Auch hier KEIN persist() mehr!
+});
+
+$('deptPopoverOptions').addEventListener('change', e=>{
+  const dep=e.target.closest('[data-popover-department]');
+  const pop=$('deptPopover');
+  const volunteerId = pop.dataset.volunteerId || activeDeptVolunteerId;
+  if(!dep || !volunteerId) return;
+  const checked = [...$('deptPopoverOptions').querySelectorAll('[data-popover-department]:checked')];
+  if(dep.checked && checked.length === 4){
+    toast('More than 3 departments selected for this volunteer.');
+  }
+  const v=getVolunteer(volunteerId);
+  if(!v) return;
+  v.departments = uniq(checked.map(x => normalize(x.dataset.popoverDepartment || x.getAttribute('data-popover-department'))));
+  v.updatedAt = Date.now();
+
+  syncMetaFromInputs();
+  state.departments = uniq([...(state.departments||[]), ...state.volunteers.flatMap(row => Array.isArray(row.departments) ? row.departments : [])]);
+  state.meta.lastSavedAt = nowIso();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  
+  // Gezielte Updates
+  refreshHeader();
+  updateCounts();
+  debouncedRenderVolunteers();
+
+  const btn = document.querySelector(`[data-dept-toggle="${CSS.escape(volunteerId)}"]`);
+  if(btn){
+    openDeptPopover(volunteerId, btn);
+  } else {
+    closeDeptPopover();
+  }
+});
+
+$('volunteerBody').addEventListener('keydown', e=>{ const el=e.target.closest('[data-field]'); if(!el) return; if(e.key==='Enter'){ e.preventDefault(); el.blur(); debouncedSave(); } if(e.key==='Escape'){ e.preventDefault(); el.blur(); } });
+$('volunteerBody').addEventListener('click', e=>{ const del=e.target.closest('[data-del]'); if(del){ const tr=del.closest('tr[data-id]'); const id=tr.getAttribute('data-id'); const v=getVolunteer(id); if(confirm(`Delete ${v?.name || 'this volunteer'}?`)){ state.volunteers = state.volunteers.filter(x=>x.id!==id); if(editingVolunteerId===id) editingVolunteerId=null; persist(); toast('Volunteer deleted ✔'); } } });
+
+function normalizeDepartmentName(v){
+  const x = lower(v).replace(/\s+/g,' ').trim();
+  const map = { 'attendant':'Attendants','attendants':'Attendants', 'first aid':'First Aid','firstaid':'First Aid', 'accounting':'Accounting', 'cleaning':'Cleaning','cleaning department':'Cleaning', 'parking':'Parking', 'hospitality':'Hospitality', 'information':'Information', 'volunteer service':'Volunteer Service', 'baptism':'Baptism' };
+  return map[x] || normalize(v);
+}
+function standingRank(v){
+  const s = normalizeStanding(v);
+  if(s==='exemplary') return 3;
+  if(s==='good') return 2;
+  return 1;
+}
+function preparePrintHeader(){
+  let sub='All volunteers';
+  const dept = $('filterDept')?.value;
+  const cong = $('filterCong')?.value;
+  if(dept && dept!=='all') sub = 'Department: ' + dept;
+  else if(cong && cong!=='all') sub = 'Congregation: ' + cong;
+  $('printHeaderSub').textContent = sub;
+  document.querySelectorAll('#volunteerBody tr[data-id]').forEach(tr=>{
+    const id = tr.getAttribute('data-id');
+    const v = getVolunteer(id);
+    tr.setAttribute('data-active', v && v.active===false ? 'false' : 'true');
+  });
+}
+async function handleDepartmentImport(files){
+  if(!files?.length) return;
+  let merged=0, added=0, departmentsTouched=new Set();
+  for(const file of files){
+    const parsed = JSON.parse(await file.text());
+    let rows = [];
+    if(Array.isArray(parsed)) rows = parsed;
+    else if(Array.isArray(parsed.volunteers)) rows = parsed.volunteers;
+    else if(Array.isArray(parsed.data)) rows = parsed.data;
+    else continue;
+
+    rows.map(r=>{ const row=normalizeVolunteer(r); const mapped = mapImportedCongregation(row.congregation); row.congregation = mapped.congregation; if(mapped.sourceCongregation) row.sourceCongregation = mapped.sourceCongregation; return row; }).forEach(row=>{
+      if(!row.name) return;
+      row.departments = uniq((row.departments||[]).map(normalizeDepartmentName));
+      row.departments.forEach(d=>{ if(d) departmentsTouched.add(d); });
+      let existing = state.volunteers.find(v => lower(v.name)===lower(row.name) && lower(v.congregation)===lower(row.congregation));
+      if(existing){
+        existing.departments = uniq([...(existing.departments||[]), ...(row.departments||[])].map(normalizeDepartmentName));
+        if(standingRank(row.standing) > standingRank(existing.standing)) existing.standing = normalizeStanding(row.standing);
+        if(!existing.group && row.group) existing.group = row.group;
+        existing.updatedAt = Date.now();
+        merged++;
+      } else {
+        const fresh = normalizeVolunteer(row);
+        fresh.departments = uniq((fresh.departments||[]).map(normalizeDepartmentName));
+        state.volunteers.push(fresh);
+        added++;
+      }
+    });
+  }
+  state.departments = uniq([...(state.departments||[]), ...Array.from(departmentsTouched)].map(normalizeDepartmentName));
+  state.meta.lastImportText = `Department import: added ${added} · merged ${merged}`;
+  persist();
+  toast(`Department import finished ✔ (${added} added, ${merged} merged)`);
+}
+function exportSelectedDepartment(){
+  const dep = normalizeDepartmentName($('departmentExportSelect').value);
+  if(!dep) return alert('Please choose a department first.');
+  const rows = state.volunteers.filter(v => Array.isArray(v.departments) && v.departments.includes(dep));
+  const payload = { app:'RC Volunteers Management Tool', type:'department_export', department: dep, exportedAt: nowIso(), volunteers: rows };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `rc_volunteers_department_${dep.toLowerCase().replace(/\s+/g,'_')}_v2_6_16_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Department export created ✔');
+}
+
+const _oldFillFilterOptions = fillFilterOptions;
+fillFilterOptions = function(){
+  _oldFillFilterOptions();
+  if($('departmentExportSelect')){
+    const cur = $('departmentExportSelect').value;
+    $('departmentExportSelect').innerHTML = '<option value="">Choose department…</option>' + uniq(state.departments).map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    if([...$('departmentExportSelect').options].some(o=>o.value===cur)) $('departmentExportSelect').value = cur;
+  }
+};
+window.addEventListener('beforeprint', preparePrintHeader);
+$('departmentImportFile')?.addEventListener('change', async e=>{ await handleDepartmentImport(e.target.files); e.target.value=''; });
+$('departmentExportBtn')?.addEventListener('click', exportSelectedDepartment);
+$('importFile')?.closest('label')?.style.setProperty('display','none','important');
+
+function getVisibleVolunteerRows(){
+  return state.volunteers.filter(v => volunteerMatches(v)).sort((a,b) => (a.name||'').localeCompare(b.name||'', undefined, {sensitivity:'base'}));
+}
+function buildClipboardTable(){
+  const rows = getVisibleVolunteerRows();
+  const lines = [['Name','Type','Congregation','Standing','Departments','Active']];
+  rows.forEach(v=>{
+    const type = v.group === 'Sisters' ? 'Sisters' : 'Brothers';
+    const standing = standingLabel(v.standing);
+    const depts = Array.isArray(v.departments) && v.departments.length ? v.departments.join(', ') : '—';
+    const active = v.active === false ? 'No' : 'Yes';
+    lines.push([v.name || '', type, v.congregation || '', standing, depts, active]);
+  });
+  return lines.map(row => row.map(val => String(val).replace(/\t/g,' ')).join('\t')).join('\n');
+}
+function getPrintSubtitle(){
+  const dept = $('filterDept')?.value;
+  const cong = $('filterCong')?.value;
+  if(dept && dept !== 'all') return 'Department: ' + dept;
+  if(cong && cong !== 'all') return 'Congregation: ' + cong;
+  return 'All volunteers';
+}
+function getPrintRows(){
+  return state.volunteers.filter(v => v.active !== false).filter(volunteerMatches).sort((a,b) => (a.name || '').localeCompare(b.name || '', undefined, {sensitivity:'base'}));
+}
+function buildPrintOnlyList(){
+  const wrap = $('printOnlyList');
+  const rows = getPrintRows();
+  $('printOnlySub').textContent = getPrintSubtitle();
+  wrap.innerHTML = rows.map(v => {
+    const typeClass = v.group === 'Sisters' ? 'sisters' : 'brothers';
+    const typeLabel = v.group === 'Sisters' ? 'Sisters' : 'Brothers';
+    const standing = standingLabel(v.standing);
+    const depts = Array.isArray(v.departments) && v.departments.length ? v.departments.join(' · ') : '—';
+    return `<div class="po-row"><div class="po-name">${esc(v.name || '—')}</div><div class="po-type ${typeClass}">${esc(typeLabel)}</div><div class="po-cong">${esc(v.congregation || '—')}</div><div class="po-standing">${esc(standing)}</div><div class="po-depts">${esc(depts)}</div></div>`;
+  }).join('');
+}
+$('copyVisibleBtn')?.addEventListener('click', async ()=>{
+  const text = buildClipboardTable();
+  try{
+    await navigator.clipboard.writeText(text);
+    toast(`Copied ${Math.max(0, getVisibleVolunteerRows().length)} visible volunteer(s) ✔`);
+  }catch(e){ alert('Copy failed in this browser.'); }
+});
+function handlePrint(){ preparePrintHeader(); buildPrintOnlyList(); window.print(); }
+$('printBtn').addEventListener('click', handlePrint);
+window.addEventListener('beforeprint', buildPrintOnlyList);
+
+refreshHeader();
+persist(); // Erstmaliges Aufbauen beim Laden der Seite
+</script>
+</body>
+</html>
