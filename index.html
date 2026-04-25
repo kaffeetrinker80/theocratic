@@ -70,6 +70,7 @@
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
     .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
 
     .container {
       max-width: 1120px;
@@ -214,6 +215,10 @@
     .card-micro { --c-theme: #8fd39a; --c-soft: rgba(143, 211, 154, 0.15); }
     .card-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.15); }
     .card-rc { --c-theme: #c5a8ff; --c-soft: rgba(197, 168, 255, 0.15); }
+    
+    /* New Card Themes */
+    .card-kh-cleaning { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.15); } /* Fresh green/yellow */
+    .card-rc-volunteers { --c-theme: #ff9eb5; --c-soft: rgba(255, 158, 181, 0.15); } /* Coral/Rose */
 
     .card:hover {
       transform: translateY(-5px);
@@ -370,7 +375,19 @@
         </div>
       </article>
 
-      <article class="card card-micro animate-in delay-3">
+      <article class="card card-kh-cleaning animate-in delay-3">
+        <div class="icon-wrap">
+          <img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon">
+        </div>
+        <h2>KH Cleaning Planner</h2>
+        <p>Cleaning schedules and coordination for the local Kingdom Hall.</p>
+        <div class="meta">Kingdom Hall · Cleaning</div>
+        <div class="card-actions">
+          <a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a>
+        </div>
+      </article>
+
+      <article class="card card-micro animate-in delay-4">
         <div class="icon-wrap">
           <img src="./microphoneservice-tool/microphone-service-icon-192.png" alt="Icon">
         </div>
@@ -406,9 +423,21 @@
         </div>
       </article>
 
+      <article class="card card-rc-volunteers animate-in delay-5">
+        <div class="icon-wrap">
+          <img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon">
+        </div>
+        <h2>RC Volunteers</h2>
+        <p>Managing details and assignments of volunteers for regional conventions.</p>
+        <div class="meta">3 days · Volunteers</div>
+        <div class="card-actions">
+          <a class="btn-card" href="./rc-volunteers-management/">Open Tool</a>
+        </div>
+      </article>
+
     </section>
 
-    <div class="footer animate-in delay-5">
+    <div class="footer animate-in delay-6">
       Made with Love © · kaffeetrinker80
     </div>
   </div>
