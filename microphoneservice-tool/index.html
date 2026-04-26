@@ -6,7 +6,7 @@
 
 <link rel="icon" type="image/png" sizes="32x32" href="microphone-service-icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="microphone-service-icon-180.png">
-<link rel="manifest" href="site.webmanifest">
+<link rel="manifest" href="microphone-service-manifest.json">
 <meta name="theme-color" content="#1557b0">
 
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,6 +91,8 @@
  border:1px solid rgba(148,163,184,.65);
  color:#e5e7eb;font-size:.8rem;user-select:none;
  }
+ .onedrive-chip-text{display:flex;flex-direction:column;line-height:1.15}
+ .od-header-detail{font-size:.72rem;opacity:.82;font-weight:400;margin-top:1px}
  .dot{width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 2px rgba(255,255,255,.15) inset}
  .dot.ok{background:#22c55e}
  .dot.warn{background:#f59e0b}
@@ -207,8 +209,42 @@
  font-size:.82rem;
  color:var(--text-muted);
  white-space:nowrap;
- min-width:140px;
+ min-width:170px;
  text-align:right;
+ transition:color .2s ease, opacity .2s ease;
+ }
+ .planner-sync-status.saved{color:#dcfce7}
+ .planner-sync-status.unsaved{color:#fee2e2}
+ .planner-sync-status.saving{color:#fef3c7}
+ body.dark-mode .planner-sync-status.saved{color:#bbf7d0}
+ body.dark-mode .planner-sync-status.unsaved{color:#fecaca}
+ body.dark-mode .planner-sync-status.saving{color:#fde68a}
+
+ .od-device-row{
+ display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px;
+ }
+ .od-device-row .form-group{min-width:220px}
+ .od-compare-banner{
+ display:none;margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--card-border);
+ background:rgba(59,130,246,.10);font-size:.88rem;line-height:1.35;
+ }
+ .od-compare-banner.show{display:block}
+ .od-compare-banner.cloud-newer{background:rgba(245,158,11,.13);border-color:rgba(245,158,11,.45)}
+ .od-compare-banner.local-newer{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.45)}
+ .od-compare-banner.same{background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.40)}
+ .od-compare-title{font-weight:700;margin-bottom:2px}
+ .od-compare-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+ .od-compare-actions button{padding:6px 10px;border-radius:999px;font-size:.8rem}
+ .od-device-hint{
+ display:none;margin-top:8px;padding:8px 10px;border-radius:8px;
+ background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.25);
+ color:#1e3a8a;font-size:.8rem;line-height:1.35;
+ }
+ body.dark-mode .od-device-hint{background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.32);color:#dbeafe}
+ .od-device-hint.show{display:block}
+ .od-device-hint button{
+ margin-left:8px;border:none;background:transparent;color:inherit;text-decoration:underline;
+ cursor:pointer;font:inherit;padding:0;
  }
 
  body.dark-mode .planner-sync-btn.state-disabled{
@@ -282,7 +318,10 @@
  <div class="header-actions">
  <div class="onedrive-chip" title="OneDrive manual file status">
  <span id="odDot" class="dot bad"></span>
+ <span class="onedrive-chip-text">
  <span id="odLabel">OneDrive: pick file</span>
+ <span id="odHeaderSaved" class="od-header-detail">No cloud save yet</span>
+ </span>
  </div>
 
  <button id="themeToggle" class="theme-toggle-btn" type="button">
@@ -315,7 +354,7 @@
  <button class="secondary" id="clearMeetingsBtn" type="button">Clear all meetings</button>
  <button class="secondary" id="printBtn" type="button">Print planner</button>
  <div class="planner-sync-wrap">
- <div class="planner-sync-status" id="plannerSyncStatus">not saved yet</div>
+ <div class="planner-sync-status" id="plannerSyncStatus">OneDrive not connected</div>
  <button class="planner-sync-btn state-disabled" id="plannerSyncBtn" type="button" title="Save current data to OneDrive">OneDrive not connected</button>
 </div>
  </div>
@@ -380,11 +419,26 @@
  <h3 style="margin-top:0;">OneDrive (Manual Save + Optional Read)</h3>
  <p class="muted" style="margin-top:4px;">
  Choose your OneDrive JSON file once (recommended name: <b>microphone_autosave.json</b>).
- No autosave. No background sync. Only actions when you click.
+ No autosave. If permission is still available, the tool quietly checks whether OneDrive has a newer version.
  </p>
+
+ <div class="od-device-row">
+ <div class="form-group">
+ <label for="odDeviceName">This device</label>
+ <input type="text" id="odDeviceName" placeholder="e.g. Hall-PC" autocomplete="off">
+ </div>
+ </div>
+
+ <div id="odDeviceHint" class="od-device-hint">
+ 💡 Tip: Give this device a name (e.g. "Hall-PC") so you can see which device saved the latest changes.
+ <button id="odDismissDeviceHint" type="button">Got it</button>
+ </div>
+
+ <div id="odCompareBanner" class="od-compare-banner"></div>
 
  <div class="sync-row">
  <button class="secondary" id="odChooseBtn" type="button">📄 Choose OneDrive file…</button>
+ <button class="secondary" id="odCheckBtn" type="button" disabled>🔎 Check OneDrive version</button>
  <button class="secondary" id="odReadBtn" type="button" disabled>📥 Read from OneDrive</button>
  <button class="primary" id="odSaveBtn" type="button" disabled>💾 Save to OneDrive</button>
  </div>
@@ -411,23 +465,36 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 2.2.3</footer>
+ <footer>Made with Love © – Microphone Service Tool V 2.2.8</footer>
  </div>
 </div>
 
 <script>
 /* =========================
- OneDrive Manual Save
+ OneDrive Manual Save + Calm Cross-Device Check
  - no autosave
- - no background checks
+ - silent background version checks when permission is available
  - stores file handle in IndexedDB if possible
 ========================= */
 
 const OD_DB = { name: "microphone_service_db", store: "kv", version: 1 };
 const OD_KEY = "onedrive_file_handle";
+const OD_LAST_WRITE_KEY = "micPlannerOneDriveLastWriteMs";
+const OD_LAST_READ_KEY = "micPlannerOneDriveLastReadMs";
+const OD_LAST_SAVED_SNAPSHOT_KEY = "micPlannerOneDriveSavedSnapshot";
+const OD_DEVICE_NAME_KEY = "micPlannerOneDriveDeviceName";
+const OD_DEVICE_HINT_DISMISSED_KEY = "micPlannerDeviceHintDismissed";
+const LOCAL_UPDATED_AT_KEY = "micPlannerLocalUpdatedAtMs";
+const OD_UNSAVED_GRACE_MS = 5 * 60 * 1000;
+const OD_AUTO_CHECK_INTERVAL_MS = 60 * 1000;
+let odAutoCheckTimer = null;
+let odLastAutoCheckMs = 0;
 let odFileHandle = null;
-let odLastWriteMs = 0;
-let odLastReadMs = 0;
+let odLastWriteMs = Number(localStorage.getItem(OD_LAST_WRITE_KEY) || 0);
+let odLastReadMs = Number(localStorage.getItem(OD_LAST_READ_KEY) || 0);
+let odLastSavedSnapshot = localStorage.getItem(OD_LAST_SAVED_SNAPSHOT_KEY) || null;
+let localUpdatedAtMs = Number(localStorage.getItem(LOCAL_UPDATED_AT_KEY) || 0);
+let lastCloudMeta = null;
 let hasUnsavedOneDriveChanges = false;
 
 function odSupported(){
@@ -441,23 +508,279 @@ function odFormatTs(ms){
  return d.toLocaleString("de-DE");
 }
 
+function odTimeOnly(ms){
+ if(!ms) return "";
+ const d = new Date(ms);
+ if(isNaN(d.getTime())) return "";
+ const hh = String(d.getHours()).padStart(2,"0");
+ const mm = String(d.getMinutes()).padStart(2,"0");
+ return `${hh}:${mm}`;
+}
+
+function currentAppSnapshot(){
+ try{ return JSON.stringify(appData); }catch{ return null; }
+}
+function getDeviceName(){
+ const input = document.getElementById("odDeviceName");
+ const fromInput = input ? input.value.trim() : "";
+ return fromInput || localStorage.getItem(OD_DEVICE_NAME_KEY) || "Unknown device";
+}
+
+function setDeviceName(name){
+ const clean = String(name || "").trim();
+ if(clean){
+ localStorage.setItem(OD_DEVICE_NAME_KEY, clean);
+ }else{
+ localStorage.removeItem(OD_DEVICE_NAME_KEY);
+ }
+ const input = document.getElementById("odDeviceName");
+ if(input && input.value !== clean) input.value = clean;
+}
+
+function hasNamedDevice(){
+ return !!(localStorage.getItem(OD_DEVICE_NAME_KEY) || "").trim();
+}
+
+function updateDeviceHint(){
+ const hint = document.getElementById("odDeviceHint");
+ if(!hint) return;
+ const dismissed = localStorage.getItem(OD_DEVICE_HINT_DISMISSED_KEY) === "true";
+ hint.classList.toggle("show", !hasNamedDevice() && !dismissed);
+}
+
+function updateHeaderSavedInfo(){
+ const el = document.getElementById("odHeaderSaved");
+ if(!el) return;
+ const writer = lastCloudMeta?.deviceName || (odLastWriteMs ? getDeviceName() : "");
+ const time = odTimeOnly(lastCloudMeta?.updatedAtMs || odLastWriteMs);
+ if(hasUnsavedOneDriveChanges){
+ el.textContent = time ? `Unsaved changes · last ${time}` : "Unsaved changes";
+ return;
+ }
+ if(time && writer){
+ el.textContent = `Last saved from ${writer} · ${time}`;
+ return;
+ }
+ el.textContent = odFileHandle ? "Ready · no cloud save yet" : "No cloud file connected";
+}
+
+function setLocalUpdatedAt(ms){
+ localUpdatedAtMs = Number(ms || Date.now());
+ localStorage.setItem(LOCAL_UPDATED_AT_KEY, String(localUpdatedAtMs));
+}
+
+function parseMetaDate(value){
+ if(!value) return 0;
+ const ms = new Date(value).getTime();
+ return Number.isFinite(ms) ? ms : 0;
+}
+
+function getPayloadMeta(obj){
+ const meta = obj?.meta || {};
+ const updatedAt = obj?.updatedAt || meta.updatedAt || obj?.generatedAt || "";
+ const updatedAtMs = parseMetaDate(updatedAt);
+ return {
+ updatedAt,
+ updatedAtMs,
+ deviceName: obj?.deviceName || meta.deviceName || "Unknown device",
+ appVersion: obj?.version || meta.version || "unknown"
+ };
+}
+
+function odCompareText(ms){
+ return ms ? odFormatTs(ms) : "unknown time";
+}
+
+function hideOneDriveCompareBanner(){
+ const box = document.getElementById("odCompareBanner");
+ if(!box) return;
+ box.className = "od-compare-banner";
+ box.innerHTML = "";
+}
+
+function showOneDriveCompareBanner(kind, title, body, actions=[]){
+ const box = document.getElementById("odCompareBanner");
+ if(!box) return;
+ box.className = `od-compare-banner show ${kind || ""}`;
+ const buttons = actions.map(a=>`<button class="${a.primary ? "primary" : "secondary"}" type="button" data-action="${a.action}">${a.label}</button>`).join("");
+ box.innerHTML = `<div class="od-compare-title">${title}</div><div>${body}</div>${buttons ? `<div class="od-compare-actions">${buttons}</div>` : ""}`;
+ box.querySelectorAll("button[data-action]").forEach(btn=>{
+ btn.addEventListener("click", async ()=>{
+ const action = btn.dataset.action;
+ if(action === "load-cloud") await loadCurrentOneDriveFile();
+ if(action === "save-local") await saveCurrentDataToOneDrive(false);
+ if(action === "dismiss") hideOneDriveCompareBanner();
+ });
+ });
+}
+
+function compareCloudWithLocal(meta, {showSame=false}={}){
+ if(!meta || !meta.updatedAtMs) return;
+ lastCloudMeta = meta;
+ const localMs = localUpdatedAtMs || 0;
+ const diff = meta.updatedAtMs - localMs;
+ const tolerance = 1500;
+ const cloudInfo = `OneDrive: ${odCompareText(meta.updatedAtMs)} · written by <b>${meta.deviceName}</b>`;
+ const localInfo = `This device: ${odCompareText(localMs)} · <b>${getDeviceName()}</b>`;
+
+ if(diff > tolerance){
+ showOneDriveCompareBanner(
+ "cloud-newer",
+ "☁️ Newer OneDrive version found",
+ `${cloudInfo}<br>${localInfo}`,
+ [
+ {action:"load-cloud", label:"Load OneDrive version", primary:true},
+ {action:"dismiss", label:"Keep local for now"}
+ ]
+ );
+ return;
+ }
+
+ if(diff < -tolerance){
+ showOneDriveCompareBanner(
+ "local-newer",
+ "💻 This device has newer changes",
+ `${localInfo}<br>${cloudInfo}`,
+ [
+ {action:"save-local", label:"Save this device to OneDrive", primary:true},
+ {action:"dismiss", label:"Not now"}
+ ]
+ );
+ return;
+ }
+
+ if(showSame){
+ showOneDriveCompareBanner(
+ "same",
+ "✅ OneDrive and this device look up to date",
+ `${cloudInfo}<br>${localInfo}`,
+ [{action:"dismiss", label:"OK"}]
+ );
+ }
+}
+
+async function odHasPermission(handle, mode="read"){
+ if(!handle) return false;
+ try{
+ if(handle.queryPermission){
+ const q = await handle.queryPermission({ mode });
+ return q === "granted";
+ }
+ return true;
+ }catch{
+ return false;
+ }
+}
+
+async function odReadJsonRaw({silent=false}={}){
+ if(!odFileHandle) return null;
+ const ok = silent ? await odHasPermission(odFileHandle, "read") : await odVerifyPermission(odFileHandle, "read");
+ if(!ok){
+ if(!silent){
+ odUpdateUI("permission needed");
+ alert("No permission to read the selected OneDrive file. Please choose the file again.");
+ }
+ return null;
+ }
+ const file = await odFileHandle.getFile();
+ const txt = await file.text();
+ return JSON.parse(txt);
+}
+
+async function checkOneDriveVersion({silent=false, showSame=false, background=false}={}){
+ try{
+ const obj = await odReadJsonRaw({silent});
+ if(!obj) return null;
+ const meta = getPayloadMeta(obj);
+ odLastAutoCheckMs = Date.now();
+ compareCloudWithLocal(meta, {showSame});
+ odUpdateUI(background ? "background check" : "checked");
+ return { obj, meta };
+ }catch(e){
+ if(!silent){
+ odUpdateUI("version check failed");
+ alert("Could not check OneDrive version: " + (e?.message || e));
+ }
+ return null;
+ }
+}
+
+function startOneDriveAutoCheck(){
+ if(odAutoCheckTimer) clearInterval(odAutoCheckTimer);
+ odAutoCheckTimer = setInterval(()=>{
+ if(document.visibilityState !== "visible") return;
+ if(!odFileHandle) return;
+ checkOneDriveVersion({silent:true, showSame:false, background:true});
+ }, OD_AUTO_CHECK_INTERVAL_MS);
+}
+
+document.addEventListener("visibilitychange", ()=>{
+ if(document.visibilityState !== "visible") return;
+ if(!odFileHandle) return;
+ const last = odLastAutoCheckMs || 0;
+ if(Date.now() - last > 15000){
+ checkOneDriveVersion({silent:true, showSame:false, background:true});
+ }
+});
+
+async function loadCurrentOneDriveFile(){
+ try{
+ const obj = await odReadJson();
+ if(!obj) return false;
+ const normalized = normalizeIncomingData(obj);
+ const meta = getPayloadMeta(obj);
+ appData = normalized;
+ if(meta.updatedAtMs) setLocalUpdatedAt(meta.updatedAtMs);
+ saveLocal(false);
+ odLastReadMs = Date.now();
+ localStorage.setItem(OD_LAST_READ_KEY, String(odLastReadMs));
+ markOneDriveSaved("read");
+ hideOneDriveCompareBanner();
+ updateFilterOptions();
+ renderBrothers();
+ renderAssignments();
+ renderStats();
+ return true;
+ }catch(e){
+ odUpdateUI("read failed");
+ alert("Read failed: " + (e?.message || e));
+ return false;
+ }
+}
+
+
+function updateOneDriveDirtyFromSnapshot(){
+ if(!odFileHandle){
+ hasUnsavedOneDriveChanges = false;
+ return;
+ }
+ const snap = currentAppSnapshot();
+ hasUnsavedOneDriveChanges = !!(snap && odLastSavedSnapshot && snap !== odLastSavedSnapshot);
+ // If we have never saved this dataset to OneDrive in this browser, show it as needing a first save.
+ if(snap && !odLastSavedSnapshot && odLastWriteMs === 0) hasUnsavedOneDriveChanges = true;
+}
+
 function odUpdateUI(extra=""){
  const dot = document.getElementById("odDot");
  const lbl = document.getElementById("odLabel");
  const line = document.getElementById("odStatusLine");
  const saveBtn = document.getElementById("odSaveBtn");
  const readBtn = document.getElementById("odReadBtn");
+ const checkBtn = document.getElementById("odCheckBtn");
  const chooseBtn = document.getElementById("odChooseBtn");
 
  const supported = odSupported();
+ updateOneDriveDirtyFromSnapshot();
  const hasFile = !!odFileHandle;
 
  dot.classList.remove("ok","warn","bad");
  if(!supported){
  dot.classList.add("bad");
  lbl.textContent = "OneDrive: unsupported";
+ updateHeaderSavedInfo();
  if(saveBtn) saveBtn.disabled = true;
  if(readBtn) readBtn.disabled = true;
+ if(checkBtn) checkBtn.disabled = true;
  if(chooseBtn) chooseBtn.disabled = true;
  if(line) line.innerHTML =
  `<span><b>Status:</b> unsupported</span><span><b>File:</b> —</span><span><b>Last write:</b> —</span><span><b>Last read:</b> —</span>`;
@@ -469,36 +792,43 @@ function odUpdateUI(extra=""){
  lbl.textContent = "OneDrive: pick file";
  if(saveBtn) saveBtn.disabled = true;
  if(readBtn) readBtn.disabled = true;
+ if(checkBtn) checkBtn.disabled = true;
  } else {
  dot.classList.add("ok");
  lbl.textContent = "OneDrive: ready";
  if(saveBtn) saveBtn.disabled = false;
  if(readBtn) readBtn.disabled = false;
+ if(checkBtn) checkBtn.disabled = false;
  }
 
  const fileTxt = hasFile ? "set" : "—";
  const lastW = odFormatTs(odLastWriteMs);
  const lastR = odFormatTs(odLastReadMs);
+ const writer = lastCloudMeta?.deviceName || getDeviceName();
  let baseStatus = hasFile ? "ready" : "pick file";
  if(hasFile && hasUnsavedOneDriveChanges) baseStatus = "unsaved changes";
  const statusTxt = baseStatus + (extra ? " · " + extra : "");
 
  if(line){
  line.innerHTML =
- `<span><b>Status:</b> ${statusTxt}</span><span><b>File:</b> ${fileTxt}</span><span><b>Last write:</b> ${lastW}</span><span><b>Last read:</b> ${lastR}</span>`;
+ `<span><b>Status:</b> ${statusTxt}</span><span><b>File:</b> ${fileTxt}</span><span><b>Last write:</b> ${lastW}</span><span><b>Last read:</b> ${lastR}</span><span><b>Last writer:</b> ${writer}</span>`;
  }
 
  updatePlannerSyncButton();
+ updateHeaderSavedInfo();
+ updateDeviceHint();
 }
 
 
 function markOneDriveDirty(){
  if(!odFileHandle) return;
- hasUnsavedOneDriveChanges = true;
+ updateOneDriveDirtyFromSnapshot();
  odUpdateUI();
 }
 
 function markOneDriveSaved(extra="saved"){
+ odLastSavedSnapshot = currentAppSnapshot();
+ if(odLastSavedSnapshot) localStorage.setItem(OD_LAST_SAVED_SNAPSHOT_KEY, odLastSavedSnapshot);
  hasUnsavedOneDriveChanges = false;
  odUpdateUI(extra);
 }
@@ -506,7 +836,7 @@ function markOneDriveSaved(extra="saved"){
 function updatePlannerSyncButton(stateOverride=""){
  const btn = document.getElementById("plannerSyncBtn");
  if(!btn) return;
- updatePlannerSyncStatus();
+ updatePlannerSyncStatus(stateOverride);
 
  const supported = odSupported();
  const hasFile = !!odFileHandle;
@@ -524,7 +854,7 @@ function updatePlannerSyncButton(stateOverride=""){
 
  if(stateOverride === "working"){
  btn.classList.add("state-working");
- btn.textContent = "Saving to OneDrive...";
+ btn.textContent = "Saving…";
  btn.title = "Saving current planner data to OneDrive.";
  return;
  }
@@ -538,38 +868,49 @@ function updatePlannerSyncButton(stateOverride=""){
 
  if(hasUnsavedOneDriveChanges){
  btn.classList.add("state-unsaved");
- btn.textContent = "Save to OneDrive";
+ btn.textContent = "Save changes";
  btn.title = "There are unsaved OneDrive changes. Click to save now.";
  return;
  }
 
  btn.classList.add("state-saved");
- btn.textContent = "Saved to OneDrive";
+ btn.textContent = "All changes saved";
  btn.title = "Current planner data matches the last OneDrive save.";
+ updateHeaderSavedInfo();
 }
 
 
-function updatePlannerSyncStatus(){
+function updatePlannerSyncStatus(stateOverride=""){
  const el = document.getElementById("plannerSyncStatus");
  if(!el) return;
+
+ el.classList.remove("saved","unsaved","saving");
 
  if(!odFileHandle){
  el.textContent = "OneDrive not connected";
  return;
  }
 
- if(odLastWriteMs){
- const d = new Date(odLastWriteMs);
- const hh = String(d.getHours()).padStart(2,"0");
- const mm = String(d.getMinutes()).padStart(2,"0");
-
- el.textContent = hasUnsavedOneDriveChanges
- ? `unsaved · last save ${hh}:${mm}`
- : `last saved ${hh}:${mm}`;
+ if(stateOverride === "working"){
+ el.classList.add("saving");
+ el.textContent = "saving changes…";
  return;
  }
 
- el.textContent = hasUnsavedOneDriveChanges ? "unsaved changes" : "not saved yet";
+ const t = odTimeOnly(odLastWriteMs);
+ if(hasUnsavedOneDriveChanges){
+ el.classList.add("unsaved");
+ el.textContent = t ? `unsaved · last save ${t}` : "unsaved changes";
+ return;
+ }
+
+ el.classList.add("saved");
+ if(odLastAutoCheckMs){
+ const checkTime = odTimeOnly(odLastAutoCheckMs);
+ el.textContent = checkTime ? `synced · checked ${checkTime}` : (t ? `all changes saved ${t}` : "ready · no changes");
+ return;
+ }
+ el.textContent = t ? `all changes saved ${t}` : "ready · no changes";
 }
 
 function odIdbOpen(){
@@ -641,9 +982,10 @@ async function odChooseFile(){
  if(!handle) return;
 
  odFileHandle = handle;
- hasUnsavedOneDriveChanges = false;
+ updateOneDriveDirtyFromSnapshot();
  await odIdbSet(OD_KEY, handle);
  odUpdateUI("file selected");
+ await checkOneDriveVersion({silent:false, showSame:true});
 }
 
 async function odReadJson(){
@@ -651,16 +993,9 @@ async function odReadJson(){
  odUpdateUI("pick file first");
  return null;
  }
- const ok = await odVerifyPermission(odFileHandle, "read");
- if(!ok){
- odUpdateUI("permission denied");
- alert("No permission to read the selected OneDrive file. Please choose the file again.");
- return null;
- }
- const file = await odFileHandle.getFile();
- const txt = await file.text();
- hasUnsavedOneDriveChanges = false;
- return JSON.parse(txt);
+ const obj = await odReadJsonRaw({silent:false});
+ if(obj) hasUnsavedOneDriveChanges = false;
+ return obj;
 }
 
 async function odWriteJson(payload){
@@ -685,7 +1020,9 @@ async function odInit(){
  const h = await odIdbGet(OD_KEY);
  if(h) odFileHandle = h;
  }
+ updateOneDriveDirtyFromSnapshot();
  odUpdateUI();
+ await checkOneDriveVersion({silent:true, showSame:false, background:true});
 }
 
 /* =========================
@@ -696,7 +1033,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "2.2.3";
+const APP_VERSION = "2.2.8";
 
 let appData = {
  brothers: [],
@@ -708,7 +1045,22 @@ let filterMonth = "all";
 let filterRange = "focus";
 
 function buildOneDrivePayload(){
- return { ...appData, version: APP_VERSION, generatedAt: new Date().toISOString() };
+ if(!localUpdatedAtMs) setLocalUpdatedAt(Date.now());
+ const updatedAt = new Date(localUpdatedAtMs).toISOString();
+ const deviceName = getDeviceName();
+ return {
+ ...appData,
+ version: APP_VERSION,
+ generatedAt: new Date().toISOString(),
+ updatedAt,
+ deviceName,
+ meta:{
+ app:"Microphone Service Tool",
+ version:APP_VERSION,
+ updatedAt,
+ deviceName
+ }
+ };
 }
 
 function normalizeIncomingData(obj){
@@ -734,13 +1086,19 @@ function normalizeIncomingData(obj){
  return data;
 }
 
-function saveLocal(){
- let snapshot = null;
- try{ snapshot = JSON.stringify(appData); } catch { snapshot = null; }
+function saveLocal(markEdit=true){
+ const snapshot = currentAppSnapshot();
  if(snapshot !== null && snapshot === __lastSavedSnapshot) return;
+ if(markEdit) setLocalUpdatedAt(Date.now());
  __lastSavedSnapshot = snapshot;
  localStorage.setItem(STORAGE_KEY, snapshot ?? JSON.stringify(appData));
+ if(markEdit){
+ hideOneDriveCompareBanner();
  markOneDriveDirty();
+ } else {
+ updateOneDriveDirtyFromSnapshot();
+ odUpdateUI();
+ }
 }
 
 function loadLocal(){
@@ -750,6 +1108,8 @@ function loadLocal(){
  const parsed = JSON.parse(raw);
  if(parsed && Array.isArray(parsed.brothers) && Array.isArray(parsed.assignments)){
  appData = parsed;
+ const meta = getPayloadMeta(parsed);
+ if(!localUpdatedAtMs && meta.updatedAtMs) setLocalUpdatedAt(meta.updatedAtMs);
  }
  }catch{}
  }
@@ -1384,6 +1744,11 @@ function importJSONFile(file){
 window.addEventListener("beforeunload", (event) => {
  if(!odFileHandle) return;
  if(!hasUnsavedOneDriveChanges) return;
+
+ // Less intrusive: only warn if changes have been unsaved for a while.
+ // Fresh edits are already clearly shown by the Save button/status.
+ if(odLastWriteMs && Date.now() - odLastWriteMs < OD_UNSAVED_GRACE_MS) return;
+
  event.preventDefault();
  event.returnValue = "";
 });
@@ -1401,9 +1766,13 @@ async function saveCurrentDataToOneDrive(showAlert=true){
 
  try{
  updatePlannerSyncButton("working");
- await odWriteJson(buildOneDrivePayload());
+ const payload = buildOneDrivePayload();
+ await odWriteJson(payload);
  odLastWriteMs = Date.now();
+ localStorage.setItem(OD_LAST_WRITE_KEY, String(odLastWriteMs));
+ lastCloudMeta = getPayloadMeta(payload);
  markOneDriveSaved("saved");
+ hideOneDriveCompareBanner();
  if(showAlert) alert("Saved to OneDrive.");
  return true;
  }catch(e){
@@ -1420,6 +1789,25 @@ document.addEventListener("DOMContentLoaded", async ()=>{
  applyTheme(storedTheme);
 
  document.getElementById("startDate").value = dateToISO(new Date());
+ setDeviceName(localStorage.getItem(OD_DEVICE_NAME_KEY) || "");
+ updateDeviceHint();
+ const odDismissDeviceHint = document.getElementById("odDismissDeviceHint");
+ if(odDismissDeviceHint){
+ odDismissDeviceHint.addEventListener("click", ()=>{
+ localStorage.setItem(OD_DEVICE_HINT_DISMISSED_KEY, "true");
+ updateDeviceHint();
+ });
+ }
+ const odDeviceInput = document.getElementById("odDeviceName");
+ if(odDeviceInput){
+ odDeviceInput.addEventListener("input", ()=>{
+ setDeviceName(odDeviceInput.value);
+ updateDeviceHint();
+ odUpdateUI("device saved");
+ if(lastCloudMeta) compareCloudWithLocal(lastCloudMeta, {showSame:false});
+ });
+ odDeviceInput.addEventListener("blur", ()=>{ setDeviceName(odDeviceInput.value); updateDeviceHint(); odUpdateUI(); });
+ }
 
  document.getElementById("addWeekBtn").onclick = (e)=>{ e?.preventDefault?.(); addWeeks(1); };
  document.getElementById("add4WeeksBtn").onclick = (e)=>{ e?.preventDefault?.(); addWeeks(4); };
@@ -1483,8 +1871,12 @@ document.addEventListener("DOMContentLoaded", async ()=>{
  catch(e){ alert("Could not choose OneDrive file: " + (e?.message || e)); odUpdateUI("error"); }
  };
 
+ document.getElementById("odCheckBtn").onclick = async ()=>{
+ await checkOneDriveVersion({silent:false, showSame:true});
+ };
+
  document.getElementById("odSaveBtn").onclick = async ()=>{
- await saveCurrentDataToOneDrive(true);
+ await saveCurrentDataToOneDrive(false);
  };
 
  document.getElementById("plannerSyncBtn").onclick = async ()=>{
@@ -1496,34 +1888,17 @@ document.addEventListener("DOMContentLoaded", async ()=>{
  alert("Please choose your OneDrive JSON file first.");
  return;
  }
- await saveCurrentDataToOneDrive(true);
+ await saveCurrentDataToOneDrive(false);
  };
 
  document.getElementById("odReadBtn").onclick = async ()=>{
- try{
- const obj = await odReadJson();
- if(!obj) return;
- const normalized = normalizeIncomingData(obj);
  const ok = confirm("Read from OneDrive and overwrite the current local data?");
  if(!ok) return;
-
- appData = normalized;
- saveLocal();
-
- odLastReadMs = Date.now();
- odUpdateUI("read");
-
- updateFilterOptions();
- renderBrothers();
- renderAssignments();
- renderStats();
- }catch(e){
- odUpdateUI("read failed");
- alert("Read failed: " + (e?.message || e));
- }
+ await loadCurrentOneDriveFile();
  };
 
  await odInit();
+ startOneDriveAutoCheck();
  updatePlannerSyncButton();
 
  updateFilterOptions();
