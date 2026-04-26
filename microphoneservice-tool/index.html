@@ -875,7 +875,7 @@ function compactSelectSelectedLabel(sel){
  if(sel.selectedIndex<0) return;
  const opt = sel.options[sel.selectedIndex];
  if(opt?.value==="__NO_MEETING__"){
- opt.textContent="⛔ No Meeting";
+ opt.textContent="⛔ No Meeting / Special Program";
  return;
  }
  if(opt?.dataset?.nameOnly) opt.textContent = opt.dataset.nameOnly;
@@ -885,7 +885,7 @@ function populateSelect(sel, selected, meetingDateISO){
  sel.innerHTML="";
  const noMeeting=document.createElement("option");
  noMeeting.value="__NO_MEETING__";
- noMeeting.textContent="⛔ No Meeting";
+ noMeeting.textContent="⛔ No Meeting / Special Program";
  noMeeting.classList.add("no-meeting-option");
  if(selected==="__NO_MEETING__") noMeeting.selected=true;
  sel.appendChild(noMeeting);
