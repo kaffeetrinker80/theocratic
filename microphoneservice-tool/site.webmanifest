@@ -1,7 +1,7 @@
 {
   "name": "Microphone Planner",
   "short_name": "Mic Planner",
-  "start_url": "./microphoneservice-tool.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f6fa",
   "theme_color": "#304ffe",
