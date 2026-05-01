@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RC Ordner-Einteilung</title>
+<title>RC Ordner-Einteilung V1.8</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#132033;--muted:#64748b;--line:#d7e0ea;--brand:#172f4d;--blue:#2563eb;--soft:#eaf2ff;--soft2:#f8fafc;--ok:#15803d;--warn:#b45309;--danger:#b91c1c;--purple:#6d28d9;--shadow:0 8px 22px rgba(15,23,42,.07);--r:14px}
 *{box-sizing:border-box}
@@ -55,7 +55,7 @@ textarea{width:100%;min-height:80px;resize:vertical}
 <body>
 <header><div class="head"><div class="brand"><h1 id="headerTitle"></h1><p id="headerSub"></p></div><div class="badge" id="headerPlace"></div></div></header>
 <main>
-  <div class="toolbar noPrint"><div class="tabs"><button class="tab active" data-view="plan">Gesamtübersicht</button><button class="tab" data-view="person">Einzelübersicht</button><button class="tab" data-view="dashboard">Dashboard</button><button class="tab" data-view="config">Konfiguration</button><button class="tab" data-view="help">Hilfe</button></div><span class="pill ok" id="saveState">lokal gespeichert</span><button class="secondary" onclick="exportJson()">JSON Export</button><label class="btn secondary" for="importFile">JSON Import</label><input id="importFile" type="file" accept="application/json,.json" hidden onchange="importJson(event)"></div>
+  <div class="toolbar noPrint"><div class="tabs"><button class="tab active" data-view="plan">Gesamtübersicht</button><button class="tab" data-view="person">Einzelübersicht</button><button class="tab" data-view="messages">Nachrichten</button><button class="tab" data-view="dashboard">Dashboard</button><button class="tab" data-view="config">Konfiguration</button><button class="tab" data-view="help">Hilfe</button></div><span class="pill ok" id="saveState">lokal gespeichert</span><button class="secondary" onclick="exportJson()">JSON Export</button><label class="btn secondary" for="importFile">JSON Import</label><input id="importFile" type="file" accept="application/json,.json" hidden onchange="importJson(event)"></div>
 
   <section id="plan" class="view active">
     <div class="toolbar noPrint"><select id="daySelect" onchange="renderPlan();renderDashboard()"></select><select id="areaFilter" onchange="renderPlan()"></select><input id="searchInput" placeholder="Name, Position oder Bereich suchen…" oninput="renderPlan()"><label class="pill"><input type="checkbox" id="compactToggle" checked onchange="renderPlan()"> kompakt</label><button onclick="printCurrentDay()">Drucken</button><button class="secondary" onclick="copyDay()">Tag kopieren</button><button class="secondary" onclick="pasteDay()">Einfügen</button><button class="ghost" onclick="clearDayConfirm()">Tag leeren</button></div>
@@ -64,6 +64,25 @@ textarea{width:100%;min-height:80px;resize:vertical}
 
   <section id="person" class="view">
     <div class="toolbar noPrint"><select id="personSelect" onchange="renderPersonView(this.value)"></select><button onclick="printPerson()">Drucken</button><button class="good" onclick="sendWhatsApp()">WhatsApp senden</button><button class="secondary" onclick="sendEmail()">Email öffnen</button><button class="secondary" onclick="copyPersonText()">Text kopieren</button><button class="secondary" onclick="copyPersonLink()">Link kopieren</button></div><div class="card" id="personCard"></div>
+  </section>
+
+
+  <section id="messages" class="view">
+    <div class="toolbar noPrint">
+      <select id="msgDay" onchange="renderMessagesCenter()"></select>
+      <select id="msgArea" onchange="renderMessagesCenter()"></select>
+      <input id="msgSearch" placeholder="Name, Versammlung oder Bereich suchen…" oninput="renderMessagesCenter()">
+      <button class="secondary" onclick="copyAllMessages()">Alle Texte kopieren</button>
+      <button class="ghost" onclick="resetMessageStatus()">Status zurücksetzen</button>
+    </div>
+    <div class="card">
+      <div class="sectionTitle">
+        <h2>Nachrichten-Center</h2>
+        <span class="muted">Persönliche Einteilungen prüfen, WhatsApp/Email einzeln öffnen und Versandstatus abhaken.</span>
+      </div>
+      <div id="messagesStats" class="quickActions" style="margin:10px 0"></div>
+      <div id="messagesCenter"></div>
+    </div>
   </section>
 
   <section id="dashboard" class="view">
@@ -76,9 +95,10 @@ textarea{width:100%;min-height:80px;resize:vertical}
   <section id="config" class="view">
     <div class="card"><div class="configTop"><div class="subtabs"><button class="subtab active" data-config="base">Grunddaten</button><button class="subtab" data-config="times">Zeiten</button><button class="subtab" data-config="positions">Positionen</button><button class="subtab" data-config="people">Ordner</button></div><input class="searchbar" id="configSearch" placeholder="Konfiguration durchsuchen…" oninput="renderConfig()"></div>
       <div id="cfg-base" class="configPane active"><div class="sectionTitle"><h2>Grunddaten</h2><span class="muted">Titel, Ort und Absender für Nachrichten.</span></div><div class="grid" style="margin-top:12px">
-  <div class="field"><label>Titel</label><input id="cfgTitle" oninput="updateMeta()"></div>
+  <div class="field wide"><label>Titel</label><input id="cfgTitle" oninput="updateMeta()"></div>
   <div class="field"><label>Untertitel</label><input id="cfgSubtitle" oninput="updateMeta()"></div>
   <div class="field"><label>Ort / Kongressstätte</label><input id="cfgPlace" oninput="updateMeta()"></div>
+  <div class="field"><label>Google-Maps-Link zum Ort</label><input id="cfgPlaceLink" placeholder="https://maps.google.com/..." oninput="updateMeta()"></div>
   <div class="field"><label>Absender Name</label><input id="cfgSenderName" oninput="updateMeta()"></div>
   <div class="field"><label>Absender Rolle/Funktion</label><input id="cfgSenderRole" oninput="updateMeta()"></div>
   <div class="field"><label>Absender Mobil</label><input id="cfgSenderPhone" oninput="updateMeta()"></div>
@@ -92,13 +112,72 @@ textarea{width:100%;min-height:80px;resize:vertical}
     </div>
   </section>
 
-  <section id="help" class="view"><div class="card"><h2>Hilfe</h2><p>Konfiguration pflegen, dann in der Gesamtübersicht Ordner einteilen. Namen anklicken öffnet die Einzelübersicht mit WhatsApp- und Email-Funktion.</p></div></section>
-</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.7</div>
+  <section id="help" class="view">
+    <div class="card">
+      <h2>Hilfe & Schnellstart</h2>
+      <p>Dieses Tool hilft dir, eine Ordner-Einteilung für einen mehrtägigen Regionalen Kongress zu erstellen, zu prüfen, zu drucken und an die Brüder zu versenden. Alle Daten bleiben lokal im Browser. Für Sicherung und Weitergabe nutzt du den JSON Export.</p>
+
+      <h3>1. Empfohlener Ablauf</h3>
+      <p><b>Schritt 1 – Grunddaten:</b> Trage Titel, Ort/Kongressstätte, optional einen Google-Maps-Link und die Absenderdaten ein. Diese Daten werden im Header, in Druckansichten und in Nachrichten verwendet.</p>
+      <p><b>Schritt 2 – Zeiten:</b> Lege die Zeitblöcke fest, z. B. 07:00–07:45 oder 10:00–11:00. Die Zeitblöcke bilden später die Spalten der Gesamtübersicht.</p>
+      <p><b>Schritt 3 – Positionen:</b> Lege alle Positionen an. Jede Position hat eine Nummer, einen Bereich, eine Beschreibung und eine Soll-Besetzung. Die Soll-Besetzung hilft dir zu sehen, ob eine Position ausreichend besetzt ist.</p>
+      <p><b>Schritt 4 – Ordnerstamm:</b> Lege alle Brüder an. Du kannst Name, Versammlung, Mobilnummer, Email, Bereich und Notiz speichern. Der Bereich ist optional, aber praktisch.</p>
+      <p><b>Schritt 5 – Planung:</b> In der Gesamtübersicht wählst du pro Zeitfeld die Brüder aus. Mehrere Brüder in einer Schicht werden untereinander angezeigt, damit die Druckansicht stabil bleibt.</p>
+      <p><b>Schritt 6 – Prüfen und Versenden:</b> Nutze Einzelübersicht oder Nachrichten-Center. Dort kannst du WhatsApp oder Email öffnen und den Status als „gesendet“ markieren.</p>
+
+      <h3>2. Grunddaten</h3>
+      <p><b>Titel:</b> Der Haupttitel des Plans. Beispiel: „RC Ordner-Einteilung“ oder „Regionaler Kongress München 2026 – Ordnerdienst“.</p>
+      <p><b>Ort / Kongressstätte:</b> Wird im Header und in Nachrichten angezeigt. Wenn du zusätzlich einen Google-Maps-Link einträgst, wird der Ort oben im Header klickbar.</p>
+      <p><b>Absenderdaten:</b> Name, Funktion, Mobil und Email werden am Ende der Nachrichten eingefügt. Die Mobilnummer des jeweiligen Bruders wird nicht in den Nachrichtentext geschrieben, sondern nur für den WhatsApp-Link genutzt.</p>
+      <p><b>Nachricht – Einleitung / Abschluss:</b> Diese Texte kannst du frei anpassen. Sie erscheinen in WhatsApp- und Email-Nachrichten.</p>
+
+      <h3>3. Zeiten</h3>
+      <p>Alle Zeitblöcke sind frei editierbar. Wenn du eine Zeit umbenennst, bleiben bestehende Einteilungen erhalten. Löschen eines Zeitblocks entfernt die Einteilungen in diesem Zeitblock.</p>
+
+      <h3>4. Positionen</h3>
+      <p><b>Pos.:</b> Kurznummer der Position, z. B. 1, 2, 3 oder A1.</p>
+      <p><b>Bereich:</b> Dient als logische Gruppe, z. B. „Foyer“, „Außenbereich“, „Eingang“, „Parkplatz“. Der Bereich steuert auch, welche Brüder im Dropdown angeboten werden.</p>
+      <p><b>Beschreibung:</b> Genauere Bezeichnung der Position.</p>
+      <p><b>Soll:</b> Wie viele Brüder pro Zeitblock an dieser Position benötigt werden. In der Planung wird 0/1, 1/1, 2/1 usw. angezeigt.</p>
+      <p><b>Schnellimport:</b> Format: <code>Pos;Bereich;Beschreibung;Soll</code>, eine Position pro Zeile.</p>
+
+      <h3>5. Ordnerstamm</h3>
+      <p>Der Ordnerstamm ist die zentrale Liste aller Brüder. Idealerweise legst du Brüder zuerst hier an, bevor du sie einteilst.</p>
+      <p><b>Bereich beim Bruder:</b> Wenn ein Bereich gesetzt ist, wird der Bruder nur bei Positionen dieses Bereichs angeboten. Wenn der Bereich leer/frei bleibt, kann er überall eingeteilt werden. Wird ein freier Bruder zum ersten Mal eingeteilt, übernimmt er automatisch den Bereich dieser Position.</p>
+      <p><b>Kontaktdaten:</b> Mobilnummer und Email werden für WhatsApp/Email-Aktionen genutzt.</p>
+      <p><b>Schnellimport:</b> Format: <code>Name;Versammlung;Mobil;Email;Bereich;Notiz</code>, ein Bruder pro Zeile.</p>
+      <p><b>Bereiche aus Plan ableiten:</b> Wenn ein Bruder noch keinen Bereich hat und bereits ausschließlich in einem Bereich eingeteilt ist, kann das Tool diesen Bereich automatisch setzen.</p>
+
+      <h3>6. Gesamtübersicht</h3>
+      <p>Die Gesamtübersicht ist die Hauptarbeitsfläche. Links stehen Position und Bereich, rechts die Zeitblöcke. In jedem Feld kannst du per Dropdown einen Bruder auswählen. Der kleine Personen-Button führt direkt zum Ordnerstamm, falls jemand noch fehlt.</p>
+      <p>Mehrere Brüder in einer Schicht stehen untereinander. Das ist absichtlich so, damit die Druckansicht nicht unnötig breit wird.</p>
+      <p>Im Druck wird die Soll-Spalte ausgeblendet. Die Ansicht ist für A4 Querformat optimiert.</p>
+
+      <h3>7. Einzelübersicht</h3>
+      <p>Wenn du in der Gesamtübersicht auf einen Namen klickst, öffnet sich die persönliche Einzelübersicht. Dort sieht der Bruder nur seine eigenen Einsätze, sortiert nach Tag und Zeit.</p>
+      <p>Du kannst die Einzelübersicht drucken, den Text kopieren, WhatsApp öffnen oder eine Email vorbereiten.</p>
+
+      <h3>8. Nachrichten-Center</h3>
+      <p>Das Nachrichten-Center ist für den praktischen Versand gedacht. Es listet alle Brüder mit Einteilungen auf und zeigt, ob Mobilnummer oder Email vorhanden sind.</p>
+      <p><b>WhatsApp senden:</b> Öffnet WhatsApp bzw. WhatsApp Web mit dem persönlichen Text. Automatischer Massenversand ist aus Sicherheitsgründen nicht möglich, aber du kannst die Nachrichten nacheinander öffnen.</p>
+      <p><b>Email öffnen:</b> Öffnet dein Mailprogramm mit Empfänger, Betreff und persönlichem Text.</p>
+      <p><b>Status:</b> Du kannst pro Bruder markieren, ob die Nachricht gesendet wurde. Der Status wird lokal gespeichert.</p>
+      <p><b>Alle Texte kopieren:</b> Erstellt eine Sammelliste aller gefilterten persönlichen Nachrichten, hilfreich zum Prüfen oder manuellen Weiterleiten.</p>
+
+      <h3>9. Dashboard</h3>
+      <p>Das Dashboard zeigt die Einsätze pro Bruder und einige Kennzahlen. Es dient als Übersicht, nicht als Hauptarbeitsfläche.</p>
+
+      <h3>10. Speichern, Export und Datenschutz</h3>
+      <p>Das Tool speichert automatisch lokal im Browser. Es lädt keine Daten auf einen Server hoch. Für Backups, Weitergabe an Nico oder Nutzung auf einem anderen Gerät bitte JSON Export und JSON Import verwenden.</p>
+      <p>Wenn du das Tool auf GitHub stellst, sollten echte Namen, Telefonnummern und Emails nicht im HTML-Code stehen. Echte Daten kommen dann nur per JSON Import dazu.</p>
+    </div>
+  </section>
+</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.8</div>
 <script>
-const STORAGE='rc_ordner_einteilung_v17';
+const STORAGE='rc_ordner_einteilung_v18';
 function uid(){return 'id_'+Math.random().toString(36).slice(2,9)+'_'+Date.now().toString(36)}
 const defaultData={
-  meta:{title:'RC Ordner-Einteilung',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
+  meta:{title:'RC Ordner-Einteilung',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',placeLink:'',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
   days:[{id:'fr',label:'Freitag',date:''},{id:'sa',label:'Samstag',date:''},{id:'so',label:'Sonntag',date:''}],
   times:['07:00-07:45','07:45-09:00','09:00-10:00','10:00-11:00','11:00-12:00','12:00-13:00','13:00-14:00','14:00-15:00','15:00-16:00','16:00-17:00','17:00-18:00'],
   people:[{name:'Bruder 1',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 2',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 3',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 4',congregation:'',phone:'',email:'',area:'',note:''}],
@@ -134,28 +213,30 @@ function init(){
   window.addEventListener('hashchange',handleHash);
 }
 function handleHash(){const h=decodeURIComponent(location.hash||'');if(h.startsWith('#person=')){const n=h.replace('#person=','');currentPerson=n;switchView('person');renderPeopleSelect();personSelect.value=n;renderPersonView(n)}}
-function renderAll(){renderMeta();renderSelectors();renderDashboard();renderPlan();renderConfig();renderPeopleSelect();if(!currentPerson&&peopleNames()[0])currentPerson=peopleNames()[0];renderPersonView(currentPerson)}
+function renderAll(){renderMeta();renderSelectors();renderDashboard();renderPlan();renderMessagesCenter();renderConfig();renderPeopleSelect();if(!currentPerson&&peopleNames()[0])currentPerson=peopleNames()[0];renderPersonView(currentPerson)}
 function renderMeta(){
-  headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;headerPlace.textContent=data.meta.place;
+  headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;
+  if(data.meta.placeLink){headerPlace.innerHTML=`<a href="${escA(data.meta.placeLink)}" target="_blank" rel="noopener" style="color:#fff;text-decoration:none">${esc(data.meta.place||'Ort öffnen')}</a>`}else{headerPlace.textContent=data.meta.place;}
   if(document.getElementById('cfgTitle')){
-    cfgTitle.value=data.meta.title;cfgSubtitle.value=data.meta.subtitle;cfgPlace.value=data.meta.place;
+    cfgTitle.value=data.meta.title;cfgSubtitle.value=data.meta.subtitle;cfgPlace.value=data.meta.place;cfgPlaceLink.value=data.meta.placeLink||'';
     cfgSenderName.value=data.meta.senderName||'';cfgSenderRole.value=data.meta.senderRole||'';cfgSenderPhone.value=data.meta.senderPhone||'';cfgSenderEmail.value=data.meta.senderEmail||'';cfgMessageIntro.value=data.meta.messageIntro||'';cfgMessageOutro.value=data.meta.messageOutro||'';
   }
 }
 function updateMeta(){
-  data.meta={...data.meta,title:cfgTitle.value,subtitle:cfgSubtitle.value,place:cfgPlace.value,senderName:cfgSenderName.value,senderRole:cfgSenderRole.value,senderPhone:cfgSenderPhone.value,senderEmail:cfgSenderEmail.value,messageIntro:cfgMessageIntro.value,messageOutro:cfgMessageOutro.value};
-  headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;headerPlace.textContent=data.meta.place;
+  data.meta={...data.meta,title:cfgTitle.value,subtitle:cfgSubtitle.value,place:cfgPlace.value,placeLink:cfgPlaceLink.value,senderName:cfgSenderName.value,senderRole:cfgSenderRole.value,senderPhone:cfgSenderPhone.value,senderEmail:cfgSenderEmail.value,messageIntro:cfgMessageIntro.value,messageOutro:cfgMessageOutro.value};
+  headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;
+  if(data.meta.placeLink){headerPlace.innerHTML=`<a href="${escA(data.meta.placeLink)}" target="_blank" rel="noopener" style="color:#fff;text-decoration:none">${esc(data.meta.place||'Ort öffnen')}</a>`}else{headerPlace.textContent=data.meta.place;}
   save();renderPlan();renderDashboard();renderPersonView(currentPerson);
 }
 function switchView(v){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='config')renderConfig();if(v==='person')renderPeopleSelect()}
 function switchConfig(c){document.querySelectorAll('.configPane').forEach(x=>x.classList.toggle('active',x.id==='cfg-'+c));document.querySelectorAll('.subtab').forEach(x=>x.classList.toggle('active',x.dataset.config===c));renderConfig()}
 function renderSelectors(){
-  const cd=daySelect.value, ca=areaFilter.value, dd=dashDay.value, da=dashArea.value;
+  const cd=daySelect.value, ca=areaFilter.value, dd=dashDay.value, da=dashArea.value, md=msgDay?.value, ma=msgArea?.value;
   const dayOpts=data.days.map(d=>`<option value="${d.id}">${esc(d.label)}${d.date?' · '+esc(d.date):''}</option>`).join('');
-  daySelect.innerHTML=dayOpts; dashDay.innerHTML='<option value="all">Alle Tage</option>'+dayOpts;
+  daySelect.innerHTML=dayOpts; dashDay.innerHTML='<option value="all">Alle Tage</option>'+dayOpts; if(document.getElementById('msgDay')) msgDay.innerHTML='<option value="all">Alle Tage</option>'+dayOpts;
   const areaOpts='<option value="all">Alle Bereiche</option>'+areaList().map(a=>`<option>${esc(a)}</option>`).join('');
-  areaFilter.innerHTML=areaOpts; dashArea.innerHTML=areaOpts;
-  if(cd)daySelect.value=cd;if(ca)areaFilter.value=ca;if(dd)dashDay.value=dd;if(da)dashArea.value=da;
+  areaFilter.innerHTML=areaOpts; dashArea.innerHTML=areaOpts; if(document.getElementById('msgArea')) msgArea.innerHTML=areaOpts;
+  if(cd)daySelect.value=cd;if(ca)areaFilter.value=ca;if(dd)dashDay.value=dd;if(da)dashArea.value=da;if(md&&document.getElementById('msgDay'))msgDay.value=md;if(ma&&document.getElementById('msgArea'))msgArea.value=ma;
 }
 function dayLabel(id){const d=data.days.find(x=>x.id===id);return d?`${d.label}${d.date?' '+d.date:''}`:id}
 function getPersonObj(n){return data.people.find(p=>p.name===n)||{name:n,congregation:'',phone:'',email:'',area:'',note:''}}
@@ -248,6 +329,43 @@ function removeDay(i){if(confirm('Tag löschen?')){const id=data.days.splice(i,1
 function bulkPeoplePrompt(){const txt=prompt('Namensliste einfügen: Name;Versammlung;Mobil;Email;Bereich;Notiz');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [name,congregation='',phone='',email='',area='',note='']=line.split(';').map(x=>x.trim());if(name&&!peopleNames().includes(name))data.people.push({name,congregation,phone,email,area,note})});save();renderAll()}
 function bulkPositionsPrompt(){const txt=prompt('Positionen einfügen: Pos;Bereich;Beschreibung;Soll');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [no='',area='',desc='',need='1']=line.split(';').map(x=>x.trim());if(no||area)data.positions.push({id:uid(),no:no||String(data.positions.length+1),area,desc,need:Number(need||1)})});save();renderAll()}
 function autoAssignAreasFromPlan(){let changed=0;data.people.forEach(p=>{if(p.area)return;const items=getAssignmentsForPerson(p.name);const areas=[...new Set(items.map(i=>i.area).filter(Boolean))];if(areas.length===1){p.area=areas[0];changed++}});save();renderAll();alert(`${changed} Bereiche automatisch gesetzt.`)}
+
+function messageStatusKey(name){return 'msgStatus::'+name}
+function isMessageSent(name){return localStorage.getItem(messageStatusKey(name))==='sent'}
+function setMessageSent(name, sent=true){if(sent)localStorage.setItem(messageStatusKey(name),'sent');else localStorage.removeItem(messageStatusKey(name));renderMessagesCenter();renderDashboard()}
+function getFilteredMessagePeople(){
+  const d=document.getElementById('msgDay')?.value||'all';
+  const a=document.getElementById('msgArea')?.value||'all';
+  const q=(document.getElementById('msgSearch')?.value||'').toLowerCase();
+  return data.people.map(p=>({person:p,items:getAssignmentsForPerson(p.name)}))
+    .filter(x=>x.items.length)
+    .map(x=>({...x,items:x.items.filter(i=>(d==='all'||i.dayId===d)&&(a==='all'||i.area===a))}))
+    .filter(x=>x.items.length)
+    .filter(x=>!q||[x.person.name,x.person.congregation,x.person.phone,x.person.email,x.person.area,x.person.note].join(' ').toLowerCase().includes(q)||x.items.some(i=>(i.area+' '+i.desc).toLowerCase().includes(q)));
+}
+function makePersonTextFiltered(name, items){
+  const sender=[data.meta.senderName,data.meta.senderRole].filter(Boolean).join(' · ');
+  const senderLine=(sender||data.meta.senderPhone||data.meta.senderEmail)?`\n\nLiebe Grüße\n${sender}${data.meta.senderPhone?'\nMobil: '+data.meta.senderPhone:''}${data.meta.senderEmail?'\nEmail: '+data.meta.senderEmail:''}`:'';
+  return `Hallo ${name},\n\n${data.meta.messageIntro||'hier ist deine Einteilung:'}\n${data.meta.title} · ${data.meta.place}\n\n`+(items.length?items.map(r=>`${r.day}${r.date?' '+r.date:''}, ${r.time} – Pos. ${r.pos} ${r.area}${r.desc?' – '+r.desc:''}`).join('\n'):'Aktuell bist du noch nicht eingeteilt.')+`\n\n${data.meta.messageOutro||'Vielen Dank für deine Unterstützung!'}${senderLine}`;
+}
+function renderMessagesCenter(){
+  if(!document.getElementById('messagesCenter'))return;
+  const rows=getFilteredMessagePeople();
+  const sentCount=rows.filter(x=>isMessageSent(x.person.name)).length;
+  const missingPhone=rows.filter(x=>!x.person.phone).length;
+  const missingEmail=rows.filter(x=>!x.person.email).length;
+  messagesStats.innerHTML=`<span class="pill blue">${rows.length} Brüder im Filter</span><span class="pill ok">${sentCount} als gesendet markiert</span><span class="pill">${missingPhone} ohne Mobilnummer</span><span class="pill">${missingEmail} ohne Email</span>`;
+  messagesCenter.innerHTML=`<table class="personTable"><thead><tr><th>Status</th><th>Name</th><th>Kontakt</th><th>Einsätze</th><th>Aktionen</th></tr></thead><tbody>${rows.map(x=>{
+    const p=x.person, sent=isMessageSent(p.name), text=makePersonTextFiltered(p.name,x.items);
+    return `<tr><td><label class="pill ${sent?'ok':'blue'}"><input type="checkbox" ${sent?'checked':''} onchange="setMessageSent('${escJ(p.name)}',this.checked)"> ${sent?'gesendet':'offen'}</label></td><td><button class="ghost small" onclick="openPerson('${escJ(p.name)}')">${esc(p.name)}</button><br><span class="muted">${esc(p.congregation||'')}</span></td><td>${p.phone?'📱 '+esc(p.phone):'<span class="muted">keine Mobilnummer</span>'}<br>${p.email?'✉️ '+esc(p.email):'<span class="muted">keine Email</span>'}</td><td>${x.items.map(i=>`${esc(i.day)} ${esc(i.time)} · Pos. ${esc(i.pos)} ${esc(i.area)}`).join('<br>')}</td><td><div class="quickActions"><button class="good small" onclick="sendWhatsAppFor('${escJ(p.name)}')">WhatsApp</button><button class="secondary small" onclick="sendEmailFor('${escJ(p.name)}')">Email</button><button class="secondary small" onclick="copyMessageFor('${escJ(p.name)}')">Kopieren</button></div></td></tr>`;
+  }).join('')||'<tr><td colspan="5">Keine Einteilungen im aktuellen Filter.</td></tr>'}</tbody></table>`;
+}
+function sendWhatsAppFor(name){const p=getPersonObj(name);const items=getFilteredMessagePeople().find(x=>x.person.name===name)?.items||getAssignmentsForPerson(name);const text=encodeURIComponent(makePersonTextFiltered(name,items));const phone=phoneForWhatsApp(p.phone);window.open(phone?`https://wa.me/${phone}?text=${text}`:`https://wa.me/?text=${text}`,'_blank')}
+function sendEmailFor(name){const p=getPersonObj(name);const items=getFilteredMessagePeople().find(x=>x.person.name===name)?.items||getAssignmentsForPerson(name);const subject=encodeURIComponent(`${data.meta.title} – Deine Einteilung`);const body=encodeURIComponent(makePersonTextFiltered(name,items));window.location.href=`mailto:${encodeURIComponent(p.email||'')}?subject=${subject}&body=${body}`}
+function copyMessageFor(name){const items=getFilteredMessagePeople().find(x=>x.person.name===name)?.items||getAssignmentsForPerson(name);navigator.clipboard.writeText(makePersonTextFiltered(name,items));alert('Nachricht kopiert.')}
+function copyAllMessages(){const rows=getFilteredMessagePeople();const text=rows.map(x=>'--- '+x.person.name+' ---\n'+makePersonTextFiltered(x.person.name,x.items)).join('\n\n');navigator.clipboard.writeText(text);alert(`${rows.length} Nachrichten kopiert.`)}
+function resetMessageStatus(){if(!confirm('Versandstatus für alle Brüder zurücksetzen?'))return;data.people.forEach(p=>localStorage.removeItem(messageStatusKey(p.name)));renderMessagesCenter();renderDashboard()}
+
 function copyDay(){const source=daySelect.value;copiedDay={source,items:{}};Object.keys(data.assignments).forEach(k=>{if(k.startsWith(source+'||'))copiedDay.items[k]=JSON.parse(JSON.stringify(data.assignments[k]))});alert('Aktueller Tag wurde kopiert. Zieltag wählen und Einfügen klicken.')}
 function pasteDay(){if(!copiedDay)return alert('Noch kein Tag kopiert.');const target=daySelect.value;if(!confirm('Einteilungen in den aktuellen Tag einfügen/überschreiben?'))return;Object.keys(copiedDay.items).forEach(k=>{const p=k.split('||');data.assignments[key(target,p[1],p[2])]=copiedDay.items[k]});save();renderAll();alert('Tag eingefügt.')}
 function clearDayConfirm(){const d=daySelect.value;if(confirm('Alle Einteilungen für diesen Tag leeren?')){Object.keys(data.assignments).forEach(k=>{if(k.startsWith(d+'||'))delete data.assignments[k]});save();renderAll()}}
