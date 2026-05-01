@@ -50,7 +50,7 @@
     body::before { background: var(--primary); top: -100px; left: -100px; }
     body::after { background: #8dc2ff; bottom: 10%; right: -200px; }
 
-    /* Language Toggle Logic */
+    /* Language Switch Logic */
     [lang="en"] .lang-de { display: none !important; }
     [lang="de"] .lang-en { display: none !important; }
 
@@ -84,20 +84,21 @@
     .hero { background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 48px 40px; margin-bottom: 40px; }
     .hero h1 { margin: 0 0 8px; font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #ffffff 0%, #aab4c3 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .hero-subtitle { font-size: 1.4rem; color: var(--primary); margin-bottom: 20px; }
-    
-    .notices { display: flex; flex-direction: column; gap: 16px; }
+    .hero p { color: var(--muted); line-height: 1.6; font-size: 1.15rem; margin-bottom: 32px; }
+
     .notice-box { padding: 20px 24px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: .95rem; line-height: 1.6; border-left: 4px solid var(--primary); }
     .notice-box strong { display: block; color: var(--text); font-size: 1.05rem; margin-bottom: 6px; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
     
     .card {
       background: var(--surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-lg);
       padding: 28px 24px; display: flex; flex-direction: column; transition: all var(--transition-smooth);
+      height: 100%; /* Wichtig für gleiche Höhe */
     }
     .card:hover { transform: translateY(-5px); border-color: var(--c-theme); }
 
-    /* Card Theme Colors */
+    /* Theme Colors */
     .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.15); }
     .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.15); }
     .theme-congregation { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.15); }
@@ -108,7 +109,15 @@
     .icon-wrap img { width: 48px; height: 48px; object-fit: contain; }
 
     .card h2 { font-size: 1.4rem; color: #fff; margin-bottom: 12px; }
-    .card p { color: var(--muted); font-size: 0.95rem; flex-grow: 1; margin-bottom: 20px; line-height: 1.5; }
+    
+    /* Dieser Teil sorgt dafür, dass die Buttons unten bleiben */
+    .card p { 
+      color: var(--muted); 
+      font-size: 0.95rem; 
+      line-height: 1.6;
+      margin-bottom: 24px;
+      flex-grow: 1; /* Drückt den Button nach unten */
+    }
 
     .meta { font-size: .8rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 6px 12px; border-radius: 999px; margin-bottom: 24px; display: inline-block; width: fit-content; }
     .btn-card { display: block; width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 14px 16px; border-radius: 14px; color: var(--c-theme); background: var(--c-soft); transition: all var(--transition-smooth); }
@@ -146,13 +155,11 @@
       <p class="lang-en">Browser-based tools for planning, scheduling and internal coordination.</p>
       <p class="lang-de">Browser-basierte Tools für Planung, Zeitpläne und interne Koordination.</p>
       
-      <div class="notices">
-        <div class="notice-box">
-          <strong class="lang-en">🔒 Strict Privacy & Data Security</strong>
-          <strong class="lang-de">🔒 Datenschutz & Sicherheit</strong>
-          <span class="lang-en">Your data is read strictly locally inside your browser. Nothing is uploaded to GitHub or external servers.</span>
-          <span class="lang-de">Deine Daten werden lokal im Browser verarbeitet. Nichts wird auf GitHub oder externe Server hochgeladen.</span>
-        </div>
+      <div class="notice-box">
+        <strong class="lang-en">🔒 Strict Privacy & Data Security</strong>
+        <strong class="lang-de">🔒 Datenschutz & Sicherheit</strong>
+        <span class="lang-en">Your data is processed strictly locally inside your browser. Nothing is uploaded to GitHub or external servers.</span>
+        <span class="lang-de">Deine Daten werden lokal im Browser verarbeitet. Nichts wird auf GitHub oder externe Server hochgeladen.</span>
       </div>
     </section>
 
@@ -163,7 +170,7 @@
         <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
         <h2>Assembly Attendant Tool</h2>
         <p class="lang-en">Streamlined attendant coordination and duty planning for one-day assemblies.</p>
-        <p class="lang-de">Effiziente Ordner-Koordination und Dienstplanung für eintägige Kreiskongresse.</p>
+        <p class="lang-de">Ordner-Koordination und Dienstplanung für Kreiskongresse.</p>
         <div class="meta">Assembly · Attendants</div>
         <a class="btn-card" href="./assembly-attendant-tool/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
       </article>
@@ -173,7 +180,7 @@
         <div class="icon-wrap"><img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Cleaning Planner</h2>
         <p class="lang-en">Cleaning schedules and shift coordination for one-day assemblies.</p>
-        <p class="lang-de">Reinigungs-Zeitpläne und Schichteinteilung für eintägige Kreiskongresse.</p>
+        <p class="lang-de">Reinigungs-Zeitpläne und Schichteinteilung für Kreiskongresse.</p>
         <div class="meta">Assembly · Cleaning</div>
         <a class="btn-card" href="./cleaning-planner-assembly/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
       </article>
@@ -300,3 +307,4 @@
   </script>
 </body>
 </html>
+```[cite: 1]
