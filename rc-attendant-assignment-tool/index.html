@@ -24,7 +24,7 @@ input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:5px
 textarea{width:100%;min-height:80px;resize:vertical}
 .tabs,.subtabs{display:flex;gap:6px;flex-wrap:wrap}.tab,.subtab{background:#e2e8f0;color:#0f172a}.tab.active,.subtab.active{background:var(--blue);color:#fff}
 .view,.configPane{display:none}.view.active,.configPane.active{display:block}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:760;margin:0 0 3px}.field input,.field select{width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:760;margin:0 0 6px}.field input,.field select,.field textarea{width:100%}.field textarea{min-height:74px;line-height:1.35}.field.wide{grid-column:1 / -1}
 .sectionTitle{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.sectionTitle h2{font-size:15px;margin:0;font-weight:760}.muted{color:var(--muted);font-size:12px}
 .pill{border-radius:999px;background:#f1f5f9;padding:4px 8px;font-size:11px;color:#334155;display:inline-flex;gap:5px;align-items:center}.pill.ok{background:#dcfce7;color:#166534}.pill.blue{background:#dbeafe;color:#1d4ed8}
 .split{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:10px}.side{position:sticky;top:72px;align-self:start}.statsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stat{background:var(--soft2);border:1px solid var(--line);border-radius:12px;padding:8px}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
@@ -75,7 +75,17 @@ textarea{width:100%;min-height:80px;resize:vertical}
 
   <section id="config" class="view">
     <div class="card"><div class="configTop"><div class="subtabs"><button class="subtab active" data-config="base">Grunddaten</button><button class="subtab" data-config="times">Zeiten</button><button class="subtab" data-config="positions">Positionen</button><button class="subtab" data-config="people">Ordner</button></div><input class="searchbar" id="configSearch" placeholder="Konfiguration durchsuchen…" oninput="renderConfig()"></div>
-      <div id="cfg-base" class="configPane active"><div class="sectionTitle"><h2>Grunddaten</h2><span class="muted">Titel, Ort und Absender für Nachrichten.</span></div><div class="grid" style="margin-top:8px"><div class="field"><label>Titel</label><input id="cfgTitle" oninput="updateMeta()"></div><div class="field"><label>Untertitel</label><input id="cfgSubtitle" oninput="updateMeta()"></div><div class="field"><label>Ort / Kongressstätte</label><input id="cfgPlace" oninput="updateMeta()"></div><div class="field"><label>Absender Name</label><input id="cfgSenderName" oninput="updateMeta()"></div><div class="field"><label>Absender Rolle/Funktion</label><input id="cfgSenderRole" oninput="updateMeta()"></div><div class="field"><label>Absender Mobil</label><input id="cfgSenderPhone" oninput="updateMeta()"></div><div class="field"><label>Absender Email</label><input id="cfgSenderEmail" oninput="updateMeta()"></div><div class="field"><label>Nachricht – Einleitung</label><input id="cfgMessageIntro" oninput="updateMeta()"></div><div class="field"><label>Nachricht – Abschluss</label><input id="cfgMessageOutro" oninput="updateMeta()"></div></div><div class="sectionTitle" style="margin-top:12px"><h2>Tage</h2><button class="secondary" onclick="resetDays()">Standardtage setzen</button></div><div class="listBox daysList" id="daysConfig" style="margin-top:8px"></div></div>
+      <div id="cfg-base" class="configPane active"><div class="sectionTitle"><h2>Grunddaten</h2><span class="muted">Titel, Ort und Absender für Nachrichten.</span></div><div class="grid" style="margin-top:12px">
+  <div class="field"><label>Titel</label><input id="cfgTitle" oninput="updateMeta()"></div>
+  <div class="field"><label>Untertitel</label><input id="cfgSubtitle" oninput="updateMeta()"></div>
+  <div class="field"><label>Ort / Kongressstätte</label><input id="cfgPlace" oninput="updateMeta()"></div>
+  <div class="field"><label>Absender Name</label><input id="cfgSenderName" oninput="updateMeta()"></div>
+  <div class="field"><label>Absender Rolle/Funktion</label><input id="cfgSenderRole" oninput="updateMeta()"></div>
+  <div class="field"><label>Absender Mobil</label><input id="cfgSenderPhone" oninput="updateMeta()"></div>
+  <div class="field"><label>Absender Email</label><input id="cfgSenderEmail" oninput="updateMeta()"></div>
+  <div class="field wide"><label>Nachricht – Einleitung</label><textarea id="cfgMessageIntro" rows="3" oninput="updateMeta()"></textarea></div>
+  <div class="field wide"><label>Nachricht – Abschluss</label><textarea id="cfgMessageOutro" rows="3" oninput="updateMeta()"></textarea></div>
+</div><div class="sectionTitle" style="margin-top:12px"><h2>Tage</h2><button class="secondary" onclick="resetDays()">Standardtage setzen</button></div><div class="listBox daysList" id="daysConfig" style="margin-top:8px"></div></div>
       <div id="cfg-times" class="configPane"><div class="sectionTitle"><h2>Zeitblöcke</h2><button class="good" onclick="addTimeBlock()">+ Zeit</button></div><div class="note" style="margin:8px 0">Zeiten sind zentral. Änderungen behalten vorhandene Einteilungen.</div><div class="listBox timeList" id="timeConfig"></div></div>
       <div id="cfg-positions" class="configPane"><div class="sectionTitle"><h2>Positionen</h2><div class="quickActions"><button class="good" onclick="addPosition()">+ Position</button><button class="secondary" onclick="bulkPositionsPrompt()">Liste einfügen</button></div></div><div class="note" style="margin:8px 0">Schnellimport: <b>Pos;Bereich;Beschreibung;Soll</b> — ein Eintrag pro Zeile.</div><div class="listBox posList" id="positionsConfig"></div></div>
       <div id="cfg-people" class="configPane"><div class="sectionTitle"><h2>Ordnerstamm</h2><div class="quickActions"><button class="good" onclick="addPerson()">+ Ordner</button><button class="secondary" onclick="bulkPeoplePrompt()">Liste einfügen</button><button class="secondary" onclick="autoAssignAreasFromPlan()">Bereiche aus Plan ableiten</button></div></div><div class="note" style="margin:8px 0">Bereich ist optional. Wenn gesetzt, erscheint der Ordner nur in diesem Bereich. Schnellimport: <b>Name;Versammlung;Mobil;Email;Bereich;Notiz</b>.</div><div class="listBox peopleList" id="peopleConfig"></div></div>
@@ -83,12 +93,12 @@ textarea{width:100%;min-height:80px;resize:vertical}
   </section>
 
   <section id="help" class="view"><div class="card"><h2>Hilfe</h2><p>Konfiguration pflegen, dann in der Gesamtübersicht Ordner einteilen. Namen anklicken öffnet die Einzelübersicht mit WhatsApp- und Email-Funktion.</p></div></section>
-</main><div class="footer">Made with Love © – RC Ordner-Einteilung Tool V 1.6</div>
+</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.7</div>
 <script>
-const STORAGE='rc_ordner_einteilung_v16';
+const STORAGE='rc_ordner_einteilung_v17';
 function uid(){return 'id_'+Math.random().toString(36).slice(2,9)+'_'+Date.now().toString(36)}
 const defaultData={
-  meta:{title:'RC Ordner-Einteilung Tool',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
+  meta:{title:'RC Ordner-Einteilung',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
   days:[{id:'fr',label:'Freitag',date:''},{id:'sa',label:'Samstag',date:''},{id:'so',label:'Sonntag',date:''}],
   times:['07:00-07:45','07:45-09:00','09:00-10:00','10:00-11:00','11:00-12:00','12:00-13:00','13:00-14:00','14:00-15:00','15:00-16:00','16:00-17:00','17:00-18:00'],
   people:[{name:'Bruder 1',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 2',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 3',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 4',congregation:'',phone:'',email:'',area:'',note:''}],
