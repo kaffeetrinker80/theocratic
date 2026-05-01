@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RC Ordner-Einteilung V1.9</title>
+<title>RC Ordner-Einteilung V1.9.1</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#132033;--muted:#64748b;--line:#d7e0ea;--brand:#172f4d;--blue:#2563eb;--soft:#eaf2ff;--soft2:#f8fafc;--ok:#15803d;--warn:#b45309;--danger:#b91c1c;--purple:#6d28d9;--shadow:0 8px 22px rgba(15,23,42,.07);--r:14px}
 *{box-sizing:border-box}
@@ -43,7 +43,7 @@ textarea{width:100%;min-height:80px;resize:vertical}
 .needed{font-size:9.5px;font-weight:800;color:#64748b;margin-bottom:2px}.needed.miss{color:#b45309}.needed.ok{color:#15803d}
 .listBox{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.listHead,.listItem{display:grid;gap:6px;align-items:center;padding:6px;border-bottom:1px solid var(--line)}.listHead{background:#f1f5f9;font-size:11px;color:#475569;font-weight:800}.listItem:last-child{border-bottom:0}
 .daysList .listHead,.daysList .listItem{grid-template-columns:1fr 1fr auto}.timeList .listHead,.timeList .listItem{grid-template-columns:1fr auto}.peopleList .listHead,.peopleList .listItem{grid-template-columns:1.2fr 1fr .95fr 1.1fr 1fr 1.1fr auto}.posList .listHead,.posList .listItem{grid-template-columns:54px 1fr 1.35fr 68px auto}
-.listItem input,.listItem select{min-width:0;width:100%}.configTop{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.searchbar{min-width:260px}
+.listItem input,.listItem select{min-width:0;width:100%}.configTop{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.searchbar{min-width:260px}#personSearch{min-width:240px}#personCongFilter{min-width:190px}#personSelect{min-width:230px}
 .personTable{width:100%;border-collapse:collapse;font-size:12px}.personTable th,.personTable td{border-bottom:1px solid var(--line);padding:6px;text-align:left}.personTable th{background:#f8fafc;font-weight:760}
 .personalCard{border:1px solid var(--line);border-radius:14px;padding:10px;margin:8px 0;background:#fff}.whatsappPreview{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px}
 .quickActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.note{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:8px;font-size:12px;color:#475569}.footer{text-align:center;color:#64748b;font-size:11px;padding:14px}.printTitle{display:none}
@@ -63,7 +63,16 @@ textarea{width:100%;min-height:80px;resize:vertical}
   </section>
 
   <section id="person" class="view">
-    <div class="toolbar noPrint"><select id="personSelect" onchange="renderPersonView(this.value)"></select><button onclick="printPerson()">Drucken</button><button class="good" onclick="sendWhatsApp()">WhatsApp senden</button><button class="secondary" onclick="sendEmail()">Email öffnen</button><button class="secondary" onclick="copyPersonText()">Text kopieren</button><button class="secondary" onclick="copyPersonLink()">Link kopieren</button></div><div class="card" id="personCard"></div>
+    <div class="toolbar noPrint">
+      <input id="personSearch" placeholder="Name oder Versammlung suchen…" oninput="renderPeopleSelect()">
+      <select id="personCongFilter" onchange="renderPeopleSelect()"></select>
+      <select id="personSelect" onchange="renderPersonView(this.value)"></select>
+      <button onclick="printPerson()">Drucken</button>
+      <button class="good" onclick="sendWhatsApp()">WhatsApp senden</button>
+      <button class="secondary" onclick="sendEmail()">Email öffnen</button>
+      <button class="secondary" onclick="copyPersonText()">Text kopieren</button>
+      <button class="secondary" onclick="copyPersonLink()">Link kopieren</button>
+    </div><div class="card" id="personCard"></div>
   </section>
 
 
@@ -154,7 +163,7 @@ textarea{width:100%;min-height:80px;resize:vertical}
       <p>Im Druck wird die Soll-Spalte ausgeblendet. Die Ansicht ist für A4 Querformat optimiert.</p>
 
       <h3>7. Einzelübersicht</h3>
-      <p>Wenn du in der Gesamtübersicht auf einen Namen klickst, öffnet sich die persönliche Einzelübersicht. Dort sieht der Bruder nur seine eigenen Einsätze, sortiert nach Tag und Zeit.</p>
+      <p>Wenn du in der Gesamtübersicht auf einen Namen klickst, öffnet sich die persönliche Einzelübersicht. Dort sieht der Bruder nur seine eigenen Einsätze, sortiert nach Tag und Zeit. Zusätzlich kannst du oben nach Name oder Versammlung suchen und nach Versammlung filtern.</p>
       <p>Du kannst die Einzelübersicht drucken, den Text kopieren, WhatsApp öffnen oder eine Email vorbereiten.</p>
 
       <h3>8. Nachrichten-Center</h3>
@@ -172,9 +181,9 @@ textarea{width:100%;min-height:80px;resize:vertical}
       <p>Wenn du das Tool auf GitHub stellst, sollten echte Namen, Telefonnummern und Emails nicht im HTML-Code stehen. Echte Daten kommen dann nur per JSON Import dazu.</p>
     </div>
   </section>
-</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.9</div>
+</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.9.1</div>
 <script>
-const STORAGE='rc_ordner_einteilung_v19';
+const STORAGE='rc_ordner_einteilung_v191';
 function uid(){return 'id_'+Math.random().toString(36).slice(2,9)+'_'+Date.now().toString(36)}
 const defaultData={
   meta:{title:'RC Ordner-Einteilung',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',placeLink:'',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
@@ -296,9 +305,27 @@ function addSelected(sel,day,posId,t){if(sel.value)addName(day,posId,t,sel.value
 function removeName(day,posId,t,n){const k=key(day,posId,t);data.assignments[k]=(data.assignments[k]||[]).filter(x=>x!==n);save();renderAll()}
 function openPeopleConfig(){switchView('config');switchConfig('people');setTimeout(()=>document.getElementById('peopleConfig')?.scrollIntoView({behavior:'smooth',block:'start'}),50)}
 function openPerson(n){currentPerson=n;location.hash='person='+encodeURIComponent(n);switchView('person');renderPeopleSelect();personSelect.value=n;renderPersonView(n)}
-function renderPeopleSelect(){personSelect.innerHTML=peopleNames().map(n=>`<option>${esc(n)}</option>`).join('')}
+function congregationList(){return [...new Set(data.people.map(p=>p.congregation).filter(Boolean))].sort()}
+function renderPeopleSelect(){
+  if(!document.getElementById('personSelect'))return;
+  const current=personSelect.value||currentPerson;
+  const q=(document.getElementById('personSearch')?.value||'').toLowerCase();
+  const cong=document.getElementById('personCongFilter')?.value||'all';
+  const congOptions='<option value="all">Alle Versammlungen</option>'+congregationList().map(c=>`<option value="${escA(c)}">${esc(c)}</option>`).join('');
+  if(personCongFilter.innerHTML!==congOptions)personCongFilter.innerHTML=congOptions;
+  personCongFilter.value=cong;
+  const list=data.people.filter(p=>{
+    const matchesSearch=!q||[p.name,p.congregation].join(' ').toLowerCase().includes(q);
+    const matchesCong=cong==='all'||p.congregation===cong;
+    return matchesSearch&&matchesCong;
+  });
+  personSelect.innerHTML=list.map(p=>`<option value="${escA(p.name)}">${esc(p.name)}${p.congregation?' · '+esc(p.congregation):''}</option>`).join('');
+  if(list.some(p=>p.name===current)){personSelect.value=current}
+  else if(list.length){personSelect.value=list[0].name;currentPerson=list[0].name;renderPersonView(list[0].name)}
+  else{personSelect.innerHTML='<option value="">Keine Treffer</option>';renderPersonView('')}
+}
 function renderPersonView(name){
-  currentPerson=name||peopleNames()[0]||''; const obj=getPersonObj(currentPerson),rows=getAssignmentsForPerson(currentPerson),whats=makePersonText(currentPerson);
+  currentPerson=name||''; if(!currentPerson&&peopleNames()[0])currentPerson=peopleNames()[0]; const obj=getPersonObj(currentPerson),rows=currentPerson?getAssignmentsForPerson(currentPerson):[],whats=currentPerson?makePersonText(currentPerson):'Keine Person ausgewählt.';
   personCard.innerHTML=`<div class="sectionTitle"><div><h2>Einzelübersicht: ${esc(currentPerson||'—')}</h2><p class="muted">${esc(data.meta.title)} · ${esc(data.meta.place)}${obj.congregation?' · '+esc(obj.congregation):''}</p></div><span class="pill blue">${rows.length} Einteilungen</span></div><div class="personalCard"><table class="personTable"><thead><tr><th>Tag</th><th>Zeit</th><th>Pos.</th><th>Bereich</th><th>Beschreibung</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.day)} ${esc(r.date||'')}</td><td>${esc(r.time)}</td><td>${esc(r.pos)}</td><td>${esc(r.area)}</td><td>${esc(r.desc||'')}</td></tr>`).join('')||'<tr><td colspan="5">Noch keine Einteilung vorhanden.</td></tr>'}</tbody></table></div><div class="card noPrint" style="box-shadow:none;margin:8px 0 0;padding:0;border:0"><h3>Nachricht</h3><div class="whatsappPreview">${esc(whats)}</div></div>`;
 }
 function makePersonText(name){
