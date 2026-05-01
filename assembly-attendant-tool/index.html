@@ -1,1 +1,1406 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+ <!-- Icons + Manifest -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico">
+
+<link rel="manifest" href="site.webmanifest">
+
+<meta name="theme-color" content="#172f4d">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendant Department Planner</title>
+  <style>
+    :root{
+      --bg:#f3f5f7;
+      --surface:#ffffff;
+      --surface-2:#f8fafc;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#d8e1ea;
+      --primary:#1565c0;
+      --primary-soft:#eaf2fd;
+      --accent:#2e7d32;
+      --warn:#ef6c00;
+      --danger:#c62828;
+      --chip:#eef3f8;
+      --shadow:0 10px 28px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding:14px}
+    .app{width:min(100%,1920px);max-width:1920px;margin:0 auto}
+    .card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero{padding:16px 18px;margin-bottom:14px;background:linear-gradient(135deg,#ffffff 0%,#f6f9ff 52%,#eef6ff 100%)}
+    .hero-top{display:grid;grid-template-columns:minmax(420px,1fr) 330px;gap:14px;justify-content:space-between;align-items:start}.hero-top > :first-child{min-width:0}.hero-top > :last-child{min-width:0}
+    h1{margin:0 0 6px;font-size:30px;line-height:1.15}
+    h2{margin:0 0 14px;font-size:18px}
+    .sub{color:var(--muted);font-size:15px}
+    .badge{display:grid;gap:4px;padding:10px 12px;border-radius:14px;border:1px solid #cfe1f7;background:rgba(234,242,253,.82);color:var(--primary);font-size:12px;font-weight:700;min-width:0;width:100%}.badge .big{font-size:13px;font-weight:800}.badge .small{font-size:11px;color:#35506f;font-weight:600}
+    .section{padding:16px;margin-bottom:14px}
+    .grid{display:grid;gap:14px}
+    .grid-4{grid-template-columns:repeat(4,minmax(170px,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(220px,1fr))}
+    .grid-2{grid-template-columns:repeat(2,minmax(280px,1fr))}
+    label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:11px;padding:9px 11px;font-size:13px;background:#fff;color:var(--text);outline:none}
+    input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.12)}
+    textarea{min-height:110px;resize:vertical}
+    button,.file-label{border:0;border-radius:11px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .08s ease,box-shadow .12s ease}
+    button:hover,.file-label:hover{transform:translateY(-1px)}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .primary{background:var(--primary);color:#fff}
+    .secondary{background:#eef3f8;color:var(--text)}
+    .success{background:#e8f5e9;color:var(--accent)}
+    .warn{background:#fff3e0;color:var(--warn)}
+    .danger{background:#ffebee;color:var(--danger)}
+    .file-label input{display:none}
+    .summary{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px}
+    .metric{padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
+    .metric .k{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:700}
+    .metric .v{font-size:23px;font-weight:800;margin-top:4px}
+    .search-row{display:grid;grid-template-columns:1.6fr .75fr .75fr .9fr 150px;gap:10px;align-items:end;margin-bottom:12px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+    table{width:100%;border-collapse:collapse;min-width:1480px}
+    thead th{position:sticky;top:0;z-index:2;background:#edf4fb;color:#26415f;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:10px 9px;border-bottom:1px solid var(--line)}
+    tbody td{border-bottom:1px solid #edf1f4;padding:7px;vertical-align:top;font-size:13px}
+    tbody tr:hover{background:#fafcff}
+    .compact-stack{display:grid;gap:6px}
+    .stack{display:grid;gap:8px}
+    .mini{font-size:12px;color:var(--muted)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+    .pill.cong{background:#e3f2fd;color:#1565c0}
+    .pill.group{background:#fff8e1;color:#8d6e00}
+    .pill.open{background:#eceff1;color:#455a64}
+    .pill.contacted{background:#e8f5e9;color:#2e7d32}
+    .pill.replied{background:#fff3e0;color:#ef6c00}
+    .contact-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+    .contact-links a,.copy-link{color:var(--primary);text-decoration:none;font-size:12px;white-space:nowrap;cursor:pointer}
+    .small-btn{padding:8px 10px;font-size:12px}
+    .right{text-align:right}
+    .footer-note{color:var(--muted);font-size:12px;margin-top:12px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px}
+    .chip{border:1px solid var(--line);background:var(--chip);padding:12px;border-radius:14px;min-width:220px;display:grid;gap:8px}
+    .chip b{display:block;font-size:14px}
+    .chip span{color:var(--muted);font-size:12px}
+    .chip-line{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}
+    .chip-line code{font-family:Consolas,Monaco,monospace;background:#fff;padding:3px 7px;border-radius:999px;border:1px solid var(--line);color:#35506f;max-width:calc(100% - 34px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .copy-icon{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--primary);cursor:pointer;font-size:13px;line-height:1;flex:0 0 26px}
+    .copy-icon:hover{background:#edf4fb}
+    .chip-meta{display:grid;gap:3px}
+    .message-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;line-height:1.5;min-height:190px}
+    .footer-bar{padding:14px 18px;text-align:center;color:var(--muted);font-size:12px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .tab-btn{background:#eef3f8;color:var(--text)}
+    .tab-btn.active{background:var(--primary);color:#fff}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .check-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:4px}
+    .check-row label{display:flex;align-items:center;gap:7px;margin:0;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text)}
+    .check-row input[type="checkbox"]{width:auto;margin:0}
+    .chips-inline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+    .chips-inline .mini-chip{padding:5px 8px;border-radius:999px;background:#eef3f8;font-size:12px;border:1px solid var(--line)}
+    .sticky-note{padding:12px 14px;border-radius:14px;background:#f7fbff;border:1px dashed #b6c9e2;color:#37506c}
+    .split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+    .muted{color:var(--muted)}
+    .mono{font-family:Consolas,Monaco,monospace}
+    .hero-grid{display:grid;grid-template-columns:minmax(520px,1.35fr) minmax(520px,.95fr);gap:14px;margin-top:14px}
+    .hero-simple{display:grid;gap:14px}
+    .hero-title-input{width:100%;border:0;border-bottom:1px solid #d7e4f2;border-radius:0;padding:0 0 6px;background:transparent;font-size:27px;font-weight:800;line-height:1.12;color:var(--text)}
+    .hero-title-input:focus{box-shadow:none;border-color:#90caf9}
+    .event-stack{display:grid;grid-template-columns:1.2fr .9fr;gap:10px}
+    .event-stack input{font-size:15px;font-weight:700;padding:10px 12px}
+    .global-search-wrap{margin-top:10px;position:relative}
+    .global-search-wrap input{padding-right:42px;font-size:14px}
+    .global-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#35506f;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
+    .global-search-clear:hover{background:#edf4fb}
+        .contact-grid .span-2{grid-column:span 2}
+    .contact-card{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(248,250,252,.85)}
+    .contact-card h3{margin:0 0 9px;font-size:14px;color:#26415f}
+        .contact-box-preview{margin-top:9px;padding:8px 10px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .field-with-actions{position:relative}
+    .field-with-actions input{padding-right:40px}
+    .field-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px}
+    .mini-copy{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;border:1px solid #d4dde7;background:#f7f9fc;color:#35506f;cursor:pointer;font-size:13px;line-height:1}
+    .mini-copy:hover{background:#edf4fb}
+    .copy-toast{position:fixed;z-index:3000;padding:6px 10px;border-radius:10px;background:#1f2937;color:#fff;font-size:12px;font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.18);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s ease, transform .15s ease}
+    .copy-toast.show{opacity:.98;transform:translateY(0)}
+    .preview-contact-card{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#f8fafc}
+    .preview-contact-title{font-size:13px;font-weight:800;color:#35506f;margin-bottom:10px}
+    .preview-contact-grid{display:grid;gap:8px}
+    .preview-contact-row{display:grid;grid-template-columns:120px 1fr 28px;gap:8px;align-items:center}
+    .preview-contact-row .label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .preview-contact-value{min-height:38px;display:flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .type-select{font-weight:700;border-radius:999px;padding:9px 12px;text-align:center;border:1px solid var(--line);appearance:none;-webkit-appearance:none}
+    .type-select.cong{background:#e3f2fd;color:#1565c0}
+    .type-select.group{background:#fff8e1;color:#8d6e00}
+    .att-card-list{display:grid;gap:10px}
+    .att-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:10px 12px}
+    .att-card.is-inactive{background:#fafafa;border-color:#d8dee6}
+    .att-card-top{display:grid;grid-template-columns:70px minmax(220px,1.25fr) minmax(230px,1.1fr) 140px minmax(230px,.95fr) 82px;gap:8px;align-items:end}
+    .att-card-bottom{display:grid;grid-template-columns:minmax(210px,1fr) minmax(210px,1fr) minmax(180px,.85fr) minmax(120px,.65fr) minmax(290px,1.45fr);gap:8px;align-items:start;margin-top:8px}
+    .att-card .field label{margin-bottom:4px;font-size:10px}
+    .att-card .field input,.att-card .field select,.att-card .field textarea{padding:8px 10px;font-size:13px}
+    .att-card .field textarea{min-height:52px}
+    .flags-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:38px}
+    .flag-mini{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px;white-space:nowrap}
+    .flag-mini input[type="checkbox"]{width:13px;height:13px;margin:0}
+    .contact-stack{display:grid;gap:8px}
+    .contact-links.compact{margin-top:6px;gap:8px;font-size:12px}
+    .scroll-top-btn{position:fixed;right:22px;bottom:22px;z-index:40;width:48px;height:48px;border-radius:999px;border:1px solid #cfe1f7;background:var(--primary);color:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:20px}
+    .scroll-top-btn:hover{transform:translateY(-1px)}
+
+    @media(max-width:1180px){
+      .grid-4,.grid-3,.grid-2,.summary,.search-row,.split,.hero-top,.hero-grid,.event-stack,.hero-simple .row-2,.contact-grid,.att-card-top,.att-card-bottom{grid-template-columns:1fr}
+      body{padding:10px}
+      h1{font-size:24px}
+    }
+    @media print{
+      body{background:#fff;padding:0}
+      .card{box-shadow:none;border-color:#cfd8dc}
+      .toolbar,.no-print,.footer-note,.footer-bar{display:none !important}
+      input,textarea,select{border:none;padding:0;background:transparent}
+      .table-wrap{overflow:visible;border-radius:0}
+      table{min-width:0;font-size:12px}
+      thead th{position:static}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="card hero">
+    <div class="hero-top">
+      <div>
+        <input id="plannerTitle" class="hero-title-input" value="Attendant Department Planner" placeholder="Attendant Department Planner">
+      </div>
+      <div class="badge" id="badgePreview"><div class="big">Local data active</div><div class="small" id="badgeLine1">No import yet</div><div class="small" id="badgeLine2">Last save: not yet</div></div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-simple">
+        <div class="event-stack">
+          <div>
+            <label for="eventName">Event / Assembly</label>
+            <input id="eventName" value="Sample Assembly">
+          </div>
+          <div>
+            <label for="eventDate">Date</label>
+            <input id="eventDate" value="Sample date / location">
+          </div>
+        </div>
+        <div class="global-search-wrap no-print">
+          <label for="globalSearch">Global search</label>
+          <input id="globalSearch" placeholder="Search congregation, coordinator, attendants, city, privilege, remarks..." oninput="applyGlobalSearch()">
+          <span class="global-search-clear" onclick="clearGlobalSearch()" title="Clear search">✕</span>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <h3>Attendant Overseer contact</h3>
+        <div class="contact-grid">
+          <div>
+            <label for="senderName">Name</label>
+            <input id="senderName" value="Sample Overseer">
+          </div>
+          <div>
+            <label for="senderRole">Role</label>
+            <input id="senderRole" value="Attendant Overseer">
+          </div>
+          <div class="span-2">
+            <label for="senderCong">Congregation</label>
+            <input id="senderCong" value="Sample Congregation">
+          </div>
+          <div>
+            <label for="senderPhone">Phone</label>
+            <input id="senderPhone" value="+49 000 000000">
+          </div>
+          <div>
+            <label for="senderMail">JWPub / Email</label>
+            <input id="senderMail" value="sample.overseer@example.org">
+          </div>
+        </div>
+        <div class="contact-box-preview" id="contactPreviewBox"></div>
+      </div>
+    </div>
+
+    <div class="toolbar no-print">
+      <button class="primary" onclick="addCongregationRow()">Add congregation / group</button>
+      <button class="primary" onclick="addAttendantRow()">Add attendant</button>
+      <button class="success" onclick="copyActiveAttendantsSummary(this)">Copy active attendants A–Z</button>
+      <button class="warn" onclick="resetStatuses()">Reset contacted / replied</button>
+      <button class="secondary" onclick="restoreStarterCongregations()">Restore starter congregations</button>
+      <button class="danger" onclick="resetAttendants()">Reset attendants list</button>
+    </div>
+  </section>
+
+  <div class="tabs no-print">
+    <button class="tab-btn active" id="tabBtn-dashboard" onclick="showTab('dashboard')">Dashboard & templates</button>
+    <button class="tab-btn" id="tabBtn-attendants" onclick="showTab('attendants')">Attendant master list</button>
+    <button class="tab-btn" id="tabBtn-notes" onclick="showTab('notes')">Backup & tools</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-dashboard">
+  <section class="card section">
+    <h2>Quick overview</h2>
+    <div class="summary">
+      <div class="metric"><div class="k">Cong./Groups</div><div class="v" id="mCongs">0</div></div>
+      <div class="metric"><div class="k">Attendants</div><div class="v" id="mAtt">0</div></div>
+      <div class="metric"><div class="k">Active</div><div class="v" id="mActive">0</div></div>
+      <div class="metric"><div class="k">Contacted</div><div class="v" id="mContacted">0</div></div>
+      <div class="metric"><div class="k">Replied</div><div class="v" id="mReplied">0</div></div>
+      <div class="metric"><div class="k">Other dept.</div><div class="v" id="mOther">0</div></div>
+      <div class="metric"><div class="k">Children check</div><div class="v" id="mChildren">0</div></div>
+    </div>
+  </section>
+
+  <section class="card section">
+    <h2>Congregation / group planner</h2>
+    <div class="search-row no-print">
+      <div>
+        <label for="congSearch">Search</label>
+        <input id="congSearch" placeholder="Search congregation, coordinator, mail, mobile..." oninput="renderCongTable()">
+      </div>
+      <div>
+        <label for="filterType">Type</label>
+        <select id="filterType" onchange="renderCongTable()">
+          <option value="all">All</option>
+          <option value="Congregation">Congregation</option>
+          <option value="Group">Group</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterFollowup">Follow-up</label>
+        <select id="filterFollowup" onchange="renderCongTable()">
+          <option value="all">All</option>
+          <option value="open">Open</option>
+          <option value="contacted">Contacted</option>
+          <option value="replied">Replied</option>
+        </select>
+      </div>
+      <div>
+        <label for="bulkStatus">Bulk set contacted</label>
+        <select id="bulkStatus">
+          <option value="contacted">Mark visible as contacted</option>
+          <option value="replied">Mark visible as replied</option>
+          <option value="open">Clear visible follow-up</option>
+        </select>
+      </div>
+      <div>
+        <button class="secondary" style="margin-top:22px" onclick="applyBulkFollowup()">Apply</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:260px">Congregation / Group</th>
+            <th style="width:125px">Type</th>
+            <th style="width:250px">Coordinator / Contacts</th>
+            <th style="width:300px">Current attendants</th>
+            <th style="width:140px">Follow-up</th>
+            <th style="width:210px">Remarks</th>
+            <th style="width:170px" class="no-print">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="congBody"></tbody>
+      </table>
+    </div>
+    <div class="footer-note">GitHub-clean sample data only. Import your saved JSON backup to restore real congregation and attendant data.</div>
+  </section>
+
+  <section class="card section">
+    <h2>Congregation snapshot</h2>
+    <div class="chips" id="congSummary"></div>
+  </section>
+
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+  <section class="card section">
+    <h2>Email template</h2>
+    <div class="split">
+      <div>
+        <label for="messageTemplate">Template</label>
+        <textarea id="messageTemplate">Dear brothers,
+
+our next Circuit Assembly is coming up soon ([EVENT_DATE]).
+
+Since the last assembly was only recently, we would like to ask briefly:
+Can we work with the same brothers as last time, or are there any changes or additions?
+
+Here is the list of brothers we currently have from your congregation/group:
+[ATTENDANT_LIST]
+
+If everything is fine, a short reply such as “We confirm” is sufficient.
+If there are changes or additions, please let us know briefly.
+
+Thank you very much for your support.
+Loving greetings,
+
+[SENDER_SIGNATURE]</textarea>
+        <div class="toolbar no-print">
+          <button class="primary" onclick="copySelectedMessage()">Copy selected message</button>
+          <button class="secondary" onclick="copyTemplateOnly()">Copy template only</button>
+        </div>
+      </div>
+      <div>
+        <label>Preview</label>
+        <div class="message-box" id="previewBox">Wähle bei einer congregation Zeile „Preview“ oder „Copy“.</div>
+        <div class="preview-contact-card">
+          <div class="preview-contact-title">Contact shortcuts for this message</div>
+          <div class="preview-contact-grid" id="previewContactActions">
+            <div class="muted">Preview a congregation to show the email shortcuts for this message.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="tab-panel" id="tab-attendants">
+  <section class="card section">
+    <h2>Attendant master list</h2>
+    <div class="search-row no-print" style="grid-template-columns:1.35fr .8fr .9fr .9fr .9fr 160px">
+      <div>
+        <label for="attSearch">Search attendants</label>
+        <input id="attSearch" placeholder="Search name, congregation, privilege, phone..." oninput="renderAttendantTable()">
+      </div>
+      <div>
+        <label for="filterCongregation">Congregation</label>
+        <select id="filterCongregation" onchange="renderAttendantTable()"></select>
+      </div>
+      <div>
+        <label for="filterPrivilege">Privilege</label>
+        <select id="filterPrivilege" onchange="renderAttendantTable()">
+          <option value="all">All</option>
+          <option value="Publisher">Publisher</option>
+          <option value="Ministerial Servant">Ministerial Servant</option>
+          <option value="Elder">Elder</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterFlags">Flags</label>
+        <select id="filterFlags" onchange="renderAttendantTable()">
+          <option value="all">All</option>
+          <option value="children">Children</option>
+          <option value="other">Works other dept.</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterActive">Status</label>
+        <select id="filterActive" onchange="renderAttendantTable()">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div>
+        <button class="secondary" style="margin-top:22px" onclick="fillMissingIds()">Fill IDs</button>
+      </div>
+    </div>
+
+    <div id="attendantBody" class="att-card-list"></div>
+    <div class="footer-note">Zweizeilige Arbeitsansicht für schnelleres Bearbeiten. CSV-Import aus deiner vorhandenen Liste ist eingebaut.</div>
+  </section>
+
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+  </div>
+
+  <div class="tab-panel" id="tab-notes">
+  <section class="card section">
+    <h2>Backup & tools</h2>
+    <div class="grid grid-2">
+      <div>
+        <label>Backup / import</label>
+        <div class="chips-inline">
+          <span class="mini-chip" id="notesImportInfo">Last import: none</span>
+          <span class="mini-chip" id="notesSaveInfo">Last local save: not yet</span>
+          <span class="mini-chip">JSON = full backup</span>
+          <span class="mini-chip">CSV = attendants only</span>
+        </div>
+        <div class="toolbar no-print" style="margin-top:12px">
+          <button class="primary" onclick="saveJson()">JSON export</button>
+          <label class="file-label secondary">JSON import<input type="file" accept="application/json" onchange="loadJsonFile(event)"></label>
+          <label class="file-label success">CSV attendants import<input type="file" accept=".csv,text/csv" onchange="loadCsvFile(event)"></label>
+        </div>
+        <div class="footer-note" style="margin-top:12px">Alles wird lokal im Browser gespeichert. Für einen echten Stand-Backup einfach regelmäßig JSON exportieren.</div>
+      </div>
+      <div>
+        <label for="generalNotes">Notes</label>
+        <textarea id="generalNotes" placeholder="Internal notes for follow-up, changes, reminders..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+  <datalist id="congregationOptions"></datalist>
+  <div class="footer-bar">Made with love © v.1.22 · GitHub clean sample version</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'attendantPlanner_v1_22_github_clean';
+const DEFAULT_PRIVILEGES = ['Publisher','Ministerial Servant','Elder'];
+const initialCongregations = [
+  { congregation:'Sample Congregation', type:'Congregation', congJwpub:'sample-congregation@example.org', coordinator:'Sample Coordinator', jwpub:'coordinator@example.org', mobile:'+49 000 000000', contacted:false, replied:false, remarks:'Sample row only – import your real JSON backup to restore live data.', linkedAttendantIds:'' }
+];
+
+function defaultState(){
+  return {
+    meta:{
+      plannerTitle:'Attendant Department Planner',
+      eventName:'Sample Assembly',
+      eventDate:'Sample date / location',
+      senderName:'Sample Overseer',
+      senderRole:'Attendant Overseer',
+      senderCong:'Sample Congregation',
+      senderPhone:'+49 000 000000',
+      senderMail:'sample.overseer@example.org',
+      messageTemplate: document.getElementById('messageTemplate')?.value || '',
+      generalNotes:'',
+      lastImportText:'No import yet',
+      lastSavedAt:''
+    },
+    congregations: structuredClone(initialCongregations),
+    attendants: [normalizeAttendant({ id:'001', name:'Sample', firstName:'Brother', congregation:'Sample Congregation', email:'brother.sample@example.org', jwpub:'brother.sample@jwpub.example', mobile:'+49 000 000001', privilege:'Ministerial Servant', active:true, children:false, otherDepartment:false, lastTeam:'Entrance', remarks:'Example data only' })]
+  };
+}
+
+let state = loadState();
+let selectedCongIndex = null;
+let globalSearchTerm = '';
+ensureValidState();
+
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return defaultState();
+  try{
+    const data = JSON.parse(raw);
+    return {
+      meta: { ...defaultState().meta, ...(data.meta || {}) },
+      congregations: Array.isArray(data.congregations) && data.congregations.length ? data.congregations.map(normalizeCongregation) : structuredClone(initialCongregations),
+      attendants: Array.isArray(data.attendants) ? data.attendants.map(normalizeAttendant) : []
+    };
+  }catch{
+    return defaultState();
+  }
+}
+
+function normalizeCongregation(r){
+  return {
+    congregation: r.congregation || '',
+    type: r.type === 'Group' ? 'Group' : 'Congregation',
+    congJwpub: r.congJwpub || '',
+    coordinator: r.coordinator || '',
+    jwpub: r.jwpub || '',
+    mobile: r.mobile || '',
+    contacted: !!r.contacted,
+    replied: !!r.replied,
+    remarks: r.remarks || '',
+    linkedAttendantIds: r.linkedAttendantIds || '',
+    contactedAt: r.contactedAt || '',
+    repliedAt: r.repliedAt || ''
+  };
+}
+
+function normalizeAttendant(r){
+  return {
+    id: String(r.id || ''),
+    name: r.name || '',
+    firstName: r.firstName || '',
+    congregation: r.congregation || '',
+    email: r.email || '',
+    jwpub: r.jwpub || '',
+    mobile: r.mobile || '',
+    privilege: DEFAULT_PRIVILEGES.includes(r.privilege) ? r.privilege : 'Publisher',
+    active: r.active === undefined ? true : !!r.active,
+    children: !!r.children,
+    otherDepartment: !!r.otherDepartment,
+    lastTeam: r.lastTeam || '',
+    remarks: r.remarks || ''
+  };
+}
+
+function el(id){ return document.getElementById(id); }
+function ensureValidState(){
+  const hasUsableCongs = Array.isArray(state.congregations) && state.congregations.some(r => String(r?.congregation || '').trim());
+  if(!hasUsableCongs){
+    state.congregations = structuredClone(initialCongregations).map(normalizeCongregation);
+  }else{
+    state.congregations = state.congregations.map(normalizeCongregation);
+  }
+  state.attendants = Array.isArray(state.attendants) ? state.attendants.map(normalizeAttendant) : [];
+  const oldDup = /\[SENDER_NAME\]\s*\n\[SENDER_ROLE\]\s*\n\s*\[SENDER_SIGNATURE\]/;
+  if(oldDup.test(state.meta.messageTemplate || '')){
+    state.meta.messageTemplate = (state.meta.messageTemplate || '').replace(oldDup, '[SENDER_SIGNATURE]');
+  }
+  if((state.meta.messageTemplate || '').includes('[REPLY_HINT]')){
+    state.meta.messageTemplate = (state.meta.messageTemplate || '').replaceAll('[REPLY_HINT]', 'If everything is fine, a short reply such as “We confirm” is sufficient.');
+  }
+}
+
+function showTab(tab){
+  ['dashboard','attendants','notes'].forEach(name => {
+    const panel = el('tab-' + name);
+    const btn = el('tabBtn-' + name);
+    if(panel) panel.classList.toggle('active', name === tab);
+    if(btn) btn.classList.toggle('active', name === tab);
+  });
+}
+
+function esc(str){
+  return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function byId(id){ return state.attendants.find(a => String(a.id) === String(id)); }
+function writeMetaToInputs(){
+  Object.entries(state.meta).forEach(([k,v]) => { if(el(k)) el(k).value = v ?? ''; });
+}
+function syncMetaFromInputs(){
+  ['plannerTitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes'].forEach(id => {
+    if(el(id)) state.meta[id] = el(id).value;
+  });
+}
+function saveState(){
+  syncMetaFromInputs();
+  state.meta.lastSavedAt = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state, null, 2));
+  refreshHeader();
+  updateMetrics();
+  refreshCongregationFilter();
+  renderCongSummary();
+}
+function formatStamp(iso){
+  if(!iso) return 'not yet';
+  try{
+    return new Date(iso).toLocaleString('de-DE');
+  }catch{
+    return iso;
+  }
+}
+function formatShortStamp(iso){
+  if(!iso) return '';
+  try{
+    return new Date(iso).toLocaleDateString('de-DE');
+  }catch{
+    return '';
+  }
+}
+function refreshHeader(){
+  const titleInput = el('plannerTitle');
+  if(titleInput) titleInput.value = state.meta.plannerTitle || 'Attendant Department Planner';
+  const bits = [state.meta.senderName || '', state.meta.senderRole || '', state.meta.senderCong || '', state.meta.senderPhone || '', state.meta.senderMail || ''].filter(Boolean);
+  if(el('contactPreviewBox')) el('contactPreviewBox').textContent = bits.join(' · ');
+  if(el('badgeLine1')) el('badgeLine1').textContent = state.meta.lastImportText || 'No import yet';
+  if(el('badgeLine2')) el('badgeLine2').textContent = `Last save: ${formatStamp(state.meta.lastSavedAt)}`;
+  if(el('notesImportInfo')) el('notesImportInfo').textContent = state.meta.lastImportText || 'Last import: none';
+  if(el('notesSaveInfo')) el('notesSaveInfo').textContent = `Last local save: ${formatStamp(state.meta.lastSavedAt)}`;
+}
+
+function updateMetrics(){
+  const congs = state.congregations.length;
+  const att = state.attendants.length;
+  const active = state.attendants.filter(a=>a.active !== false).length;
+  const contacted = state.congregations.filter(r=>r.contacted).length;
+  const replied = state.congregations.filter(r=>r.replied).length;
+  const other = state.attendants.filter(a=>a.otherDepartment).length;
+  const children = state.attendants.filter(a=>a.children).length;
+  el('mCongs').textContent = congs;
+  el('mAtt').textContent = att;
+  el('mActive').textContent = active;
+  el('mContacted').textContent = contacted;
+  el('mReplied').textContent = replied;
+  el('mOther').textContent = other;
+  el('mChildren').textContent = children;
+}
+function matchCongregationName(a,b){ return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase(); }
+function attendantsForCongregation(congRow){
+  const direct = state.attendants.filter(a => matchCongregationName(a.congregation, congRow.congregation));
+  const extraIds = String(congRow.linkedAttendantIds || '').split(/[;,\n]+/).map(v=>v.trim()).filter(Boolean);
+  const extras = extraIds.map(id => byId(id)).filter(Boolean);
+  const map = new Map();
+  [...direct, ...extras].forEach(a => map.set(String(a.id || a.name + a.firstName), a));
+  return sortAttendantsByName([...map.values()]);
+}
+function attendantDisplayName(a){
+  const parts = [a.name, a.firstName].filter(Boolean);
+  return parts.join(', ') || a.name || a.firstName || '(no name)';
+}
+function attendantSortLabel(a){
+  const last = String(a?.name || '').trim().toLocaleLowerCase('de');
+  const first = String(a?.firstName || '').trim().toLocaleLowerCase('de');
+  const id = String(a?.id || '').trim();
+  return `${last}\u0000${first}\u0000${id}`;
+}
+function sortAttendantsByName(list){
+  return [...(Array.isArray(list) ? list : [])].sort((a,b) => attendantSortLabel(a).localeCompare(attendantSortLabel(b), 'de'));
+}
+function formattedActiveAttendantLine(a){
+  const namePart = [String(a?.name || '').trim(), String(a?.firstName || '').trim()].filter(Boolean).join(' ');
+  const cityPart = shortCongLabel(a?.congregation || '');
+  return [namePart, cityPart].filter(Boolean).join(', ');
+}
+function shortCongLabel(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  return raw
+    .replace(/-?\s*english\s*group/ig, '')
+    .replace(/-?\s*english\s*congregation/ig, '')
+    .replace(/-?\s*english/ig, '')
+    .replace(/\s+group$/ig, '')
+    .replace(/\s+congregation$/ig, '')
+    .replace(/-north$/ig, '')
+    .replace(/-south$/ig, '')
+    .replace(/-east$/ig, '')
+    .replace(/-west$/ig, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/[-–—]\s*$/,'')
+    .trim();
+}
+function followupState(row){
+  if(row.replied) return 'replied';
+  if(row.contacted) return 'contacted';
+  return 'open';
+}
+function followupLabel(row){
+  const st = followupState(row);
+  if(st === 'replied') return '<span class="pill replied">Replied</span>';
+  if(st === 'contacted') return '<span class="pill contacted">Contacted</span>';
+  return '<span class="pill open">Open</span>';
+}
+
+function applyGlobalSearch(){
+  globalSearchTerm = String(el('globalSearch')?.value || '').trim().toLowerCase();
+  renderCongTable();
+  renderAttendantTable();
+}
+
+function clearGlobalSearch(){
+  if(el('globalSearch')) el('globalSearch').value = '';
+  globalSearchTerm = '';
+  renderCongTable();
+  renderAttendantTable();
+}
+
+function matchesSearchTerms(text){
+  const q = String(globalSearchTerm || '').trim().toLowerCase();
+  if(!q) return true;
+  const hay = String(text || '').toLowerCase();
+  return q.split(/\s+/).every(term => hay.includes(term));
+}
+
+function renderCongTable(){
+  const q = el('congSearch').value.trim().toLowerCase();
+  const type = el('filterType').value;
+  const follow = el('filterFollowup').value;
+  const body = el('congBody');
+  body.innerHTML = '';
+  state.congregations.forEach((row, index) => {
+    const names = attendantsForCongregation(row);
+    const hay = [
+      row.congregation,
+      shortCongLabel(row.congregation),
+      row.type,
+      row.coordinator,
+      row.congJwpub,
+      row.jwpub,
+      row.mobile,
+      row.remarks,
+      names.map(a => `${attendantDisplayName(a)} ${a.privilege || ''} ${a.remarks || ''}`).join(' | ')
+    ].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return;
+    if(!matchesSearchTerms(hay)) return;
+    if(type !== 'all' && row.type !== type) return;
+    if(follow !== 'all' && followupState(row) !== follow) return;
+
+    const tr = document.createElement('tr');
+    tr.dataset.visible = '1';
+    tr.innerHTML = `
+      <td>
+        <div class="compact-stack">
+          <input value="${esc(row.congregation)}" oninput="updateCong(${index}, 'congregation', this.value)" placeholder="Congregation / Group">
+          <div class="mini mono">${esc(row.congJwpub || '')}</div>
+        </div>
+      </td>
+      <td>
+        <div class="compact-stack">
+          <select class="type-select ${row.type === 'Group' ? 'group' : 'cong'}" onchange="updateCong(${index}, 'type', this.value)">
+            <option value="Congregation" ${row.type === 'Congregation' ? 'selected' : ''}>Congregation</option>
+            <option value="Group" ${row.type === 'Group' ? 'selected' : ''}>Group</option>
+          </select>
+        </div>
+      </td>
+      <td>
+        <div class="compact-stack">
+          <input value="${esc(row.coordinator)}" oninput="updateCong(${index}, 'coordinator', this.value)" placeholder="Coordinator">
+          <div class="field-with-actions">
+            <input value="${esc(row.jwpub)}" oninput="updateCong(${index}, 'jwpub', this.value)" placeholder="Personal JWPub / Email">
+            <div class="field-actions no-print">
+              ${row.jwpub ? `<span class="mini-copy" title="Copy personal email" onclick="copyText('${js(row.jwpub)}', false, this)">⧉</span>` : ''}
+            </div>
+          </div>
+          <div class="field-with-actions">
+            <input value="${esc(row.mobile)}" oninput="updateCong(${index}, 'mobile', this.value)" placeholder="Mobile">
+            <div class="field-actions no-print">
+              ${row.mobile ? `<span class="mini-copy" title="Copy mobile" onclick="copyText('${js(row.mobile)}', false, this)">⧉</span>` : ''}
+            </div>
+          </div>
+          <div class="field-with-actions">
+            <input value="${esc(row.congJwpub)}" oninput="updateCong(${index}, 'congJwpub', this.value)" placeholder="Congregation JWPub / Email">
+            <div class="field-actions no-print">
+              ${row.congJwpub ? `<span class="mini-copy" title="Copy congregation email" onclick="copyText('${js(row.congJwpub)}', false, this)">⧉</span>` : ''}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="compact-stack">
+          <div class="mini">${names.length ? names.map(a => esc(attendantDisplayName(a)) + (a.active === false ? ' <span class=\"muted\">(inactive)</span>' : '')).join('<br>') : '<span class=\"muted\">No attendants linked yet</span>'}</div>
+        </div>
+      </td>
+      <td>
+        <div class="compact-stack">
+          ${followupLabel(row)}
+          <div class="check-row no-print">
+            <label><input type="checkbox" ${row.contacted ? 'checked' : ''} onchange="updateCong(${index}, 'contacted', this.checked)"> contacted</label>
+            <label><input type="checkbox" ${row.replied ? 'checked' : ''} onchange="updateCong(${index}, 'replied', this.checked)"> replied</label>
+          </div>
+        </div>
+      </td>
+      <td>
+        <textarea oninput="updateCong(${index}, 'remarks', this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea>
+      </td>
+      <td class="no-print right">
+        <div class="stack">
+          <button class="secondary small-btn" onclick="previewCong(${index})">Preview</button>
+          <button class="secondary small-btn" onclick="copyCongMessage(${index})">Copy</button>
+          <button class="danger small-btn" onclick="deleteCongRow(${index})">Delete</button>
+        </div>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+  if(!body.children.length && state.congregations.length === 0){
+    state.congregations = structuredClone(initialCongregations).map(normalizeCongregation);
+    saveState();
+    return renderCongTable();
+  }
+  renderCongSummary();
+  updateMetrics();
+}
+
+function renderCongSummary(){
+  const wrap = el('congSummary');
+  wrap.innerHTML = state.congregations.map(row => {
+    const cnt = attendantsForCongregation(row).length;
+    const st = followupState(row);
+    const label = st === 'replied' ? 'replied' : st === 'contacted' ? 'contacted' : 'open';
+    const activeCnt = attendantsForCongregation(row).filter(a => a.active !== false).length;
+    const when = row.repliedAt ? ` · replied ${formatShortStamp(row.repliedAt)}` : row.contactedAt ? ` · contacted ${formatShortStamp(row.contactedAt)}` : '';
+    return `<div class="chip"><div class="chip-meta"><b>${esc(row.congregation || '(blank)')}</b><span>${esc(row.type)} · ${activeCnt}/${cnt} active · ${label}${esc(when)}</span></div></div>`;
+  }).join('');
+}
+
+
+function refreshCongregationFilter(){
+  const sel = el('filterCongregation');
+  const prev = sel.value;
+  const names = [...new Set(state.congregations.map(r => r.congregation).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML = `<option value="all">All</option>` + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if(names.includes(prev)) sel.value = prev; else sel.value = 'all';
+}
+
+function buildCongregationOptions(selectedValue){
+  const names = [...new Set(state.congregations.map(r => String(r.congregation || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const selected = String(selectedValue || '').trim();
+  if(selected && !names.includes(selected)) names.unshift(selected);
+  return names.map(name => `<option value="${esc(name)}" ${name === selected ? 'selected' : ''}>${esc(name)}</option>`).join('');
+}
+
+function renderAttendantTable(){
+  refreshCongregationFilter();
+  const q = el('attSearch').value.trim().toLowerCase();
+  const cong = el('filterCongregation').value;
+  const priv = el('filterPrivilege').value;
+  const flags = el('filterFlags').value;
+  const activeFilter = el('filterActive').value;
+  const body = el('attendantBody');
+  body.innerHTML = '';
+
+  sortAttendantsByName(state.attendants).forEach((row) => {
+    const index = state.attendants.indexOf(row);
+    const hay = [row.id,row.name,row.firstName,row.congregation,shortCongLabel(row.congregation),row.email,row.jwpub,row.mobile,row.privilege,row.lastTeam,row.remarks].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return;
+    if(!matchesSearchTerms(hay)) return;
+    if(cong !== 'all' && !matchCongregationName(row.congregation, cong)) return;
+    if(priv !== 'all' && row.privilege !== priv) return;
+    if(flags === 'children' && !row.children) return;
+    if(flags === 'other' && !row.otherDepartment) return;
+    if(activeFilter === 'active' && row.active === false) return;
+    if(activeFilter === 'inactive' && row.active !== false) return;
+
+    const card = document.createElement('div');
+    card.className = `att-card${row.active === false ? ' is-inactive' : ''}`;
+    card.innerHTML = `
+      <div class="att-card-top">
+        <div class="field">
+          <label>ID</label>
+          <input value="${esc(row.id)}" oninput="updateAtt(${index}, 'id', this.value)" placeholder="ID">
+        </div>
+        <div class="field">
+          <label>Name / First name</label>
+          <div class="split" style="grid-template-columns:1.15fr .95fr;gap:8px">
+            <input value="${esc(row.name)}" oninput="updateAtt(${index}, 'name', this.value)" placeholder="Name">
+            <input value="${esc(row.firstName)}" oninput="updateAtt(${index}, 'firstName', this.value)" placeholder="First name">
+          </div>
+        </div>
+        <div class="field">
+          <label>Congregation / Group</label>
+          <select onchange="updateAtt(${index}, 'congregation', this.value)">
+            <option value="">Select congregation / group</option>
+            ${buildCongregationOptions(row.congregation)}
+          </select>
+        </div>
+        <div class="field">
+          <label>Privilege</label>
+          <select onchange="updateAtt(${index}, 'privilege', this.value)">
+            ${DEFAULT_PRIVILEGES.map(p => `<option value="${esc(p)}" ${row.privilege === p ? 'selected' : ''}>${esc(p)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Status / Flags</label>
+          <div class="flags-row">
+            <label class="flag-mini"><input type="checkbox" ${row.active !== false ? 'checked' : ''} onchange="updateAtt(${index}, 'active', this.checked)"><span>active</span></label>
+            <label class="flag-mini"><input type="checkbox" ${row.children ? 'checked' : ''} onchange="updateAtt(${index}, 'children', this.checked)"><span>children</span></label>
+            <label class="flag-mini"><input type="checkbox" ${row.otherDepartment ? 'checked' : ''} onchange="updateAtt(${index}, 'otherDepartment', this.checked)"><span>other dept.</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Delete</label>
+          <button class="danger small-btn" onclick="deleteAttendantRow(${index})">Delete</button>
+        </div>
+      </div>
+      <div class="att-card-bottom">
+        <div class="field">
+          <label>Email</label>
+          <input value="${esc(row.email)}" oninput="updateAtt(${index}, 'email', this.value)" placeholder="Email">
+        </div>
+        <div class="field">
+          <label>JWPub-Mail</label>
+          <input value="${esc(row.jwpub)}" oninput="updateAtt(${index}, 'jwpub', this.value)" placeholder="JWPub-Mail">
+        </div>
+        <div class="field">
+          <label>Mobile</label>
+          <input value="${esc(row.mobile)}" oninput="updateAtt(${index}, 'mobile', this.value)" placeholder="Mobile">
+        </div>
+        <div class="field">
+          <label>Last team</label>
+          <input value="${esc(row.lastTeam || '')}" oninput="updateAtt(${index}, 'lastTeam', this.value)" placeholder="Last team">
+        </div>
+        <div class="field">
+          <label>Remarks</label>
+          <textarea oninput="updateAtt(${index}, 'remarks', this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea>
+        </div>
+      </div>
+    `;
+    body.appendChild(card);
+  });
+  updateMetrics();
+}
+
+function buildSignature(){
+  return `${state.meta.senderName || ''}\n${state.meta.senderRole || ''}\n\n${state.meta.senderName || ''} | ${state.meta.senderCong || ''} | phone ${state.meta.senderPhone || ''} | ${state.meta.senderMail || ''}`.trim();
+}
+function buildCongMessage(index){
+  const row = state.congregations[index];
+  const attendants = attendantsForCongregation(row).filter(a => a.active !== false);
+  const list = attendants.length
+    ? attendants.map(a => {
+        const suffixes = [];
+        if(a.otherDepartment) suffixes.push('other dept.');
+        if(a.children) suffixes.push('children');
+        const suffix = suffixes.length ? ` (${suffixes.join(', ')})` : '';
+        return `${attendantDisplayName(a)}${suffix}`;
+      }).join('\n')
+    : '[no active attendants entered yet]';
+  const tpl = state.meta.messageTemplate || '';
+  return tpl
+    .replaceAll('[EVENT_DATE]', state.meta.eventDate || '')
+    .replaceAll('[ATTENDANT_LIST]', list)
+    .replaceAll('[REPLY_HINT]', 'If everything is fine, a short reply such as “We confirm” is sufficient.')
+    .replaceAll('[SENDER_NAME]', state.meta.senderName || '')
+    .replaceAll('[SENDER_ROLE]', state.meta.senderRole || '')
+    .replaceAll('[SENDER_SIGNATURE]', buildSignature());
+}
+function previewCong(index){
+  selectedCongIndex = index;
+  const row = state.congregations[index];
+  const header = `To: ${row.coordinator || 'Coordinator'} · ${row.congregation || 'Congregation / Group'}`;
+  el('previewBox').textContent = `${header}\n\n${buildCongMessage(index)}`.trim();
+  renderPreviewContacts(row);
+}
+function clearPreviewContacts(){
+  const wrap = el('previewContactActions');
+  if(!wrap) return;
+  wrap.innerHTML = '<div class="muted">Preview a congregation to show the email shortcuts for this message.</div>';
+}
+
+function renderPreviewContacts(row){
+  const wrap = el('previewContactActions');
+  const entries = [
+    ['Cong. email', row?.congJwpub || '—'],
+    ['Coordinator', row?.jwpub || '—']
+  ];
+  wrap.innerHTML = entries.map(([label, value]) => `
+    <div class="preview-contact-row">
+      <div class="label">${esc(label)}</div>
+      <div class="preview-contact-value" title="${esc(value)}">${esc(value)}</div>
+      <div class="no-print">${value && value !== '—' ? `<span class="mini-copy" title="Copy ${esc(label)}" onclick="copyText('${js(value)}', false, this)">⧉</span>` : ''}</div>
+    </div>
+  `).join('');
+}
+
+async function copyCongMessage(index){
+  selectedCongIndex = index;
+  await copyText(buildCongMessage(index), true);
+  previewCong(index);
+}
+async function copySelectedMessage(){
+  if(selectedCongIndex === null){
+    alert('Please preview or select a congregation first.');
+    return;
+  }
+  await copyText(buildCongMessage(selectedCongIndex), true);
+}
+async function copyTemplateOnly(){
+  await copyText(state.meta.messageTemplate || '', true);
+}
+async function copyActiveAttendantsSummary(triggerEl){
+  const lines = sortAttendantsByName(state.attendants)
+    .filter(a => a.active !== false)
+    .map(formattedActiveAttendantLine)
+    .filter(Boolean);
+  if(!lines.length){
+    alert('No active attendants available.');
+    return;
+  }
+  copyText(lines.join('\n'), true, triggerEl);
+}
+async function copyText(text, silent, triggerEl){
+  try{
+    await navigator.clipboard.writeText(text);
+    if(triggerEl) showCopyToast(triggerEl, 'Copy success');
+    if(!silent) flash('Copied');
+  }catch{
+    alert('Copy failed in this browser.');
+  }
+}
+function showCopyToast(triggerEl, msg){
+  const old = document.querySelector('.copy-toast');
+  if(old) old.remove();
+  const toast = document.createElement('div');
+  toast.className = 'copy-toast';
+  toast.textContent = msg || 'Copied';
+  document.body.appendChild(toast);
+  const rect = triggerEl.getBoundingClientRect();
+  const left = Math.max(10, Math.min(window.innerWidth - toast.offsetWidth - 10, rect.left + rect.width / 2 - toast.offsetWidth / 2));
+  toast.style.left = `${left}px`;
+  toast.style.top = `${Math.max(10, rect.top - 38)}px`;
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 180);
+  }, 850);
+}
+function flash(msg){
+  const line1 = el('badgeLine1');
+  if(!line1) return;
+  const old = line1.textContent;
+  line1.textContent = msg;
+  setTimeout(() => line1.textContent = state.meta.lastImportText || old, 900);
+}
+function js(str){
+  return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');
+}
+
+function updateCong(index, key, value){
+  const row = state.congregations[index];
+  const now = new Date().toISOString();
+  if(key === 'contacted'){
+    row.contacted = !!value;
+    if(value){
+      row.contactedAt = now;
+    }else{
+      row.replied = false;
+      row.contactedAt = '';
+      row.repliedAt = '';
+    }
+  }
+  else if(key === 'replied'){
+    row.replied = !!value;
+    if(value){
+      row.contacted = true;
+      row.contactedAt = row.contactedAt || now;
+      row.repliedAt = now;
+    } else {
+      row.repliedAt = '';
+    }
+  } else {
+    row[key] = value;
+  }
+  saveState();
+  renderCongTable();
+  renderAttendantTable();
+  updateDatalist();
+  if(selectedCongIndex === index){
+    previewCong(index);
+  }
+}
+function updateAtt(index, key, value){
+  state.attendants[index][key] = value;
+  saveState();
+  renderAttendantTable();
+  renderCongTable();
+}
+function addCongregationRow(){
+  state.congregations.push(normalizeCongregation({ congregation:'', type:'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', contacted:false, replied:false, remarks:'', linkedAttendantIds:'', contactedAt:'', repliedAt:'' }));
+  saveState();
+  renderCongTable();
+  updateDatalist();
+}
+function deleteCongRow(index){
+  const name = state.congregations[index]?.congregation || 'this row';
+  if(!confirm(`Delete ${name}?`)) return;
+  state.congregations.splice(index,1);
+  saveState();
+  renderCongTable();
+  renderAttendantTable();
+  updateDatalist();
+}
+function addAttendantRow(){
+  state.attendants.push(normalizeAttendant({ id: nextId(), name:'', firstName:'', congregation:'', email:'', jwpub:'', mobile:'', privilege:'Publisher', active:true, children:false, otherDepartment:false, lastTeam:'', remarks:'' }));
+  saveState();
+  renderAttendantTable();
+}
+function deleteAttendantRow(index){
+  const name = attendantDisplayName(state.attendants[index]);
+  if(!confirm(`Delete ${name}?`)) return;
+  state.attendants.splice(index,1);
+  saveState();
+  renderAttendantTable();
+  renderCongTable();
+}
+function nextId(){
+  const nums = state.attendants.map(a => Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n) && n>0);
+  const next = nums.length ? Math.max(...nums) + 1 : 1;
+  return String(next).padStart(3,'0');
+}
+function fillMissingIds(){
+  state.attendants.forEach(a => { if(!String(a.id||'').trim()) a.id = nextId(); });
+  saveState();
+  renderAttendantTable();
+  renderCongTable();
+}
+function applyBulkFollowup(){
+  const q = el('congSearch').value.trim().toLowerCase();
+  const type = el('filterType').value;
+  const follow = el('filterFollowup').value;
+  const mode = el('bulkStatus').value;
+  const now = new Date().toISOString();
+  state.congregations.forEach(row => {
+    const names = attendantsForCongregation(row);
+    const hay = [
+      row.congregation,
+      shortCongLabel(row.congregation),
+      row.type,
+      row.coordinator,
+      row.congJwpub,
+      row.jwpub,
+      row.mobile,
+      row.remarks,
+      names.map(a => `${attendantDisplayName(a)} ${a.privilege || ''} ${a.remarks || ''}`).join(' | ')
+    ].join(' ').toLowerCase();
+    if(q && !hay.includes(q)) return;
+    if(!matchesSearchTerms(hay)) return;
+    if(type !== 'all' && row.type !== type) return;
+    if(follow !== 'all' && followupState(row) !== follow) return;
+    if(mode === 'contacted'){ row.contacted = true; row.contactedAt = now; row.replied = false; row.repliedAt = ''; }
+    if(mode === 'replied'){ row.contacted = true; row.replied = true; row.contactedAt = row.contactedAt || now; row.repliedAt = now; }
+    if(mode === 'open'){ row.contacted = false; row.replied = false; row.contactedAt = ''; row.repliedAt = ''; }
+  });
+  saveState();
+  renderCongTable();
+}
+function resetStatuses(){
+  if(!confirm('Reset all contacted / replied checks?')) return;
+  state.congregations = state.congregations.map(r => ({...r, contacted:false, replied:false, contactedAt:'', repliedAt:''}));
+  saveState();
+  renderCongTable();
+}
+function resetAttendants(){
+  if(!confirm('Delete the entire attendant list? Congregation contacts stay.')) return;
+  state.attendants = [];
+  state.congregations = state.congregations.map(r => ({...r, linkedAttendantIds:''}));
+  saveState();
+  renderAttendantTable();
+  renderCongTable();
+}
+function restoreStarterCongregations(){
+  if(!confirm('Restore the starter congregation / group list? Existing congregation rows will be replaced.')) return;
+  state.congregations = structuredClone(initialCongregations).map(normalizeCongregation);
+  saveState();
+  updateDatalist();
+  renderCongTable();
+  renderAttendantTable();
+}
+
+function updateDatalist(){
+  el('congregationOptions').innerHTML = [...new Set(state.congregations.map(r=>r.congregation).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b))
+    .map(name => `<option value="${esc(name)}"></option>`).join('');
+}
+
+function parseCsv(text){
+  const lines = String(text || '').replace(/^﻿/, '').split(/\r?\n/).filter(line => line.trim() !== '');
+  const sample = lines.slice(0, 5).join('\n');
+  const delimiter = (sample.match(/;/g) || []).length > (sample.match(/,/g) || []).length ? ';' : ',';
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let inQuotes = false;
+  const source = String(text || '').replace(/^﻿/, '');
+  for(let i=0;i<source.length;i++){
+    const ch = source[i];
+    const next = source[i+1];
+    if(ch === '"'){
+      if(inQuotes && next === '"'){
+        cell += '"';
+        i++;
+      }else{
+        inQuotes = !inQuotes;
+      }
+    }else if(ch === delimiter && !inQuotes){
+      row.push(cell);
+      cell = '';
+    }else if((ch === '\n' || ch === '\r') && !inQuotes){
+      if(ch === '\r' && next === '\n') i++;
+      row.push(cell);
+      if(row.some(v => String(v).trim() !== '')) rows.push(row);
+      row = [];
+      cell = '';
+    }else{
+      cell += ch;
+    }
+  }
+  row.push(cell);
+  if(row.some(v => String(v).trim() !== '')) rows.push(row);
+  return rows;
+}
+
+function boolFromText(text, needles){
+  const val = String(text || '').toLowerCase();
+  return needles.some(n => val.includes(n));
+}
+
+function normalizeImportedCongregationName(name){
+  const raw = String(name || '').trim();
+  if(!raw) return '';
+  const lower = raw.toLowerCase();
+  const match = state.congregations.find(c => {
+    const cName = String(c.congregation || '').trim().toLowerCase();
+    return cName === lower || cName.includes(lower) || lower.includes(cName);
+  });
+  return match ? match.congregation : raw;
+}
+
+function attendantFromCsvRow(obj){
+  const team = String(obj['Team'] || '').trim();
+  const remarks = String(obj['Remarks'] || '').trim();
+  const status = String(obj['Available / Unavailable / No Response'] || '').trim();
+  const allText = `${team} ${remarks} ${status}`.toLowerCase();
+  const inferredInactive = team.toLowerCase().includes('not available') || status.toLowerCase().includes('unavailable');
+  const inferredChildren = boolFromText(allText, ['small child', 'small children', 'small baby', 'with family', 'family with']);
+  const inferredOtherDept = boolFromText(allText, ['cleaning', 'first aid', 'safety', 'a/v']);
+  let id = String(obj['ID'] || '').trim();
+  if(id === '-' || !id) id = nextId();
+
+  return normalizeAttendant({
+    id,
+    name: String(obj['Name'] || '').trim(),
+    firstName: String(obj['First name'] || '').trim(),
+    congregation: normalizeImportedCongregationName(obj['Congregation']),
+    email: String(obj['Email'] || '').trim(),
+    jwpub: String(obj['JWPub-Mail'] || '').trim(),
+    mobile: String(obj['Mobile'] || '').trim(),
+    privilege: String(obj['Privelege'] || '').trim() || 'Publisher',
+    active: !inferredInactive,
+    children: inferredChildren,
+    otherDepartment: inferredOtherDept,
+    lastTeam: team && !team.toLowerCase().includes('not available') ? team : '',
+    remarks: [remarks, status && !/^\d+$/.test(status) ? `CSV status: ${status}` : ''].filter(Boolean).join(' | ')
+  });
+}
+
+function mergeImportedAttendants(rows){
+  let added = 0;
+  let updated = 0;
+  rows.forEach(imported => {
+    const sameId = state.attendants.findIndex(a => String(a.id) === String(imported.id));
+    const samePerson = sameId === -1 ? state.attendants.findIndex(a =>
+      String(a.name).trim().toLowerCase() === String(imported.name).trim().toLowerCase() &&
+      String(a.firstName).trim().toLowerCase() === String(imported.firstName).trim().toLowerCase() &&
+      String(a.congregation).trim().toLowerCase() === String(imported.congregation).trim().toLowerCase()
+    ) : -1;
+    const idx = sameId !== -1 ? sameId : samePerson;
+    if(idx !== -1){
+      state.attendants[idx] = normalizeAttendant({ ...state.attendants[idx], ...imported });
+      updated++;
+    }else{
+      state.attendants.push(imported);
+      added++;
+    }
+  });
+  return {added, updated};
+}
+
+function loadCsvFile(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const rows = parseCsv(String(e.target.result || ''));
+      if(!rows.length) throw new Error('empty csv');
+
+      const normalizedRows = rows.map(r => r.map(v => String(v ?? '').replace(/^﻿/, '').trim()));
+      const headerIndex = normalizedRows.findIndex(r => {
+        const lower = r.map(v => v.toLowerCase());
+        return lower.includes('name') && (lower.includes('first name') || lower.includes('firstname')) && (lower.includes('congregation') || lower.includes('group'));
+      });
+      if(headerIndex === -1) throw new Error('header not found');
+
+      const header = normalizedRows[headerIndex].map(v => String(v).trim().toLowerCase());
+      const getIndex = (...names) => {
+        for(const name of names){
+          const idx = header.indexOf(String(name).toLowerCase());
+          if(idx !== -1) return idx;
+        }
+        return -1;
+      };
+
+      const idxId = getIndex('id');
+      const idxName = getIndex('name', 'last name', 'lastname', 'surname');
+      const idxFirst = getIndex('first name', 'firstname', 'given name');
+      const idxCong = getIndex('congregation', 'group', 'congregation / group');
+      const idxEmail = getIndex('email', 'e-mail');
+      const idxJwpub = getIndex('jwpub-mail', 'jwpub mail', 'jwpub', 'jwpub/email');
+      const idxMobile = getIndex('mobile', 'phone', 'cell');
+      const idxPrivilege = getIndex('privelege', 'privilege');
+      const idxTeam = getIndex('team', 'last team');
+      const idxRemarks = getIndex('remarks', 'notes', 'remark');
+      const idxStatus = getIndex('available / unavailable / no response', 'status');
+
+      if(idxName === -1 || idxFirst === -1 || idxCong === -1){
+        throw new Error('required columns missing');
+      }
+
+      const dataRows = normalizedRows.slice(headerIndex + 1).filter(r => r.some(v => String(v).trim() !== ''));
+      const imported = dataRows.map(r => {
+        const obj = {
+          'ID': idxId !== -1 ? (r[idxId] ?? '') : '',
+          'Name': idxName !== -1 ? (r[idxName] ?? '') : '',
+          'First name': idxFirst !== -1 ? (r[idxFirst] ?? '') : '',
+          'Congregation': idxCong !== -1 ? (r[idxCong] ?? '') : '',
+          'Email': idxEmail !== -1 ? (r[idxEmail] ?? '') : '',
+          'JWPub-Mail': idxJwpub !== -1 ? (r[idxJwpub] ?? '') : '',
+          'Mobile': idxMobile !== -1 ? (r[idxMobile] ?? '') : '',
+          'Privelege': idxPrivilege !== -1 ? (r[idxPrivilege] ?? '') : '',
+          'Team': idxTeam !== -1 ? (r[idxTeam] ?? '') : '',
+          'Remarks': idxRemarks !== -1 ? (r[idxRemarks] ?? '') : '',
+          'Available / Unavailable / No Response': idxStatus !== -1 ? (r[idxStatus] ?? '') : ''
+        };
+        return attendantFromCsvRow(obj);
+      }).filter(a => a.name || a.firstName || a.email || a.mobile);
+
+      const result = mergeImportedAttendants(imported);
+      state.meta.lastImportText = `Last import: CSV · ${file.name} · ${imported.length} rows`;
+      saveState();
+      updateDatalist();
+      renderCongTable();
+      renderAttendantTable();
+      el('previewBox').textContent = `CSV loaded: ${imported.length} attendants processed · ${result.added} added · ${result.updated} updated.`;
+    }catch(err){
+      alert('CSV import failed. Please check the header row from the Sheets export.');
+      console.error(err);
+    }finally{
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function saveJson(){
+  syncMetaFromInputs();
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    app: 'Attendant Department Planner',
+    version: '1.22-github-clean',
+    ...state
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  a.href = URL.createObjectURL(blob);
+  a.download = `attendant-department-planner-${stamp}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function loadJsonFile(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(String(e.target.result));
+      state = {
+        meta: { ...defaultState().meta, ...(data.meta || {}) },
+        congregations: Array.isArray(data.congregations) && data.congregations.length ? data.congregations.map(normalizeCongregation) : structuredClone(initialCongregations),
+        attendants: Array.isArray(data.attendants) ? data.attendants.map(normalizeAttendant) : []
+      };
+      ensureValidState();
+      state.meta.lastImportText = `Last import: JSON · ${file.name}`;
+      writeMetaToInputs();
+      saveState();
+      updateDatalist();
+      renderCongTable();
+      renderAttendantTable();
+      el('previewBox').textContent = 'JSON loaded successfully.';
+    }catch{
+      alert('Invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+ensureValidState();
+writeMetaToInputs();
+['plannerTitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes'].forEach(id => {
+  if(el(id)) el(id).addEventListener('input', () => { saveState(); renderCongTable(); });
+});
+refreshHeader();
+updateMetrics();
+updateDatalist();
+refreshCongregationFilter();
+renderCongTable();
+renderAttendantTable();
+renderPreviewContacts(null);
+showTab('dashboard');
+</script>
+</body>
+</html>
 
