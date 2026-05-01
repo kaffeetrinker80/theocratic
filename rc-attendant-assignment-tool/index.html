@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RC Ordner-Einteilung V1.8</title>
+<title>RC Ordner-Einteilung V1.9</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#132033;--muted:#64748b;--line:#d7e0ea;--brand:#172f4d;--blue:#2563eb;--soft:#eaf2ff;--soft2:#f8fafc;--ok:#15803d;--warn:#b45309;--danger:#b91c1c;--purple:#6d28d9;--shadow:0 8px 22px rgba(15,23,42,.07);--r:14px}
 *{box-sizing:border-box}
@@ -108,7 +108,7 @@ textarea{width:100%;min-height:80px;resize:vertical}
 </div><div class="sectionTitle" style="margin-top:12px"><h2>Tage</h2><button class="secondary" onclick="resetDays()">Standardtage setzen</button></div><div class="listBox daysList" id="daysConfig" style="margin-top:8px"></div></div>
       <div id="cfg-times" class="configPane"><div class="sectionTitle"><h2>Zeitblöcke</h2><button class="good" onclick="addTimeBlock()">+ Zeit</button></div><div class="note" style="margin:8px 0">Zeiten sind zentral. Änderungen behalten vorhandene Einteilungen.</div><div class="listBox timeList" id="timeConfig"></div></div>
       <div id="cfg-positions" class="configPane"><div class="sectionTitle"><h2>Positionen</h2><div class="quickActions"><button class="good" onclick="addPosition()">+ Position</button><button class="secondary" onclick="bulkPositionsPrompt()">Liste einfügen</button></div></div><div class="note" style="margin:8px 0">Schnellimport: <b>Pos;Bereich;Beschreibung;Soll</b> — ein Eintrag pro Zeile.</div><div class="listBox posList" id="positionsConfig"></div></div>
-      <div id="cfg-people" class="configPane"><div class="sectionTitle"><h2>Ordnerstamm</h2><div class="quickActions"><button class="good" onclick="addPerson()">+ Ordner</button><button class="secondary" onclick="bulkPeoplePrompt()">Liste einfügen</button><button class="secondary" onclick="autoAssignAreasFromPlan()">Bereiche aus Plan ableiten</button></div></div><div class="note" style="margin:8px 0">Bereich ist optional. Wenn gesetzt, erscheint der Ordner nur in diesem Bereich. Schnellimport: <b>Name;Versammlung;Mobil;Email;Bereich;Notiz</b>.</div><div class="listBox peopleList" id="peopleConfig"></div></div>
+      <div id="cfg-people" class="configPane"><div class="sectionTitle"><h2>Ordnerstamm</h2><div class="quickActions"><button class="good" onclick="addPerson()">+ Ordner</button><button class="secondary" onclick="exportPeopleCsv()">Ordner CSV Export</button><label class="btn secondary" for="peopleCsvFile">Ordner CSV Import</label><input id="peopleCsvFile" type="file" accept=".csv,text/csv" hidden onchange="importPeopleCsv(event)"></div></div><div class="note" style="margin:8px 0">CSV Import/Export erwartet die Spalten: <b>Name, Versammlung, Mobil, Email</b>. Bereich und Notiz können danach im Tool ergänzt werden. Wenn beim Ordner ein Bereich gesetzt ist, erscheint er nur bei Positionen dieses Bereichs.</div><div class="listBox peopleList" id="peopleConfig"></div></div>
     </div>
   </section>
 
@@ -145,8 +145,8 @@ textarea{width:100%;min-height:80px;resize:vertical}
       <p>Der Ordnerstamm ist die zentrale Liste aller Brüder. Idealerweise legst du Brüder zuerst hier an, bevor du sie einteilst.</p>
       <p><b>Bereich beim Bruder:</b> Wenn ein Bereich gesetzt ist, wird der Bruder nur bei Positionen dieses Bereichs angeboten. Wenn der Bereich leer/frei bleibt, kann er überall eingeteilt werden. Wird ein freier Bruder zum ersten Mal eingeteilt, übernimmt er automatisch den Bereich dieser Position.</p>
       <p><b>Kontaktdaten:</b> Mobilnummer und Email werden für WhatsApp/Email-Aktionen genutzt.</p>
-      <p><b>Schnellimport:</b> Format: <code>Name;Versammlung;Mobil;Email;Bereich;Notiz</code>, ein Bruder pro Zeile.</p>
-      <p><b>Bereiche aus Plan ableiten:</b> Wenn ein Bruder noch keinen Bereich hat und bereits ausschließlich in einem Bereich eingeteilt ist, kann das Tool diesen Bereich automatisch setzen.</p>
+      <p><b>CSV Import:</b> Der Ordnerstamm kann als CSV importiert werden. Erwartete Spalten: <code>Name, Versammlung, Mobil, Email</code>. Bereich und Notiz bleiben optional und können im Tool ergänzt werden.</p>
+      <p><b>CSV Export:</b> Exportiert den aktuellen Ordnerstamm als CSV. So kann die Liste in Excel geprüft oder weitergegeben werden.</p>
 
       <h3>6. Gesamtübersicht</h3>
       <p>Die Gesamtübersicht ist die Hauptarbeitsfläche. Links stehen Position und Bereich, rechts die Zeitblöcke. In jedem Feld kannst du per Dropdown einen Bruder auswählen. Der kleine Personen-Button führt direkt zum Ordnerstamm, falls jemand noch fehlt.</p>
@@ -172,9 +172,9 @@ textarea{width:100%;min-height:80px;resize:vertical}
       <p>Wenn du das Tool auf GitHub stellst, sollten echte Namen, Telefonnummern und Emails nicht im HTML-Code stehen. Echte Daten kommen dann nur per JSON Import dazu.</p>
     </div>
   </section>
-</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.8</div>
+</main><div class="footer">Made with Love © – RC Ordner-Einteilung V 1.9</div>
 <script>
-const STORAGE='rc_ordner_einteilung_v18';
+const STORAGE='rc_ordner_einteilung_v19';
 function uid(){return 'id_'+Math.random().toString(36).slice(2,9)+'_'+Date.now().toString(36)}
 const defaultData={
   meta:{title:'RC Ordner-Einteilung',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',placeLink:'',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
@@ -326,7 +326,68 @@ function addTimeBlock(){data.times.push('Neue Zeit');save();renderAll()}function
 function addPerson(){data.people.push({name:'Neuer Ordner',congregation:'',phone:'',email:'',area:'',note:''});save();renderAll()}function removePerson(i){if(confirm('Ordner löschen und aus Einteilungen entfernen?')){const old=data.people.splice(i,1)[0].name;Object.values(data.assignments).forEach(arr=>{let idx;while((idx=arr.indexOf(old))>-1)arr.splice(idx,1)});save();renderAll()}}
 function addPosition(){data.positions.push({id:uid(),no:String(data.positions.length+1),area:'Neuer Bereich',desc:'',need:1});save();renderAll()}function removePosition(i){if(confirm('Position löschen?')){const id=data.positions.splice(i,1)[0].id;Object.keys(data.assignments).forEach(k=>{if(k.split('||')[1]===id)delete data.assignments[k]});save();renderAll()}}
 function removeDay(i){if(confirm('Tag löschen?')){const id=data.days.splice(i,1)[0].id;Object.keys(data.assignments).forEach(k=>{if(k.startsWith(id+'||'))delete data.assignments[k]});save();renderAll()}}function resetDays(){data.days=structuredClone(defaultData.days);save();renderAll()}
-function bulkPeoplePrompt(){const txt=prompt('Namensliste einfügen: Name;Versammlung;Mobil;Email;Bereich;Notiz');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [name,congregation='',phone='',email='',area='',note='']=line.split(';').map(x=>x.trim());if(name&&!peopleNames().includes(name))data.people.push({name,congregation,phone,email,area,note})});save();renderAll()}
+
+function csvEscape(v){const s=String(v??'');return /[",;\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function parseCsv(text){
+  const rows=[];let row=[],cur='',inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i], n=text[i+1];
+    if(inQuotes){
+      if(c==='"'&&n==='"'){cur+='"';i++}
+      else if(c==='"'){inQuotes=false}
+      else cur+=c;
+    }else{
+      if(c==='"')inQuotes=true;
+      else if(c===';'||c===','){row.push(cur.trim());cur=''}
+      else if(c==='\n'){row.push(cur.trim());rows.push(row);row=[];cur=''}
+      else if(c!=='\r')cur+=c;
+    }
+  }
+  if(cur||row.length){row.push(cur.trim());rows.push(row)}
+  return rows.filter(r=>r.some(x=>x));
+}
+function importPeopleCsv(event){
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const rows=parseCsv(reader.result);
+      if(!rows.length){alert('CSV ist leer.');return}
+      const header=rows[0].map(h=>h.toLowerCase().trim());
+      const hasHeader=header.some(h=>['name','versammlung','mobil','email','e-mail'].includes(h));
+      const dataRows=hasHeader?rows.slice(1):rows;
+      const idx=(names,fallback)=>{for(const n of names){const i=header.indexOf(n);if(i>=0)return i}return fallback}
+      const iName=hasHeader?idx(['name','bruder','ordner'],0):0;
+      const iCong=hasHeader?idx(['versammlung','congregation'],1):1;
+      const iPhone=hasHeader?idx(['mobil','telefon','phone','mobile'],2):2;
+      const iEmail=hasHeader?idx(['email','e-mail','mail'],3):3;
+      let added=0, updated=0, skipped=0;
+      dataRows.forEach(r=>{
+        const name=(r[iName]||'').trim();
+        if(!name){skipped++;return}
+        const existing=data.people.find(p=>p.name.toLowerCase()===name.toLowerCase());
+        const payload={name,congregation:(r[iCong]||'').trim(),phone:(r[iPhone]||'').trim(),email:(r[iEmail]||'').trim()};
+        if(existing){existing.congregation=payload.congregation;existing.phone=payload.phone;existing.email=payload.email;updated++}
+        else{data.people.push({...payload,area:'',note:''});added++}
+      });
+      save();renderAll();
+      alert(`CSV Import fertig.\nNeu: ${added}\nAktualisiert: ${updated}\nÜbersprungen: ${skipped}`)
+    }catch(err){alert('CSV Import fehlgeschlagen.')}
+  };
+  reader.readAsText(file,'utf-8');
+  event.target.value='';
+}
+function exportPeopleCsv(){
+  const header=['Name','Versammlung','Mobil','Email'];
+  const rows=data.people.map(p=>[p.name,p.congregation,p.phone,p.email]);
+  const csv=[header,...rows].map(r=>r.map(csvEscape).join(';')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const stamp=new Date().toISOString().slice(0,10);
+  a.download=`ordnerstamm_${stamp}.csv`;
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);
+}
 function bulkPositionsPrompt(){const txt=prompt('Positionen einfügen: Pos;Bereich;Beschreibung;Soll');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [no='',area='',desc='',need='1']=line.split(';').map(x=>x.trim());if(no||area)data.positions.push({id:uid(),no:no||String(data.positions.length+1),area,desc,need:Number(need||1)})});save();renderAll()}
 function autoAssignAreasFromPlan(){let changed=0;data.people.forEach(p=>{if(p.area)return;const items=getAssignmentsForPerson(p.name);const areas=[...new Set(items.map(i=>i.area).filter(Boolean))];if(areas.length===1){p.area=areas[0];changed++}});save();renderAll();alert(`${changed} Bereiche automatisch gesetzt.`)}
 
@@ -369,7 +430,7 @@ function resetMessageStatus(){if(!confirm('Versandstatus für alle Brüder zurü
 function copyDay(){const source=daySelect.value;copiedDay={source,items:{}};Object.keys(data.assignments).forEach(k=>{if(k.startsWith(source+'||'))copiedDay.items[k]=JSON.parse(JSON.stringify(data.assignments[k]))});alert('Aktueller Tag wurde kopiert. Zieltag wählen und Einfügen klicken.')}
 function pasteDay(){if(!copiedDay)return alert('Noch kein Tag kopiert.');const target=daySelect.value;if(!confirm('Einteilungen in den aktuellen Tag einfügen/überschreiben?'))return;Object.keys(copiedDay.items).forEach(k=>{const p=k.split('||');data.assignments[key(target,p[1],p[2])]=copiedDay.items[k]});save();renderAll();alert('Tag eingefügt.')}
 function clearDayConfirm(){const d=daySelect.value;if(confirm('Alle Einteilungen für diesen Tag leeren?')){Object.keys(data.assignments).forEach(k=>{if(k.startsWith(d+'||'))delete data.assignments[k]});save();renderAll()}}
-function exportJson(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rc_ordner_einteilung_backup_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href)}
+function exportJson(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);const now=new Date();const pad=n=>String(n).padStart(2,'0');a.download=`rc_ordner_einteilung_backup_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href)}
 function importJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{data=normalizeData(JSON.parse(r.result));save();renderAll();alert('Import erfolgreich.')}catch(err){alert('Import fehlgeschlagen.')}};r.readAsText(f);e.target.value=''}
 init();
 </script>
