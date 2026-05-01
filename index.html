@@ -26,15 +26,11 @@
       --border: rgba(255, 255, 255, 0.08);
       --border-hover: rgba(255, 255, 255, 0.15);
       --shadow: 0 16px 34px rgba(0,0,0,.3);
-
-      /* Base Theocratic Green */
       --primary: #8fd39a;
       --primary-soft: rgba(143, 211, 154, 0.15);
-
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 16px;
-      
       --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -212,18 +208,12 @@
       transition: all var(--transition-smooth);
     }
 
-    /* Card Themes */
-    .card-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.15); }
-    .card-av { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.15); }
-    .card-clean-ass { --c-theme: #8ce1ff; --c-soft: rgba(140, 225, 255, 0.15); }
-    .card-clean-rc { --c-theme: #ffb88c; --c-soft: rgba(255, 184, 140, 0.15); }
-    .card-volunteers { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.15); }
-    .card-micro { --c-theme: #8fd39a; --c-soft: rgba(143, 211, 154, 0.15); }
-    .card-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.15); }
-    .card-rc { --c-theme: #c5a8ff; --c-soft: rgba(197, 168, 255, 0.15); }
-    .card-kh-cleaning { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.15); }
-    .card-rc-volunteers { --c-theme: #ff9eb5; --c-soft: rgba(255, 158, 181, 0.15); }
-    .card-attendant { --c-theme: #7fd3ed; --c-soft: rgba(127, 211, 237, 0.15); }
+    /* Theme Colors */
+    .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.15); }
+    .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.15); }
+    .theme-congregation { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.15); }
+    .theme-kh { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.15); }
+    .theme-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.15); }
 
     .card:hover {
       transform: translateY(-5px);
@@ -320,8 +310,21 @@
 
     <section class="grid">
       
+      <!-- A/V Planner -->
+      <article class="card theme-rc animate-in delay-2">
+        <div class="icon-wrap">
+          <img src="./av-planner/android-chrome-192x192.png" alt="Icon">
+        </div>
+        <h2>A/V Planner</h2>
+        <p>Planning and coordination of audio and video assignments on regional conventions.</p>
+        <div class="meta">3 days · RC</div>
+        <div class="card-actions">
+          <a class="btn-card" href="./av-planner/">Open Tool</a>
+        </div>
+      </article>
+
       <!-- Assembly Attendant Tool -->
-      <article class="card card-attendant animate-in delay-2">
+      <article class="card theme-assembly animate-in delay-2">
         <div class="icon-wrap">
           <img src="./assembly-attendant-tool/favicon.ico" alt="Icon">
         </div>
@@ -333,8 +336,21 @@
         </div>
       </article>
 
+      <!-- Assembly Cleaning Planner -->
+      <article class="card theme-assembly animate-in delay-2">
+        <div class="icon-wrap">
+          <img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon">
+        </div>
+        <h2>Assembly Cleaning Planner</h2>
+        <p>Cleaning schedules and shift coordination for one-day assemblies.</p>
+        <div class="meta">1 day · Cleaning</div>
+        <div class="card-actions">
+          <a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a>
+        </div>
+      </article>
+
       <!-- Assembly Counting -->
-      <article class="card card-assembly animate-in delay-2">
+      <article class="card theme-assembly animate-in delay-3">
         <div class="icon-wrap">
           <img src="./assembly-counting/android-chrome-192x192.png" alt="Icon">
         </div>
@@ -346,47 +362,21 @@
         </div>
       </article>
 
-      <!-- AV Planner -->
-      <article class="card card-av animate-in delay-2">
+      <!-- Congregation Microphone Service -->
+      <article class="card theme-congregation animate-in delay-3">
         <div class="icon-wrap">
-          <img src="./av-planner/android-chrome-192x192.png" alt="Icon">
+          <img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon">
         </div>
-        <h2>A/V Planner</h2>
-        <p>Planning and coordination of audio and video assignments on regional conventions.</p>
+        <h2>Congregation Microphone Service</h2>
+        <p>Planning microphone assignments, shifts and support during meetings.</p>
         <div class="meta">Meeting planning</div>
         <div class="card-actions">
-          <a class="btn-card" href="./av-planner/">Open Tool</a>
-        </div>
-      </article>
-
-      <!-- Cleaning Assembly -->
-      <article class="card card-clean-ass animate-in delay-3">
-        <div class="icon-wrap">
-          <img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon">
-        </div>
-        <h2>Cleaning Assembly</h2>
-        <p>Cleaning schedules and shift coordination for one-day assemblies.</p>
-        <div class="meta">1 day · Cleaning</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a>
-        </div>
-      </article>
-
-      <!-- Cleaning RC -->
-      <article class="card card-clean-rc animate-in delay-3">
-        <div class="icon-wrap">
-          <img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon">
-        </div>
-        <h2>Cleaning RC</h2>
-        <p>Cleaning coordination for three-day regional conventions.</p>
-        <div class="meta">3 days · Cleaning</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a>
+          <a class="btn-card" href="./microphoneservice-tool/">Open Tool</a>
         </div>
       </article>
 
       <!-- Congregation Volunteers -->
-      <article class="card card-volunteers animate-in delay-3">
+      <article class="card theme-congregation animate-in delay-3">
         <div class="icon-wrap">
           <img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon">
         </div>
@@ -399,33 +389,20 @@
       </article>
 
       <!-- KH Cleaning Planner -->
-      <article class="card card-kh-cleaning animate-in delay-4">
+      <article class="card theme-kh animate-in delay-4">
         <div class="icon-wrap">
           <img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon">
         </div>
         <h2>KH Cleaning Planner</h2>
-        <p>Ideal for multi-congregation halls to organize annual deep cleaning, print yearly schedules, and export data via JSON.</p>
+        <p>Ideal for multi-congregation halls to organize annual deep cleaning and yearly schedules.</p>
         <div class="meta">Multi-Hall · Annual Cleaning</div>
         <div class="card-actions">
           <a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a>
         </div>
       </article>
 
-      <!-- Microphone Service -->
-      <article class="card card-micro animate-in delay-4">
-        <div class="icon-wrap">
-          <img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon">
-        </div>
-        <h2>Microphone Service</h2>
-        <p>Planning microphone assignments, shifts and support during meetings.</p>
-        <div class="meta">Meeting planning</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./microphoneservice-tool/">Open Tool</a>
-        </div>
-      </article>
-
       <!-- PTC Tool -->
-      <article class="card card-ptc animate-in delay-4">
+      <article class="card theme-ptc animate-in delay-4">
         <div class="icon-wrap">
           <img src="./ptc-tool/android-chrome-192x192.png" alt="Icon">
         </div>
@@ -438,7 +415,7 @@
       </article>
 
       <!-- RC Attendant Scheduler -->
-      <article class="card card-attendant animate-in delay-5">
+      <article class="card theme-rc animate-in delay-4">
         <div class="icon-wrap">
           <img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon">
         </div>
@@ -450,8 +427,21 @@
         </div>
       </article>
 
+      <!-- RC Cleaning Planner -->
+      <article class="card theme-rc animate-in delay-5">
+        <div class="icon-wrap">
+          <img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon">
+        </div>
+        <h2>RC Cleaning Planner</h2>
+        <p>Cleaning coordination for three-day regional conventions.</p>
+        <div class="meta">3 days · Cleaning</div>
+        <div class="card-actions">
+          <a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a>
+        </div>
+      </article>
+
       <!-- RC Counting -->
-      <article class="card card-rc animate-in delay-5">
+      <article class="card theme-rc animate-in delay-5">
         <div class="icon-wrap">
           <img src="./rc-counting/android-chrome-192x192.png" alt="Icon">
         </div>
@@ -463,13 +453,13 @@
         </div>
       </article>
 
-      <!-- RC Volunteers -->
-      <article class="card card-rc-volunteers animate-in delay-5">
+      <!-- RC Volunteer Management -->
+      <article class="card theme-rc animate-in delay-5">
         <div class="icon-wrap">
           <img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon">
         </div>
-        <h2>RC Volunteers</h2>
-        <p>Designed for convention committees to query data, organize emails, and streamline communication.</p>
+        <h2>RC Volunteer Management</h2>
+        <p>Designed for convention committees to query data and streamline communication.</p>
         <div class="meta">Convention Committee</div>
         <div class="card-actions">
           <a class="btn-card" href="./rc-volunteers-management/">Open Tool</a>
