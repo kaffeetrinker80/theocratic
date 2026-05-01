@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -49,9 +49,6 @@
     body::before { background: var(--primary); top: -100px; left: -100px; }
     body::after { background: #8dc2ff; bottom: 10%; right: -200px; }
 
-    [lang="en"] .lang-de { display: none !important; }
-    [lang="de"] .lang-en { display: none !important; }
-
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -72,16 +69,16 @@
     .brand-title { font-size: 1.5rem; font-weight: 700; background: linear-gradient(90deg, #fff, #aab4c3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     
     .nav { display: flex; gap: 12px; align-items: center; }
-    .lang-switch, .nav-back {
+    .nav-back {
       text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border);
       padding: 10px 18px; border-radius: 999px; backdrop-filter: blur(12px); font-size: .95rem; 
-      cursor: pointer; font-family: inherit; transition: all var(--transition-smooth);
+      transition: all var(--transition-smooth);
     }
-    .lang-switch:hover, .nav-back:hover { transform: translateY(-2px); background: var(--surface-soft); border-color: var(--border-hover); }
+    .nav-back:hover { transform: translateY(-2px); background: var(--surface-soft); border-color: var(--border-hover); }
 
     .filter-bar { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
     .filter-btn {
-      padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border);
+      padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border);
       background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: 0.3s;
     }
     .filter-btn.active { background: var(--primary); color: #102036; border-color: var(--primary); }
@@ -133,7 +130,7 @@
     }
   </style>
 </head>
-<body lang="en">
+<body>
   <div class="container">
     <header class="topbar animate-in">
       <div class="brand">
@@ -141,35 +138,24 @@
         <div class="brand-subtitle" style="color: var(--primary)">Theocratic Tools</div>
       </div>
       <nav class="nav">
-        <button class="lang-switch" onclick="toggleLang()">
-          <span class="lang-de">English / EN</span>
-          <span class="lang-en">Deutsch / DE</span>
-        </button>
-        <a href="https://kaffeetrinker80.github.io/" class="nav-back">← <span class="lang-en">Home</span><span class="lang-de">Start</span></a>
+        <a href="https://kaffeetrinker80.github.io/" class="nav-back">← Back to Home</a>
       </nav>
     </header>
 
     <section class="hero animate-in delay-1">
-      <h1 class="lang-en">Theocratic Tools</h1>
-      <h1 class="lang-de">Theokratische Tools</h1>
-      <div class="hero-subtitle lang-en">Planning and coordination.</div>
-      <div class="hero-subtitle lang-de">Planung und Koordination.</div>
-      <p class="lang-en">Browser-based tools for planning, scheduling and internal coordination.</p>
-      <p class="lang-de">Browser-basierte Tools für Planung, Zeitpläne und interne Koordination.</p>
+      <h1>Theocratic Tools</h1>
+      <div class="hero-subtitle">Planning and coordination.</div>
+      <p>Browser-based tools for planning, scheduling and internal coordination.</p>
       
       <div class="notices">
         <div class="notice-box privacy">
-          <strong class="lang-en">🔒 Strict Privacy & Data Security</strong>
-          <strong class="lang-de">🔒 Strenge Privatsphäre & Datensicherheit</strong>
-          <span class="lang-en">Although these tools are hosted on GitHub, your data is never uploaded there. Whenever you open a file or import data, it is read <strong>strictly locally</strong> inside your own browser.</span>
-          <span class="lang-de">Obwohl diese Tools auf GitHub gehostet werden, werden deine Daten niemals dorthin hochgeladen. Wann immer du eine Datei öffnest, wird diese <strong>streng lokal</strong> in deinem Browser gelesen.</span>
+          <strong>🔒 Strict Privacy & Data Security</strong>
+          Although these tools are hosted on GitHub, your data is never uploaded there. Whenever you open a file or import data, it is read <strong>strictly locally</strong> inside your own browser on your own device. The data never leaves your device and is not sent to me, to GitHub, or to any external server.[cite: 1]
         </div>
         
         <div class="notice-box tip">
-          <strong class="lang-en">📱 Tablet & Mobile Experience</strong>
-          <strong class="lang-de">📱 Tablet & Smartphone Nutzung</strong>
-          <span class="lang-en">You can get the best experience on a tablet by using your browser's zoom function (e.g., zoom out to 75% or 80%) to fit the interfaces perfectly.</span>
-          <span class="lang-de">Auf dem Tablet erhältst du das beste Erlebnis, wenn du die Zoom-Funktion des Browsers nutzt (z.B. auf 75% oder 80% verkleinern), um die Oberflächen perfekt anzupassen.</span>
+          <strong>📱 Tablet & Mobile Experience</strong>
+          If you are not working on a PC or laptop, you can still get the best experience on a tablet. Simply use your browser's zoom function (e.g., zoom out to 75% or 80%) to fit the interfaces perfectly onto your screen.[cite: 1]
         </div>
       </div>
     </section>
@@ -189,11 +175,10 @@
       <article class="card theme-assembly animate-in delay-2" data-cat="assembly">
         <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
         <h2>Assembly Attendant Tool</h2>
-        <p class="lang-en">Streamlined attendant coordination and duty planning for one-day assemblies.</p>
-        <p class="lang-de">Effiziente Ordner-Koordination und Dienstplanung für eintägige Kreiskongresse.</p>
+        <p>Streamlined attendant coordination and duty planning for one-day assemblies.</p>
         <div class="meta">Assembly · Attendants</div>
         <div class="card-actions">
-          <a class="btn-card" href="./assembly-attendant-tool/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./assembly-attendant-tool/">Open Tool</a>
         </div>
       </article>
 
@@ -201,11 +186,10 @@
       <article class="card theme-assembly animate-in delay-2" data-cat="assembly">
         <div class="icon-wrap"><img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Cleaning Planner</h2>
-        <p class="lang-en">Cleaning schedules and shift coordination for one-day assemblies.</p>
-        <p class="lang-de">Reinigungs-Zeitpläne und Schichteinteilung für eintägige Kreiskongresse.</p>
+        <p>Cleaning schedules and shift coordination for one-day assemblies.</p>
         <div class="meta">Assembly · Cleaning</div>
         <div class="card-actions">
-          <a class="btn-card" href="./cleaning-planner-assembly/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a>
         </div>
       </article>
 
@@ -213,11 +197,10 @@
       <article class="card theme-assembly animate-in delay-2" data-cat="assembly">
         <div class="icon-wrap"><img src="./assembly-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Counting</h2>
-        <p class="lang-en">Attendance counting tool for one-day assemblies with slips and summary.</p>
-        <p class="lang-de">Zähl-Tool für Kreiskongresse mit Zettelerfassung und Zusammenfassung.</p>
+        <p>Counting tool for one-day assemblies with slips and attendance summary.</p>
         <div class="meta">Assembly · Counting</div>
         <div class="card-actions">
-          <a class="btn-card" href="./assembly-counting/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./assembly-counting/">Open Tool</a>
         </div>
       </article>
 
@@ -225,11 +208,10 @@
       <article class="card theme-congregation animate-in delay-3" data-cat="congregation">
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Microphone Service</h2>
-        <p class="lang-en">Planning microphone assignments, shifts and support during meetings.</p>
-        <p class="lang-de">Planung von Mikrofondiensten, Schichten und Support während der Versammlung.</p>
+        <p>Planning microphone assignments, shifts and support during meetings.</p>
         <div class="meta">Congregation · Microphones</div>
         <div class="card-actions">
-          <a class="btn-card" href="./microphoneservice-tool/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./microphoneservice-tool/">Open Tool</a>
         </div>
       </article>
 
@@ -237,11 +219,10 @@
       <article class="card theme-congregation animate-in delay-3" data-cat="congregation">
         <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Volunteers</h2>
-        <p class="lang-en">Managing details and availability of congregation volunteers.</p>
-        <p class="lang-de">Verwaltung von Details und Verfügbarkeiten der Versammlungs-Helfer.</p>
+        <p>Managing details and availability of congregation volunteers.</p>
         <div class="meta">Congregation · Volunteers</div>
         <div class="card-actions">
-          <a class="btn-card" href="./congregation-volunteers/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./congregation-volunteers/">Open Tool</a>
         </div>
       </article>
 
@@ -249,11 +230,10 @@
       <article class="card theme-kh animate-in delay-3" data-cat="kh">
         <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>KH Cleaning Planner</h2>
-        <p class="lang-en">Annual deep cleaning and schedules for multi-congregation halls.</p>
-        <p class="lang-de">Jährliche Grundreinigung und Pläne für Gemeinschafts-Säle.</p>
+        <p>Ideal for multi-congregation halls to organize annual deep cleaning and yearly schedules.</p>
         <div class="meta">Kingdom Hall · Cleaning</div>
         <div class="card-actions">
-          <a class="btn-card" href="./kh-cleaning-planner/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a>
         </div>
       </article>
 
@@ -261,11 +241,10 @@
       <article class="card theme-ptc animate-in delay-4" data-cat="ptc">
         <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>PTC Tool</h2>
-        <p class="lang-en">Coordination of public talks, speakers and outlines from imported data.</p>
-        <p class="lang-de">Koordination von öffentlichen Vorträgen, Rednern und Dispositionen.</p>
+        <p>Coordination of public talks, speakers and outlines from imported data.</p>
         <div class="meta">PTC · Public Talks</div>
         <div class="card-actions">
-          <a class="btn-card" href="./ptc-tool/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./ptc-tool/">Open Tool</a>
         </div>
       </article>
 
@@ -273,11 +252,10 @@
       <article class="card theme-rc animate-in delay-4" data-cat="rc">
         <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC A/V Planner</h2>
-        <p class="lang-en">Coordination of audio/video assignments for regional conventions.</p>
-        <p class="lang-de">Koordination der Audio/Video-Aufgaben für Regionalkongresse.</p>
+        <p>Planning and coordination of audio and video assignments on regional conventions.</p>
         <div class="meta">RC · A/V</div>
         <div class="card-actions">
-          <a class="btn-card" href="./av-planner/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./av-planner/">Open Tool</a>
         </div>
       </article>
 
@@ -285,11 +263,10 @@
       <article class="card theme-rc animate-in delay-4" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon"></div>
         <h2>RC Attendant Scheduler</h2>
-        <p class="lang-en">Detailed shift planning for attendants at regional conventions.</p>
-        <p class="lang-de">Detaillierte Schichtplanung für Ordner auf Regionalkongressen.</p>
+        <p>Detailed assignment and shift planning for attendants at regional conventions.</p>
         <div class="meta">RC · Attendants</div>
         <div class="card-actions">
-          <a class="btn-card" href="./rc-attendant-assignment-tool/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a>
         </div>
       </article>
 
@@ -297,11 +274,10 @@
       <article class="card theme-rc animate-in delay-5" data-cat="rc">
         <div class="icon-wrap"><img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Cleaning Planner</h2>
-        <p class="lang-en">Cleaning coordination for three-day regional conventions.</p>
-        <p class="lang-de">Reinigungskoordination für dreitägige Regionalkongresse.</p>
+        <p>Cleaning coordination for three-day regional conventions.</p>
         <div class="meta">RC · Cleaning</div>
         <div class="card-actions">
-          <a class="btn-card" href="./cleaning-planner-rc/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a>
         </div>
       </article>
 
@@ -309,11 +285,10 @@
       <article class="card theme-rc animate-in delay-5" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Counting</h2>
-        <p class="lang-en">Attendance counting for three-day regional conventions.</p>
-        <p class="lang-de">Anwesendenzahlen-Tool für dreitägige Regionalkongresse.</p>
+        <p>Counting tool for three-day regional conventions with day overview.</p>
         <div class="meta">RC · Counting</div>
         <div class="card-actions">
-          <a class="btn-card" href="./rc-counting/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./rc-counting/">Open Tool</a>
         </div>
       </article>
 
@@ -321,11 +296,10 @@
       <article class="card theme-rc animate-in delay-5" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Volunteer Management</h2>
-        <p class="lang-en">Tool for convention committees to manage and communicate with volunteers.</p>
-        <p class="lang-de">Tool für Kongress-Komitees zur Verwaltung von Helfern.</p>
+        <p>Designed for convention committees to manage and communicate with volunteers.</p>
         <div class="meta">RC · Volunteers</div>
         <div class="card-actions">
-          <a class="btn-card" href="./rc-volunteers-management/"><span class="lang-en">Open Tool</span><span class="lang-de">Tool öffnen</span></a>
+          <a class="btn-card" href="./rc-volunteers-management/">Open Tool</a>
         </div>
       </article>
 
@@ -337,19 +311,15 @@
   </div>
 
   <script>
-    function toggleLang() {
-      const body = document.body;
-      const newLang = body.getAttribute('lang') === 'en' ? 'de' : 'en';
-      body.setAttribute('lang', newLang);
-      localStorage.setItem('preferredLang', newLang);
-    }
-
     function filterTools(category) {
       const cards = document.querySelectorAll('.card');
       const buttons = document.querySelectorAll('.filter-btn');
+      
+      // Update buttons
       buttons.forEach(btn => btn.classList.remove('active'));
       event.currentTarget.classList.add('active');
 
+      // Filter cards
       cards.forEach(card => {
         if (category === 'all' || card.getAttribute('data-cat') === category) {
           card.classList.remove('hidden');
@@ -358,10 +328,6 @@
         }
       });
     }
-
-    const savedLang = localStorage.getItem('preferredLang');
-    if (savedLang) document.body.setAttribute('lang', savedLang);
   </script>
 </body>
 </html>
-
