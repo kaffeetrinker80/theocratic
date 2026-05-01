@@ -5,250 +5,244 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>RC Ordner-Einteilung Tool</title>
 <style>
-:root{
-  --bg:#f4f7fb;--card:#fff;--text:#132238;--muted:#64748b;--line:#d8e1ec;
-  --brand:#17324f;--brand2:#2563eb;--soft:#eaf2ff;--soft2:#f8fafc;
-  --ok:#15803d;--warn:#b45309;--danger:#b91c1c;--purple:#6d28d9;
-  --shadow:0 12px 30px rgba(15,23,42,.08);--r:18px;
-}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-header{background:linear-gradient(135deg,#132238,#17324f 55%,#1d4ed8);color:#fff;padding:18px 22px;box-shadow:var(--shadow);position:sticky;top:0;z-index:30}
-.head{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}.brand h1{font-size:23px;margin:0 0 4px}.brand p{margin:0;color:#dbeafe;font-size:13px}.badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:8px 12px;border-radius:999px;font-size:12px}
-main{padding:18px;max-width:1700px;margin:auto}.toolbar,.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}.toolbar{padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.card{padding:14px;margin-bottom:14px}
-button,.btn,input,select,textarea{font:inherit}button,.btn{border:0;background:var(--brand);color:#fff;border-radius:12px;padding:9px 12px;cursor:pointer;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px}button:hover,.btn:hover{filter:brightness(1.06)}button.secondary,.btn.secondary{background:#e2e8f0;color:#0f172a}button.good{background:var(--ok)}button.warn{background:var(--warn)}button.danger{background:var(--danger)}button.purple{background:var(--purple)}button.ghost{background:transparent;color:var(--brand);border:1px solid var(--line)}button.small{padding:5px 8px;border-radius:9px;font-size:12px}input,select,textarea{border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:#fff;color:var(--text)}textarea{width:100%;min-height:90px;resize:vertical}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{background:#e2e8f0;color:#0f172a}.tab.active{background:var(--brand2);color:#fff}.view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.field label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin:0 0 4px}.field input,.field select,.field textarea{width:100%}.sectionTitle{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.sectionTitle h2{font-size:18px;margin:0}.muted{color:var(--muted);font-size:13px}.pill{border-radius:999px;background:#f1f5f9;padding:5px 9px;font-size:12px;color:#334155;display:inline-flex;gap:6px;align-items:center}.pill.ok{background:#dcfce7;color:#166534}.pill.warn{background:#ffedd5;color:#9a3412}.pill.blue{background:#dbeafe;color:#1d4ed8}.pill.purple{background:#ede9fe;color:#5b21b6}.split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px}.side{position:sticky;top:92px;align-self:start}.statsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{background:var(--soft2);border:1px solid var(--line);border-radius:14px;padding:10px}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}
-.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px;max-height:72vh;background:#fff}.schedule{border-collapse:separate;border-spacing:0;width:100%;min-width:1280px;font-size:12px}.schedule th,.schedule td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;vertical-align:top}.schedule th{position:sticky;top:0;background:#f1f5f9;z-index:5;text-align:left}.schedule th:first-child,.schedule td:first-child{position:sticky;left:0;z-index:6;background:#f8fafc;font-weight:800;text-align:center}.schedule th:nth-child(2),.schedule td:nth-child(2){position:sticky;left:52px;z-index:6;background:#fff;min-width:230px}.schedule th:nth-child(2){background:#f1f5f9}.schedule th:nth-child(3),.schedule td:nth-child(3){position:sticky;left:282px;z-index:6;background:#fff;min-width:92px}.schedule th:nth-child(3){background:#f1f5f9}.slot{min-width:112px;min-height:46px}.slot.empty{background:#fff7ed}.slot.filled{background:#fbfdff}.slot.over{box-shadow:inset 0 0 0 2px rgba(180,83,9,.35)}.posArea{font-weight:800}.posDesc{font-size:11px;color:var(--muted);margin-top:2px}.names{display:flex;flex-wrap:wrap;gap:4px}.chip{display:inline-flex;gap:4px;align-items:center;background:var(--soft);color:#1d4ed8;border:1px solid #bfdbfe;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:800;cursor:pointer}.chip:hover{background:#dbeafe}.chip .x{color:#64748b;cursor:pointer}.addLine{display:grid;grid-template-columns:1fr 26px;gap:4px;margin-top:6px}.addLine select,.addLine input{width:100%;font-size:11px;padding:5px;border-radius:8px}.addLine .manual{grid-column:1/3}.needed{font-size:10px;font-weight:800;color:#64748b;margin-bottom:4px}.needed.miss{color:#b45309}.needed.ok{color:#15803d}.configRow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}.configRow.person{grid-template-columns:1.2fr 1fr 1fr auto}.configRow.pos{grid-template-columns:64px 1fr 1.4fr 80px auto}.configRow.time{grid-template-columns:1fr auto}.listBox{border:1px solid var(--line);border-radius:14px;overflow:hidden}.listHead,.listItem{display:grid;gap:8px;align-items:center;padding:8px;border-bottom:1px solid var(--line)}.listHead{background:#f1f5f9;font-size:12px;color:#475569;font-weight:800}.listItem:last-child{border-bottom:0}.peopleList .listHead,.peopleList .listItem{grid-template-columns:1.3fr 1fr 1fr auto}.posList .listHead,.posList .listItem{grid-template-columns:64px 1fr 1.4fr 80px auto}.timeList .listHead,.timeList .listItem{grid-template-columns:1fr auto}.personTable{width:100%;border-collapse:collapse}.personTable th,.personTable td{border-bottom:1px solid var(--line);padding:8px;text-align:left}.personTable th{background:#f8fafc}.personalCard{border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;background:#fff}.whatsappPreview{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;border-radius:14px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}.quickActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.conflict{background:#fee2e2!important}.note{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:14px;padding:10px;font-size:13px;color:#475569}.footer{text-align:center;color:#64748b;font-size:12px;padding:20px}.printTitle{display:none}.hide{display:none!important}
-@media(max-width:1100px){.split{grid-template-columns:1fr}.side{position:static}.statsGrid{grid-template-columns:repeat(4,1fr)}}@media(max-width:800px){header{position:static}.brand h1{font-size:19px}.schedule{font-size:11px}.toolbar{position:sticky;top:0;z-index:20}.configRow,.configRow.person,.configRow.pos,.peopleList .listHead,.peopleList .listItem,.posList .listHead,.posList .listItem{grid-template-columns:1fr}.statsGrid{grid-template-columns:repeat(2,1fr)}}
-@media print{body{background:#fff}header,.toolbar,.noPrint,.side,.footer{display:none!important}main{padding:0;max-width:none}.card{box-shadow:none;border:0;padding:0;margin:0}.split{display:block}.tableWrap{overflow:visible;max-height:none;border:0}.schedule{min-width:0;width:100%;font-size:7.4px}.schedule th,.schedule td{padding:2.5px}.addLine,.chip .x,.needed{display:none}.chip{border:0;background:transparent;color:#000;padding:0;font-size:7.4px;display:block;line-height:1.05}.slot{min-width:0}.schedule th:first-child,.schedule td:first-child,.schedule th:nth-child(2),.schedule td:nth-child(2),.schedule th:nth-child(3),.schedule td:nth-child(3){position:static}.printTitle{display:block!important;margin:0 0 8px;font-size:14px}.view:not(.active){display:none!important}.personTable{font-size:11px}.personalCard{page-break-inside:avoid;border:0;padding:0}.whatsappPreview{display:none}@page{size:A4 landscape;margin:7mm}}
+:root{--bg:#f3f6fa;--card:#fff;--text:#132033;--muted:#64748b;--line:#d7e0ea;--brand:#172f4d;--blue:#2563eb;--soft:#eaf2ff;--soft2:#f8fafc;--ok:#15803d;--warn:#b45309;--danger:#b91c1c;--purple:#6d28d9;--shadow:0 8px 22px rgba(15,23,42,.07);--r:14px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+header{background:linear-gradient(135deg,#122137,#172f4d 56%,#1d4ed8);color:#fff;padding:12px 18px;box-shadow:var(--shadow);position:sticky;top:0;z-index:30}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.brand h1{font-size:19px;margin:0 0 2px;font-weight:760}.brand p{margin:0;color:#dbeafe;font-size:12px}
+.badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:5px 10px;border-radius:999px;font-size:11px}
+main{padding:12px;width:100%;max-width:none;margin:0}
+.toolbar,.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.toolbar{padding:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.card{padding:10px;margin-bottom:10px}
+button,.btn,input,select,textarea{font:inherit}
+button,.btn{border:0;background:var(--brand);color:#fff;border-radius:9px;padding:5px 8px;cursor:pointer;font-weight:650;text-decoration:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:1.25}
+button:hover,.btn:hover{filter:brightness(1.06)}
+button.secondary,.btn.secondary{background:#e2e8f0;color:#0f172a}button.good{background:var(--ok)}button.warn{background:var(--warn)}button.danger{background:var(--danger)}button.purple{background:var(--purple)}button.ghost{background:transparent;color:var(--brand);border:1px solid var(--line)}
+button.small{padding:3px 6px;border-radius:7px;font-size:11px}
+input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:5px 7px;background:#fff;color:var(--text);font-size:12px}
+textarea{width:100%;min-height:80px;resize:vertical}
+.tabs,.subtabs{display:flex;gap:6px;flex-wrap:wrap}.tab,.subtab{background:#e2e8f0;color:#0f172a}.tab.active,.subtab.active{background:var(--blue);color:#fff}
+.view,.configPane{display:none}.view.active,.configPane.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:760;margin:0 0 3px}.field input,.field select{width:100%}
+.sectionTitle{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.sectionTitle h2{font-size:15px;margin:0;font-weight:760}.muted{color:var(--muted);font-size:12px}
+.pill{border-radius:999px;background:#f1f5f9;padding:4px 8px;font-size:11px;color:#334155;display:inline-flex;gap:5px;align-items:center}.pill.ok{background:#dcfce7;color:#166534}.pill.blue{background:#dbeafe;color:#1d4ed8}
+.split{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:10px}.side{position:sticky;top:72px;align-self:start}.statsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stat{background:var(--soft2);border:1px solid var(--line);border-radius:12px;padding:8px}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:calc(100vh - 150px);background:#fff}
+.schedule{border-collapse:separate;border-spacing:0;width:100%;min-width:1450px;font-size:11px}.schedule.compact{font-size:10.5px}
+.schedule th,.schedule td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;vertical-align:top}
+.schedule th{position:sticky;top:0;background:#f1f5f9;z-index:5;text-align:left;font-weight:760}
+.schedule th:first-child,.schedule td:first-child{position:sticky;left:0;z-index:6;background:#f8fafc;font-weight:800;text-align:center;width:36px;min-width:36px}
+.schedule th:nth-child(2),.schedule td:nth-child(2){position:sticky;left:36px;z-index:6;background:#fff;min-width:150px;max-width:178px}.schedule th:nth-child(2){background:#f1f5f9}
+.schedule th:nth-child(3),.schedule td:nth-child(3){position:sticky;left:186px;z-index:6;background:#fff;min-width:38px;text-align:center}.schedule th:nth-child(3){background:#f1f5f9}
+.slot{min-width:102px;min-height:36px}.slot.empty{background:#fff7ed}.slot.filled{background:#fbfdff}.slot.over{box-shadow:inset 0 0 0 2px rgba(180,83,9,.25)}
+.posArea{font-weight:760}.posDesc{font-size:10.5px;color:var(--muted);margin-top:1px;line-height:1.2}
+.names{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.chip{display:inline-flex;gap:3px;align-items:center;background:var(--soft);color:#1d4ed8;border:1px solid #bfdbfe;border-radius:7px;padding:2px 5px;font-size:10.5px;font-weight:760;cursor:pointer;line-height:1.15;max-width:100%}.chip:hover{background:#dbeafe}.chip .x{color:#64748b;cursor:pointer}
+.addLine{display:grid;grid-template-columns:1fr 24px;gap:3px;margin-top:4px}.addLine select{width:100%;font-size:10.5px;padding:3px 5px;border-radius:7px}
+.needed{font-size:9.5px;font-weight:800;color:#64748b;margin-bottom:2px}.needed.miss{color:#b45309}.needed.ok{color:#15803d}
+.listBox{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.listHead,.listItem{display:grid;gap:6px;align-items:center;padding:6px;border-bottom:1px solid var(--line)}.listHead{background:#f1f5f9;font-size:11px;color:#475569;font-weight:800}.listItem:last-child{border-bottom:0}
+.daysList .listHead,.daysList .listItem{grid-template-columns:1fr 1fr auto}.timeList .listHead,.timeList .listItem{grid-template-columns:1fr auto}.peopleList .listHead,.peopleList .listItem{grid-template-columns:1.2fr 1fr .95fr 1.1fr 1fr 1.1fr auto}.posList .listHead,.posList .listItem{grid-template-columns:54px 1fr 1.35fr 68px auto}
+.listItem input,.listItem select{min-width:0;width:100%}.configTop{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}.searchbar{min-width:260px}
+.personTable{width:100%;border-collapse:collapse;font-size:12px}.personTable th,.personTable td{border-bottom:1px solid var(--line);padding:6px;text-align:left}.personTable th{background:#f8fafc;font-weight:760}
+.personalCard{border:1px solid var(--line);border-radius:14px;padding:10px;margin:8px 0;background:#fff}.whatsappPreview{white-space:pre-wrap;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px}
+.quickActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.note{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:8px;font-size:12px;color:#475569}.footer{text-align:center;color:#64748b;font-size:11px;padding:14px}.printTitle{display:none}
+@media(max-width:1200px){.split{grid-template-columns:1fr}.side{position:static}.statsGrid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:820px){header{position:static}.brand h1{font-size:17px}.schedule{font-size:10px}.toolbar{position:sticky;top:0;z-index:20}.peopleList .listHead,.peopleList .listItem,.posList .listHead,.posList .listItem,.daysList .listHead,.daysList .listItem{grid-template-columns:1fr}.statsGrid{grid-template-columns:repeat(2,1fr)}}
+@media print{body{background:#fff;font-size:10px}header,.toolbar,.noPrint,.side,.footer{display:none!important}main{padding:0;max-width:none}.card{box-shadow:none;border:0;padding:0;margin:0}.split{display:block}.tableWrap{overflow:visible;max-height:none;border:0}.schedule{min-width:0;width:100%;font-size:7.1px}.schedule th,.schedule td{padding:2px}.addLine,.chip .x,.needed{display:none}.chip{border:0;background:transparent;color:#000;padding:0;font-size:7.1px;display:block;line-height:1.05}.slot{min-width:0}.schedule th:first-child,.schedule td:first-child,.schedule th:nth-child(2),.schedule td:nth-child(2){position:static}.schedule th:nth-child(3),.schedule td:nth-child(3){display:none!important}.printTitle{display:block!important;margin:0 0 7px;font-size:13px}.view:not(.active){display:none!important}.personTable{font-size:10px}.personalCard{page-break-inside:avoid;border:0;padding:0}.whatsappPreview{display:none}@page{size:A4 landscape;margin:6mm}}
 </style>
 </head>
 <body>
-<header>
-  <div class="head">
-    <div class="brand"><h1 id="headerTitle">RC Ordner-Einteilung Tool</h1><p id="headerSub">Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag</p></div>
-    <div class="badge" id="headerPlace">Ort: flexibel</div>
-  </div>
-</header>
+<header><div class="head"><div class="brand"><h1 id="headerTitle"></h1><p id="headerSub"></p></div><div class="badge" id="headerPlace"></div></div></header>
 <main>
-  <div class="toolbar noPrint">
-    <div class="tabs">
-      <button class="tab active" data-view="dashboard">Dashboard</button>
-      <button class="tab" data-view="plan">Gesamtübersicht</button>
-      <button class="tab" data-view="person">Einzelübersicht</button>
-      <button class="tab" data-view="config">Konfiguration</button>
-      <button class="tab" data-view="help">Hilfe</button>
-    </div>
-    <span class="pill ok" id="saveState">lokal gespeichert</span>
-    <button class="secondary" onclick="exportJson()">JSON Export</button>
-    <label class="btn secondary" for="importFile">JSON Import</label>
-    <input id="importFile" type="file" accept="application/json,.json" hidden onchange="importJson(event)">
-  </div>
+  <div class="toolbar noPrint"><div class="tabs"><button class="tab active" data-view="plan">Gesamtübersicht</button><button class="tab" data-view="person">Einzelübersicht</button><button class="tab" data-view="dashboard">Dashboard</button><button class="tab" data-view="config">Konfiguration</button><button class="tab" data-view="help">Hilfe</button></div><span class="pill ok" id="saveState">lokal gespeichert</span><button class="secondary" onclick="exportJson()">JSON Export</button><label class="btn secondary" for="importFile">JSON Import</label><input id="importFile" type="file" accept="application/json,.json" hidden onchange="importJson(event)"></div>
 
-  <section id="dashboard" class="view active">
-    <div class="split">
-      <div>
-        <div class="card">
-          <div class="sectionTitle"><h2>Arbeitsübersicht</h2><span class="muted">Schneller Überblick über Besetzung, Lücken und persönliche Einteilungen.</span></div>
-          <div class="grid" style="margin-top:10px">
-            <div class="field"><label>Tag</label><select id="dashDay" onchange="renderDashboard()"></select></div>
-            <div class="field"><label>Bereich filtern</label><select id="dashArea" onchange="renderDashboard()"></select></div>
-            <div class="field"><label>Name suchen</label><input id="dashSearch" placeholder="z. B. Bruder 1" oninput="renderDashboard()"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="sectionTitle"><h2>Lücken & Warnungen</h2><button class="secondary noPrint" onclick="switchView('plan')">Zur Gesamtübersicht</button></div>
-          <div id="warningsBox"></div>
-        </div>
-        <div class="card">
-          <div class="sectionTitle"><h2>Ordner-Einsätze</h2><span class="muted">Klick öffnet die persönliche Übersicht.</span></div>
-          <div id="peopleOverview"></div>
-        </div>
-      </div>
-      <aside class="side">
-        <div class="card">
-          <h2 style="margin-top:0">Statistik</h2>
-          <div class="statsGrid" id="statsGrid"></div>
-          <div class="quickActions noPrint">
-            <button onclick="switchView('plan')">Plan bearbeiten</button>
-            <button class="purple" onclick="switchView('person')">Einzelübersicht</button>
-            <button class="secondary" onclick="switchView('config')">Konfiguration</button>
-          </div>
-        </div>
-        <div class="card noPrint">
-          <h2 style="margin-top:0">Schnellstart</h2>
-          <p class="muted">1. Konfiguration anpassen. 2. Plan füllen. 3. Namen anklicken und persönliche Übersicht kopieren oder drucken.</p>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <section id="plan" class="view">
-    <div class="toolbar noPrint">
-      <select id="daySelect" onchange="renderPlan();renderDashboard()"></select>
-      <select id="areaFilter" onchange="renderPlan()"></select>
-      <input id="searchInput" placeholder="Name, Position oder Bereich suchen…" oninput="renderPlan()">
-      <button onclick="printCurrentDay()">Tag drucken</button>
-      <button class="secondary" onclick="copyDay()">Tag kopieren</button>
-      <button class="secondary" onclick="pasteDay()">In aktuellen Tag einfügen</button>
-      <button class="ghost" onclick="clearDayConfirm()">Tag leeren</button>
-    </div>
-    <div class="card">
-      <h2 class="printTitle" id="printDayTitle"></h2>
-      <div class="sectionTitle"><h2>Gesamtübersicht</h2><span class="muted">Mehrere Ordner je Zeitfeld möglich. Mindestbesetzung je Position wird berücksichtigt.</span></div>
-      <div class="tableWrap"><table class="schedule" id="scheduleTable"></table></div>
-    </div>
+  <section id="plan" class="view active">
+    <div class="toolbar noPrint"><select id="daySelect" onchange="renderPlan();renderDashboard()"></select><select id="areaFilter" onchange="renderPlan()"></select><input id="searchInput" placeholder="Name, Position oder Bereich suchen…" oninput="renderPlan()"><label class="pill"><input type="checkbox" id="compactToggle" checked onchange="renderPlan()"> kompakt</label><button onclick="printCurrentDay()">Drucken</button><button class="secondary" onclick="copyDay()">Tag kopieren</button><button class="secondary" onclick="pasteDay()">Einfügen</button><button class="ghost" onclick="clearDayConfirm()">Tag leeren</button></div>
+    <div class="card"><h2 class="printTitle" id="printDayTitle"></h2><div class="sectionTitle"><h2>Gesamtübersicht</h2></div><div class="tableWrap"><table class="schedule compact" id="scheduleTable"></table></div></div>
   </section>
 
   <section id="person" class="view">
-    <div class="toolbar noPrint">
-      <select id="personSelect" onchange="renderPersonView(this.value)"></select>
-      <button onclick="printPerson()">Einzelübersicht drucken</button>
-      <button class="secondary" onclick="copyPersonText()">WhatsApp-Text kopieren</button>
-      <button class="secondary" onclick="copyPersonLink()">Link zur Einzelübersicht kopieren</button>
-    </div>
-    <div class="card" id="personCard"></div>
+    <div class="toolbar noPrint"><select id="personSelect" onchange="renderPersonView(this.value)"></select><button onclick="printPerson()">Drucken</button><button class="good" onclick="sendWhatsApp()">WhatsApp senden</button><button class="secondary" onclick="sendEmail()">Email öffnen</button><button class="secondary" onclick="copyPersonText()">Text kopieren</button><button class="secondary" onclick="copyPersonLink()">Link kopieren</button></div><div class="card" id="personCard"></div>
+  </section>
+
+  <section id="dashboard" class="view">
+    <div class="split"><div>
+      <div class="card"><div class="sectionTitle"><h2>Arbeitsübersicht</h2><span class="muted">Ordner-Einsätze auf einen Blick.</span></div><div class="grid" style="margin-top:8px"><div class="field"><label>Tag</label><select id="dashDay" onchange="renderDashboard()"></select></div><div class="field"><label>Bereich</label><select id="dashArea" onchange="renderDashboard()"></select></div><div class="field"><label>Name / Position suchen</label><input id="dashSearch" placeholder="z. B. Bruder, Tor, Foyer" oninput="renderDashboard()"></div></div></div>
+      <div class="card"><div class="sectionTitle"><h2>Ordner-Einsätze</h2><span class="muted">Klick öffnet die persönliche Übersicht.</span></div><div id="peopleOverview"></div></div>
+    </div><aside class="side"><div class="card"><h2 style="margin-top:0">Statistik</h2><div class="statsGrid" id="statsGrid"></div><div class="quickActions noPrint"><button onclick="switchView('plan')">Plan bearbeiten</button><button class="purple" onclick="switchView('person')">Einzelübersicht</button><button class="secondary" onclick="switchView('config')">Konfiguration</button></div></div></aside></div>
   </section>
 
   <section id="config" class="view">
-    <div class="card">
-      <div class="sectionTitle"><h2>Grunddaten</h2><span class="muted">Damit das Tool auch für andere Kongresse nutzbar bleibt.</span></div>
-      <div class="grid" style="margin-top:10px">
-        <div class="field"><label>Titel</label><input id="cfgTitle" oninput="updateMeta()"></div>
-        <div class="field"><label>Untertitel</label><input id="cfgSubtitle" oninput="updateMeta()"></div>
-        <div class="field"><label>Ort / Kongressstätte</label><input id="cfgPlace" oninput="updateMeta()"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="sectionTitle"><h2>Tage</h2><button class="secondary" onclick="resetDays()">Standardtage setzen</button></div>
-      <div id="daysConfig" style="margin-top:10px"></div>
-    </div>
-    <div class="card">
-      <div class="sectionTitle"><h2>Zeitblöcke</h2><button class="good" onclick="addTimeBlock()">Zeit hinzufügen</button></div>
-      <div class="note" style="margin:10px 0">Tipp: Zeiten sind zentral. Wenn du eine Zeit änderst, bleiben vorhandene Einteilungen erhalten und werden umbenannt.</div>
-      <div class="listBox timeList" id="timeConfig"></div>
-    </div>
-    <div class="card">
-      <div class="sectionTitle"><h2>Ordnerstamm</h2><div class="quickActions"><button class="good" onclick="addPerson()">Ordner hinzufügen</button><button class="secondary" onclick="bulkPeoplePrompt()">Liste einfügen</button></div></div>
-      <div class="note" style="margin:10px 0">Du kannst eine Namensliste aus Excel/WhatsApp einfügen: ein Name pro Zeile. Optional mit Bereich und Notiz per Semikolon: <b>Name;Bereich;Notiz</b>.</div>
-      <div class="listBox peopleList" id="peopleConfig"></div>
-    </div>
-    <div class="card">
-      <div class="sectionTitle"><h2>Positionen</h2><div class="quickActions"><button class="good" onclick="addPosition()">Position hinzufügen</button><button class="secondary" onclick="bulkPositionsPrompt()">Positionen einfügen</button></div></div>
-      <div class="note" style="margin:10px 0">Format für Schnellimport: <b>Pos;Bereich;Beschreibung;Soll</b> — ein Eintrag pro Zeile. Soll = benötigte Anzahl je Zeitblock.</div>
-      <div class="listBox posList" id="positionsConfig"></div>
+    <div class="card"><div class="configTop"><div class="subtabs"><button class="subtab active" data-config="base">Grunddaten</button><button class="subtab" data-config="times">Zeiten</button><button class="subtab" data-config="positions">Positionen</button><button class="subtab" data-config="people">Ordner</button></div><input class="searchbar" id="configSearch" placeholder="Konfiguration durchsuchen…" oninput="renderConfig()"></div>
+      <div id="cfg-base" class="configPane active"><div class="sectionTitle"><h2>Grunddaten</h2><span class="muted">Titel, Ort und Absender für Nachrichten.</span></div><div class="grid" style="margin-top:8px"><div class="field"><label>Titel</label><input id="cfgTitle" oninput="updateMeta()"></div><div class="field"><label>Untertitel</label><input id="cfgSubtitle" oninput="updateMeta()"></div><div class="field"><label>Ort / Kongressstätte</label><input id="cfgPlace" oninput="updateMeta()"></div><div class="field"><label>Absender Name</label><input id="cfgSenderName" oninput="updateMeta()"></div><div class="field"><label>Absender Rolle/Funktion</label><input id="cfgSenderRole" oninput="updateMeta()"></div><div class="field"><label>Absender Mobil</label><input id="cfgSenderPhone" oninput="updateMeta()"></div><div class="field"><label>Absender Email</label><input id="cfgSenderEmail" oninput="updateMeta()"></div><div class="field"><label>Nachricht – Einleitung</label><input id="cfgMessageIntro" oninput="updateMeta()"></div><div class="field"><label>Nachricht – Abschluss</label><input id="cfgMessageOutro" oninput="updateMeta()"></div></div><div class="sectionTitle" style="margin-top:12px"><h2>Tage</h2><button class="secondary" onclick="resetDays()">Standardtage setzen</button></div><div class="listBox daysList" id="daysConfig" style="margin-top:8px"></div></div>
+      <div id="cfg-times" class="configPane"><div class="sectionTitle"><h2>Zeitblöcke</h2><button class="good" onclick="addTimeBlock()">+ Zeit</button></div><div class="note" style="margin:8px 0">Zeiten sind zentral. Änderungen behalten vorhandene Einteilungen.</div><div class="listBox timeList" id="timeConfig"></div></div>
+      <div id="cfg-positions" class="configPane"><div class="sectionTitle"><h2>Positionen</h2><div class="quickActions"><button class="good" onclick="addPosition()">+ Position</button><button class="secondary" onclick="bulkPositionsPrompt()">Liste einfügen</button></div></div><div class="note" style="margin:8px 0">Schnellimport: <b>Pos;Bereich;Beschreibung;Soll</b> — ein Eintrag pro Zeile.</div><div class="listBox posList" id="positionsConfig"></div></div>
+      <div id="cfg-people" class="configPane"><div class="sectionTitle"><h2>Ordnerstamm</h2><div class="quickActions"><button class="good" onclick="addPerson()">+ Ordner</button><button class="secondary" onclick="bulkPeoplePrompt()">Liste einfügen</button><button class="secondary" onclick="autoAssignAreasFromPlan()">Bereiche aus Plan ableiten</button></div></div><div class="note" style="margin:8px 0">Bereich ist optional. Wenn gesetzt, erscheint der Ordner nur in diesem Bereich. Schnellimport: <b>Name;Versammlung;Mobil;Email;Bereich;Notiz</b>.</div><div class="listBox peopleList" id="peopleConfig"></div></div>
     </div>
   </section>
 
-  <section id="help" class="view">
-    <div class="card">
-      <h2>Was dieses Tool können soll</h2>
-      <p>Dieses Tool ist für eine komplette Ordner-Einteilung eines 3-Tage-Kongresses gedacht: Gesamtplan, flexible Positionen, flexible Zeitblöcke, Ordnerstamm, Druck und persönliche Einzelübersichten.</p>
-      <h3>Empfohlener Ablauf</h3>
-      <p><b>1. Grunddaten pflegen:</b> Titel, Ort und Tage unter „Konfiguration“ anpassen.</p>
-      <p><b>2. Zeitblöcke definieren:</b> Die Zeiten können komplett frei gesetzt werden. Dadurch ist das Tool nicht an eine bestimmte Kongressstätte gebunden.</p>
-      <p><b>3. Positionen anlegen:</b> Jede Position hat Nummer, Bereich, Beschreibung und Soll-Besetzung. Das Tool markiert leere oder unterbesetzte Felder.</p>
-      <p><b>4. Ordnerstamm einfügen:</b> Namen einmal pflegen. Danach in der Gesamtübersicht per Dropdown einteilen.</p>
-      <p><b>5. Gesamtübersicht drucken:</b> Für A4 Querformat optimiert. Bereichsfilter hilft, einzelne Abschnitte auszudrucken.</p>
-      <p><b>6. Einzelübersicht nutzen:</b> Namen anklicken. Dort sieht der Ordner alle Einsätze sortiert nach Tag und Zeit. Text kann direkt für WhatsApp kopiert werden.</p>
-      <h3>Datenschutz</h3><p>Alle Daten bleiben lokal im Browser. Für Sicherung oder Weitergabe bitte JSON Export/Import verwenden. Für GitHub können echte Namen draußen bleiben und nur per JSON geladen werden.</p>
-    </div>
-  </section>
-</main>
-<div class="footer">Made with Love © – RC Ordner-Einteilung Tool V 1.1</div>
+  <section id="help" class="view"><div class="card"><h2>Hilfe</h2><p>Konfiguration pflegen, dann in der Gesamtübersicht Ordner einteilen. Namen anklicken öffnet die Einzelübersicht mit WhatsApp- und Email-Funktion.</p></div></section>
+</main><div class="footer">Made with Love © – RC Ordner-Einteilung Tool V 1.6</div>
 <script>
-const STORAGE='rc_ordner_einteilung_v11';
+const STORAGE='rc_ordner_einteilung_v16';
+function uid(){return 'id_'+Math.random().toString(36).slice(2,9)+'_'+Date.now().toString(36)}
 const defaultData={
-  meta:{title:'RC Ordner-Einteilung Tool',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel'},
+  meta:{title:'RC Ordner-Einteilung Tool',subtitle:'Flexible Einteilung für Regionaler Kongress · Freitag bis Sonntag',place:'Ort: flexibel',senderName:'',senderRole:'',senderPhone:'',senderEmail:'',messageIntro:'hier ist deine Einteilung für den Regionalen Kongress:',messageOutro:'Vielen Dank für deine Unterstützung!'},
   days:[{id:'fr',label:'Freitag',date:''},{id:'sa',label:'Samstag',date:''},{id:'so',label:'Sonntag',date:''}],
   times:['07:00-07:45','07:45-09:00','09:00-10:00','10:00-11:00','11:00-12:00','12:00-13:00','13:00-14:00','14:00-15:00','15:00-16:00','16:00-17:00','17:00-18:00'],
-  people:[{name:'Bruder 1',team:'',note:''},{name:'Bruder 2',team:'',note:''},{name:'Bruder 3',team:'',note:''},{name:'Bruder 4',team:'',note:''}],
-  positions:[{no:'1',area:'Welcome Zone rechts',desc:'Position anpassen',need:1},{no:'2',area:'Welcome Zone links',desc:'Position anpassen',need:1},{no:'3',area:'Torkontrolle',desc:'Position anpassen',need:1},{no:'4',area:'Zugangskontrolle Tor rechts',desc:'Position anpassen',need:1},{no:'5',area:'Außenbereich / Freifläche',desc:'Position anpassen',need:1}],
+  people:[{name:'Bruder 1',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 2',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 3',congregation:'',phone:'',email:'',area:'',note:''},{name:'Bruder 4',congregation:'',phone:'',email:'',area:'',note:''}],
+  positions:[{id:uid(),no:'1',area:'Welcome Zone rechts',desc:'Position anpassen',need:1},{id:uid(),no:'2',area:'Welcome Zone links',desc:'Position anpassen',need:1},{id:uid(),no:'3',area:'Torkontrolle',desc:'Position anpassen',need:1},{id:uid(),no:'4',area:'Zugangskontrolle Tor rechts',desc:'Position anpassen',need:1},{id:uid(),no:'5',area:'Außenbereich / Freifläche',desc:'Position anpassen',need:1}],
   assignments:{}
 };
-let data=load();let copiedDay=null;let currentPerson='';
+let data=load(), copiedDay=null, currentPerson='';
 function normalizeData(d){
-  if(!d.meta)d.meta=structuredClone(defaultData.meta); if(!d.days)d.days=structuredClone(defaultData.days); if(!d.times)d.times=[...defaultData.times]; if(!d.positions)d.positions=structuredClone(defaultData.positions); if(!d.assignments)d.assignments={};
-  if(Array.isArray(d.people)&&typeof d.people[0]==='string')d.people=d.people.map(n=>({name:n,team:'',note:''}));
-  d.positions=d.positions.map((p,i)=>({no:p.no??String(i+1),area:p.area??'',desc:p.desc??'',need:Number(p.need||1)}));
+  if(!d.meta)d.meta=structuredClone(defaultData.meta);
+  d.meta={...structuredClone(defaultData.meta),...d.meta};
+  if(!d.days)d.days=structuredClone(defaultData.days);
+  if(!d.times)d.times=[...defaultData.times];
+  if(!d.positions)d.positions=structuredClone(defaultData.positions);
+  if(!d.assignments)d.assignments={};
+  if(Array.isArray(d.people)&&typeof d.people[0]==='string')d.people=d.people.map(n=>({name:n,congregation:'',phone:'',email:'',area:'',note:''}));
+  d.people=(d.people||[]).map(p=>({name:p.name||'',congregation:p.congregation||'',phone:p.phone||'',email:p.email||'',area:p.area||p.team||'',note:p.note||''}));
+  d.positions=d.positions.map((p,i)=>({id:p.id||uid(),no:p.no??String(i+1),area:p.area??'',desc:p.desc??'',need:Number(p.need||1)}));
   return d;
 }
 function load(){try{return normalizeData(JSON.parse(localStorage.getItem(STORAGE))||structuredClone(defaultData))}catch(e){return structuredClone(defaultData)}}
-function save(){localStorage.setItem(STORAGE,JSON.stringify(data));saveState.textContent='Gespeichert '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});saveState.className='pill ok'}
-function key(day,pos,time){return `${day}||${pos}||${time}`}
-function esc(s){return String(s??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m))}
-function escA(s){return esc(s).replace(/'/g,'&#39;')}function escJ(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ')}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(data));const s=document.getElementById('saveState');if(s){s.textContent='Gespeichert '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});s.className='pill ok'}}
+function key(day,posId,time){return `${day}||${posId}||${time}`}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function escA(s){return esc(s).replace(/'/g,'&#39;')}
+function escJ(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ')}
 function peopleNames(){return data.people.map(p=>p.name).filter(Boolean)}
-function init(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));handleHash();renderAll();window.addEventListener('hashchange',handleHash)}
-function handleHash(){const h=decodeURIComponent(location.hash||'');if(h.startsWith('#person=')){const n=h.replace('#person=','');currentPerson=n;setTimeout(()=>{switchView('person');renderPersonView(n);personSelect.value=n},0)}}
+function areaList(){return [...new Set(data.positions.map(p=>p.area).filter(Boolean))].sort()}
+function init(){
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+  document.querySelectorAll('.subtab').forEach(b=>b.onclick=()=>switchConfig(b.dataset.config));
+  renderAll();
+  handleHash();
+  window.addEventListener('hashchange',handleHash);
+}
+function handleHash(){const h=decodeURIComponent(location.hash||'');if(h.startsWith('#person=')){const n=h.replace('#person=','');currentPerson=n;switchView('person');renderPeopleSelect();personSelect.value=n;renderPersonView(n)}}
 function renderAll(){renderMeta();renderSelectors();renderDashboard();renderPlan();renderConfig();renderPeopleSelect();if(!currentPerson&&peopleNames()[0])currentPerson=peopleNames()[0];renderPersonView(currentPerson)}
-function renderMeta(){headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;headerPlace.textContent=data.meta.place;cfgTitle.value=data.meta.title;cfgSubtitle.value=data.meta.subtitle;cfgPlace.value=data.meta.place}
-function updateMeta(){data.meta={title:cfgTitle.value,subtitle:cfgSubtitle.value,place:cfgPlace.value};renderMeta();save();renderDashboard();renderPlan();renderPersonView(currentPerson)}
-function switchView(v){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='person')renderPeopleSelect()}
+function renderMeta(){
+  headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;headerPlace.textContent=data.meta.place;
+  if(document.getElementById('cfgTitle')){
+    cfgTitle.value=data.meta.title;cfgSubtitle.value=data.meta.subtitle;cfgPlace.value=data.meta.place;
+    cfgSenderName.value=data.meta.senderName||'';cfgSenderRole.value=data.meta.senderRole||'';cfgSenderPhone.value=data.meta.senderPhone||'';cfgSenderEmail.value=data.meta.senderEmail||'';cfgMessageIntro.value=data.meta.messageIntro||'';cfgMessageOutro.value=data.meta.messageOutro||'';
+  }
+}
+function updateMeta(){
+  data.meta={...data.meta,title:cfgTitle.value,subtitle:cfgSubtitle.value,place:cfgPlace.value,senderName:cfgSenderName.value,senderRole:cfgSenderRole.value,senderPhone:cfgSenderPhone.value,senderEmail:cfgSenderEmail.value,messageIntro:cfgMessageIntro.value,messageOutro:cfgMessageOutro.value};
+  headerTitle.textContent=data.meta.title;headerSub.textContent=data.meta.subtitle;headerPlace.textContent=data.meta.place;
+  save();renderPlan();renderDashboard();renderPersonView(currentPerson);
+}
+function switchView(v){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===v));if(v==='config')renderConfig();if(v==='person')renderPeopleSelect()}
+function switchConfig(c){document.querySelectorAll('.configPane').forEach(x=>x.classList.toggle('active',x.id==='cfg-'+c));document.querySelectorAll('.subtab').forEach(x=>x.classList.toggle('active',x.dataset.config===c));renderConfig()}
 function renderSelectors(){
+  const cd=daySelect.value, ca=areaFilter.value, dd=dashDay.value, da=dashArea.value;
   const dayOpts=data.days.map(d=>`<option value="${d.id}">${esc(d.label)}${d.date?' · '+esc(d.date):''}</option>`).join('');
-  daySelect.innerHTML=dayOpts;dashDay.innerHTML='<option value="all">Alle Tage</option>'+dayOpts;
-  const areas=[...new Set(data.positions.map(p=>p.area).filter(Boolean))].sort();
-  const areaOpts='<option value="all">Alle Bereiche</option>'+areas.map(a=>`<option>${esc(a)}</option>`).join('');
-  areaFilter.innerHTML=areaOpts;dashArea.innerHTML=areaOpts;
+  daySelect.innerHTML=dayOpts; dashDay.innerHTML='<option value="all">Alle Tage</option>'+dayOpts;
+  const areaOpts='<option value="all">Alle Bereiche</option>'+areaList().map(a=>`<option>${esc(a)}</option>`).join('');
+  areaFilter.innerHTML=areaOpts; dashArea.innerHTML=areaOpts;
+  if(cd)daySelect.value=cd;if(ca)areaFilter.value=ca;if(dd)dashDay.value=dd;if(da)dashArea.value=da;
 }
 function dayLabel(id){const d=data.days.find(x=>x.id===id);return d?`${d.label}${d.date?' '+d.date:''}`:id}
-function getPersonObj(n){return data.people.find(p=>p.name===n)||{name:n,team:'',note:''}}
-function getAssignmentsForPerson(name){let out=[];data.days.forEach((d,di)=>data.positions.forEach((p,pi)=>data.times.forEach((t,ti)=>{if((data.assignments[key(d.id,pi,t)]||[]).includes(name))out.push({dayId:d.id,day:d.label,date:d.date,dayIndex:di,time:t,timeIndex:ti,pos:p.no,area:p.area,desc:p.desc})})));return out.sort((a,b)=>a.dayIndex-b.dayIndex||a.timeIndex-b.timeIndex||String(a.pos).localeCompare(String(b.pos),'de',{numeric:true}))}
-function allAssignments(){let out=[];peopleNames().forEach(n=>{out.push({name:n,items:getAssignmentsForPerson(n)})});return out}
+function getPersonObj(n){return data.people.find(p=>p.name===n)||{name:n,congregation:'',phone:'',email:'',area:'',note:''}}
+function allowedPeopleForPosition(position){return data.people.filter(p=>!p.area||p.area===position.area).map(p=>p.name).filter(Boolean)}
+function addName(day,posId,t,n){
+  const pos=data.positions.find(p=>p.id===posId); const person=getPersonObj(n);
+  if(pos&&person.area&&person.area!==pos.area){alert(`${n} ist dem Bereich „${person.area}“ zugeordnet und kann nicht bei „${pos.area}“ eingeteilt werden.`);return}
+  const k=key(day,posId,t); data.assignments[k]=data.assignments[k]||[];
+  if(!data.assignments[k].includes(n))data.assignments[k].push(n);
+  if(pos&&person.name&&!person.area){person.area=pos.area}
+  save();renderAll();
+}
+function getAssignmentsForPerson(name){
+  let out=[];
+  data.days.forEach((d,di)=>data.positions.forEach(p=>data.times.forEach((t,ti)=>{
+    if((data.assignments[key(d.id,p.id,t)]||[]).includes(name))out.push({dayId:d.id,day:d.label,date:d.date,dayIndex:di,time:t,timeIndex:ti,pos:p.no,area:p.area,desc:p.desc,posId:p.id})
+  })));
+  return out.sort((a,b)=>a.dayIndex-b.dayIndex||a.timeIndex-b.timeIndex||String(a.pos).localeCompare(String(b.pos),'de',{numeric:true}));
+}
 function computeStats(dayFilter='all',areaFilter='all'){
   let totalSlots=0,filledSlots=0,missing=0,totalAssignments=0,over=0;
-  data.days.filter(d=>dayFilter==='all'||d.id===dayFilter).forEach(d=>data.positions.forEach((p,pi)=>{if(areaFilter!=='all'&&p.area!==areaFilter)return;data.times.forEach(t=>{const arr=data.assignments[key(d.id,pi,t)]||[];totalSlots++;if(arr.length)filledSlots++;totalAssignments+=arr.length;const need=Number(p.need||1);if(arr.length<need)missing+=need-arr.length;if(arr.length>need)over+=arr.length-need})}));
-  return {totalSlots,filledSlots,missing,totalAssignments,over};
+  data.days.filter(d=>dayFilter==='all'||d.id===dayFilter).forEach(d=>data.positions.forEach(p=>{
+    if(areaFilter!=='all'&&p.area!==areaFilter)return;
+    data.times.forEach(t=>{const arr=data.assignments[key(d.id,p.id,t)]||[]; totalSlots++; if(arr.length)filledSlots++; totalAssignments+=arr.length; const need=Number(p.need||1); if(arr.length<need)missing+=need-arr.length; if(arr.length>need)over+=arr.length-need;})
+  }));
+  return{totalSlots,filledSlots,missing,totalAssignments,over};
 }
 function renderDashboard(){
-  if(!dashDay)return; const d=dashDay.value||'all', a=dashArea.value||'all', q=(dashSearch.value||'').toLowerCase(); const s=computeStats(d,a);
+  const d=dashDay.value||'all',a=dashArea.value||'all',q=(dashSearch.value||'').toLowerCase(),s=computeStats(d,a);
   statsGrid.innerHTML=`<div class="stat"><b>${s.totalAssignments}</b><span>Einteilungen</span></div><div class="stat"><b>${s.filledSlots}/${s.totalSlots}</b><span>gefüllte Felder</span></div><div class="stat"><b>${s.missing}</b><span>fehlende Besetzungen</span></div><div class="stat"><b>${s.over}</b><span>über Soll</span></div>`;
-  let warnings=[];data.days.filter(day=>d==='all'||day.id===d).forEach(day=>data.positions.forEach((p,pi)=>{if(a!=='all'&&p.area!==a)return;data.times.forEach(t=>{const arr=data.assignments[key(day.id,pi,t)]||[];const need=Number(p.need||1);if(arr.length<need)warnings.push(`<span class="pill warn">${esc(day.label)} · ${esc(t)} · Pos. ${esc(p.no)} ${esc(p.area)}: ${arr.length}/${need}</span>`);})}));
-  warningsBox.innerHTML=warnings.length?`<div style="display:flex;gap:6px;flex-wrap:wrap">${warnings.slice(0,120).join('')}</div>`:'<p class="muted">Keine Lücken im aktuellen Filter. Sehr schön.</p>';
-  let rows=allAssignments().filter(x=>!q||x.name.toLowerCase().includes(q)||x.items.some(i=>(i.area+' '+i.desc).toLowerCase().includes(q))).map(x=>`<tr><td><button class="ghost small" onclick="openPerson('${escJ(x.name)}')">${esc(x.name)}</button></td><td>${x.items.length}</td><td>${x.items.slice(0,4).map(i=>`${esc(i.day)} ${esc(i.time)} · Pos. ${esc(i.pos)}`).join('<br>')}${x.items.length>4?'<br><span class="muted">…</span>':''}</td></tr>`).join('');
-  peopleOverview.innerHTML=`<table class="personTable"><thead><tr><th>Name</th><th>Anzahl</th><th>Nächste/erste Einsätze</th></tr></thead><tbody>${rows||'<tr><td colspan="3">Keine Treffer.</td></tr>'}</tbody></table>`;
+  let rows=data.people.filter(p=>!q||[p.name,p.congregation,p.phone,p.email,p.area,p.note].join(' ').toLowerCase().includes(q)||getAssignmentsForPerson(p.name).some(i=>(i.area+' '+i.desc).toLowerCase().includes(q))).map(p=>{
+    const items=getAssignmentsForPerson(p.name);
+    return `<tr><td><button class="ghost small" onclick="openPerson('${escJ(p.name)}')">${esc(p.name)}</button><br><span class="muted">${esc(p.congregation||'')}</span></td><td>${esc(p.area||'frei')}</td><td>${items.length}</td><td>${items.slice(0,4).map(i=>`${esc(i.day)} ${esc(i.time)} · Pos. ${esc(i.pos)}`).join('<br>')}${items.length>4?'<br><span class="muted">…</span>':''}</td></tr>`;
+  }).join('');
+  peopleOverview.innerHTML=`<table class="personTable"><thead><tr><th>Name</th><th>Bereich</th><th>Anzahl</th><th>Einsätze</th></tr></thead><tbody>${rows||'<tr><td colspan="4">Keine Treffer.</td></tr>'}</tbody></table>`;
 }
 function renderPlan(){
-  const day=daySelect.value||data.days[0]?.id||'fr'; const q=(searchInput.value||'').toLowerCase(); const af=areaFilter.value||'all';
+  const day=daySelect.value||data.days[0]?.id||'fr',q=(searchInput.value||'').toLowerCase(),af=areaFilter.value||'all';
   printDayTitle.textContent=`${data.meta.title} – ${dayLabel(day)} – ${data.meta.place}`;
-  let html='<thead><tr><th style="width:52px">Pos.</th><th>Bereich / Beschreibung</th><th>Soll</th>'+data.times.map(t=>`<th>${esc(t)}</th>`).join('')+'</tr></thead><tbody>';
-  data.positions.forEach((p,pi)=>{if(af!=='all'&&p.area!==af)return;const rowText=(p.no+' '+p.area+' '+p.desc).toLowerCase();let cells='';let hasMatch=!q||rowText.includes(q);data.times.forEach(t=>{const arr=data.assignments[key(day,pi,t)]||[];if(arr.some(n=>n.toLowerCase().includes(q)))hasMatch=true;const need=Number(p.need||1);const cls=arr.length?'filled':'empty';const status=arr.length<need?'miss':arr.length===need?'ok':'miss';cells+=`<td class="slot ${cls} ${arr.length>need?'over':''}"><div class="needed ${status}">${arr.length}/${need}</div><div class="names">${arr.map(n=>`<span class="chip" onclick="openPerson('${escJ(n)}')">${esc(n)} <span class="x" onclick="event.stopPropagation();removeName('${escJ(day)}',${pi},'${escJ(t)}','${escJ(n)}')">×</span></span>`).join('')}</div><div class="addLine noPrint"><select onchange="addSelected(this,'${escJ(day)}',${pi},'${escJ(t)}')"><option value="">+ Ordner</option>${peopleNames().map(n=>`<option>${esc(n)}</option>`).join('')}</select><button class="secondary small" onclick="quickFill('${escJ(day)}',${pi},'${escJ(t)}')">+</button><input class="manual" placeholder="oder Namen tippen + Enter" onkeydown="if(event.key==='Enter'){addTyped(this,'${escJ(day)}',${pi},'${escJ(t)}')}"></div></td>`});if(hasMatch)html+=`<tr><td>${esc(p.no)}</td><td><div class="posArea">${esc(p.area)}</div><div class="posDesc">${esc(p.desc||'')}</div></td><td>${esc(p.need||1)}</td>${cells}</tr>`});
+  scheduleTable.classList.toggle('compact',compactToggle.checked);
+  let html='<thead><tr><th>Pos.</th><th>Bereich / Beschreibung</th><th class="noPrint">Soll</th>'+data.times.map(t=>`<th>${esc(t)}</th>`).join('')+'</tr></thead><tbody>';
+  data.positions.forEach(p=>{
+    if(af!=='all'&&p.area!==af)return;
+    const rowText=(p.no+' '+p.area+' '+p.desc).toLowerCase();
+    let cells='',hasMatch=!q||rowText.includes(q);
+    data.times.forEach(t=>{
+      const arr=data.assignments[key(day,p.id,t)]||[];
+      if(arr.some(n=>n.toLowerCase().includes(q)))hasMatch=true;
+      const need=Number(p.need||1),status=arr.length<need?'miss':'ok',opts=allowedPeopleForPosition(p);
+      cells+=`<td class="slot ${arr.length?'filled':'empty'} ${arr.length>need?'over':''}"><div class="needed ${status}">${arr.length}/${need}</div><div class="names">${arr.map(n=>`<span class="chip" onclick="openPerson('${escJ(n)}')">${esc(n)} <span class="x" onclick="event.stopPropagation();removeName('${escJ(day)}','${escJ(p.id)}','${escJ(t)}','${escJ(n)}')">×</span></span>`).join('')}</div><div class="addLine noPrint"><select onchange="addSelected(this,'${escJ(day)}','${escJ(p.id)}','${escJ(t)}')"><option value="">+ Ordner</option>${opts.map(n=>`<option>${esc(n)}</option>`).join('')}</select><button class="secondary small" title="Ordnerstamm öffnen" onclick="openPeopleConfig()">👤</button></div></td>`;
+    });
+    if(hasMatch)html+=`<tr><td>${esc(p.no)}</td><td><div class="posArea">${esc(p.area)}</div><div class="posDesc">${esc(p.desc||'')}</div></td><td class="noPrint">${esc(p.need||1)}</td>${cells}</tr>`;
+  });
   scheduleTable.innerHTML=html+'</tbody>';
 }
-function addSelected(sel,day,pi,t){if(sel.value)addName(day,pi,t,sel.value);sel.value=''}
-function addTyped(inp,day,pi,t){const v=inp.value.trim();if(v){if(!peopleNames().includes(v))data.people.push({name:v,team:'',note:''});addName(day,pi,t,v);inp.value='';renderConfig();renderPeopleSelect();renderDashboard()}}
-function quickFill(day,pi,t){const v=prompt('Namen eintragen:');if(v)addTyped({value:v,},day,pi,t)}
-function addName(day,pi,t,n){const k=key(day,pi,t);data.assignments[k]=data.assignments[k]||[];if(!data.assignments[k].includes(n))data.assignments[k].push(n);save();renderPlan();renderDashboard()}
-function removeName(day,pi,t,n){const k=key(day,pi,t);data.assignments[k]=(data.assignments[k]||[]).filter(x=>x!==n);save();renderPlan();renderDashboard();renderPersonView(currentPerson)}
+function addSelected(sel,day,posId,t){if(sel.value)addName(day,posId,t,sel.value);sel.value=''}
+function removeName(day,posId,t,n){const k=key(day,posId,t);data.assignments[k]=(data.assignments[k]||[]).filter(x=>x!==n);save();renderAll()}
+function openPeopleConfig(){switchView('config');switchConfig('people');setTimeout(()=>document.getElementById('peopleConfig')?.scrollIntoView({behavior:'smooth',block:'start'}),50)}
 function openPerson(n){currentPerson=n;location.hash='person='+encodeURIComponent(n);switchView('person');renderPeopleSelect();personSelect.value=n;renderPersonView(n)}
 function renderPeopleSelect(){personSelect.innerHTML=peopleNames().map(n=>`<option>${esc(n)}</option>`).join('')}
 function renderPersonView(name){
-  currentPerson=name||peopleNames()[0]||''; const obj=getPersonObj(currentPerson); const rows=getAssignmentsForPerson(currentPerson); const total=rows.length;
-  const byDay=data.days.map(d=>({label:d.label,date:d.date,items:rows.filter(r=>r.dayId===d.id)}));
-  const tableRows=rows.map(r=>`<tr><td>${esc(r.day)} ${esc(r.date||'')}</td><td>${esc(r.time)}</td><td>${esc(r.pos)}</td><td>${esc(r.area)}</td><td>${esc(r.desc||'')}</td></tr>`).join('')||'<tr><td colspan="5">Noch keine Einteilung vorhanden.</td></tr>';
-  const whats=makePersonText(currentPerson);
-  personCard.innerHTML=`<div class="sectionTitle"><div><h2>Einzelübersicht: ${esc(currentPerson||'—')}</h2><p class="muted">${esc(data.meta.title)} · ${esc(data.meta.place)}${obj.team?' · '+esc(obj.team):''}</p></div><span class="pill blue">${total} Einteilungen</span></div>
-  <div class="personalCard"><table class="personTable"><thead><tr><th>Tag</th><th>Zeit</th><th>Pos.</th><th>Bereich</th><th>Beschreibung</th></tr></thead><tbody>${tableRows}</tbody></table></div>
-  <div class="grid noPrint">${byDay.map(d=>`<div class="personalCard"><b>${esc(d.label)} ${esc(d.date||'')}</b><p class="muted">${d.items.length?d.items.map(i=>`${esc(i.time)} · Pos. ${esc(i.pos)} ${esc(i.area)}`).join('<br>'):'Keine Einteilung'}</p></div>`).join('')}</div>
-  <div class="card noPrint" style="box-shadow:none;margin:10px 0 0;padding:0;border:0"><h3>WhatsApp-Text</h3><div class="whatsappPreview">${esc(whats)}</div></div>`;
+  currentPerson=name||peopleNames()[0]||''; const obj=getPersonObj(currentPerson),rows=getAssignmentsForPerson(currentPerson),whats=makePersonText(currentPerson);
+  personCard.innerHTML=`<div class="sectionTitle"><div><h2>Einzelübersicht: ${esc(currentPerson||'—')}</h2><p class="muted">${esc(data.meta.title)} · ${esc(data.meta.place)}${obj.congregation?' · '+esc(obj.congregation):''}</p></div><span class="pill blue">${rows.length} Einteilungen</span></div><div class="personalCard"><table class="personTable"><thead><tr><th>Tag</th><th>Zeit</th><th>Pos.</th><th>Bereich</th><th>Beschreibung</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.day)} ${esc(r.date||'')}</td><td>${esc(r.time)}</td><td>${esc(r.pos)}</td><td>${esc(r.area)}</td><td>${esc(r.desc||'')}</td></tr>`).join('')||'<tr><td colspan="5">Noch keine Einteilung vorhanden.</td></tr>'}</tbody></table></div><div class="card noPrint" style="box-shadow:none;margin:8px 0 0;padding:0;border:0"><h3>Nachricht</h3><div class="whatsappPreview">${esc(whats)}</div></div>`;
 }
-function makePersonText(name){const rows=getAssignmentsForPerson(name);return `Hallo ${name},\n\nhier ist deine Einteilung für ${data.meta.title} (${data.meta.place}):\n\n`+(rows.length?rows.map(r=>`${r.day}${r.date?' '+r.date:''}, ${r.time} – Pos. ${r.pos} ${r.area}${r.desc?' – '+r.desc:''}`).join('\n'):'Aktuell bist du noch nicht eingeteilt.')+`\n\nVielen Dank für deine Unterstützung!`}
-function copyPersonText(){navigator.clipboard.writeText(makePersonText(currentPerson));alert('WhatsApp-Text kopiert.')}function copyPersonLink(){const url=location.href.split('#')[0]+'#person='+encodeURIComponent(currentPerson);navigator.clipboard.writeText(url);alert('Link zur Einzelübersicht kopiert. Hinweis: Funktioniert mit denselben lokal gespeicherten/importierten Daten.')}function printPerson(){switchView('person');window.print()}function printCurrentDay(){switchView('plan');window.print()}
+function makePersonText(name){
+  const rows=getAssignmentsForPerson(name);
+  const sender=[data.meta.senderName,data.meta.senderRole].filter(Boolean).join(' · ');
+  const senderLine=(sender||data.meta.senderPhone||data.meta.senderEmail)?`\n\nLiebe Grüße\n${sender}${data.meta.senderPhone?'\nMobil: '+data.meta.senderPhone:''}${data.meta.senderEmail?'\nEmail: '+data.meta.senderEmail:''}`:'';
+  return `Hallo ${name},\n\n${data.meta.messageIntro||'hier ist deine Einteilung:'}\n${data.meta.title} · ${data.meta.place}\n\n`+(rows.length?rows.map(r=>`${r.day}${r.date?' '+r.date:''}, ${r.time} – Pos. ${r.pos} ${r.area}${r.desc?' – '+r.desc:''}`).join('\n'):'Aktuell bist du noch nicht eingeteilt.')+`\n\n${data.meta.messageOutro||'Vielen Dank für deine Unterstützung!'}${senderLine}`;
+}
+function copyPersonText(){navigator.clipboard.writeText(makePersonText(currentPerson));alert('Text kopiert.')}
+function phoneForWhatsApp(phone){return String(phone||'').replace(/[^0-9]/g,'').replace(/^00/,'')}
+function sendWhatsApp(){const obj=getPersonObj(currentPerson);const text=encodeURIComponent(makePersonText(currentPerson));const phone=phoneForWhatsApp(obj.phone);const url=phone?`https://wa.me/${phone}?text=${text}`:`https://wa.me/?text=${text}`;window.open(url,'_blank')}
+function sendEmail(){const obj=getPersonObj(currentPerson);const subject=encodeURIComponent(`${data.meta.title} – Deine Einteilung`);const body=encodeURIComponent(makePersonText(currentPerson));window.location.href=`mailto:${encodeURIComponent(obj.email||'')}?subject=${subject}&body=${body}`}
+function copyPersonLink(){const url=location.href.split('#')[0]+'#person='+encodeURIComponent(currentPerson);navigator.clipboard.writeText(url);alert('Link kopiert.')}
+function printPerson(){switchView('person');window.print()}function printCurrentDay(){switchView('plan');window.print()}
 function renderConfig(){
-  daysConfig.innerHTML=data.days.map((d,i)=>`<div class="configRow"><input value="${escA(d.label)}" oninput="data.days[${i}].label=this.value;save();renderSelectors();renderPlan();renderDashboard()"><input placeholder="Datum" value="${escA(d.date)}" oninput="data.days[${i}].date=this.value;save();renderSelectors();renderPlan();renderDashboard()"><button class="danger small" onclick="removeDay(${i})">Löschen</button></div>`).join('');
-  timeConfig.innerHTML='<div class="listHead"><span>Zeitblock</span><span>Aktion</span></div>'+data.times.map((t,i)=>`<div class="listItem"><input value="${escA(t)}" oninput="renameTime(${i},this.value)"><button class="danger small" onclick="removeTime(${i})">Löschen</button></div>`).join('');
-  peopleConfig.innerHTML='<div class="listHead"><span>Name</span><span>Team/Bereich</span><span>Notiz</span><span>Aktion</span></div>'+data.people.map((p,i)=>`<div class="listItem"><input value="${escA(p.name)}" oninput="renamePerson(${i},this.value)"><input value="${escA(p.team||'')}" oninput="data.people[${i}].team=this.value;save();renderPersonView(currentPerson)"><input value="${escA(p.note||'')}" oninput="data.people[${i}].note=this.value;save()"><button class="danger small" onclick="removePerson(${i})">Löschen</button></div>`).join('');
-  positionsConfig.innerHTML='<div class="listHead"><span>Pos.</span><span>Bereich</span><span>Beschreibung</span><span>Soll</span><span>Aktion</span></div>'+data.positions.map((p,i)=>`<div class="listItem"><input value="${escA(p.no)}" oninput="data.positions[${i}].no=this.value;save();renderPlan();renderDashboard()"><input value="${escA(p.area)}" oninput="data.positions[${i}].area=this.value;save();renderSelectors();renderPlan();renderDashboard()"><input value="${escA(p.desc)}" oninput="data.positions[${i}].desc=this.value;save();renderPlan();renderDashboard()"><input type="number" min="0" value="${escA(p.need||1)}" oninput="data.positions[${i}].need=Number(this.value||0);save();renderPlan();renderDashboard()"><button class="danger small" onclick="removePosition(${i})">Löschen</button></div>`).join('');
+  const q=(configSearch.value||'').toLowerCase();
+  daysConfig.innerHTML='<div class="listHead"><span>Tag</span><span>Datum</span><span>Aktion</span></div>'+data.days.map((d,i)=>`<div class="listItem"><input value="${escA(d.label)}" oninput="data.days[${i}].label=this.value;save()" onblur="renderSelectors();renderPlan();renderDashboard()"><input placeholder="Datum" value="${escA(d.date)}" oninput="data.days[${i}].date=this.value;save()" onblur="renderSelectors();renderPlan();renderDashboard()"><button class="danger small" onclick="removeDay(${i})">🗑</button></div>`).join('');
+  timeConfig.innerHTML='<div class="listHead"><span>Zeitblock</span><span>Aktion</span></div>'+data.times.filter(t=>!q||t.toLowerCase().includes(q)).map(t=>{const i=data.times.indexOf(t);return `<div class="listItem"><input value="${escA(t)}" oninput="renameTime(${i},this.value,false)" onblur="renderAll()"><button class="danger small" onclick="removeTime(${i})">🗑</button></div>`}).join('');
+  positionsConfig.innerHTML='<div class="listHead"><span>Pos.</span><span>Bereich</span><span>Beschreibung</span><span>Soll</span><span>Aktion</span></div>'+data.positions.filter(p=>!q||[p.no,p.area,p.desc].join(' ').toLowerCase().includes(q)).map(p=>{const i=data.positions.indexOf(p);return `<div class="listItem"><input value="${escA(p.no)}" oninput="data.positions[${i}].no=this.value;save()" onblur="renderSelectors();renderPlan();renderDashboard()"><input value="${escA(p.area)}" oninput="data.positions[${i}].area=this.value;save()" onblur="renderSelectors();renderPlan();renderDashboard()"><input value="${escA(p.desc)}" oninput="data.positions[${i}].desc=this.value;save()" onblur="renderPlan();renderDashboard()"><input type="number" min="0" value="${escA(p.need||1)}" oninput="data.positions[${i}].need=Number(this.value||0);save()" onblur="renderPlan();renderDashboard()"><button class="danger small" onclick="removePosition(${i})">🗑</button></div>`}).join('');
+  peopleConfig.innerHTML='<div class="listHead"><span>Name</span><span>Versammlung</span><span>Mobil</span><span>Email</span><span>Bereich</span><span>Notiz</span><span>Aktion</span></div>'+data.people.filter(p=>!q||[p.name,p.congregation,p.phone,p.email,p.area,p.note].join(' ').toLowerCase().includes(q)).map(p=>{const i=data.people.indexOf(p);return `<div class="listItem"><input value="${escA(p.name)}" oninput="renamePerson(${i},this.value,false)" onblur="renderAll()"><input value="${escA(p.congregation||'')}" oninput="data.people[${i}].congregation=this.value;save()" onblur="renderDashboard();renderPersonView(currentPerson)"><input value="${escA(p.phone||'')}" oninput="data.people[${i}].phone=this.value;save()" onblur="renderPersonView(currentPerson)"><input value="${escA(p.email||'')}" oninput="data.people[${i}].email=this.value;save()" onblur="renderPersonView(currentPerson)"><select onchange="data.people[${i}].area=this.value;save();renderAll()"><option value="" ${!p.area?'selected':''}>frei</option>${areaList().map(a=>`<option value="${escA(a)}" ${a===p.area?'selected':''}>${esc(a)}</option>`).join('')}</select><input value="${escA(p.note||'')}" oninput="data.people[${i}].note=this.value;save()"><button class="danger small" onclick="removePerson(${i})">🗑</button></div>`}).join('');
 }
-function renameTime(i,v){const old=data.times[i];data.times[i]=v;Object.keys(data.assignments).forEach(k=>{const p=k.split('||');if(p[2]===old){data.assignments[key(p[0],p[1],v)]=data.assignments[k];delete data.assignments[k]}});save();renderPlan();renderDashboard();renderPersonView(currentPerson)}
-function renamePerson(i,v){const old=data.people[i].name;data.people[i].name=v;Object.values(data.assignments).forEach(arr=>arr.forEach((n,idx)=>{if(n===old)arr[idx]=v}));if(currentPerson===old)currentPerson=v;save();renderAll()}
-function addTimeBlock(){data.times.push('Neue Zeit');save();renderConfig();renderPlan();renderDashboard()}function removeTime(i){if(confirm('Zeitblock löschen? Zugehörige Einteilungen werden entfernt.')){const old=data.times.splice(i,1)[0];Object.keys(data.assignments).forEach(k=>{if(k.endsWith('||'+old))delete data.assignments[k]});save();renderAll()}}
-function addPerson(){data.people.push({name:'Neuer Ordner',team:'',note:''});save();renderAll()}function removePerson(i){if(confirm('Ordner löschen und aus Einteilungen entfernen?')){const old=data.people.splice(i,1)[0].name;Object.values(data.assignments).forEach(arr=>{let idx;while((idx=arr.indexOf(old))>-1)arr.splice(idx,1)});save();renderAll()}}
-function addPosition(){data.positions.push({no:String(data.positions.length+1),area:'Neuer Bereich',desc:'',need:1});save();renderAll()}function removePosition(i){if(confirm('Position löschen?')){data.positions.splice(i,1);Object.keys(data.assignments).forEach(k=>{const p=k.split('||');if(Number(p[1])===i)delete data.assignments[k]});save();renderAll()}}
+function renameTime(i,v,rerender=true){const old=data.times[i];data.times[i]=v;Object.keys(data.assignments).forEach(k=>{const p=k.split('||');if(p[2]===old){data.assignments[key(p[0],p[1],v)]=data.assignments[k];delete data.assignments[k]}});save();if(rerender)renderAll()}
+function renamePerson(i,v,rerender=true){const old=data.people[i].name;data.people[i].name=v;Object.values(data.assignments).forEach(arr=>arr.forEach((n,idx)=>{if(n===old)arr[idx]=v}));if(currentPerson===old)currentPerson=v;save();if(rerender)renderAll()}
+function addTimeBlock(){data.times.push('Neue Zeit');save();renderAll()}function removeTime(i){if(confirm('Zeitblock löschen? Zugehörige Einteilungen werden entfernt.')){const old=data.times.splice(i,1)[0];Object.keys(data.assignments).forEach(k=>{if(k.endsWith('||'+old))delete data.assignments[k]});save();renderAll()}}
+function addPerson(){data.people.push({name:'Neuer Ordner',congregation:'',phone:'',email:'',area:'',note:''});save();renderAll()}function removePerson(i){if(confirm('Ordner löschen und aus Einteilungen entfernen?')){const old=data.people.splice(i,1)[0].name;Object.values(data.assignments).forEach(arr=>{let idx;while((idx=arr.indexOf(old))>-1)arr.splice(idx,1)});save();renderAll()}}
+function addPosition(){data.positions.push({id:uid(),no:String(data.positions.length+1),area:'Neuer Bereich',desc:'',need:1});save();renderAll()}function removePosition(i){if(confirm('Position löschen?')){const id=data.positions.splice(i,1)[0].id;Object.keys(data.assignments).forEach(k=>{if(k.split('||')[1]===id)delete data.assignments[k]});save();renderAll()}}
 function removeDay(i){if(confirm('Tag löschen?')){const id=data.days.splice(i,1)[0].id;Object.keys(data.assignments).forEach(k=>{if(k.startsWith(id+'||'))delete data.assignments[k]});save();renderAll()}}function resetDays(){data.days=structuredClone(defaultData.days);save();renderAll()}
-function bulkPeoplePrompt(){const txt=prompt('Namensliste einfügen: ein Name pro Zeile. Optional: Name;Bereich;Notiz');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [name,team='',note='']=line.split(';').map(x=>x.trim());if(name&&!peopleNames().includes(name))data.people.push({name,team,note})});save();renderAll()}
-function bulkPositionsPrompt(){const txt=prompt('Positionen einfügen: Pos;Bereich;Beschreibung;Soll');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [no='',area='',desc='',need='1']=line.split(';').map(x=>x.trim());if(no||area)data.positions.push({no:no||String(data.positions.length+1),area,desc,need:Number(need||1)})});save();renderAll()}
-function copyDay(){const source=daySelect.value;copiedDay={source,items:{}};Object.keys(data.assignments).forEach(k=>{if(k.startsWith(source+'||'))copiedDay.items[k]=JSON.parse(JSON.stringify(data.assignments[k]))});alert('Aktueller Tag wurde kopiert. Zieltag wählen und Einfügen klicken.')}function pasteDay(){if(!copiedDay)return alert('Noch kein Tag kopiert.');const target=daySelect.value;if(!confirm('Einteilungen in den aktuellen Tag einfügen/überschreiben?'))return;Object.keys(copiedDay.items).forEach(k=>{const p=k.split('||');data.assignments[key(target,p[1],p[2])]=copiedDay.items[k]});save();renderAll();alert('Tag eingefügt.')}function clearDayConfirm(){const d=daySelect.value;if(confirm('Alle Einteilungen für diesen Tag leeren?')){Object.keys(data.assignments).forEach(k=>{if(k.startsWith(d+'||'))delete data.assignments[k]});save();renderAll()}}
-function exportJson(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rc_ordner_einteilung_backup_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href)}function importJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{data=normalizeData(JSON.parse(r.result));save();renderAll();alert('Import erfolgreich.')}catch(err){alert('Import fehlgeschlagen.')}};r.readAsText(f);e.target.value=''}
+function bulkPeoplePrompt(){const txt=prompt('Namensliste einfügen: Name;Versammlung;Mobil;Email;Bereich;Notiz');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [name,congregation='',phone='',email='',area='',note='']=line.split(';').map(x=>x.trim());if(name&&!peopleNames().includes(name))data.people.push({name,congregation,phone,email,area,note})});save();renderAll()}
+function bulkPositionsPrompt(){const txt=prompt('Positionen einfügen: Pos;Bereich;Beschreibung;Soll');if(!txt)return;txt.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{const [no='',area='',desc='',need='1']=line.split(';').map(x=>x.trim());if(no||area)data.positions.push({id:uid(),no:no||String(data.positions.length+1),area,desc,need:Number(need||1)})});save();renderAll()}
+function autoAssignAreasFromPlan(){let changed=0;data.people.forEach(p=>{if(p.area)return;const items=getAssignmentsForPerson(p.name);const areas=[...new Set(items.map(i=>i.area).filter(Boolean))];if(areas.length===1){p.area=areas[0];changed++}});save();renderAll();alert(`${changed} Bereiche automatisch gesetzt.`)}
+function copyDay(){const source=daySelect.value;copiedDay={source,items:{}};Object.keys(data.assignments).forEach(k=>{if(k.startsWith(source+'||'))copiedDay.items[k]=JSON.parse(JSON.stringify(data.assignments[k]))});alert('Aktueller Tag wurde kopiert. Zieltag wählen und Einfügen klicken.')}
+function pasteDay(){if(!copiedDay)return alert('Noch kein Tag kopiert.');const target=daySelect.value;if(!confirm('Einteilungen in den aktuellen Tag einfügen/überschreiben?'))return;Object.keys(copiedDay.items).forEach(k=>{const p=k.split('||');data.assignments[key(target,p[1],p[2])]=copiedDay.items[k]});save();renderAll();alert('Tag eingefügt.')}
+function clearDayConfirm(){const d=daySelect.value;if(confirm('Alle Einteilungen für diesen Tag leeren?')){Object.keys(data.assignments).forEach(k=>{if(k.startsWith(d+'||'))delete data.assignments[k]});save();renderAll()}}
+function exportJson(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rc_ordner_einteilung_backup_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href)}
+function importJson(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{data=normalizeData(JSON.parse(r.result));save();renderAll();alert('Import erfolgreich.')}catch(err){alert('Import fehlgeschlagen.')}};r.readAsText(f);e.target.value=''}
 init();
 </script>
 </body>
