@@ -26,7 +26,7 @@
       --border: rgba(255, 255, 255, 0.08);
       --border-hover: rgba(255, 255, 255, 0.15);
       --shadow: 0 16px 34px rgba(0,0,0,.3);
-      --primary: #8fd39a;
+      --primary: #8fd39a; /* Theocratic Green */
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 16px;
@@ -54,21 +54,43 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    @keyframes shine {
+      to { background-position: 200% center; }
+    }
+
+    @keyframes starPulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 8px var(--primary)); }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
     .animate-in { animation: fadeInUp 0.8s var(--transition-smooth) forwards; opacity: 0; }
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
-    .delay-6 { animation-delay: 0.6s; }
 
     .container { max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
 
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
-    .brand { display: flex; flex-direction: column; gap: 2px; }
-    .brand-title { font-size: 1.5rem; font-weight: 700; background: linear-gradient(90deg, #fff, #aab4c3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    /* TOPBAR */
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; }
     
-    .nav { display: flex; gap: 12px; align-items: center; }
+    .bookmark-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--primary);
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all var(--transition-smooth);
+    }
+    .bookmark-btn:hover { background: var(--surface-soft); transform: translateY(-2px); }
+    .bookmark-btn svg { animation: starPulse 3s infinite ease-in-out; }
+
     .nav-back {
       text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border);
       padding: 10px 18px; border-radius: 999px; backdrop-filter: blur(12px); font-size: .95rem; 
@@ -76,26 +98,40 @@
     }
     .nav-back:hover { transform: translateY(-2px); background: var(--surface-soft); border-color: var(--border-hover); }
 
-    .filter-bar { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+    /* HERO */
+    .hero { 
+      background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border); 
+      border-radius: var(--radius-xl); padding: 60px 40px; margin-bottom: 40px; text-align: center;
+    }
+
+    .hero h1 { 
+      margin: 0; font-size: 3.5rem; font-weight: 700; line-height: 1.1;
+      background: linear-gradient(90deg, #ffffff 0%, #aab4c3 25%, #ffffff 50%, #aab4c3 75%, #ffffff 100%);
+      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shine 5s linear infinite;
+    }
+    
+    .hero-byline { font-size: 1.3rem; color: var(--primary); margin-top: 8px; font-weight: 400; }
+
+    .hero p { color: var(--muted); line-height: 1.6; font-size: 1.15rem; margin: 24px auto 32px; max-width: 700px; }
+
+    /* NOTICES */
+    .notices { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+    .notice-box { padding: 20px 24px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: .95rem; line-height: 1.6; }
+    .notice-box.privacy { border-left: 4px solid var(--primary); }
+    .notice-box.tip { border-left: 4px solid #8dc2ff; }
+    .notice-box strong { display: block; color: var(--text); font-size: 1.05rem; margin-bottom: 6px; }
+
+    /* FILTER */
+    .filter-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
     .filter-btn {
       padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border);
       background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: 0.3s;
     }
     .filter-btn.active { background: var(--primary); color: #102036; border-color: var(--primary); }
 
-    .hero { background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 48px 40px; margin-bottom: 40px; }
-    .hero h1 { margin: 0 0 8px; font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #ffffff 0%, #aab4c3 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-subtitle { font-size: 1.4rem; color: var(--primary); margin-bottom: 20px; }
-    .hero p { color: var(--muted); line-height: 1.6; font-size: 1.15rem; margin-bottom: 32px; }
-
-    .notices { display: flex; flex-direction: column; gap: 16px; }
-    .notice-box { padding: 20px 24px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: .95rem; line-height: 1.6; }
-    .notice-box.privacy { border-left: 4px solid var(--primary); }
-    .notice-box.tip { border-left: 4px solid #8dc2ff; }
-    .notice-box strong { display: block; color: var(--text); font-size: 1.05rem; margin-bottom: 6px; }
-
+    /* GRID & CARDS */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-    
     .card {
       background: var(--surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-lg);
       padding: 28px 24px; display: flex; flex-direction: column; transition: all var(--transition-smooth);
@@ -115,7 +151,6 @@
 
     .card h2 { font-size: 1.4rem; color: #fff; margin-bottom: 12px; line-height: 1.2; }
     .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
-
     .meta { font-size: .8rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 6px 12px; border-radius: 999px; margin-bottom: 24px; display: inline-block; width: fit-content; }
     
     .card-actions { margin-top: auto; }
@@ -133,10 +168,11 @@
 <body>
   <div class="container">
     <header class="topbar animate-in">
-      <div class="brand">
-        <div class="brand-title">kaffeetrinker80</div>
-        <div class="brand-subtitle" style="color: var(--primary)">Theocratic Tools</div>
-      </div>
+      <!-- Bookmark Stern links -->
+      <button class="bookmark-btn" onclick="addBookmark()" title="Bookmark this page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </button>
+      
       <nav class="nav">
         <a href="https://kaffeetrinker80.github.io/" class="nav-back">← Back to Home</a>
       </nav>
@@ -144,182 +180,144 @@
 
     <section class="hero animate-in delay-1">
       <h1>Theocratic Tools</h1>
-      <div class="hero-subtitle">Planning and coordination.</div>
-      <p>Browser-based tools for planning, scheduling and internal coordination.</p>
+      <div class="hero-byline">by kaffeetrinker80</div>
+      <p>
+        Planning and coordination. <br>
+        Browser-based tools for planning, scheduling and internal coordination.[cite: 4]
+      </p>
       
       <div class="notices">
         <div class="notice-box privacy">
           <strong>🔒 Strict Privacy & Data Security</strong>
-          Although these tools are hosted on GitHub, your data is never uploaded there. Whenever you open a file or import data, it is read <strong>strictly locally</strong> inside your own browser on your own device. The data never leaves your device and is not sent to me, to GitHub, or to any external server.
+          All data is read <strong>strictly locally</strong> inside your own browser. The data never leaves your device and is not sent to any external server.[cite: 4]
         </div>
         
         <div class="notice-box tip">
           <strong>📱 Tablet & Mobile Experience</strong>
-          If you are not working on a PC or laptop, you can still get the best experience on a tablet. Simply use your browser's zoom function (e.g., zoom out to 75% or 80%) to fit the interfaces perfectly onto your screen.
+          On tablets, use your browser's zoom function (e.g., 75% or 80%) to fit the interfaces perfectly.[cite: 4]
         </div>
       </div>
     </section>
 
     <div class="filter-bar animate-in delay-2">
-      <button class="filter-btn active" onclick="filterTools('all')">All</button>
-      <button class="filter-btn" onclick="filterTools('assembly')">Assembly</button>
-      <button class="filter-btn" onclick="filterTools('rc')">RC</button>
-      <button class="filter-btn" onclick="filterTools('congregation')">Congregation</button>
-      <button class="filter-btn" onclick="filterTools('kh')">Kingdom Hall</button>
-      <button class="filter-btn" onclick="filterTools('ptc')">PTC</button>
+      <button class="filter-btn active" onclick="filterTools('all', event)">All</button>
+      <button class="filter-btn" onclick="filterTools('assembly', event)">Assembly</button>
+      <button class="filter-btn" onclick="filterTools('rc', event)">RC</button>
+      <button class="filter-btn" onclick="filterTools('congregation', event)">Congregation</button>
+      <button class="filter-btn" onclick="filterTools('kh', event)">Kingdom Hall</button>
+      <button class="filter-btn" onclick="filterTools('ptc', event)">PTC</button>
     </div>
 
-    <section class="grid">
-      
-      <!-- Assembly Attendant Tool -->
-      <article class="card theme-assembly animate-in delay-2" data-cat="assembly">
+    <section class="grid animate-in delay-3">
+      <!-- Cards wie zuvor -->
+      <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
         <h2>Assembly Attendant Tool</h2>
-        <p>Streamlined attendant coordination and duty planning for one-day assemblies.</p>
+        <p>Streamlined attendant coordination and duty planning.[cite: 4]</p>
         <div class="meta">Assembly · Attendants</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./assembly-attendant-tool/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./assembly-attendant-tool/">Open Tool</a></div>
       </article>
 
-      <!-- Assembly Cleaning Planner -->
-      <article class="card theme-assembly animate-in delay-2" data-cat="assembly">
+      <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Cleaning Planner</h2>
-        <p>Cleaning schedules and shift coordination for one-day assemblies.</p>
+        <p>Schedules and shift coordination for assemblies.[cite: 4]</p>
         <div class="meta">Assembly · Cleaning</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a></div>
       </article>
 
-      <!-- Assembly Counting -->
-      <article class="card theme-assembly animate-in delay-2" data-cat="assembly">
+      <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./assembly-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Counting</h2>
-        <p>Counting tool for one-day assemblies with slips and attendance summary.</p>
+        <p>Counting tool with slips and attendance summary.[cite: 4]</p>
         <div class="meta">Assembly · Counting</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./assembly-counting/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./assembly-counting/">Open Tool</a></div>
       </article>
 
-      <!-- Congregation Microphone Service -->
-      <article class="card theme-congregation animate-in delay-3" data-cat="congregation">
+      <article class="card theme-congregation" data-cat="congregation">
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>Congregation Microphone Service</h2>
-        <p>Planning microphone assignments, shifts and support during meetings.</p>
+        <h2>Microphone Service</h2>
+        <p>Planning assignments and support during meetings.[cite: 4]</p>
         <div class="meta">Congregation · Microphones</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./microphoneservice-tool/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./microphoneservice-tool/">Open Tool</a></div>
       </article>
 
-      <!-- Congregation Volunteers -->
-      <article class="card theme-congregation animate-in delay-3" data-cat="congregation">
+      <article class="card theme-congregation" data-cat="congregation">
         <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Volunteers</h2>
-        <p>Managing details and availability of congregation volunteers.</p>
+        <p>Managing details and availability of volunteers.[cite: 4]</p>
         <div class="meta">Congregation · Volunteers</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./congregation-volunteers/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./congregation-volunteers/">Open Tool</a></div>
       </article>
 
-      <!-- KH Cleaning Planner -->
-      <article class="card theme-kh animate-in delay-3" data-cat="kh">
+      <article class="card theme-kh" data-cat="kh">
         <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>KH Cleaning Planner</h2>
-        <p>Ideal for multi-congregation halls to organize annual deep cleaning and yearly schedules.</p>
+        <p>Annual deep cleaning and yearly hall schedules.[cite: 4]</p>
         <div class="meta">Kingdom Hall · Cleaning</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
       </article>
 
-      <!-- PTC Tool -->
-      <article class="card theme-ptc animate-in delay-4" data-cat="ptc">
+      <article class="card theme-ptc" data-cat="ptc">
         <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>PTC Tool</h2>
-        <p>Coordination of public talks, speakers and outlines from imported data.</p>
+        <p>Public talks, speakers and outline management.[cite: 4]</p>
         <div class="meta">PTC · Public Talks</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./ptc-tool/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./ptc-tool/">Open Tool</a></div>
       </article>
 
-      <!-- RC A/V Planner -->
-      <article class="card theme-rc animate-in delay-4" data-cat="rc">
+      <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC A/V Planner</h2>
-        <p>Planning and coordination of audio and video assignments on regional conventions.</p>
+        <p>Audio and video coordination for conventions.[cite: 4]</p>
         <div class="meta">RC · A/V</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./av-planner/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./av-planner/">Open Tool</a></div>
       </article>
 
-      <!-- RC Attendant Scheduler -->
-      <article class="card theme-rc animate-in delay-4" data-cat="rc">
+      <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon"></div>
         <h2>RC Attendant Scheduler</h2>
-        <p>Detailed assignment and shift planning for attendants at regional conventions.</p>
+        <p>Assignment and shift planning for RC attendants.[cite: 4]</p>
         <div class="meta">RC · Attendants</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a></div>
       </article>
 
-      <!-- RC Cleaning Planner -->
-      <article class="card theme-rc animate-in delay-5" data-cat="rc">
+      <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Cleaning Planner</h2>
-        <p>Cleaning coordination for three-day regional conventions.</p>
+        <p>Cleaning coordination for regional conventions.[cite: 4]</p>
         <div class="meta">RC · Cleaning</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a></div>
       </article>
 
-      <!-- RC Counting -->
-      <article class="card theme-rc animate-in delay-5" data-cat="rc">
+      <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Counting</h2>
-        <p>Counting tool for three-day regional conventions with day overview.</p>
+        <p>Counting tool for regional conventions.[cite: 4]</p>
         <div class="meta">RC · Counting</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./rc-counting/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./rc-counting/">Open Tool</a></div>
       </article>
 
-      <!-- RC Volunteer Management -->
-      <article class="card theme-rc animate-in delay-5" data-cat="rc">
+      <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Volunteer Management</h2>
-        <p>Designed for convention committees to manage and communicate with volunteers.</p>
+        <p>Manage and communicate with convention volunteers.[cite: 4]</p>
         <div class="meta">RC · Volunteers</div>
-        <div class="card-actions">
-          <a class="btn-card" href="./rc-volunteers-management/">Open Tool</a>
-        </div>
+        <div class="card-actions"><a class="btn-card" href="./rc-volunteers-management/">Open Tool</a></div>
       </article>
-
     </section>
 
-    <footer class="footer animate-in delay-6">
-      <p>Made with Love © · kaffeetrinker80</p>
+    <footer class="footer animate-in delay-3">
+      <p>Made with Love © · kaffeetrinker80[cite: 4]</p>
     </footer>
   </div>
 
   <script>
-    function filterTools(category) {
+    function filterTools(category, event) {
       const cards = document.querySelectorAll('.card');
       const buttons = document.querySelectorAll('.filter-btn');
-      
-      // Update buttons
       buttons.forEach(btn => btn.classList.remove('active'));
       event.currentTarget.classList.add('active');
-
-      // Filter cards
       cards.forEach(card => {
         if (category === 'all' || card.getAttribute('data-cat') === category) {
           card.classList.remove('hidden');
@@ -327,6 +325,10 @@
           card.classList.add('hidden');
         }
       });
+    }
+
+    function addBookmark() {
+      alert("To bookmark this page, please press:\n\nCTRL + D (Windows/Linux)\nCMD + D (Mac)");
     }
   </script>
 </body>
