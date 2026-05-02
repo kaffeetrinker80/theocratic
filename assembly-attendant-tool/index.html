@@ -441,7 +441,7 @@ Loving greetings,
   </div>
 
   <datalist id="congregationOptions"></datalist>
-  <div class="footer-bar">Made with love © v.1.22 · GitHub clean sample version</div>
+  <div class="footer-bar">Made with love © v.1.23</div>
 </div>
 
 <script>
@@ -1053,10 +1053,21 @@ function updateCong(index, key, value){
   } else {
     row[key] = value;
   }
+
   saveState();
-  renderCongTable();
-  renderAttendantTable();
-  updateDatalist();
+
+  // Important: do not rebuild the table while a user is typing into text fields.
+  // Rebuilding replaces the active input element and makes the cursor jump out.
+  const needsCongRerender = ['type', 'contacted', 'replied'].includes(key);
+  if(needsCongRerender){
+    renderCongTable();
+  }
+
+  if(key === 'congregation'){
+    updateDatalist();
+    refreshCongregationFilter();
+  }
+
   if(selectedCongIndex === index){
     previewCong(index);
   }
@@ -1064,8 +1075,18 @@ function updateCong(index, key, value){
 function updateAtt(index, key, value){
   state.attendants[index][key] = value;
   saveState();
-  renderAttendantTable();
-  renderCongTable();
+
+  // Text inputs must keep focus. Only full-render on controls where it is useful.
+  const needsAttendantRerender = ['congregation', 'privilege', 'active', 'children', 'otherDepartment'].includes(key);
+  if(needsAttendantRerender){
+    renderAttendantTable();
+  }
+
+  // Keep the dashboard congregation overview in sync without destroying the active text input.
+  if(['name', 'firstName', 'congregation', 'active', 'children', 'otherDepartment', 'privilege'].includes(key)){
+    renderCongSummary();
+    updateMetrics();
+  }
 }
 function addCongregationRow(){
   state.congregations.push(normalizeCongregation({ congregation:'', type:'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', contacted:false, replied:false, remarks:'', linkedAttendantIds:'', contactedAt:'', repliedAt:'' }));
@@ -1349,7 +1370,7 @@ function saveJson(){
   const payload = {
     exportedAt: new Date().toISOString(),
     app: 'Attendant Department Planner',
-    version: '1.22-github-clean',
+    version: '1.23-github-clean',
     ...state
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
