@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Theocratic Tools | kaffeetrinker80</title>
   
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -19,160 +19,142 @@
     :root {
       --bg: #12151a;
       --bg-soft: #1a1e24;
-      --surface: rgba(30, 35, 43, 0.6);
-      --surface-soft: rgba(49, 56, 68, 0.8);
+      --surface: #1e232b;
       --text: #eef2f7;
       --muted: #94a3b8;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(255, 255, 255, 0.15);
-      --shadow: 0 16px 34px rgba(0,0,0,.3);
+      --border: rgba(255, 255, 255, 0.1);
       --primary: #8fd39a; /* Theocratic Green */
       --radius-xl: 28px;
       --radius-lg: 22px;
-      --radius-md: 16px;
       --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
 
     body {
       margin: 0; font-family: 'Outfit', sans-serif;
       background-color: var(--bg); color: var(--text);
-      position: relative; overflow-x: hidden;
+      position: relative; overflow-x: hidden; line-height: 1.5;
     }
 
     body::before, body::after {
-      content: ""; position: absolute; width: 600px; height: 600px;
-      border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.12; pointer-events: none;
+      content: ""; position: fixed; width: 400px; height: 400px;
+      border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.12; pointer-events: none;
     }
     body::before { background: var(--primary); top: -100px; left: -100px; }
-    body::after { background: #8dc2ff; bottom: 10%; right: -200px; }
+    body::after { background: #8dc2ff; bottom: 10%; right: -150px; }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes shine {
-      to { background-position: 200% center; }
-    }
-
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shine { to { background-position: 200% center; } }
     @keyframes starPulse {
-      0% { transform: scale(1); opacity: 0.8; }
+      0% { transform: scale(1); opacity: 0.7; }
       50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 8px var(--primary)); }
-      100% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 0.7; }
     }
 
-    .animate-in { animation: fadeInUp 0.8s var(--transition-smooth) forwards; opacity: 0; }
+    .animate-in { animation: fadeInUp 0.6s var(--transition-smooth) forwards; opacity: 0; }
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
 
-    .container { max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 20px 20px 40px; position: relative; }
 
     /* TOPBAR */
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 32px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; position: relative; z-index: 9999; }
     
     .bookmark-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--primary);
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(12px);
-      transition: all var(--transition-smooth);
+      background: var(--bg-soft); border: 1px solid var(--border); color: var(--primary);
+      width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease;
     }
-    .bookmark-btn:hover { background: var(--surface-soft); transform: translateY(-2px); }
-    .bookmark-btn svg { animation: starPulse 3s infinite ease-in-out; }
+    .bookmark-btn:hover { transform: translateY(-2px); background: #252b33; }
+    .bookmark-btn svg { animation: starPulse 4s infinite ease-in-out; }
 
     .nav-back {
-      text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border);
-      padding: 10px 18px; border-radius: 999px; backdrop-filter: blur(12px); font-size: .95rem; 
+      text-decoration: none; color: var(--text); background: var(--bg-soft); border: 1px solid var(--border);
+      padding: 12px 20px; border-radius: 14px; font-size: .95rem; font-weight: 600;
       transition: all var(--transition-smooth);
     }
-    .nav-back:hover { transform: translateY(-2px); background: var(--surface-soft); border-color: var(--border-hover); }
+    .nav-back:hover { transform: translateY(-2px); background: #252b33; }
 
     /* HERO */
-    .hero { 
-      background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border); 
-      border-radius: var(--radius-xl); padding: 60px 40px; margin-bottom: 40px; text-align: center;
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 50px 24px; margin-bottom: 24px; text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-
-    .hero h1 { 
-      margin: 0; font-size: 3.5rem; font-weight: 700; line-height: 1.1;
-      background: linear-gradient(90deg, #ffffff 0%, #aab4c3 25%, #ffffff 50%, #aab4c3 75%, #ffffff 100%);
+    .hero h1 {
+      margin: 0; font-size: 3.2rem; line-height: 1.1; font-weight: 700;
+      background: linear-gradient(90deg, #ffffff 0%, var(--primary) 25%, #ffffff 50%, var(--primary) 75%, #ffffff 100%);
       background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      animation: shine 5s linear infinite;
+      animation: shine 6s linear infinite;
     }
-    
-    .hero-byline { font-size: 1.3rem; color: var(--primary); margin-top: 8px; font-weight: 400; }
-
-    .hero p { color: var(--muted); line-height: 1.6; font-size: 1.15rem; margin: 24px auto 32px; max-width: 700px; }
+    .hero-byline { font-size: 1.3rem; color: var(--primary); margin-top: 10px; font-weight: 400; }
+    .hero p { color: var(--muted); line-height: 1.6; font-size: 1.1rem; margin: 24px auto 0; max-width: 700px; }
 
     /* NOTICES */
-    .notices { display: flex; flex-direction: column; gap: 16px; text-align: left; }
-    .notice-box { padding: 20px 24px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: .95rem; line-height: 1.6; }
-    .notice-box.privacy { border-left: 4px solid var(--primary); }
-    .notice-box.tip { border-left: 4px solid #8dc2ff; }
-    .notice-box strong { display: block; color: var(--text); font-size: 1.05rem; margin-bottom: 6px; }
+    .notices { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; }
+    .notice-box {
+      padding: 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border);
+      border-radius: 16px; color: var(--muted); font-size: 0.9rem; border-left: 4px solid #444; text-align: left;
+    }
+    .notice-box.privacy { border-left-color: var(--primary); }
+    .notice-box.tip { border-left-color: #8dc2ff; }
+    .notice-box strong { display: block; color: #fff; margin-bottom: 4px; }
 
     /* FILTER */
     .filter-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
     .filter-btn {
-      padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border);
-      background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: 0.3s;
+      padding: 10px 20px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--bg-soft); color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: 0.3s;
     }
-    .filter-btn.active { background: var(--primary); color: #102036; border-color: var(--primary); }
+    .filter-btn.active { background: var(--primary); color: #102036; border-color: var(--primary); font-weight: 600; }
 
-    /* GRID & CARDS */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    /* GRID */
+    .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
     .card {
-      background: var(--surface); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-lg);
-      padding: 28px 24px; display: flex; flex-direction: column; transition: all var(--transition-smooth);
-      height: 100%;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 24px; display: flex; flex-direction: column;
+      transition: var(--transition-smooth); height: 100%;
     }
     .card.hidden { display: none; }
     .card:hover { transform: translateY(-5px); border-color: var(--c-theme); }
 
-    .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.15); }
-    .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.15); }
-    .theme-congregation { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.15); }
-    .theme-kh { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.15); }
-    .theme-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.15); }
+    .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.1); }
+    .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.1); }
+    .theme-congregation { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.1); }
+    .theme-kh { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.1); }
+    .theme-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.1); }
 
-    .icon-wrap { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; background: var(--c-soft); }
-    .icon-wrap img { width: 48px; height: 48px; object-fit: contain; }
+    .icon-wrap { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: var(--c-soft); }
+    .icon-wrap img { width: 36px; height: 36px; object-fit: contain; }
 
-    .card h2 { font-size: 1.4rem; color: #fff; margin-bottom: 12px; line-height: 1.2; }
-    .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
-    .meta { font-size: .8rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 6px 12px; border-radius: 999px; margin-bottom: 24px; display: inline-block; width: fit-content; }
-    
-    .card-actions { margin-top: auto; }
-    .btn-card { display: block; width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 14px 16px; border-radius: 14px; color: var(--c-theme); background: var(--c-soft); transition: all var(--transition-smooth); }
-    .btn-card:hover { background: var(--c-theme); color: #102036; }
+    .card h2 { font-size: 1.3rem; color: #fff; margin-bottom: 8px; }
+    .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
+    .meta { font-size: .75rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 5px 12px; border-radius: 999px; margin-bottom: 20px; display: inline-block; }
 
-    .footer { margin-top: 60px; text-align: center; color: var(--muted); padding-bottom: 40px; }
+    .btn-card { 
+      width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 12px; border-radius: 12px; 
+      color: var(--c-theme); background: var(--c-soft); transition: all 0.3s;
+    }
+    .btn-card:hover { background: var(--c-theme); color: #102036; box-shadow: 0 0 15px var(--c-soft); }
 
-    @media (max-width: 640px){
-      .hero h1 { font-size: 2.2rem; }
-      .grid { grid-template-columns: 1fr; }
+    .footer { margin-top: 40px; text-align: center; color: var(--muted); font-size: 0.85rem; padding-bottom: 20px; }
+
+    @media (min-width: 768px) {
+      .hero h1 { font-size: 4rem; }
+      .notices { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="topbar animate-in">
-      <!-- Bookmark Stern links -->
       <button class="bookmark-btn" onclick="addBookmark()" title="Bookmark this page">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       </button>
-      
       <nav class="nav">
         <a href="https://kaffeetrinker80.github.io/" class="nav-back">← Back to Home</a>
       </nav>
@@ -182,19 +164,18 @@
       <h1>Theocratic Tools</h1>
       <div class="hero-byline">by kaffeetrinker80</div>
       <p>
-        Planning and coordination. <br>
-        Browser-based tools for planning, scheduling and internal coordination.[cite: 4]
+        Planning and coordination.<br>
+        Browser-based tools for planning, scheduling and internal coordination.
       </p>
       
       <div class="notices">
         <div class="notice-box privacy">
           <strong>🔒 Strict Privacy & Data Security</strong>
-          All data is read <strong>strictly locally</strong> inside your own browser. The data never leaves your device and is not sent to any external server.[cite: 4]
+          All data is read strictly locally inside your own browser. The data never leaves your device.
         </div>
-        
         <div class="notice-box tip">
           <strong>📱 Tablet & Mobile Experience</strong>
-          On tablets, use your browser's zoom function (e.g., 75% or 80%) to fit the interfaces perfectly.[cite: 4]
+          On tablets, use the browser's zoom function (75% or 80%) to fit the interfaces perfectly.
         </div>
       </div>
     </section>
@@ -209,11 +190,11 @@
     </div>
 
     <section class="grid animate-in delay-3">
-      <!-- Cards wie zuvor -->
+      <!-- Assembly Planners -->
       <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
-        <h2>Assembly Attendant Tool</h2>
-        <p>Streamlined attendant coordination and duty planning.[cite: 4]</p>
+        <h2>Assembly Attendant Planner</h2>
+        <p>Streamlined attendant coordination and duty planning.</p>
         <div class="meta">Assembly · Attendants</div>
         <div class="card-actions"><a class="btn-card" href="./assembly-attendant-tool/">Open Tool</a></div>
       </article>
@@ -221,94 +202,72 @@
       <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Cleaning Planner</h2>
-        <p>Schedules and shift coordination for assemblies.[cite: 4]</p>
+        <p>Schedules and shift coordination for assemblies.</p>
         <div class="meta">Assembly · Cleaning</div>
         <div class="card-actions"><a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a></div>
       </article>
 
       <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./assembly-counting/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>Assembly Counting</h2>
-        <p>Counting tool with slips and attendance summary.[cite: 4]</p>
-        <div class="meta">Assembly · Counting</div>
+        <h2>Assembly Planners</h2>
+        <p>Counting tool with slips and attendance summary.</p>
+        <div class="meta">Assembly · Planning</div>
         <div class="card-actions"><a class="btn-card" href="./assembly-counting/">Open Tool</a></div>
       </article>
 
+      <!-- Congregation -->
       <article class="card theme-congregation" data-cat="congregation">
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Microphone Service</h2>
-        <p>Planning assignments and support during meetings.[cite: 4]</p>
+        <p>Planning assignments and support during meetings.</p>
         <div class="meta">Congregation · Microphones</div>
         <div class="card-actions"><a class="btn-card" href="./microphoneservice-tool/">Open Tool</a></div>
-      </article>
-
-      <article class="card theme-congregation" data-cat="congregation">
-        <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>Congregation Volunteers</h2>
-        <p>Managing details and availability of volunteers.[cite: 4]</p>
-        <div class="meta">Congregation · Volunteers</div>
-        <div class="card-actions"><a class="btn-card" href="./congregation-volunteers/">Open Tool</a></div>
-      </article>
-
-      <article class="card theme-kh" data-cat="kh">
-        <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>KH Cleaning Planner</h2>
-        <p>Annual deep cleaning and yearly hall schedules.[cite: 4]</p>
-        <div class="meta">Kingdom Hall · Cleaning</div>
-        <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
       </article>
 
       <article class="card theme-ptc" data-cat="ptc">
         <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>PTC Tool</h2>
-        <p>Public talks, speakers and outline management.[cite: 4]</p>
+        <p>Public talks, speakers and outline management.</p>
         <div class="meta">PTC · Public Talks</div>
         <div class="card-actions"><a class="btn-card" href="./ptc-tool/">Open Tool</a></div>
       </article>
 
+      <article class="card theme-kh" data-cat="kh">
+        <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>KH Cleaning Planner</h2>
+        <p>Annual deep cleaning and yearly hall schedules.</p>
+        <div class="meta">Kingdom Hall · Cleaning</div>
+        <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
+      </article>
+
+      <!-- RC -->
       <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC A/V Planner</h2>
-        <p>Audio and video coordination for conventions.[cite: 4]</p>
+        <p>Audio and video coordination for conventions.</p>
         <div class="meta">RC · A/V</div>
         <div class="card-actions"><a class="btn-card" href="./av-planner/">Open Tool</a></div>
       </article>
 
       <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon"></div>
-        <h2>RC Attendant Scheduler</h2>
-        <p>Assignment and shift planning for RC attendants.[cite: 4]</p>
+        <h2>RC Attendant Planner</h2>
+        <p>Assignment and shift planning for RC attendants.</p>
         <div class="meta">RC · Attendants</div>
         <div class="card-actions"><a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a></div>
       </article>
 
       <article class="card theme-rc" data-cat="rc">
-        <div class="icon-wrap"><img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>RC Cleaning Planner</h2>
-        <p>Cleaning coordination for regional conventions.[cite: 4]</p>
-        <div class="meta">RC · Cleaning</div>
-        <div class="card-actions"><a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a></div>
-      </article>
-
-      <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./rc-counting/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>RC Counting</h2>
-        <p>Counting tool for regional conventions.[cite: 4]</p>
-        <div class="meta">RC · Counting</div>
+        <h2>RC Planners</h2>
+        <p>Counting and attendance tools for regional conventions.</p>
+        <div class="meta">RC · Planning</div>
         <div class="card-actions"><a class="btn-card" href="./rc-counting/">Open Tool</a></div>
-      </article>
-
-      <article class="card theme-rc" data-cat="rc">
-        <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>RC Volunteer Management</h2>
-        <p>Manage and communicate with convention volunteers.[cite: 4]</p>
-        <div class="meta">RC · Volunteers</div>
-        <div class="card-actions"><a class="btn-card" href="./rc-volunteers-management/">Open Tool</a></div>
       </article>
     </section>
 
     <footer class="footer animate-in delay-3">
-      <p>Made with Love © · kaffeetrinker80[cite: 4]</p>
+      <p>Made with Love © · kaffeetrinker80</p>
     </footer>
   </div>
 
