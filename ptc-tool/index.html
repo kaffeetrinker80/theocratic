@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PTC Tool – EU-English Public Speakers</title>
-<link rel="manifest" href="site.webmanifest">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<title>PTC Tool – EU Public Speakers</title>
+<link rel="manifest" href="ptc-tool-manifest.json">
+<link rel="icon" type="image/png" sizes="16x16" href="PTC-tool-icon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="PTC-tool-icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="PTC-tool-icon-180.png">
 <meta name="theme-color" content="#2e7d32">
 <style>
 :root {
@@ -691,7 +691,7 @@ function extractPhones(value, fallbackCountry = '') {
 }
 
 function sanitizeCircuit(value) {
-  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]?\b/i);
+  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]*\b/i);
   return match ? match[0].toUpperCase() : '';
 }
 
