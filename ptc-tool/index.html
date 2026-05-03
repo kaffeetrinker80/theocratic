@@ -12,7 +12,6 @@
 <link rel="icon" href="favicon.ico">
 
 <link rel="manifest" href="site.webmanifest">
-
 <meta name="theme-color" content="#2e7d32">
 <style>
 :root {
@@ -704,7 +703,7 @@ function extractPhones(value, fallbackCountry = '') {
 }
 
 function sanitizeCircuit(value) {
-  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]*\b/i);
+  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]?\b/i);
   return match ? match[0].toUpperCase() : '';
 }
 
@@ -1121,6 +1120,71 @@ function setNoteRecord(key, record) {
 
 function deleteNoteRecord(key) {
   delete state.notes[key];
+}
+
+function cloneNotesStore(notes) {
+  try { return JSON.parse(JSON.stringify(notes || {})); }
+  catch (e) { return { ...(notes || {}) }; }
+}
+
+function noteRecordFromRaw(raw) {
+  if (raw && typeof raw === 'object') {
+    return {
+      text: raw.text || '',
+      favorite: !!raw.favorite,
+      lastInvited: raw.lastInvited || '',
+      lastUsed: raw.lastUsed || '',
+      ptcAssistant: normalizePtcAssistant(raw.ptcAssistant)
+    };
+  }
+  if (typeof raw === 'string') {
+    return { text: raw, favorite: false, lastInvited: '', lastUsed: '', ptcAssistant: defaultPtcAssistant() };
+  }
+  return { text: '', favorite: false, lastInvited: '', lastUsed: '', ptcAssistant: defaultPtcAssistant() };
+}
+
+function noteRawHasLocalValue(raw) {
+  const rec = noteRecordFromRaw(raw);
+  return !!(
+    (rec.text || '').trim() ||
+    rec.favorite ||
+    (rec.lastInvited || '').trim() ||
+    (rec.lastUsed || '').trim() ||
+    hasPtcAssistant(rec.ptcAssistant)
+  );
+}
+
+function mergeNoteStoresPreserveLocal(previousNotes, currentNotes) {
+  const merged = cloneNotesStore(previousNotes);
+  Object.entries(currentNotes || {}).forEach(([key, value]) => {
+    if (!Object.prototype.hasOwnProperty.call(merged, key)) {
+      merged[key] = value;
+      return;
+    }
+    const oldRec = noteRecordFromRaw(merged[key]);
+    const newRec = noteRecordFromRaw(value);
+    merged[key] = {
+      text: mergeCsvNote(oldRec.text || '', newRec.text || ''),
+      favorite: oldRec.favorite || newRec.favorite,
+      lastInvited: newRec.lastInvited || oldRec.lastInvited || '',
+      lastUsed: newRec.lastUsed || oldRec.lastUsed || '',
+      ptcAssistant: hasPtcAssistant(newRec.ptcAssistant) ? newRec.ptcAssistant : oldRec.ptcAssistant
+    };
+  });
+  return merged;
+}
+
+function preserveLocalCongregationNotesAfterCsvImport(previousNotes) {
+  if (!state.dataset || !Array.isArray(state.dataset.congregations)) return;
+  state.notes = mergeNoteStoresPreserveLocal(previousNotes, state.notes);
+  state.dataset.congregations.forEach(cong => {
+    const stableKey = congregationStableKey(cong.name || '');
+    if (!cong.notesKey) cong.notesKey = stableKey;
+    if (cong.notesKey !== stableKey && noteRawHasLocalValue(state.notes[stableKey]) && !noteRawHasLocalValue(state.notes[cong.notesKey])) {
+      state.notes[cong.notesKey] = state.notes[stableKey];
+    }
+  });
+  saveNotes();
 }
 
 
@@ -2431,7 +2495,7 @@ function renderDetail() {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.0.9',
+    version: '2.0.10',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     congregations: state.dataset.congregations,
@@ -2472,8 +2536,8 @@ function restoreDataset() {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.0.9', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.0.9', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.0.10', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.0.10', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2575,9 +2639,11 @@ document.getElementById('csvInput').addEventListener('change', async (ev) => {
   const text = await file.text();
   try {
     const previousHome = homeCongregation();
+    const previousNotes = cloneNotesStore(state.notes);
     const looksStructured = /(^|\n)source_pdf;source_page;|(^|\n).*speaker_note;.*talk_numbers/i.test(text);
     state.dataset = looksStructured ? parseStructuredCsvDataset(text) : parseCsvDataset(text);
     applyImportedSpeakerNotes(state.dataset);
+    preserveLocalCongregationNotesAfterCsvImport(previousNotes);
     if (previousHome) {
       const match = state.dataset.congregations.find(c => congregationStableKey(c.name) === congregationStableKey(previousHome.name));
       state.homeCongregationId = match ? match.id : '';
@@ -2590,7 +2656,7 @@ document.getElementById('csvInput').addEventListener('change', async (ev) => {
     state.lastCongregationKey = null;
     renderResults();
     renderDetail();
-    setStatus('CSV imported');
+    setStatus('CSV imported · local notes kept');
   } catch (e) {
     console.error(e);
     alert('CSV import failed: ' + e.message);
@@ -2758,7 +2824,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
       <div>
         <div style="font-size:1.3rem;font-weight:700;">Help</div>
-        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.0.7</div>
+        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.0.10</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
