@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PTC Tool – EU Public Speakers</title>
- <!-- Icons + Manifest -->
+<!-- Icons + Manifest -->
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -159,6 +159,10 @@ button.ghost { background:#f4f7fc; border:1px solid var(--line); }
 .note-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
 .field label { display:block; font-size:12px; color:var(--muted); margin:0 0 6px; }
 .star-btn.active { background:#fff3cd; color:#8a5a00; border:1px solid #f3d27a; }
+.local-save-status { font-size:12px; color:var(--muted); }
+.local-save-status.unsaved { color:var(--warn); font-weight:700; }
+.local-save-status.saved { color:var(--ok); font-weight:700; }
+button.needs-save { background:#fff3cd; color:#8a5a00; border:1px solid #f3d27a; }
 @media (max-width: 900px) { .note-grid, .ptc-grid { grid-template-columns:1fr; } .scroll-top { right:14px; bottom:14px; } }
 
 hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
@@ -553,6 +557,20 @@ function saveHomeCongregationId() {
 
 function setStatus(text) {
   document.getElementById('statusBadge').textContent = text;
+}
+
+function showToast(message) {
+  let box = document.getElementById('speakerMemoryStatus');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'speakerMemoryStatus';
+    box.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:9999;display:none;background:rgba(33,33,33,.92);color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px;';
+    document.body.appendChild(box);
+  }
+  box.textContent = message;
+  box.style.display = 'block';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { box.style.display = 'none'; }, 1800);
 }
 
 function normalizeText(value) {
@@ -1946,7 +1964,7 @@ function renderPtcLocalNoteEditor(cong) {
       <textarea id="ptcLocalNoteBox" placeholder="Local notes for this congregation / PTC contact...">${escapeHtml(rec.text || '')}</textarea>
       <div class="note-save-row">
         <button type="button" class="good" id="savePtcLocalNoteBtn">Save PTC note</button>
-        <span class="small subtle">Saved as personal congregation notes and included in Export Notes + Assistants.</span>
+        <span class="local-save-status" id="ptcLocalNoteStatus">Saved as personal congregation notes and included in Export Notes + Assistants.</span>
       </div>
     </div>
   `;
@@ -1954,14 +1972,37 @@ function renderPtcLocalNoteEditor(cong) {
 
 function wirePtcLocalNoteEditor(cong) {
   const btn = document.getElementById('savePtcLocalNoteBtn');
+  const box = document.getElementById('ptcLocalNoteBox');
+  const status = document.getElementById('ptcLocalNoteStatus');
   if (!btn) return;
+
+  const markUnsaved = () => {
+    btn.classList.add('needs-save');
+    btn.textContent = 'Save PTC note *';
+    if (status) {
+      status.textContent = 'Unsaved changes – click Save PTC note before importing a new CSV.';
+      status.classList.remove('saved');
+      status.classList.add('unsaved');
+    }
+  };
+
+  if (box) box.addEventListener('input', markUnsaved);
+
   btn.addEventListener('click', () => {
     const rec = noteRecord(cong.notesKey);
-    setNoteRecord(cong.notesKey, { ...rec, text: document.getElementById('ptcLocalNoteBox')?.value || '' });
+    setNoteRecord(cong.notesKey, { ...rec, text: box?.value || '' });
     saveNotes();
     persistDataset();
     renderResults();
+    btn.classList.remove('needs-save');
+    btn.textContent = 'Save PTC note';
+    if (status) {
+      status.textContent = 'PTC note saved ✓ Included in Export Notes + Assistants.';
+      status.classList.remove('unsaved');
+      status.classList.add('saved');
+    }
     setStatus('PTC note saved');
+    showToast('PTC note saved');
   });
 }
 
@@ -2000,7 +2041,7 @@ function renderPtcAssistantEditor(cong) {
           <button type="button" class="ghost" id="ptcAssistantVcfBtn">Create assistant contact (.vcf)</button>
           <button type="button" id="clearPtcAssistantBtn">Clear</button>
         </div>
-        <div class="small subtle" style="margin-top:8px;">Manual local field. It is kept during CSV imports and included in Export Notes + Assistants.</div>
+        <div class="local-save-status" id="ptcAssistantStatus" style="margin-top:8px;">Manual local field. Click Save assistant after editing. It is kept during CSV imports and included in Export Notes + Assistants.</div>
       </div>
     </div>
   `;
@@ -2011,6 +2052,10 @@ function wirePtcAssistantEditor(cong) {
   const saveBtn = document.getElementById('savePtcAssistantBtn');
   const clearBtn = document.getElementById('clearPtcAssistantBtn');
   const vcfBtn = document.getElementById('ptcAssistantVcfBtn');
+  const status = document.getElementById('ptcAssistantStatus');
+  const assistantFields = ['ptcAssistantName', 'ptcAssistantEmail', 'ptcAssistantPhone', 'ptcAssistantNotes']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
   if (!saveBtn) return;
   const readAssistant = () => ({
     name: document.getElementById('ptcAssistantName')?.value || '',
@@ -2019,13 +2064,31 @@ function wirePtcAssistantEditor(cong) {
     notes: document.getElementById('ptcAssistantNotes')?.value || ''
   });
 
+  const markUnsaved = () => {
+    saveBtn.classList.add('needs-save');
+    saveBtn.textContent = 'Save assistant *';
+    if (status) {
+      status.textContent = 'Unsaved changes – click Save assistant before importing a new CSV.';
+      status.classList.remove('saved');
+      status.classList.add('unsaved');
+    }
+  };
+  assistantFields.forEach(field => field.addEventListener('input', markUnsaved));
+
   saveBtn.addEventListener('click', () => {
     const rec = noteRecord(key);
     setNoteRecord(key, { ...rec, ptcAssistant: readAssistant() });
     saveNotes();
     persistDataset();
-    renderDetail();
+    saveBtn.classList.remove('needs-save');
+    saveBtn.textContent = 'Save assistant';
+    if (status) {
+      status.textContent = 'Assistant saved ✓ Included in Export Notes + Assistants.';
+      status.classList.remove('unsaved');
+      status.classList.add('saved');
+    }
     setStatus('PTC assistant saved');
+    showToast('PTC assistant saved');
   });
 
   if (clearBtn) clearBtn.addEventListener('click', () => {
@@ -2036,6 +2099,7 @@ function wirePtcAssistantEditor(cong) {
     persistDataset();
     renderDetail();
     setStatus('PTC assistant cleared');
+    showToast('PTC assistant cleared');
   });
 
   if (vcfBtn) vcfBtn.addEventListener('click', () => {
@@ -2495,7 +2559,7 @@ function renderDetail() {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.0.10',
+    version: '2.0.11',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     congregations: state.dataset.congregations,
@@ -2536,8 +2600,8 @@ function restoreDataset() {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.0.10', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.0.10', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.0.11', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.0.11', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2824,7 +2888,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
       <div>
         <div style="font-size:1.3rem;font-weight:700;">Help</div>
-        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.0.10</div>
+        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.0.11</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
