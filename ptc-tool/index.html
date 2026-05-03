@@ -704,7 +704,7 @@ function extractPhones(value, fallbackCountry = '') {
 }
 
 function sanitizeCircuit(value) {
-  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]?\b/i);
+  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]*\b/i);
   return match ? match[0].toUpperCase() : '';
 }
 
