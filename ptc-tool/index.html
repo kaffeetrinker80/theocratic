@@ -4,10 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PTC Tool – EU Public Speakers</title>
-<link rel="manifest" href="ptc-tool-manifest.json">
-<link rel="icon" type="image/png" sizes="16x16" href="PTC-tool-icon-16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="PTC-tool-icon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="PTC-tool-icon-180.png">
+ <!-- Icons + Manifest -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico">
+
+<link rel="manifest" href="site.webmanifest">
+
 <meta name="theme-color" content="#2e7d32">
 <style>
 :root {
@@ -89,6 +94,14 @@ button.ghost { background:#f4f7fc; border:1px solid var(--line); }
 .speaker-mini .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
 .ptc-box { background:#fbfcff; border:1px solid #dfe7f4; border-radius:14px; padding:12px; }
 .ptc-box h4 { margin:0 0 8px; font-size:15px; }
+.ptc-column-heading { margin:0 0 8px; font-size:17px; color:var(--text); }
+.ptc-local-note { margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+.ptc-local-note textarea { min-height:82px; padding:9px 10px; border-radius:10px; }
+.ptc-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:start; }
+.ptc-grid-col { min-width:0; }
+.ptc-assistant-grid { display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px; }
+.ptc-assistant-grid input, .ptc-assistant-grid textarea { padding:9px 10px; border-radius:10px; }
+.ptc-assistant-grid textarea { min-height:82px; }
 .meta-item.span-2 { grid-column:span 2; }
 .warning-table { display:grid; gap:10px; }
 .warning-row { border:1px solid var(--line); border-radius:14px; padding:12px; background:#fbfcfe; }
@@ -147,7 +160,7 @@ button.ghost { background:#f4f7fc; border:1px solid var(--line); }
 .note-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
 .field label { display:block; font-size:12px; color:var(--muted); margin:0 0 6px; }
 .star-btn.active { background:#fff3cd; color:#8a5a00; border:1px solid #f3d27a; }
-@media (max-width: 900px) { .note-grid { grid-template-columns:1fr; } .scroll-top { right:14px; bottom:14px; } }
+@media (max-width: 900px) { .note-grid, .ptc-grid { grid-template-columns:1fr; } .scroll-top { right:14px; bottom:14px; } }
 
 hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 @media (max-width: 1100px) {
@@ -237,7 +250,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
       <button class="primary" id="loadCsvBtn">Import CSV</button>
       <button id="loadJsonBtn">Import JSON</button>
       <button class="good" id="exportJsonBtn">Export JSON</button>
-      <button id="exportNotesBtn">Export Notes Only</button>
+      <button id="exportNotesBtn">Export Notes + Assistants</button>
       <button id="showWarningsBtn" class="ghost hidden">Import warnings</button>
       <button id="showImproveBtn" class="ghost hidden">Help Us Improve</button>
       <button id="clearFiltersBtn">Clear filters</button>
@@ -246,7 +259,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
       <span class="small subtle" id="warningHint"></span>
     </div>
     <div style="margin-top:10px" class="small subtle">
-      Notes are stored locally in your browser and are also included in the JSON export. Phones, countries, circuits, meeting values, and optional geo coordinates are cleaned during CSV import. If geo_lat and geo_lon are available, the tool can calculate distance from your home congregation, filter within a selected radius, and sort by distance. Speaker search ignores PTC contact fields. Home congregation can now be marked directly on a congregation card without changing the visible speaker list. Import warnings, if any, can be opened directly with the warning button. Use the correction box on a speaker or congregation entry to send detailed fixes to Ronald via WhatsApp or email. The Help Us Improve page collects likely field issues in one place for people who want to help improve the list.
+      Notes, favorites, dates, and manual PTC assistant entries are stored locally in your browser and are included in the JSON export. Phones, countries, circuits, meeting values, and optional geo coordinates are cleaned during CSV import. If geo_lat and geo_lon are available, the tool can calculate distance from your home congregation, filter within a selected radius, and sort by distance. Speaker search ignores PTC contact fields. Home congregation can now be marked directly on a congregation card without changing the visible speaker list. Import warnings, if any, can be opened directly with the warning button. Use the correction box on a speaker or congregation entry to send detailed fixes to Ronald via WhatsApp or email. The Help Us Improve page collects likely field issues in one place for people who want to help improve the list.
     </div>
   </div>
 
@@ -283,7 +296,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.0.7</div>
+  <div class="footer">Made with love © v.2.0.9</div>
 </div>
 
 <script>
@@ -691,7 +704,7 @@ function extractPhones(value, fallbackCountry = '') {
 }
 
 function sanitizeCircuit(value) {
-  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]*\b/i);
+  const match = (value || '').match(/\bEU-E\d{1,2}[A-Z]?\b/i);
   return match ? match[0].toUpperCase() : '';
 }
 
@@ -1059,19 +1072,51 @@ function congregationStableKey(congName) {
   return 'cong|' + normalizeKeyPart(congName);
 }
 
+function defaultPtcAssistant() {
+  return { name:'', phone:'', email:'', notes:'' };
+}
+
+function normalizePtcAssistant(value) {
+  const base = defaultPtcAssistant();
+  if (!value || typeof value !== 'object') return base;
+  return {
+    name: value.name || '',
+    phone: value.phone || '',
+    email: value.email || '',
+    notes: value.notes || ''
+  };
+}
+
+function hasPtcAssistant(value) {
+  const a = normalizePtcAssistant(value);
+  return !!(a.name.trim() || a.phone.trim() || a.email.trim() || a.notes.trim());
+}
+
 function noteRecord(key) {
   const raw = state.notes[key];
   if (raw && typeof raw === 'object') {
-    return { text: raw.text || '', favorite: !!raw.favorite, lastInvited: raw.lastInvited || '', lastUsed: raw.lastUsed || '' };
+    return {
+      text: raw.text || '',
+      favorite: !!raw.favorite,
+      lastInvited: raw.lastInvited || '',
+      lastUsed: raw.lastUsed || '',
+      ptcAssistant: normalizePtcAssistant(raw.ptcAssistant)
+    };
   }
   if (typeof raw === 'string') {
-    return { text: raw, favorite: false, lastInvited: '', lastUsed: '' };
+    return { text: raw, favorite: false, lastInvited: '', lastUsed: '', ptcAssistant: defaultPtcAssistant() };
   }
-  return { text: '', favorite: false, lastInvited: '', lastUsed: '' };
+  return { text: '', favorite: false, lastInvited: '', lastUsed: '', ptcAssistant: defaultPtcAssistant() };
 }
 
 function setNoteRecord(key, record) {
-  state.notes[key] = { text: record.text || '', favorite: !!record.favorite, lastInvited: record.lastInvited || '', lastUsed: record.lastUsed || '' };
+  state.notes[key] = {
+    text: record.text || '',
+    favorite: !!record.favorite,
+    lastInvited: record.lastInvited || '',
+    lastUsed: record.lastUsed || '',
+    ptcAssistant: normalizePtcAssistant(record.ptcAssistant)
+  };
 }
 
 function deleteNoteRecord(key) {
@@ -1800,7 +1845,9 @@ function wireNoteEditor(key, kind = 'speaker') {
   }
 
   saveBtn.addEventListener('click', () => {
+    const existing = noteRecord(key);
     setNoteRecord(key, {
+      ...existing,
       text: document.getElementById('noteBox').value || '',
       favorite: favorite,
       lastInvited: document.getElementById('lastInvitedBox')?.value || '',
@@ -1812,15 +1859,127 @@ function wireNoteEditor(key, kind = 'speaker') {
     setStatus(kind === 'speaker' ? 'Speaker memory saved' : 'Note saved');
   });
   delBtn.addEventListener('click', () => {
-    deleteNoteRecord(key);
+    const existing = noteRecord(key);
+    if (kind === 'congregation' && hasPtcAssistant(existing.ptcAssistant)) {
+      setNoteRecord(key, { ...existing, text: '' });
+      setStatus('Congregation note deleted; assistant info kept');
+    } else {
+      deleteNoteRecord(key);
+      setStatus('Entry deleted');
+    }
     saveNotes();
     persistDataset();
     renderResults();
     renderDetail();
-    setStatus('Entry deleted');
   });
 }
 
+function renderPtcLocalNoteEditor(cong) {
+  const rec = noteRecord(cong.notesKey);
+  return `
+    <div class="ptc-local-note">
+      <label class="small subtle" for="ptcLocalNoteBox">PTC notes</label>
+      <textarea id="ptcLocalNoteBox" placeholder="Local notes for this congregation / PTC contact...">${escapeHtml(rec.text || '')}</textarea>
+      <div class="note-save-row">
+        <button type="button" class="good" id="savePtcLocalNoteBtn">Save PTC note</button>
+        <span class="small subtle">Saved as personal congregation notes and included in Export Notes + Assistants.</span>
+      </div>
+    </div>
+  `;
+}
+
+function wirePtcLocalNoteEditor(cong) {
+  const btn = document.getElementById('savePtcLocalNoteBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const rec = noteRecord(cong.notesKey);
+    setNoteRecord(cong.notesKey, { ...rec, text: document.getElementById('ptcLocalNoteBox')?.value || '' });
+    saveNotes();
+    persistDataset();
+    renderResults();
+    setStatus('PTC note saved');
+  });
+}
+
+function renderPtcContactBox(cong, extraHtml = '') {
+  return `
+    <div class="ptc-grid-col">
+      <h3 class="ptc-column-heading">PTC</h3>
+      <div class="ptc-box">
+        <h4>${escapeHtml(cong.ptcName || '—')}</h4>
+        <div>${renderContactLines([cong.ptcJwpub, ...(cong.ptcEmails || [])], (cong.ptcPhones && cong.ptcPhones.length ? cong.ptcPhones : cong.ptcPhone), [cong.ptcEmail, ...(cong.ptcEmails || [])], cong.country)}</div>
+        ${extraHtml || ''}
+        <div class="links" style="margin-top:12px;">
+          <button type="button" class="ghost" id="ptcVcfBtn">Create PTC contact (.vcf)</button>
+        </div>
+        ${renderPtcLocalNoteEditor(cong)}
+      </div>
+    </div>
+  `;
+}
+
+function renderPtcAssistantEditor(cong) {
+  const key = cong.notesKey;
+  const assistant = normalizePtcAssistant(noteRecord(key).ptcAssistant);
+  return `
+    <div class="ptc-grid-col">
+      <h3 class="ptc-column-heading">PTC Assistant</h3>
+      <div class="ptc-box">
+        <div class="ptc-assistant-grid">
+          <div><label class="small subtle" for="ptcAssistantName">Name</label><input id="ptcAssistantName" type="text" value="${escapeHtml(assistant.name)}" placeholder="Assistant name"></div>
+          <div><label class="small subtle" for="ptcAssistantEmail">Email address</label><input id="ptcAssistantEmail" type="text" value="${escapeHtml(assistant.email)}" placeholder="Email address"></div>
+          <div><label class="small subtle" for="ptcAssistantPhone">Mobile / phone</label><input id="ptcAssistantPhone" type="text" value="${escapeHtml(assistant.phone)}" placeholder="Mobile / phone"></div>
+          <div><label class="small subtle" for="ptcAssistantNotes">Notes</label><textarea id="ptcAssistantNotes" placeholder="Optional assistant notes...">${escapeHtml(assistant.notes)}</textarea></div>
+        </div>
+        <div class="links" style="margin-top:12px;">
+          <button type="button" class="good" id="savePtcAssistantBtn">Save assistant</button>
+          <button type="button" class="ghost" id="ptcAssistantVcfBtn">Create assistant contact (.vcf)</button>
+          <button type="button" id="clearPtcAssistantBtn">Clear</button>
+        </div>
+        <div class="small subtle" style="margin-top:8px;">Manual local field. It is kept during CSV imports and included in Export Notes + Assistants.</div>
+      </div>
+    </div>
+  `;
+}
+
+function wirePtcAssistantEditor(cong) {
+  const key = cong.notesKey;
+  const saveBtn = document.getElementById('savePtcAssistantBtn');
+  const clearBtn = document.getElementById('clearPtcAssistantBtn');
+  const vcfBtn = document.getElementById('ptcAssistantVcfBtn');
+  if (!saveBtn) return;
+  const readAssistant = () => ({
+    name: document.getElementById('ptcAssistantName')?.value || '',
+    phone: document.getElementById('ptcAssistantPhone')?.value || '',
+    email: document.getElementById('ptcAssistantEmail')?.value || '',
+    notes: document.getElementById('ptcAssistantNotes')?.value || ''
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const rec = noteRecord(key);
+    setNoteRecord(key, { ...rec, ptcAssistant: readAssistant() });
+    saveNotes();
+    persistDataset();
+    renderDetail();
+    setStatus('PTC assistant saved');
+  });
+
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    if (!confirm('Clear the manually saved PTC assistant info for this congregation?')) return;
+    const rec = noteRecord(key);
+    setNoteRecord(key, { ...rec, ptcAssistant: defaultPtcAssistant() });
+    saveNotes();
+    persistDataset();
+    renderDetail();
+    setStatus('PTC assistant cleared');
+  });
+
+  if (vcfBtn) vcfBtn.addEventListener('click', () => {
+    const assistant = readAssistant();
+    if (!hasPtcAssistant(assistant)) return alert('Please enter assistant info first.');
+    downloadPtcAssistantVcf(cong, assistant);
+  });
+}
 
 function detectLikelyIssues(limit = 160) {
   const issues = [];
@@ -1867,7 +2026,7 @@ function downloadPtcVcf(cong) {
     `N:${vcfEscape(cong.ptcName || '')};;;;`,
     `ORG:${vcfEscape(cong.name)}`,
     'TITLE:Public Talk Coordinator',
-    ...phoneItems.map((p, idx) => `TEL;TYPE=${p.kind==='mobile'?'CELL':'VOICE'}:${vcfEscape(p.tel || p.display)}`),
+    ...phoneItems.map((p, idx) => `TEL;TYPE=${p.isMobile?'CELL':'VOICE'}:${vcfEscape(p.tel || p.display)}`),
     ...emailItems.map(e => `EMAIL;TYPE=INTERNET:${vcfEscape(e)}`),
     `NOTE:${vcfEscape('PTC – ' + cong.name)}`,
     'END:VCARD'
@@ -1878,6 +2037,31 @@ function downloadPtcVcf(cong) {
   a.download = `${(cong.name || 'PTC-contact').replace(/[^a-z0-9]+/gi,'_')}_PTC_${fileDateStamp()}.vcf`;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+function downloadPtcAssistantVcf(cong, assistant) {
+  const aInfo = normalizePtcAssistant(assistant);
+  const phone = aInfo.phone ? cleanPhone(aInfo.phone, cong.country) : null;
+  const email = extractEmails(aInfo.email)[0] || aInfo.email.trim();
+  const displayName = aInfo.name || ('PTC Assistant ' + (cong.name || ''));
+  const lines = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `FN:${vcfEscape(displayName)}`,
+    `N:${vcfEscape(displayName)};;;;`,
+    `ORG:${vcfEscape(cong.name || '')}`,
+    'TITLE:PTC Assistant',
+    phone && (phone.tel || phone.display) ? `TEL;TYPE=${phone.isMobile ? 'CELL' : 'VOICE'}:${vcfEscape(phone.tel || phone.display)}` : null,
+    email ? `EMAIL;TYPE=INTERNET:${vcfEscape(email)}` : null,
+    `NOTE:${vcfEscape(['PTC Assistant – ' + (cong.name || ''), aInfo.notes].filter(Boolean).join(' | '))}`,
+    'END:VCARD'
+  ].filter(Boolean);
+  const blob = new Blob([lines.join('\r\n')], {type:'text/vcard;charset=utf-8'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${(cong.name || 'PTC-assistant').replace(/[^a-z0-9]+/gi,'_')}_PTC_Assistant_${fileDateStamp()}.vcf`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 function renderImprovePage() {
@@ -2096,13 +2280,9 @@ function renderDetail() {
       </div>
 
       <div class="detail-section">
-        <h3>PTC</h3>
-        <div class="ptc-box">
-          <h4>${escapeHtml(cong.ptcName || '—')}</h4>
-          <div>${renderContactLines([cong.ptcJwpub, ...(cong.ptcEmails || [])], (cong.ptcPhones && cong.ptcPhones.length ? cong.ptcPhones : cong.ptcPhone), [cong.ptcEmail, ...(cong.ptcEmails || [])], cong.country)}</div>
-          <div class="links" style="margin-top:12px;">
-            <button type="button" class="ghost" id="ptcVcfBtn">Create PTC contact (.vcf)</button>
-          </div>
+        <div class="ptc-grid">
+          ${renderPtcContactBox(cong)}
+          ${renderPtcAssistantEditor(cong)}
         </div>
       </div>
 
@@ -2133,6 +2313,8 @@ function renderDetail() {
       ${renderCorrectionBox(buildCorrectionContext('speaker', sp, cong))}
     `;
     wireNoteEditor(noteKey);
+    wirePtcLocalNoteEditor(cong);
+    wirePtcAssistantEditor(cong);
     wireCorrectionBox(buildCorrectionContext('speaker', sp, cong));
     const setHomeBtn = document.getElementById('setHomeCongBtn');
     const clearHomeBtn = document.getElementById('clearHomeCongBtn');
@@ -2189,18 +2371,15 @@ function renderDetail() {
     </div>
 
     <div class="detail-section">
-      <h3>PTC</h3>
-      <div class="ptc-box">
-        <h4>${escapeHtml(cong.ptcName || '—')}</h4>
-        <div>${renderContactLines([cong.ptcJwpub, ...(cong.ptcEmails || [])], (cong.ptcPhones && cong.ptcPhones.length ? cong.ptcPhones : cong.ptcPhone), [cong.ptcEmail, ...(cong.ptcEmails || [])], cong.country)}</div>
-        <div class="row" style="margin-top:12px;">
-          <span class="chip">${elderCount} elders</span>
-          <span class="chip">${msCount} MS</span>
-          <span class="chip">${allOutlines.length} outlines in congregation</span>
-        </div>
-        <div class="links" style="margin-top:12px;">
-          <button type="button" class="ghost" id="ptcVcfBtn">Create PTC contact (.vcf)</button>
-        </div>
+      <div class="ptc-grid">
+        ${renderPtcContactBox(cong, `
+          <div class="row" style="margin-top:12px;">
+            <span class="chip">${elderCount} elders</span>
+            <span class="chip">${msCount} MS</span>
+            <span class="chip">${allOutlines.length} outlines in congregation</span>
+          </div>
+        `)}
+        ${renderPtcAssistantEditor(cong)}
       </div>
     </div>
 
@@ -2224,10 +2403,10 @@ function renderDetail() {
       </div>
     </div>
 
-    ${renderNoteEditor(cong.notesKey, 'congregation')}
     ${renderCorrectionBox(buildCorrectionContext('congregation', cong, cong))}
   `;
-  wireNoteEditor(cong.notesKey, 'congregation');
+  wirePtcLocalNoteEditor(cong);
+  wirePtcAssistantEditor(cong);
   wireCorrectionBox(buildCorrectionContext('congregation', cong, cong));
   const setHomeBtn = document.getElementById('setHomeCongBtn');
   const clearHomeBtn = document.getElementById('clearHomeCongBtn');
@@ -2252,7 +2431,7 @@ function renderDetail() {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.0.6',
+    version: '2.0.9',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     congregations: state.dataset.congregations,
@@ -2293,12 +2472,12 @@ function restoreDataset() {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.0.6', exportedAt:new Date().toISOString(), notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.0.6', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.0.9', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.0.9', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = kind === 'notes' ? `PTC_Tool_Notes_${fileDateStamp()}.json` : `PTC_Tool_Data_${fileDateStamp()}.json`;
+  a.download = kind === 'notes' ? `PTC_Tool_Notes_Assistants_${fileDateStamp()}.json` : `PTC_Tool_Data_${fileDateStamp()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -2488,7 +2667,7 @@ if (restoreDataset()) {
   refreshStats();
   renderResults();
   renderDetail();
-  setStatus('Restored local data');
+  setStatus('Loaded saved browser data');
 } else {
   refreshStats();
 }
@@ -2700,8 +2879,9 @@ document.addEventListener('DOMContentLoaded', function () {
             <li>last invited</li>
             <li>last used</li>
             <li>notes</li>
+            <li>manual PTC assistant entries saved for congregations</li>
           </ul>
-          This is local browser memory and is also included in the JSON export. It is useful for brothers you invite often, brothers you want to keep in mind, or to avoid using the same speaker too frequently.
+          This is local browser memory and is also included in the JSON export. Use <b>Export Notes + Assistants</b> if you only want to back up your personal additions. It is useful for brothers you invite often, brothers you want to keep in mind, or to avoid using the same speaker too frequently.
         </div>
       </details>
 
@@ -2741,7 +2921,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <li>switch to congregation view when you want to compare several brothers from one congregation</li>
             <li>use distance filters if you want nearby options first</li>
             <li>keep notes and memory updated</li>
-            <li>export JSON as backup</li>
+            <li>export JSON as backup, or use Export Notes + Assistants for only your personal additions</li>
           </ol>
         </div>
       </details>
