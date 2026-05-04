@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PTC Tool – EU Public Speakers</title>
+<title>PTC Tool – EU Public Speakers v2.1</title>
 <!-- Icons + Manifest -->
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
@@ -299,7 +299,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.0.9</div>
+  <div class="footer">Made with love © v.2.1</div>
 </div>
 
 <script>
@@ -1915,14 +1915,54 @@ function wireNoteEditor(key, kind = 'speaker') {
   const saveBtn = document.getElementById('saveNoteBtn');
   const delBtn = document.getElementById('deleteNoteBtn');
   const favoriteBtn = document.getElementById('favoriteBtn');
+  const noteBox = document.getElementById('noteBox');
+  const lastInvitedBox = document.getElementById('lastInvitedBox');
+  const lastUsedBox = document.getElementById('lastUsedBox');
   if (!saveBtn || !delBtn) return;
 
+  const originalText = noteBox?.value || '';
+  const originalLastInvited = lastInvitedBox?.value || '';
+  const originalLastUsed = lastUsedBox?.value || '';
+
   let favorite = noteRecord(key).favorite;
+  let originalFavorite = favorite;
+
+  const defaultSaveText = `Save ${kind === 'speaker' ? 'speaker memory' : 'note'}`;
+  const dirtySaveText = `${defaultSaveText} *`;
+
+  const hasUnsavedChanges = () => {
+    const textChanged = (noteBox?.value || '') !== originalText;
+    const invitedChanged = (lastInvitedBox?.value || '') !== originalLastInvited;
+    const usedChanged = (lastUsedBox?.value || '') !== originalLastUsed;
+    const favoriteChanged = favorite !== originalFavorite;
+    return textChanged || invitedChanged || usedChanged || favoriteChanged;
+  };
+
+  const updateSaveButtonState = () => {
+    if (hasUnsavedChanges()) {
+      saveBtn.classList.add('needs-save');
+      saveBtn.textContent = dirtySaveText;
+      saveBtn.title = kind === 'speaker'
+        ? 'Unsaved changes – click to save speaker memory.'
+        : 'Unsaved changes – click to save note.';
+    } else {
+      saveBtn.classList.remove('needs-save');
+      saveBtn.textContent = defaultSaveText;
+      saveBtn.removeAttribute('title');
+    }
+  };
+
+  [noteBox, lastInvitedBox, lastUsedBox].filter(Boolean).forEach(field => {
+    field.addEventListener('input', updateSaveButtonState);
+    field.addEventListener('change', updateSaveButtonState);
+  });
+
   if (favoriteBtn) {
     favoriteBtn.addEventListener('click', () => {
       favorite = !favorite;
       favoriteBtn.classList.toggle('active', favorite);
       favoriteBtn.textContent = favorite ? '★ Favorite Speaker' : '☆ Add to favorites';
+      updateSaveButtonState();
     });
   }
 
@@ -1930,24 +1970,31 @@ function wireNoteEditor(key, kind = 'speaker') {
     const existing = noteRecord(key);
     setNoteRecord(key, {
       ...existing,
-      text: document.getElementById('noteBox').value || '',
+      text: noteBox?.value || '',
       favorite: favorite,
-      lastInvited: document.getElementById('lastInvitedBox')?.value || '',
-      lastUsed: document.getElementById('lastUsedBox')?.value || ''
+      lastInvited: lastInvitedBox?.value || '',
+      lastUsed: lastUsedBox?.value || ''
     });
     saveNotes();
     persistDataset();
     renderResults();
+    saveBtn.classList.remove('needs-save');
+    saveBtn.textContent = defaultSaveText;
+    saveBtn.removeAttribute('title');
     setStatus(kind === 'speaker' ? 'Speaker memory saved' : 'Note saved');
+    showToast(kind === 'speaker' ? 'Speaker memory saved' : 'Note saved');
   });
   delBtn.addEventListener('click', () => {
     const existing = noteRecord(key);
+    if (kind === 'speaker' && !confirm('Delete this speaker memory? This cannot be undone.')) return;
     if (kind === 'congregation' && hasPtcAssistant(existing.ptcAssistant)) {
       setNoteRecord(key, { ...existing, text: '' });
       setStatus('Congregation note deleted; assistant info kept');
+      showToast('Congregation note deleted; assistant info kept');
     } else {
       deleteNoteRecord(key);
       setStatus('Entry deleted');
+      showToast(kind === 'speaker' ? 'Speaker memory deleted' : 'Entry deleted');
     }
     saveNotes();
     persistDataset();
@@ -2888,7 +2935,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
       <div>
         <div style="font-size:1.3rem;font-weight:700;">Help</div>
-        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.0.11</div>
+        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3102,122 +3149,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-
-
-<div id="speakerMemoryStatus" style="position:fixed;right:18px;bottom:18px;z-index:9999;display:none;
-background:rgba(33,33,33,.92);color:#fff;padding:10px 14px;border-radius:10px;
-box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px;"></div>
-
-
-<script>
-(function(){
-  function showSpeakerMemoryStatus(msg){
-    const box = document.getElementById('speakerMemoryStatus');
-    if(!box) return;
-    box.textContent = msg;
-    box.style.display = 'block';
-    clearTimeout(showSpeakerMemoryStatus._t);
-    showSpeakerMemoryStatus._t = setTimeout(function(){
-      box.style.display = 'none';
-    }, 1800);
-  }
-
-  // Patch common save/delete functions if they exist
-  ['saveSpeakerMemory','deleteSpeakerMemory','saveMemory','deleteMemory'].forEach(function(fnName){
-    const fn = window[fnName];
-    if(typeof fn === 'function' && !fn._statusWrapped){
-      window[fnName] = function(){
-        const result = fn.apply(this, arguments);
-        const isDelete = /delete/i.test(fnName);
-        showSpeakerMemoryStatus(isDelete ? 'Speaker memory deleted' : 'Speaker memory saved');
-        return result;
-      };
-      window[fnName]._statusWrapped = true;
-    }
-  });
-
-  // Fallback: show a message on likely speaker memory save/delete buttons
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('button');
-    if(!btn) return;
-    const txt = (btn.textContent || '').trim().toLowerCase();
-    if(txt === 'save' || txt === 'save memory' || txt === 'save speaker memory'){
-      setTimeout(function(){ showSpeakerMemoryStatus('Speaker memory saved'); }, 50);
-    }
-    if(txt === 'delete' || txt === 'delete memory' || txt === 'delete speaker memory'){
-      setTimeout(function(){ showSpeakerMemoryStatus('Speaker memory deleted'); }, 50);
-    }
-  }, true);
-})();
-</script>
-
-
-<script id="ptc-v202-script-patch">
-(function(){
-  function showStatus(msg){
-    var box = document.getElementById('speakerMemoryStatus');
-    if(!box){
-      box = document.createElement('div');
-      box.id = 'speakerMemoryStatus';
-      box.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:9999;display:none;background:rgba(33,33,33,.92);color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px;';
-      document.body.appendChild(box);
-    }
-    box.textContent = msg;
-    box.style.display = 'block';
-    clearTimeout(showStatus._t);
-    showStatus._t = setTimeout(function(){ box.style.display='none'; }, 1800);
-  }
-
-  // Wrap known delete functions if present
-  ['deleteSpeakerMemory','deleteMemory'].forEach(function(fnName){
-    var fn = window[fnName];
-    if(typeof fn === 'function' && !fn._confirmWrapped){
-      window[fnName] = function(){
-        if(!window.confirm('Delete this speaker memory? This cannot be undone.')) return false;
-        var result = fn.apply(this, arguments);
-        showStatus('Speaker memory deleted');
-        return result;
-      };
-      window[fnName]._confirmWrapped = true;
-    }
-  });
-
-  // Wrap known save functions if present
-  ['saveSpeakerMemory','saveMemory'].forEach(function(fnName){
-    var fn = window[fnName];
-    if(typeof fn === 'function' && !fn._statusWrapped){
-      window[fnName] = function(){
-        var result = fn.apply(this, arguments);
-        showStatus('Speaker memory saved');
-        return result;
-      };
-      window[fnName]._statusWrapped = true;
-    }
-  });
-
-  // Fallback button handling
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('button');
-    if(!btn) return;
-    var txt = (btn.textContent || '').trim().toLowerCase();
-
-    var isDelete = txt === 'delete' || txt === 'delete memory' || txt === 'delete speaker memory';
-    var isSave = txt === 'save' || txt === 'save memory' || txt === 'save speaker memory';
-
-    if(isDelete){
-      if(!window.confirm('Delete this speaker memory? This cannot be undone.')){
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        return false;
-      }
-      setTimeout(function(){ showStatus('Speaker memory deleted'); }, 50);
-    }
-    if(isSave){
-      setTimeout(function(){ showStatus('Speaker memory saved'); }, 50);
-    }
-  }, true);
-})();
-</script>
 
 </body>
 </html>
