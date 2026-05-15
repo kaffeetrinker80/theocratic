@@ -1063,6 +1063,14 @@ function buildExpandedRow(index, row){
         <div style="font-size:10px;color:var(--muted);margin-top:5px">vCard: double-click file → opens in Outlook · Firm = Congregation</div>
       </div>
 
+      <div class="exp-group" style="align-self:center">
+        <div class="exp-subhead">Cross-Event</div>
+        <button class="secondary small-btn" onclick="copyToOtherEvent(${index})" style="width:100%;white-space:normal;text-align:center;padding:8px 10px">
+          ➕ Also add to ${state.meta.eventType==='Regional Convention'?'Assembly':'Regional Convention'}
+        </button>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px">Copy this attendant to the other event dataset</div>
+      </div>
+
     </div>
   </td>`;
   return expTr;
@@ -1244,6 +1252,71 @@ function applyGlobalSearch(){
 function clearGlobalSearch(){
   if(el('globalSearch'))el('globalSearch').value='';
   globalSearchTerm='';renderCongTable();renderAttendantTable();
+}
+
+/* ── Copy attendant to other event ── */
+function copyToOtherEvent(index){
+  const att=state.attendants[index];
+  const currentType=state.meta.eventType;
+  const targetType=currentType==='Regional Convention'?'Assembly':'Regional Convention';
+  
+  if(!confirm(`Copy "${dispName(att)}" to ${targetType}?\n\nThis will switch to ${targetType} view and add the attendant there.`))return;
+  
+  // Save current state first
+  saveState();
+  
+  // Load target event data
+  const targetKey=targetType==='Regional Convention'?'attendantPlanner_v2_3_RC':'attendantPlanner_v2_3_Assembly';
+  let targetState;
+  const targetRaw=localStorage.getItem(targetKey);
+  
+  if(targetRaw){
+    try{
+      const data=JSON.parse(targetRaw);
+      targetState={
+        meta:{...defaultState().meta,...(data.meta||{}),eventType:targetType},
+        congregations:Array.isArray(data.congregations)&&data.congregations.length?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+        attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]
+      };
+    }catch{
+      targetState=defaultState();
+      targetState.meta.eventType=targetType;
+    }
+  }else{
+    targetState=defaultState();
+    targetState.meta.eventType=targetType;
+  }
+  
+  // Check if attendant already exists in target (by name+firstName+congregation)
+  const exists=targetState.attendants.find(a=>
+    a.name.trim().toLowerCase()===att.name.trim().toLowerCase()&&
+    a.firstName.trim().toLowerCase()===att.firstName.trim().toLowerCase()&&
+    a.congregation.trim().toLowerCase()===att.congregation.trim().toLowerCase()
+  );
+  
+  if(exists){
+    if(!confirm(`"${dispName(att)}" already exists in ${targetType}.\n\nOverwrite with current data?`))return;
+    const idx=targetState.attendants.indexOf(exists);
+    targetState.attendants[idx]=normalizeAttendant({...att,id:exists.id}); // keep existing ID
+  }else{
+    // Add as new attendant (assign new ID in target context)
+    const targetIds=targetState.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n)&&n>0);
+    const newId=String(targetIds.length?Math.max(...targetIds)+1:1).padStart(3,'0');
+    targetState.attendants.push(normalizeAttendant({...att,id:newId}));
+  }
+  
+  // Save target state
+  localStorage.setItem(targetKey,JSON.stringify(targetState,null,2));
+  
+  // Switch to target event
+  state=targetState;
+  writeMetaToInputs();refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();
+  renderCongTable();renderAttendantTable();renderMiniStats();renderCustomLists();
+  
+  flash(`Copied to ${targetType}`);
+  
+  // Scroll to attendants tab
+  showTab('attendants');
 }
 
 /* ── vCard export ── */
