@@ -1,250 +1,370 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
- <!-- Icons + Manifest -->
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" href="favicon.ico">
-
 <link rel="manifest" href="site.webmanifest">
-
 <meta name="theme-color" content="#172f4d">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Attendant Department Planner</title>
-  <style>
-    :root{
-      --bg:#f3f5f7;
-      --surface:#ffffff;
-      --surface-2:#f8fafc;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#d8e1ea;
-      --primary:#1565c0;
-      --primary-soft:#eaf2fd;
-      --accent:#2e7d32;
-      --warn:#ef6c00;
-      --danger:#c62828;
-      --chip:#eef3f8;
-      --shadow:0 10px 28px rgba(15,23,42,.08);
-      --radius:18px;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-    body{padding:14px}
-    .app{width:min(100%,1920px);max-width:1920px;margin:0 auto}
-    .card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .hero{padding:16px 18px;margin-bottom:14px;background:linear-gradient(135deg,#ffffff 0%,#f6f9ff 52%,#eef6ff 100%)}
-    .hero-top{display:grid;grid-template-columns:minmax(420px,1fr) 330px;gap:14px;justify-content:space-between;align-items:start}.hero-top > :first-child{min-width:0}.hero-top > :last-child{min-width:0}
-    h1{margin:0 0 6px;font-size:30px;line-height:1.15}
-    h2{margin:0 0 14px;font-size:18px}
-    .sub{color:var(--muted);font-size:15px}
-    .badge{display:grid;gap:4px;padding:10px 12px;border-radius:14px;border:1px solid #cfe1f7;background:rgba(234,242,253,.82);color:var(--primary);font-size:12px;font-weight:700;min-width:0;width:100%}.badge .big{font-size:13px;font-weight:800}.badge .small{font-size:11px;color:#35506f;font-weight:600}
-    .section{padding:16px;margin-bottom:14px}
-    .grid{display:grid;gap:14px}
-    .grid-4{grid-template-columns:repeat(4,minmax(170px,1fr))}
-    .grid-3{grid-template-columns:repeat(3,minmax(220px,1fr))}
-    .grid-2{grid-template-columns:repeat(2,minmax(280px,1fr))}
-    label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
-    input,textarea,select{width:100%;border:1px solid var(--line);border-radius:11px;padding:9px 11px;font-size:13px;background:#fff;color:var(--text);outline:none}
-    input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.12)}
-    textarea{min-height:110px;resize:vertical}
-    button,.file-label{border:0;border-radius:11px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .08s ease,box-shadow .12s ease}
-    button:hover,.file-label:hover{transform:translateY(-1px)}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .primary{background:var(--primary);color:#fff}
-    .secondary{background:#eef3f8;color:var(--text)}
-    .success{background:#e8f5e9;color:var(--accent)}
-    .warn{background:#fff3e0;color:var(--warn)}
-    .danger{background:#ffebee;color:var(--danger)}
-    .file-label input{display:none}
-    .summary{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:10px}
-    .metric{padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2)}
-    .metric .k{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:700}
-    .metric .v{font-size:23px;font-weight:800;margin-top:4px}
-    .search-row{display:grid;grid-template-columns:1.6fr .75fr .75fr .9fr 150px;gap:10px;align-items:end;margin-bottom:12px}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
-    table{width:100%;border-collapse:collapse;min-width:1480px}
-    thead th{position:sticky;top:0;z-index:2;background:#edf4fb;color:#26415f;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:10px 9px;border-bottom:1px solid var(--line)}
-    tbody td{border-bottom:1px solid #edf1f4;padding:7px;vertical-align:top;font-size:13px}
-    tbody tr:hover{background:#fafcff}
-    .compact-stack{display:grid;gap:6px}
-    .stack{display:grid;gap:8px}
-    .mini{font-size:12px;color:var(--muted)}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
-    .pill.cong{background:#e3f2fd;color:#1565c0}
-    .pill.group{background:#fff8e1;color:#8d6e00}
-    .pill.open{background:#eceff1;color:#455a64}
-    .pill.contacted{background:#e8f5e9;color:#2e7d32}
-    .pill.replied{background:#fff3e0;color:#ef6c00}
-    .contact-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-    .contact-links a,.copy-link{color:var(--primary);text-decoration:none;font-size:12px;white-space:nowrap;cursor:pointer}
-    .small-btn{padding:8px 10px;font-size:12px}
-    .right{text-align:right}
-    .footer-note{color:var(--muted);font-size:12px;margin-top:12px}
-    .chips{display:flex;flex-wrap:wrap;gap:10px}
-    .chip{border:1px solid var(--line);background:var(--chip);padding:12px;border-radius:14px;min-width:220px;display:grid;gap:8px}
-    .chip b{display:block;font-size:14px}
-    .chip span{color:var(--muted);font-size:12px}
-    .chip-line{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}
-    .chip-line code{font-family:Consolas,Monaco,monospace;background:#fff;padding:3px 7px;border-radius:999px;border:1px solid var(--line);color:#35506f;max-width:calc(100% - 34px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .copy-icon{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--primary);cursor:pointer;font-size:13px;line-height:1;flex:0 0 26px}
-    .copy-icon:hover{background:#edf4fb}
-    .chip-meta{display:grid;gap:3px}
-    .message-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px;line-height:1.5;min-height:190px}
-    .footer-bar{padding:14px 18px;text-align:center;color:var(--muted);font-size:12px}
-    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-    .tab-btn{background:#eef3f8;color:var(--text)}
-    .tab-btn.active{background:var(--primary);color:#fff}
-    .tab-panel{display:none}
-    .tab-panel.active{display:block}
-    .check-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:4px}
-    .check-row label{display:flex;align-items:center;gap:7px;margin:0;font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text)}
-    .check-row input[type="checkbox"]{width:auto;margin:0}
-    .chips-inline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-    .chips-inline .mini-chip{padding:5px 8px;border-radius:999px;background:#eef3f8;font-size:12px;border:1px solid var(--line)}
-    .sticky-note{padding:12px 14px;border-radius:14px;background:#f7fbff;border:1px dashed #b6c9e2;color:#37506c}
-    .split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
-    .muted{color:var(--muted)}
-    .mono{font-family:Consolas,Monaco,monospace}
-    .hero-grid{display:grid;grid-template-columns:minmax(520px,1.35fr) minmax(520px,.95fr);gap:14px;margin-top:14px}
-    .hero-simple{display:grid;gap:14px}
-    .hero-title-input{width:100%;border:0;border-bottom:1px solid #d7e4f2;border-radius:0;padding:0 0 6px;background:transparent;font-size:27px;font-weight:800;line-height:1.12;color:var(--text)}
-    .hero-title-input:focus{box-shadow:none;border-color:#90caf9}
-    .event-stack{display:grid;grid-template-columns:1.2fr .9fr;gap:10px}
-    .event-stack input{font-size:15px;font-weight:700;padding:10px 12px}
-    .global-search-wrap{margin-top:10px;position:relative}
-    .global-search-wrap input{padding-right:42px;font-size:14px}
-    .global-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#35506f;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
-    .global-search-clear:hover{background:#edf4fb}
-        .contact-grid .span-2{grid-column:span 2}
-    .contact-card{padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(248,250,252,.85)}
-    .contact-card h3{margin:0 0 9px;font-size:14px;color:#26415f}
-        .contact-box-preview{margin-top:9px;padding:8px 10px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:12px;color:var(--muted)}
-    .field-with-actions{position:relative}
-    .field-with-actions input{padding-right:40px}
-    .field-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px}
-    .mini-copy{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;border:1px solid #d4dde7;background:#f7f9fc;color:#35506f;cursor:pointer;font-size:13px;line-height:1}
-    .mini-copy:hover{background:#edf4fb}
-    .copy-toast{position:fixed;z-index:3000;padding:6px 10px;border-radius:10px;background:#1f2937;color:#fff;font-size:12px;font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.18);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s ease, transform .15s ease}
-    .copy-toast.show{opacity:.98;transform:translateY(0)}
-    .preview-contact-card{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#f8fafc}
-    .preview-contact-title{font-size:13px;font-weight:800;color:#35506f;margin-bottom:10px}
-    .preview-contact-grid{display:grid;gap:8px}
-    .preview-contact-row{display:grid;grid-template-columns:120px 1fr 28px;gap:8px;align-items:center}
-    .preview-contact-row .label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    .preview-contact-value{min-height:38px;display:flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .type-select{font-weight:700;border-radius:999px;padding:9px 12px;text-align:center;border:1px solid var(--line);appearance:none;-webkit-appearance:none}
-    .type-select.cong{background:#e3f2fd;color:#1565c0}
-    .type-select.group{background:#fff8e1;color:#8d6e00}
-    .att-card-list{display:grid;gap:10px}
-    .att-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:10px 12px}
-    .att-card.is-inactive{background:#fafafa;border-color:#d8dee6}
-    .att-card-top{display:grid;grid-template-columns:70px minmax(220px,1.25fr) minmax(230px,1.1fr) 140px minmax(230px,.95fr) 82px;gap:8px;align-items:end}
-    .att-card-bottom{display:grid;grid-template-columns:minmax(210px,1fr) minmax(210px,1fr) minmax(180px,.85fr) minmax(120px,.65fr) minmax(290px,1.45fr);gap:8px;align-items:start;margin-top:8px}
-    .att-card .field label{margin-bottom:4px;font-size:10px}
-    .att-card .field input,.att-card .field select,.att-card .field textarea{padding:8px 10px;font-size:13px}
-    .att-card .field textarea{min-height:52px}
-    .flags-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:38px}
-    .flag-mini{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px;white-space:nowrap}
-    .flag-mini input[type="checkbox"]{width:13px;height:13px;margin:0}
-    .contact-stack{display:grid;gap:8px}
-    .contact-links.compact{margin-top:6px;gap:8px;font-size:12px}
-    .scroll-top-btn{position:fixed;right:22px;bottom:22px;z-index:40;width:48px;height:48px;border-radius:999px;border:1px solid #cfe1f7;background:var(--primary);color:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:20px}
-    .scroll-top-btn:hover{transform:translateY(-1px)}
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Attendant Department Planner</title>
+<style>
+:root{
+  --bg:#f3f5f7;--surface:#fff;--surface-2:#f8fafc;--text:#1f2937;--muted:#6b7280;
+  --line:#d8e1ea;--primary:#1565c0;--accent:#2e7d32;--warn:#ef6c00;--danger:#c62828;
+  --shadow:0 10px 28px rgba(15,23,42,.08);--radius:18px;
+  --lobby-bg:#fff3e0;--lobby-t:#7a3900;--lobby-b:#ffb74d;
+  --caf-bg:#e8f5e9;  --caf-t:#1b5e20;  --caf-b:#a5d6a7;
+  --aud-bg:#fffde7;  --aud-t:#5d4300;  --aud-b:#ffe082;
+  --wel-bg:#f3e5f5;  --wel-t:#5e0072;  --wel-b:#ce93d8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{padding:12px}
+.app{width:min(100%,1980px);max-width:1980px;margin:0 auto}
+.card{background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.hero{padding:14px 18px;margin-bottom:12px;background:linear-gradient(135deg,#fff 0%,#f6f9ff 52%,#eef6ff 100%)}
+.hero-top{display:grid;grid-template-columns:minmax(380px,1fr) 300px;gap:14px;align-items:start}
+h2{margin:0 0 12px;font-size:17px;font-weight:800}
+.badge{display:grid;gap:4px;padding:10px 12px;border-radius:14px;border:1px solid #cfe1f7;background:rgba(234,242,253,.82);color:var(--primary);font-size:12px;font-weight:700}
+.badge .big{font-size:13px;font-weight:800}.badge .small{font-size:11px;color:#35506f;font-weight:600}
+.section{padding:14px 16px;margin-bottom:12px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:14px}
+label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;background:#fff;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.1)}
+textarea{min-height:100px;resize:vertical}
+button,.file-label{border:0;border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .07s}
+button:hover,.file-label:hover{transform:translateY(-1px)}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.primary{background:var(--primary);color:#fff}
+.secondary{background:#eef3f8;color:var(--text)}
+.success{background:#e8f5e9;color:var(--accent)}
+.warn-btn{background:#fff3e0;color:var(--warn)}
+.danger{background:#ffebee;color:var(--danger)}
+.danger-mid{background:#fff0f0;color:#b71c1c;border:1px solid #ef9a9a}
+.file-label input{display:none}
+.summary{display:grid;grid-template-columns:repeat(8,minmax(95px,1fr));gap:8px}
+.metric{padding:10px 11px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2)}
+.metric .k{color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:700}
+.metric .v{font-size:22px;font-weight:800;margin-top:3px}
 
-    @media(max-width:1180px){
-      .grid-4,.grid-3,.grid-2,.summary,.search-row,.split,.hero-top,.hero-grid,.event-stack,.hero-simple .row-2,.contact-grid,.att-card-top,.att-card-bottom{grid-template-columns:1fr}
-      body{padding:10px}
-      h1{font-size:24px}
-    }
-    @media print{
-      body{background:#fff;padding:0}
-      .card{box-shadow:none;border-color:#cfd8dc}
-      .toolbar,.no-print,.footer-note,.footer-bar{display:none !important}
-      input,textarea,select{border:none;padding:0;background:transparent}
-      .table-wrap{overflow:visible;border-radius:0}
-      table{min-width:0;font-size:12px}
-      thead th{position:static}
-    }
-  </style>
+
+
+/* import target modal */
+.import-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;padding:20px}
+.import-modal-card{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:100%;
+  box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.import-modal-card h3{margin:0 0 16px;font-size:18px;color:#1f2937}
+.import-modal-card p{margin:0 0 20px;font-size:13px;color:#6b7280;line-height:1.5}
+.import-modal-buttons{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.import-modal-buttons button{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;
+  border:0;cursor:pointer;transition:transform .08s}
+.import-modal-buttons button:hover{transform:translateY(-1px)}
+.import-modal-buttons .btn-rc{background:#1565c0;color:#fff}
+.import-modal-buttons .btn-assembly{background:#2e7d32;color:#fff}
+.import-modal-buttons .btn-cancel{background:#eceff1;color:#455a64}
+.import-radio-group{display:grid;gap:12px;margin:16px 0}
+.import-radio-opt{display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid #e3e8f0;
+  border-radius:12px;cursor:pointer;transition:all .12s}
+.import-radio-opt:hover{border-color:#90caf9;background:#f5f9ff}
+.import-radio-opt.selected{border-color:#1565c0;background:#eaf2fd}
+.import-radio-opt input[type=radio]{width:18px;height:18px;margin:0;cursor:pointer}
+.import-radio-opt label{font-size:14px;font-weight:700;color:#1f2937;cursor:pointer;flex:1}
+
+/* mini stats bar */
+.mini-stats{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 14px;
+  background:linear-gradient(135deg,#f8fafc 0%,#f3f6fb 100%);border:1px solid #e3e8f0;
+  border-radius:12px;margin-bottom:12px;font-size:11px;color:#5c6c7d}
+.mini-stats .stat{display:flex;align-items:center;gap:5px}
+.mini-stats .stat .label{font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#6b7888}
+.mini-stats .stat .val{font-weight:800;font-size:13px;color:#1f2937}
+.mini-stats .divider{width:1px;height:18px;background:#d0d9e3}
+
+/* filter row */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;margin-bottom:9px}
+.filter-row .sf{display:grid;gap:3px}
+.filter-row .sf.wide{min-width:190px;flex:2}
+.filter-row .sf.mid{min-width:120px;flex:1}
+.filter-row .sf.narrow{min-width:88px;flex:0 1 105px}
+.filter-row .sf.btn{min-width:auto;flex:0 0 auto;align-self:flex-end;display:flex;gap:5px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff;width:100%}
+.att-table{width:100%;border-collapse:collapse;table-layout:fixed}
+
+/* col widths — generous, real-estate focused */
+.att-table col.c-act  {width:36px}
+.att-table col.c-id   {width:52px}
+.att-table col.c-name {width:130px}
+.att-table col.c-first{width:110px}
+.att-table col.c-cong {width:190px}
+.att-table col.c-priv {width:140px}
+.att-table col.c-teams{width:220px}
+.att-table col.c-shift{width:190px}
+.att-table col.c-mob  {width:160px}
+.att-table col.c-rem  {width:auto}
+.att-table col.c-act2 {width:54px}  /* copy+exp */
+.att-table col.c-del  {width:32px}
+
+.att-table thead th{
+  position:sticky;top:0;z-index:3;background:#edf4fb;color:#26415f;
+  font-size:10px;text-transform:uppercase;letter-spacing:.04em;
+  padding:7px 6px;border-bottom:2px solid #c4d8ed;border-right:1px solid #d0dcea;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
+}
+.att-table thead th.left{text-align:left}
+.att-table tbody td{
+  border-bottom:1px solid #edf1f4;border-right:1px solid #edf1f4;
+  padding:3px 5px;vertical-align:middle;font-size:12px;
+}
+.att-table tbody tr.main-row:hover td{background:#f5f9ff}
+.att-table tbody tr.main-row.inactive td{background:#fafafa;opacity:.75}
+.att-table tbody tr.main-row.no-id td:nth-child(2){border-left:3px solid #ef6c00}
+.att-table tbody tr.exp-row>td{padding:10px 12px;border-bottom:2px solid #c4d8ed;background:#f7fbff}
+
+/* inline inputs */
+.att-table input[type=text]{
+  border:1px solid transparent;border-radius:5px;padding:3px 5px;
+  font-size:12px;background:transparent;color:inherit;width:100%;min-width:0
+}
+.att-table input[type=text]:focus{border-color:#90caf9;background:#fff;box-shadow:0 0 0 2px rgba(21,101,192,.1)}
+.att-table select{border:1px solid transparent;border-radius:5px;padding:3px 5px;font-size:12px;background:transparent;color:inherit;width:100%;appearance:none;-webkit-appearance:none;cursor:pointer}
+.att-table select:focus{border-color:#90caf9;background:#fff}
+
+/* active dot */
+.act-dot{width:26px;height:26px;border-radius:999px;border:2px solid transparent;font-size:11px;
+  font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:all .12s}
+.act-dot.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
+.act-dot.off{background:#ffebee;border-color:#ef9a9a;color:#c62828}
+
+/* chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 0}
+.tch{display:inline-flex;align-items:center;gap:2px;padding:3px 6px;border-radius:999px;
+  font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid transparent;
+  user-select:none;transition:opacity .12s,filter .12s}
+.tch input[type=checkbox]{width:11px;height:11px;margin:0;cursor:pointer;flex-shrink:0}
+.tch.off{opacity:.32;filter:grayscale(.5)}
+.tch.lobby{background:var(--lobby-bg);color:var(--lobby-t);border-color:var(--lobby-b)}
+.tch.caf  {background:var(--caf-bg);  color:var(--caf-t);  border-color:var(--caf-b)}
+.tch.aud  {background:var(--aud-bg);  color:var(--aud-t);  border-color:var(--aud-b)}
+.tch.wel  {background:var(--wel-bg);  color:var(--wel-t);  border-color:var(--wel-b)}
+.tch.early{background:#e3f2fd;color:#0d47a1;border-color:#90caf9}
+.tch.morn {background:#e8f5e9;color:#1b5e20;border-color:#a5d6a7}
+.tch.aft  {background:#fffde7;color:#5d4300;border-color:#ffe082}
+.tch.late {background:#f3e5f5;color:#4a148c;border-color:#ce93d8}
+/* extra teams */
+.tch.av   {background:#e3f2fd;color:#1565c0;border-color:#90caf9}
+.tch.stage{background:#ede7f6;color:#4527a0;border-color:#b39ddb}
+.tch.bap  {background:#fce4ec;color:#880e4f;border-color:#f48fb1}
+.tch.park {background:#fff8e1;color:#6d4c00;border-color:#ffe082}
+.tch.clean{background:#e8f5e9;color:#1b5e20;border-color:#a5d6a7}
+.tch.safe {background:#ffebee;color:#b71c1c;border-color:#ef9a9a}
+/* roles */
+.tch.block{background:#fce4ec;color:#880e4f;border-color:#f48fb1}
+.tch.ovr  {background:#e8eaf6;color:#283593;border-color:#9fa8da}
+.tch.asst {background:#e0f2f1;color:#00695c;border-color:#80cbc4}
+.tch.tc   {background:#fff3e0;color:#bf360c;border-color:#ffcc80}
+.tch.child{background:#f5f5f5;color:#555;border-color:#ccc}
+/* custom tag */
+.tch.custom{background:#f0f4ff;color:#3730a3;border-color:#a5b4fc}
+
+/* icon buttons */
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:7px;border:1px solid var(--line);
+  background:#f7f9fc;color:#35506f;cursor:pointer;font-size:12px;flex-shrink:0}
+.icon-btn:hover{background:#edf4fb}
+.icon-btn.danger{border-color:#ef9a9a;background:#fff0f0;color:#c62828}
+.icon-btn.danger:hover{background:#ffcdd2}
+.icon-btn.exp{font-size:10px;font-weight:900}
+
+.del-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:7px;border:1px solid #ef9a9a;
+  background:#fff0f0;color:#c62828;cursor:pointer;font-size:14px}
+.del-btn:hover{background:#ffcdd2}
+
+/* cell action cluster */
+.cell-actions{display:flex;gap:3px;justify-content:center;align-items:center}
+
+/* expanded panel */
+.exp-panel{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.exp-group{display:grid;gap:5px}
+.exp-subhead{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#35506f;margin-bottom:3px}
+.cb-grid{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+/* add-custom inline */
+.add-custom-wrap{display:flex;gap:4px;margin-top:4px}
+.add-custom-wrap input{flex:1;border:1px solid var(--line);border-radius:6px;padding:3px 7px;font-size:11px;min-width:80px}
+.add-custom-wrap button{padding:3px 8px;font-size:11px;border-radius:6px;background:var(--primary);color:#fff;border:0;cursor:pointer;white-space:nowrap}
+
+/* contact vcf row */
+.contact-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.vcf-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
+  border:1px solid #90caf9;background:#e3f2fd;color:#0d47a1;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.vcf-btn:hover{background:#bbdefb}
+.mailto-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
+  border:1px solid #a5d6a7;background:#e8f5e9;color:#1b5e20;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap}
+.mailto-btn:hover{background:#c8e6c9}
+
+/* no-id warning */
+.no-id-warn{display:inline-block;padding:2px 5px;border-radius:999px;background:#fff3e0;
+  color:#8d4000;font-size:9px;font-weight:800;border:1px solid #ffb74d}
+
+/* copy toast */
+.copy-toast{position:fixed;z-index:3000;padding:5px 10px;border-radius:9px;background:#1f2937;color:#fff;
+  font-size:12px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.2);pointer-events:none;
+  opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+.copy-toast.show{opacity:.97;transform:translateY(0)}
+
+/* dashboard table */
+.table-wrap-dash{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+table.dash-table{width:100%;border-collapse:collapse;min-width:850px}
+table.dash-table thead th{position:sticky;top:0;z-index:2;background:#edf4fb;color:#26415f;
+  font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:9px 9px;border-bottom:1px solid var(--line)}
+table.dash-table tbody td{border-bottom:1px solid #edf1f4;padding:7px;vertical-align:top;font-size:13px}
+table.dash-table tbody tr:hover td{background:#fafcff}
+
+.compact-stack{display:grid;gap:5px}
+.stack{display:grid;gap:7px}
+.mini{font-size:11px;color:var(--muted)}
+.pill{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.pill.open{background:#eceff1;color:#455a64}.pill.contacted{background:#e8f5e9;color:#2e7d32}.pill.replied{background:#fff3e0;color:#ef6c00}
+.pill.cong{background:#e3f2fd;color:#1565c0}.pill.group{background:#fff8e1;color:#8d6e00}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{border:1px solid var(--line);background:#eef3f8;padding:11px;border-radius:13px;min-width:190px;display:grid;gap:4px}
+.chip b{font-size:13px}.chip span{color:var(--muted);font-size:11px}
+.chips-inline{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.mini-chip{padding:4px 8px;border-radius:999px;background:#eef3f8;font-size:11px;border:1px solid var(--line)}
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+.muted{color:var(--muted)}
+.hero-grid{display:grid;grid-template-columns:minmax(480px,1.35fr) minmax(440px,.95fr);gap:14px;margin-top:12px}
+.hero-simple{display:grid;gap:10px}
+.hero-title-input{width:100%;border:0;border-bottom:1px solid #d7e4f2;border-radius:0;padding:0 0 5px;
+  background:transparent;font-size:26px;font-weight:800;color:var(--text)}
+.hero-title-input:focus{box-shadow:none;border-color:#90caf9}
+.event-stack{display:grid;grid-template-columns:1.2fr .9fr;gap:9px}
+.event-stack input{font-size:14px;font-weight:700;padding:9px 11px}
+.global-search-wrap{position:relative}
+.global-search-wrap input{padding-right:36px;font-size:13px}
+.global-search-clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:21px;height:21px;
+  border-radius:999px;border:1px solid var(--line);background:#fff;color:#35506f;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.contact-grid .span-2{grid-column:span 2}
+.contact-card{padding:11px;border:1px solid var(--line);border-radius:14px;background:rgba(248,250,252,.9)}
+.contact-card h3{margin:0 0 8px;font-size:13px;color:#26415f}
+.contact-box-preview{margin-top:8px;padding:7px 9px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:11px;color:var(--muted);white-space:pre-line}
+.field-with-actions{position:relative}
+.field-with-actions input{padding-right:30px}
+.field-actions{position:absolute;right:6px;top:50%;transform:translateY(-50%)}
+.mini-copy{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:6px;
+  border:1px solid #d4dde7;background:#f7f9fc;color:#35506f;cursor:pointer;font-size:11px}
+.mini-copy:hover{background:#edf4fb}
+.preview-contact-card{margin-top:11px;padding:11px 13px;border-radius:13px;border:1px solid var(--line);background:#f8fafc}
+.preview-contact-title{font-size:12px;font-weight:800;color:#35506f;margin-bottom:9px}
+.preview-contact-grid{display:grid;gap:7px}
+.preview-contact-row{display:grid;grid-template-columns:110px 1fr 26px;gap:7px;align-items:center}
+.preview-contact-row .label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.preview-contact-value{min-height:34px;display:flex;align-items:center;padding:7px 11px;border:1px solid var(--line);
+  border-radius:10px;background:#fff;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.type-select{font-weight:700;border-radius:999px;padding:7px 11px;border:1px solid var(--line);appearance:none;-webkit-appearance:none}
+.type-select.cong{background:#e3f2fd;color:#1565c0}.type-select.group{background:#fff8e1;color:#8d6e00}
+.message-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:12px;font-size:13px;line-height:1.5;min-height:180px}
+.scroll-top-btn{position:fixed;right:20px;bottom:20px;z-index:40;width:44px;height:44px;border-radius:999px;
+  border:1px solid #cfe1f7;background:var(--primary);color:#fff;box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.footer-note{color:var(--muted);font-size:11px;margin-top:10px}
+.footer-bar{padding:12px 18px;text-align:center;color:var(--muted);font-size:11px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab-btn{background:#eef3f8;color:var(--text)}
+.tab-btn.active{background:var(--primary);color:#fff}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.check-row{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:3px}
+.check-row label{display:flex;align-items:center;gap:5px;margin:0;font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text)}
+.check-row input[type=checkbox]{width:auto;margin:0}
+.mono{font-family:Consolas,Monaco,monospace}
+.right{text-align:right}
+.small-btn{padding:6px 9px;font-size:11px}
+
+@media(max-width:1100px){
+  .hero-top,.hero-grid,.event-stack,.contact-grid,.split,.grid-2,.summary{grid-template-columns:1fr}
+  body{padding:8px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  .card{box-shadow:none}.toolbar,.no-print,.footer-note,.footer-bar{display:none!important}
+  .att-table{font-size:10px}.att-table thead th{position:static}
+}
+</style>
 </head>
 <body>
 <div class="app">
-  <section class="card hero">
-    <div class="hero-top">
-      <div>
-        <input id="plannerTitle" class="hero-title-input" value="Attendant Department Planner" placeholder="Attendant Department Planner">
-      </div>
-      <div class="badge" id="badgePreview"><div class="big">Local data active</div><div class="small" id="badgeLine1">No import yet</div><div class="small" id="badgeLine2">Last save: not yet</div></div>
+
+<!-- HERO -->
+<section class="card hero">
+  <div class="hero-top">
+    <div><input id="plannerTitle" class="hero-title-input" value="Attendant Department Planner"></div>
+    <div class="badge" id="badgePreview">
+      <div class="big">Local data active</div>
+      <div class="small" id="badgeLine1">No import yet</div>
+      <div class="small" id="badgeLine2">Last save: not yet</div>
     </div>
-
-    <div class="hero-grid">
-      <div class="hero-simple">
-        <div class="event-stack">
-          <div>
-            <label for="eventName">Event / Assembly</label>
-            <input id="eventName" value="Sample Assembly">
-          </div>
-          <div>
-            <label for="eventDate">Date</label>
-            <input id="eventDate" value="Sample date / location">
-          </div>
-        </div>
-        <div class="global-search-wrap no-print">
-          <label for="globalSearch">Global search</label>
-          <input id="globalSearch" placeholder="Search congregation, coordinator, attendants, city, privilege, remarks..." oninput="applyGlobalSearch()">
-          <span class="global-search-clear" onclick="clearGlobalSearch()" title="Clear search">✕</span>
-        </div>
-      </div>
-
-      <div class="contact-card">
-        <h3>Attendant Overseer contact</h3>
-        <div class="contact-grid">
-          <div>
-            <label for="senderName">Name</label>
-            <input id="senderName" value="Sample Overseer">
-          </div>
-          <div>
-            <label for="senderRole">Role</label>
-            <input id="senderRole" value="Attendant Overseer">
-          </div>
-          <div class="span-2">
-            <label for="senderCong">Congregation</label>
-            <input id="senderCong" value="Sample Congregation">
-          </div>
-          <div>
-            <label for="senderPhone">Phone</label>
-            <input id="senderPhone" value="+49 000 000000">
-          </div>
-          <div>
-            <label for="senderMail">JWPub / Email</label>
-            <input id="senderMail" value="sample.overseer@example.org">
-          </div>
-        </div>
-        <div class="contact-box-preview" id="contactPreviewBox"></div>
-      </div>
-    </div>
-
-    <div class="toolbar no-print">
-      <button class="primary" onclick="addCongregationRow()">Add congregation / group</button>
-      <button class="primary" onclick="addAttendantRow()">Add attendant</button>
-      <button class="success" onclick="copyActiveAttendantsSummary(this)">Copy active attendants A–Z</button>
-      <button class="warn" onclick="resetStatuses()">Reset contacted / replied</button>
-      <button class="secondary" onclick="restoreStarterCongregations()">Restore starter congregations</button>
-      <button class="danger" onclick="resetAttendants()">Reset attendants list</button>
-    </div>
-  </section>
-
-  <div class="tabs no-print">
-    <button class="tab-btn active" id="tabBtn-dashboard" onclick="showTab('dashboard')">Dashboard & templates</button>
-    <button class="tab-btn" id="tabBtn-attendants" onclick="showTab('attendants')">Attendant master list</button>
-    <button class="tab-btn" id="tabBtn-notes" onclick="showTab('notes')">Backup & tools</button>
   </div>
+  <div class="hero-grid">
+    <div class="hero-simple">
+      <div style="display:grid;gap:9px">
+        <div>
+          <label for="eventType">Event Type</label>
+          <select id="eventType" onchange="switchEventType(this.value)" style="font-weight:700;padding:9px 11px;font-size:14px">
+            <option value="Regional Convention">Regional Convention</option>
+            <option value="Assembly">Assembly</option>
+          </select>
+        </div>
+        <div class="event-stack">
+          <div><label for="eventName">Event / Assembly</label><input id="eventName" value="Sample Assembly"></div>
+          <div><label for="eventDate">Date</label><input id="eventDate" value="Sample date / location"></div>
+        </div>
+      </div>
+      <div class="global-search-wrap no-print">
+        <label for="globalSearch">Global search</label>
+        <input id="globalSearch" placeholder="Name, congregation, team, shift, flags, remarks..." oninput="applyGlobalSearch()">
+        <span class="global-search-clear" onclick="clearGlobalSearch()">✕</span>
+      </div>
+    </div>
+    <div class="contact-card">
+      <h3>Attendant Overseer contact</h3>
+      <div class="contact-grid">
+        <div><label for="senderName">Name</label><input id="senderName" value="Sample Overseer"></div>
+        <div><label for="senderRole">Role</label><input id="senderRole" value="Attendant Overseer"></div>
+        <div class="span-2"><label for="senderCong">Congregation</label><input id="senderCong" value="Sample Congregation"></div>
+        <div><label for="senderPhone">Phone</label><input id="senderPhone" value="+49 000 000000"></div>
+        <div><label for="senderMail">JWPub / Email</label><input id="senderMail" value="sample.overseer@example.org"></div>
+      </div>
+      <div class="contact-box-preview" id="contactPreviewBox"></div>
+    </div>
+  </div>
+  <div class="toolbar no-print">
+    <button class="primary" onclick="addCongregationRow()">+ Congregation / Group</button>
+    <button class="primary" onclick="addAttendantRow()">+ Attendant</button>
+    <button class="success" onclick="copyActiveAttendantsSummary(this)">Copy active A–Z</button>
+    <button class="warn-btn" onclick="resetStatuses()">Reset contacted / replied</button>
 
-  <div class="tab-panel active" id="tab-dashboard">
+    <button class="danger" onclick="resetAttendants()">Reset attendants</button>
+  </div>
+</section>
+
+<!-- TABS -->
+<div class="tabs no-print">
+  <button class="tab-btn active" id="tabBtn-dashboard" onclick="showTab('dashboard')">Dashboard &amp; Templates</button>
+  <button class="tab-btn" id="tabBtn-attendants" onclick="showTab('attendants')">Attendant Master List</button>
+  <button class="tab-btn" id="tabBtn-notes" onclick="showTab('notes')">Backup &amp; Tools</button>
+  <button class="tab-btn" id="tabBtn-settings" onclick="showTab('settings')">⚙ Settings</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="tab-panel active" id="tab-dashboard">
   <section class="card section">
     <h2>Quick overview</h2>
     <div class="summary">
@@ -254,64 +374,35 @@
       <div class="metric"><div class="k">Contacted</div><div class="v" id="mContacted">0</div></div>
       <div class="metric"><div class="k">Replied</div><div class="v" id="mReplied">0</div></div>
       <div class="metric"><div class="k">Other dept.</div><div class="v" id="mOther">0</div></div>
-      <div class="metric"><div class="k">Children check</div><div class="v" id="mChildren">0</div></div>
+      <div class="metric"><div class="k">Children</div><div class="v" id="mChildren">0</div></div>
+      <div class="metric"><div class="k">Shifts set</div><div class="v" id="mShifts">0</div></div>
     </div>
   </section>
 
   <section class="card section">
-    <h2>Congregation / group planner</h2>
-    <div class="search-row no-print">
-      <div>
-        <label for="congSearch">Search</label>
-        <input id="congSearch" placeholder="Search congregation, coordinator, mail, mobile..." oninput="renderCongTable()">
-      </div>
-      <div>
-        <label for="filterType">Type</label>
-        <select id="filterType" onchange="renderCongTable()">
-          <option value="all">All</option>
-          <option value="Congregation">Congregation</option>
-          <option value="Group">Group</option>
-        </select>
-      </div>
-      <div>
-        <label for="filterFollowup">Follow-up</label>
-        <select id="filterFollowup" onchange="renderCongTable()">
-          <option value="all">All</option>
-          <option value="open">Open</option>
-          <option value="contacted">Contacted</option>
-          <option value="replied">Replied</option>
-        </select>
-      </div>
-      <div>
-        <label for="bulkStatus">Bulk set contacted</label>
-        <select id="bulkStatus">
-          <option value="contacted">Mark visible as contacted</option>
-          <option value="replied">Mark visible as replied</option>
-          <option value="open">Clear visible follow-up</option>
-        </select>
-      </div>
-      <div>
-        <button class="secondary" style="margin-top:22px" onclick="applyBulkFollowup()">Apply</button>
-      </div>
+    <h2>Congregation / Group Planner</h2>
+    <div class="filter-row no-print">
+      <div class="sf wide"><label for="congSearch">Search</label><input id="congSearch" placeholder="Congregation, coordinator, mail..." oninput="renderCongTable()"></div>
+      <div class="sf narrow"><label for="filterType">Type</label>
+        <select id="filterType" onchange="renderCongTable()"><option value="all">All</option><option value="Congregation">Congregation</option><option value="Group">Group</option></select></div>
+      <div class="sf narrow"><label for="filterFollowup">Follow-up</label>
+        <select id="filterFollowup" onchange="renderCongTable()"><option value="all">All</option><option value="open">Open</option><option value="contacted">Contacted</option><option value="replied">Replied</option></select></div>
+      <div class="sf narrow"><label for="bulkStatus">Bulk</label>
+        <select id="bulkStatus"><option value="contacted">Mark visible contacted</option><option value="replied">Mark visible replied</option><option value="open">Clear visible</option></select></div>
+      <div class="sf btn"><button class="secondary" onclick="applyBulkFollowup()">Apply</button></div>
     </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:260px">Congregation / Group</th>
-            <th style="width:125px">Type</th>
-            <th style="width:250px">Coordinator / Contacts</th>
-            <th style="width:300px">Current attendants</th>
-            <th style="width:140px">Follow-up</th>
-            <th style="width:210px">Remarks</th>
-            <th style="width:170px" class="no-print">Actions</th>
-          </tr>
-        </thead>
+    <div class="table-wrap-dash">
+      <table class="dash-table">
+        <thead><tr>
+          <th style="width:220px">Congregation / Group</th><th style="width:90px">Type</th>
+          <th style="width:220px">Coordinator / Contacts</th><th style="width:240px">Attendants</th>
+          <th style="width:115px">Follow-up</th><th style="width:180px">Remarks</th>
+          <th style="width:140px" class="no-print">Actions</th>
+        </tr></thead>
         <tbody id="congBody"></tbody>
       </table>
     </div>
-    <div class="footer-note">GitHub-clean sample data only. Import your saved JSON backup to restore real congregation and attendant data.</div>
+    <div class="footer-note">GitHub-clean. Import your JSON backup to restore real data.</div>
   </section>
 
   <section class="card section">
@@ -319,7 +410,7 @@
     <div class="chips" id="congSummary"></div>
   </section>
 
-  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <section class="card section">
     <h2>Email template</h2>
@@ -336,7 +427,7 @@ Can we work with the same brothers as last time, or are there any changes or add
 Here is the list of brothers we currently have from your congregation/group:
 [ATTENDANT_LIST]
 
-If everything is fine, a short reply such as “We confirm” is sufficient.
+If everything is fine, a short reply such as "We confirm" is sufficient.
 If there are changes or additions, please let us know briefly.
 
 Thank you very much for your support.
@@ -350,1078 +441,1110 @@ Loving greetings,
       </div>
       <div>
         <label>Preview</label>
-        <div class="message-box" id="previewBox">Wähle bei einer congregation Zeile „Preview“ oder „Copy“.</div>
+        <div class="message-box" id="previewBox">Select a congregation → Preview or Copy.</div>
         <div class="preview-contact-card">
-          <div class="preview-contact-title">Contact shortcuts for this message</div>
-          <div class="preview-contact-grid" id="previewContactActions">
-            <div class="muted">Preview a congregation to show the email shortcuts for this message.</div>
-          </div>
+          <div class="preview-contact-title">Contact shortcuts</div>
+          <div class="preview-contact-grid" id="previewContactActions"><div class="muted">Preview a congregation first.</div></div>
         </div>
       </div>
     </div>
   </section>
+</div>
 
-  </div>
-
-  <div class="tab-panel" id="tab-attendants">
+<!-- ATTENDANT MASTER LIST -->
+<div class="tab-panel" id="tab-attendants">
   <section class="card section">
-    <h2>Attendant master list</h2>
-    <div class="search-row no-print" style="grid-template-columns:1.35fr .8fr .9fr .9fr .9fr 160px">
-      <div>
-        <label for="attSearch">Search attendants</label>
-        <input id="attSearch" placeholder="Search name, congregation, privilege, phone..." oninput="renderAttendantTable()">
-      </div>
-      <div>
-        <label for="filterCongregation">Congregation</label>
-        <select id="filterCongregation" onchange="renderAttendantTable()"></select>
-      </div>
-      <div>
-        <label for="filterPrivilege">Privilege</label>
+    <h2>Attendant Master List</h2>
+    <div class="mini-stats no-print" id="miniStats"></div>
+    <div class="filter-row no-print">
+      <div class="sf wide"><label for="attSearch">Search</label><input id="attSearch" placeholder="Name, congregation, mobile, remarks, flags..." oninput="renderAttendantTable()"></div>
+      <div class="sf mid"><label for="filterCongregation">Congregation</label><select id="filterCongregation" onchange="renderAttendantTable()"></select></div>
+      <div class="sf narrow"><label for="filterPrivilege">Privilege</label>
         <select id="filterPrivilege" onchange="renderAttendantTable()">
-          <option value="all">All</option>
-          <option value="Publisher">Publisher</option>
-          <option value="Ministerial Servant">Ministerial Servant</option>
-          <option value="Elder">Elder</option>
-        </select>
-      </div>
-      <div>
-        <label for="filterFlags">Flags</label>
-        <select id="filterFlags" onchange="renderAttendantTable()">
-          <option value="all">All</option>
-          <option value="children">Children</option>
-          <option value="other">Works other dept.</option>
-        </select>
-      </div>
-      <div>
-        <label for="filterActive">Status</label>
+          <option value="all">All</option><option value="Publisher">Publisher</option>
+          <option value="Ministerial Servant">Ministerial Servant</option><option value="Elder">Elder</option>
+        </select></div>
+      <div class="sf narrow"><label for="filterTeam">Team</label>
+        <select id="filterTeam" onchange="renderAttendantTable()">
+          <option value="all">All teams</option>
+          <option value="lobby">Lobby</option><option value="cafeteria">Cafeteria</option>
+          <option value="auditorium">Auditorium</option><option value="welcome">Welcome</option>
+          <option value="av">A/V</option><option value="stage">Stage</option>
+          <option value="baptism">Baptism</option><option value="parking">Parking</option>
+          <option value="cleaning">Cleaning</option><option value="safety">Safety</option>
+        </select></div>
+      <div class="sf narrow"><label for="filterShift">Shift</label>
+        <select id="filterShift" onchange="renderAttendantTable()">
+          <option value="all">All shifts</option>
+          <option value="early">Early</option><option value="morning">Morning</option>
+          <option value="afternoon">Afternoon</option><option value="late">Late</option>
+        </select></div>
+      <div class="sf narrow"><label for="filterActive">Status</label>
         <select id="filterActive" onchange="renderAttendantTable()">
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-      </div>
-      <div>
-        <button class="secondary" style="margin-top:22px" onclick="fillMissingIds()">Fill IDs</button>
+          <option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option>
+        </select></div>
+      <div class="sf btn">
+        <button class="secondary small-btn" onclick="fillAndRenumberIds()" title="Sort A–Z, renumber IDs 1,2,3... (active first)">Fill IDs</button>
+        <button class="secondary small-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
+        <button class="warn-btn small-btn" onclick="resetMainTeamsAndShifts()" title="Reset Lobby/Caf/Aud/Welcome + Shifts for all attendants. Roles/extra teams stay.">Reset Teams &amp; Shifts</button>
       </div>
     </div>
+    <div class="toolbar no-print" style="margin-bottom:10px">
+      <button class="success small-btn" onclick="exportFilteredJson()" title="Export currently visible attendants as JSON">📥 Export filtered (JSON)</button>
+      <button class="success small-btn" onclick="exportFilteredCsv()" title="Export currently visible attendants as CSV">📥 Export filtered (CSV)</button>
+      <span style="font-size:11px;color:var(--muted);margin-left:4px" id="filteredExportHint"></span>
+    </div>
 
-    <div id="attendantBody" class="att-card-list"></div>
-    <div class="footer-note">Zweizeilige Arbeitsansicht für schnelleres Bearbeiten. CSV-Import aus deiner vorhandenen Liste ist eingebaut.</div>
+    <div class="table-wrap" style="max-height:80vh;overflow-y:auto">
+      <table class="att-table" id="attTable">
+        <col class="c-act"><col class="c-id"><col class="c-name"><col class="c-first">
+        <col class="c-cong"><col class="c-priv"><col class="c-teams"><col class="c-shift">
+        <col class="c-mob"><col class="c-rem"><col class="c-act2"><col class="c-del">
+        <thead><tr>
+          <th title="Active / Inactive">●</th>
+          <th>ID</th>
+          <th class="left">Name</th>
+          <th class="left">First name</th>
+          <th class="left">Congregation</th>
+          <th class="left">Privilege</th>
+          <th>Main Teams</th>
+          <th>Possible Shifts</th>
+          <th class="left">Mobile</th>
+          <th class="left">Remarks / Flags</th>
+          <th></th>
+          <th></th>
+        </tr></thead>
+        <tbody id="attBody"></tbody>
+      </table>
+    </div>
+    <div class="footer-note" id="attCountNote"></div>
   </section>
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+</div>
 
-  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
-  </div>
-
-  <div class="tab-panel" id="tab-notes">
+<!-- BACKUP -->
+<div class="tab-panel" id="tab-notes">
   <section class="card section">
-    <h2>Backup & tools</h2>
-    <div class="grid grid-2">
+    <h2>Backup &amp; Tools</h2>
+    <div class="grid-2">
       <div>
         <label>Backup / import</label>
         <div class="chips-inline">
           <span class="mini-chip" id="notesImportInfo">Last import: none</span>
           <span class="mini-chip" id="notesSaveInfo">Last local save: not yet</span>
-          <span class="mini-chip">JSON = full backup</span>
-          <span class="mini-chip">CSV = attendants only</span>
+          <span class="mini-chip">JSON = full backup</span><span class="mini-chip">CSV = attendants only</span>
         </div>
-        <div class="toolbar no-print" style="margin-top:12px">
+        <div class="toolbar no-print" style="margin-top:10px">
           <button class="primary" onclick="saveJson()">JSON export</button>
           <label class="file-label secondary">JSON import<input type="file" accept="application/json" onchange="loadJsonFile(event)"></label>
-          <label class="file-label success">CSV attendants import<input type="file" accept=".csv,text/csv" onchange="loadCsvFile(event)"></label>
+          <label class="file-label success">CSV import<input type="file" accept=".csv,text/csv" onchange="loadCsvFile(event)"></label>
         </div>
-        <div class="footer-note" style="margin-top:12px">Alles wird lokal im Browser gespeichert. Für einen echten Stand-Backup einfach regelmäßig JSON exportieren.</div>
+        <div class="footer-note">All data stored locally in your browser. Export JSON regularly.</div>
       </div>
       <div>
         <label for="generalNotes">Notes</label>
-        <textarea id="generalNotes" placeholder="Internal notes for follow-up, changes, reminders..."></textarea>
+        <textarea id="generalNotes" placeholder="Internal notes, reminders, follow-up..."></textarea>
       </div>
     </div>
   </section>
+</div>
 
-  </div>
 
-  <datalist id="congregationOptions"></datalist>
-  <div class="footer-bar">Made with love © v.1.23</div>
+<!-- SETTINGS -->
+<div class="tab-panel" id="tab-settings">
+  <section class="card section">
+    <h2>⚙ Settings – Custom Teams &amp; Roles</h2>
+    <p style="font-size:13px;color:var(--muted);margin:0 0 16px">Add your own team or role labels here. They appear as checkboxes in every attendant's expanded view and are fully searchable.</p>
+    <div class="grid-2">
+      <div>
+        <label>Custom Teams</label>
+        <div id="customTeamsList" class="cb-grid" style="margin-bottom:10px;min-height:32px"></div>
+        <div class="add-custom-wrap">
+          <input type="text" id="newCustomTeamInput" placeholder="e.g. Information, Rooming, First Aid..." onkeydown="if(event.key==='Enter')addCustomGlobal('team')">
+          <button onclick="addCustomGlobal('team')">+ Add team</button>
+        </div>
+      </div>
+      <div>
+        <label>Custom Roles</label>
+        <div id="customRolesList" class="cb-grid" style="margin-bottom:10px;min-height:32px"></div>
+        <div class="add-custom-wrap">
+          <input type="text" id="newCustomRoleInput" placeholder="e.g. Evacuation Helper, Counting..." onkeydown="if(event.key==='Enter')addCustomGlobal('role')">
+          <button onclick="addCustomGlobal('role')">+ Add role</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note" style="margin-top:16px">Custom labels are saved in your JSON backup and restored on import. Deleting a label removes it from all attendants automatically.</div>
+  </section>
+</div>
+
+<datalist id="congregationOptions"></datalist>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.2</div>
 </div>
 
 <script>
-const STORAGE_KEY = 'attendantPlanner_v1_22_github_clean';
+function getStorageKey(){ return state?.meta?.eventType==='Regional Convention'?'attendantPlanner_v2_2_RC':'attendantPlanner_v2_2_Assembly'; }
 const DEFAULT_PRIVILEGES = ['Publisher','Ministerial Servant','Elder'];
-const initialCongregations = [
-  { congregation:'Sample Congregation', type:'Congregation', congJwpub:'sample-congregation@example.org', coordinator:'Sample Coordinator', jwpub:'coordinator@example.org', mobile:'+49 000 000000', contacted:false, replied:false, remarks:'Sample row only – import your real JSON backup to restore live data.', linkedAttendantIds:'' }
+
+const MAIN_TEAMS = [
+  {key:'lobby',     label:'Lobby',     cls:'lobby'},
+  {key:'cafeteria', label:'Cafeteria', cls:'caf'},
+  {key:'auditorium',label:'Auditorium',cls:'aud'},
+  {key:'welcome',   label:'Welcome',   cls:'wel'},
 ];
+const EXTRA_TEAMS = [
+  {key:'av',      label:'A/V',     cls:'av'},
+  {key:'stage',   label:'Stage',   cls:'stage'},
+  {key:'baptism', label:'Baptism', cls:'bap'},
+  {key:'parking', label:'Parking', cls:'park'},
+  {key:'cleaning',label:'Cleaning',cls:'clean'},
+  {key:'safety',  label:'Safety',  cls:'safe'},
+];
+const ALL_TEAMS = [...MAIN_TEAMS, ...EXTRA_TEAMS];
+
+const ROLES = [
+  {key:'blockatt',   label:'Block Att.',  cls:'block'},
+  {key:'overseer',   label:'Overseer',    cls:'ovr'},
+  {key:'assistant',  label:'Assistant',   cls:'asst'},
+  {key:'teamcaptain',label:'Team Captain',cls:'tc'},
+];
+
+const SHIFTS = [
+  {key:'early',    label:'Early',    cls:'early'},
+  {key:'morning',  label:'Morning',  cls:'morn'},
+  {key:'afternoon',label:'Afternoon',cls:'aft'},
+  {key:'late',     label:'Late',     cls:'late'},
+];
+
+const RESET_TEAM_KEYS = MAIN_TEAMS.map(t=>t.key); // lobby,caf,aud,welcome only
+const RESET_SHIFT_KEYS = SHIFTS.map(s=>s.key);
+
+const initialCongregations = [
+  {congregation:'Sample Congregation',type:'Congregation',congJwpub:'sample-cong@example.org',
+   coordinator:'Sample Coordinator',jwpub:'coordinator@example.org',mobile:'+49 000 000000',
+   contacted:false,replied:false,remarks:'Sample – import your JSON backup.',linkedAttendantIds:''}
+];
+
+/* ── state ── */
+let state, selectedCongIndex=null, globalSearchTerm='', expandedRows=new Set(), allExpanded=false;
 
 function defaultState(){
   return {
-    meta:{
-      plannerTitle:'Attendant Department Planner',
-      eventName:'Sample Assembly',
-      eventDate:'Sample date / location',
-      senderName:'Sample Overseer',
-      senderRole:'Attendant Overseer',
-      senderCong:'Sample Congregation',
-      senderPhone:'+49 000 000000',
-      senderMail:'sample.overseer@example.org',
-      messageTemplate: document.getElementById('messageTemplate')?.value || '',
-      generalNotes:'',
-      lastImportText:'No import yet',
-      lastSavedAt:''
-    },
-    congregations: structuredClone(initialCongregations),
-    attendants: [normalizeAttendant({ id:'001', name:'Sample', firstName:'Brother', congregation:'Sample Congregation', email:'brother.sample@example.org', jwpub:'brother.sample@jwpub.example', mobile:'+49 000 000001', privilege:'Ministerial Servant', active:true, children:false, otherDepartment:false, lastTeam:'Entrance', remarks:'Example data only' })]
+    meta:{plannerTitle:'Attendant Department Planner',eventType:'Regional Convention',eventName:'Sample Assembly',
+      eventDate:'Sample date / location',senderName:'Sample Overseer',
+      senderRole:'Attendant Overseer',senderCong:'Sample Congregation',
+      senderPhone:'+49 000 000000',senderMail:'sample.overseer@example.org',
+      messageTemplate:el('messageTemplate')?.value||'',generalNotes:'',
+      lastImportText:'No import yet',lastSavedAt:'',
+      customTeams:[],customRoles:[]},
+    congregations:structuredClone(initialCongregations),
+    attendants:[normalizeAttendant({id:'001',name:'Sample',firstName:'Brother',
+      congregation:'Sample Congregation',email:'brother.sample@example.org',
+      jwpub:'brother@jwpub.example',mobile:'+49 000 000001',privilege:'Ministerial Servant',
+      active:true,children:false,otherDepartment:false,
+      teams:['lobby'],roles:['blockatt'],shifts:['morning','afternoon'],
+      customTags:[],flags:'',remarks:'Example data only'})]
   };
 }
 
-let state = loadState();
-let selectedCongIndex = null;
-let globalSearchTerm = '';
-ensureValidState();
-
 function loadState(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(!raw) return defaultState();
-  try{
-    const data = JSON.parse(raw);
-    return {
-      meta: { ...defaultState().meta, ...(data.meta || {}) },
-      congregations: Array.isArray(data.congregations) && data.congregations.length ? data.congregations.map(normalizeCongregation) : structuredClone(initialCongregations),
-      attendants: Array.isArray(data.attendants) ? data.attendants.map(normalizeAttendant) : []
-    };
-  }catch{
-    return defaultState();
+  // Try current eventType first, then fallback to old keys
+  const keys=['attendantPlanner_v2_2_RC','attendantPlanner_v2_2_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
+  for(const key of keys){
+    const raw=localStorage.getItem(key);
+    if(!raw) continue;
+    try{
+      const data=JSON.parse(raw);
+      return {
+        meta:{...defaultState().meta,...(data.meta||{})},
+        congregations:Array.isArray(data.congregations)&&data.congregations.length
+          ?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+        attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]
+      };
+    }catch{}
   }
+  return defaultState();
 }
 
 function normalizeCongregation(r){
-  return {
-    congregation: r.congregation || '',
-    type: r.type === 'Group' ? 'Group' : 'Congregation',
-    congJwpub: r.congJwpub || '',
-    coordinator: r.coordinator || '',
-    jwpub: r.jwpub || '',
-    mobile: r.mobile || '',
-    contacted: !!r.contacted,
-    replied: !!r.replied,
-    remarks: r.remarks || '',
-    linkedAttendantIds: r.linkedAttendantIds || '',
-    contactedAt: r.contactedAt || '',
-    repliedAt: r.repliedAt || ''
-  };
+  return {congregation:r.congregation||'',type:r.type==='Group'?'Group':'Congregation',
+    congJwpub:r.congJwpub||'',coordinator:r.coordinator||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
+    contacted:!!r.contacted,replied:!!r.replied,remarks:r.remarks||'',
+    linkedAttendantIds:r.linkedAttendantIds||'',contactedAt:r.contactedAt||'',repliedAt:r.repliedAt||''};
 }
 
 function normalizeAttendant(r){
+  let teams=Array.isArray(r.teams)?[...r.teams]:[];
+  if(!teams.length&&r.lastTeam){
+    const lt=String(r.lastTeam).toLowerCase();
+    ALL_TEAMS.forEach(t=>{if(lt.includes(t.key)||lt.includes(t.label.toLowerCase()))teams.push(t.key);});
+  }
+  const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
   return {
-    id: String(r.id || ''),
-    name: r.name || '',
-    firstName: r.firstName || '',
-    congregation: r.congregation || '',
-    email: r.email || '',
-    jwpub: r.jwpub || '',
-    mobile: r.mobile || '',
-    privilege: DEFAULT_PRIVILEGES.includes(r.privilege) ? r.privilege : 'Publisher',
-    active: r.active === undefined ? true : !!r.active,
-    children: !!r.children,
-    otherDepartment: !!r.otherDepartment,
-    lastTeam: r.lastTeam || '',
-    remarks: r.remarks || ''
+    id:String(r.id||''),name:r.name||'',firstName:r.firstName||'',
+    congregation:r.congregation||'',email:r.email||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
+    privilege:DEFAULT_PRIVILEGES.includes(r.privilege)?r.privilege:'Publisher',
+    active:r.active===undefined?true:!!r.active,children:!!r.children,
+    otherDepartment:r.otherDepartment!==undefined?!!r.otherDepartment:teams.some(t=>otherKeys.includes(t)),
+    teams,roles:Array.isArray(r.roles)?r.roles:[],shifts:Array.isArray(r.shifts)?r.shifts:[],
+    customTags:Array.isArray(r.customTags)?r.customTags:[],
+    flags:r.flags||'',remarks:r.remarks||''
   };
 }
 
-function el(id){ return document.getElementById(id); }
 function ensureValidState(){
-  const hasUsableCongs = Array.isArray(state.congregations) && state.congregations.some(r => String(r?.congregation || '').trim());
-  if(!hasUsableCongs){
-    state.congregations = structuredClone(initialCongregations).map(normalizeCongregation);
-  }else{
-    state.congregations = state.congregations.map(normalizeCongregation);
-  }
-  state.attendants = Array.isArray(state.attendants) ? state.attendants.map(normalizeAttendant) : [];
-  const oldDup = /\[SENDER_NAME\]\s*\n\[SENDER_ROLE\]\s*\n\s*\[SENDER_SIGNATURE\]/;
-  if(oldDup.test(state.meta.messageTemplate || '')){
-    state.meta.messageTemplate = (state.meta.messageTemplate || '').replace(oldDup, '[SENDER_SIGNATURE]');
-  }
-  if((state.meta.messageTemplate || '').includes('[REPLY_HINT]')){
-    state.meta.messageTemplate = (state.meta.messageTemplate || '').replaceAll('[REPLY_HINT]', 'If everything is fine, a short reply such as “We confirm” is sufficient.');
-  }
+  if(!state) state=loadState();
+  if(!Array.isArray(state.meta.customTeams)) state.meta.customTeams=[];
+  if(!Array.isArray(state.meta.customRoles)) state.meta.customRoles=[];
+  if(!Array.isArray(state.congregations)||!state.congregations.some(r=>String(r?.congregation||'').trim()))
+    state.congregations=structuredClone(initialCongregations).map(normalizeCongregation);
+  else state.congregations=state.congregations.map(normalizeCongregation);
+  state.attendants=Array.isArray(state.attendants)?state.attendants.map(normalizeAttendant):[];
 }
 
-function showTab(tab){
-  ['dashboard','attendants','notes'].forEach(name => {
-    const panel = el('tab-' + name);
-    const btn = el('tabBtn-' + name);
-    if(panel) panel.classList.toggle('active', name === tab);
-    if(btn) btn.classList.toggle('active', name === tab);
-  });
+/* ── helpers ── */
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function js(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+function byId(id){return state.attendants.find(a=>String(a.id)===String(id));}
+function matchCong(a,b){return String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();}
+function dispName(a){return[a.name,a.firstName].filter(Boolean).join(', ')||'(no name)';}
+function sortKey(a){return`${String(a?.name||'').trim().toLocaleLowerCase('de')}\0${String(a?.firstName||'').trim().toLocaleLowerCase('de')}\0${String(a?.id||'')}`;};
+function sortByName(list){return[...(list||[])].sort((a,b)=>sortKey(a).localeCompare(sortKey(b),'de'));}
+function shortCong(name){
+  return String(name||'').trim()
+    .replace(/-?\s*english\s*(group|congregation)?/ig,'').replace(/\s+(group|congregation)$/ig,'')
+    .replace(/-(north|south|east|west)$/ig,'').replace(/\s{2,}/g,' ').replace(/[-–—]\s*$/,'').trim();
+}
+function followState(r){return r.replied?'replied':r.contacted?'contacted':'open';}
+function followLabel(r){
+  const s=followState(r);
+  return s==='replied'?'<span class="pill replied">Replied</span>':s==='contacted'?'<span class="pill contacted">Contacted</span>':'<span class="pill open">Open</span>';
+}
+function matchTerms(text){
+  const q=String(globalSearchTerm||'').trim().toLowerCase();
+  if(!q)return true;
+  const hay=String(text||'').toLowerCase();
+  return q.split(/\s+/).every(t=>hay.includes(t));
+}
+function attHay(row){
+  return[row.id,row.name,row.firstName,row.congregation,shortCong(row.congregation),
+    row.email,row.jwpub,row.mobile,row.privilege,row.flags,row.remarks,
+    (row.teams||[]).join(' '),(row.roles||[]).join(' '),(row.shifts||[]).join(' '),(row.customTags||[]).join(' ')].join(' ');
 }
 
-function esc(str){
-  return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+/* ── save / meta ── */
+/* ── Event Type Switching ── */
+function switchEventType(newType){
+  if(state.meta.eventType===newType)return;
+  const hasChanges=localStorage.getItem(getStorageKey())!==JSON.stringify(state,null,2);
+  if(hasChanges&&!confirm(`You have unsaved changes in ${state.meta.eventType}. Switch to ${newType}? (Save first if needed)`))return;
+  state.meta.eventType=newType;
+  const existingData=localStorage.getItem(getStorageKey());
+  if(existingData){
+    try{
+      const loaded=JSON.parse(existingData);
+      state={meta:{...defaultState().meta,...(loaded.meta||{})},
+        congregations:Array.isArray(loaded.congregations)&&loaded.congregations.length?loaded.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+        attendants:Array.isArray(loaded.attendants)?loaded.attendants.map(normalizeAttendant):[]};
+      ensureValidState();
+    }catch{state=defaultState();state.meta.eventType=newType;}
+  }else{state=defaultState();state.meta.eventType=newType;}
+  writeMetaToInputs();refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();renderMiniStats();renderCustomLists();
+  flash(`Switched to ${newType}`);
 }
-function byId(id){ return state.attendants.find(a => String(a.id) === String(id)); }
-function writeMetaToInputs(){
-  Object.entries(state.meta).forEach(([k,v]) => { if(el(k)) el(k).value = v ?? ''; });
+
+function syncMeta(){
+  ['plannerTitle','eventType','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes']
+    .forEach(id=>{const e=el(id);if(e)state.meta[id]=e.tagName==='SELECT'?e.value:e.value;});
 }
-function syncMetaFromInputs(){
-  ['plannerTitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes'].forEach(id => {
-    if(el(id)) state.meta[id] = el(id).value;
-  });
-}
+function writeMetaToInputs(){Object.entries(state.meta).forEach(([k,v])=>{if(el(k))el(k).value=v??'';});}
 function saveState(){
-  syncMetaFromInputs();
-  state.meta.lastSavedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state, null, 2));
-  refreshHeader();
-  updateMetrics();
-  refreshCongregationFilter();
-  renderCongSummary();
+  syncMeta();state.meta.lastSavedAt=new Date().toISOString();
+  localStorage.setItem(getStorageKey(),JSON.stringify(state,null,2));
+  refreshHeader();updateMetrics();refreshCongFilter();renderCongSummary();
 }
-function formatStamp(iso){
-  if(!iso) return 'not yet';
-  try{
-    return new Date(iso).toLocaleString('de-DE');
-  }catch{
-    return iso;
-  }
-}
-function formatShortStamp(iso){
-  if(!iso) return '';
-  try{
-    return new Date(iso).toLocaleDateString('de-DE');
-  }catch{
-    return '';
-  }
-}
+function formatStamp(iso){if(!iso)return'not yet';try{return new Date(iso).toLocaleString('de-DE');}catch{return iso;}}
+function formatShortStamp(iso){if(!iso)return'';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return'';}}
 function refreshHeader(){
-  const titleInput = el('plannerTitle');
-  if(titleInput) titleInput.value = state.meta.plannerTitle || 'Attendant Department Planner';
-  const bits = [state.meta.senderName || '', state.meta.senderRole || '', state.meta.senderCong || '', state.meta.senderPhone || '', state.meta.senderMail || ''].filter(Boolean);
-  if(el('contactPreviewBox')) el('contactPreviewBox').textContent = bits.join(' · ');
-  if(el('badgeLine1')) el('badgeLine1').textContent = state.meta.lastImportText || 'No import yet';
-  if(el('badgeLine2')) el('badgeLine2').textContent = `Last save: ${formatStamp(state.meta.lastSavedAt)}`;
-  if(el('notesImportInfo')) el('notesImportInfo').textContent = state.meta.lastImportText || 'Last import: none';
-  if(el('notesSaveInfo')) el('notesSaveInfo').textContent = `Last local save: ${formatStamp(state.meta.lastSavedAt)}`;
+  const imp=state.meta.lastImportText||'No import yet';
+  const saved=state.meta.lastSavedAt?'Last save: '+formatStamp(state.meta.lastSavedAt):'Last save: not yet';
+  el('badgeLine1').textContent=imp;el('badgeLine2').textContent=saved;
+  if(el('plannerTitle'))el('plannerTitle').value=state.meta.plannerTitle||'';
+  const p=el('contactPreviewBox');if(p)p.textContent=buildSignature();
+  const si=el('notesSaveInfo');if(si)si.textContent=saved;
+  const ii=el('notesImportInfo');if(ii)ii.textContent=imp;
 }
-
 function updateMetrics(){
-  const congs = state.congregations.length;
-  const att = state.attendants.length;
-  const active = state.attendants.filter(a=>a.active !== false).length;
-  const contacted = state.congregations.filter(r=>r.contacted).length;
-  const replied = state.congregations.filter(r=>r.replied).length;
-  const other = state.attendants.filter(a=>a.otherDepartment).length;
-  const children = state.attendants.filter(a=>a.children).length;
-  el('mCongs').textContent = congs;
-  el('mAtt').textContent = att;
-  el('mActive').textContent = active;
-  el('mContacted').textContent = contacted;
-  el('mReplied').textContent = replied;
-  el('mOther').textContent = other;
-  el('mChildren').textContent = children;
-}
-function matchCongregationName(a,b){ return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase(); }
-function attendantsForCongregation(congRow){
-  const direct = state.attendants.filter(a => matchCongregationName(a.congregation, congRow.congregation));
-  const extraIds = String(congRow.linkedAttendantIds || '').split(/[;,\n]+/).map(v=>v.trim()).filter(Boolean);
-  const extras = extraIds.map(id => byId(id)).filter(Boolean);
-  const map = new Map();
-  [...direct, ...extras].forEach(a => map.set(String(a.id || a.name + a.firstName), a));
-  return sortAttendantsByName([...map.values()]);
-}
-function attendantDisplayName(a){
-  const parts = [a.name, a.firstName].filter(Boolean);
-  return parts.join(', ') || a.name || a.firstName || '(no name)';
-}
-function attendantSortLabel(a){
-  const last = String(a?.name || '').trim().toLocaleLowerCase('de');
-  const first = String(a?.firstName || '').trim().toLocaleLowerCase('de');
-  const id = String(a?.id || '').trim();
-  return `${last}\u0000${first}\u0000${id}`;
-}
-function sortAttendantsByName(list){
-  return [...(Array.isArray(list) ? list : [])].sort((a,b) => attendantSortLabel(a).localeCompare(attendantSortLabel(b), 'de'));
-}
-function formattedActiveAttendantLine(a){
-  const namePart = [String(a?.name || '').trim(), String(a?.firstName || '').trim()].filter(Boolean).join(' ');
-  const cityPart = shortCongLabel(a?.congregation || '');
-  return [namePart, cityPart].filter(Boolean).join(', ');
-}
-function shortCongLabel(name){
-  const raw = String(name || '').trim();
-  if(!raw) return '';
-  return raw
-    .replace(/-?\s*english\s*group/ig, '')
-    .replace(/-?\s*english\s*congregation/ig, '')
-    .replace(/-?\s*english/ig, '')
-    .replace(/\s+group$/ig, '')
-    .replace(/\s+congregation$/ig, '')
-    .replace(/-north$/ig, '')
-    .replace(/-south$/ig, '')
-    .replace(/-east$/ig, '')
-    .replace(/-west$/ig, '')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/[-–—]\s*$/,'')
-    .trim();
-}
-function followupState(row){
-  if(row.replied) return 'replied';
-  if(row.contacted) return 'contacted';
-  return 'open';
-}
-function followupLabel(row){
-  const st = followupState(row);
-  if(st === 'replied') return '<span class="pill replied">Replied</span>';
-  if(st === 'contacted') return '<span class="pill contacted">Contacted</span>';
-  return '<span class="pill open">Open</span>';
+  el('mCongs').textContent=state.congregations.length;
+  el('mAtt').textContent=state.attendants.length;
+  el('mActive').textContent=state.attendants.filter(a=>a.active!==false).length;
+  el('mContacted').textContent=state.congregations.filter(r=>r.contacted).length;
+  el('mReplied').textContent=state.congregations.filter(r=>r.replied).length;
+  el('mOther').textContent=state.attendants.filter(a=>a.otherDepartment).length;
+  el('mChildren').textContent=state.attendants.filter(a=>a.children).length;
+  el('mShifts').textContent=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
 }
 
-function applyGlobalSearch(){
-  globalSearchTerm = String(el('globalSearch')?.value || '').trim().toLowerCase();
-  renderCongTable();
-  renderAttendantTable();
+/* ── congregation helpers ── */
+function attsForCong(row){
+  const direct=state.attendants.filter(a=>matchCong(a.congregation,row.congregation));
+  const extras=String(row.linkedAttendantIds||'').split(/[;,\n]+/).map(v=>v.trim()).filter(Boolean).map(id=>byId(id)).filter(Boolean);
+  const map=new Map();[...direct,...extras].forEach(a=>map.set(String(a.id||a.name+a.firstName),a));
+  return sortByName([...map.values()]);
 }
 
-function clearGlobalSearch(){
-  if(el('globalSearch')) el('globalSearch').value = '';
-  globalSearchTerm = '';
-  renderCongTable();
-  renderAttendantTable();
-}
-
-function matchesSearchTerms(text){
-  const q = String(globalSearchTerm || '').trim().toLowerCase();
-  if(!q) return true;
-  const hay = String(text || '').toLowerCase();
-  return q.split(/\s+/).every(term => hay.includes(term));
-}
-
+/* ── congregation table ── */
 function renderCongTable(){
-  const q = el('congSearch').value.trim().toLowerCase();
-  const type = el('filterType').value;
-  const follow = el('filterFollowup').value;
-  const body = el('congBody');
-  body.innerHTML = '';
-  state.congregations.forEach((row, index) => {
-    const names = attendantsForCongregation(row);
-    const hay = [
-      row.congregation,
-      shortCongLabel(row.congregation),
-      row.type,
-      row.coordinator,
-      row.congJwpub,
-      row.jwpub,
-      row.mobile,
-      row.remarks,
-      names.map(a => `${attendantDisplayName(a)} ${a.privilege || ''} ${a.remarks || ''}`).join(' | ')
-    ].join(' ').toLowerCase();
-    if(q && !hay.includes(q)) return;
-    if(!matchesSearchTerms(hay)) return;
-    if(type !== 'all' && row.type !== type) return;
-    if(follow !== 'all' && followupState(row) !== follow) return;
-
-    const tr = document.createElement('tr');
-    tr.dataset.visible = '1';
-    tr.innerHTML = `
-      <td>
-        <div class="compact-stack">
-          <input value="${esc(row.congregation)}" oninput="updateCong(${index}, 'congregation', this.value)" placeholder="Congregation / Group">
-          <div class="mini mono">${esc(row.congJwpub || '')}</div>
-        </div>
-      </td>
-      <td>
-        <div class="compact-stack">
-          <select class="type-select ${row.type === 'Group' ? 'group' : 'cong'}" onchange="updateCong(${index}, 'type', this.value)">
-            <option value="Congregation" ${row.type === 'Congregation' ? 'selected' : ''}>Congregation</option>
-            <option value="Group" ${row.type === 'Group' ? 'selected' : ''}>Group</option>
-          </select>
-        </div>
-      </td>
-      <td>
-        <div class="compact-stack">
-          <input value="${esc(row.coordinator)}" oninput="updateCong(${index}, 'coordinator', this.value)" placeholder="Coordinator">
-          <div class="field-with-actions">
-            <input value="${esc(row.jwpub)}" oninput="updateCong(${index}, 'jwpub', this.value)" placeholder="Personal JWPub / Email">
-            <div class="field-actions no-print">
-              ${row.jwpub ? `<span class="mini-copy" title="Copy personal email" onclick="copyText('${js(row.jwpub)}', false, this)">⧉</span>` : ''}
-            </div>
-          </div>
-          <div class="field-with-actions">
-            <input value="${esc(row.mobile)}" oninput="updateCong(${index}, 'mobile', this.value)" placeholder="Mobile">
-            <div class="field-actions no-print">
-              ${row.mobile ? `<span class="mini-copy" title="Copy mobile" onclick="copyText('${js(row.mobile)}', false, this)">⧉</span>` : ''}
-            </div>
-          </div>
-          <div class="field-with-actions">
-            <input value="${esc(row.congJwpub)}" oninput="updateCong(${index}, 'congJwpub', this.value)" placeholder="Congregation JWPub / Email">
-            <div class="field-actions no-print">
-              ${row.congJwpub ? `<span class="mini-copy" title="Copy congregation email" onclick="copyText('${js(row.congJwpub)}', false, this)">⧉</span>` : ''}
-            </div>
-          </div>
-        </div>
-      </td>
-      <td>
-        <div class="compact-stack">
-          <div class="mini">${names.length ? names.map(a => esc(attendantDisplayName(a)) + (a.active === false ? ' <span class=\"muted\">(inactive)</span>' : '')).join('<br>') : '<span class=\"muted\">No attendants linked yet</span>'}</div>
-        </div>
-      </td>
-      <td>
-        <div class="compact-stack">
-          ${followupLabel(row)}
-          <div class="check-row no-print">
-            <label><input type="checkbox" ${row.contacted ? 'checked' : ''} onchange="updateCong(${index}, 'contacted', this.checked)"> contacted</label>
-            <label><input type="checkbox" ${row.replied ? 'checked' : ''} onchange="updateCong(${index}, 'replied', this.checked)"> replied</label>
-          </div>
-        </div>
-      </td>
-      <td>
-        <textarea oninput="updateCong(${index}, 'remarks', this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea>
-      </td>
-      <td class="no-print right">
-        <div class="stack">
-          <button class="secondary small-btn" onclick="previewCong(${index})">Preview</button>
-          <button class="secondary small-btn" onclick="copyCongMessage(${index})">Copy</button>
-          <button class="danger small-btn" onclick="deleteCongRow(${index})">Delete</button>
-        </div>
-      </td>
-    `;
+  const q=el('congSearch').value.trim().toLowerCase();
+  const type=el('filterType').value,follow=el('filterFollowup').value;
+  const body=el('congBody');body.innerHTML='';
+  state.congregations.forEach((row,index)=>{
+    const names=attsForCong(row);
+    const hay=[row.congregation,shortCong(row.congregation),row.type,row.coordinator,row.congJwpub,row.jwpub,row.mobile,row.remarks,
+      names.map(a=>`${dispName(a)} ${a.privilege||''}`).join(' | ')].join(' ').toLowerCase();
+    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
+    if(type!=='all'&&row.type!==type)return;if(follow!=='all'&&followState(row)!==follow)return;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="compact-stack">
+        <input value="${esc(row.congregation)}" oninput="updCong(${index},'congregation',this.value)" placeholder="Congregation / Group">
+        <div class="mini mono">${esc(row.congJwpub||'')}</div>
+      </div></td>
+      <td><select class="type-select ${row.type==='Group'?'group':'cong'}" onchange="updCong(${index},'type',this.value)">
+        <option value="Congregation" ${row.type==='Congregation'?'selected':''}>Congregation</option>
+        <option value="Group" ${row.type==='Group'?'selected':''}>Group</option>
+      </select></td>
+      <td><div class="compact-stack">
+        <input value="${esc(row.coordinator)}" oninput="updCong(${index},'coordinator',this.value)" placeholder="Coordinator">
+        <div class="field-with-actions"><input value="${esc(row.jwpub)}" oninput="updCong(${index},'jwpub',this.value)" placeholder="Personal JWPub / Email">
+          <div class="field-actions">${row.jwpub?`<span class="mini-copy" onclick="copyText('${js(row.jwpub)}',false,this)">⧉</span>`:''}</div></div>
+        <div class="field-with-actions"><input value="${esc(row.mobile)}" oninput="updCong(${index},'mobile',this.value)" placeholder="Mobile">
+          <div class="field-actions">${row.mobile?`<span class="mini-copy" onclick="copyText('${js(row.mobile)}',false,this)">⧉</span>`:''}</div></div>
+        <div class="field-with-actions"><input value="${esc(row.congJwpub)}" oninput="updCong(${index},'congJwpub',this.value)" placeholder="Congregation JWPub / Email">
+          <div class="field-actions">${row.congJwpub?`<span class="mini-copy" onclick="copyText('${js(row.congJwpub)}',false,this)">⧉</span>`:''}</div></div>
+      </div></td>
+      <td><div class="mini">${names.length?names.map(a=>esc(dispName(a))+(a.active===false?' <span class="muted">(inactive)</span>':'')).join('<br>'):'<span class="muted">–</span>'}</div></td>
+      <td><div class="compact-stack">${followLabel(row)}
+        <div class="check-row no-print">
+          <label><input type="checkbox" ${row.contacted?'checked':''} onchange="updCong(${index},'contacted',this.checked)"> contacted</label>
+          <label><input type="checkbox" ${row.replied?'checked':''} onchange="updCong(${index},'replied',this.checked)"> replied</label>
+        </div></div></td>
+      <td><textarea oninput="updCong(${index},'remarks',this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea></td>
+      <td class="no-print right"><div class="stack">
+        <button class="secondary small-btn" onclick="previewCong(${index})">Preview</button>
+        <button class="secondary small-btn" onclick="copyCongMessage(${index})">Copy</button>
+        <button class="danger small-btn" onclick="deleteCongRow(${index})">Delete</button>
+      </div></td>`;
     body.appendChild(tr);
   });
-  if(!body.children.length && state.congregations.length === 0){
-    state.congregations = structuredClone(initialCongregations).map(normalizeCongregation);
-    saveState();
-    return renderCongTable();
+  if(!body.children.length&&state.congregations.length===0){
+    state.congregations=structuredClone(initialCongregations).map(normalizeCongregation);
+    saveState();return renderCongTable();
   }
-  renderCongSummary();
-  updateMetrics();
+  renderCongSummary();updateMetrics();
 }
-
 function renderCongSummary(){
-  const wrap = el('congSummary');
-  wrap.innerHTML = state.congregations.map(row => {
-    const cnt = attendantsForCongregation(row).length;
-    const st = followupState(row);
-    const label = st === 'replied' ? 'replied' : st === 'contacted' ? 'contacted' : 'open';
-    const activeCnt = attendantsForCongregation(row).filter(a => a.active !== false).length;
-    const when = row.repliedAt ? ` · replied ${formatShortStamp(row.repliedAt)}` : row.contactedAt ? ` · contacted ${formatShortStamp(row.contactedAt)}` : '';
-    return `<div class="chip"><div class="chip-meta"><b>${esc(row.congregation || '(blank)')}</b><span>${esc(row.type)} · ${activeCnt}/${cnt} active · ${label}${esc(when)}</span></div></div>`;
+  el('congSummary').innerHTML=state.congregations.map(row=>{
+    const atts=attsForCong(row),active=atts.filter(a=>a.active!==false).length;
+    const st=followState(row),when=row.repliedAt?` · replied ${formatShortStamp(row.repliedAt)}`:row.contactedAt?` · contacted ${formatShortStamp(row.contactedAt)}`:'';
+    return`<div class="chip"><b>${esc(row.congregation||'(blank)')}</b><span>${esc(row.type)} · ${active}/${atts.length} active · ${st}${esc(when)}</span></div>`;
   }).join('');
 }
-
-
-function refreshCongregationFilter(){
-  const sel = el('filterCongregation');
-  const prev = sel.value;
-  const names = [...new Set(state.congregations.map(r => r.congregation).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  sel.innerHTML = `<option value="all">All</option>` + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
-  if(names.includes(prev)) sel.value = prev; else sel.value = 'all';
+function refreshCongFilter(){
+  const sel=el('filterCongregation');const prev=sel.value;
+  const names=[...new Set(state.congregations.map(r=>r.congregation).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML=`<option value="all">All</option>`+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if(names.includes(prev))sel.value=prev;else sel.value='all';
+}
+function buildCongOptions(sel){
+  const names=[...new Set(state.congregations.map(r=>String(r.congregation||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if(sel&&!names.includes(sel))names.unshift(sel);
+  return`<option value="">– select –</option>`+names.map(n=>`<option value="${esc(n)}" ${n===sel?'selected':''}>${esc(n)}</option>`).join('');
 }
 
-function buildCongregationOptions(selectedValue){
-  const names = [...new Set(state.congregations.map(r => String(r.congregation || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  const selected = String(selectedValue || '').trim();
-  if(selected && !names.includes(selected)) names.unshift(selected);
-  return names.map(name => `<option value="${esc(name)}" ${name === selected ? 'selected' : ''}>${esc(name)}</option>`).join('');
+/* ── ATTENDANT TABLE ── */
+/* ── mini stats ── */
+function renderMiniStats(){
+  const total=state.attendants.length;
+  const active=state.attendants.filter(a=>a.active!==false).length;
+  const inactive=total-active;
+  const lobby=state.attendants.filter(a=>(a.teams||[]).includes('lobby')).length;
+  const caf=state.attendants.filter(a=>(a.teams||[]).includes('cafeteria')).length;
+  const aud=state.attendants.filter(a=>(a.teams||[]).includes('auditorium')).length;
+  const wel=state.attendants.filter(a=>(a.teams||[]).includes('welcome')).length;
+  const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
+  const ms=el('miniStats');
+  if(!ms)return;
+  ms.innerHTML=`
+    <div class="stat"><span class="label">Total</span><span class="val">${total}</span></div>
+    <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
+    <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
+    <div class="divider"></div>
+    <div class="stat"><span class="label">Lobby</span><span class="val">${lobby}</span></div>
+    <div class="stat"><span class="label">Cafeteria</span><span class="val">${caf}</span></div>
+    <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
+    <div class="stat"><span class="label">Welcome</span><span class="val">${wel}</span></div>
+    <div class="divider"></div>
+    <div class="stat"><span class="label">Shifts set</span><span class="val">${shiftsSet}</span></div>
+  `;
 }
 
 function renderAttendantTable(){
-  refreshCongregationFilter();
-  const q = el('attSearch').value.trim().toLowerCase();
-  const cong = el('filterCongregation').value;
-  const priv = el('filterPrivilege').value;
-  const flags = el('filterFlags').value;
-  const activeFilter = el('filterActive').value;
-  const body = el('attendantBody');
-  body.innerHTML = '';
+  refreshCongFilter();
+  const q=el('attSearch').value.trim().toLowerCase();
+  const cong=el('filterCongregation').value,priv=el('filterPrivilege').value;
+  const actFil=el('filterActive').value,teamFil=el('filterTeam').value,shiftFil=el('filterShift').value;
+  const body=el('attBody');body.innerHTML='';let shown=0;
 
-  sortAttendantsByName(state.attendants).forEach((row) => {
-    const index = state.attendants.indexOf(row);
-    const hay = [row.id,row.name,row.firstName,row.congregation,shortCongLabel(row.congregation),row.email,row.jwpub,row.mobile,row.privilege,row.lastTeam,row.remarks].join(' ').toLowerCase();
-    if(q && !hay.includes(q)) return;
-    if(!matchesSearchTerms(hay)) return;
-    if(cong !== 'all' && !matchCongregationName(row.congregation, cong)) return;
-    if(priv !== 'all' && row.privilege !== priv) return;
-    if(flags === 'children' && !row.children) return;
-    if(flags === 'other' && !row.otherDepartment) return;
-    if(activeFilter === 'active' && row.active === false) return;
-    if(activeFilter === 'inactive' && row.active !== false) return;
+  sortByName(state.attendants).forEach(row=>{
+    const index=state.attendants.indexOf(row);
+    const hay=attHay(row).toLowerCase();
+    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
+    if(cong!=='all'&&!matchCong(row.congregation,cong))return;
+    if(priv!=='all'&&row.privilege!==priv)return;
+    if(actFil==='active'&&row.active===false)return;
+    if(actFil==='inactive'&&row.active!==false)return;
+    if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return;
+    if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return;
+    shown++;
 
-    const card = document.createElement('div');
-    card.className = `att-card${row.active === false ? ' is-inactive' : ''}`;
-    card.innerHTML = `
-      <div class="att-card-top">
-        <div class="field">
-          <label>ID</label>
-          <input value="${esc(row.id)}" oninput="updateAtt(${index}, 'id', this.value)" placeholder="ID">
+    const hasNoId=!String(row.id||'').trim();
+    const isExp=allExpanded||expandedRows.has(index);
+
+    /* active dot */
+    const dotHtml=`<div class="act-dot ${row.active!==false?'on':'off'}" onclick="toggleActive(${index})" title="${row.active!==false?'Active – click to deactivate':'Inactive – click to activate'}">${row.active!==false?'✔':'✕'}</div>`;
+
+    /* id cell */
+    const idHtml=`<div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+      <input type="text" value="${esc(row.id)}" oninput="updAttDirect(${index},'id',this.value)" style="text-align:center;font-weight:800;width:42px">
+      ${hasNoId?'<span class="no-id-warn">no ID</span>':''}
+    </div>`;
+
+    /* main team chips */
+    const teamChips=MAIN_TEAMS.map(t=>{
+      const on=(row.teams||[]).includes(t.key);
+      return`<label class="tch ${t.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'teams','${t.key}',this)">${t.label}</label>`;
+    }).join('');
+
+    /* shift chips */
+    const shiftChips=SHIFTS.map(s=>{
+      const on=(row.shifts||[]).includes(s.key);
+      return`<label class="tch ${s.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'shifts','${s.key}',this)">${s.label}</label>`;
+    }).join('');
+
+    /* copy icons for mobile */
+    const mobCopy=row.mobile?`<span class="icon-btn" onclick="copyText('${js(row.mobile)}',false,this)" title="Copy mobile">⧉</span>`:'';
+
+    /* main row */
+    const tr=document.createElement('tr');
+    tr.className=`main-row${row.active===false?' inactive':''}${hasNoId?' no-id':''}`;
+    tr.dataset.idx=index;
+    tr.innerHTML=`
+      <td style="text-align:center">${dotHtml}</td>
+      <td style="text-align:center">${idHtml}</td>
+      <td><input type="text" value="${esc(row.name)}" oninput="updAttDirect(${index},'name',this.value)" placeholder="Name"></td>
+      <td><input type="text" value="${esc(row.firstName)}" oninput="updAttDirect(${index},'firstName',this.value)" placeholder="First name"></td>
+      <td><select onchange="updAttField(${index},'congregation',this.value)">${buildCongOptions(row.congregation)}</select></td>
+      <td>
+        <select onchange="updAttField(${index},'privilege',this.value)">
+          ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
+        </select>
+      </td>
+      <td><div class="chip-row">${teamChips}</div></td>
+      <td><div class="chip-row">${shiftChips}</div></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:3px">
+          <input type="text" value="${esc(row.mobile)}" oninput="updAttDirect(${index},'mobile',this.value)" placeholder="Mobile" style="flex:1;min-width:0">
+          ${mobCopy}
         </div>
-        <div class="field">
-          <label>Name / First name</label>
-          <div class="split" style="grid-template-columns:1.15fr .95fr;gap:8px">
-            <input value="${esc(row.name)}" oninput="updateAtt(${index}, 'name', this.value)" placeholder="Name">
-            <input value="${esc(row.firstName)}" oninput="updateAtt(${index}, 'firstName', this.value)" placeholder="First name">
-          </div>
+      </td>
+      <td><input type="text" value="${esc(row.remarks)}" oninput="updAttDirect(${index},'remarks',this.value)" placeholder="Remarks / flags (free text)"></td>
+      <td style="text-align:center">
+        <div class="cell-actions">
+          <span class="icon-btn exp" onclick="toggleRow(${index})" title="${isExp?'Collapse':'Expand'}">${isExp?'▲':'▼'}</span>
         </div>
-        <div class="field">
-          <label>Congregation / Group</label>
-          <select onchange="updateAtt(${index}, 'congregation', this.value)">
-            <option value="">Select congregation / group</option>
-            ${buildCongregationOptions(row.congregation)}
-          </select>
-        </div>
-        <div class="field">
-          <label>Privilege</label>
-          <select onchange="updateAtt(${index}, 'privilege', this.value)">
-            ${DEFAULT_PRIVILEGES.map(p => `<option value="${esc(p)}" ${row.privilege === p ? 'selected' : ''}>${esc(p)}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field">
-          <label>Status / Flags</label>
-          <div class="flags-row">
-            <label class="flag-mini"><input type="checkbox" ${row.active !== false ? 'checked' : ''} onchange="updateAtt(${index}, 'active', this.checked)"><span>active</span></label>
-            <label class="flag-mini"><input type="checkbox" ${row.children ? 'checked' : ''} onchange="updateAtt(${index}, 'children', this.checked)"><span>children</span></label>
-            <label class="flag-mini"><input type="checkbox" ${row.otherDepartment ? 'checked' : ''} onchange="updateAtt(${index}, 'otherDepartment', this.checked)"><span>other dept.</span></label>
-          </div>
-        </div>
-        <div class="field">
-          <label>Delete</label>
-          <button class="danger small-btn" onclick="deleteAttendantRow(${index})">Delete</button>
-        </div>
-      </div>
-      <div class="att-card-bottom">
-        <div class="field">
-          <label>Email</label>
-          <input value="${esc(row.email)}" oninput="updateAtt(${index}, 'email', this.value)" placeholder="Email">
-        </div>
-        <div class="field">
-          <label>JWPub-Mail</label>
-          <input value="${esc(row.jwpub)}" oninput="updateAtt(${index}, 'jwpub', this.value)" placeholder="JWPub-Mail">
-        </div>
-        <div class="field">
-          <label>Mobile</label>
-          <input value="${esc(row.mobile)}" oninput="updateAtt(${index}, 'mobile', this.value)" placeholder="Mobile">
-        </div>
-        <div class="field">
-          <label>Last team</label>
-          <input value="${esc(row.lastTeam || '')}" oninput="updateAtt(${index}, 'lastTeam', this.value)" placeholder="Last team">
-        </div>
-        <div class="field">
-          <label>Remarks</label>
-          <textarea oninput="updateAtt(${index}, 'remarks', this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea>
-        </div>
-      </div>
-    `;
-    body.appendChild(card);
+      </td>
+      <td style="text-align:center"><span class="del-btn" onclick="deleteAttRow(${index})">✕</span></td>`;
+    body.appendChild(tr);
+
+    /* expanded row */
+    if(isExp) body.appendChild(buildExpandedRow(index, row));
   });
+
+  renderMiniStats();
+  const note=el('attCountNote');
+  if(note) note.textContent=`Showing ${shown} of ${state.attendants.length} attendants`;
+  const hint=el('filteredExportHint');
+  if(hint) hint.textContent=shown<state.attendants.length?`(export will include ${shown} attendants)`:'';
   updateMetrics();
 }
 
-function buildSignature(){
-  return `${state.meta.senderName || ''}\n${state.meta.senderRole || ''}\n\n${state.meta.senderName || ''} | ${state.meta.senderCong || ''} | phone ${state.meta.senderPhone || ''} | ${state.meta.senderMail || ''}`.trim();
-}
-function buildCongMessage(index){
-  const row = state.congregations[index];
-  const attendants = attendantsForCongregation(row).filter(a => a.active !== false);
-  const list = attendants.length
-    ? attendants.map(a => {
-        const suffixes = [];
-        if(a.otherDepartment) suffixes.push('other dept.');
-        if(a.children) suffixes.push('children');
-        const suffix = suffixes.length ? ` (${suffixes.join(', ')})` : '';
-        return `${attendantDisplayName(a)}${suffix}`;
-      }).join('\n')
-    : '[no active attendants entered yet]';
-  const tpl = state.meta.messageTemplate || '';
-  return tpl
-    .replaceAll('[EVENT_DATE]', state.meta.eventDate || '')
-    .replaceAll('[ATTENDANT_LIST]', list)
-    .replaceAll('[REPLY_HINT]', 'If everything is fine, a short reply such as “We confirm” is sufficient.')
-    .replaceAll('[SENDER_NAME]', state.meta.senderName || '')
-    .replaceAll('[SENDER_ROLE]', state.meta.senderRole || '')
-    .replaceAll('[SENDER_SIGNATURE]', buildSignature());
-}
-function previewCong(index){
-  selectedCongIndex = index;
-  const row = state.congregations[index];
-  const header = `To: ${row.coordinator || 'Coordinator'} · ${row.congregation || 'Congregation / Group'}`;
-  el('previewBox').textContent = `${header}\n\n${buildCongMessage(index)}`.trim();
-  renderPreviewContacts(row);
-}
-function clearPreviewContacts(){
-  const wrap = el('previewContactActions');
-  if(!wrap) return;
-  wrap.innerHTML = '<div class="muted">Preview a congregation to show the email shortcuts for this message.</div>';
-}
+function buildExpandedRow(index, row){
+  const expTr=document.createElement('tr');
+  expTr.className='exp-row';
 
-function renderPreviewContacts(row){
-  const wrap = el('previewContactActions');
-  const entries = [
-    ['Cong. email', row?.congJwpub || '—'],
-    ['Coordinator', row?.jwpub || '—']
-  ];
-  wrap.innerHTML = entries.map(([label, value]) => `
-    <div class="preview-contact-row">
-      <div class="label">${esc(label)}</div>
-      <div class="preview-contact-value" title="${esc(value)}">${esc(value)}</div>
-      <div class="no-print">${value && value !== '—' ? `<span class="mini-copy" title="Copy ${esc(label)}" onclick="copyText('${js(value)}', false, this)">⧉</span>` : ''}</div>
+  const extraTeamChips=EXTRA_TEAMS.map(t=>{
+    const on=(row.teams||[]).includes(t.key);
+    return`<label class="tch ${t.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'teams','${t.key}',this)">${t.label}</label>`;
+  }).join('');
+
+  const customTeamChips=(state.meta.customTeams||[]).map((ct,ci)=>{
+    const on=(row.customTags||[]).includes('team:'+ct);
+    return`<label class="tch custom${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleCustomTag(${index},'team:${js(ct)}',this)">${esc(ct)}</label>`;
+  }).join('');
+
+  const roleChips=ROLES.map(r=>{
+    const on=(row.roles||[]).includes(r.key);
+    return`<label class="tch ${r.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'roles','${r.key}',this)">${r.label}</label>`;
+  }).join('');
+
+  const customRoleChips=(state.meta.customRoles||[]).map((cr,ci)=>{
+    const on=(row.customTags||[]).includes('role:'+cr);
+    return`<label class="tch custom${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleCustomTag(${index},'role:${js(cr)}',this)">${esc(cr)}</label>`;
+  }).join('');
+
+  const childCheck=`<label class="tch child${row.children?'':' off'}"><input type="checkbox" ${row.children?'checked':''} onchange="updAttField(${index},'children',this.checked)">Children</label>`;
+
+  const emailCopy=row.email?`<span class="icon-btn" onclick="copyText('${js(row.email)}',false,this)" title="Copy email">⧉</span>`:'';
+  const jwpubCopy=row.jwpub?`<span class="icon-btn" onclick="copyText('${js(row.jwpub)}',false,this)" title="Copy JWPub">⧉</span>`:'';
+
+  const mailtoHref=`mailto:${encodeURIComponent(row.email||row.jwpub||'')}?subject=${encodeURIComponent(`RC Attendant – ${dispName(row)}`)}`;
+
+  expTr.innerHTML=`<td colspan="12">
+    <div class="exp-panel">
+
+      <div class="exp-group">
+        <div class="exp-subhead">Extra teams</div>
+        <div class="cb-grid">
+          ${extraTeamChips}
+          ${customTeamChips}
+        </div>
+
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">Role / Function</div>
+        <div class="cb-grid">
+          ${roleChips}
+          ${customRoleChips}
+          ${childCheck}
+        </div>
+
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">Email</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input type="text" class="flags-input" value="${esc(row.email)}" oninput="updAttDirect(${index},'email',this.value)" placeholder="Email" style="flex:1;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:5px 8px">
+          ${emailCopy}
+        </div>
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">JWPub-Mail</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input type="text" class="flags-input" value="${esc(row.jwpub)}" oninput="updAttDirect(${index},'jwpub',this.value)" placeholder="JWPub-Mail" style="flex:1;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:5px 8px">
+          ${jwpubCopy}
+        </div>
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">Flags / Notes (free text, searchable)</div>
+        <input type="text" value="${esc(row.flags||'')}" oninput="updAttDirect(${index},'flags',this.value)"
+          placeholder="e.g. no WhatsApp, parking, small child..." style="width:100%;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:5px 8px">
+      </div>
+
+      <div class="exp-group" style="align-self:center">
+        <div class="exp-subhead">Contact / Export</div>
+        <div class="contact-row">
+          <span class="vcf-btn" onclick="exportVcf(${index})">📇 vCard (.vcf)</span>
+          ${(row.email||row.jwpub)?`<a class="mailto-btn" href="${mailtoHref}">✉ New email</a>`:''}
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px">vCard: double-click file → opens in Outlook · Firm = Congregation</div>
+      </div>
+
     </div>
-  `).join('');
+  </td>`;
+  return expTr;
 }
 
-async function copyCongMessage(index){
-  selectedCongIndex = index;
-  await copyText(buildCongMessage(index), true);
-  previewCong(index);
+/* ── update helpers ── */
+function toggleActive(index){
+  state.attendants[index].active=!(state.attendants[index].active!==false);
+  saveState();renderAttendantTable();
 }
-async function copySelectedMessage(){
-  if(selectedCongIndex === null){
-    alert('Please preview or select a congregation first.');
-    return;
+function updAttDirect(index,key,value){
+  state.attendants[index][key]=value;saveState();updateMetrics();renderCongSummary();
+}
+function updAttField(index,key,value){
+  if(key==='active'||key==='children')value=!!value;
+  state.attendants[index][key]=value;saveState();renderAttendantTable();renderCongSummary();
+}
+function toggleArrLive(index,field,key,cbEl){
+  const checked=cbEl.checked;
+  let arr=Array.isArray(state.attendants[index][field])?[...state.attendants[index][field]]:[];
+  if(checked){if(!arr.includes(key))arr.push(key);}else{arr=arr.filter(k=>k!==key);}
+  state.attendants[index][field]=arr;
+  if(field==='teams'){
+    const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
+    state.attendants[index].otherDepartment=arr.some(t=>otherKeys.includes(t));
   }
-  await copyText(buildCongMessage(selectedCongIndex), true);
+  saveState();updateMetrics();renderCongSummary();
+  const label=cbEl.closest('label');if(label)label.classList.toggle('off',!checked);
 }
-async function copyTemplateOnly(){
-  await copyText(state.meta.messageTemplate || '', true);
-}
-async function copyActiveAttendantsSummary(triggerEl){
-  const lines = sortAttendantsByName(state.attendants)
-    .filter(a => a.active !== false)
-    .map(formattedActiveAttendantLine)
-    .filter(Boolean);
-  if(!lines.length){
-    alert('No active attendants available.');
-    return;
-  }
-  copyText(lines.join('\n'), true, triggerEl);
-}
-async function copyText(text, silent, triggerEl){
-  try{
-    await navigator.clipboard.writeText(text);
-    if(triggerEl) showCopyToast(triggerEl, 'Copy success');
-    if(!silent) flash('Copied');
-  }catch{
-    alert('Copy failed in this browser.');
-  }
-}
-function showCopyToast(triggerEl, msg){
-  const old = document.querySelector('.copy-toast');
-  if(old) old.remove();
-  const toast = document.createElement('div');
-  toast.className = 'copy-toast';
-  toast.textContent = msg || 'Copied';
-  document.body.appendChild(toast);
-  const rect = triggerEl.getBoundingClientRect();
-  const left = Math.max(10, Math.min(window.innerWidth - toast.offsetWidth - 10, rect.left + rect.width / 2 - toast.offsetWidth / 2));
-  toast.style.left = `${left}px`;
-  toast.style.top = `${Math.max(10, rect.top - 38)}px`;
-  requestAnimationFrame(() => toast.classList.add('show'));
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 180);
-  }, 850);
-}
-function flash(msg){
-  const line1 = el('badgeLine1');
-  if(!line1) return;
-  const old = line1.textContent;
-  line1.textContent = msg;
-  setTimeout(() => line1.textContent = state.meta.lastImportText || old, 900);
-}
-function js(str){
-  return String(str ?? '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');
+function toggleCustomTag(index,tag,cbEl){
+  const checked=cbEl.checked;
+  let tags=Array.isArray(state.attendants[index].customTags)?[...state.attendants[index].customTags]:[];
+  if(checked){if(!tags.includes(tag))tags.push(tag);}else{tags=tags.filter(t=>t!==tag);}
+  state.attendants[index].customTags=tags;
+  saveState();updateMetrics();
+  const label=cbEl.closest('label');if(label)label.classList.toggle('off',!checked);
 }
 
-function updateCong(index, key, value){
-  const row = state.congregations[index];
-  const now = new Date().toISOString();
-  if(key === 'contacted'){
-    row.contacted = !!value;
-    if(value){
-      row.contactedAt = now;
-    }else{
-      row.replied = false;
-      row.contactedAt = '';
-      row.repliedAt = '';
-    }
+/* ── Settings: global custom teams/roles ── */
+function addCustomGlobal(type){
+  const inputEl=el(type==='team'?'newCustomTeamInput':'newCustomRoleInput');
+  if(!inputEl)return;
+  const val=inputEl.value.trim();
+  if(!val)return;
+  const arr=type==='team'?state.meta.customTeams:state.meta.customRoles;
+  if(!arr.includes(val))arr.push(val);
+  inputEl.value='';
+  saveState();renderCustomLists();
+renderMiniStats();renderAttendantTable();
+}
+function removeCustomGlobal(type,val){
+  if(!confirm(`Remove "${val}" from all attendants?`))return;
+  if(type==='team'){
+    state.meta.customTeams=state.meta.customTeams.filter(v=>v!==val);
+    const tag='team:'+val;
+    state.attendants.forEach(a=>{a.customTags=(a.customTags||[]).filter(t=>t!==tag);});
+  }else{
+    state.meta.customRoles=state.meta.customRoles.filter(v=>v!==val);
+    const tag='role:'+val;
+    state.attendants.forEach(a=>{a.customTags=(a.customTags||[]).filter(t=>t!==tag);});
   }
-  else if(key === 'replied'){
-    row.replied = !!value;
-    if(value){
-      row.contacted = true;
-      row.contactedAt = row.contactedAt || now;
-      row.repliedAt = now;
-    } else {
-      row.repliedAt = '';
-    }
-  } else {
-    row[key] = value;
-  }
+  saveState();renderCustomLists();renderAttendantTable();
+}
+function renderCustomLists(){
+  const tl=el('customTeamsList');
+  const rl=el('customRolesList');
+  if(!tl||!rl)return;
+  tl.innerHTML=(state.meta.customTeams||[]).map(v=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#f0f4ff;border:1.5px solid #a5b4fc;color:#3730a3;font-size:12px;font-weight:700">
+      ${esc(v)}
+      <span onclick="removeCustomGlobal('team','${js(v)}')" style="cursor:pointer;color:#888;font-size:13px;line-height:1;padding:0 2px" title="Remove">✕</span>
+    </span>`).join('')||'<span style="color:var(--muted);font-size:12px">No custom teams yet</span>';
+  rl.innerHTML=(state.meta.customRoles||[]).map(v=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#f0f4ff;border:1.5px solid #a5b4fc;color:#3730a3;font-size:12px;font-weight:700">
+      ${esc(v)}
+      <span onclick="removeCustomGlobal('role','${js(v)}')" style="cursor:pointer;color:#888;font-size:13px;line-height:1;padding:0 2px" title="Remove">✕</span>
+    </span>`).join('')||'<span style="color:var(--muted);font-size:12px">No custom roles yet</span>';
+}
 
+function toggleRow(index){
+  if(expandedRows.has(index))expandedRows.delete(index);else expandedRows.add(index);
+  renderAttendantTable();
+}
+function toggleExpandAll(){
+  allExpanded=!allExpanded;if(!allExpanded)expandedRows.clear();
+  el('expandAllBtn').textContent=allExpanded?'Collapse all':'Expand all';
+  renderAttendantTable();
+}
+
+/* ── congregation updates ── */
+function updCong(index,key,value){
+  const row=state.congregations[index];const now=new Date().toISOString();
+  if(key==='contacted'){row.contacted=!!value;if(value)row.contactedAt=now;else{row.replied=false;row.contactedAt='';row.repliedAt='';}}
+  else if(key==='replied'){row.replied=!!value;if(value){row.contacted=true;row.contactedAt=row.contactedAt||now;row.repliedAt=now;}else row.repliedAt='';}
+  else row[key]=value;
   saveState();
-
-  // Important: do not rebuild the table while a user is typing into text fields.
-  // Rebuilding replaces the active input element and makes the cursor jump out.
-  const needsCongRerender = ['type', 'contacted', 'replied'].includes(key);
-  if(needsCongRerender){
-    renderCongTable();
-  }
-
-  if(key === 'congregation'){
-    updateDatalist();
-    refreshCongregationFilter();
-  }
-
-  if(selectedCongIndex === index){
-    previewCong(index);
-  }
-}
-function updateAtt(index, key, value){
-  state.attendants[index][key] = value;
-  saveState();
-
-  // Text inputs must keep focus. Only full-render on controls where it is useful.
-  const needsAttendantRerender = ['congregation', 'privilege', 'active', 'children', 'otherDepartment'].includes(key);
-  if(needsAttendantRerender){
-    renderAttendantTable();
-  }
-
-  // Keep the dashboard congregation overview in sync without destroying the active text input.
-  if(['name', 'firstName', 'congregation', 'active', 'children', 'otherDepartment', 'privilege'].includes(key)){
-    renderCongSummary();
-    updateMetrics();
-  }
+  if(['type','contacted','replied'].includes(key))renderCongTable();
+  if(key==='congregation'){updateDatalist();refreshCongFilter();}
+  if(selectedCongIndex===index)previewCong(index);
 }
 function addCongregationRow(){
-  state.congregations.push(normalizeCongregation({ congregation:'', type:'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', contacted:false, replied:false, remarks:'', linkedAttendantIds:'', contactedAt:'', repliedAt:'' }));
-  saveState();
-  renderCongTable();
-  updateDatalist();
+  state.congregations.push(normalizeCongregation({congregation:'',type:'Congregation',congJwpub:'',coordinator:'',jwpub:'',mobile:'',contacted:false,replied:false,remarks:'',linkedAttendantIds:''}));
+  saveState();renderCongTable();updateDatalist();
 }
 function deleteCongRow(index){
-  const name = state.congregations[index]?.congregation || 'this row';
-  if(!confirm(`Delete ${name}?`)) return;
-  state.congregations.splice(index,1);
-  saveState();
-  renderCongTable();
-  renderAttendantTable();
-  updateDatalist();
+  if(!confirm(`Delete ${state.congregations[index]?.congregation||'this row'}?`))return;
+  state.congregations.splice(index,1);saveState();renderCongTable();renderAttendantTable();updateDatalist();
 }
 function addAttendantRow(){
-  state.attendants.push(normalizeAttendant({ id: nextId(), name:'', firstName:'', congregation:'', email:'', jwpub:'', mobile:'', privilege:'Publisher', active:true, children:false, otherDepartment:false, lastTeam:'', remarks:'' }));
-  saveState();
-  renderAttendantTable();
+  state.attendants.push(normalizeAttendant({id:nextId(),name:'',firstName:'',congregation:'',email:'',jwpub:'',mobile:'',
+    privilege:'Publisher',active:true,children:false,otherDepartment:false,teams:[],roles:[],shifts:[],customTags:[],flags:'',remarks:''}));
+  saveState();renderAttendantTable();renderCongTable();
 }
-function deleteAttendantRow(index){
-  const name = attendantDisplayName(state.attendants[index]);
-  if(!confirm(`Delete ${name}?`)) return;
-  state.attendants.splice(index,1);
-  saveState();
-  renderAttendantTable();
-  renderCongTable();
+function deleteAttRow(index){
+  if(!confirm(`Delete ${dispName(state.attendants[index])}?`))return;
+  state.attendants.splice(index,1);saveState();renderAttendantTable();renderCongTable();
 }
 function nextId(){
-  const nums = state.attendants.map(a => Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n) && n>0);
-  const next = nums.length ? Math.max(...nums) + 1 : 1;
-  return String(next).padStart(3,'0');
+  const nums=state.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n)&&n>0);
+  return String(nums.length?Math.max(...nums)+1:1).padStart(3,'0');
 }
-function fillMissingIds(){
-  state.attendants.forEach(a => { if(!String(a.id||'').trim()) a.id = nextId(); });
-  saveState();
-  renderAttendantTable();
-  renderCongTable();
+
+/* ── Fill IDs: sort A-Z, renumber all (active first, then inactive) ── */
+function fillAndRenumberIds(){
+  if(!confirm('This will renumber ALL attendant IDs (active A–Z first, then inactive A–Z). Old IDs will be replaced. Continue?'))return;
+  const active=sortByName(state.attendants.filter(a=>a.active!==false));
+  const inactive=sortByName(state.attendants.filter(a=>a.active===false));
+  const sorted=[...active,...inactive];
+  sorted.forEach((a,i)=>{a.id=String(i+1).padStart(3,'0');});
+  // reorder attendants array to match sorted
+  state.attendants=sorted;
+  saveState();renderAttendantTable();renderCongTable();
 }
-function applyBulkFollowup(){
-  const q = el('congSearch').value.trim().toLowerCase();
-  const type = el('filterType').value;
-  const follow = el('filterFollowup').value;
-  const mode = el('bulkStatus').value;
-  const now = new Date().toISOString();
-  state.congregations.forEach(row => {
-    const names = attendantsForCongregation(row);
-    const hay = [
-      row.congregation,
-      shortCongLabel(row.congregation),
-      row.type,
-      row.coordinator,
-      row.congJwpub,
-      row.jwpub,
-      row.mobile,
-      row.remarks,
-      names.map(a => `${attendantDisplayName(a)} ${a.privilege || ''} ${a.remarks || ''}`).join(' | ')
-    ].join(' ').toLowerCase();
-    if(q && !hay.includes(q)) return;
-    if(!matchesSearchTerms(hay)) return;
-    if(type !== 'all' && row.type !== type) return;
-    if(follow !== 'all' && followupState(row) !== follow) return;
-    if(mode === 'contacted'){ row.contacted = true; row.contactedAt = now; row.replied = false; row.repliedAt = ''; }
-    if(mode === 'replied'){ row.contacted = true; row.replied = true; row.contactedAt = row.contactedAt || now; row.repliedAt = now; }
-    if(mode === 'open'){ row.contacted = false; row.replied = false; row.contactedAt = ''; row.repliedAt = ''; }
+
+/* ── Reset main teams + shifts after congress ── */
+function resetMainTeamsAndShifts(){
+  if(!confirm('Reset Lobby / Cafeteria / Auditorium / Welcome teams AND all Possible Shifts for every attendant?\n\nExtra teams (A/V, Stage etc.), roles, and all other data stay unchanged.'))return;
+  state.attendants.forEach(a=>{
+    a.teams=(a.teams||[]).filter(t=>!RESET_TEAM_KEYS.includes(t));
+    a.shifts=[];
   });
-  saveState();
-  renderCongTable();
+  saveState();renderAttendantTable();
+}
+
+function applyBulkFollowup(){
+  const q=el('congSearch').value.trim().toLowerCase(),type=el('filterType').value,follow=el('filterFollowup').value;
+  const mode=el('bulkStatus').value,now=new Date().toISOString();
+  state.congregations.forEach(row=>{
+    const hay=[row.congregation,row.type,row.coordinator,row.congJwpub,row.jwpub,row.mobile,row.remarks].join(' ').toLowerCase();
+    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
+    if(type!=='all'&&row.type!==type)return;if(follow!=='all'&&followState(row)!==follow)return;
+    if(mode==='contacted'){row.contacted=true;row.contactedAt=now;row.replied=false;row.repliedAt='';}
+    if(mode==='replied'){row.contacted=true;row.replied=true;row.contactedAt=row.contactedAt||now;row.repliedAt=now;}
+    if(mode==='open'){row.contacted=false;row.replied=false;row.contactedAt='';row.repliedAt='';}
+  });
+  saveState();renderCongTable();
 }
 function resetStatuses(){
-  if(!confirm('Reset all contacted / replied checks?')) return;
-  state.congregations = state.congregations.map(r => ({...r, contacted:false, replied:false, contactedAt:'', repliedAt:''}));
-  saveState();
-  renderCongTable();
+  if(!confirm('Reset all contacted / replied?'))return;
+  state.congregations=state.congregations.map(r=>({...r,contacted:false,replied:false,contactedAt:'',repliedAt:''}));
+  saveState();renderCongTable();
 }
 function resetAttendants(){
-  if(!confirm('Delete the entire attendant list? Congregation contacts stay.')) return;
-  state.attendants = [];
-  state.congregations = state.congregations.map(r => ({...r, linkedAttendantIds:''}));
-  saveState();
-  renderAttendantTable();
-  renderCongTable();
-}
-function restoreStarterCongregations(){
-  if(!confirm('Restore the starter congregation / group list? Existing congregation rows will be replaced.')) return;
-  state.congregations = structuredClone(initialCongregations).map(normalizeCongregation);
-  saveState();
-  updateDatalist();
-  renderCongTable();
-  renderAttendantTable();
+  if(!confirm('Delete entire attendant list?'))return;
+  state.attendants=[];state.congregations=state.congregations.map(r=>({...r,linkedAttendantIds:''}));
+  saveState();renderAttendantTable();renderCongTable();
 }
 
 function updateDatalist(){
-  el('congregationOptions').innerHTML = [...new Set(state.congregations.map(r=>r.congregation).filter(Boolean))]
-    .sort((a,b)=>a.localeCompare(b))
-    .map(name => `<option value="${esc(name)}"></option>`).join('');
+  el('congregationOptions').innerHTML=[...new Set(state.congregations.map(r=>r.congregation).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${esc(n)}"></option>`).join('');
 }
 
+/* ── global search ── */
+function applyGlobalSearch(){
+  globalSearchTerm=String(el('globalSearch')?.value||'').trim().toLowerCase();
+  renderCongTable();renderAttendantTable();
+}
+function clearGlobalSearch(){
+  if(el('globalSearch'))el('globalSearch').value='';
+  globalSearchTerm='';renderCongTable();renderAttendantTable();
+}
+
+/* ── vCard export ── */
+function exportVcf(index){
+  const a=state.attendants[index];
+  const name=String(a.name||'').trim(),first=String(a.firstName||'').trim(),cong=String(a.congregation||'').trim();
+  const teams=(a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join(', ');
+  const roles=(a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join(', ');
+  const note=[teams&&`Teams: ${teams}`,roles&&`Roles: ${roles}`,a.flags&&`Flags: ${a.flags}`,a.remarks&&`Remarks: ${a.remarks}`].filter(Boolean).join('\n');
+  const lines=[
+    'BEGIN:VCARD','VERSION:3.0',
+    `N:${name};${first};;;`,
+    `FN:${[first,name].filter(Boolean).join(' ')}`,
+    cong?`ORG:${cong}`:'',
+    a.mobile?`TEL;TYPE=CELL:${a.mobile}`:'',
+    a.email?`EMAIL;TYPE=INTERNET:${a.email}`:'',
+    a.jwpub?`EMAIL;TYPE=WORK:${a.jwpub}`:'',
+    `TITLE:${a.privilege||''}`,
+    note?`NOTE:${note.replace(/\n/g,'\\n')}`:'',
+    'CATEGORIES:RC Attendant',
+    'END:VCARD'
+  ].filter(Boolean).join('\r\n');
+  const blob=new Blob([lines],{type:'text/vcard;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');link.href=url;link.download=`${name}_${first}_Attendant.vcf`;link.click();URL.revokeObjectURL(url);
+}
+
+/* ── email / message ── */
+function buildSignature(){
+  return`${state.meta.senderName||''}\n${state.meta.senderRole||''}\n\n${state.meta.senderName||''} | ${state.meta.senderCong||''} | phone ${state.meta.senderPhone||''} | ${state.meta.senderMail||''}`.trim();
+}
+function buildCongMessage(index){
+  const row=state.congregations[index];
+  const atts=attsForCong(row).filter(a=>a.active!==false);
+  const list=atts.length?atts.map(a=>{
+    const sfx=[];
+    if(a.otherDepartment)sfx.push('other dept.');if(a.children)sfx.push('children');
+    const teams=(a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/');
+    if(teams)sfx.push(teams);
+    return`${dispName(a)}${sfx.length?' ('+sfx.join(', ')+')':''}`;
+  }).join('\n'):'[no active attendants yet]';
+  return(state.meta.messageTemplate||'')
+    .replaceAll('[EVENT_DATE]',state.meta.eventDate||'').replaceAll('[ATTENDANT_LIST]',list)
+    .replaceAll('[SENDER_NAME]',state.meta.senderName||'').replaceAll('[SENDER_ROLE]',state.meta.senderRole||'')
+    .replaceAll('[SENDER_SIGNATURE]',buildSignature());
+}
+function previewCong(index){
+  selectedCongIndex=index;const row=state.congregations[index];
+  el('previewBox').textContent=`To: ${row.coordinator||'Coordinator'} · ${row.congregation||'Congregation'}\n\n${buildCongMessage(index)}`.trim();
+  const wrap=el('previewContactActions');
+  wrap.innerHTML=[['Cong. email',row?.congJwpub||'—'],['Coordinator',row?.jwpub||'—']].map(([label,value])=>`
+    <div class="preview-contact-row">
+      <div class="label">${esc(label)}</div>
+      <div class="preview-contact-value">${esc(value)}</div>
+      <div>${value&&value!=='—'?`<span class="mini-copy" onclick="copyText('${js(value)}',false,this)">⧉</span>`:''}</div>
+    </div>`).join('');
+}
+async function copyCongMessage(index){selectedCongIndex=index;await copyText(buildCongMessage(index),true);previewCong(index);}
+async function copySelectedMessage(){if(selectedCongIndex===null){alert('Preview a congregation first.');return;}await copyText(buildCongMessage(selectedCongIndex),true);}
+async function copyTemplateOnly(){await copyText(state.meta.messageTemplate||'',true);}
+async function copyActiveAttendantsSummary(triggerEl){
+  const lines=sortByName(state.attendants).filter(a=>a.active!==false)
+    .map(a=>[String(a?.name||'').trim(),String(a?.firstName||'').trim()].filter(Boolean).join(' ')+', '+shortCong(a?.congregation||''))
+    .filter(Boolean);
+  if(!lines.length){alert('No active attendants.');return;}
+  copyText(lines.join('\n'),true,triggerEl);
+}
+async function copyText(text,silent,triggerEl){
+  try{
+    await navigator.clipboard.writeText(text);
+    if(triggerEl)showToast(triggerEl,'Copied ✓');if(!silent)flash('Copied');
+  }catch{alert('Copy failed.');}
+}
+function showToast(triggerEl,msg){
+  const old=document.querySelector('.copy-toast');if(old)old.remove();
+  const t=document.createElement('div');t.className='copy-toast';t.textContent=msg||'Copied';
+  document.body.appendChild(t);
+  const r=triggerEl.getBoundingClientRect();
+  t.style.left=`${Math.max(10,Math.min(window.innerWidth-100,r.left+r.width/2-40))}px`;
+  t.style.top=`${Math.max(10,r.top-38)}px`;
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),180);},900);
+}
+function flash(msg){
+  const l=el('badgeLine1');if(!l)return;const old=l.textContent;
+  l.textContent=msg;setTimeout(()=>l.textContent=state.meta.lastImportText||old,900);
+}
+
+/* ── Filtered Export ── */
+function getFilteredAttendants(){
+  const q=el('attSearch').value.trim().toLowerCase();
+  const cong=el('filterCongregation').value,priv=el('filterPrivilege').value;
+  const actFil=el('filterActive').value,teamFil=el('filterTeam').value,shiftFil=el('filterShift').value;
+  return sortByName(state.attendants).filter(row=>{
+    const hay=attHay(row).toLowerCase();
+    if(q&&!hay.includes(q))return false;
+    if(!matchTerms(hay))return false;
+    if(cong!=='all'&&!matchCong(row.congregation,cong))return false;
+    if(priv!=='all'&&row.privilege!==priv)return false;
+    if(actFil==='active'&&row.active===false)return false;
+    if(actFil==='inactive'&&row.active!==false)return false;
+    if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
+    if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return false;
+    return true;
+  });
+}
+function exportFilteredJson(){
+  const filtered=getFilteredAttendants();
+  if(!filtered.length){alert('No attendants match current filters.');return;}
+  const now=new Date();
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
+  const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
+  const payload={exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.2',
+    meta:state.meta,congregations:state.congregations,attendants:filtered,
+    exportNote:`Filtered export: ${filtered.length} attendants`};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${typePrefix}${teamFilter}-filtered-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
+  flash(`Exported ${filtered.length} attendants`);
+}
+function exportFilteredCsv(){
+  const filtered=getFilteredAttendants();
+  if(!filtered.length){alert('No attendants match current filters.');return;}
+  const header=['ID','Name','First name','Congregation','Privilege','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Children','Other Dept.'];
+  const rows=[header,...filtered.map(a=>[
+    a.id,a.name,a.firstName,a.congregation,a.privilege,
+    (a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/'),
+    (a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join('/'),
+    (a.shifts||[]).map(k=>SHIFTS.find(s=>s.key===k)?.label||k).join('/'),
+    a.mobile,a.email,a.jwpub,a.flags,a.remarks,
+    a.active!==false?'Yes':'No',a.children?'Yes':'No',a.otherDepartment?'Yes':'No'
+  ])];
+  const csv=rows.map(r=>r.map(v=>{const s=String(v??'');return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;}).join(';')).join('\r\n');
+  const now=new Date();
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
+  const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${typePrefix}${teamFilter}-filtered-${localStamp}.csv`;a.click();URL.revokeObjectURL(a.href);
+  flash(`Exported ${filtered.length} attendants`);
+}
+
+/* ── CSV / JSON ── */
 function parseCsv(text){
-  const lines = String(text || '').replace(/^﻿/, '').split(/\r?\n/).filter(line => line.trim() !== '');
-  const sample = lines.slice(0, 5).join('\n');
-  const delimiter = (sample.match(/;/g) || []).length > (sample.match(/,/g) || []).length ? ';' : ',';
-  const rows = [];
-  let row = [];
-  let cell = '';
-  let inQuotes = false;
-  const source = String(text || '').replace(/^﻿/, '');
-  for(let i=0;i<source.length;i++){
-    const ch = source[i];
-    const next = source[i+1];
-    if(ch === '"'){
-      if(inQuotes && next === '"'){
-        cell += '"';
-        i++;
-      }else{
-        inQuotes = !inQuotes;
-      }
-    }else if(ch === delimiter && !inQuotes){
-      row.push(cell);
-      cell = '';
-    }else if((ch === '\n' || ch === '\r') && !inQuotes){
-      if(ch === '\r' && next === '\n') i++;
-      row.push(cell);
-      if(row.some(v => String(v).trim() !== '')) rows.push(row);
-      row = [];
-      cell = '';
-    }else{
-      cell += ch;
-    }
+  const src=String(text||'').replace(/^\uFEFF/,'');
+  const sample=src.split(/\r?\n/).slice(0,5).join('\n');
+  const delim=(sample.match(/;/g)||[]).length>(sample.match(/,/g)||[]).length?';':',';
+  const rows=[];let row=[],cell='',inQ=false;
+  for(let i=0;i<src.length;i++){
+    const ch=src[i],nx=src[i+1];
+    if(ch==='"'){if(inQ&&nx==='"'){cell+='"';i++;}else inQ=!inQ;}
+    else if(ch===delim&&!inQ){row.push(cell);cell='';}
+    else if((ch==='\n'||ch==='\r')&&!inQ){
+      if(ch==='\r'&&nx==='\n')i++;
+      row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell='';
+    }else cell+=ch;
   }
-  row.push(cell);
-  if(row.some(v => String(v).trim() !== '')) rows.push(row);
-  return rows;
+  row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows;
 }
-
-function boolFromText(text, needles){
-  const val = String(text || '').toLowerCase();
-  return needles.some(n => val.includes(n));
-}
-
-function normalizeImportedCongregationName(name){
-  const raw = String(name || '').trim();
-  if(!raw) return '';
-  const lower = raw.toLowerCase();
-  const match = state.congregations.find(c => {
-    const cName = String(c.congregation || '').trim().toLowerCase();
-    return cName === lower || cName.includes(lower) || lower.includes(cName);
-  });
-  return match ? match.congregation : raw;
-}
-
-function attendantFromCsvRow(obj){
-  const team = String(obj['Team'] || '').trim();
-  const remarks = String(obj['Remarks'] || '').trim();
-  const status = String(obj['Available / Unavailable / No Response'] || '').trim();
-  const allText = `${team} ${remarks} ${status}`.toLowerCase();
-  const inferredInactive = team.toLowerCase().includes('not available') || status.toLowerCase().includes('unavailable');
-  const inferredChildren = boolFromText(allText, ['small child', 'small children', 'small baby', 'with family', 'family with']);
-  const inferredOtherDept = boolFromText(allText, ['cleaning', 'first aid', 'safety', 'a/v']);
-  let id = String(obj['ID'] || '').trim();
-  if(id === '-' || !id) id = nextId();
-
-  return normalizeAttendant({
-    id,
-    name: String(obj['Name'] || '').trim(),
-    firstName: String(obj['First name'] || '').trim(),
-    congregation: normalizeImportedCongregationName(obj['Congregation']),
-    email: String(obj['Email'] || '').trim(),
-    jwpub: String(obj['JWPub-Mail'] || '').trim(),
-    mobile: String(obj['Mobile'] || '').trim(),
-    privilege: String(obj['Privelege'] || '').trim() || 'Publisher',
-    active: !inferredInactive,
-    children: inferredChildren,
-    otherDepartment: inferredOtherDept,
-    lastTeam: team && !team.toLowerCase().includes('not available') ? team : '',
-    remarks: [remarks, status && !/^\d+$/.test(status) ? `CSV status: ${status}` : ''].filter(Boolean).join(' | ')
-  });
-}
-
-function mergeImportedAttendants(rows){
-  let added = 0;
-  let updated = 0;
-  rows.forEach(imported => {
-    const sameId = state.attendants.findIndex(a => String(a.id) === String(imported.id));
-    const samePerson = sameId === -1 ? state.attendants.findIndex(a =>
-      String(a.name).trim().toLowerCase() === String(imported.name).trim().toLowerCase() &&
-      String(a.firstName).trim().toLowerCase() === String(imported.firstName).trim().toLowerCase() &&
-      String(a.congregation).trim().toLowerCase() === String(imported.congregation).trim().toLowerCase()
-    ) : -1;
-    const idx = sameId !== -1 ? sameId : samePerson;
-    if(idx !== -1){
-      state.attendants[idx] = normalizeAttendant({ ...state.attendants[idx], ...imported });
-      updated++;
-    }else{
-      state.attendants.push(imported);
-      added++;
-    }
-  });
-  return {added, updated};
-}
-
 function loadCsvFile(event){
-  const file = event.target.files?.[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file=event.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
     try{
-      const rows = parseCsv(String(e.target.result || ''));
-      if(!rows.length) throw new Error('empty csv');
-
-      const normalizedRows = rows.map(r => r.map(v => String(v ?? '').replace(/^﻿/, '').trim()));
-      const headerIndex = normalizedRows.findIndex(r => {
-        const lower = r.map(v => v.toLowerCase());
-        return lower.includes('name') && (lower.includes('first name') || lower.includes('firstname')) && (lower.includes('congregation') || lower.includes('group'));
+      const rows=parseCsv(String(e.target.result||''));
+      if(!rows.length)throw new Error('empty');
+      const norm=rows.map(r=>r.map(v=>String(v??'').replace(/^\uFEFF/,'').trim()));
+      const hi=norm.findIndex(r=>{const l=r.map(v=>v.toLowerCase());return l.includes('name')&&(l.includes('first name')||l.includes('firstname'))&&(l.includes('congregation')||l.includes('group'));});
+      if(hi===-1)throw new Error('header not found');
+      const hdr=norm[hi].map(v=>v.toLowerCase());
+      const gi=(...ns)=>{for(const n of ns){const i=hdr.indexOf(n.toLowerCase());if(i!==-1)return i;}return -1;};
+      const idxId=gi('id'),idxName=gi('name','last name','surname'),idxFirst=gi('first name','firstname','given name');
+      const idxCong=gi('congregation','group'),idxEmail=gi('email','e-mail'),idxJwpub=gi('jwpub-mail','jwpub mail','jwpub');
+      const idxMob=gi('mobile','phone','cell'),idxPriv=gi('privelege','privilege'),idxTeam=gi('team','last team');
+      const idxRem=gi('remarks','notes'),idxStat=gi('available / unavailable / no response','status');
+      if(idxName===-1||idxFirst===-1||idxCong===-1)throw new Error('required columns missing');
+      const data=norm.slice(hi+1).filter(r=>r.some(v=>v!==''));
+      const imported=data.map(r=>{
+        const team=idxTeam!==-1?r[idxTeam]:'',remarks=idxRem!==-1?r[idxRem]:'',status=idxStat!==-1?r[idxStat]:'';
+        const allT=`${team} ${remarks} ${status}`.toLowerCase();
+        const inactive=team.toLowerCase().includes('not available')||status.toLowerCase().includes('unavailable');
+        const children=(['small child','small children','small baby','with family','family with']).some(n=>allT.includes(n));
+        const teams=[];ALL_TEAMS.forEach(t=>{if(allT.includes(t.key)||allT.includes(t.label.toLowerCase()))teams.push(t.key);});
+        let id=idxId!==-1?r[idxId]:'';if(id==='-'||!id)id=nextId();
+        const rawCong=idxCong!==-1?r[idxCong]:'';
+        const cong=(()=>{const low=rawCong.toLowerCase();const m=state.congregations.find(c=>{const cn=String(c.congregation||'').trim().toLowerCase();return cn===low||cn.includes(low)||low.includes(cn);});return m?m.congregation:rawCong;})();
+        return normalizeAttendant({id,name:idxName!==-1?r[idxName]:'',firstName:idxFirst!==-1?r[idxFirst]:'',
+          congregation:cong,email:idxEmail!==-1?r[idxEmail]:'',jwpub:idxJwpub!==-1?r[idxJwpub]:'',
+          mobile:idxMob!==-1?r[idxMob]:'',privilege:idxPriv!==-1?r[idxPriv]:'',
+          active:!inactive,children,teams,roles:[],shifts:[],customTags:[],flags:'',
+          remarks:[remarks,status&&!/^\d+$/.test(status)?`CSV: ${status}`:''].filter(Boolean).join(' | ')});
+      }).filter(a=>a.name||a.firstName||a.email||a.mobile);
+      let added=0,updated=0;
+      imported.forEach(imp=>{
+        const si=state.attendants.findIndex(a=>String(a.id)===String(imp.id));
+        const sp=si===-1?state.attendants.findIndex(a=>a.name.trim().toLowerCase()===imp.name.trim().toLowerCase()&&a.firstName.trim().toLowerCase()===imp.firstName.trim().toLowerCase()&&a.congregation.trim().toLowerCase()===imp.congregation.trim().toLowerCase()):-1;
+        const idx=si!==-1?si:sp;
+        if(idx!==-1){state.attendants[idx]=normalizeAttendant({...state.attendants[idx],...imp});updated++;}
+        else{state.attendants.push(imp);added++;}
       });
-      if(headerIndex === -1) throw new Error('header not found');
-
-      const header = normalizedRows[headerIndex].map(v => String(v).trim().toLowerCase());
-      const getIndex = (...names) => {
-        for(const name of names){
-          const idx = header.indexOf(String(name).toLowerCase());
-          if(idx !== -1) return idx;
-        }
-        return -1;
-      };
-
-      const idxId = getIndex('id');
-      const idxName = getIndex('name', 'last name', 'lastname', 'surname');
-      const idxFirst = getIndex('first name', 'firstname', 'given name');
-      const idxCong = getIndex('congregation', 'group', 'congregation / group');
-      const idxEmail = getIndex('email', 'e-mail');
-      const idxJwpub = getIndex('jwpub-mail', 'jwpub mail', 'jwpub', 'jwpub/email');
-      const idxMobile = getIndex('mobile', 'phone', 'cell');
-      const idxPrivilege = getIndex('privelege', 'privilege');
-      const idxTeam = getIndex('team', 'last team');
-      const idxRemarks = getIndex('remarks', 'notes', 'remark');
-      const idxStatus = getIndex('available / unavailable / no response', 'status');
-
-      if(idxName === -1 || idxFirst === -1 || idxCong === -1){
-        throw new Error('required columns missing');
-      }
-
-      const dataRows = normalizedRows.slice(headerIndex + 1).filter(r => r.some(v => String(v).trim() !== ''));
-      const imported = dataRows.map(r => {
-        const obj = {
-          'ID': idxId !== -1 ? (r[idxId] ?? '') : '',
-          'Name': idxName !== -1 ? (r[idxName] ?? '') : '',
-          'First name': idxFirst !== -1 ? (r[idxFirst] ?? '') : '',
-          'Congregation': idxCong !== -1 ? (r[idxCong] ?? '') : '',
-          'Email': idxEmail !== -1 ? (r[idxEmail] ?? '') : '',
-          'JWPub-Mail': idxJwpub !== -1 ? (r[idxJwpub] ?? '') : '',
-          'Mobile': idxMobile !== -1 ? (r[idxMobile] ?? '') : '',
-          'Privelege': idxPrivilege !== -1 ? (r[idxPrivilege] ?? '') : '',
-          'Team': idxTeam !== -1 ? (r[idxTeam] ?? '') : '',
-          'Remarks': idxRemarks !== -1 ? (r[idxRemarks] ?? '') : '',
-          'Available / Unavailable / No Response': idxStatus !== -1 ? (r[idxStatus] ?? '') : ''
-        };
-        return attendantFromCsvRow(obj);
-      }).filter(a => a.name || a.firstName || a.email || a.mobile);
-
-      const result = mergeImportedAttendants(imported);
-      state.meta.lastImportText = `Last import: CSV · ${file.name} · ${imported.length} rows`;
-      saveState();
-      updateDatalist();
-      renderCongTable();
-      renderAttendantTable();
-      el('previewBox').textContent = `CSV loaded: ${imported.length} attendants processed · ${result.added} added · ${result.updated} updated.`;
-    }catch(err){
-      alert('CSV import failed. Please check the header row from the Sheets export.');
-      console.error(err);
-    }finally{
-      event.target.value = '';
-    }
+      state.meta.lastImportText=`CSV · ${file.name} · ${imported.length} rows`;
+      saveState();updateDatalist();renderCongTable();renderAttendantTable();
+      el('previewBox').textContent=`CSV: ${imported.length} processed · ${added} added · ${updated} updated.`;
+    }catch(err){alert('CSV import failed. Check header row.');console.error(err);}
+    finally{event.target.value='';}
   };
   reader.readAsText(file);
 }
-
 function saveJson(){
-  syncMetaFromInputs();
-  const payload = {
-    exportedAt: new Date().toISOString(),
-    app: 'Attendant Department Planner',
-    version: '1.23-github-clean',
-    ...state
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-  a.href = URL.createObjectURL(blob);
-  a.download = `attendant-department-planner-${stamp}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  syncMeta();
+  const now=new Date();
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const blob=new Blob([JSON.stringify({exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.2',...state},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
+  a.download=`${typePrefix}-attendant-planner-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 function loadJsonFile(event){
-  const file = event.target.files?.[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const file=event.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
     try{
-      const data = JSON.parse(String(e.target.result));
-      state = {
-        meta: { ...defaultState().meta, ...(data.meta || {}) },
-        congregations: Array.isArray(data.congregations) && data.congregations.length ? data.congregations.map(normalizeCongregation) : structuredClone(initialCongregations),
-        attendants: Array.isArray(data.attendants) ? data.attendants.map(normalizeAttendant) : []
-      };
-      ensureValidState();
-      state.meta.lastImportText = `Last import: JSON · ${file.name}`;
-      writeMetaToInputs();
-      saveState();
-      updateDatalist();
-      renderCongTable();
-      renderAttendantTable();
-      el('previewBox').textContent = 'JSON loaded successfully.';
-    }catch{
-      alert('Invalid JSON file.');
-    }
+      const data=JSON.parse(String(e.target.result));
+      showImportTargetModal(data,file.name);
+    }catch{alert('Invalid JSON file.');}finally{event.target.value='';}
   };
   reader.readAsText(file);
 }
+function showImportTargetModal(data,filename){
+  const modal=document.createElement('div');
+  modal.className='import-modal';
+  modal.innerHTML=`
+    <div class="import-modal-card">
+      <h3>Import as…</h3>
+      <p>Choose which event type this data should be restored as. This will overwrite the current data in that slot.</p>
+      <div class="import-radio-group">
+        <div class="import-radio-opt selected" onclick="selectImportTarget(this,'Regional Convention')">
+          <input type="radio" name="importTarget" value="Regional Convention" checked>
+          <label>Regional Convention</label>
+        </div>
+        <div class="import-radio-opt" onclick="selectImportTarget(this,'Assembly')">
+          <input type="radio" name="importTarget" value="Assembly">
+          <label>Assembly</label>
+        </div>
+      </div>
+      <div class="import-modal-buttons">
+        <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+        <button class="btn-rc" onclick="executeImport('${js(filename)}')">Import</button>
+      </div>
+    </div>
+  `;
+  modal.dataset.importData=JSON.stringify(data);
+  document.body.appendChild(modal);
+}
+function selectImportTarget(el,target){
+  el.closest('.import-radio-group').querySelectorAll('.import-radio-opt').forEach(opt=>opt.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input[type=radio]').checked=true;
+}
+function closeImportModal(){
+  const modal=document.querySelector('.import-modal');
+  if(modal)modal.remove();
+}
+function executeImport(filename){
+  const modal=document.querySelector('.import-modal');
+  if(!modal)return;
+  const target=modal.querySelector('input[name=importTarget]:checked')?.value;
+  if(!target)return;
+  const data=JSON.parse(modal.dataset.importData);
+  state={meta:{...defaultState().meta,...(data.meta||{}),eventType:target},
+    congregations:Array.isArray(data.congregations)&&data.congregations.length?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+    attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]};
+  ensureValidState();state.meta.lastImportText=`JSON · ${filename}`;
+  writeMetaToInputs();saveState();updateDatalist();renderCongTable();renderAttendantTable();renderMiniStats();
+  closeImportModal();
+  el('previewBox').textContent=`JSON loaded successfully into ${target}.`;
+  flash(`Imported into ${target}`);
+}
 
+
+/* ── tabs ── */
+function showTab(tab){
+  if(tab==='settings')renderCustomLists();
+  ['dashboard','attendants','notes','settings'].forEach(n=>{
+    const p=el('tab-'+n),b=el('tabBtn-'+n);
+    if(p)p.classList.toggle('active',n===tab);if(b)b.classList.toggle('active',n===tab);
+  });
+}
+
+/* ── init ── */
+state=loadState();
 ensureValidState();
 writeMetaToInputs();
-['plannerTitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes'].forEach(id => {
-  if(el(id)) el(id).addEventListener('input', () => { saveState(); renderCongTable(); });
-});
-refreshHeader();
-updateMetrics();
-updateDatalist();
-refreshCongregationFilter();
-renderCongTable();
-renderAttendantTable();
-renderPreviewContacts(null);
+['plannerTitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes']
+  .forEach(id=>{if(el(id))el(id).addEventListener('input',()=>{saveState();renderCongTable();});});
+refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+el('previewContactActions').innerHTML='<div class="muted">Preview a congregation first.</div>';
+renderCustomLists();
 showTab('dashboard');
 </script>
 </body>
 </html>
-
