@@ -578,11 +578,11 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.2</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.3</div>
 </div>
 
 <script>
-function getStorageKey(){ return state?.meta?.eventType==='Regional Convention'?'attendantPlanner_v2_2_RC':'attendantPlanner_v2_2_Assembly'; }
+function getStorageKey(){ return state?.meta?.eventType==='Regional Convention'?'attendantPlanner_v2_3_RC':'attendantPlanner_v2_3_Assembly'; }
 const DEFAULT_PRIVILEGES = ['Publisher','Ministerial Servant','Elder'];
 
 const MAIN_TEAMS = [
@@ -639,7 +639,7 @@ function defaultState(){
     congregations:structuredClone(initialCongregations),
     attendants:[normalizeAttendant({id:'001',name:'Sample',firstName:'Brother',
       congregation:'Sample Congregation',email:'brother.sample@example.org',
-      jwpub:'brother@jwpub.example',mobile:'+49 000 000001',privilege:'Ministerial Servant',
+      jwpub:'brother.jwpub@example.org',mobile:'+49 000 000001',privilege:'Ministerial Servant',
       active:true,children:false,otherDepartment:false,
       teams:['lobby'],roles:['blockatt'],shifts:['morning','afternoon'],
       customTags:[],flags:'',remarks:'Example data only'})]
@@ -648,7 +648,7 @@ function defaultState(){
 
 function loadState(){
   // Try current eventType first, then fallback to old keys
-  const keys=['attendantPlanner_v2_2_RC','attendantPlanner_v2_2_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
+  const keys=['attendantPlanner_v2_3_RC','attendantPlanner_v2_3_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
   for(const key of keys){
     const raw=localStorage.getItem(key);
     if(!raw) continue;
@@ -1357,7 +1357,7 @@ function exportFilteredJson(){
   const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
   const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
   const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
-  const payload={exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.2',
+  const payload={exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.3',
     meta:state.meta,congregations:state.congregations,attendants:filtered,
     exportNote:`Filtered export: ${filtered.length} attendants`};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
@@ -1458,7 +1458,7 @@ function saveJson(){
   syncMeta();
   const now=new Date();
   const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
-  const blob=new Blob([JSON.stringify({exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.2',...state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.3',...state},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
   a.download=`${typePrefix}-attendant-planner-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
