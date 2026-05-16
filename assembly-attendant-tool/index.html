@@ -132,6 +132,12 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
   font-size:12px;background:transparent;color:inherit;width:100%;min-width:0
 }
 .att-table input[type=text]:focus{border-color:#90caf9;background:#fff;box-shadow:0 0 0 2px rgba(21,101,192,.1)}
+.att-table textarea.wrap-field{
+  min-height:34px;max-height:92px;resize:vertical;line-height:1.25;white-space:pre-wrap;
+  border:1px solid transparent;border-radius:5px;padding:4px 6px;font-size:12px;background:transparent;color:inherit;width:100%
+}
+.att-table textarea.wrap-field:focus{border-color:#90caf9;background:#fff;box-shadow:0 0 0 2px rgba(21,101,192,.1)}
+textarea.flags-wrap{min-height:76px;line-height:1.35;white-space:pre-wrap}
 .att-table select{border:1px solid transparent;border-radius:5px;padding:3px 5px;font-size:12px;background:transparent;color:inherit;width:100%;appearance:none;-webkit-appearance:none;cursor:pointer}
 .att-table select:focus{border-color:#90caf9;background:#fff}
 
@@ -150,25 +156,19 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .tch.off{opacity:.32;filter:grayscale(.5)}
 .tch.lobby{background:var(--lobby-bg);color:var(--lobby-t);border-color:var(--lobby-b)}
 .tch.caf  {background:var(--caf-bg);  color:var(--caf-t);  border-color:var(--caf-b)}
-.tch.aud  {background:var(--aud-bg);  color:var(--aud-t);  border-color:var(--aud-b)}
+.tch.aud  {background:#fffde7;color:#5d4300;border-color:#ffe082}
 .tch.wel  {background:var(--wel-bg);  color:var(--wel-t);  border-color:var(--wel-b)}
-.tch.early{background:#e3f2fd;color:#0d47a1;border-color:#90caf9}
-.tch.morn {background:#e8f5e9;color:#1b5e20;border-color:#a5d6a7}
-.tch.aft  {background:#fffde7;color:#5d4300;border-color:#ffe082}
-.tch.late {background:#f3e5f5;color:#4a148c;border-color:#ce93d8}
-/* extra teams */
-.tch.av   {background:#e3f2fd;color:#1565c0;border-color:#90caf9}
-.tch.stage{background:#ede7f6;color:#4527a0;border-color:#b39ddb}
-.tch.bap  {background:#fce4ec;color:#880e4f;border-color:#f48fb1}
-.tch.park {background:#fff8e1;color:#6d4c00;border-color:#ffe082}
-.tch.clean{background:#e8f5e9;color:#1b5e20;border-color:#a5d6a7}
-.tch.safe {background:#ffebee;color:#b71c1c;border-color:#ef9a9a}
-/* roles */
-.tch.block{background:#fce4ec;color:#880e4f;border-color:#f48fb1}
-.tch.ovr  {background:#e8eaf6;color:#283593;border-color:#9fa8da}
-.tch.asst {background:#e0f2f1;color:#00695c;border-color:#80cbc4}
-.tch.tc   {background:#fff3e0;color:#bf360c;border-color:#ffcc80}
-.tch.child{background:#f5f5f5;color:#555;border-color:#ccc}
+.tch.early,.tch.morn,.tch.aft,.tch.late{background:#f4f6f8;color:#4b5563;border-color:#d8e1ea}
+/* extra teams – intentionally neutral, so main assignment colors stay meaningful */
+.tch.av,.tch.stage,.tch.bap,.tch.park,.tch.clean,.tch.safe{
+  background:#f4f6f8;color:#4b5563;border-color:#d8e1ea
+}
+/* Block Att. is a shift-style flag from feedback forms */
+.tch.block{background:#fffde7;color:#5d4300;border-color:#ffe082}
+/* roles – neutral, because these are functions, not main team colors */
+.tch.ovr,.tch.asst,.tch.tc{
+  background:#f4f6f8;color:#4b5563;border-color:#d8e1ea
+}
 /* custom tag */
 .tch.custom{background:#f0f4ff;color:#3730a3;border-color:#a5b4fc}
 
@@ -374,7 +374,6 @@ table.dash-table tbody tr:hover td{background:#fafcff}
       <div class="metric"><div class="k">Contacted</div><div class="v" id="mContacted">0</div></div>
       <div class="metric"><div class="k">Replied</div><div class="v" id="mReplied">0</div></div>
       <div class="metric"><div class="k">Other dept.</div><div class="v" id="mOther">0</div></div>
-      <div class="metric"><div class="k">Children</div><div class="v" id="mChildren">0</div></div>
       <div class="metric"><div class="k">Shifts set</div><div class="v" id="mShifts">0</div></div>
     </div>
   </section>
@@ -467,15 +466,16 @@ Loving greetings,
       <div class="sf narrow"><label for="filterTeam">Team</label>
         <select id="filterTeam" onchange="renderAttendantTable()">
           <option value="all">All teams</option>
-          <option value="lobby">Lobby</option><option value="cafeteria">Cafeteria</option>
-          <option value="auditorium">Auditorium</option><option value="welcome">Welcome</option>
-          <option value="av">A/V</option><option value="stage">Stage</option>
-          <option value="baptism">Baptism</option><option value="parking">Parking</option>
-          <option value="cleaning">Cleaning</option><option value="safety">Safety</option>
+          <option value="auditorium">Auditorium</option><option value="cafeteria">Cafeteria</option>
+          <option value="lobby">Lobby</option><option value="welcome">Welcome</option>
+          <option value="av">A/V</option><option value="baptism">Baptism</option>
+          <option value="cleaning">Cleaning</option><option value="parking">Parking</option>
+          <option value="safety">Safety</option><option value="stage">Stage</option>
         </select></div>
       <div class="sf narrow"><label for="filterShift">Shift</label>
         <select id="filterShift" onchange="renderAttendantTable()">
           <option value="all">All shifts</option>
+          <option value="blockatt">Block Att.</option>
           <option value="early">Early</option><option value="morning">Morning</option>
           <option value="afternoon">Afternoon</option><option value="late">Late</option>
         </select></div>
@@ -486,7 +486,7 @@ Loving greetings,
       <div class="sf btn">
         <button class="secondary small-btn" onclick="fillAndRenumberIds()" title="Sort A–Z, renumber IDs 1,2,3... (active first)">Fill IDs</button>
         <button class="secondary small-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
-        <button class="warn-btn small-btn" onclick="resetMainTeamsAndShifts()" title="Reset Lobby/Caf/Aud/Welcome + Shifts for all attendants. Roles/extra teams stay.">Reset Teams &amp; Shifts</button>
+        <button class="warn-btn small-btn" onclick="resetMainTeamsAndShifts()" title="Reset Block Att./Auditorium/Cafeteria/Lobby/Welcome + Shifts for all attendants. Roles/extra teams stay.">Reset Teams &amp; Shifts</button>
       </div>
     </div>
     <div class="toolbar no-print" style="margin-bottom:10px">
@@ -578,44 +578,44 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.3</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.1</div>
 </div>
 
 <script>
-function getStorageKey(){ return state?.meta?.eventType==='Regional Convention'?'attendantPlanner_v2_3_RC':'attendantPlanner_v2_3_Assembly'; }
+function getStorageKey(){ return state?.meta?.eventType==='Regional Convention'?'attendantPlanner_v2_4_RC':'attendantPlanner_v2_4_Assembly'; }
 const DEFAULT_PRIVILEGES = ['Publisher','Ministerial Servant','Elder'];
 
 const MAIN_TEAMS = [
-  {key:'lobby',     label:'Lobby',     cls:'lobby'},
-  {key:'cafeteria', label:'Cafeteria', cls:'caf'},
-  {key:'auditorium',label:'Auditorium',cls:'aud'},
-  {key:'welcome',   label:'Welcome',   cls:'wel'},
+  {key:'auditorium',label:'Auditorium',  cls:'aud'},
+  {key:'cafeteria', label:'Cafeteria',   cls:'caf'},
+  {key:'lobby',     label:'Lobby',       cls:'lobby'},
+  {key:'welcome',   label:'Welcome',     cls:'wel'},
 ];
 const EXTRA_TEAMS = [
-  {key:'av',      label:'A/V',     cls:'av'},
-  {key:'stage',   label:'Stage',   cls:'stage'},
-  {key:'baptism', label:'Baptism', cls:'bap'},
-  {key:'parking', label:'Parking', cls:'park'},
-  {key:'cleaning',label:'Cleaning',cls:'clean'},
-  {key:'safety',  label:'Safety',  cls:'safe'},
+  {key:'av',      label:'A/V',      cls:'av'},
+  {key:'baptism', label:'Baptism',  cls:'bap'},
+  {key:'cleaning',label:'Cleaning', cls:'clean'},
+  {key:'parking', label:'Parking',  cls:'park'},
+  {key:'safety',  label:'Safety',   cls:'safe'},
+  {key:'stage',   label:'Stage',    cls:'stage'},
 ];
 const ALL_TEAMS = [...MAIN_TEAMS, ...EXTRA_TEAMS];
 
 const ROLES = [
-  {key:'blockatt',   label:'Block Att.',  cls:'block'},
-  {key:'overseer',   label:'Overseer',    cls:'ovr'},
   {key:'assistant',  label:'Assistant',   cls:'asst'},
+  {key:'overseer',   label:'Overseer',    cls:'ovr'},
   {key:'teamcaptain',label:'Team Captain',cls:'tc'},
 ];
 
 const SHIFTS = [
-  {key:'early',    label:'Early',    cls:'early'},
-  {key:'morning',  label:'Morning',  cls:'morn'},
-  {key:'afternoon',label:'Afternoon',cls:'aft'},
-  {key:'late',     label:'Late',     cls:'late'},
+  {key:'blockatt', label:'Block Att.', cls:'block'},
+  {key:'early',    label:'Early',      cls:'early'},
+  {key:'morning',  label:'Morning',    cls:'morn'},
+  {key:'afternoon',label:'Afternoon',  cls:'aft'},
+  {key:'late',     label:'Late',       cls:'late'},
 ];
 
-const RESET_TEAM_KEYS = MAIN_TEAMS.map(t=>t.key); // lobby,caf,aud,welcome only
+const RESET_TEAM_KEYS = MAIN_TEAMS.map(t=>t.key); // auditorium,cafeteria,lobby,welcome only
 const RESET_SHIFT_KEYS = SHIFTS.map(s=>s.key);
 
 const initialCongregations = [
@@ -641,14 +641,14 @@ function defaultState(){
       congregation:'Sample Congregation',email:'brother.sample@example.org',
       jwpub:'brother.jwpub@example.org',mobile:'+49 000 000001',privilege:'Ministerial Servant',
       active:true,children:false,otherDepartment:false,
-      teams:['lobby'],roles:['blockatt'],shifts:['morning','afternoon'],
+      teams:['blockatt','lobby'],roles:[],shifts:['morning','afternoon'],
       customTags:[],flags:'',remarks:'Example data only'})]
   };
 }
 
 function loadState(){
   // Try current eventType first, then fallback to old keys
-  const keys=['attendantPlanner_v2_3_RC','attendantPlanner_v2_3_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
+  const keys=['attendantPlanner_v2_4_RC','attendantPlanner_v2_4_Assembly','attendantPlanner_v2_3_RC','attendantPlanner_v2_3_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
   for(const key of keys){
     const raw=localStorage.getItem(key);
     if(!raw) continue;
@@ -678,16 +678,27 @@ function normalizeAttendant(r){
     const lt=String(r.lastTeam).toLowerCase();
     ALL_TEAMS.forEach(t=>{if(lt.includes(t.key)||lt.includes(t.label.toLowerCase()))teams.push(t.key);});
   }
+  let roles=Array.isArray(r.roles)?[...r.roles]:[];
+  let shifts=Array.isArray(r.shifts)?[...r.shifts]:[];
+  // v2.4: Block Att. belongs to Possible Shifts (feedback-form availability), not Main Teams/Roles.
+  if((roles.includes('blockatt')||teams.includes('blockatt'))&&!shifts.includes('blockatt')) shifts.unshift('blockatt');
+  roles=roles.filter(role=>role!=='blockatt');
+  teams=teams.filter(team=>team!=='blockatt');
   const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
+  let flags = r.flags||'';
+  let remarks = r.remarks||'';
+  if(r.children && !/children|child|family|kids|kinder/i.test(`${flags} ${remarks}`)){
+    flags = [flags, 'has children'].filter(Boolean).join(' | ');
+  }
   return {
     id:String(r.id||''),name:r.name||'',firstName:r.firstName||'',
     congregation:r.congregation||'',email:r.email||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
     privilege:DEFAULT_PRIVILEGES.includes(r.privilege)?r.privilege:'Publisher',
     active:r.active===undefined?true:!!r.active,children:!!r.children,
     otherDepartment:r.otherDepartment!==undefined?!!r.otherDepartment:teams.some(t=>otherKeys.includes(t)),
-    teams,roles:Array.isArray(r.roles)?r.roles:[],shifts:Array.isArray(r.shifts)?r.shifts:[],
+    teams,roles,shifts,
     customTags:Array.isArray(r.customTags)?r.customTags:[],
-    flags:r.flags||'',remarks:r.remarks||''
+    flags,remarks
   };
 }
 
@@ -781,7 +792,6 @@ function updateMetrics(){
   el('mContacted').textContent=state.congregations.filter(r=>r.contacted).length;
   el('mReplied').textContent=state.congregations.filter(r=>r.replied).length;
   el('mOther').textContent=state.attendants.filter(a=>a.otherDepartment).length;
-  el('mChildren').textContent=state.attendants.filter(a=>a.children).length;
   el('mShifts').textContent=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
 }
 
@@ -868,9 +878,10 @@ function renderMiniStats(){
   const total=state.attendants.length;
   const active=state.attendants.filter(a=>a.active!==false).length;
   const inactive=total-active;
-  const lobby=state.attendants.filter(a=>(a.teams||[]).includes('lobby')).length;
-  const caf=state.attendants.filter(a=>(a.teams||[]).includes('cafeteria')).length;
+  const block=state.attendants.filter(a=>(a.teams||[]).includes('blockatt')).length;
   const aud=state.attendants.filter(a=>(a.teams||[]).includes('auditorium')).length;
+  const caf=state.attendants.filter(a=>(a.teams||[]).includes('cafeteria')).length;
+  const lobby=state.attendants.filter(a=>(a.teams||[]).includes('lobby')).length;
   const wel=state.attendants.filter(a=>(a.teams||[]).includes('welcome')).length;
   const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
   const ms=el('miniStats');
@@ -880,9 +891,10 @@ function renderMiniStats(){
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
     <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
     <div class="divider"></div>
-    <div class="stat"><span class="label">Lobby</span><span class="val">${lobby}</span></div>
-    <div class="stat"><span class="label">Cafeteria</span><span class="val">${caf}</span></div>
+    <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
     <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
+    <div class="stat"><span class="label">Cafeteria</span><span class="val">${caf}</span></div>
+    <div class="stat"><span class="label">Lobby</span><span class="val">${lobby}</span></div>
     <div class="stat"><span class="label">Welcome</span><span class="val">${wel}</span></div>
     <div class="divider"></div>
     <div class="stat"><span class="label">Shifts set</span><span class="val">${shiftsSet}</span></div>
@@ -958,7 +970,7 @@ function renderAttendantTable(){
           ${mobCopy}
         </div>
       </td>
-      <td><input type="text" value="${esc(row.remarks)}" oninput="updAttDirect(${index},'remarks',this.value)" placeholder="Remarks / flags (free text)"></td>
+      <td><textarea class="wrap-field" oninput="updAttDirect(${index},'remarks',this.value)" placeholder="Remarks / flags (free text)">${esc(row.remarks)}</textarea></td>
       <td style="text-align:center">
         <div class="cell-actions">
           <span class="icon-btn exp" onclick="toggleRow(${index})" title="${isExp?'Collapse':'Expand'}">${isExp?'▲':'▼'}</span>
@@ -1003,7 +1015,6 @@ function buildExpandedRow(index, row){
     return`<label class="tch custom${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleCustomTag(${index},'role:${js(cr)}',this)">${esc(cr)}</label>`;
   }).join('');
 
-  const childCheck=`<label class="tch child${row.children?'':' off'}"><input type="checkbox" ${row.children?'checked':''} onchange="updAttField(${index},'children',this.checked)">Children</label>`;
 
   const emailCopy=row.email?`<span class="icon-btn" onclick="copyText('${js(row.email)}',false,this)" title="Copy email">⧉</span>`:'';
   const jwpubCopy=row.jwpub?`<span class="icon-btn" onclick="copyText('${js(row.jwpub)}',false,this)" title="Copy JWPub">⧉</span>`:'';
@@ -1027,7 +1038,6 @@ function buildExpandedRow(index, row){
         <div class="cb-grid">
           ${roleChips}
           ${customRoleChips}
-          ${childCheck}
         </div>
 
       </div>
@@ -1050,8 +1060,8 @@ function buildExpandedRow(index, row){
 
       <div class="exp-group">
         <div class="exp-subhead">Flags / Notes (free text, searchable)</div>
-        <input type="text" value="${esc(row.flags||'')}" oninput="updAttDirect(${index},'flags',this.value)"
-          placeholder="e.g. no WhatsApp, parking, small child..." style="width:100%;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:5px 8px">
+        <textarea class="flags-wrap" oninput="updAttDirect(${index},'flags',this.value)"
+          placeholder="e.g. no WhatsApp, parking, family note..." style="width:100%;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:6px 8px">${esc(row.flags||'')}</textarea>
       </div>
 
       <div class="exp-group" style="align-self:center">
@@ -1441,14 +1451,14 @@ function exportFilteredJson(){
 function exportFilteredCsv(){
   const filtered=getFilteredAttendants();
   if(!filtered.length){alert('No attendants match current filters.');return;}
-  const header=['ID','Name','First name','Congregation','Privilege','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Children','Other Dept.'];
+  const header=['ID','Name','First name','Congregation','Privilege','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
   const rows=[header,...filtered.map(a=>[
     a.id,a.name,a.firstName,a.congregation,a.privilege,
     (a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/'),
     (a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join('/'),
     (a.shifts||[]).map(k=>SHIFTS.find(s=>s.key===k)?.label||k).join('/'),
     a.mobile,a.email,a.jwpub,a.flags,a.remarks,
-    a.active!==false?'Yes':'No',a.children?'Yes':'No',a.otherDepartment?'Yes':'No'
+    a.active!==false?'Yes':'No',a.otherDepartment?'Yes':'No'
   ])];
   const csv=rows.map(r=>r.map(v=>{const s=String(v??'');return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;}).join(';')).join('\r\n');
   const now=new Date();
@@ -1500,7 +1510,7 @@ function loadCsvFile(event){
         const team=idxTeam!==-1?r[idxTeam]:'',remarks=idxRem!==-1?r[idxRem]:'',status=idxStat!==-1?r[idxStat]:'';
         const allT=`${team} ${remarks} ${status}`.toLowerCase();
         const inactive=team.toLowerCase().includes('not available')||status.toLowerCase().includes('unavailable');
-        const children=(['small child','small children','small baby','with family','family with']).some(n=>allT.includes(n));
+        const familyNote=(['small child','small children','small baby','with family','family with']).some(n=>allT.includes(n))?'has children':'';
         const teams=[];ALL_TEAMS.forEach(t=>{if(allT.includes(t.key)||allT.includes(t.label.toLowerCase()))teams.push(t.key);});
         let id=idxId!==-1?r[idxId]:'';if(id==='-'||!id)id=nextId();
         const rawCong=idxCong!==-1?r[idxCong]:'';
@@ -1508,7 +1518,7 @@ function loadCsvFile(event){
         return normalizeAttendant({id,name:idxName!==-1?r[idxName]:'',firstName:idxFirst!==-1?r[idxFirst]:'',
           congregation:cong,email:idxEmail!==-1?r[idxEmail]:'',jwpub:idxJwpub!==-1?r[idxJwpub]:'',
           mobile:idxMob!==-1?r[idxMob]:'',privilege:idxPriv!==-1?r[idxPriv]:'',
-          active:!inactive,children,teams,roles:[],shifts:[],customTags:[],flags:'',
+          active:!inactive,children:false,teams,roles:[],shifts:[],customTags:[],flags:familyNote,
           remarks:[remarks,status&&!/^\d+$/.test(status)?`CSV: ${status}`:''].filter(Boolean).join(' | ')});
       }).filter(a=>a.name||a.firstName||a.email||a.mobile);
       let added=0,updated=0;
