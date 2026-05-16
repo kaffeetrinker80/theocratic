@@ -578,11 +578,13 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.1</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.2</div>
 </div>
 
 <script>
-function getStorageKey(){ return state?.meta?.eventType==='Regional Convention'?'attendantPlanner_v2_4_RC':'attendantPlanner_v2_4_Assembly'; }
+const LAST_EVENT_TYPE_KEY = 'attendantPlanner_v2_4_lastEventType';
+function storageKeyForType(type){ return type==='Assembly'?'attendantPlanner_v2_4_Assembly':'attendantPlanner_v2_4_RC'; }
+function getStorageKey(){ return storageKeyForType(state?.meta?.eventType); }
 const DEFAULT_PRIVILEGES = ['Publisher','Ministerial Servant','Elder'];
 
 const MAIN_TEAMS = [
@@ -641,21 +643,28 @@ function defaultState(){
       congregation:'Sample Congregation',email:'brother.sample@example.org',
       jwpub:'brother.jwpub@example.org',mobile:'+49 000 000001',privilege:'Ministerial Servant',
       active:true,children:false,otherDepartment:false,
-      teams:['blockatt','lobby'],roles:[],shifts:['morning','afternoon'],
+      teams:['lobby'],roles:[],shifts:['blockatt','morning','afternoon'],
       customTags:[],flags:'',remarks:'Example data only'})]
   };
 }
 
 function loadState(){
-  // Try current eventType first, then fallback to old keys
-  const keys=['attendantPlanner_v2_4_RC','attendantPlanner_v2_4_Assembly','attendantPlanner_v2_3_RC','attendantPlanner_v2_3_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
-  for(const key of keys){
+  // Open the same event type that was used last (RC or Assembly).
+  // Older versions always checked RC first, which made the tool jump back to RC after reopening.
+  const lastType=localStorage.getItem(LAST_EVENT_TYPE_KEY);
+  const preferredKeys=lastType==='Assembly'
+    ?['attendantPlanner_v2_4_Assembly','attendantPlanner_v2_4_RC']
+    :['attendantPlanner_v2_4_RC','attendantPlanner_v2_4_Assembly'];
+  const keys=[...preferredKeys,'attendantPlanner_v2_3_RC','attendantPlanner_v2_3_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
+  for(const key of [...new Set(keys)]){
     const raw=localStorage.getItem(key);
     if(!raw) continue;
     try{
       const data=JSON.parse(raw);
+      const inferredType=key.includes('_Assembly')?'Assembly':key.includes('_RC')?'Regional Convention':(data.meta?.eventType||'Regional Convention');
+      localStorage.setItem(LAST_EVENT_TYPE_KEY, data.meta?.eventType||inferredType);
       return {
-        meta:{...defaultState().meta,...(data.meta||{})},
+        meta:{...defaultState().meta,...(data.meta||{}),eventType:data.meta?.eventType||inferredType},
         congregations:Array.isArray(data.congregations)&&data.congregations.length
           ?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
         attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]
@@ -750,6 +759,7 @@ function switchEventType(newType){
   const hasChanges=localStorage.getItem(getStorageKey())!==JSON.stringify(state,null,2);
   if(hasChanges&&!confirm(`You have unsaved changes in ${state.meta.eventType}. Switch to ${newType}? (Save first if needed)`))return;
   state.meta.eventType=newType;
+  localStorage.setItem(LAST_EVENT_TYPE_KEY,newType);
   const existingData=localStorage.getItem(getStorageKey());
   if(existingData){
     try{
@@ -771,6 +781,7 @@ function syncMeta(){
 function writeMetaToInputs(){Object.entries(state.meta).forEach(([k,v])=>{if(el(k))el(k).value=v??'';});}
 function saveState(){
   syncMeta();state.meta.lastSavedAt=new Date().toISOString();
+  localStorage.setItem(LAST_EVENT_TYPE_KEY,state.meta.eventType);
   localStorage.setItem(getStorageKey(),JSON.stringify(state,null,2));
   refreshHeader();updateMetrics();refreshCongFilter();renderCongSummary();
 }
@@ -1276,7 +1287,7 @@ function copyToOtherEvent(index){
   saveState();
   
   // Load target event data
-  const targetKey=targetType==='Regional Convention'?'attendantPlanner_v2_3_RC':'attendantPlanner_v2_3_Assembly';
+  const targetKey=storageKeyForType(targetType);
   let targetState;
   const targetRaw=localStorage.getItem(targetKey);
   
@@ -1317,6 +1328,7 @@ function copyToOtherEvent(index){
   
   // Save target state
   localStorage.setItem(targetKey,JSON.stringify(targetState,null,2));
+  localStorage.setItem(LAST_EVENT_TYPE_KEY,targetType);
   
   // Switch to target event
   state=targetState;
