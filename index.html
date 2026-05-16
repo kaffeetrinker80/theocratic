@@ -126,7 +126,10 @@
 
     .card h2 { font-size: 1.3rem; color: #fff; margin-bottom: 8px; }
     .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
-    .meta { font-size: .75rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 5px 12px; border-radius: 999px; margin-bottom: 20px; display: inline-block; }
+    
+    .meta-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .meta { font-size: .75rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 5px 12px; border-radius: 999px; display: inline-block; }
+    .lang-badge { font-size: .75rem; font-weight: 600; color: var(--muted); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); padding: 4px 11px; border-radius: 999px; display: inline-block; }
 
     .btn-card { 
       width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 12px; border-radius: 12px; 
@@ -184,20 +187,36 @@
     </div>
 
     <section class="grid animate-in delay-3">
-      <!-- ASSEMBLY SECTION -->
-      <article class="card theme-assembly" data-cat="assembly">
+      <article class="card theme-assembly" data-cat="assembly rc">
         <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
-        <h2>Assembly Attendant Tool</h2>
-        <p>Streamlined attendant coordination and duty planning for one-day assemblies.</p>
-        <div class="meta">Assembly · Attendants</div>
+        <h2>Assembly / RC Attendant Planner</h2>
+        <p>Streamlined attendant coordination and duty planning for both one-day assemblies and regional conventions.</p>
+        <div class="meta-container">
+          <div class="meta">Assembly & RC · Attendants</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./assembly-attendant-tool/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-assembly" data-cat="assembly rc">
+        <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
+        <h2>Team Captain Manager</h2>
+        <p>Efficient management and team organization for attendant team captains. Imports data from the Attendant Planner.</p>
+        <div class="meta-container">
+          <div class="meta">Assembly & RC · Team Orga</div>
+          <div class="lang-badge">EN</div>
+        </div>
+        <div class="card-actions"><a class="btn-card" href="./tc-manager/">Open Tool</a></div>
       </article>
 
       <article class="card theme-assembly" data-cat="assembly">
         <div class="icon-wrap"><img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Cleaning Planner</h2>
         <p>Cleaning schedules and shift coordination for one-day assemblies.</p>
-        <div class="meta">Assembly · Cleaning</div>
+        <div class="meta-container">
+          <div class="meta">Assembly · Cleaning</div>
+          <div class="lang-badge">DE / EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a></div>
       </article>
 
@@ -205,16 +224,21 @@
         <div class="icon-wrap"><img src="./assembly-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Counting Tool</h2>
         <p>Counting tool for one-day assemblies with slips and attendance summary.</p>
-        <div class="meta">Assembly · Planning</div>
+        <div class="meta-container">
+          <div class="meta">Assembly · Planning</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./assembly-counting/">Open Tool</a></div>
       </article>
 
-      <!-- CONGREGATION SECTION -->
       <article class="card theme-congregation" data-cat="congregation">
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Microphone Service</h2>
         <p>Planning microphone assignments, shifts and support during meetings.</p>
-        <div class="meta">Congregation · Microphones</div>
+        <div class="meta-container">
+          <div class="meta">Congregation · Microphones</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./microphoneservice-tool/">Open Tool</a></div>
       </article>
 
@@ -222,7 +246,10 @@
         <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Volunteers</h2>
         <p>Managing details and availability of congregation volunteers.</p>
-        <div class="meta">Congregation · Volunteers</div>
+        <div class="meta-container">
+          <div class="meta">Congregation · Volunteers</div>
+          <div class="lang-badge">DE / EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./congregation-volunteers/">Open Tool</a></div>
       </article>
 
@@ -230,7 +257,10 @@
         <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>KH Cleaning Planner</h2>
         <p>Annual deep cleaning and yearly hall schedules for multi-congregation halls.</p>
-        <div class="meta">Kingdom Hall · Cleaning</div>
+        <div class="meta-container">
+          <div class="meta">Kingdom Hall · Cleaning</div>
+          <div class="lang-badge">DE / EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
       </article>
 
@@ -238,16 +268,21 @@
         <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>PTC Tool</h2>
         <p>Coordination of public talks, speakers and outlines from imported data.</p>
-        <div class="meta">PTC · Public Talks</div>
+        <div class="meta-container">
+          <div class="meta">PTC · Public Talks</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./ptc-tool/">Open Tool</a></div>
       </article>
 
-      <!-- RC SECTION -->
       <article class="card theme-rc" data-cat="rc">
         <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC A/V Planner</h2>
         <p>Planning and coordination of audio and video assignments on regional conventions.</p>
-        <div class="meta">RC · A/V</div>
+        <div class="meta-container">
+          <div class="meta">RC · A/V</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./av-planner/">Open Tool</a></div>
       </article>
 
@@ -255,7 +290,10 @@
         <div class="icon-wrap"><img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon"></div>
         <h2>RC Attendant Scheduler</h2>
         <p>Detailed assignment and shift planning for attendants at regional conventions.</p>
-        <div class="meta">RC · Attendants</div>
+        <div class="meta-container">
+          <div class="meta">RC · Attendants</div>
+          <div class="lang-badge">DE</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a></div>
       </article>
 
@@ -263,7 +301,10 @@
         <div class="icon-wrap"><img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Cleaning Planner</h2>
         <p>Cleaning coordination for three-day regional conventions.</p>
-        <div class="meta">RC · Cleaning</div>
+        <div class="meta-container">
+          <div class="meta">RC · Cleaning</div>
+          <div class="lang-badge">DE / EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a></div>
       </article>
 
@@ -271,7 +312,10 @@
         <div class="icon-wrap"><img src="./rc-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Counting Tool</h2>
         <p>Counting tool for three-day regional conventions with day overview.</p>
-        <div class="meta">RC · Planning</div>
+        <div class="meta-container">
+          <div class="meta">RC · Planning</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./rc-counting/">Open Tool</a></div>
       </article>
 
@@ -279,7 +323,10 @@
         <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
         <h2>RC Volunteer Management</h2>
         <p>Designed for convention committees to manage and communicate with volunteers.</p>
-        <div class="meta">RC · Volunteers</div>
+        <div class="meta-container">
+          <div class="meta">RC · Volunteers</div>
+          <div class="lang-badge">EN</div>
+        </div>
         <div class="card-actions"><a class="btn-card" href="./rc-volunteers-management/">Open Tool</a></div>
       </article>
     </section>
@@ -296,7 +343,8 @@
       buttons.forEach(btn => btn.classList.remove('active'));
       event.currentTarget.classList.add('active');
       cards.forEach(card => {
-        if (category === 'all' || card.getAttribute('data-cat') === category) {
+        const cardCategories = card.getAttribute('data-cat').split(' ');
+        if (category === 'all' || cardCategories.includes(category)) {
           card.classList.remove('hidden');
         } else {
           card.classList.add('hidden');
