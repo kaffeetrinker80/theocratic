@@ -14,7 +14,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager v2.5</title>
+<title>Team Captain Manager v2.7</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap');
 
@@ -365,14 +365,14 @@ td { padding: 12px 14px; vertical-align: top; }
     <div class="hero-top">
       <div>
         <h1>Team Captain Manager</h1>
-        <div class="subtitle">Quick access to attendant contacts &ndash; compatible with Attendant Department Planner v2.4 and later</div>
+        <div class="subtitle">Quick access to attendant contacts &ndash; compatible with Attendant Department Planner v2.3</div>
       </div>
-      <span class="badge">v2.5</span>
+      <span class="badge">v2.7</span>
     </div>
     <div class="captain-config">
       <div class="config-field">
         <label for="captainName">Who am I? / Team captain name</label>
-        <input id="captainName" type="text" placeholder="e.g. Your Name" autocomplete="name">
+        <input id="captainName" type="text" placeholder="e.g. Marco" autocomplete="name">
       </div>
       <div class="config-field">
         <label for="teamChatLink">WhatsApp team chat link</label>
@@ -396,9 +396,9 @@ td { padding: 12px 14px; vertical-align: top; }
 
   <div class="stats">
     <div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="statCount">0</div></div>
-    <div class="stat"><div class="stat-label">WhatsApp</div><div class="stat-value" id="statWa">0</div></div>
-    <div class="stat"><div class="stat-label">Children</div><div class="stat-value" id="statChildren">0</div></div>
-    <div class="stat"><div class="stat-label">Notes</div><div class="stat-value" id="statNotes">0</div></div>
+    <div class="stat"><div class="stat-label">Congregations</div><div class="stat-value" id="statCongregations">0</div></div>
+    <div class="stat"><div class="stat-label">Elders</div><div class="stat-value" id="statElders">0</div></div>
+    <div class="stat"><div class="stat-label">MS</div><div class="stat-value" id="statMs">0</div></div>
   </div>
 
   <div class="toolbar">
@@ -440,13 +440,13 @@ td { padding: 12px 14px; vertical-align: top; }
     <div id="empty" class="empty-state">
       <div class="empty-icon">📋</div>
       <strong>No attendants found for this team</strong>
-      <div class="muted" style="margin-top:6px">Import a JSON or CSV export from Attendant Department Planner v2.4 or later</div>
+      <div class="muted" style="margin-top:6px">Import a JSON or CSV export from Attendant Department Planner v2.3</div>
     </div>
   </div>
 
   <div class="footer">
-    <strong>Team Captain Manager v2.5</strong> &nbsp;&middot;&nbsp; Compatible with Attendant Department Planner v2.4 and later<br>
-    All data stored locally in browser &nbsp;&middot;&nbsp; Export JSON regularly for backup &nbsp;&middot;&nbsp; Copy numbers and editable mini chat templates
+    <strong>Team Captain Manager v2.7</strong> &nbsp;&middot;&nbsp; Compatible with Attendant Department Planner v2.3<br>
+    All data stored locally in browser &nbsp;&middot;&nbsp; Export JSON regularly for backup &nbsp;&middot;&nbsp; Team stats, copy numbers and editable mini chat templates
   </div>
 
 </div>
@@ -476,9 +476,9 @@ var elReset    = document.getElementById('resetBtn');
 var elRows     = document.getElementById('rows');
 var elEmpty    = document.getElementById('empty');
 var elSTotal   = document.getElementById('statCount');
-var elSWa      = document.getElementById('statWa');
-var elSChild   = document.getElementById('statChildren');
-var elSNotes   = document.getElementById('statNotes');
+var elSCong    = document.getElementById('statCongregations');
+var elSElders  = document.getElementById('statElders');
+var elSMs      = document.getElementById('statMs');
 
 // ── Storage helpers ───────────────────────────────────────────────────────────
 function storeGet(key) {
@@ -579,6 +579,20 @@ function contactFirstName(rec) {
   return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || 'Brother';
 }
 
+function privilegeText(rec) {
+  return String(rec.privilege || '').trim().toLowerCase();
+}
+
+function isElder(rec) {
+  var p = privilegeText(rec);
+  return /(^|[^a-z])(elder|ältester|altester)([^a-z]|$)/i.test(p);
+}
+
+function isMinisterialServant(rec) {
+  var p = privilegeText(rec);
+  return /ministerial\s*servant|dienstamtgehilfe|ms/i.test(p);
+}
+
 function defaultTemplateText() {
   return [
     'Dear {firstName},',
@@ -664,16 +678,16 @@ function render() {
   elRows.innerHTML = '';
   elEmpty.style.display = rows.length ? 'none' : 'block';
 
-  var cntWa = 0, cntKids = 0, cntNotes = 0;
+  var congregations = {};
+  var cntElders = 0, cntMs = 0;
 
   rows.forEach(function(rec) {
     var note  = getNote(rec);
-    var kids  = getKids(rec);
     var key   = esc(rKey(rec));
 
-    if (rec.hasWa)   cntWa++;
-    if (kids)        cntKids++;
-    if (note.trim()) cntNotes++;
+    if (rec.congregation) congregations[rec.congregation.trim().toLowerCase()] = true;
+    if (isElder(rec)) cntElders++;
+    if (isMinisterialServant(rec)) cntMs++;
 
     // Build chips
     var chips = sortedTeams(rec.teams).map(function(t) {
@@ -710,6 +724,9 @@ function render() {
     var remarkBadge = rec.remarks
       ? '<span class="chip-remark">' + esc(rec.remarks) + '</span>'
       : '';
+    var rowTools = remarkBadge
+      ? '<div class="row-tools">' + remarkBadge + '</div>'
+      : '';
 
     var tr = document.createElement('tr');
 
@@ -725,13 +742,7 @@ function render() {
       + '<td>' + mobCell + '</td>'
       + '<td>'
       +   '<textarea class="note-input" data-key="' + key + '" placeholder="Captain notes...">' + esc(note) + '</textarea>'
-      +   '<div class="row-tools">'
-      +     '<label class="toggle">'
-      +       '<input type="checkbox" class="kids-chk" data-key="' + key + '"' + (kids ? ' checked' : '') + '>'
-      +       'small children'
-      +     '</label>'
-      +     remarkBadge
-      +   '</div>'
+      +   rowTools
       + '</td>'
       + '<td>'
       +   '<div class="action-col">'
@@ -745,9 +756,9 @@ function render() {
   });
 
   elSTotal.textContent = rows.length;
-  elSWa.textContent    = cntWa;
-  elSChild.textContent = cntKids;
-  elSNotes.textContent = cntNotes;
+  elSCong.textContent  = Object.keys(congregations).length;
+  elSElders.textContent = cntElders;
+  elSMs.textContent     = cntMs;
 
   bindRowEvents(rows);
 }
@@ -766,14 +777,6 @@ function bindRowEvents(rows) {
     });
   });
 
-  document.querySelectorAll('.kids-chk').forEach(function(el) {
-    el.addEventListener('change', function() {
-      var map = getKidsMap();
-      map[el.dataset.key] = el.checked;
-      storeSet(CHILDREN_KEY, map);
-      refreshStats(rows);
-    });
-  });
 
   document.querySelectorAll('.vcf-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -799,15 +802,16 @@ function bindRowEvents(rows) {
 }
 
 function refreshStats(rows) {
-  var cntWa = 0, cntKids = 0, cntNotes = 0;
+  var congregations = {};
+  var cntElders = 0, cntMs = 0;
   rows.forEach(function(r) {
-    if (r.hasWa)          cntWa++;
-    if (getKids(r))       cntKids++;
-    if (getNote(r).trim())cntNotes++;
+    if (r.congregation) congregations[r.congregation.trim().toLowerCase()] = true;
+    if (isElder(r)) cntElders++;
+    if (isMinisterialServant(r)) cntMs++;
   });
-  elSWa.textContent    = cntWa;
-  elSChild.textContent = cntKids;
-  elSNotes.textContent = cntNotes;
+  elSCong.textContent   = Object.keys(congregations).length;
+  elSElders.textContent = cntElders;
+  elSMs.textContent     = cntMs;
 }
 
 // ── vCard export ──────────────────────────────────────────────────────────────
