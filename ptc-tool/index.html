@@ -305,7 +305,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.1.2</div>
+  <div class="footer">Made with love © v.2.1.3</div>
 </div>
 
 <script>
@@ -2613,7 +2613,7 @@ function renderDetail() {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.1.2',
+    version: '2.1.3',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     congregations: state.dataset.congregations,
@@ -2777,9 +2777,14 @@ function importPtcAssistantsFromText(text) {
   let skippedExisting = 0;
   const unmatched = [];
 
-  // Build a set of congregation keys present in the CSV (for selective clearing)
+  // v2.1.3 logic:
+  // CSV is the single source of truth for name / phone / email.
+  // assistant.notes and rec.text (PTC Notes) are local-only → never touched by import.
+  // Congregations absent from the CSV → their contact fields are cleared (full sync).
+
   const csvKeys = new Set(rows.map(row => congregationStableKey(row.congregation)));
 
+  // Step 1: process rows present in CSV
   rows.forEach(row => {
     const cong = congByKey.get(congregationStableKey(row.congregation));
     if (!cong) {
@@ -2791,24 +2796,39 @@ function importPtcAssistantsFromText(text) {
     const assistant = normalizePtcAssistant(rec.ptcAssistant);
     let changed = false;
 
-    // New logic (v2.1.2):
-    // - CSV row present + field has value  → overwrite (even if local value differs)
-    // - CSV row present + field is empty   → clear the local value
-    // - CSV row absent entirely            → leave local data untouched (no full-sync)
-    [['name', row.name], ['phone', row.phone], ['email', row.email], ['notes', row.notes]].forEach(([field, value]) => {
+    // Only sync contact fields – notes fields are protected
+    [['name', row.name], ['phone', row.phone], ['email', row.email]].forEach(([field, value]) => {
       const incoming = String(value || '').trim();
       const existing = String(assistant[field] || '').trim();
       if (incoming !== existing) {
-        assistant[field] = incoming; // covers both overwrite and clearing
+        assistant[field] = incoming;
         changed = true;
       }
     });
+    // assistant.notes  → never touched
+    // rec.text (PTC Notes) → never touched
 
     if (changed) {
       setNoteRecord(cong.notesKey, { ...rec, ptcAssistant: assistant });
       updated++;
     } else {
       skippedExisting++;
+    }
+  });
+
+  // Step 2: clear contact fields for congregations NOT in the CSV
+  let cleared = 0;
+  congByKey.forEach((cong) => {
+    if (csvKeys.has(congregationStableKey(cong.congregation || cong.name || ''))) return;
+    const rec = noteRecord(cong.notesKey);
+    const assistant = normalizePtcAssistant(rec.ptcAssistant);
+    if (assistant.name || assistant.phone || assistant.email) {
+      // Preserve notes, wipe only contact fields
+      setNoteRecord(cong.notesKey, {
+        ...rec,
+        ptcAssistant: { ...assistant, name: '', phone: '', email: '' }
+      });
+      cleared++;
     }
   });
 
@@ -2819,26 +2839,28 @@ function importPtcAssistantsFromText(text) {
 
   const lines = [
     'PTC Assistants imported:',
-    `${matched} matched`,
-    `${updated} updated (fields overwritten/cleared where CSV differs)`,
-    `${skippedExisting} already up to date (no changes)`,
-    `${unmatched.length} not matched`
+    `${matched} matched in CSV`,
+    `${updated} updated (name / phone / email synced)`,
+    `${cleared} cleared (not in CSV – contact fields wiped)`,
+    `${skippedExisting} already up to date`,
+    `${unmatched.length} not matched`,
+    '',
+    'Protected (never overwritten): PTC Notes, Assistant Notes'
   ];
   if (unmatched.length) {
     lines.push('', 'Not matched:', ...unmatched.slice(0, 20).map(x => '- ' + x));
     if (unmatched.length > 20) lines.push(`…and ${unmatched.length - 20} more`);
   }
-  lines.push('', 'Note: congregations not in the CSV are left unchanged.');
-  setStatus(`Assistants imported: ${updated} updated`);
-  showToast(`PTC Assistants imported: ${updated} updated`);
+  setStatus(`Assistants imported: ${updated} updated, ${cleared} cleared`);
+  showToast(`PTC Assistants imported: ${updated} updated, ${cleared} cleared`);
   alert(lines.join('\n'));
 }
 
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.1.2', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.1.2', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.1.3', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.1.3', exportedAt:new Date().toISOString(), source: state.dataset.source, congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3149,7 +3171,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
       <div>
         <div style="font-size:1.3rem;font-weight:700;">Help</div>
-        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.1.2</div>
+        <div style="font-size:13px;opacity:.8;">PTC Tool – EU Public Speakers · Quick guide for v2.1.3</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
