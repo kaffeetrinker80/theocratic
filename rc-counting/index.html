@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RC Counting Munich</title>
-  <link rel="manifest" href="site.webmanifest" />
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="rc-counting-manifest.json" />
+  <link rel="icon" type="image/png" sizes="16x16" href="RC-counting-icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="RC-counting-icon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="RC-counting-icon-180.png" />
   <meta name="theme-color" content="#1e3a8a" />
   <style>
     :root {
@@ -943,7 +941,7 @@
   </div>
 
   <div id="summaryPrintView" class="summary-print-view"></div>
-  <div class="app-footer screen-only">Made with ♥ © · v.1.28</div>
+  <div class="app-footer screen-only">Made with ♥ © · v.1.29</div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1234,8 +1232,18 @@
     }
 
     function updateEditableField(id, field, value) {
-      setField(id, field, normalizePositionText(field, value));
-      renderScreenList();
+      // Important: do not rebuild the screen list while the user is typing.
+      // Re-rendering the list via innerHTML destroys the active editable element
+      // and makes the cursor jump out after every character.
+      setField(id, field, value);
+      renderPrintSlips();
+      renderSummaryView();
+    }
+
+    function commitEditableField(id, field, element) {
+      const normalized = normalizePositionText(field, element ? element.innerText : '');
+      setField(id, field, normalized);
+      if (element && element.innerText !== normalized) element.innerText = normalized;
       renderPrintSlips();
       renderSummaryView();
     }
@@ -1271,7 +1279,7 @@
       const payload = {
         exportedAt: new Date().toISOString(),
         app: 'RC Counting Munich',
-        version: '1.26',
+        version: '1.29',
         data: state
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -1350,10 +1358,10 @@
         <div class="list-row">
           <div class="position-cell">
             <div class="position-meta">
-              <span class="position-type" contenteditable="true" oninput="updateEditableField('${p.id}','type',this.innerText)">${escapeHtml(p.type)}</span>
-              <span class="position-title" contenteditable="true" oninput="updateEditableField('${p.id}','title',this.innerText)">${escapeHtml(p.title)}</span>
+              <span class="position-type" contenteditable="true" oninput="updateEditableField('${p.id}','type',this.innerText)" onblur="commitEditableField('${p.id}','type',this)">${escapeHtml(p.type)}</span>
+              <span class="position-title" contenteditable="true" oninput="updateEditableField('${p.id}','title',this.innerText)" onblur="commitEditableField('${p.id}','title',this)">${escapeHtml(p.title)}</span>
             </div>
-            <div class="position-subtitle" contenteditable="true" oninput="updateEditableField('${p.id}','subtitle',this.innerText)">${escapeHtml(p.subtitle)}</div>
+            <div class="position-subtitle" contenteditable="true" oninput="updateEditableField('${p.id}','subtitle',this.innerText)" onblur="commitEditableField('${p.id}','subtitle',this)">${escapeHtml(p.subtitle)}</div>
           </div>
           <div class="row-count">
             <input type="number" min="0" inputmode="numeric" value="${Number(p.count1) || 0}" oninput="setCount('${p.id}','count1',this.value)" title="Enter the count for ${escapeAttr(time1)}" />
@@ -1565,7 +1573,7 @@
                 <div class="summary-box-title">No filled days yet</div>
               </div>
             </div>
-            <div class="summary-print-footer">Made with ♥ © · v.1.28</div>
+            <div class="summary-print-footer">Made with ♥ © · v.1.29</div>
           </section>
         `;
         return;
@@ -1594,7 +1602,7 @@
           </div>
           ${buildCompactSummaryTable(filledDays)}
           ${buildPeakAttendanceLine(filledDays)}
-          <div class="summary-print-footer">Made with ♥ © · v.1.28</div>
+          <div class="summary-print-footer">Made with ♥ © · v.1.29</div>
         </section>
       `;
     }
@@ -1690,4 +1698,3 @@
   </script>
 </body>
 </html>
-
