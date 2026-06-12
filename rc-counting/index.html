@@ -1086,7 +1086,7 @@
   </div>
 
   <div id="summaryPrintView" class="summary-print-view"></div>
-  <div class="app-footer screen-only">Made with ♥ © · v.1.30</div>
+  <div class="app-footer screen-only">Made with ♥ © · v.1.31</div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1161,8 +1161,15 @@
         .split(' ')
         .map(word => {
           if (!word) return word;
+          // Keep common abbreviations in uppercase. This also corrects existing
+          // values such as "Jw Stream" back to "JW Stream" when committed.
+          if (/^JW$/i.test(word)) return 'JW';
           if (/^TC$/i.test(word)) return 'TC';
+          if (/^AV$/i.test(word)) return 'AV';
+          if (/^IT$/i.test(word)) return 'IT';
           if (/^CO-\d+/i.test(word)) return word.toUpperCase();
+          // Preserve deliberately typed all-uppercase abbreviations.
+          if (/^[A-Z]{2,6}$/.test(word)) return word;
           if (word.includes('+')) {
             return word.split('+').map(part => {
               if (!part) return part;
@@ -1457,7 +1464,7 @@
       const payload = {
         exportedAt: new Date().toISOString(),
         app: 'RC Counting Munich',
-        version: '1.30',
+        version: '1.31',
         data: state
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -1779,7 +1786,7 @@
                 <div class="summary-box-title">No filled days yet</div>
               </div>
             </div>
-            <div class="summary-print-footer">Made with ♥ © · v.1.30</div>
+            <div class="summary-print-footer">Made with ♥ © · v.1.31</div>
           </section>
         `;
         return;
@@ -1808,7 +1815,7 @@
           </div>
           ${buildCompactSummaryTable(filledDays)}
           ${buildPeakAttendanceLine(filledDays)}
-          <div class="summary-print-footer">Made with ♥ © · v.1.30</div>
+          <div class="summary-print-footer">Made with ♥ © · v.1.31</div>
         </section>
       `;
     }
