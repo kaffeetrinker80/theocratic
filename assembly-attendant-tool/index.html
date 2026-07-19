@@ -433,6 +433,7 @@ Thank you very much for your support.
 Loving greetings,
 
 [SENDER_SIGNATURE]</textarea>
+        <div class="footer-note" style="margin-top:8px">Formatting: Write <b>**text**</b> to make it bold in the preview and when copied into an email.</div>
         <div class="toolbar no-print">
           <button class="primary" onclick="copySelectedMessage()">Copy selected message</button>
           <button class="secondary" onclick="copyTemplateOnly()">Copy template only</button>
@@ -578,7 +579,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.2</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.3</div>
 </div>
 
 <script>
@@ -1372,22 +1373,27 @@ function buildSignature(){
 }
 function buildCongMessage(index){
   const row=state.congregations[index];
-  const atts=attsForCong(row).filter(a=>a.active!==false);
-  const list=atts.length?atts.map(a=>{
-    const sfx=[];
-    if(a.otherDepartment)sfx.push('other dept.');if(a.children)sfx.push('children');
-    const teams=(a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/');
-    if(teams)sfx.push(teams);
-    return`${dispName(a)}${sfx.length?' ('+sfx.join(', ')+')':''}`;
-  }).join('\n'):'[no active attendants yet]';
+  const inactiveEvent=state.meta.eventType==='Regional Convention'?'Convention':'Assembly';
+  const atts=attsForCong(row);
+  const list=atts.length?atts.map(a=>
+    `${dispName(a)}${a.active===false?` (last ${inactiveEvent}: inactive)`:''}`
+  ).join('\n'):'[no attendants yet]';
   return(state.meta.messageTemplate||'')
     .replaceAll('[EVENT_DATE]',state.meta.eventDate||'').replaceAll('[ATTENDANT_LIST]',list)
     .replaceAll('[SENDER_NAME]',state.meta.senderName||'').replaceAll('[SENDER_ROLE]',state.meta.senderRole||'')
     .replaceAll('[SENDER_SIGNATURE]',buildSignature());
 }
+function messageToPlain(text){
+  return String(text??'').replace(/\*\*([\s\S]+?)\*\*/g,'$1');
+}
+function messageToHtml(text){
+  return esc(String(text??''))
+    .replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\r?\n/g,'<br>');
+}
 function previewCong(index){
   selectedCongIndex=index;const row=state.congregations[index];
-  el('previewBox').textContent=`To: ${row.coordinator||'Coordinator'} · ${row.congregation||'Congregation'}\n\n${buildCongMessage(index)}`.trim();
+  el('previewBox').innerHTML=`<strong>To:</strong> ${esc(row.coordinator||'Coordinator')} · ${esc(row.congregation||'Congregation')}<br><br>${messageToHtml(buildCongMessage(index))}`;
   const wrap=el('previewContactActions');
   wrap.innerHTML=[['Cong. email',row?.congJwpub||'—'],['Coordinator',row?.jwpub||'—']].map(([label,value])=>`
     <div class="preview-contact-row">
@@ -1396,15 +1402,42 @@ function previewCong(index){
       <div>${value&&value!=='—'?`<span class="mini-copy" onclick="copyText('${js(value)}',false,this)">⧉</span>`:''}</div>
     </div>`).join('');
 }
-async function copyCongMessage(index){selectedCongIndex=index;await copyText(buildCongMessage(index),true);previewCong(index);}
-async function copySelectedMessage(){if(selectedCongIndex===null){alert('Preview a congregation first.');return;}await copyText(buildCongMessage(selectedCongIndex),true);}
-async function copyTemplateOnly(){await copyText(state.meta.messageTemplate||'',true);}
+async function copyCongMessage(index){selectedCongIndex=index;await copyRichText(buildCongMessage(index),true);previewCong(index);}
+async function copySelectedMessage(){if(selectedCongIndex===null){alert('Preview a congregation first.');return;}await copyRichText(buildCongMessage(selectedCongIndex),true);}
+async function copyTemplateOnly(){await copyRichText(state.meta.messageTemplate||'',true);}
 async function copyActiveAttendantsSummary(triggerEl){
   const lines=sortByName(state.attendants).filter(a=>a.active!==false)
     .map(a=>[String(a?.name||'').trim(),String(a?.firstName||'').trim()].filter(Boolean).join(' ')+', '+shortCong(a?.congregation||''))
     .filter(Boolean);
   if(!lines.length){alert('No active attendants.');return;}
   copyText(lines.join('\n'),true,triggerEl);
+}
+async function copyRichText(text,silent,triggerEl){
+  const plain=messageToPlain(text);
+  const html=`<div>${messageToHtml(text)}</div>`;
+  try{
+    if(navigator.clipboard&&window.ClipboardItem){
+      const item=new ClipboardItem({
+        'text/plain':new Blob([plain],{type:'text/plain'}),
+        'text/html':new Blob([html],{type:'text/html'})
+      });
+      await navigator.clipboard.write([item]);
+    }else{
+      const holder=document.createElement('div');
+      holder.contentEditable='true';holder.style.position='fixed';holder.style.left='-9999px';holder.innerHTML=html;
+      document.body.appendChild(holder);
+      const range=document.createRange();range.selectNodeContents(holder);
+      const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+      const ok=document.execCommand('copy');selection.removeAllRanges();holder.remove();
+      if(!ok)throw new Error('Rich copy failed');
+    }
+    if(triggerEl)showToast(triggerEl,'Copied ✓');if(!silent)flash('Copied with formatting');
+  }catch{
+    try{
+      await navigator.clipboard.writeText(plain);
+      if(triggerEl)showToast(triggerEl,'Copied ✓');if(!silent)flash('Copied as plain text');
+    }catch{alert('Copy failed.');}
+  }
 }
 async function copyText(text,silent,triggerEl){
   try{
