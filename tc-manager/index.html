@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#234f5d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager v3.0</title>
+<title>Team Captain Manager v2.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -196,6 +196,10 @@ a{color:inherit}
 .team-tab.active.t-auditorium .cnt{background:rgba(58,44,0,.18);color:#3a2c00}
 .team-tab.active.t-welcome{background:linear-gradient(135deg,#b158c9,#8e35a6)}
 .team-tab.active.t-other{background:linear-gradient(135deg,var(--accent),#4d8ba0)}
+.team-tab.t-all{font-weight:750}
+.team-tab.active.t-all{background:linear-gradient(135deg,#334155,#1e293b)}
+.team-tab.t-unassigned{border-style:dashed}
+.team-tab.active.t-unassigned{background:linear-gradient(135deg,#94a3b8,#64748b)}
 
 /* ── Toolbar ──────────────────────────────────────────── */
 .toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -267,6 +271,12 @@ tbody tr.flash{animation:flash 1.6s ease}
 }
 .wa-btn svg{width:16px;height:16px;fill:#fff}
 .wa-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(18,140,126,.32)}
+/* plain chat = classic WhatsApp green (no preset text) */
+.wa-btn.wa-plain{background:linear-gradient(135deg,var(--wa),var(--wa-deep))}
+/* template chat = teal accent + text-lines badge (message pre-filled) */
+.wa-btn.wa-tpl{background:linear-gradient(135deg,var(--accent),var(--accent-deep));box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.wa-btn.wa-tpl .tpl-badge{width:14px;height:14px;fill:none;margin-left:-2px}
+.wa-btn.wa-tpl:hover{box-shadow:0 6px 16px rgba(47,107,126,.34)}
 .no-wa{font-size:11px;color:var(--faint);margin-top:3px}
 
 .copy-btn{
@@ -408,7 +418,7 @@ tbody tr.flash{animation:flash 1.6s ease}
       </div>
     </div>
     <div class="top-right">
-      <span class="ver-badge">v3.0</span>
+      <span class="ver-badge">v2.0</span>
     </div>
   </div>
 </header>
@@ -447,7 +457,7 @@ tbody tr.flash{animation:flash 1.6s ease}
 
   <!-- Stats -->
   <section class="stats">
-    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="num" id="statCount">0</div><div class="lbl">In this team</div></div></div>
+    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="num" id="statCount">0</div><div class="lbl" id="statCountLbl">In this team</div></div></div>
     <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg></div><div><div class="num" id="statCongregations">0</div><div class="lbl">Congregations</div></div></div>
     <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8L12 2z"/></svg></div><div><div class="num" id="statElders">0</div><div class="lbl">Elders</div></div></div>
     <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="num" id="statMs">0</div><div class="lbl">Ministerial servants</div></div></div>
@@ -496,7 +506,7 @@ tbody tr.flash{animation:flash 1.6s ease}
   </div>
 
   <div class="footer">
-    <b>Team Captain Manager v3.0</b> &middot; merges Attendant Department Planner &amp; Personnel Master exports<br>
+    <b>Team Captain Manager v2.0</b> &middot; merges Attendant Department Planner &amp; Personnel Master exports<br>
     All data stays in this browser &middot; export JSON regularly for backup<br>
     Made with Love &copy;
   </div>
@@ -577,6 +587,8 @@ var TEAM_MAP = {
 };
 var TEAM_CLASS = { 'Lobby':'t-lobby','Cafeteria':'t-cafeteria','Auditorium':'t-auditorium','Welcome':'t-welcome' };
 function teamClass(t){ return TEAM_CLASS[t] || 't-other'; }
+var ALL_TEAM = '__ALL__';   // pseudo-tab: every contact
+var NO_TEAM  = '__NONE__';  // pseudo-tab: contacts with no team yet
 
 // ── State ──────────────────────────────────────────────────────────────────────
 var records = [];
@@ -1052,9 +1064,11 @@ function contactFirstName(rec){
   return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || 'Brother';
 }
 function buildChatMessage(rec){
+  var isReal = currentTeam && currentTeam !== ALL_TEAM && currentTeam !== NO_TEAM;
+  var teamName = isReal ? currentTeam : ((rec.teams && rec.teams[0]) || 'your assigned');
   return applyTemplate((elTemplate.value || '').trim() || defaultTemplateText(), {
     firstName: contactFirstName(rec),
-    team: currentTeam || (rec.teams && rec.teams[0]) || 'your assigned',
+    team: teamName,
     chatLink: (elChatLink.value || '').trim() || 'I will send you the link separately.',
     captainName: (elCaptain.value || '').trim() || 'your team captain'
   });
@@ -1120,18 +1134,30 @@ function makeVCard(rec){
 
 // ── WhatsApp glyph ────────────────────────────────────────────────────────────
 var WA_SVG = '<svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.53 0-3.03-.41-4.34-1.19l-.31-.18-3.12.82.83-3.04-.2-.32a8.19 8.19 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>';
+// small "lines of text" badge shown on the template-chat button so it is distinguishable at a glance
+var TPL_BADGE = '<svg class="tpl-badge" viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>';
 
 // ── Team bar ──────────────────────────────────────────────────────────────────
 function renderTeamBar(){
   var counts = {};
   TEAMS.forEach(function(t){ counts[t] = 0; });
-  records.forEach(function(r){ (r.teams || []).forEach(function(t){ if (counts[t] != null) counts[t]++; }); });
+  var unassigned = 0;
+  records.forEach(function(r){
+    var ts = r.teams || [];
+    if (!ts.length) unassigned++;
+    ts.forEach(function(t){ if (counts[t] != null) counts[t]++; });
+  });
 
-  elTeamBar.innerHTML = TEAMS.map(function(t){
-    var active = t === currentTeam;
-    return '<button class="team-tab ' + teamClass(t) + (active ? ' active' : '') + '" data-team="' + esc(t) + '">' +
-      esc(t) + '<span class="cnt">' + counts[t] + '</span></button>';
-  }).join('');
+  function tab(value, label, cls, count){
+    var active = value === currentTeam;
+    return '<button class="team-tab ' + cls + (active ? ' active' : '') + '" data-team="' + esc(value) + '">' +
+      esc(label) + '<span class="cnt">' + count + '</span></button>';
+  }
+
+  var html = tab(ALL_TEAM, 'All', 't-all', records.length);
+  html += TEAMS.map(function(t){ return tab(t, t, teamClass(t), counts[t]); }).join('');
+  html += tab(NO_TEAM, 'Unassigned', 't-unassigned', unassigned);
+  elTeamBar.innerHTML = html;
 
   Array.prototype.forEach.call(elTeamBar.querySelectorAll('.team-tab'), function(btn){
     btn.addEventListener('click', function(){ currentTeam = btn.dataset.team; render(); });
@@ -1142,7 +1168,11 @@ function renderTeamBar(){
 function filtered(){
   var q = elSearch.value.trim().toLowerCase();
   return records
-    .filter(function(r){ return (r.teams || []).indexOf(currentTeam) !== -1; })
+    .filter(function(r){
+      if (currentTeam === ALL_TEAM) return true;
+      if (currentTeam === NO_TEAM) return !(r.teams || []).length;
+      return (r.teams || []).indexOf(currentTeam) !== -1;
+    })
     .filter(function(r){
       if (!q) return true;
       var s = [r.displayName, r.congregation, r.emailJwpub, r.emailPersonal, r.mobile, getNote(r)].join(' ').toLowerCase();
@@ -1172,7 +1202,7 @@ function render(){
       ? '<button class="copy-btn copy-mobile" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbltxt">Copy</span></button>'
       : '';
     var mobCell = rec.hasWa
-      ? '<div class="mobile-line"><a class="wa-btn" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">' + WA_SVG + esc(rec.mobile) + '</a>' + copyMob + '</div>'
+      ? '<div class="mobile-line"><a class="wa-btn wa-plain" title="Open WhatsApp chat — no preset message" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">' + WA_SVG + esc(rec.mobile) + '</a>' + copyMob + '</div>'
       : '<div class="mobile-line">' + (rec.mobile ? esc(rec.mobile) : '<span class="dash">—</span>') + copyMob + '</div>' +
         (rec.mobile ? '<div class="no-wa">No WhatsApp</div>' : '');
 
@@ -1185,7 +1215,7 @@ function render(){
 
     var chatText = buildChatMessage(rec);
     var waChat = rec.hasWa
-      ? '<a class="wa-btn" style="justify-content:center" href="https://wa.me/' + rec.mobileDigits + '?text=' + encodeURIComponent(chatText) + '" target="_blank" rel="noopener">' + WA_SVG + 'Chat</a>'
+      ? '<a class="wa-btn wa-tpl" style="justify-content:center" title="Open WhatsApp with the ready-made message pre-filled" href="https://wa.me/' + rec.mobileDigits + '?text=' + encodeURIComponent(chatText) + '" target="_blank" rel="noopener">' + WA_SVG + TPL_BADGE + 'Chat + text</a>'
       : '';
     var copyTpl = '<button class="copy-btn copy-template" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M9 3h9a2 2 0 0 1 2 2v9M13 21H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2z"/></svg><span class="lbltxt">Copy text</span></button>';
     var vcf = '<button class="copy-btn vcf-btn" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span class="lbltxt">Contact</span></button>';
@@ -1239,6 +1269,9 @@ function updateStats(rows){
     if (isMS(r)) ms++;
   });
   $('statCount').textContent = rows.length;
+  var lbl = currentTeam === ALL_TEAM ? 'All contacts'
+          : currentTeam === NO_TEAM ? 'Unassigned' : 'In this team';
+  var le = $('statCountLbl'); if (le) le.textContent = lbl;
   $('statCongregations').textContent = Object.keys(congs).length;
   $('statElders').textContent = elders;
   $('statMs').textContent = ms;
