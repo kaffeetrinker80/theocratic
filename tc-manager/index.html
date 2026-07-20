@@ -3,455 +3,565 @@
 <head>
 <!-- Icons + Manifest -->
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" href="favicon.ico">
-
 <link rel="manifest" href="site.webmanifest">
-
-<meta name="theme-color" content="#172f4d">
-
+<meta name="theme-color" content="#234f5d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager v2.7</title>
+<title>Team Captain Manager v3.0</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-:root {
-  --bg: #fdfbf7;
-  --surface: #fff;
-  --text: #2c1810;
-  --muted: #76695c;
-  --accent: #d97706;
-  --accent-soft: #fef3e2;
-  --line: #e7ddd0;
-  --shadow: 0 2px 8px rgba(44,24,16,0.06);
-  --shadow-lg: 0 8px 24px rgba(44,24,16,0.12);
-  --primary: #1565c0;
-  --success: #16a34a;
-  --warn: #ef6c00;
-  --warn-soft: #fff3e0;
-  --lobby-bg: #fff3e0; --lobby-t: #7a3900; --lobby-b: #ffb74d;
-  --caf-bg:   #e8f5e9; --caf-t:   #1b5e20; --caf-b:   #a5d6a7;
-  --aud-bg:   #fffde7; --aud-t:   #5d4300; --aud-b:   #ffe082;
-  --wel-bg:   #f3e5f5; --wel-t:   #5e0072; --wel-b:   #ce93d8;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Source Sans 3', sans-serif;
-  line-height: 1.6;
-  color: var(--text);
-  background: var(--bg);
-}
-
-.wrap { max-width: 1600px; margin: 0 auto; padding: 20px; }
-
-.hero {
-  background: rgba(255,255,255,.97);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 20px 24px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow);
-}
-.hero-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+:root{
+  --bg:#f4f7f8;
+  --surface:#ffffff;
+  --surface-2:#f7fafb;
+  --ink:#15242b;
+  --muted:#647680;
+  --faint:#8a99a1;
+  --line:#e4eaed;
+  --line-strong:#cfd8dd;
+  --accent:#2f6b7e;
+  --accent-deep:#234f5d;
+  --accent-soft:#e6f0f3;
+  --good:#1f7a4d;
+  --good-soft:#e6f4ec;
+  --warn:#9a5b00;
+  --warn-soft:#fff3dd;
+  --danger:#b42318;
+  --danger-soft:#fdeceb;
+  --wa:#25d366;
+  --wa-deep:#128c7e;
+  --shadow:0 1px 2px rgba(21,36,43,.05), 0 8px 24px rgba(21,36,43,.06);
+  --shadow-lg:0 24px 60px rgba(21,36,43,.18);
+  --radius:16px;
+  --radius-sm:11px;
+  /* department colours */
+  --lobby-bg:#fff3e0; --lobby-t:#7a3900; --lobby-b:#ffb74d;
+  --caf-bg:#e8f5e9;   --caf-t:#1b5e20;   --caf-b:#a5d6a7;
+  --aud-bg:#fffde7;   --aud-t:#5d4300;   --aud-b:#ffe082;
+  --wel-bg:#f3e5f5;   --wel-t:#5e0072;   --wel-b:#ce93d8;
+  --oth-bg:#e7f0f3;   --oth-t:#234f5d;   --oth-b:#a9cdd8;
 }
 
-.captain-config {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(240px, 2fr);
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 420px at 100% -10%, rgba(47,107,126,.07), transparent 60%),
+    var(--bg);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
 }
-.config-field label {
-  display: block;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  color: var(--muted);
-  font-weight: 800;
-  margin-bottom: 5px;
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+
+.icon{width:16px;height:16px;display:block;flex:0 0 auto}
+.icon.stroke{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Topbar ──────────────────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid var(--line);
 }
-.config-field input,
-.config-field textarea {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  font-size: 14px;
-  background: #fff;
-  color: var(--text);
-  outline: none;
-  font-family: inherit;
+.topbar-inner{
+  max-width:1600px;margin:auto;padding:12px 22px;
+  display:flex;align-items:center;gap:14px;
 }
-.config-field textarea {
-  min-height: 128px;
-  resize: vertical;
-  line-height: 1.45;
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-mark{
+  width:40px;height:40px;border-radius:12px;flex:0 0 auto;
+  background:linear-gradient(150deg,var(--accent),#4d8ba0);
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 8px 20px rgba(47,107,126,.32);
 }
-.config-wide { grid-column: 1 / -1; }
-.template-toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
-.template-token { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; background:#f6efe6; color:#6b3a05; border:1px solid #ead8c4; border-radius:999px; padding:2px 7px; font-size:11px; }
-.config-field input:focus,
-.config-field textarea:focus {
-  border-color: #90caf9;
-  box-shadow: 0 0 0 3px rgba(21,101,192,.1);
+.brand-mark svg{width:22px;height:22px}
+.brand h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:18px;line-height:1.1;font-weight:700;letter-spacing:-.01em;
 }
-.template-hint {
-  grid-column: 1 / -1;
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: -4px;
+.brand p{font-size:12px;color:var(--muted);margin-top:1px}
+.brand p b{color:var(--accent-deep);font-weight:600}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ver-badge{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:12px;font-weight:600;letter-spacing:.02em;
+  padding:6px 12px;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent-deep);
+  border:1px solid #cfe1e7;white-space:nowrap;
 }
 
-h1 { font-size: 28px; font-weight: 700; color: var(--text); }
-.subtitle { color: var(--muted); font-size: 14px; margin-top: 6px; }
-.badge {
-  display: inline-block;
-  padding: 6px 14px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  border: 1px solid #f9d9a0;
-  white-space: nowrap;
+.wrap{max-width:1600px;margin:0 auto;padding:22px}
+
+/* ── Captain card ─────────────────────────────────────── */
+.captain-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px 20px;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.captain-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(var(--accent),#4d8ba0);
+}
+.cc-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.cc-head .eyebrow{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:11px;text-transform:uppercase;letter-spacing:.13em;
+  color:var(--accent);font-weight:600;
+}
+.cc-head .hint{font-size:12px;color:var(--muted)}
+.cc-grid{
+  display:grid;
+  grid-template-columns:minmax(200px,1fr) minmax(260px,1.3fr) minmax(280px,1.8fr);
+  gap:14px;
+}
+.field label{
+  display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted);font-weight:700;margin-bottom:6px;
+}
+.field input,.field textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--line-strong);
+  border-radius:var(--radius-sm);font-size:14px;background:var(--surface-2);
+  outline:none;transition:.15s ease;
+}
+.field textarea{min-height:118px;resize:vertical;line-height:1.5;font-size:13.5px}
+.field input:focus,.field textarea:focus{
+  border-color:#6f9dac;background:#fff;box-shadow:0 0 0 3px rgba(47,107,126,.13);
+}
+.tpl-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:9px}
+.tpl-toolbar .lbl{font-size:11px;color:var(--faint);font-weight:600}
+.token{
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  background:var(--accent-soft);color:var(--accent-deep);
+  border:1px solid #cfe1e7;border-radius:999px;padding:2px 8px;font-size:11px;
+}
+.link-reset{
+  margin-left:auto;font-size:12px;font-weight:600;color:var(--accent);
+  padding:4px 8px;border-radius:8px;
+}
+.link-reset:hover{background:var(--accent-soft)}
+
+/* ── Stats ────────────────────────────────────────────── */
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;
+}
+.stat{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:13px 16px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:12px;
+}
+.stat .num{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1;
+}
+.stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+.stat .glyph{
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--accent-soft);color:var(--accent);flex:0 0 auto;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+/* ── Team tabs (signature element) ────────────────────── */
+.teambar{
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;
+  scrollbar-width:thin;
 }
-.stat {
-  background: rgba(255,255,255,.97);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: var(--shadow);
+.teambar::-webkit-scrollbar{height:6px}
+.teambar::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:999px}
+.team-tab{
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;
+  border:1.5px solid var(--line-strong);background:#fff;color:var(--muted);
+  transition:.14s ease;flex:0 0 auto;
 }
-.stat-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  color: var(--muted);
-  font-weight: 700;
-  margin-bottom: 4px;
+.team-tab:hover{border-color:var(--accent);color:var(--accent-deep)}
+.team-tab .cnt{
+  font-size:11px;font-weight:700;min-width:20px;text-align:center;
+  padding:1px 6px;border-radius:999px;background:#eef3f5;color:var(--muted);
 }
-.stat-value { font-size: 26px; font-weight: 800; color: var(--text); }
+.team-tab.active{color:#fff;border-color:transparent;box-shadow:var(--shadow)}
+.team-tab.active .cnt{background:rgba(255,255,255,.28);color:#fff}
+.team-tab.active.t-lobby{background:linear-gradient(135deg,#f59e42,#d97706)}
+.team-tab.active.t-cafeteria{background:linear-gradient(135deg,#4caf6a,#2e7d46)}
+.team-tab.active.t-auditorium{background:linear-gradient(135deg,#e0b400,#a98600);color:#3a2c00}
+.team-tab.active.t-auditorium .cnt{background:rgba(58,44,0,.18);color:#3a2c00}
+.team-tab.active.t-welcome{background:linear-gradient(135deg,#b158c9,#8e35a6)}
+.team-tab.active.t-other{background:linear-gradient(135deg,var(--accent),#4d8ba0)}
 
-.toolbar {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: 16px;
+/* ── Toolbar ──────────────────────────────────────────── */
+.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.search-wrap{position:relative;flex:1;min-width:220px;max-width:440px}
+.search-wrap .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.search-wrap input{
+  width:100%;height:40px;padding:0 14px 0 38px;border:1px solid var(--line-strong);
+  border-radius:var(--radius-sm);background:var(--surface-2);outline:none;font-size:14px;
 }
-.toolbar select,
-.toolbar input[type="search"] {
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  font-size: 14px;
-  background: #fff;
-  color: var(--text);
-  outline: none;
-  font-family: inherit;
+.search-wrap input:focus{border-color:#6f9dac;background:#fff;box-shadow:0 0 0 3px rgba(47,107,126,.13)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:40px;padding:0 14px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:650;border:1px solid var(--line-strong);
+  background:#fff;color:var(--ink);transition:.14s ease;white-space:nowrap;
 }
-.toolbar input[type="search"] { min-width: 240px; flex: 1; }
-.toolbar select:focus,
-.toolbar input[type="search"]:focus {
-  border-color: #90caf9;
-  box-shadow: 0 0 0 3px rgba(21,101,192,.1);
+.btn:hover{border-color:#9db2bb;background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.ghost:hover{background:var(--accent-soft);color:var(--accent-deep)}
+.btn.danger{color:var(--danger);border-color:#f0bcb7;background:#fff}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn.sm{height:32px;padding:0 11px;font-size:12px;border-radius:9px}
+.toolbar-sp{flex:1}
+
+/* ── Table panel ─────────────────────────────────────── */
+.panel{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
 }
-
-button {
-  padding: 9px 14px;
-  border: 0;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: transform .08s, box-shadow .08s;
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+thead th{
+  position:sticky;top:0;background:var(--surface-2);color:#516069;
+  font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:750;
+  text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
 }
-button:hover { transform: translateY(-1px); }
+tbody td{padding:13px 14px;border-bottom:1px solid #eef2f4;vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,35%{background:#fff6da}100%{background:transparent}}
 
-.btn-secondary {
-  background: #eef3f8;
-  color: var(--text);
-  border: 1px solid var(--line);
+.name{font-weight:650;font-size:14px}
+.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.muted{color:var(--muted)}
+.dash{color:var(--faint)}
+
+.chip{
+  display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;
+  font-size:11px;font-weight:700;margin:2px 3px 2px 0;border:1.5px solid transparent;
 }
-.btn-danger {
-  background: #ffebee;
-  color: #c62828;
-  border: 1px solid #ef9a9a;
+.chip.t-lobby{background:var(--lobby-bg);color:var(--lobby-t);border-color:var(--lobby-b)}
+.chip.t-cafeteria{background:var(--caf-bg);color:var(--caf-t);border-color:var(--caf-b)}
+.chip.t-auditorium{background:var(--aud-bg);color:var(--aud-t);border-color:var(--aud-b)}
+.chip.t-welcome{background:var(--wel-bg);color:var(--wel-t);border-color:var(--wel-b)}
+.chip.t-other{background:var(--oth-bg);color:var(--oth-t);border-color:var(--oth-b)}
+.chip.remark{background:var(--warn-soft);color:var(--warn);border-color:#f0c877;font-size:11px;margin-top:8px}
+
+.mailto{color:var(--accent-deep);text-decoration:none;font-size:13px;word-break:break-word}
+.mailto:hover{text-decoration:underline}
+
+.mobile-line{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.wa-btn{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:10px;
+  background:linear-gradient(135deg,var(--wa),var(--wa-deep));color:#fff;
+  font-weight:600;font-size:13px;text-decoration:none;transition:.15s ease;
 }
-.btn-primary { background: var(--primary); color: #fff; }
+.wa-btn svg{width:16px;height:16px;fill:#fff}
+.wa-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(18,140,126,.32)}
+.no-wa{font-size:11px;color:var(--faint);margin-top:3px}
 
-.import-label {
-  display: inline-block;
-  padding: 9px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: transform .08s;
+.copy-btn{
+  display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:9px;
+  background:#fff;color:var(--accent-deep);border:1px solid var(--line-strong);
+  font-weight:650;font-size:12px;transition:.14s ease;
 }
-.import-label:hover { transform: translateY(-1px); }
-.import-label input { display: none; }
-.lbl-json { background: var(--primary); color: #fff; }
-.lbl-csv  { background: var(--success); color: #fff; }
+.copy-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.copy-btn.done{background:var(--good-soft);color:var(--good);border-color:#a9d9bf}
+.copy-btn svg{width:14px;height:14px}
 
-.panel {
-  background: rgba(255,255,255,.97);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
+.note-input{
+  width:100%;min-height:56px;padding:9px 11px;border:1px solid var(--line-strong);
+  border-radius:10px;font-size:13px;resize:vertical;background:var(--surface-2);outline:none;
 }
+.note-input:focus{border-color:#6f9dac;background:#fff;box-shadow:0 0 0 3px rgba(47,107,126,.12)}
 
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-thead { background: linear-gradient(135deg, #2c1810 0%, #3d2418 100%); color: #f5f1ec; }
-th {
-  padding: 12px 14px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  border-right: 1px solid rgba(255,255,255,.1);
-  white-space: nowrap;
+.action-col{display:flex;flex-direction:column;gap:6px;min-width:132px}
+
+.empty{padding:64px 20px;text-align:center;color:var(--muted);display:none}
+.empty.show{display:block}
+.empty-mark{
+  width:60px;height:60px;margin:0 auto 16px;border-radius:16px;
+  background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;
 }
-th:last-child { border-right: 0; }
-tbody tr { border-bottom: 1px solid var(--line); }
-tbody tr:last-child { border-bottom: 0; }
-tbody tr:hover { background: #fdf8f2; }
-td { padding: 12px 14px; vertical-align: top; }
+.empty h3{font-size:17px;margin-bottom:6px;color:var(--ink)}
 
-.name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
-.muted { font-size: 12px; color: var(--muted); }
-
-.team-chip {
-  display: inline-block;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  margin: 2px;
-  border: 1.5px solid transparent;
+.footer{
+  text-align:center;margin-top:28px;padding-top:18px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:12px;line-height:1.7;
 }
-.chip-lobby      { background: var(--lobby-bg); color: var(--lobby-t); border-color: var(--lobby-b); }
-.chip-cafeteria  { background: var(--caf-bg);   color: var(--caf-t);   border-color: var(--caf-b); }
-.chip-auditorium { background: var(--aud-bg);   color: var(--aud-t);   border-color: var(--aud-b); }
-.chip-welcome    { background: var(--wel-bg);   color: var(--wel-t);   border-color: var(--wel-b); }
-.chip-other      { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
-.chip-remark     { background: var(--warn-soft); color: var(--warn); border: 1px solid #ffb74d; font-size: 11px; padding: 3px 8px; border-radius: 999px; }
+.footer b{color:var(--accent-deep)}
 
-.wa-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 11px;
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  color: #fff;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  transition: all .15s;
-  white-space: nowrap;
+/* ── Modal ────────────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;z-index:80;background:rgba(15,30,37,.42);
+  display:none;align-items:center;justify-content:center;padding:18px;
 }
-.wa-link:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,211,102,.3); }
-
-.copy-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 6px 10px;
-  background: #fff;
-  color: var(--primary);
-  border: 1px solid #bbdefb;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 12px;
-  white-space: nowrap;
+.overlay.show{display:flex}
+.modal{
+  width:min(640px,100%);max-height:min(90vh,860px);background:#fff;
+  border-radius:18px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;
 }
-.copy-btn:hover { box-shadow: 0 3px 10px rgba(21,101,192,.12); }
-.copy-btn.copied { background: #e8f5e9; color: #1b5e20; border-color: #a5d6a7; }
-.template-btn { background: #fff8e1; color: #8a4b00; border-color: #ffcc80; }
-.mobile-line { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-
-
-.mailto-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 13px;
-  word-break: break-all;
+.modal.wide{width:min(820px,100%)}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:12px}
+.modal-head .mh-ic{
+  width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--accent);
+  display:grid;place-items:center;flex:0 0 auto;
 }
-.mailto-link:hover { text-decoration: underline; }
+.modal-head h2{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700}
+.modal-head p{font-size:12.5px;color:var(--muted);margin-top:2px}
+.modal-close{margin-left:auto;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--muted)}
+.modal-close:hover{background:var(--surface-2);color:var(--ink)}
+.modal-body{padding:20px;overflow:auto}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px;background:var(--surface-2)}
 
-.note-input {
-  width: 100%;
-  min-height: 54px;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-size: 13px;
-  font-family: inherit;
-  resize: vertical;
-  background: #fff;
+.dropzone{
+  border:2px dashed var(--line-strong);border-radius:14px;padding:34px 20px;text-align:center;
+  transition:.15s ease;background:var(--surface-2);
 }
-.note-input:focus {
-  border-color: #90caf9;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(21,101,192,.1);
+.dropzone.drag{border-color:var(--accent);background:var(--accent-soft)}
+.dropzone .dz-ic{
+  width:52px;height:52px;margin:0 auto 12px;border-radius:14px;
+  background:#fff;color:var(--accent);display:grid;place-items:center;border:1px solid var(--line);
 }
+.dropzone h4{font-size:15px;margin-bottom:5px}
+.dropzone p{font-size:12.5px;color:var(--muted);margin-bottom:14px}
 
-.row-tools { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
-.toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; color: var(--muted); user-select: none; }
-.toggle input { cursor: pointer; width: 15px; height: 15px; }
+.preview-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.pv-card{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:12px;text-align:center}
+.pv-card strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.pv-card span{font-size:11px;color:var(--muted)}
 
-.action-col { display: flex; flex-direction: column; gap: 6px; }
-.btn-sm { padding: 6px 12px; font-size: 12px; white-space: nowrap; }
+.info-box{background:var(--accent-soft);border:1px solid #cfe1e7;border-radius:11px;padding:11px 13px;font-size:12.5px;color:var(--accent-deep);margin-bottom:12px}
+.warn-box{background:var(--warn-soft);border:1px solid #f0c877;border-radius:11px;padding:11px 13px;font-size:12.5px;color:var(--warn);margin-bottom:12px}
 
-.empty-state { padding: 60px 20px; text-align: center; color: var(--muted); }
-.empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
-
-.footer {
-  text-align: center;
-  margin-top: 32px;
-  padding-top: 20px;
-  border-top: 2px solid var(--line);
-  color: var(--muted);
-  font-size: 12px;
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px}
+.opt-list{display:flex;flex-direction:column;gap:8px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border:1px solid var(--line-strong);
+  border-radius:11px;cursor:pointer;transition:.14s ease;background:#fff;
 }
+.opt:hover{border-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt input{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);flex:0 0 auto}
+.opt strong{font-size:13.5px;font-weight:650;display:flex;align-items:center;gap:6px}
+.opt span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.pill-rec{font-size:10px;font-weight:700;background:var(--good-soft);color:var(--good);border-radius:999px;padding:2px 7px}
 
-@media (max-width: 1200px) {
-  .stats { grid-template-columns: repeat(2, 1fr); }
-  table { font-size: 13px; }
-  th, td { padding: 10px 12px; }
+.mini-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.mini-table th{text-align:left;color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:6px 8px;border-bottom:1px solid var(--line)}
+.mini-table td{padding:7px 8px;border-bottom:1px solid #eef2f4}
+
+.dup-group{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.dup-group h4{background:var(--surface-2);border-bottom:1px solid var(--line);padding:9px 12px;font-size:12px;font-weight:700}
+.dup-body{padding:11px 12px}
+
+/* ── Toast ────────────────────────────────────────────── */
+.toast-wrap{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:120;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{
+  display:flex;align-items:center;gap:9px;background:var(--ink);color:#fff;
+  padding:11px 16px;border-radius:12px;font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-lg);animation:rise .25s ease;
 }
-@media (max-width: 760px) {
-  .wrap { padding: 12px; }
-  .captain-config { grid-template-columns: 1fr; }
-  h1 { font-size: 22px; }
-  .toolbar { flex-direction: column; align-items: stretch; }
-  .toolbar input[type="search"] { min-width: auto; }
-  .stats { grid-template-columns: 1fr 1fr; }
-  .panel { overflow-x: auto; }
-  table { min-width: 900px; }
+.toast svg{width:17px;height:17px}
+.toast.good{background:#1f6b47}
+.toast.warn{background:#8a5200}
+.toast.bad{background:#8f2018}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:1120px){
+  .cc-grid{grid-template-columns:1fr 1fr}
+  .cc-grid .field.tpl{grid-column:1/-1}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .table-scroll{overflow-x:auto}
+  table{min-width:940px}
+}
+@media(max-width:680px){
+  .wrap{padding:14px}
+  .topbar-inner{padding:11px 14px}
+  .cc-grid{grid-template-columns:1fr}
+  .brand p{display:none}
+  .preview-cards{grid-template-columns:1fr 1fr}
+  .toolbar-sp{display:none}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="hero">
-    <div class="hero-top">
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" class="stroke" style="stroke:#fff"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 3l1.4 2.8L21.5 6l-2 2 .5 3-2.9-1.5L14.2 11l.5-3-2-2 3.1-.2L17 3z"/></svg>
+      </div>
       <div>
         <h1>Team Captain Manager</h1>
-        <div class="subtitle">Quick access to attendant contacts &ndash; compatible with Attendant Department Planner v2.4 and later</div>
+        <p>Your team roster &amp; contacts &middot; <b>merges</b> planner &amp; personnel exports</p>
       </div>
-      <span class="badge">v2.7</span>
     </div>
-    <div class="captain-config">
-      <div class="config-field">
-        <label for="captainName">Who am I? / Team captain name</label>
-        <input id="captainName" type="text" placeholder="e.g. Your Name" autocomplete="name">
+    <div class="top-right">
+      <span class="ver-badge">v3.0</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Captain card -->
+  <section class="captain-card">
+    <div class="cc-head">
+      <span class="eyebrow">Captain setup</span>
+      <span class="hint">These details fill your WhatsApp welcome message.</span>
+    </div>
+    <div class="cc-grid">
+      <div class="field">
+        <label for="captainName">Who am I? (captain name)</label>
+        <input id="captainName" type="text" placeholder="e.g. Marco" autocomplete="name">
       </div>
-      <div class="config-field">
+      <div class="field">
         <label for="teamChatLink">WhatsApp team chat link</label>
         <input id="teamChatLink" type="url" placeholder="https://chat.whatsapp.com/...">
       </div>
-      <div class="config-field config-wide">
-        <label for="messageTemplate">Mini chat template</label>
+      <div class="field tpl">
+        <label for="messageTemplate">Welcome message template</label>
         <textarea id="messageTemplate" spellcheck="true"></textarea>
-        <div class="template-toolbar">
-          <span class="muted">Placeholders:</span>
-          <span class="template-token">{firstName}</span>
-          <span class="template-token">{team}</span>
-          <span class="template-token">{chatLink}</span>
-          <span class="template-token">{captainName}</span>
-          <button class="copy-btn btn-sm" type="button" id="resetTemplateBtn">Reset default text</button>
+        <div class="tpl-toolbar">
+          <span class="lbl">Placeholders</span>
+          <span class="token">{firstName}</span>
+          <span class="token">{team}</span>
+          <span class="token">{chatLink}</span>
+          <span class="token">{captainName}</span>
+          <button class="link-reset" type="button" id="resetTemplateBtn">Reset to default</button>
         </div>
       </div>
-      <div class="template-hint">The Chat button and Copy text button use this template with the selected team, contact first name, your captain name, and the team chat link.</div>
     </div>
-  </div>
+  </section>
 
-  <div class="stats">
-    <div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="statCount">0</div></div>
-    <div class="stat"><div class="stat-label">Congregations</div><div class="stat-value" id="statCongregations">0</div></div>
-    <div class="stat"><div class="stat-label">Elders</div><div class="stat-value" id="statElders">0</div></div>
-    <div class="stat"><div class="stat-label">MS</div><div class="stat-value" id="statMs">0</div></div>
-  </div>
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="num" id="statCount">0</div><div class="lbl">In this team</div></div></div>
+    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg></div><div><div class="num" id="statCongregations">0</div><div class="lbl">Congregations</div></div></div>
+    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8L12 2z"/></svg></div><div><div class="num" id="statElders">0</div><div class="lbl">Elders</div></div></div>
+    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="num" id="statMs">0</div><div class="lbl">Ministerial servants</div></div></div>
+  </section>
 
+  <!-- Team tabs -->
+  <nav class="teambar" id="teamBar" aria-label="Teams"></nav>
+
+  <!-- Toolbar -->
   <div class="toolbar">
-    <select id="teamSelect">
-      <option value="A/V">A/V</option>
-      <option value="Auditorium">Auditorium</option>
-      <option value="Baptism">Baptism</option>
-      <option value="Cafeteria">Cafeteria</option>
-      <option value="Cleaning">Cleaning</option>
-      <option value="Lobby" selected>Lobby</option>
-      <option value="Parking">Parking</option>
-      <option value="Safety">Safety</option>
-      <option value="Stage">Stage</option>
-      <option value="Welcome">Welcome</option>
-    </select>
-    <input type="search" id="searchInput" placeholder="Search name, congregation, email, mobile, notes...">
-    <label class="import-label lbl-json">Import JSON<input type="file" id="jsonInput" accept=".json"></label>
-    <label class="import-label lbl-csv">Import CSV<input type="file" id="csvInput" accept=".csv"></label>
-    <button class="btn-secondary" id="jsonBtn">Export JSON</button>
-    <button class="btn-danger" id="resetBtn">Reset Data</button>
+    <div class="search-wrap">
+      <svg class="icon stroke" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="searchInput" placeholder="Search name, congregation, email, mobile, notes…">
+    </div>
+    <div class="toolbar-sp"></div>
+    <button class="btn primary" id="importBtn"><svg class="icon stroke" viewBox="0 0 24 24" style="stroke:#fff"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Import &amp; merge</button>
+    <button class="btn" id="dupBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/><rect x="8" y="8" width="12" height="12" rx="2"/></svg>Find duplicates</button>
+    <button class="btn" id="exportBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>Export JSON</button>
+    <button class="btn danger" id="resetBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg>Reset</button>
   </div>
 
+  <!-- Table -->
   <div class="panel">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:190px">Name</th>
-          <th style="width:150px">Congregation</th>
-          <th style="width:160px">Teams</th>
-          <th style="width:185px">JWPub Email</th>
-          <th style="width:185px">Personal Email</th>
-          <th style="width:165px">Mobile / WhatsApp</th>
-          <th>Captain Notes</th>
-          <th style="width:130px">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-    <div id="empty" class="empty-state">
-      <div class="empty-icon">📋</div>
-      <strong>No attendants found for this team</strong>
-      <div class="muted" style="margin-top:6px">Import a JSON or CSV export from Attendant Department Planner v2.4</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:200px">Name</th>
+            <th style="width:150px">Congregation</th>
+            <th style="width:165px">Teams</th>
+            <th style="width:190px">JW email</th>
+            <th style="width:190px">Private email</th>
+            <th style="width:170px">Mobile / WhatsApp</th>
+            <th>Captain notes</th>
+            <th style="width:150px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="empty" class="empty">
+      <div class="empty-mark"><svg class="icon stroke" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M18 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <h3>No one in this team yet</h3>
+      <div class="muted">Pick another team above, or use <b>Import &amp; merge</b> to load a planner or personnel export.</div>
     </div>
   </div>
 
   <div class="footer">
-    <strong>Team Captain Manager v2.7</strong> &nbsp;&middot;&nbsp; Compatible with Attendant Department Planner v2.4 and later<br>
-    All data stored locally in browser &nbsp;&middot;&nbsp; Export JSON regularly for backup &nbsp;&middot;&nbsp; Team stats, copy numbers and editable mini chat templates
+    <b>Team Captain Manager v3.0</b> &middot; merges Attendant Department Planner &amp; Personnel Master exports<br>
+    All data stays in this browser &middot; export JSON regularly for backup<br>
+    Made with Love &copy;
   </div>
 
 </div>
+
+<!-- ── Import modal ── -->
+<div class="overlay" id="importOverlay">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div class="mh-ic"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+      <div><h2>Import &amp; merge contacts</h2><p>Load one or more JSON/CSV files. Different field names are matched automatically.</p></div>
+      <button class="modal-close" data-close="importOverlay"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="dropzone" id="dropzone">
+        <div class="dz-ic"><svg class="icon stroke" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+        <h4>Drop files here</h4>
+        <p>JSON from Attendant Planner or Personnel Master · CSV also supported · multiple files OK</p>
+        <button class="btn primary" id="chooseFilesBtn" type="button">Choose files</button>
+        <input type="file" id="fileInput" accept=".json,.csv" multiple style="display:none">
+      </div>
+      <div id="importPreview" style="display:none"></div>
+    </div>
+    <div class="modal-foot" id="importFoot" style="display:none">
+      <button class="btn ghost" id="backImportBtn">Back</button>
+      <button class="btn primary" id="applyImportBtn">Apply import</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Duplicates modal ── -->
+<div class="overlay" id="dupOverlay">
+  <div class="modal wide">
+    <div class="modal-head">
+      <div class="mh-ic"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/><rect x="8" y="8" width="12" height="12" rx="2"/></svg></div>
+      <div><h2>Possible duplicates</h2><p>Choose which record to keep. Empty fields are filled from the others; teams are combined.</p></div>
+      <button class="modal-close" data-close="dupOverlay"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body" id="dupBody"></div>
+    <div class="modal-foot"><button class="btn ghost" data-close="dupOverlay">Close</button></div>
+  </div>
+</div>
+
+<!-- ── Confirm modal ── -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal" style="width:min(440px,100%)">
+    <div class="modal-head">
+      <div class="mh-ic" style="background:var(--danger-soft);color:var(--danger)"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+      <div><h2 id="confirmTitle">Are you sure?</h2><p id="confirmText"></p></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="confirmCancel">Cancel</button>
+      <button class="btn danger" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
-// ── Keys ──────────────────────────────────────────────────────────────────────
+(function(){
+'use strict';
+
+// ── localStorage keys (kept from v2.x so existing data survives) ───────────────
 var STORE_KEY    = 'teamCaptainContacts_v2_3';
 var NOTES_KEY    = 'teamCaptainNotes_v2_3';
 var CHILDREN_KEY = 'teamCaptainChildren_v2_3';
@@ -459,558 +569,751 @@ var CAPTAIN_KEY  = 'teamCaptainCaptainName_v2_4';
 var CHAT_KEY     = 'teamCaptainChatLink_v2_4';
 var TEMPLATE_KEY = 'teamCaptainMessageTemplate_v2_5';
 
-// ── State ─────────────────────────────────────────────────────────────────────
+var TEAMS = ['A/V','Auditorium','Baptism','Cafeteria','Cleaning','Lobby','Parking','Safety','Stage','Welcome'];
+var TEAM_MAP = {
+  lobby:'Lobby', cafeteria:'Cafeteria', auditorium:'Auditorium', welcome:'Welcome',
+  av:'A/V', 'a/v':'A/V', stage:'Stage', baptism:'Baptism', parking:'Parking',
+  cleaning:'Cleaning', safety:'Safety'
+};
+var TEAM_CLASS = { 'Lobby':'t-lobby','Cafeteria':'t-cafeteria','Auditorium':'t-auditorium','Welcome':'t-welcome' };
+function teamClass(t){ return TEAM_CLASS[t] || 't-other'; }
+
+// ── State ──────────────────────────────────────────────────────────────────────
 var records = [];
+var currentTeam = 'Lobby';
+var pendingImport = null;   // { list:[normalized], files:[names], readCount, newCount, updateCount, internalDup }
+var confirmAction = null;
 
-// ── DOM ───────────────────────────────────────────────────────────────────────
-var elTeamSel  = document.getElementById('teamSelect');
-var elSearch   = document.getElementById('searchInput');
-var elCaptain  = document.getElementById('captainName');
-var elChatLink = document.getElementById('teamChatLink');
-var elTemplate = document.getElementById('messageTemplate');
-var elResetTemplate = document.getElementById('resetTemplateBtn');
-var elJsonIn   = document.getElementById('jsonInput');
-var elCsvIn    = document.getElementById('csvInput');
-var elJsonBtn  = document.getElementById('jsonBtn');
-var elReset    = document.getElementById('resetBtn');
-var elRows     = document.getElementById('rows');
-var elEmpty    = document.getElementById('empty');
-var elSTotal   = document.getElementById('statCount');
-var elSCong    = document.getElementById('statCongregations');
-var elSElders  = document.getElementById('statElders');
-var elSMs      = document.getElementById('statMs');
+// ── DOM ────────────────────────────────────────────────────────────────────────
+var $ = function(id){ return document.getElementById(id); };
+var elSearch   = $('searchInput');
+var elCaptain  = $('captainName');
+var elChatLink = $('teamChatLink');
+var elTemplate = $('messageTemplate');
+var elRows     = $('rows');
+var elEmpty    = $('empty');
+var elTeamBar  = $('teamBar');
 
-// ── Storage helpers ───────────────────────────────────────────────────────────
-function storeGet(key) {
-  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return null; }
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-function storeSet(key, val) {
-  localStorage.setItem(key, JSON.stringify(val));
-}
+function clean(v){ return String(v==null?'':v).trim(); }
+function nonEmpty(v){ return !(v===''||v==null); }
+function normTxt(v){ return clean(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9@+]/g,''); }
+function normPhone(v){ return clean(v).replace(/\D/g,'').replace(/^00/,''); }
+function normKey(k){ return String(k==null?'':k).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''); }
+function today(){ return new Date().toISOString().slice(0,10); }
 
-function loadRecords()  { return storeGet(STORE_KEY) || []; }
-function saveRecords()  { storeSet(STORE_KEY, records); }
-function getNoteMap()   { return storeGet(NOTES_KEY)    || {}; }
-function getKidsMap()   { return storeGet(CHILDREN_KEY) || {}; }
+function storeGet(key){ try{ return JSON.parse(localStorage.getItem(key)||'null'); }catch(e){ return null; } }
+function storeSet(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+function loadRecords(){ return (storeGet(STORE_KEY)||[]).map(normalize); }
+function saveRecords(){ storeSet(STORE_KEY, records); }
+function getNoteMap(){ return storeGet(NOTES_KEY) || {}; }
 
-// ── Per-record key (for notes/children maps) ──────────────────────────────────
-function rKey(r) { return r.id + '|' + r.lastName + '|' + r.congregation; }
-
-function getNote(r) {
-  var map = getNoteMap();
-  var v   = map[rKey(r)];
+function rKey(r){ return r.id + '|' + r.lastName + '|' + r.congregation; }
+function getNote(r){
+  var v = getNoteMap()[rKey(r)];
   return (typeof v === 'string') ? v : (r.remarks || '');
 }
 
-function getKids(r) {
-  var map = getKidsMap();
-  var v   = map[rKey(r)];
-  return (typeof v === 'boolean') ? v : !!r.children;
+function toast(msg, type){
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type||'');
+  t.innerHTML = '<svg class="icon stroke" style="stroke:#fff" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg><div>' + esc(msg) + '</div>';
+  $('toastWrap').appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3400);
+}
+function openModal(id){ $(id).classList.add('show'); }
+function closeModal(id){ $(id).classList.remove('show'); }
+function confirmDialog(title, text, action, okLabel){
+  $('confirmTitle').textContent = title;
+  $('confirmText').textContent = text;
+  $('confirmOk').textContent = okLabel || 'Confirm';
+  confirmAction = action;
+  openModal('confirmOverlay');
 }
 
-// ── Normalize one attendant from Attendant Planner JSON ───────────────────────
-var TEAM_MAP = {
-  lobby:'Lobby', cafeteria:'Cafeteria', auditorium:'Auditorium',
-  welcome:'Welcome', av:'A/V', stage:'Stage', baptism:'Baptism',
-  parking:'Parking', cleaning:'Cleaning', safety:'Safety'
+// ── Field aliasing: map ANY incoming record to canonical team-captain fields ────
+// Rules requested: JW-email stays JW (however named); the rest of the emails =
+// private; phone == mobile; remarks == notes.
+var ALIAS = {
+  id:          ['id','personid','recordid','uid'],
+  lastName:    ['lastname','name','surname','familyname','nachname'],
+  firstName:   ['firstname','first','givenname','vorname'],
+  congregation:['congregation','cong','group','versammlung','gruppe'],
+  privilege:   ['privilege','privileg','role','amt','appointment','function','ernennung','title'],
+  teams:       ['teams','team'],
+  children:    ['children','kids','kinder','haskids'],
+  remarks:     ['remarks','notes','note','flags','bemerkung','bemerkungen','anmerkung','anmerkungen','comment','comments']
 };
 
-function normalize(a) {
-  var rawTeams = Array.isArray(a.teams) ? a.teams : [];
-  var teams = sortedTeams(rawTeams.map(function(t) { return TEAM_MAP[t] || t; }));
+function aliasRecord(raw){
+  var src = {};
+  Object.keys(raw||{}).forEach(function(k){ src[k] = { norm: normKey(k), val: raw[k] }; });
+  var consumed = {};
+  var out = { id:'', lastName:'', firstName:'', congregation:'', privilege:'',
+              teams:[], children:false, remarks:'', emailJwpub:'', emailPersonal:'', mobile:'' };
 
-  var mob   = String(a.mobile || '').trim();
-  var digits = mob.replace(/\D/g, '');
+  // 1) exact-name aliases
+  Object.keys(ALIAS).forEach(function(target){
+    var list = ALIAS[target];
+    for (var k in src){
+      if (consumed[k]) continue;
+      if (list.indexOf(src[k].norm) !== -1){ out[target] = src[k].val; consumed[k] = true; break; }
+    }
+  });
 
+  // 2) JW email — any remaining key containing "jw"
+  for (var k in src){
+    if (consumed[k]) continue;
+    var n = src[k].norm;
+    if (n.indexOf('jw') !== -1 && (n.indexOf('mail') !== -1 || n === 'jw' || n === 'jwpub')){
+      if (!nonEmpty(out.emailJwpub)) out.emailJwpub = src[k].val;
+      consumed[k] = true;
+    }
+  }
+  // 3) private / personal email — any remaining mail-ish key
+  for (var k in src){
+    if (consumed[k]) continue;
+    var n = src[k].norm;
+    if (n.indexOf('mail') !== -1 || n.indexOf('email') !== -1){
+      if (!nonEmpty(out.emailPersonal)) out.emailPersonal = src[k].val;
+      consumed[k] = true;
+    }
+  }
+  // 4) mobile / phone — any remaining phone-ish key
+  for (var k in src){
+    if (consumed[k]) continue;
+    var n = src[k].norm;
+    if (n.indexOf('mobil') !== -1 || n.indexOf('phone') !== -1 || n === 'tel' ||
+        n.indexOf('telefon') !== -1 || n.indexOf('handy') !== -1 || n.indexOf('cell') !== -1 || n === 'number'){
+      if (!nonEmpty(out.mobile)) out.mobile = src[k].val;
+      consumed[k] = true;
+    }
+  }
+  // 5) preserve everything else (congType, birthDate, pioneer, dataUpdated, …)
+  var extra = {};
+  for (var k in src){
+    if (consumed[k]) continue;
+    if (!src[k].norm) continue;
+    if (k === 'displayName' || k === 'mobileDigits' || k === 'hasWa' || k === 'extra') continue;
+    extra[k] = src[k].val;
+  }
+  out.__extra = extra;
+  return out;
+}
+
+function toTeams(value){
+  var arr = Array.isArray(value)
+    ? value
+    : (typeof value === 'string' && value ? value.split(/[|\/,;]+/) : []);
+  return sortedTeams(arr.map(function(t){
+    t = clean(t);
+    return TEAM_MAP[t.toLowerCase()] || t;
+  }).filter(Boolean));
+}
+function truthy(v){
+  if (v === true) return true;
+  var s = String(v).toLowerCase();
+  return s === 'true' || s === 'yes' || s === '1' || s === 'ja';
+}
+
+function normalize(raw){
+  var a = aliasRecord(raw);
+  var mob = clean(a.mobile);
+  var digits = mob.replace(/\D/g,'');
   return {
-    id:           String(a.id || ''),
-    lastName:     String(a.name || ''),
-    firstName:    String(a.firstName || ''),
-    displayName:  [a.name, a.firstName].filter(Boolean).join(', ') || '(no name)',
-    congregation: String(a.congregation || ''),
-    teams:        teams,
-    privilege:    String(a.privilege || ''),
-    emailJwpub:   String(a.jwpub || ''),
-    emailPersonal:String(a.email || ''),
-    mobile:       mob,
-    mobileDigits: digits,
-    hasWa:        digits.length >= 10,
-    children:     !!a.children,
-    remarks:      String(a.remarks || '')
+    id:            clean(a.id),
+    lastName:      clean(a.lastName),
+    firstName:     clean(a.firstName),
+    displayName:   [clean(a.lastName), clean(a.firstName)].filter(Boolean).join(', ') || '(no name)',
+    congregation:  clean(a.congregation),
+    teams:         toTeams(a.teams),
+    privilege:     clean(a.privilege),
+    emailJwpub:    clean(a.emailJwpub),
+    emailPersonal: clean(a.emailPersonal),
+    mobile:        mob,
+    mobileDigits:  digits,
+    hasWa:         digits.length >= 10,
+    children:      truthy(a.children),
+    remarks:       clean(a.remarks),
+    extra:         a.__extra || {}
   };
 }
 
-// ── Filter ────────────────────────────────────────────────────────────────────
-function filtered() {
-  var team = elTeamSel.value;
-  var q    = elSearch.value.trim().toLowerCase();
-
-  return records
-    .filter(function(r) { return r.teams.indexOf(team) !== -1; })
-    .filter(function(r) {
-      if (!q) return true;
-      var s = [r.displayName, r.congregation, r.emailJwpub,
-               r.emailPersonal, r.mobile, getNote(r)].join(' ').toLowerCase();
-      return s.indexOf(q) !== -1;
-    })
-    .sort(function(a, b) {
-      var n = a.lastName.localeCompare(b.lastName, 'de');
-      return n !== 0 ? n : a.firstName.localeCompare(b.firstName, 'de');
-    });
-}
-
-// ── HTML helpers ──────────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function sortedTeams(list) {
-  return (Array.isArray(list) ? list.slice() : []).sort(function(a, b) {
-    return String(a).localeCompare(String(b), 'de', { sensitivity: 'base' });
+function sortedTeams(list){
+  return (Array.isArray(list) ? list.slice() : []).sort(function(a,b){
+    return String(a).localeCompare(String(b), 'en', { sensitivity:'base' });
   });
 }
 
-function contactFirstName(rec) {
-  return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || 'Brother';
+// ── Duplicate detection & merge (the "merge master" core) ─────────────────────
+function scoreMatch(a, b){
+  var score = 0, reasons = [];
+  var aid = normTxt(a.id), bid = normTxt(b.id);
+  if (aid && bid && aid === bid){ score += 100; reasons.push('same ID'); }
+  var aj = normTxt(a.emailJwpub), bj = normTxt(b.emailJwpub);
+  if (aj && bj && aj === bj){ score += 90; reasons.push('same JW email'); }
+  var ap = normTxt(a.emailPersonal), bp = normTxt(b.emailPersonal);
+  if (ap && bp && ap === bp){ score += 80; reasons.push('same private email'); }
+  var at = a.mobileDigits, bt = b.mobileDigits;
+  if (at && bt && at.length >= 7 && at === bt){ score += 70; reasons.push('same mobile'); }
+  var an = normTxt(a.lastName + '|' + a.firstName), bn = normTxt(b.lastName + '|' + b.firstName);
+  var ac = normTxt(a.congregation), bc = normTxt(b.congregation);
+  if (an && an === bn && ac && ac === bc){ score += 65; reasons.push('same name & congregation'); }
+  else if (an && an === bn){ score += 35; reasons.push('same name'); }
+  return { score:score, reasons:reasons };
 }
 
-function privilegeText(rec) {
-  return String(rec.privilege || '').trim().toLowerCase();
+function bestMatchIndex(inc, pool){
+  var best = -1, bestScore = 0;
+  for (var i = 0; i < pool.length; i++){
+    var s = scoreMatch(inc, pool[i]).score;
+    if (s >= 65 && s > bestScore){ bestScore = s; best = i; }
+  }
+  return best;
 }
 
-function isElder(rec) {
-  var p = privilegeText(rec);
-  return /(^|[^a-z])(elder|ältester|altester)([^a-z]|$)/i.test(p);
+function unionTeams(a, b){
+  var seen = {}, out = [];
+  a.concat(b).forEach(function(t){ var k = t.toLowerCase(); if (!seen[k]){ seen[k] = 1; out.push(t); } });
+  return sortedTeams(out);
 }
 
-function isMinisterialServant(rec) {
-  var p = privilegeText(rec);
-  return /ministerial\s*servant|dienstamtgehilfe|ms/i.test(p);
+function mergeRecords(cur, inc, strategy){
+  var out = normalize(cur);            // clone via normalize
+  var curDate = Date.parse((cur.extra && cur.extra.dataUpdated) || '') || 0;
+  var incDate = Date.parse((inc.extra && inc.extra.dataUpdated) || '') || 0;
+  var scalar = ['lastName','firstName','congregation','privilege','emailJwpub','emailPersonal','mobile','remarks'];
+
+  scalar.forEach(function(f){
+    var c = cur[f], i = inc[f];
+    if (strategy === 'overwrite'){ if (nonEmpty(i)) out[f] = i; }
+    else if (strategy === 'newest'){
+      if (!nonEmpty(c) && nonEmpty(i)) out[f] = i;
+      else if (nonEmpty(i) && incDate > curDate) out[f] = i;
+    } else { // fill
+      if (!nonEmpty(c) && nonEmpty(i)) out[f] = i;
+    }
+  });
+
+  out.teams    = unionTeams(cur.teams || [], inc.teams || []);
+  out.children = cur.children || inc.children;
+  out.id       = cur.id || inc.id;
+  // merge preserved extras (fill missing)
+  var extra = {};
+  Object.keys(inc.extra || {}).forEach(function(k){ extra[k] = inc.extra[k]; });
+  Object.keys(cur.extra || {}).forEach(function(k){ if (nonEmpty(cur.extra[k]) || !nonEmpty(extra[k])) extra[k] = cur.extra[k]; });
+  out.extra = extra;
+
+  // recompute derived fields
+  out.displayName  = [out.lastName, out.firstName].filter(Boolean).join(', ') || '(no name)';
+  out.mobileDigits = String(out.mobile).replace(/\D/g,'');
+  out.hasWa        = out.mobileDigits.length >= 10;
+  return out;
 }
 
-function defaultTemplateText() {
+// ── File parsing ──────────────────────────────────────────────────────────────
+function findArray(data){
+  if (Array.isArray(data)) return data;
+  if (!data || typeof data !== 'object') return null;
+  var keys = ['attendants','people','persons','personnel','members','staff','records','contacts','data'];
+  for (var i = 0; i < keys.length; i++){
+    if (Array.isArray(data[keys[i]])) return data[keys[i]];
+  }
+  // single array property fallback
+  var arrays = Object.keys(data).filter(function(k){ return Array.isArray(data[k]) && data[k].length && typeof data[k][0] === 'object'; });
+  if (arrays.length === 1) return data[arrays[0]];
+  return null;
+}
+
+function parseJSON(text, filename){
+  var data = JSON.parse(text.replace(/^\uFEFF/, ''));
+  var arr = findArray(data);
+  if (!arr) throw new Error(filename + ': no list of people found');
+  return arr.filter(function(x){ return x && typeof x === 'object' && !Array.isArray(x); });
+}
+
+function parseCSV(text){
+  var firstLine = (text.split(/\r?\n/)[0] || '');
+  var delim = firstLine.indexOf(';') !== -1 ? ';' : ',';
+  var rows = text.split(/\r?\n/).map(function(line){ return line.split(delim).map(function(v){ return v.trim(); }); });
+  var header = rows[0] || [];
+  var body = rows.slice(1).filter(function(r){ return r.some(function(c){ return c !== ''; }); });
+  return body.map(function(r){
+    var o = {};
+    header.forEach(function(h, i){ o[h] = r[i] || ''; });
+    return o;
+  });
+}
+
+function readFiles(fileList){
+  var files = Array.prototype.slice.call(fileList || []);
+  if (!files.length) return;
+  var rawObjs = [];
+  var names = [];
+  var pending = files.length;
+  var errored = false;
+
+  files.forEach(function(file){
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try {
+        var text = ev.target.result;
+        var isCsv = /\.csv$/i.test(file.name);
+        var objs = isCsv ? parseCSV(text) : parseJSON(text, file.name);
+        rawObjs = rawObjs.concat(objs);
+        names.push(file.name);
+      } catch(e){
+        errored = true;
+        toast(e.message, 'bad');
+      }
+      pending--;
+      if (pending === 0 && !errored) buildPreview(rawObjs, names);
+    };
+    reader.onerror = function(){ errored = true; toast('Could not read ' + file.name, 'bad'); pending--; };
+    reader.readAsText(file);
+  });
+}
+
+function buildPreview(rawObjs, names){
+  if (!rawObjs.length){ toast('No records found in the selected file(s).', 'warn'); return; }
+  var list = rawObjs.map(normalize);
+
+  // count matches against current data
+  var updateCount = 0;
+  list.forEach(function(inc){ if (bestMatchIndex(inc, records) >= 0) updateCount++; });
+  var newCount = list.length - updateCount;
+
+  // internal duplicates within the import
+  var internalDup = 0;
+  for (var i = 0; i < list.length; i++){
+    for (var j = i + 1; j < list.length; j++){
+      if (scoreMatch(list[i], list[j]).score >= 65){ internalDup++; break; }
+    }
+  }
+
+  pendingImport = { list:list, files:names, readCount:list.length, newCount:newCount, updateCount:updateCount, internalDup:internalDup };
+  showPreview();
+}
+
+function showPreview(){
+  var p = pendingImport;
+  $('dropzone').style.display = 'none';
+  $('importFoot').style.display = 'flex';
+  var pv = $('importPreview');
+  pv.style.display = 'block';
+  var hasData = records.length > 0;
+  pv.innerHTML =
+    '<div class="info-box"><b>' + p.files.length + ' file(s):</b> ' + esc(p.files.join(', ')) + '</div>' +
+    '<div class="preview-cards">' +
+      '<div class="pv-card"><strong>' + p.readCount + '</strong><span>records read</span></div>' +
+      '<div class="pv-card"><strong>' + p.newCount + '</strong><span>new people</span></div>' +
+      '<div class="pv-card"><strong>' + p.updateCount + '</strong><span>will be merged</span></div>' +
+      '<div class="pv-card"><strong>' + p.internalDup + '</strong><span>dupes in file</span></div>' +
+    '</div>' +
+    (p.internalDup ? '<div class="warn-box">' + p.internalDup + ' record(s) look like duplicates within the import. Clear matches are combined when applied.</div>' : '') +
+    '<div class="sec-title">How to add them</div>' +
+    '<div class="opt-list">' +
+      '<label class="opt"><input type="radio" name="impMode" value="merge" ' + (hasData ? 'checked' : '') + '><div><strong>Merge into current roster</strong><span>Add new people and update anyone already here.</span></div></label>' +
+      '<label class="opt"><input type="radio" name="impMode" value="replace" ' + (hasData ? '' : 'checked') + '><div><strong>Replace current roster</strong><span>Clear everything, then load only these records.</span></div></label>' +
+    '</div>' +
+    '<div class="sec-title">When someone already exists</div>' +
+    '<div class="opt-list">' +
+      '<label class="opt"><input type="radio" name="impRule" value="fill" checked><div><strong>Fill empty fields only <span class="pill-rec">recommended</span></strong><span>Keep what you have; only fill blanks from the import. Teams are always combined.</span></div></label>' +
+      '<label class="opt"><input type="radio" name="impRule" value="newest"><div><strong>Prefer newer data</strong><span>If the import has a newer update date, its values win.</span></div></label>' +
+      '<label class="opt"><input type="radio" name="impRule" value="overwrite"><div><strong>Prefer imported values</strong><span>Any non-empty value from the import overwrites yours.</span></div></label>' +
+    '</div>';
+}
+
+function resetImportUI(){
+  pendingImport = null;
+  $('importPreview').style.display = 'none';
+  $('importPreview').innerHTML = '';
+  $('dropzone').style.display = 'block';
+  $('importFoot').style.display = 'none';
+  $('fileInput').value = '';
+}
+
+function applyImport(){
+  var p = pendingImport; if (!p) return;
+  var mode = (document.querySelector('input[name="impMode"]:checked') || {}).value || 'merge';
+  var rule = (document.querySelector('input[name="impRule"]:checked') || {}).value || 'fill';
+  var added = 0, merged = 0;
+
+  if (mode === 'replace') records = [];
+
+  p.list.forEach(function(inc){
+    var idx = bestMatchIndex(inc, records);
+    if (idx >= 0){ records[idx] = mergeRecords(records[idx], inc, rule); merged++; }
+    else { records.push(inc); added++; }
+  });
+
+  saveRecords();
+  closeModal('importOverlay');
+  resetImportUI();
+  render();
+  toast(added + ' added, ' + merged + ' merged.', 'good');
+}
+
+// ── Duplicate finder (within current roster) ──────────────────────────────────
+function duplicateGroups(){
+  var groups = [], used = {};
+  for (var i = 0; i < records.length; i++){
+    if (used[i]) continue;
+    var group = [{ rec:records[i], idx:i, reasons:[] }];
+    for (var j = i + 1; j < records.length; j++){
+      if (used[j]) continue;
+      var m = scoreMatch(records[i], records[j]);
+      if (m.score >= 65){ group.push({ rec:records[j], idx:j, reasons:m.reasons }); used[j] = 1; }
+    }
+    if (group.length > 1){ used[i] = 1; groups.push(group); }
+  }
+  return groups;
+}
+
+function renderDuplicates(){
+  var groups = duplicateGroups();
+  var box = $('dupBody');
+  if (!groups.length){ box.innerHTML = '<div class="info-box">No likely duplicates found in your roster. 🎉</div>'; return; }
+  box.innerHTML =
+    '<div class="warn-box">' + groups.length + ' group(s) found. Pick the record to keep — the rest fill its blanks and their teams are combined.</div>' +
+    groups.map(function(group, gi){
+      return '<div class="dup-group"><h4>Group ' + (gi + 1) + '</h4><div class="dup-body">' +
+        '<table class="mini-table"><thead><tr><th>Keep</th><th>Name</th><th>Congregation</th><th>Teams</th><th>Contact</th></tr></thead><tbody>' +
+        group.map(function(g, pi){
+          var r = g.rec;
+          return '<tr><td><input type="radio" name="dupKeep' + gi + '" value="' + g.idx + '" ' + (pi === 0 ? 'checked' : '') + '></td>' +
+            '<td><b>' + esc(r.displayName) + '</b><div class="sub">' + esc(r.privilege || '') + '</div></td>' +
+            '<td>' + esc(r.congregation) + '</td>' +
+            '<td>' + esc((r.teams || []).join(', ')) + '</td>' +
+            '<td>' + esc(r.emailJwpub || r.emailPersonal || r.mobile || '') + '</td></tr>';
+        }).join('') +
+        '</tbody></table>' +
+        '<div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn primary sm merge-grp" data-group="' + gi + '">Merge this group</button></div>' +
+      '</div></div>';
+    }).join('');
+
+  Array.prototype.forEach.call(box.querySelectorAll('.merge-grp'), function(btn){
+    btn.addEventListener('click', function(){
+      var gi = Number(btn.dataset.group);
+      var groups2 = duplicateGroups();     // recompute (indices stable within a render)
+      mergeGroup(groups2[gi], gi);
+    });
+  });
+}
+
+function mergeGroup(group, gi){
+  if (!group) return;
+  var keepIdx = Number((document.querySelector('input[name="dupKeep' + gi + '"]:checked') || {}).value);
+  if (isNaN(keepIdx)) return;
+  var master = records[keepIdx];
+  var others = group.filter(function(g){ return g.idx !== keepIdx; });
+  var merged = master;
+  others.forEach(function(g){ merged = mergeRecords(merged, g.rec, 'fill'); });
+  var removeIdx = {}; others.forEach(function(g){ removeIdx[g.idx] = 1; });
+  var next = [];
+  records.forEach(function(r, i){
+    if (i === keepIdx) next.push(merged);
+    else if (!removeIdx[i]) next.push(r);
+  });
+  records = next;
+  saveRecords();
+  render();
+  renderDuplicates();
+  toast((others.length + 1) + ' records merged into one.', 'good');
+}
+
+// ── Template / messaging ──────────────────────────────────────────────────────
+function defaultTemplateText(){
   return [
-    'Dear {firstName},',
-    '',
+    'Dear {firstName},','',
     'welcome to the {team} team.',
-    'I am looking forward to working with you at our next Circuit Assembly.',
-    '',
+    'I am looking forward to working with you at our next assembly.','',
     'Please join our WhatsApp team chat:',
-    '{chatLink}',
-    '',
+    '{chatLink}','',
     'Your team captain',
     '{captainName}',
     'Team {team}'
   ].join('\n');
 }
-
-function applyTemplate(template, data) {
-  return String(template || defaultTemplateText())
+function applyTemplate(tpl, data){
+  return String(tpl || defaultTemplateText())
     .replace(/\{firstName\}/g, data.firstName)
     .replace(/\{team\}/g, data.team)
     .replace(/\{chatLink\}/g, data.chatLink)
     .replace(/\{captainName\}/g, data.captainName)
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+    .replace(/\n{3,}/g, '\n\n').trim();
+}
+function contactFirstName(rec){
+  return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || 'Brother';
+}
+function buildChatMessage(rec){
+  return applyTemplate((elTemplate.value || '').trim() || defaultTemplateText(), {
+    firstName: contactFirstName(rec),
+    team: currentTeam || (rec.teams && rec.teams[0]) || 'your assigned',
+    chatLink: (elChatLink.value || '').trim() || 'I will send you the link separately.',
+    captainName: (elCaptain.value || '').trim() || 'your team captain'
+  });
+}
+function copyText(text, btn){
+  function done(){
+    if (!btn) return;
+    var old = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', old);
+    btn.classList.add('done');
+    var span = btn.querySelector('.lbltxt');
+    if (span){ span.textContent = 'Copied'; } else { btn.textContent = '✓ Copied'; }
+    setTimeout(function(){
+      btn.classList.remove('done');
+      if (span){ span.textContent = old.replace('✓ ',''); }
+      else btn.textContent = old;
+    }, 1100);
+  }
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text, done); });
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, cb){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta); if (cb) cb();
 }
 
-function buildChatMessage(rec) {
-  var team = elTeamSel.value || (rec.teams && rec.teams[0]) || 'your assigned';
-  var first = contactFirstName(rec);
-  var captain = (elCaptain.value || '').trim() || 'your team captain';
-  var link = (elChatLink.value || '').trim() || 'I will send you the link separately.';
-  var template = (elTemplate.value || '').trim() || defaultTemplateText();
+// ── Privilege detection ───────────────────────────────────────────────────────
+function privText(r){ return String(r.privilege || '').trim().toLowerCase(); }
+function isElder(r){ return /(^|[^a-z])(elder|ältester|altester)([^a-z]|$)/i.test(privText(r)); }
+function isMS(r){ return /ministerial\s*servant|dienstamtgehilfe|(^|[^a-z])ms([^a-z]|$)/i.test(privText(r)); }
 
-  return applyTemplate(template, {
-    firstName: first,
-    team: team,
-    chatLink: link,
-    captainName: captain
+// ── vCard ─────────────────────────────────────────────────────────────────────
+function makeVCard(rec){
+  var note = getNote(rec);
+  var teams = (rec.teams || []).join(', ');
+  var noteField = '';
+  if (teams && note) noteField = 'NOTE:Teams: ' + teams + '\\n' + note.replace(/\n/g, '\\n');
+  else if (teams) noteField = 'NOTE:Teams: ' + teams;
+  else if (note) noteField = 'NOTE:' + note.replace(/\n/g, '\\n');
+
+  var lines = [
+    'BEGIN:VCARD','VERSION:3.0',
+    'N:' + rec.lastName + ';' + rec.firstName + ';;;',
+    'FN:' + (rec.firstName + ' ' + rec.lastName).trim(),
+    rec.congregation  ? 'ORG:' + rec.congregation : '',
+    rec.mobile        ? 'TEL;TYPE=CELL:' + rec.mobile : '',
+    rec.emailPersonal ? 'EMAIL;TYPE=INTERNET:' + rec.emailPersonal : '',
+    rec.emailJwpub    ? 'EMAIL;TYPE=WORK:' + rec.emailJwpub : '',
+    rec.privilege     ? 'TITLE:' + rec.privilege : '',
+    noteField, 'CATEGORIES:RC Attendant', 'END:VCARD'
+  ].filter(Boolean).join('\r\n');
+
+  var blob = new Blob([lines], { type:'text/vcard;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = (rec.lastName || 'contact') + '_' + (rec.firstName || '') + '_Attendant.vcf';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ── WhatsApp glyph ────────────────────────────────────────────────────────────
+var WA_SVG = '<svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.53 0-3.03-.41-4.34-1.19l-.31-.18-3.12.82.83-3.04-.2-.32a8.19 8.19 0 0 1-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>';
+
+// ── Team bar ──────────────────────────────────────────────────────────────────
+function renderTeamBar(){
+  var counts = {};
+  TEAMS.forEach(function(t){ counts[t] = 0; });
+  records.forEach(function(r){ (r.teams || []).forEach(function(t){ if (counts[t] != null) counts[t]++; }); });
+
+  elTeamBar.innerHTML = TEAMS.map(function(t){
+    var active = t === currentTeam;
+    return '<button class="team-tab ' + teamClass(t) + (active ? ' active' : '') + '" data-team="' + esc(t) + '">' +
+      esc(t) + '<span class="cnt">' + counts[t] + '</span></button>';
+  }).join('');
+
+  Array.prototype.forEach.call(elTeamBar.querySelectorAll('.team-tab'), function(btn){
+    btn.addEventListener('click', function(){ currentTeam = btn.dataset.team; render(); });
   });
 }
 
-function copyText(text, btn) {
-  function markDone() {
-    if (!btn) return;
-    var old = btn.textContent;
-    btn.textContent = '✓ Copied';
-    btn.classList.add('copied');
-    setTimeout(function() {
-      btn.textContent = old;
-      btn.classList.remove('copied');
-    }, 1100);
-  }
-
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(markDone).catch(function() { fallbackCopy(text, markDone); });
-  } else {
-    fallbackCopy(text, markDone);
-  }
+// ── Filter + render ───────────────────────────────────────────────────────────
+function filtered(){
+  var q = elSearch.value.trim().toLowerCase();
+  return records
+    .filter(function(r){ return (r.teams || []).indexOf(currentTeam) !== -1; })
+    .filter(function(r){
+      if (!q) return true;
+      var s = [r.displayName, r.congregation, r.emailJwpub, r.emailPersonal, r.mobile, getNote(r)].join(' ').toLowerCase();
+      return s.indexOf(q) !== -1;
+    })
+    .sort(function(a, b){
+      var n = a.lastName.localeCompare(b.lastName, 'en');
+      return n !== 0 ? n : a.firstName.localeCompare(b.firstName, 'en');
+    });
 }
 
-function fallbackCopy(text, cb) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(ta);
-  if (cb) cb();
-}
-
-var CHIP_CLASS = {
-  'Lobby':'chip-lobby','Cafeteria':'chip-cafeteria',
-  'Auditorium':'chip-auditorium','Welcome':'chip-welcome'
-};
-function chipCls(t) { return CHIP_CLASS[t] || 'chip-other'; }
-
-// ── Render ────────────────────────────────────────────────────────────────────
-function render() {
+function render(){
+  renderTeamBar();
   var rows = filtered();
   elRows.innerHTML = '';
-  elEmpty.style.display = rows.length ? 'none' : 'block';
+  elEmpty.classList.toggle('show', rows.length === 0);
 
-  var congregations = {};
-  var cntElders = 0, cntMs = 0;
+  rows.forEach(function(rec){
+    var note = getNote(rec);
+    var key = esc(rKey(rec));
 
-  rows.forEach(function(rec) {
-    var note  = getNote(rec);
-    var key   = esc(rKey(rec));
+    var chips = sortedTeams(rec.teams).map(function(t){
+      return '<span class="chip ' + teamClass(t) + '">' + esc(t) + '</span>';
+    }).join('') || '<span class="dash">—</span>';
 
-    if (rec.congregation) congregations[rec.congregation.trim().toLowerCase()] = true;
-    if (isElder(rec)) cntElders++;
-    if (isMinisterialServant(rec)) cntMs++;
-
-    // Build chips
-    var chips = sortedTeams(rec.teams).map(function(t) {
-      return '<span class="team-chip ' + chipCls(t) + '">' + esc(t) + '</span>';
-    }).join('');
-
-    // Mobile cell
-    var copyMobBtn = rec.mobile
-      ? '<button class="copy-btn copy-mobile btn-sm" data-rkey="' + key + '">📋 Copy</button>'
+    var copyMob = rec.mobile
+      ? '<button class="copy-btn copy-mobile" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbltxt">Copy</span></button>'
       : '';
     var mobCell = rec.hasWa
-      ? '<div class="mobile-line"><a class="wa-link" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">💬 ' + esc(rec.mobile) + '</a>' + copyMobBtn + '</div>'
-      : '<div class="mobile-line">' + esc(rec.mobile || '—') + copyMobBtn + '</div>' + (rec.mobile ? '<div class="muted" style="font-size:11px;margin-top:2px">No WhatsApp</div>' : '');
+      ? '<div class="mobile-line"><a class="wa-btn" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">' + WA_SVG + esc(rec.mobile) + '</a>' + copyMob + '</div>'
+      : '<div class="mobile-line">' + (rec.mobile ? esc(rec.mobile) : '<span class="dash">—</span>') + copyMob + '</div>' +
+        (rec.mobile ? '<div class="no-wa">No WhatsApp</div>' : '');
 
-    // Email cells
-    var jwpubCell = rec.emailJwpub
-      ? '<a class="mailto-link" href="mailto:' + esc(rec.emailJwpub) + '">' + esc(rec.emailJwpub) + '</a>'
-      : '<span class="muted">&mdash;</span>';
+    var jwCell = rec.emailJwpub
+      ? '<a class="mailto" href="mailto:' + esc(rec.emailJwpub) + '">' + esc(rec.emailJwpub) + '</a>'
+      : '<span class="dash">—</span>';
+    var perCell = rec.emailPersonal
+      ? '<a class="mailto" href="mailto:' + esc(rec.emailPersonal) + '">' + esc(rec.emailPersonal) + '</a>'
+      : '<span class="dash">—</span>';
 
-    var emailCell = rec.emailPersonal
-      ? '<a class="mailto-link" href="mailto:' + esc(rec.emailPersonal) + '">' + esc(rec.emailPersonal) + '</a>'
-      : '<span class="muted">&mdash;</span>';
-
-    // WhatsApp chat + mini template buttons
     var chatText = buildChatMessage(rec);
-    var waBtn = rec.hasWa
-      ? '<a class="wa-link btn-sm" style="text-decoration:none" href="https://wa.me/' + rec.mobileDigits
-          + '?text=' + encodeURIComponent(chatText)
-          + '" target="_blank" rel="noopener">💬 Chat</a>'
+    var waChat = rec.hasWa
+      ? '<a class="wa-btn" style="justify-content:center" href="https://wa.me/' + rec.mobileDigits + '?text=' + encodeURIComponent(chatText) + '" target="_blank" rel="noopener">' + WA_SVG + 'Chat</a>'
       : '';
-    var templateBtn = '<button class="copy-btn template-btn copy-template btn-sm" data-rkey="' + key + '">📄 Copy text</button>';
+    var copyTpl = '<button class="copy-btn copy-template" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M9 3h9a2 2 0 0 1 2 2v9M13 21H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2z"/></svg><span class="lbltxt">Copy text</span></button>';
+    var vcf = '<button class="copy-btn vcf-btn" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span class="lbltxt">Contact</span></button>';
 
-    // Remarks
-    var remarkBadge = rec.remarks
-      ? '<span class="chip-remark">' + esc(rec.remarks) + '</span>'
-      : '';
-    var rowTools = remarkBadge
-      ? '<div class="row-tools">' + remarkBadge + '</div>'
-      : '';
+    var remark = rec.remarks ? '<div><span class="chip remark">' + esc(rec.remarks) + '</span></div>' : '';
 
     var tr = document.createElement('tr');
-
     tr.innerHTML =
-        '<td>'
-      +   '<div class="name">' + esc(rec.displayName) + '</div>'
-      +   '<div class="muted">ID: ' + esc(rec.id || '—') + ' &middot; ' + esc(rec.privilege) + '</div>'
-      + '</td>'
-      + '<td>' + esc(rec.congregation) + '</td>'
-      + '<td>' + (chips || '<span class="muted">&mdash;</span>') + '</td>'
-      + '<td>' + jwpubCell + '</td>'
-      + '<td>' + emailCell + '</td>'
-      + '<td>' + mobCell + '</td>'
-      + '<td>'
-      +   '<textarea class="note-input" data-key="' + key + '" placeholder="Captain notes...">' + esc(note) + '</textarea>'
-      +   rowTools
-      + '</td>'
-      + '<td>'
-      +   '<div class="action-col">'
-      +     '<button class="btn-primary btn-sm vcf-btn" data-rkey="' + key + '">&#128203; Create Contact</button>'
-      +     waBtn
-      +     templateBtn
-      +   '</div>'
-      + '</td>';
-
+      '<td><div class="name">' + esc(rec.displayName) + '</div><div class="sub">ID ' + esc(rec.id || '—') + (rec.privilege ? ' · ' + esc(rec.privilege) : '') + '</div></td>' +
+      '<td>' + (rec.congregation ? esc(rec.congregation) : '<span class="dash">—</span>') + '</td>' +
+      '<td>' + chips + '</td>' +
+      '<td>' + jwCell + '</td>' +
+      '<td>' + perCell + '</td>' +
+      '<td>' + mobCell + '</td>' +
+      '<td><textarea class="note-input" data-key="' + key + '" placeholder="Captain notes…">' + esc(note) + '</textarea>' + remark + '</td>' +
+      '<td><div class="action-col">' + vcf + waChat + copyTpl + '</div></td>';
     elRows.appendChild(tr);
   });
 
-  elSTotal.textContent = rows.length;
-  elSCong.textContent  = Object.keys(congregations).length;
-  elSElders.textContent = cntElders;
-  elSMs.textContent     = cntMs;
-
   bindRowEvents(rows);
+  updateStats(rows);
 }
 
-function bindRowEvents(rows) {
-  // Build key → rec lookup
+function bindRowEvents(rows){
   var byKey = {};
-  rows.forEach(function(r) { byKey[rKey(r)] = r; });
+  rows.forEach(function(r){ byKey[rKey(r)] = r; });
 
-  document.querySelectorAll('.note-input').forEach(function(el) {
-    el.addEventListener('input', function() {
+  Array.prototype.forEach.call(elRows.querySelectorAll('.note-input'), function(el){
+    el.addEventListener('input', function(){
       var map = getNoteMap();
       map[el.dataset.key] = el.value;
       storeSet(NOTES_KEY, map);
-      refreshStats(rows);
     });
   });
-
-
-  document.querySelectorAll('.vcf-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var rec = byKey[btn.dataset.rkey];
-      if (rec) makeVCard(rec);
-    });
+  Array.prototype.forEach.call(elRows.querySelectorAll('.vcf-btn'), function(b){
+    b.addEventListener('click', function(){ var r = byKey[b.dataset.rkey]; if (r) makeVCard(r); });
   });
-
-  document.querySelectorAll('.copy-mobile').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var rec = byKey[btn.dataset.rkey];
-      if (rec && rec.mobile) copyText(rec.mobile, btn);
-    });
+  Array.prototype.forEach.call(elRows.querySelectorAll('.copy-mobile'), function(b){
+    b.addEventListener('click', function(){ var r = byKey[b.dataset.rkey]; if (r && r.mobile) copyText(r.mobile, b); });
   });
-
-  document.querySelectorAll('.copy-template').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var rec = byKey[btn.dataset.rkey];
-      if (rec) copyText(buildChatMessage(rec), btn);
-    });
+  Array.prototype.forEach.call(elRows.querySelectorAll('.copy-template'), function(b){
+    b.addEventListener('click', function(){ var r = byKey[b.dataset.rkey]; if (r) copyText(buildChatMessage(r), b); });
   });
-
 }
 
-function refreshStats(rows) {
-  var congregations = {};
-  var cntElders = 0, cntMs = 0;
-  rows.forEach(function(r) {
-    if (r.congregation) congregations[r.congregation.trim().toLowerCase()] = true;
-    if (isElder(r)) cntElders++;
-    if (isMinisterialServant(r)) cntMs++;
+function updateStats(rows){
+  var congs = {}, elders = 0, ms = 0;
+  rows.forEach(function(r){
+    if (r.congregation) congs[r.congregation.trim().toLowerCase()] = true;
+    if (isElder(r)) elders++;
+    if (isMS(r)) ms++;
   });
-  elSCong.textContent   = Object.keys(congregations).length;
-  elSElders.textContent = cntElders;
-  elSMs.textContent     = cntMs;
+  $('statCount').textContent = rows.length;
+  $('statCongregations').textContent = Object.keys(congs).length;
+  $('statElders').textContent = elders;
+  $('statMs').textContent = ms;
 }
 
-// ── vCard export ──────────────────────────────────────────────────────────────
-function makeVCard(rec) {
-  var note  = getNote(rec);
-  var teams = rec.teams.join(', ');
-
-  var noteField = '';
-  if (teams && note) {
-    noteField = 'NOTE:Teams: ' + teams + '\\n' + note.replace(/\n/g, '\\n');
-  } else if (teams) {
-    noteField = 'NOTE:Teams: ' + teams;
-  } else if (note) {
-    noteField = 'NOTE:' + note.replace(/\n/g, '\\n');
-  }
-
-  var lines = [
-    'BEGIN:VCARD',
-    'VERSION:3.0',
-    'N:' + rec.lastName + ';' + rec.firstName + ';;;',
-    'FN:' + (rec.firstName + ' ' + rec.lastName).trim(),
-    rec.congregation  ? 'ORG:'   + rec.congregation   : '',
-    rec.mobile        ? 'TEL;TYPE=CELL:' + rec.mobile : '',
-    rec.emailPersonal ? 'EMAIL;TYPE=INTERNET:' + rec.emailPersonal : '',
-    rec.emailJwpub    ? 'EMAIL;TYPE=WORK:' + rec.emailJwpub        : '',
-    rec.privilege     ? 'TITLE:' + rec.privilege : '',
-    noteField,
-    'CATEGORIES:RC Attendant',
-    'END:VCARD'
-  ].filter(Boolean).join('\r\n');
-
-  var blob = new Blob([lines], { type: 'text/vcard;charset=utf-8' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href     = url;
-  a.download = rec.lastName + '_' + rec.firstName + '_Attendant.vcf';
-  a.click();
-  URL.revokeObjectURL(url);
+// ── Export / reset ────────────────────────────────────────────────────────────
+function exportJSON(){
+  if (!records.length){ toast('Nothing to export yet.', 'warn'); return; }
+  var d = new Date();
+  var date = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var blob = new Blob([JSON.stringify(records, null, 2)], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'team-captain-contacts-' + date + '.json';
+  a.click(); URL.revokeObjectURL(url);
+  toast(records.length + ' contacts exported.', 'good');
 }
 
-// ── JSON import ───────────────────────────────────────────────────────────────
-function importJSON(file) {
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    try {
-      var data = JSON.parse(ev.target.result);
-      var arr;
-      if (Array.isArray(data.attendants)) {
-        arr = data.attendants;
-      } else if (Array.isArray(data)) {
-        arr = data;
-      } else {
-        arr = [];
-      }
-      records = arr.map(normalize);
-      saveRecords();
-      render();
-      alert('Imported ' + records.length + ' attendants from JSON.');
-    } catch(e) {
-      alert('Error reading JSON: ' + e.message);
-    }
-  };
-  reader.readAsText(file);
-}
-
-// ── CSV import ────────────────────────────────────────────────────────────────
-function importCSV(file) {
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    try {
-      var text = ev.target.result;
-
-      // Detect delimiter
-      var firstLine = (text.split(/\r?\n/)[0] || '');
-      var delim = firstLine.indexOf(';') !== -1 ? ';' : ',';
-
-      var allRows = text.split(/\r?\n/).map(function(line) {
-        return line.split(delim).map(function(v) { return v.trim(); });
-      });
-
-      var header = allRows[0].map(function(h) { return h.toLowerCase(); });
-
-      var dataRows = allRows.slice(1).filter(function(r) {
-        return r.some(function(c) { return c !== ''; });
-      });
-
-      // Find column index by candidate names
-      function col() {
-        var names = Array.prototype.slice.call(arguments);
-        for (var i = 0; i < names.length; i++) {
-          var idx = header.indexOf(names[i].toLowerCase());
-          if (idx !== -1) return idx;
-        }
-        return -1;
-      }
-
-      var iId    = col('id');
-      var iName  = col('name', 'last name', 'lastname');
-      var iFirst = col('first name', 'firstname', 'first');
-      var iCong  = col('congregation', 'group');
-      var iPriv  = col('privilege');
-      var iEmail = col('email');
-      var iJwpub = col('jwpub-mail', 'jwpub mail', 'jwpub');
-      var iMob   = col('mobile', 'phone', 'tel');
-      var iTeams = col('teams', 'team');
-      var iKids  = col('children');
-      var iRem   = col('remarks', 'notes', 'flags');
-
-      if (iName === -1 || iFirst === -1 || iCong === -1) {
-        alert('CSV needs at least these columns: Name, First name, Congregation');
-        return;
-      }
-
-      function get(row, idx) {
-        return (idx !== -1 && row[idx]) ? row[idx] : '';
-      }
-
-      var imported = dataRows.map(function(row) {
-        var rawTeams = get(row, iTeams);
-        var teamArr = rawTeams
-          ? rawTeams.split(/[|\/,]+/).map(function(t) { return t.trim(); }).filter(Boolean)
-          : [];
-
-        return {
-          id:          get(row, iId),
-          name:        get(row, iName),
-          firstName:   get(row, iFirst),
-          congregation:get(row, iCong),
-          privilege:   get(row, iPriv),
-          email:       get(row, iEmail),
-          jwpub:       get(row, iJwpub),
-          mobile:      get(row, iMob),
-          teams:       teamArr,
-          children:    get(row, iKids).toLowerCase() === 'true',
-          remarks:     get(row, iRem)
-        };
-      });
-
-      records = imported.map(normalize);
-      saveRecords();
-      render();
-      alert('Imported ' + records.length + ' attendants from CSV.');
-    } catch(e) {
-      alert('CSV import failed: ' + e.message);
-      console.error(e);
-    }
-  };
-  reader.readAsText(file);
-}
-
-// ── JSON export ───────────────────────────────────────────────────────────────
-function exportJSON() {
-  var d    = new Date();
-  var date = d.getFullYear()
-    + '-' + String(d.getMonth() + 1).padStart(2, '0')
-    + '-' + String(d.getDate()).padStart(2, '0');
-  var blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'team-captain-contacts-' + date + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ── Reset ─────────────────────────────────────────────────────────────────────
-function resetData() {
-  if (!confirm('Reset all data? This cannot be undone.')) return;
-  records = [];
-  localStorage.removeItem(STORE_KEY);
-  localStorage.removeItem(NOTES_KEY);
-  localStorage.removeItem(CHILDREN_KEY);
-  render();
+function resetData(){
+  confirmDialog('Reset all data', 'This removes every contact and note from this browser. It cannot be undone.', function(){
+    records = [];
+    localStorage.removeItem(STORE_KEY);
+    localStorage.removeItem(NOTES_KEY);
+    localStorage.removeItem(CHILDREN_KEY);
+    render();
+    toast('All data cleared.', 'good');
+  }, 'Reset everything');
 }
 
 // ── Listeners ─────────────────────────────────────────────────────────────────
-elTeamSel.addEventListener('change', render);
 elSearch.addEventListener('input', render);
-elCaptain.addEventListener('input', function() { localStorage.setItem(CAPTAIN_KEY, elCaptain.value); render(); });
-elChatLink.addEventListener('input', function() { localStorage.setItem(CHAT_KEY, elChatLink.value); render(); });
-elTemplate.addEventListener('input', function() { localStorage.setItem(TEMPLATE_KEY, elTemplate.value); render(); });
-elResetTemplate.addEventListener('click', function() { elTemplate.value = defaultTemplateText(); localStorage.setItem(TEMPLATE_KEY, elTemplate.value); render(); });
-elJsonBtn.addEventListener('click', exportJSON);
-elReset.addEventListener('click', resetData);
-elJsonIn.addEventListener('change', function(e) {
-  if (e.target.files[0]) importJSON(e.target.files[0]);
-  e.target.value = '';
+elCaptain.addEventListener('input', function(){ localStorage.setItem(CAPTAIN_KEY, elCaptain.value); render(); });
+elChatLink.addEventListener('input', function(){ localStorage.setItem(CHAT_KEY, elChatLink.value); render(); });
+elTemplate.addEventListener('input', function(){ localStorage.setItem(TEMPLATE_KEY, elTemplate.value); render(); });
+$('resetTemplateBtn').addEventListener('click', function(){
+  elTemplate.value = defaultTemplateText();
+  localStorage.setItem(TEMPLATE_KEY, elTemplate.value);
+  render();
 });
-elCsvIn.addEventListener('change', function(e) {
-  if (e.target.files[0]) importCSV(e.target.files[0]);
-  e.target.value = '';
+
+$('importBtn').addEventListener('click', function(){ resetImportUI(); openModal('importOverlay'); });
+$('chooseFilesBtn').addEventListener('click', function(){ $('fileInput').click(); });
+$('fileInput').addEventListener('change', function(e){ if (e.target.files.length) readFiles(e.target.files); });
+$('backImportBtn').addEventListener('click', resetImportUI);
+$('applyImportBtn').addEventListener('click', applyImport);
+
+var dz = $('dropzone');
+['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag'); }); });
+['dragleave','drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag'); }); });
+dz.addEventListener('drop', function(e){ if (e.dataTransfer.files.length) readFiles(e.dataTransfer.files); });
+
+$('dupBtn').addEventListener('click', function(){ renderDuplicates(); openModal('dupOverlay'); });
+$('exportBtn').addEventListener('click', exportJSON);
+$('resetBtn').addEventListener('click', resetData);
+
+Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function(b){
+  b.addEventListener('click', function(){ closeModal(b.dataset.close); });
+});
+Array.prototype.forEach.call(document.querySelectorAll('.overlay'), function(o){
+  o.addEventListener('mousedown', function(e){ if (e.target === o && o.id !== 'confirmOverlay') closeModal(o.id); });
+});
+$('confirmCancel').addEventListener('click', function(){ confirmAction = null; closeModal('confirmOverlay'); });
+$('confirmOk').addEventListener('click', function(){ var fn = confirmAction; confirmAction = null; closeModal('confirmOverlay'); if (fn) fn(); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') Array.prototype.forEach.call(document.querySelectorAll('.overlay.show'), function(o){ closeModal(o.id); });
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 records = loadRecords();
-elCaptain.value = localStorage.getItem(CAPTAIN_KEY) || '';
+elCaptain.value  = localStorage.getItem(CAPTAIN_KEY) || '';
 elChatLink.value = localStorage.getItem(CHAT_KEY) || '';
 elTemplate.value = localStorage.getItem(TEMPLATE_KEY) || defaultTemplateText();
 render();
+
+})();
 </script>
 </body>
 </html>
