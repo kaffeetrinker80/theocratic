@@ -346,6 +346,13 @@ tbody tr.flash{animation:flash 1.6s ease}
 .dropzone p{font-size:12.5px;color:var(--muted);margin-bottom:14px}
 
 .preview-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.map-row{display:flex;flex-wrap:wrap;gap:7px;margin:4px 0 8px}
+.map-pill{font-size:12px;font-weight:650;padding:5px 9px;border-radius:8px;border:1px solid var(--line-strong);background:#fff;color:var(--muted)}
+.map-pill b{font-weight:800}
+.map-pill.map-ok{background:var(--good-soft);color:var(--good);border-color:#a9d9bf}
+.map-pill.map-warn{background:#fff6e6;color:#a9700d;border-color:#f0d49a}
+.map-pill.map-bad{background:#fdeaea;color:#c0392b;border-color:#f0b3ad}
+.map-cols{font-size:11px;color:var(--faint);margin-bottom:8px;word-break:break-word}
 .pv-card{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:12px;text-align:center}
 .pv-card strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.02em}
 .pv-card span{font-size:11px;color:var(--muted)}
@@ -691,17 +698,18 @@ function aliasRecord(raw){
   for (var k in src){
     if (consumed[k]) continue;
     var n = src[k].norm;
-    if (n.indexOf('mail') !== -1 || n.indexOf('email') !== -1){
+    if (n.indexOf('mail') !== -1 || n.indexOf('email') !== -1 || n.indexOf('epost') !== -1 || n === 'eaddr'){
       if (!nonEmpty(out.emailPersonal)) out.emailPersonal = src[k].val;
       consumed[k] = true;
     }
   }
-  // 4) mobile / phone — any remaining phone-ish key
+  // 4) mobile / phone — any remaining phone-ish key (incl. German Rufnummer/Nummer/Tel.)
   for (var k in src){
     if (consumed[k]) continue;
     var n = src[k].norm;
-    if (n.indexOf('mobil') !== -1 || n.indexOf('phone') !== -1 || n === 'tel' ||
-        n.indexOf('telefon') !== -1 || n.indexOf('handy') !== -1 || n.indexOf('cell') !== -1 || n === 'number'){
+    if (n.indexOf('mobil') !== -1 || n.indexOf('phone') !== -1 || n.indexOf('tel') !== -1 ||
+        n.indexOf('telefon') !== -1 || n.indexOf('handy') !== -1 || n.indexOf('cell') !== -1 ||
+        n.indexOf('number') !== -1 || n.indexOf('nummer') !== -1 || n === 'nr' || n.indexOf('rufnr') !== -1){
       if (!nonEmpty(out.mobile)) out.mobile = src[k].val;
       consumed[k] = true;
     }
@@ -895,6 +903,13 @@ function buildPreview(rawObjs, names){
   if (!rawObjs.length){ toast('No records found in the selected file(s).', 'warn'); return; }
   var list = rawObjs.map(normalize);
 
+  // collect the raw column names actually present (union across the file)
+  var rawKeySeen = {};
+  rawObjs.forEach(function(o){ Object.keys(o||{}).forEach(function(k){
+    if (k !== 'displayName' && k !== 'mobileDigits' && k !== 'hasWa' && k !== 'extra') rawKeySeen[k] = true;
+  }); });
+  var rawKeys = Object.keys(rawKeySeen);
+
   // count matches against current data
   var updateCount = 0;
   list.forEach(function(inc){ if (bestMatchIndex(inc, records) >= 0) updateCount++; });
@@ -908,7 +923,7 @@ function buildPreview(rawObjs, names){
     }
   }
 
-  pendingImport = { list:list, files:names, readCount:list.length, newCount:newCount, updateCount:updateCount, internalDup:internalDup };
+  pendingImport = { list:list, files:names, readCount:list.length, newCount:newCount, updateCount:updateCount, internalDup:internalDup, rawKeys:rawKeys };
   showPreview();
 }
 
@@ -919,6 +934,29 @@ function showPreview(){
   var pv = $('importPreview');
   pv.style.display = 'block';
   var hasData = records.length > 0;
+
+  // ── field mapping diagnostic: how many records got each key field filled ──
+  var n = p.list.length || 1;
+  function fill(field){ return p.list.filter(function(r){ return nonEmpty(r[field]); }).length; }
+  var checks = [
+    { lbl:'Name',        f:'lastName' },
+    { lbl:'Congregation',f:'congregation' },
+    { lbl:'JW email',    f:'emailJwpub' },
+    { lbl:'Private email',f:'emailPersonal' },
+    { lbl:'Mobile',      f:'mobile' }
+  ];
+  var mapRows = checks.map(function(c){
+    var got = fill(c.f);
+    var cls = got === 0 ? 'map-bad' : (got < p.list.length ? 'map-warn' : 'map-ok');
+    return '<span class="map-pill ' + cls + '">' + c.lbl + ' <b>' + got + '/' + p.list.length + '</b></span>';
+  }).join('');
+  var anyEmpty = checks.some(function(c){ return fill(c.f) === 0; });
+  var mapBox =
+    '<div class="sec-title">Detected fields</div>' +
+    '<div class="map-row">' + mapRows + '</div>' +
+    '<div class="map-cols">Columns in file: ' + (p.rawKeys && p.rawKeys.length ? esc(p.rawKeys.join(', ')) : '—') + '</div>' +
+    (anyEmpty ? '<div class="warn-box">A field shows <b>0/' + p.list.length + '</b> — that column name wasn\u2019t recognised. Tell me the exact column header and I\u2019ll map it.</div>' : '');
+
   pv.innerHTML =
     '<div class="info-box"><b>' + p.files.length + ' file(s):</b> ' + esc(p.files.join(', ')) + '</div>' +
     '<div class="preview-cards">' +
@@ -927,6 +965,7 @@ function showPreview(){
       '<div class="pv-card"><strong>' + p.updateCount + '</strong><span>will be merged</span></div>' +
       '<div class="pv-card"><strong>' + p.internalDup + '</strong><span>dupes in file</span></div>' +
     '</div>' +
+    mapBox +
     (p.internalDup ? '<div class="warn-box">' + p.internalDup + ' record(s) look like duplicates within the import. Clear matches are combined when applied.</div>' : '') +
     '<div class="sec-title">How to add them</div>' +
     '<div class="opt-list">' +
@@ -967,6 +1006,7 @@ function applyImport(){
   saveRecords();
   closeModal('importOverlay');
   resetImportUI();
+  ensureVisibleTab();
   render();
   toast(added + ' added, ' + merged + ' merged.', 'good');
 }
@@ -1165,6 +1205,25 @@ function renderTeamBar(){
 }
 
 // ── Filter + render ───────────────────────────────────────────────────────────
+// count members of a tab, ignoring the search box (used to auto-land on a filled tab)
+function teamCount(team){
+  return records.filter(function(r){
+    if (team === ALL_TEAM) return true;
+    if (team === NO_TEAM) return !(r.teams || []).length;
+    return (r.teams || []).indexOf(team) !== -1;
+  }).length;
+}
+// if the current tab is empty but data exists elsewhere, jump to a tab that has people
+function ensureVisibleTab(){
+  if (!records.length) return;
+  if (teamCount(currentTeam) > 0) return;
+  var best = null, bestN = 0;
+  TEAMS.forEach(function(t){ var n = teamCount(t); if (n > bestN){ bestN = n; best = t; } });
+  if (best){ currentTeam = best; return; }
+  if (teamCount(NO_TEAM) > 0){ currentTeam = NO_TEAM; return; }
+  currentTeam = ALL_TEAM;
+}
+
 function filtered(){
   var q = elSearch.value.trim().toLowerCase();
   return records
@@ -1344,6 +1403,7 @@ records = loadRecords();
 elCaptain.value  = localStorage.getItem(CAPTAIN_KEY) || '';
 elChatLink.value = localStorage.getItem(CHAT_KEY) || '';
 elTemplate.value = localStorage.getItem(TEMPLATE_KEY) || defaultTemplateText();
+ensureVisibleTab();
 render();
 
 })();
