@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#234f5d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager v2.0</title>
+<title>Team Captain Manager v2.1</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -198,8 +198,43 @@ a{color:inherit}
 .team-tab.active.t-other{background:linear-gradient(135deg,var(--accent),#4d8ba0)}
 .team-tab.t-all{font-weight:750}
 .team-tab.active.t-all{background:linear-gradient(135deg,#334155,#1e293b)}
-.team-tab.t-unassigned{border-style:dashed}
-.team-tab.active.t-unassigned{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.tab-sep{width:1px;align-self:stretch;margin:4px 4px;background:var(--line-strong);flex:0 0 auto}
+.team-tab.t-merge{border-style:solid;border-color:#b58bd6;color:#7e3ea6;background:#faf5ff;font-weight:750}
+.team-tab.t-merge .cnt{background:#efe0fb;color:#7e3ea6}
+.team-tab.active.t-merge{background:linear-gradient(135deg,#8b3fb8,#6d28a8);color:#fff;border-color:transparent}
+.team-tab.active.t-merge .cnt{background:rgba(255,255,255,.28);color:#fff}
+
+/* MergeMaster action bar */
+.mm-bar{display:flex;flex-direction:column;gap:12px;background:linear-gradient(135deg,#faf5ff,#f3ecfb);border:1px solid #e3d3f2;border-radius:16px;padding:16px 18px;margin:0 0 14px}
+.mm-intro{display:flex;align-items:center;gap:12px}
+.mm-ic{width:40px;height:40px;flex:0 0 auto;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#8b3fb8,#6d28a8)}
+.mm-ic .icon{width:20px;height:20px}
+.mm-intro strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:15px;color:#5b2483}
+.mm-intro span{font-size:12.5px;color:#7c5a97}
+.mm-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.mm-count{font-size:13px;font-weight:650;color:#6d28a8}
+.mm-target{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#6d4a86}
+.mm-target select{padding:8px 10px;border:1px solid #d7c3ea;border-radius:9px;background:#fff;font:inherit;font-size:13px;color:var(--ink);cursor:pointer}
+.mm-target-banner{border-color:#e3d3f2;background:#faf5ff;color:#5b2483}
+
+/* checkbox */
+.cbx{position:relative;display:inline-flex;align-items:center;cursor:pointer}
+.cbx input{position:absolute;opacity:0;width:0;height:0}
+.cbx span{width:19px;height:19px;border:2px solid var(--line-strong);border-radius:6px;background:#fff;transition:.15s;display:inline-block;position:relative}
+.cbx input:checked + span{background:linear-gradient(135deg,#8b3fb8,#6d28a8);border-color:#6d28a8}
+.cbx input:checked + span::after{content:'';position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.cbx input:indeterminate + span{background:#b58bd6;border-color:#8b3fb8}
+.cbx input:indeterminate + span::after{content:'';position:absolute;left:3px;top:7px;width:9px;height:0;border-top:2.5px solid #fff}
+
+/* row extras */
+.multi-badge{display:inline-block;margin-top:5px;font-size:11px;font-weight:700;color:#a9700d;background:#fff6e6;border:1px solid #f0d49a;border-radius:7px;padding:2px 7px}
+.chip.chip-dept{opacity:.9;border-style:dashed}
+.in-pool{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#6d28a8;background:#f3ecfb;border:1px solid #e3d3f2;border-radius:8px;padding:6px 10px}
+.act-sep{width:100%;height:0}
+.copy-btn.add-merge{color:#6d28a8;border-color:#d7c3ea}
+.copy-btn.add-merge:hover{background:#f3ecfb;border-color:#b58bd6}
+.copy-btn.danger-btn{color:var(--danger);border-color:#f0b3ad}
+.copy-btn.danger-btn:hover{background:#fdeaea}
 
 /* ── Toolbar ──────────────────────────────────────────── */
 .toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -421,11 +456,11 @@ tbody tr.flash{animation:flash 1.6s ease}
       </div>
       <div>
         <h1>Team Captain Manager</h1>
-        <p>Your team roster &amp; contacts &middot; <b>merges</b> planner &amp; personnel exports</p>
+        <p>Assembly team roster &middot; <b>MergeMaster</b> pool for RC &amp; Assembly charts</p>
       </div>
     </div>
     <div class="top-right">
-      <span class="ver-badge">v2.0</span>
+      <span class="ver-badge">v2.1</span>
     </div>
   </div>
 </header>
@@ -486,11 +521,37 @@ tbody tr.flash{animation:flash 1.6s ease}
     <button class="btn danger" id="resetBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg>Reset</button>
   </div>
 
+  <!-- MergeMaster action bar (only in MergeMaster view) -->
+  <div class="mm-bar" id="mmBar" style="display:none">
+    <div class="mm-intro">
+      <div class="mm-ic"><svg class="icon stroke" viewBox="0 0 24 24" style="stroke:#fff"><path d="M7 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3"/><rect x="3" y="8" width="12" height="12" rx="2"/></svg></div>
+      <div>
+        <strong>MergeMaster pool</strong>
+        <span>Collect people from RC &amp; Assembly charts, then tick who to export as a ready-to-import list.</span>
+      </div>
+    </div>
+    <div class="mm-actions">
+      <button class="btn" id="mmImportBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Import to pool</button>
+      <button class="btn" id="mmSelAllBtn">Select all</button>
+      <button class="btn" id="mmSelNoneBtn">None</button>
+      <span class="mm-count" id="mmSelCount">0 selected</span>
+      <span class="toolbar-sp"></span>
+      <label class="mm-target"><span>Export as</span>
+        <select id="mmTargetSel">
+          <option value="assembly">Assembly Chart</option>
+          <option value="convention">RC Chart</option>
+        </select>
+      </label>
+      <button class="btn primary" id="mmExportBtn"><svg class="icon stroke" viewBox="0 0 24 24" style="stroke:#fff"><path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>Export selected</button>
+      <button class="btn danger" id="mmClearBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6"/></svg>Clear pool</button>
+    </div>
+  </div>
+
   <!-- Table -->
   <div class="panel">
     <div class="table-scroll">
       <table>
-        <thead>
+        <thead id="tableHead">
           <tr>
             <th style="width:200px">Name</th>
             <th style="width:150px">Congregation</th>
@@ -507,13 +568,13 @@ tbody tr.flash{animation:flash 1.6s ease}
     </div>
     <div id="empty" class="empty">
       <div class="empty-mark"><svg class="icon stroke" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M18 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-      <h3>No one in this team yet</h3>
-      <div class="muted">Pick another team above, or use <b>Import &amp; merge</b> to load a planner or personnel export.</div>
+      <h3 id="emptyTitle">No one in this team yet</h3>
+      <div class="muted" id="emptyText">Pick another team above, or use <b>Import &amp; merge</b> to load a planner or personnel export.</div>
     </div>
   </div>
 
   <div class="footer">
-    <b>Team Captain Manager v2.0</b> &middot; merges Attendant Department Planner &amp; Personnel Master exports<br>
+    <b>Team Captain Manager v2.1</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
     All data stays in this browser &middot; export JSON regularly for backup<br>
     Made with Love &copy;
   </div>
@@ -586,7 +647,10 @@ var CAPTAIN_KEY  = 'teamCaptainCaptainName_v2_4';
 var CHAT_KEY     = 'teamCaptainChatLink_v2_4';
 var TEMPLATE_KEY = 'teamCaptainMessageTemplate_v2_5';
 
-var TEAMS = ['A/V','Auditorium','Baptism','Cafeteria','Cleaning','Lobby','Parking','Safety','Stage','Welcome'];
+// Assembly team captain uses THREE main teams as tabs. Every other department name
+// (Welcome, A/V, Safety, …) is kept on the record and shown as a badge, not a tab.
+var MAIN_TEAMS = ['Lobby','Cafeteria','Auditorium'];
+var TEAMS = MAIN_TEAMS;   // tab set
 var TEAM_MAP = {
   lobby:'Lobby', cafeteria:'Cafeteria', auditorium:'Auditorium', welcome:'Welcome',
   av:'A/V', 'a/v':'A/V', stage:'Stage', baptism:'Baptism', parking:'Parking',
@@ -594,14 +658,24 @@ var TEAM_MAP = {
 };
 var TEAM_CLASS = { 'Lobby':'t-lobby','Cafeteria':'t-cafeteria','Auditorium':'t-auditorium','Welcome':'t-welcome' };
 function teamClass(t){ return TEAM_CLASS[t] || 't-other'; }
-var ALL_TEAM = '__ALL__';   // pseudo-tab: every contact
-var NO_TEAM  = '__NONE__';  // pseudo-tab: contacts with no team yet
+function isMainTeam(t){ return MAIN_TEAMS.indexOf(t) !== -1; }
+var ALL_TEAM = '__ALL__';     // pseudo-tab: every contact
+var MERGE    = '__MERGE__';   // MergeMaster pool (separate function)
+
+// MergeMaster export targets (both tools read the same {type,version,people} shape)
+var MERGE_TARGETS = {
+  assembly:   { type:'assembly-personnel-master',   label:'Assembly Chart' },
+  convention: { type:'convention-personnel-master', label:'RC Chart' }
+};
 
 // ── State ──────────────────────────────────────────────────────────────────────
 var records = [];
 var currentTeam = 'Lobby';
 var pendingImport = null;   // { list:[normalized], files:[names], readCount, newCount, updateCount, internalDup }
 var confirmAction = null;
+var importTarget = 'roster';   // 'roster' (team captain list) | 'merge' (MergeMaster pool)
+var mergeSel = {};             // rKey -> true, checkbox selection in MergeMaster
+var mergeExportTarget = 'assembly';
 
 // ── DOM ────────────────────────────────────────────────────────────────────────
 var $ = function(id){ return document.getElementById(id); };
@@ -612,6 +686,8 @@ var elTemplate = $('messageTemplate');
 var elRows     = $('rows');
 var elEmpty    = $('empty');
 var elTeamBar  = $('teamBar');
+var elHead     = $('tableHead');
+var elMmBar    = $('mmBar');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function esc(s){
@@ -745,6 +821,11 @@ function normalize(raw){
   var a = aliasRecord(raw);
   var mob = clean(a.mobile);
   var digits = mob.replace(/\D/g,'');
+  // keep any preserved extras, and re-absorb an existing .extra object (survives reload)
+  var ex = a.__extra || {};
+  if (raw && raw.extra && typeof raw.extra === 'object'){
+    Object.keys(raw.extra).forEach(function(k){ if (!nonEmpty(ex[k])) ex[k] = raw.extra[k]; });
+  }
   return {
     id:            clean(a.id),
     lastName:      clean(a.lastName),
@@ -760,7 +841,8 @@ function normalize(raw){
     hasWa:         digits.length >= 10,
     children:      truthy(a.children),
     remarks:       clean(a.remarks),
-    extra:         a.__extra || {}
+    inMerge:       raw && (raw.inMerge === true || raw.inMerge === 'true'),
+    extra:         ex
   };
 }
 
@@ -823,6 +905,7 @@ function mergeRecords(cur, inc, strategy){
   out.teams    = unionTeams(cur.teams || [], inc.teams || []);
   out.children = cur.children || inc.children;
   out.id       = cur.id || inc.id;
+  out.inMerge  = !!(cur.inMerge || inc.inMerge);
   // merge preserved extras (fill missing)
   var extra = {};
   Object.keys(inc.extra || {}).forEach(function(k){ extra[k] = inc.extra[k]; });
@@ -957,8 +1040,20 @@ function showPreview(){
     '<div class="map-cols">Columns in file: ' + (p.rawKeys && p.rawKeys.length ? esc(p.rawKeys.join(', ')) : '—') + '</div>' +
     (anyEmpty ? '<div class="warn-box">A field shows <b>0/' + p.list.length + '</b> — that column name wasn\u2019t recognised. Tell me the exact column header and I\u2019ll map it.</div>' : '');
 
+  var toMerge = (importTarget === 'merge');
+  var targetBanner = toMerge
+    ? '<div class="info-box mm-target-banner"><b>Destination: MergeMaster pool.</b> These people are added to the pool (not to a team). Existing matches are combined.</div>'
+    : '';
+  var modeSection = toMerge ? '' :
+    '<div class="sec-title">How to add them</div>' +
+    '<div class="opt-list">' +
+      '<label class="opt"><input type="radio" name="impMode" value="merge" ' + (hasData ? 'checked' : '') + '><div><strong>Merge into current roster</strong><span>Add new people and update anyone already here.</span></div></label>' +
+      '<label class="opt"><input type="radio" name="impMode" value="replace" ' + (hasData ? '' : 'checked') + '><div><strong>Replace current roster</strong><span>Clear everything, then load only these records.</span></div></label>' +
+    '</div>';
+
   pv.innerHTML =
     '<div class="info-box"><b>' + p.files.length + ' file(s):</b> ' + esc(p.files.join(', ')) + '</div>' +
+    targetBanner +
     '<div class="preview-cards">' +
       '<div class="pv-card"><strong>' + p.readCount + '</strong><span>records read</span></div>' +
       '<div class="pv-card"><strong>' + p.newCount + '</strong><span>new people</span></div>' +
@@ -967,11 +1062,7 @@ function showPreview(){
     '</div>' +
     mapBox +
     (p.internalDup ? '<div class="warn-box">' + p.internalDup + ' record(s) look like duplicates within the import. Clear matches are combined when applied.</div>' : '') +
-    '<div class="sec-title">How to add them</div>' +
-    '<div class="opt-list">' +
-      '<label class="opt"><input type="radio" name="impMode" value="merge" ' + (hasData ? 'checked' : '') + '><div><strong>Merge into current roster</strong><span>Add new people and update anyone already here.</span></div></label>' +
-      '<label class="opt"><input type="radio" name="impMode" value="replace" ' + (hasData ? '' : 'checked') + '><div><strong>Replace current roster</strong><span>Clear everything, then load only these records.</span></div></label>' +
-    '</div>' +
+    modeSection +
     '<div class="sec-title">When someone already exists</div>' +
     '<div class="opt-list">' +
       '<label class="opt"><input type="radio" name="impRule" value="fill" checked><div><strong>Fill empty fields only <span class="pill-rec">recommended</span></strong><span>Keep what you have; only fill blanks from the import. Teams are always combined.</span></div></label>' +
@@ -991,22 +1082,26 @@ function resetImportUI(){
 
 function applyImport(){
   var p = pendingImport; if (!p) return;
-  var mode = (document.querySelector('input[name="impMode"]:checked') || {}).value || 'merge';
+  var toMerge = (importTarget === 'merge');
+  var mode = toMerge ? 'merge' : ((document.querySelector('input[name="impMode"]:checked') || {}).value || 'merge');
   var rule = (document.querySelector('input[name="impRule"]:checked') || {}).value || 'fill';
   var added = 0, merged = 0;
 
   if (mode === 'replace') records = [];
 
   p.list.forEach(function(inc){
+    if (toMerge) inc.inMerge = true;
     var idx = bestMatchIndex(inc, records);
-    if (idx >= 0){ records[idx] = mergeRecords(records[idx], inc, rule); merged++; }
+    if (idx >= 0){ records[idx] = mergeRecords(records[idx], inc, rule); if (toMerge) records[idx].inMerge = true; merged++; }
     else { records.push(inc); added++; }
   });
 
   saveRecords();
   closeModal('importOverlay');
   resetImportUI();
-  ensureVisibleTab();
+  if (toMerge){ currentTeam = MERGE; filtered().forEach(function(r){ mergeSel[rKey(r)] = true; }); }
+  else ensureVisibleTab();
+  importTarget = 'roster';
   render();
   toast(added + ' added, ' + merged + ' merged.', 'good');
 }
@@ -1104,7 +1199,7 @@ function contactFirstName(rec){
   return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || 'Brother';
 }
 function buildChatMessage(rec){
-  var isReal = currentTeam && currentTeam !== ALL_TEAM && currentTeam !== NO_TEAM;
+  var isReal = currentTeam && currentTeam !== ALL_TEAM && currentTeam !== MERGE;
   var teamName = isReal ? currentTeam : ((rec.teams && rec.teams[0]) || 'your assigned');
   return applyTemplate((elTemplate.value || '').trim() || defaultTemplateText(), {
     firstName: contactFirstName(rec),
@@ -1180,12 +1275,11 @@ var TPL_BADGE = '<svg class="tpl-badge" viewBox="0 0 24 24"><path d="M4 5h16M4 1
 // ── Team bar ──────────────────────────────────────────────────────────────────
 function renderTeamBar(){
   var counts = {};
-  TEAMS.forEach(function(t){ counts[t] = 0; });
-  var unassigned = 0;
+  MAIN_TEAMS.forEach(function(t){ counts[t] = 0; });
+  var inMerge = 0;
   records.forEach(function(r){
-    var ts = r.teams || [];
-    if (!ts.length) unassigned++;
-    ts.forEach(function(t){ if (counts[t] != null) counts[t]++; });
+    (r.teams || []).forEach(function(t){ if (counts[t] != null) counts[t]++; });
+    if (r.inMerge) inMerge++;
   });
 
   function tab(value, label, cls, count){
@@ -1195,8 +1289,9 @@ function renderTeamBar(){
   }
 
   var html = tab(ALL_TEAM, 'All', 't-all', records.length);
-  html += TEAMS.map(function(t){ return tab(t, t, teamClass(t), counts[t]); }).join('');
-  html += tab(NO_TEAM, 'Unassigned', 't-unassigned', unassigned);
+  html += MAIN_TEAMS.map(function(t){ return tab(t, t, teamClass(t), counts[t]); }).join('');
+  html += '<span class="tab-sep" aria-hidden="true"></span>';
+  html += tab(MERGE, 'MergeMaster', 't-merge', inMerge);
   elTeamBar.innerHTML = html;
 
   Array.prototype.forEach.call(elTeamBar.querySelectorAll('.team-tab'), function(btn){
@@ -1209,7 +1304,7 @@ function renderTeamBar(){
 function teamCount(team){
   return records.filter(function(r){
     if (team === ALL_TEAM) return true;
-    if (team === NO_TEAM) return !(r.teams || []).length;
+    if (team === MERGE) return !!r.inMerge;
     return (r.teams || []).indexOf(team) !== -1;
   }).length;
 }
@@ -1218,18 +1313,20 @@ function ensureVisibleTab(){
   if (!records.length) return;
   if (teamCount(currentTeam) > 0) return;
   var best = null, bestN = 0;
-  TEAMS.forEach(function(t){ var n = teamCount(t); if (n > bestN){ bestN = n; best = t; } });
+  MAIN_TEAMS.forEach(function(t){ var n = teamCount(t); if (n > bestN){ bestN = n; best = t; } });
   if (best){ currentTeam = best; return; }
-  if (teamCount(NO_TEAM) > 0){ currentTeam = NO_TEAM; return; }
+  if (teamCount(MERGE) > 0){ currentTeam = MERGE; return; }
   currentTeam = ALL_TEAM;
 }
+
+function inMergeView(){ return currentTeam === MERGE; }
 
 function filtered(){
   var q = elSearch.value.trim().toLowerCase();
   return records
     .filter(function(r){
       if (currentTeam === ALL_TEAM) return true;
-      if (currentTeam === NO_TEAM) return !(r.teams || []).length;
+      if (currentTeam === MERGE) return !!r.inMerge;
       return (r.teams || []).indexOf(currentTeam) !== -1;
     })
     .filter(function(r){
@@ -1243,64 +1340,141 @@ function filtered(){
     });
 }
 
+var HEAD_NORMAL =
+  '<tr>' +
+    '<th style="width:200px">Name</th>' +
+    '<th style="width:150px">Congregation</th>' +
+    '<th style="width:170px">Teams</th>' +
+    '<th style="width:185px">JW email</th>' +
+    '<th style="width:185px">Private email</th>' +
+    '<th style="width:170px">Mobile / WhatsApp</th>' +
+    '<th>Captain notes</th>' +
+    '<th style="width:160px">Actions</th>' +
+  '</tr>';
+var HEAD_MERGE =
+  '<tr>' +
+    '<th style="width:40px"><label class="cbx"><input type="checkbox" id="mmAll"><span></span></label></th>' +
+    '<th style="width:210px">Name</th>' +
+    '<th style="width:170px">Congregation</th>' +
+    '<th style="width:210px">JW email</th>' +
+    '<th style="width:210px">Private email</th>' +
+    '<th style="width:175px">Mobile</th>' +
+    '<th style="width:120px">In pool</th>' +
+  '</tr>';
+
+function mailCell(v){ return v ? '<a class="mailto" href="mailto:' + esc(v) + '">' + esc(v) + '</a>' : '<span class="dash">—</span>'; }
+function plainMobileCell(rec){
+  if (rec.hasWa) return '<a class="wa-btn wa-plain" title="Open WhatsApp chat" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">' + WA_SVG + esc(rec.mobile) + '</a>';
+  return rec.mobile ? esc(rec.mobile) : '<span class="dash">—</span>';
+}
+
 function render(){
   renderTeamBar();
+  var merge = inMergeView();
+  elMmBar.style.display = merge ? 'flex' : 'none';
+  elHead.innerHTML = merge ? HEAD_MERGE : HEAD_NORMAL;
+
   var rows = filtered();
   elRows.innerHTML = '';
   elEmpty.classList.toggle('show', rows.length === 0);
+  setEmptyText(merge);
 
-  rows.forEach(function(rec){
-    var note = getNote(rec);
-    var key = esc(rKey(rec));
+  rows.forEach(function(rec){ elRows.appendChild(merge ? mergeRow(rec) : normalRow(rec)); });
 
-    var chips = sortedTeams(rec.teams).map(function(t){
-      return '<span class="chip ' + teamClass(t) + '">' + esc(t) + '</span>';
-    }).join('') || '<span class="dash">—</span>';
-
-    var copyMob = rec.mobile
-      ? '<button class="copy-btn copy-mobile" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbltxt">Copy</span></button>'
-      : '';
-    var mobCell = rec.hasWa
-      ? '<div class="mobile-line"><a class="wa-btn wa-plain" title="Open WhatsApp chat — no preset message" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">' + WA_SVG + esc(rec.mobile) + '</a>' + copyMob + '</div>'
-      : '<div class="mobile-line">' + (rec.mobile ? esc(rec.mobile) : '<span class="dash">—</span>') + copyMob + '</div>' +
-        (rec.mobile ? '<div class="no-wa">No WhatsApp</div>' : '');
-
-    var jwCell = rec.emailJwpub
-      ? '<a class="mailto" href="mailto:' + esc(rec.emailJwpub) + '">' + esc(rec.emailJwpub) + '</a>'
-      : '<span class="dash">—</span>';
-    var perCell = rec.emailPersonal
-      ? '<a class="mailto" href="mailto:' + esc(rec.emailPersonal) + '">' + esc(rec.emailPersonal) + '</a>'
-      : '<span class="dash">—</span>';
-
-    var chatText = buildChatMessage(rec);
-    var waChat = rec.hasWa
-      ? '<a class="wa-btn wa-tpl" style="justify-content:center" title="Open WhatsApp with the ready-made message pre-filled" href="https://wa.me/' + rec.mobileDigits + '?text=' + encodeURIComponent(chatText) + '" target="_blank" rel="noopener">' + WA_SVG + TPL_BADGE + 'Chat + text</a>'
-      : '';
-    var copyTpl = '<button class="copy-btn copy-template" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M9 3h9a2 2 0 0 1 2 2v9M13 21H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2z"/></svg><span class="lbltxt">Copy text</span></button>';
-    var vcf = '<button class="copy-btn vcf-btn" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span class="lbltxt">Contact</span></button>';
-
-    var remark = rec.remarks ? '<div><span class="chip remark">' + esc(rec.remarks) + '</span></div>' : '';
-
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td><div class="name">' + esc(rec.displayName) + '</div><div class="sub">ID ' + esc(rec.id || '—') + (rec.privilege ? ' · ' + esc(rec.privilege) : '') + '</div></td>' +
-      '<td>' + (rec.congregation ? esc(rec.congregation) : '<span class="dash">—</span>') + '</td>' +
-      '<td>' + chips + '</td>' +
-      '<td>' + jwCell + '</td>' +
-      '<td>' + perCell + '</td>' +
-      '<td>' + mobCell + '</td>' +
-      '<td><textarea class="note-input" data-key="' + key + '" placeholder="Captain notes…">' + esc(note) + '</textarea>' + remark + '</td>' +
-      '<td><div class="action-col">' + vcf + waChat + copyTpl + '</div></td>';
-    elRows.appendChild(tr);
-  });
-
-  bindRowEvents(rows);
-  updateStats(rows);
+  bindRowEvents(rows, merge);
+  updateStats(rows, merge);
+  if (merge) refreshMergeBar(rows);
 }
 
-function bindRowEvents(rows){
+function normalRow(rec){
+  var note = getNote(rec);
+  var key = esc(rKey(rec));
+
+  var chips = sortedTeams(rec.teams).map(function(t){
+    return '<span class="chip ' + teamClass(t) + (isMainTeam(t) ? '' : ' chip-dept') + '">' + esc(t) + '</span>';
+  }).join('') || '<span class="dash">—</span>';
+  var multi = (rec.teams && rec.teams.length > 1)
+    ? '<span class="multi-badge" title="Assigned to several teams — mind double-booking">⚑ ' + rec.teams.length + ' teams</span>' : '';
+
+  var copyMob = rec.mobile
+    ? '<button class="copy-btn copy-mobile" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="lbltxt">Copy</span></button>'
+    : '';
+  var mobCell = rec.hasWa
+    ? '<div class="mobile-line"><a class="wa-btn wa-plain" title="Open WhatsApp chat — no preset message" href="https://wa.me/' + rec.mobileDigits + '" target="_blank" rel="noopener">' + WA_SVG + esc(rec.mobile) + '</a>' + copyMob + '</div>'
+    : '<div class="mobile-line">' + (rec.mobile ? esc(rec.mobile) : '<span class="dash">—</span>') + copyMob + '</div>' +
+      (rec.mobile ? '<div class="no-wa">No WhatsApp</div>' : '');
+
+  var chatText = buildChatMessage(rec);
+  var waChat = rec.hasWa
+    ? '<a class="wa-btn wa-tpl" style="justify-content:center" title="Open WhatsApp with the ready-made message pre-filled" href="https://wa.me/' + rec.mobileDigits + '?text=' + encodeURIComponent(chatText) + '" target="_blank" rel="noopener">' + WA_SVG + TPL_BADGE + 'Chat + text</a>'
+    : '';
+  var copyTpl = '<button class="copy-btn copy-template" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M9 3h9a2 2 0 0 1 2 2v9M13 21H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2z"/></svg><span class="lbltxt">Copy text</span></button>';
+  var vcf = '<button class="copy-btn vcf-btn" data-rkey="' + key + '"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span class="lbltxt">Contact</span></button>';
+  var mm = rec.inMerge
+    ? '<span class="in-pool" title="Already in the MergeMaster pool">✓ In pool</span>'
+    : '<button class="copy-btn add-merge" data-rkey="' + key + '" title="Add this person to the MergeMaster pool"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="lbltxt">MergeMaster</span></button>';
+
+  var remark = rec.remarks ? '<div><span class="chip remark">' + esc(rec.remarks) + '</span></div>' : '';
+
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><div class="name">' + esc(rec.displayName) + '</div><div class="sub">ID ' + esc(rec.id || '—') + (rec.privilege ? ' · ' + esc(rec.privilege) : '') + '</div></td>' +
+    '<td>' + (rec.congregation ? esc(rec.congregation) : '<span class="dash">—</span>') + '</td>' +
+    '<td>' + chips + multi + '</td>' +
+    '<td>' + mailCell(rec.emailJwpub) + '</td>' +
+    '<td>' + mailCell(rec.emailPersonal) + '</td>' +
+    '<td>' + mobCell + '</td>' +
+    '<td><textarea class="note-input" data-key="' + key + '" placeholder="Captain notes…">' + esc(note) + '</textarea>' + remark + '</td>' +
+    '<td><div class="action-col">' + vcf + waChat + copyTpl + '<div class="act-sep"></div>' + mm + '</div></td>';
+  return tr;
+}
+
+function mergeRow(rec){
+  var key = esc(rKey(rec));
+  var checked = mergeSel[rKey(rec)] ? ' checked' : '';
+  var src = [rec.extra && rec.extra.congType, rec.extra && rec.extra.pioneer].filter(nonEmpty).join(' · ');
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><label class="cbx"><input type="checkbox" class="mm-cbx" data-rkey="' + key + '"' + checked + '><span></span></label></td>' +
+    '<td><div class="name">' + esc(rec.displayName) + '</div><div class="sub">ID ' + esc(rec.id || '—') + (src ? ' · ' + esc(src) : '') + '</div></td>' +
+    '<td>' + (rec.congregation ? esc(rec.congregation) : '<span class="dash">—</span>') + '</td>' +
+    '<td>' + mailCell(rec.emailJwpub) + '</td>' +
+    '<td>' + mailCell(rec.emailPersonal) + '</td>' +
+    '<td>' + plainMobileCell(rec) + '</td>' +
+    '<td><button class="copy-btn danger-btn remove-merge" data-rkey="' + key + '" title="Remove from the MergeMaster pool"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg><span class="lbltxt">Remove</span></button></td>';
+  return tr;
+}
+
+function setEmptyText(merge){
+  var t = $('emptyTitle'), x = $('emptyText');
+  if (merge){
+    t.textContent = 'MergeMaster pool is empty';
+    x.innerHTML = 'Use <b>Import to pool</b> to load an RC or Assembly chart export, or press <b>＋ MergeMaster</b> on any contact in a team tab.';
+  } else if (currentTeam === ALL_TEAM){
+    t.textContent = 'No contacts yet';
+    x.innerHTML = 'Use <b>Import &amp; merge</b> to load a planner or personnel export.';
+  } else {
+    t.textContent = 'No one in this team yet';
+    x.innerHTML = 'Pick another team above, or use <b>Import &amp; merge</b> to load a planner export.';
+  }
+}
+
+function bindRowEvents(rows, merge){
   var byKey = {};
   rows.forEach(function(r){ byKey[rKey(r)] = r; });
+
+  if (merge){
+    Array.prototype.forEach.call(elRows.querySelectorAll('.mm-cbx'), function(cb){
+      cb.addEventListener('change', function(){
+        if (cb.checked) mergeSel[cb.dataset.rkey] = true; else delete mergeSel[cb.dataset.rkey];
+        refreshMergeBar(rows);
+      });
+    });
+    Array.prototype.forEach.call(elRows.querySelectorAll('.remove-merge'), function(b){
+      b.addEventListener('click', function(){ removeFromMerge(b.dataset.rkey); });
+    });
+    return;
+  }
 
   Array.prototype.forEach.call(elRows.querySelectorAll('.note-input'), function(el){
     el.addEventListener('input', function(){
@@ -1318,9 +1492,97 @@ function bindRowEvents(rows){
   Array.prototype.forEach.call(elRows.querySelectorAll('.copy-template'), function(b){
     b.addEventListener('click', function(){ var r = byKey[b.dataset.rkey]; if (r) copyText(buildChatMessage(r), b); });
   });
+  Array.prototype.forEach.call(elRows.querySelectorAll('.add-merge'), function(b){
+    b.addEventListener('click', function(){ addToMerge(b.dataset.rkey); });
+  });
 }
 
-function updateStats(rows){
+// ── MergeMaster pool ──────────────────────────────────────────────────────────
+function recByKey(k){ for (var i=0;i<records.length;i++){ if (rKey(records[i])===k) return records[i]; } return null; }
+
+function addToMerge(k){
+  var r = recByKey(k); if (!r) return;
+  r.inMerge = true; mergeSel[k] = true;
+  saveRecords();
+  toast(r.displayName + ' added to MergeMaster.', 'good');
+  render();
+}
+function removeFromMerge(k){
+  var idx = -1;
+  for (var i=0;i<records.length;i++){ if (rKey(records[i])===k){ idx=i; break; } }
+  if (idx<0) return;
+  var r = records[idx];
+  r.inMerge = false; delete mergeSel[k];
+  // if this person exists only for the pool (no team), drop them entirely
+  if (!(r.teams && r.teams.length)) records.splice(idx,1);
+  saveRecords();
+  render();
+}
+function clearMergePool(){
+  var pooled = records.filter(function(r){ return r.inMerge; });
+  if (!pooled.length){ toast('Pool is already empty.', 'warn'); return; }
+  confirmDialog('Clear MergeMaster pool', 'Remove all ' + pooled.length + ' people from the pool? Contacts that also belong to a team stay in their team; pool-only imports are removed.', function(){
+    records = records.filter(function(r){
+      if (!r.inMerge) return true;
+      r.inMerge = false;
+      return r.teams && r.teams.length;   // keep team members, drop pool-only
+    });
+    mergeSel = {};
+    saveRecords();
+    render();
+    toast('MergeMaster pool cleared.', 'good');
+  }, 'Clear pool');
+}
+
+function selectAllMerge(on){
+  mergeSel = {};
+  if (on) filtered().forEach(function(r){ mergeSel[rKey(r)] = true; });
+  render();
+}
+function refreshMergeBar(rows){
+  var n = rows.filter(function(r){ return mergeSel[rKey(r)]; }).length;
+  var c = $('mmSelCount'); if (c) c.textContent = n + ' selected';
+  var all = $('mmAll');
+  if (all){ all.checked = rows.length>0 && n===rows.length; all.indeterminate = n>0 && n<rows.length; }
+}
+
+// map an internal record to the target chart format (drop team-captain-only fields)
+function toMergeExport(r){
+  var ex = r.extra || {};
+  var out = {
+    id:           r.id || '',
+    lastName:     r.lastName || '',
+    firstName:    r.firstName || '',
+    congregation: r.congregation || '',
+    congType:     ex.congType || '',
+    phone:        r.mobile || '',
+    jwEmail:      r.emailJwpub || '',
+    privateEmail: r.emailPersonal || '',
+    birthDate:    ex.birthDate || '',
+    pioneer:      ex.pioneer || '',
+    dataUpdated:  ex.dataUpdated || '',
+    notes:        r.remarks || ''
+  };
+  // carry through any other preserved source fields (e.g. circuit) without team-captain internals
+  Object.keys(ex).forEach(function(k){ if (!(k in out)) out[k] = ex[k]; });
+  return out;
+}
+function mergeExport(){
+  var chosen = filtered().filter(function(r){ return mergeSel[rKey(r)]; });
+  if (!chosen.length){ toast('Tick at least one person to export.', 'warn'); return; }
+  var t = MERGE_TARGETS[mergeExportTarget] || MERGE_TARGETS.assembly;
+  var payload = { type: t.type, version: 1, people: chosen.map(toMergeExport) };
+  var d = new Date();
+  var date = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = t.type + '_' + date + '.json';
+  a.click(); URL.revokeObjectURL(url);
+  toast(chosen.length + ' exported for ' + t.label + '.', 'good');
+}
+
+function updateStats(rows, merge){
   var congs = {}, elders = 0, ms = 0;
   rows.forEach(function(r){
     if (r.congregation) congs[r.congregation.trim().toLowerCase()] = true;
@@ -1328,8 +1590,8 @@ function updateStats(rows){
     if (isMS(r)) ms++;
   });
   $('statCount').textContent = rows.length;
-  var lbl = currentTeam === ALL_TEAM ? 'All contacts'
-          : currentTeam === NO_TEAM ? 'Unassigned' : 'In this team';
+  var lbl = merge ? 'In MergeMaster'
+          : currentTeam === ALL_TEAM ? 'All contacts' : 'In this team';
   var le = $('statCountLbl'); if (le) le.textContent = lbl;
   $('statCongregations').textContent = Object.keys(congs).length;
   $('statElders').textContent = elders;
@@ -1371,11 +1633,22 @@ $('resetTemplateBtn').addEventListener('click', function(){
   render();
 });
 
-$('importBtn').addEventListener('click', function(){ resetImportUI(); openModal('importOverlay'); });
+$('importBtn').addEventListener('click', function(){ importTarget = 'roster'; resetImportUI(); openModal('importOverlay'); });
 $('chooseFilesBtn').addEventListener('click', function(){ $('fileInput').click(); });
 $('fileInput').addEventListener('change', function(e){ if (e.target.files.length) readFiles(e.target.files); });
 $('backImportBtn').addEventListener('click', resetImportUI);
 $('applyImportBtn').addEventListener('click', applyImport);
+
+// MergeMaster bar
+$('mmImportBtn').addEventListener('click', function(){ importTarget = 'merge'; resetImportUI(); openModal('importOverlay'); });
+$('mmSelAllBtn').addEventListener('click', function(){ selectAllMerge(true); });
+$('mmSelNoneBtn').addEventListener('click', function(){ selectAllMerge(false); });
+$('mmExportBtn').addEventListener('click', mergeExport);
+$('mmClearBtn').addEventListener('click', clearMergePool);
+$('mmTargetSel').addEventListener('change', function(){ mergeExportTarget = this.value; });
+elHead.addEventListener('change', function(e){
+  if (e.target && e.target.id === 'mmAll'){ selectAllMerge(e.target.checked); }
+});
 
 var dz = $('dropzone');
 ['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag'); }); });
