@@ -90,9 +90,9 @@ a{color:inherit}
 .brand p{font-size:12px;color:var(--muted);margin-top:1px}
 .brand p b{color:var(--accent-deep);font-weight:600}
 .top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.help-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid rgba(255,255,255,.32);border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:12.5px;font-weight:650;cursor:pointer;transition:.15s}
-.help-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
-.help-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.help-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border:1px solid transparent;border-radius:999px;background-color:#2f6b7e;background-image:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 2px 8px rgba(47,107,126,.28)}
+.help-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(47,107,126,.36)}
+.help-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
 .help-lead{font-size:14px;line-height:1.6;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
 .help-step{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid var(--line)}
 .help-step:last-of-type{border-bottom:0}
@@ -109,6 +109,10 @@ a{color:inherit}
 .help-box strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:13.5px;margin-bottom:4px}
 .help-box p{font-size:12.5px;line-height:1.6;color:var(--muted)}
 .help-box.subtle{background:#fff;border-style:dashed}
+.help-box.mm-help{background:#faf5ff;border-color:#e3d3f2}
+.help-box.mm-help strong{color:#5b2483}
+.help-box.mm-help p{color:#6d4a86}
+.help-box.mm-help p + p{margin-top:7px}
 @media(max-width:680px){ .help-btn span{display:none} .help-btn{padding:6px 8px} }
 .ver-badge{
   font-family:'Space Grotesk',sans-serif;
@@ -642,7 +646,7 @@ tbody tr.flash{animation:flash 1.6s ease}
 
       <div class="help-lead">
         You have received a ready-made contact list for your team. Nothing needs to be set up — just open the tool
-        and start contacting the brothers and sisters on your team.
+        and start contacting the brothers on your team.
       </div>
 
       <div class="help-step">
@@ -704,11 +708,20 @@ tbody tr.flash{animation:flash 1.6s ease}
         and don't use private/incognito mode.</p>
       </div>
 
+      <div class="help-box mm-help">
+        <strong>What is the “MergeMaster” tab?</strong>
+        <p>MergeMaster is a <b>separate collecting pool</b> and has nothing to do with your team list — it is used by the
+        brother who prepares the lists. Contact details for the assemblies and the regional convention are kept in two
+        other tools (the Assembly and RC organisation charts). MergeMaster gathers people from both, combines duplicate
+        entries, and lets him tick exactly who is needed for the next event and export that selection as a ready-to-use list.</p>
+        <p>Adding someone to the pool <b>never changes your team</b> — your list stays exactly as you received it.
+        You can simply leave this tab alone.</p>
+      </div>
+
       <div class="help-box subtle">
-        <strong>Buttons you normally won't need</strong>
-        <p><b>Import &amp; merge</b>, <b>Find duplicates</b> and the <b>MergeMaster</b> tab are for whoever prepares the lists
-        (the attendant overseer). As a team captain you can safely ignore them — your team list is already loaded.
-        <b>Reset</b> deletes everything, so please only use it if you're asked to.</p>
+        <strong>Other buttons you normally won't need</strong>
+        <p><b>Import &amp; merge</b> and <b>Find duplicates</b> are also for whoever prepares the lists — your team list is
+        already loaded. <b>Reset</b> deletes everything, so please only use it if you're asked to.</p>
       </div>
 
     </div>
