@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#234f5d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager v2.4.1</title>
+<title>Team Captain Manager v2.4.2</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -494,7 +494,7 @@ tbody tr.flash{animation:flash 1.6s ease}
       </div>
     </div>
     <div class="top-right">
-      <span class="ver-badge">v2.4.1</span>
+      <span class="ver-badge">v2.4.2</span>
       <button class="help-btn" id="helpBtn" title="How to use this tool" aria-label="Help">
         <svg viewBox="0 0 24 24" class="stroke"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.5-2.8 4"/><path d="M12 17.4h.01"/></svg>
         <span>Help</span>
@@ -612,7 +612,7 @@ tbody tr.flash{animation:flash 1.6s ease}
   </div>
 
   <div class="footer">
-    <b>Team Captain Manager v2.4.1</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
+    <b>Team Captain Manager v2.4.2</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
     All data stays in this browser &middot; export JSON regularly for backup<br>
     Made with Love &copy;
   </div>
@@ -1658,8 +1658,8 @@ function vcardText(rec){
     'FN:' + (rec.firstName + ' ' + rec.lastName).trim(),
     rec.congregation  ? 'ORG:' + rec.congregation : '',
     rec.mobile        ? 'TEL;TYPE=CELL:' + rec.mobile : '',
-    rec.emailJwpub    ? 'EMAIL;TYPE=WORK:' + rec.emailJwpub : '',
-    rec.emailPersonal ? 'EMAIL;TYPE=INTERNET:' + rec.emailPersonal : '',
+    rec.emailPersonal ? 'EMAIL;TYPE=INTERNET;TYPE=HOME;TYPE=PREF:' + rec.emailPersonal : '',
+    rec.emailJwpub    ? 'EMAIL;TYPE=INTERNET;TYPE=OTHER:' + rec.emailJwpub : '',
     'END:VCARD'
   ].filter(Boolean).join('\r\n');
   return lines;
@@ -1681,8 +1681,8 @@ function showQR(rec){
 
   var fields = [];
   if (rec.mobile)        fields.push('Mobile');
-  if (rec.emailJwpub)    fields.push('JW email');
   if (rec.emailPersonal) fields.push('Private email');
+  if (rec.emailJwpub)    fields.push('JW email');
   if (rec.congregation)  fields.push('Congregation');
   $('qrFields').textContent = fields.length ? 'Included: ' + fields.join(', ') : '';
 
