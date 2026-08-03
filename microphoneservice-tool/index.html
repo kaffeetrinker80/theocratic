@@ -214,9 +214,9 @@
  text-align:right;
  transition:color .2s ease, opacity .2s ease;
  }
- .planner-sync-status.saved{color:#dcfce7}
- .planner-sync-status.unsaved{color:#fee2e2}
- .planner-sync-status.saving{color:#fef3c7}
+ .planner-sync-status.saved{color:#15803d;font-weight:600}
+ .planner-sync-status.unsaved{color:#b91c1c;font-weight:600}
+ .planner-sync-status.saving{color:#b45309;font-weight:600}
  body.dark-mode .planner-sync-status.saved{color:#bbf7d0}
  body.dark-mode .planner-sync-status.unsaved{color:#fecaca}
  body.dark-mode .planner-sync-status.saving{color:#fde68a}
@@ -490,7 +490,7 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 3.2.0</footer>
+ <footer>Made with Love © – Microphone Service Tool V 3.2.1</footer>
  </div>
 </div>
 
@@ -1243,7 +1243,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "3.2.0";
+const APP_VERSION = "3.2.1";
 
 let appData = {
  brothers: [],
