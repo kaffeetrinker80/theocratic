@@ -107,19 +107,42 @@
     .filter-btn.active { background: var(--primary); color: #102036; border-color: var(--primary); font-weight: 600; }
 
     .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    
+    /* Abgesetzte Überschriften im Grid */
+    .section-title {
+      grid-column: 1 / -1;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 16px 0 4px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+    }
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 4px;
+      margin-right: 12px;
+    }
+
+    .hidden { display: none !important; }
+
     .card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 20px; padding: 24px; display: flex; flex-direction: column;
       transition: var(--transition-smooth); height: 100%;
     }
-    .card.hidden { display: none; }
     .card:hover { transform: translateY(-5px); border-color: var(--c-theme); }
 
     .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.1); }
     .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.1); }
     .theme-congregation { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.1); }
     .theme-kh { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.1); }
-    /* PTC theme remains for visual variety, but is categorized under congregation */
     .theme-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.1); }
 
     .icon-wrap { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: var(--c-soft); }
@@ -128,7 +151,6 @@
     .card h2 { font-size: 1.3rem; color: #fff; margin-bottom: 8px; }
     .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
     
-    /* NOVA-Style Listen für Tool-Highlights */
     .list { list-style: none; padding: 0; margin: 0 0 20px; }
     .list li { position: relative; padding-left: 18px; margin-bottom: 6px; color: #d7dee8; font-size: 0.88rem; }
     .list li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--primary); opacity: 0.6; position: absolute; left: 0; top: 0.6em; }
@@ -181,7 +203,6 @@
       </div>
     </section>
 
-    <!-- Aktualisierte Filterleiste -->
     <div class="filter-bar animate-in delay-2">
       <button class="filter-btn active" onclick="filterTools('all', event)">All</button>
       <button class="filter-btn" onclick="filterTools('events', event)">Assembly & Regional Convention</button>
@@ -192,8 +213,9 @@
     <section class="grid animate-in delay-3">
       
       <!-- ==========================================
-           ASSEMBLY & REGIONAL CONVENTION (A-Z)
+           ASSEMBLY & REGIONAL CONVENTION
            ========================================== -->
+      <h2 class="section-title" data-cat="events">Assembly & Regional Convention</h2>
            
       <article class="card theme-assembly" data-cat="events">
         <div class="icon-wrap"><img src="./assembly-attendant-tool/favicon.ico" alt="Icon"></div>
@@ -268,8 +290,9 @@
       </article>
 
       <!-- ==========================================
-           CONGREGATION (A-Z, inkl. PTC)
+           CONGREGATION
            ========================================== -->
+      <h2 class="section-title" data-cat="congregation">Congregation</h2>
 
       <article class="card theme-congregation" data-cat="congregation">
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
@@ -296,8 +319,9 @@
       </article>
 
       <!-- ==========================================
-           KINGDOM HALL (A-Z)
+           KINGDOM HALL
            ========================================== -->
+      <h2 class="section-title" data-cat="kh">Kingdom Hall</h2>
 
       <article class="card theme-kh" data-cat="kh">
         <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
@@ -316,15 +340,18 @@
 
   <script>
     function filterTools(category, event) {
-      const cards = document.querySelectorAll('.card');
+      // Wählt sowohl die Karten als auch die neuen Zwischenüberschriften aus
+      const items = document.querySelectorAll('.card, .section-title');
       const buttons = document.querySelectorAll('.filter-btn');
+      
       buttons.forEach(btn => btn.classList.remove('active'));
       event.currentTarget.classList.add('active');
-      cards.forEach(card => {
-        if (category === 'all' || card.getAttribute('data-cat') === category) {
-          card.classList.remove('hidden');
+      
+      items.forEach(item => {
+        if (category === 'all' || item.getAttribute('data-cat') === category) {
+          item.classList.remove('hidden');
         } else {
-          card.classList.add('hidden');
+          item.classList.add('hidden');
         }
       });
     }
