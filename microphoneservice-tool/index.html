@@ -3,10 +3,11 @@
 <head>
  <meta charset="UTF-8">
  <title>Microphone Service Tool</title>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="microphone-service-icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="microphone-service-icon-180.png">
+<link rel="manifest" href="microphone-service-manifest.json">
 <meta name="theme-color" content="#1557b0">
 
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,15 +85,15 @@
  }
  .theme-toggle-btn span.icon{font-size:1rem}
 
- .onedrive-chip{
+ .sync-chip{
  display:inline-flex;align-items:center;gap:8px;
  padding:6px 10px;border-radius:999px;
  background:rgba(15,23,42,.20);
  border:1px solid rgba(148,163,184,.65);
  color:#e5e7eb;font-size:.8rem;user-select:none;
  }
- .onedrive-chip-text{display:flex;flex-direction:column;line-height:1.15}
- .od-header-detail{font-size:.72rem;opacity:.82;font-weight:400;margin-top:1px}
+ .sync-chip-text{display:flex;flex-direction:column;line-height:1.15}
+ .sync-chip-detail{font-size:.72rem;opacity:.82;font-weight:400;margin-top:1px}
  .dot{width:10px;height:10px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 2px rgba(255,255,255,.15) inset}
  .dot.ok{background:#22c55e}
  .dot.warn{background:#f59e0b}
@@ -152,7 +153,7 @@
  @media print{
  body{background:#fff!important;color:#000!important}
  header{background:#fff!important;color:#000!important;box-shadow:none!important;border-bottom:1px solid #000}
- .tabs,#brothers-tab,#json-tab,#plan-controls,footer{display:none!important}
+ .tabs,#brothers-tab,#json-tab,#plan-controls,footer,.sync-toast{display:none!important}
  th{background:#f3f4f6!important;color:#111827!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  tr:hover td{background:#fff!important}
  }
@@ -220,29 +221,38 @@
  body.dark-mode .planner-sync-status.unsaved{color:#fecaca}
  body.dark-mode .planner-sync-status.saving{color:#fde68a}
 
- .od-device-row{
+ .sync-device-row{
  display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px;
  }
- .od-device-row .form-group{min-width:220px}
- .od-compare-banner{
+ .sync-device-row .form-group{min-width:220px}
+ .sync-banner{
  display:none;margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--card-border);
  background:rgba(59,130,246,.10);font-size:.88rem;line-height:1.35;
  }
- .od-compare-banner.show{display:block}
- .od-compare-banner.cloud-newer{background:rgba(245,158,11,.13);border-color:rgba(245,158,11,.45)}
- .od-compare-banner.local-newer{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.45)}
- .od-compare-banner.same{background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.40)}
- .od-compare-title{font-weight:700;margin-bottom:2px}
- .od-compare-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
- .od-compare-actions button{padding:6px 10px;border-radius:999px;font-size:.8rem}
- .od-device-hint{
+ .sync-banner.show{display:block}
+ .sync-banner.cloud-newer{background:rgba(245,158,11,.13);border-color:rgba(245,158,11,.45)}
+ .sync-banner.local-newer{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.45)}
+ .sync-banner.same{background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.40)}
+ .sync-banner-title{font-weight:700;margin-bottom:2px}
+ .sync-banner-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+ .sync-banner-actions button{padding:6px 10px;border-radius:999px;font-size:.8rem}
+
+ .sync-toast{
+  position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);
+  background:#111827;color:#f9fafb;border:1px solid #374151;
+  padding:10px 16px;border-radius:999px;font-size:.85rem;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+  opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;z-index:9999;
+ }
+ .sync-toast.show{opacity:1;transform:translate(-50%,0)}
+ .sync-device-hint{
  display:none;margin-top:8px;padding:8px 10px;border-radius:8px;
  background:rgba(59,130,246,.10);border:1px solid rgba(59,130,246,.25);
  color:#1e3a8a;font-size:.8rem;line-height:1.35;
  }
- body.dark-mode .od-device-hint{background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.32);color:#dbeafe}
- .od-device-hint.show{display:block}
- .od-device-hint button{
+ body.dark-mode .sync-device-hint{background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.32);color:#dbeafe}
+ .sync-device-hint.show{display:block}
+ .sync-device-hint button{
  margin-left:8px;border:none;background:transparent;color:inherit;text-decoration:underline;
  cursor:pointer;font:inherit;padding:0;
  }
@@ -316,11 +326,11 @@
  </div>
 
  <div class="header-actions">
- <div class="onedrive-chip" title="OneDrive manual file status">
- <span id="odDot" class="dot bad"></span>
- <span class="onedrive-chip-text">
- <span id="odLabel">OneDrive: pick file</span>
- <span id="odHeaderSaved" class="od-header-detail">No cloud save yet</span>
+ <div class="sync-chip" title="Supabase cloud sync status">
+ <span id="sbDot" class="dot warn"></span>
+ <span class="sync-chip-text">
+ <span id="sbLabel">Cloud: connecting…</span>
+ <span id="sbHeaderDetail" class="sync-chip-detail">Waiting for first sync</span>
  </span>
  </div>
 
@@ -354,8 +364,8 @@
  <button class="secondary" id="clearMeetingsBtn" type="button">Clear all meetings</button>
  <button class="secondary" id="printBtn" type="button">Print planner</button>
  <div class="planner-sync-wrap">
- <div class="planner-sync-status" id="plannerSyncStatus">OneDrive not connected</div>
- <button class="planner-sync-btn state-disabled" id="plannerSyncBtn" type="button" title="Save current data to OneDrive">OneDrive not connected</button>
+ <div class="planner-sync-status" id="plannerSyncStatus">Connecting to cloud…</div>
+ <button class="planner-sync-btn state-working" id="plannerSyncBtn" type="button" title="Sync with the cloud now">Connecting…</button>
 </div>
  </div>
 
@@ -416,42 +426,57 @@
  </div>
 
  <div class="sync-panel">
- <h3 style="margin-top:0;">OneDrive (Manual Save + Optional Read)</h3>
- <p class="muted" style="margin-top:4px;">
- Choose your OneDrive JSON file once (recommended name: <b>microphone_autosave.json</b>).
- No autosave. If permission is still available, the tool quietly checks whether OneDrive has a newer version.
- </p>
+ <h3 style="margin-top:0;">Cloud sync (Supabase)</h3>
+   <p class="muted" style="margin-top:4px;">
+    All devices that open this page share <b>one</b> data record. Changes are uploaded automatically after a
+    short pause and picked up by the other devices within about 20 seconds. No login required &ndash; anyone
+    with the link can read and edit.
+   </p>
 
- <div class="od-device-row">
- <div class="form-group">
- <label for="odDeviceName">This device</label>
- <input type="text" id="odDeviceName" placeholder="e.g. Hall-PC" autocomplete="off">
- </div>
- </div>
+   <div class="sync-device-row">
+    <div class="form-group" style="min-width:260px;">
+     <label for="sbCongregationSelect">Congregation</label>
+     <select id="sbCongregationSelect"></select>
+    </div>
+    <button class="secondary" id="sbSwitchCongBtn" type="button">Switch</button>
+    <button class="secondary" id="sbNewCongBtn" type="button">&#10133; New congregation…</button>
+    <button class="secondary" id="sbForgetCodeBtn" type="button">&#128274; Forget code on this device</button>
+   </div>
 
- <div id="odDeviceHint" class="od-device-hint">
- 💡 Tip: Give this device a name (e.g. "Hall-PC") so you can see which device saved the latest changes.
- <button id="odDismissDeviceHint" type="button">Got it</button>
- </div>
+   <p class="muted" id="sbCongregationCurrent" style="margin:8px 0 0;"></p>
+   <p class="muted" style="margin:4px 0 0;font-size:.78rem;">
+    Each congregation gets its own record, derived from its name. This separates the data &ndash;
+    protected by a 5-digit access code. The code is verified <b>in the database</b>, not in this page &ndash;
+    without it the record cannot be read or written. The list of congregation names is visible to everyone;
+    the data behind them is not.
+   </p>
 
- <div id="odCompareBanner" class="od-compare-banner"></div>
+   <div class="sync-device-row">
+    <div class="form-group">
+     <label for="sbDeviceName">This device</label>
+     <input type="text" id="sbDeviceName" placeholder="e.g. Hall-PC" autocomplete="off">
+    </div>
+   </div>
 
- <div class="sync-row">
- <button class="secondary" id="odChooseBtn" type="button">📄 Choose OneDrive file…</button>
- <button class="secondary" id="odCheckBtn" type="button" disabled>🔎 Check OneDrive version</button>
- <button class="secondary" id="odReadBtn" type="button" disabled>📥 Read from OneDrive</button>
- <button class="primary" id="odSaveBtn" type="button" disabled>💾 Save to OneDrive</button>
- </div>
+   <div id="sbDeviceHint" class="sync-device-hint">
+    &#128161; Tip: give this device a name (e.g. "Hall-PC") so everyone can see which device saved the latest changes.
+    <button id="sbDismissDeviceHint" type="button">Got it</button>
+   </div>
 
- <div class="sync-kv" id="odStatusLine">
- <span><b>Status:</b> —</span>
- <span><b>File:</b> —</span>
- <span><b>Last write:</b> —</span>
- <span><b>Last read:</b> —</span>
- </div>
- </div>
+   <div id="sbBanner" class="sync-banner"></div>
 
- <h3 style="margin-top:18px;">Microphone duty statistics</h3>
+   <div class="sync-row">
+    <button class="secondary" id="sbSyncNowBtn" type="button">&#128260; Sync now</button>
+    <button class="secondary" id="sbPullBtn" type="button">&#128229; Reload from cloud</button>
+    <button class="secondary" id="sbPushBtn" type="button">&#128228; Force upload local data</button>
+   </div>
+
+   <div class="sync-kv" id="sbStatusLine">
+    <span><b>Status:</b> &mdash;</span>
+   </div>
+  </div>
+
+  <h3 style="margin-top:18px;">Microphone duty statistics</h3>
  <p class="muted">Overview of how often each brother had microphone duty (Mic 1, Mic 2, total).</p>
 
  <table id="statsTable" class="stats-table">
@@ -465,565 +490,750 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 2.2.8</footer>
+ <footer>Made with Love © – Microphone Service Tool V 3.2.0</footer>
  </div>
 </div>
 
 <script>
 /* =========================
- OneDrive Manual Save + Calm Cross-Device Check
- - no autosave
- - silent background version checks when permission is available
- - stores file handle in IndexedDB if possible
+ Supabase Cloud Sync (no login, one shared dataset)
+ - one row per congregation (slug of the congregation name)
+ - auto push (debounced) + auto pull (poll)
+ - last write wins, per-device attribution
 ========================= */
 
-const OD_DB = { name: "microphone_service_db", store: "kv", version: 1 };
-const OD_KEY = "onedrive_file_handle";
-const OD_LAST_WRITE_KEY = "micPlannerOneDriveLastWriteMs";
-const OD_LAST_READ_KEY = "micPlannerOneDriveLastReadMs";
-const OD_LAST_SAVED_SNAPSHOT_KEY = "micPlannerOneDriveSavedSnapshot";
-const OD_DEVICE_NAME_KEY = "micPlannerOneDriveDeviceName";
-const OD_DEVICE_HINT_DISMISSED_KEY = "micPlannerDeviceHintDismissed";
+const SUPABASE_URL = "https://avuimpwjslrgpdahyloa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2dWltcHdqc2xyZ3BkYWh5bG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwOTc0MjAsImV4cCI6MjA5NDY3MzQyMH0.q6s3s36WOoGGLbH7gsWqyzY2b_36vUjAHqKrGrAhYEs";
+const SB_TABLE = "mic_service";
+const LEGACY_DOC_ID = "mic_service_augsburg";
+const SB_CONGREGATION_KEY = "micPlannerCongregation";
+const SB_CODES_KEY = "micPlannerCongregationCodes";
+
+/* Access codes are kept per congregation on this device only.
+   The real check happens in the database (mic_read / mic_write). */
+function sbLoadCodes(){
+ try{ return JSON.parse(localStorage.getItem(SB_CODES_KEY) || "{}") || {}; }
+ catch{ return {}; }
+}
+function sbGetCode(id){ return sbLoadCodes()[id] || ""; }
+function sbSetCode(id, code){
+ const all = sbLoadCodes();
+ if(code) all[id] = code; else delete all[id];
+ localStorage.setItem(SB_CODES_KEY, JSON.stringify(all));
+}
+function sbCurrentCode(){ return sbGetCode(getDocId()); }
+function sbValidCodeFormat(code){ return /^\d{5}$/.test(String(code||"").trim()); }
+
+function sbErrorKind(e){
+ const msg = (e?.message || e?.hint || String(e) || "").toUpperCase();
+ if(msg.includes("BAD_CODE_FORMAT")) return "BAD_CODE_FORMAT";
+ if(msg.includes("BAD_CODE")) return "BAD_CODE";
+ if(msg.includes("LOCKED")) return "LOCKED";
+ if(msg.includes("NO_RECORD")) return "NO_RECORD";
+ if(msg.includes("EXISTS")) return "EXISTS";
+ return "OTHER";
+}
+
+function sbExplainError(kind, fallback){
+ switch(kind){
+  case "BAD_CODE": return "Wrong access code for this congregation.";
+  case "BAD_CODE_FORMAT": return "The access code must be exactly 5 digits.";
+  case "LOCKED": return "Too many wrong attempts. Locked for 10 minutes.";
+  case "NO_RECORD": return "This congregation does not exist in the cloud yet.";
+  case "EXISTS": return "A congregation with this name already exists.";
+  default: return fallback || "Unknown error.";
+ }
+}
+
+/* Record id is derived from the congregation name, so several congregations
+   can share this exact same file without any login. */
+function sbSlugify(name){
+ return String(name || "")
+  .toLowerCase()
+  .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .replace(/[^a-z0-9]+/g,"-")
+  .replace(/^-+|-+$/g,"")
+  .slice(0,60);
+}
+
+function getCongregationName(){
+ return (localStorage.getItem(SB_CONGREGATION_KEY) || "").trim();
+}
+
+function getDocId(){
+ const slug = sbSlugify(getCongregationName());
+ return slug ? `mic_${slug}` : LEGACY_DOC_ID;
+}
+
+const SB_DEVICE_NAME_KEY = "micPlannerDeviceName";
+const SB_DEVICE_HINT_DISMISSED_KEY = "micPlannerDeviceHintDismissed";
 const LOCAL_UPDATED_AT_KEY = "micPlannerLocalUpdatedAtMs";
-const OD_UNSAVED_GRACE_MS = 5 * 60 * 1000;
-const OD_AUTO_CHECK_INTERVAL_MS = 60 * 1000;
-let odAutoCheckTimer = null;
-let odLastAutoCheckMs = 0;
-let odFileHandle = null;
-let odLastWriteMs = Number(localStorage.getItem(OD_LAST_WRITE_KEY) || 0);
-let odLastReadMs = Number(localStorage.getItem(OD_LAST_READ_KEY) || 0);
-let odLastSavedSnapshot = localStorage.getItem(OD_LAST_SAVED_SNAPSHOT_KEY) || null;
+const SB_LAST_PUSH_KEY = "micPlannerSbLastPushMs";
+const SB_LAST_PULL_KEY = "micPlannerSbLastPullMs";
+
+const SB_PUSH_DEBOUNCE_MS = 1500;
+const SB_POLL_INTERVAL_MS = 20 * 1000;
+
+let db = null;
+let sbState = "init"; // init | offline | pending | saving | synced | error
+let sbDetail = "";
+let sbRemoteDevice = "";
+let sbLastPushMs = Number(localStorage.getItem(SB_LAST_PUSH_KEY) || 0);
+let sbLastPullMs = Number(localStorage.getItem(SB_LAST_PULL_KEY) || 0);
 let localUpdatedAtMs = Number(localStorage.getItem(LOCAL_UPDATED_AT_KEY) || 0);
-let lastCloudMeta = null;
-let hasUnsavedOneDriveChanges = false;
 
-function odSupported(){
- return typeof window.showOpenFilePicker === "function" && typeof FileSystemFileHandle !== "undefined";
+let sbPushTimer = null;
+let sbPollTimer = null;
+let sbPushInFlight = false;
+let sbPushQueued = false;
+let sbDirty = false;
+let sbApplyingRemote = false;
+
+/* ---------- small helpers ---------- */
+
+function sbConfigured(){
+  return !!SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.startsWith("PASTE_");
 }
 
-function odFormatTs(ms){
- if(!ms) return "—";
- const d = new Date(ms);
- if(isNaN(d.getTime())) return "—";
- return d.toLocaleString("de-DE");
+function sbFormatTs(ms){
+  if(!ms) return "—";
+  const d = new Date(ms);
+  const pad = n => String(n).padStart(2,"0");
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}. ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function odTimeOnly(ms){
- if(!ms) return "";
- const d = new Date(ms);
- if(isNaN(d.getTime())) return "";
- const hh = String(d.getHours()).padStart(2,"0");
- const mm = String(d.getMinutes()).padStart(2,"0");
- return `${hh}:${mm}`;
+function sbTimeOnly(ms){
+  if(!ms) return "—";
+  const d = new Date(ms);
+  const pad = n => String(n).padStart(2,"0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function currentAppSnapshot(){
- try{ return JSON.stringify(appData); }catch{ return null; }
+  try{ return JSON.stringify(appData); } catch { return null; }
 }
+
 function getDeviceName(){
- const input = document.getElementById("odDeviceName");
- const fromInput = input ? input.value.trim() : "";
- return fromInput || localStorage.getItem(OD_DEVICE_NAME_KEY) || "Unknown device";
+  const raw = localStorage.getItem(SB_DEVICE_NAME_KEY) || "";
+  return raw.trim().slice(0,40);
 }
 
 function setDeviceName(name){
- const clean = String(name || "").trim();
- if(clean){
- localStorage.setItem(OD_DEVICE_NAME_KEY, clean);
- }else{
- localStorage.removeItem(OD_DEVICE_NAME_KEY);
- }
- const input = document.getElementById("odDeviceName");
- if(input && input.value !== clean) input.value = clean;
+  const clean = String(name || "").trim().slice(0,40);
+  if(clean) localStorage.setItem(SB_DEVICE_NAME_KEY, clean);
+  else localStorage.removeItem(SB_DEVICE_NAME_KEY);
+  const input = document.getElementById("sbDeviceName");
+  if(input && input.value !== clean) input.value = clean;
 }
 
-function hasNamedDevice(){
- return !!(localStorage.getItem(OD_DEVICE_NAME_KEY) || "").trim();
-}
+function hasNamedDevice(){ return !!getDeviceName(); }
 
 function updateDeviceHint(){
- const hint = document.getElementById("odDeviceHint");
- if(!hint) return;
- const dismissed = localStorage.getItem(OD_DEVICE_HINT_DISMISSED_KEY) === "true";
- hint.classList.toggle("show", !hasNamedDevice() && !dismissed);
-}
-
-function updateHeaderSavedInfo(){
- const el = document.getElementById("odHeaderSaved");
- if(!el) return;
- const writer = lastCloudMeta?.deviceName || (odLastWriteMs ? getDeviceName() : "");
- const time = odTimeOnly(lastCloudMeta?.updatedAtMs || odLastWriteMs);
- if(hasUnsavedOneDriveChanges){
- el.textContent = time ? `Unsaved changes · last ${time}` : "Unsaved changes";
- return;
- }
- if(time && writer){
- el.textContent = `Last saved from ${writer} · ${time}`;
- return;
- }
- el.textContent = odFileHandle ? "Ready · no cloud save yet" : "No cloud file connected";
+  const hint = document.getElementById("sbDeviceHint");
+  if(!hint) return;
+  const dismissed = localStorage.getItem(SB_DEVICE_HINT_DISMISSED_KEY) === "true";
+  const show = !hasNamedDevice() && !dismissed;
+  hint.classList.toggle("show", show);
 }
 
 function setLocalUpdatedAt(ms){
- localUpdatedAtMs = Number(ms || Date.now());
- localStorage.setItem(LOCAL_UPDATED_AT_KEY, String(localUpdatedAtMs));
+  localUpdatedAtMs = ms || Date.now();
+  localStorage.setItem(LOCAL_UPDATED_AT_KEY, String(localUpdatedAtMs));
+  updateHeaderSavedInfo();
 }
 
 function parseMetaDate(value){
- if(!value) return 0;
- const ms = new Date(value).getTime();
- return Number.isFinite(ms) ? ms : 0;
+  if(!value) return 0;
+  const ms = new Date(value).getTime();
+  return Number.isFinite(ms) ? ms : 0;
 }
 
 function getPayloadMeta(obj){
- const meta = obj?.meta || {};
- const updatedAt = obj?.updatedAt || meta.updatedAt || obj?.generatedAt || "";
- const updatedAtMs = parseMetaDate(updatedAt);
- return {
- updatedAt,
- updatedAtMs,
- deviceName: obj?.deviceName || meta.deviceName || "Unknown device",
- appVersion: obj?.version || meta.version || "unknown"
- };
+  const meta = obj?.meta && typeof obj.meta === "object" ? obj.meta : {};
+  const updatedAtMs = parseMetaDate(obj?.updatedAt) || parseMetaDate(meta.updatedAt);
+  const deviceName = (obj?.deviceName || meta.deviceName || "").toString().trim();
+  return { updatedAtMs, deviceName };
 }
 
-function odCompareText(ms){
- return ms ? odFormatTs(ms) : "unknown time";
+function updateHeaderSavedInfo(){
+  const el = document.getElementById("sbHeaderDetail");
+  if(!el) return;
+  if(!sbConfigured()){ el.textContent = "No cloud key configured"; return; }
+  if(sbState === "error"){ el.textContent = sbDetail ? `Error: ${sbDetail}` : "Sync error"; return; }
+  if(sbState === "offline"){ el.textContent = "Offline – changes kept locally"; return; }
+  if(sbState === "locked"){ el.textContent = "Access code needed"; return; }
+  if(sbState === "saving"){ el.textContent = "Saving…"; return; }
+  if(sbState === "pending"){ el.textContent = "Unsaved changes"; return; }
+  if(sbLastPushMs || sbLastPullMs){
+    const newest = Math.max(sbLastPushMs, sbLastPullMs);
+    const who = sbRemoteDevice ? ` · ${sbRemoteDevice}` : "";
+    el.textContent = `In sync ${sbTimeOnly(newest)}${who}`;
+    return;
+  }
+  el.textContent = "Waiting for first sync";
 }
 
-function hideOneDriveCompareBanner(){
- const box = document.getElementById("odCompareBanner");
- if(!box) return;
- box.className = "od-compare-banner";
- box.innerHTML = "";
+/* ---------- banner / toast ---------- */
+
+function hideSyncBanner(){
+  const el = document.getElementById("sbBanner");
+  if(!el) return;
+  el.className = "sync-banner";
+  el.innerHTML = "";
 }
 
-function showOneDriveCompareBanner(kind, title, body, actions=[]){
- const box = document.getElementById("odCompareBanner");
- if(!box) return;
- box.className = `od-compare-banner show ${kind || ""}`;
- const buttons = actions.map(a=>`<button class="${a.primary ? "primary" : "secondary"}" type="button" data-action="${a.action}">${a.label}</button>`).join("");
- box.innerHTML = `<div class="od-compare-title">${title}</div><div>${body}</div>${buttons ? `<div class="od-compare-actions">${buttons}</div>` : ""}`;
- box.querySelectorAll("button[data-action]").forEach(btn=>{
- btn.addEventListener("click", async ()=>{
- const action = btn.dataset.action;
- if(action === "load-cloud") await loadCurrentOneDriveFile();
- if(action === "save-local") await saveCurrentDataToOneDrive(false);
- if(action === "dismiss") hideOneDriveCompareBanner();
- });
- });
+function showSyncBanner(kind, title, body){
+  const el = document.getElementById("sbBanner");
+  if(!el) return;
+  el.className = `sync-banner show ${kind}`;
+  el.innerHTML = `<div class="sync-banner-title">${title}</div><div>${body}</div>`;
 }
 
-function compareCloudWithLocal(meta, {showSame=false}={}){
- if(!meta || !meta.updatedAtMs) return;
- lastCloudMeta = meta;
- const localMs = localUpdatedAtMs || 0;
- const diff = meta.updatedAtMs - localMs;
- const tolerance = 1500;
- const cloudInfo = `OneDrive: ${odCompareText(meta.updatedAtMs)} · written by <b>${meta.deviceName}</b>`;
- const localInfo = `This device: ${odCompareText(localMs)} · <b>${getDeviceName()}</b>`;
-
- if(diff > tolerance){
- showOneDriveCompareBanner(
- "cloud-newer",
- "☁️ Newer OneDrive version found",
- `${cloudInfo}<br>${localInfo}`,
- [
- {action:"load-cloud", label:"Load OneDrive version", primary:true},
- {action:"dismiss", label:"Keep local for now"}
- ]
- );
- return;
- }
-
- if(diff < -tolerance){
- showOneDriveCompareBanner(
- "local-newer",
- "💻 This device has newer changes",
- `${localInfo}<br>${cloudInfo}`,
- [
- {action:"save-local", label:"Save this device to OneDrive", primary:true},
- {action:"dismiss", label:"Not now"}
- ]
- );
- return;
- }
-
- if(showSame){
- showOneDriveCompareBanner(
- "same",
- "✅ OneDrive and this device look up to date",
- `${cloudInfo}<br>${localInfo}`,
- [{action:"dismiss", label:"OK"}]
- );
- }
+let sbToastTimer = null;
+function sbToast(text){
+  let el = document.getElementById("sbToast");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "sbToast";
+    el.className = "sync-toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.classList.add("show");
+  clearTimeout(sbToastTimer);
+  sbToastTimer = setTimeout(()=>el.classList.remove("show"), 4000);
 }
 
-async function odHasPermission(handle, mode="read"){
- if(!handle) return false;
+/* ---------- status UI ---------- */
+
+function sbSetState(state, detail=""){
+  sbState = state;
+  sbDetail = detail;
+  sbUpdateUI();
+}
+
+function sbUpdateUI(){
+  const dot = document.getElementById("sbDot");
+  const label = document.getElementById("sbLabel");
+  const statusLine = document.getElementById("sbStatusLine");
+  const plannerStatus = document.getElementById("plannerSyncStatus");
+  const plannerBtn = document.getElementById("plannerSyncBtn");
+
+  let dotClass = "bad", labelText = "Cloud: off", btnClass = "state-disabled", btnText = "Cloud off";
+
+  if(!sbConfigured()){
+    labelText = "Cloud: no key";
+    btnText = "No cloud key";
+  } else if(sbState === "offline"){
+    dotClass = "warn"; labelText = "Cloud: offline"; btnClass = "state-unsaved"; btnText = "Offline – retry";
+  } else if(sbState === "error"){
+    dotClass = "bad"; labelText = "Cloud: error"; btnClass = "state-unsaved"; btnText = "Sync failed – retry";
+  } else if(sbState === "saving"){
+    dotClass = "warn"; labelText = "Cloud: saving…"; btnClass = "state-working"; btnText = "Saving…";
+  } else if(sbState === "pending"){
+    dotClass = "warn"; labelText = "Cloud: pending"; btnClass = "state-working"; btnText = "Sync now";
+  } else if(sbState === "locked"){
+    dotClass = "bad"; labelText = "Cloud: locked"; btnClass = "state-unsaved"; btnText = "Enter access code";
+  } else if(sbState === "synced"){
+    dotClass = "ok"; labelText = "Cloud: in sync"; btnClass = "state-saved"; btnText = "Sync now";
+  } else {
+    dotClass = "warn"; labelText = "Cloud: connecting…"; btnClass = "state-working"; btnText = "Connecting…";
+  }
+
+  if(dot) dot.className = `dot ${dotClass}`;
+  if(label) label.textContent = labelText;
+
+  if(plannerBtn){
+    plannerBtn.className = `planner-sync-btn ${btnClass}`;
+    plannerBtn.textContent = btnText;
+  }
+
+  if(plannerStatus){
+    plannerStatus.classList.remove("saved","unsaved","saving");
+    if(sbState === "synced"){
+      plannerStatus.classList.add("saved");
+      plannerStatus.textContent = `Cloud in sync · ${sbTimeOnly(Math.max(sbLastPushMs, sbLastPullMs))}`;
+    } else if(sbState === "saving"){
+      plannerStatus.classList.add("saving");
+      plannerStatus.textContent = "Saving to cloud…";
+    } else if(sbState === "pending"){
+      plannerStatus.classList.add("saving");
+      plannerStatus.textContent = "Unsaved changes…";
+    } else if(sbState === "offline"){
+      plannerStatus.classList.add("unsaved");
+      plannerStatus.textContent = "Offline – stored locally";
+    } else if(sbState === "error"){
+      plannerStatus.classList.add("unsaved");
+      plannerStatus.textContent = "Cloud sync failed";
+    } else if(sbState === "locked"){
+      plannerStatus.classList.add("unsaved");
+      plannerStatus.textContent = "Locked – access code needed";
+    } else if(!sbConfigured()){
+      plannerStatus.textContent = "Cloud not configured";
+    } else {
+      plannerStatus.textContent = "Connecting to cloud…";
+    }
+  }
+
+  if(statusLine){
+    statusLine.innerHTML =
+      `<span><b>Status:</b> ${labelText.replace("Cloud: ","")}</span>` +
+      `<span><b>Congregation:</b> ${getCongregationName() || "not set"}</span>` +
+      `<span><b>Record:</b> ${getDocId()}</span>` +
+      `<span><b>Last upload:</b> ${sbFormatTs(sbLastPushMs)}</span>` +
+      `<span><b>Last download:</b> ${sbFormatTs(sbLastPullMs)}</span>` +
+      `<span><b>Last device:</b> ${sbRemoteDevice || "—"}</span>`;
+  }
+
+  updateHeaderSavedInfo();
+}
+
+/* ---------- core sync ---------- */
+
+function sbInit(){
+  if(!sbConfigured()){
+    sbSetState("init");
+    showSyncBanner("cloud-newer", "Cloud key missing",
+      "Paste your Supabase anon key into <b>SUPABASE_ANON_KEY</b> at the top of the script block. Until then the tool works offline with local storage only.");
+    return false;
+  }
+  if(!window.supabase?.createClient){
+    sbSetState("error", "Supabase library not loaded");
+    return false;
+  }
+  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+  return true;
+}
+
+function sbBuildRow(){
+  if(!localUpdatedAtMs) setLocalUpdatedAt(Date.now());
+  return {
+    id: getDocId(),
+    congregation: getCongregationName() || "(unnamed)",
+    data: appData,
+    device: getDeviceName() || "unnamed device",
+    updated_at: new Date(localUpdatedAtMs).toISOString()
+  };
+}
+
+function sbSchedulePush(){
+  if(!db || sbApplyingRemote) return;
+  sbDirty = true;
+  sbSetState("pending");
+  clearTimeout(sbPushTimer);
+  sbPushTimer = setTimeout(()=>{ sbPush(); }, SB_PUSH_DEBOUNCE_MS);
+}
+
+async function sbPush({silent=true}={}){
+ if(!db) return false;
+ if(sbPushInFlight){ sbPushQueued = true; return false; }
+ if(!sbCurrentCode()){ sbSetState("locked"); return false; }
+
+ clearTimeout(sbPushTimer);
+ sbPushInFlight = true;
+ sbSetState("saving");
+
  try{
- if(handle.queryPermission){
- const q = await handle.queryPermission({ mode });
- return q === "granted";
- }
- return true;
- }catch{
- return false;
- }
-}
+  const row = sbBuildRow();
+  const { error } = await db.rpc("mic_write", {
+   p_id: row.id,
+   p_congregation: row.congregation,
+   p_code: sbCurrentCode(),
+   p_data: row.data,
+   p_device: row.device,
+   p_updated_at: row.updated_at
+  });
+  if(error) throw error;
 
-async function odReadJsonRaw({silent=false}={}){
- if(!odFileHandle) return null;
- const ok = silent ? await odHasPermission(odFileHandle, "read") : await odVerifyPermission(odFileHandle, "read");
- if(!ok){
- if(!silent){
- odUpdateUI("permission needed");
- alert("No permission to read the selected OneDrive file. Please choose the file again.");
- }
- return null;
- }
- const file = await odFileHandle.getFile();
- const txt = await file.text();
- return JSON.parse(txt);
-}
-
-async function checkOneDriveVersion({silent=false, showSame=false, background=false}={}){
- try{
- const obj = await odReadJsonRaw({silent});
- if(!obj) return null;
- const meta = getPayloadMeta(obj);
- odLastAutoCheckMs = Date.now();
- compareCloudWithLocal(meta, {showSame});
- odUpdateUI(background ? "background check" : "checked");
- return { obj, meta };
+  sbDirty = false;
+  sbLastPushMs = Date.now();
+  localStorage.setItem(SB_LAST_PUSH_KEY, String(sbLastPushMs));
+  sbRemoteDevice = row.device;
+  sbSetState("synced");
+  hideSyncBanner();
+  if(!silent) sbToast("Uploaded to cloud.");
+  return true;
  }catch(e){
- if(!silent){
- odUpdateUI("version check failed");
- alert("Could not check OneDrive version: " + (e?.message || e));
- }
- return null;
+  const kind = sbErrorKind(e);
+  if(kind === "BAD_CODE" || kind === "LOCKED"){
+   sbSetCode(getDocId(), "");
+   sbSetState("locked", sbExplainError(kind));
+   showSyncBanner("cloud-newer", "Access code rejected", sbExplainError(kind) + " Your changes are still stored on this device.");
+  }else{
+   sbSetState(navigator.onLine ? "error" : "offline", e?.message || String(e));
+  }
+  if(!silent) sbToast("Upload failed: " + sbExplainError(kind, e?.message));
+  return false;
+ }finally{
+  sbPushInFlight = false;
+  if(sbPushQueued){ sbPushQueued = false; sbPush(); }
  }
 }
 
-function startOneDriveAutoCheck(){
- if(odAutoCheckTimer) clearInterval(odAutoCheckTimer);
- odAutoCheckTimer = setInterval(()=>{
- if(document.visibilityState !== "visible") return;
- if(!odFileHandle) return;
- checkOneDriveVersion({silent:true, showSame:false, background:true});
- }, OD_AUTO_CHECK_INTERVAL_MS);
+function sbUserIsTyping(){
+  const el = document.activeElement;
+  if(!el) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA";
 }
 
-document.addEventListener("visibilitychange", ()=>{
- if(document.visibilityState !== "visible") return;
- if(!odFileHandle) return;
- const last = odLastAutoCheckMs || 0;
- if(Date.now() - last > 15000){
- checkOneDriveVersion({silent:true, showSame:false, background:true});
- }
-});
+function sbApplyRemote(payload, remoteMs, device){
+  try{
+    const normalized = normalizeIncomingData(payload);
+    sbApplyingRemote = true;
+    appData = normalized;
+    setLocalUpdatedAt(remoteMs);
+    saveLocal(false);
+    sbApplyingRemote = false;
 
-async function loadCurrentOneDriveFile(){
+    updateFilterOptions();
+    renderBrothers();
+    renderAssignments();
+    renderStats();
+
+    sbToast(`Updated from ${device || "another device"} (${sbTimeOnly(remoteMs)}).`);
+    return true;
+  }catch(e){
+    sbApplyingRemote = false;
+    sbSetState("error", "Cloud data invalid: " + (e?.message || e));
+    return false;
+  }
+}
+
+async function sbPull({silent=true, force=false}={}){
+ if(!db) return false;
+ if(sbPushInFlight) return false;
+
+ const code = sbCurrentCode();
+ if(!code){ sbSetState("locked"); return false; }
+
  try{
- const obj = await odReadJson();
- if(!obj) return false;
- const normalized = normalizeIncomingData(obj);
- const meta = getPayloadMeta(obj);
- appData = normalized;
- if(meta.updatedAtMs) setLocalUpdatedAt(meta.updatedAtMs);
- saveLocal(false);
- odLastReadMs = Date.now();
- localStorage.setItem(OD_LAST_READ_KEY, String(odLastReadMs));
- markOneDriveSaved("read");
- hideOneDriveCompareBanner();
+  const { data: rowsRaw, error } = await db.rpc("mic_read", {
+   p_id: getDocId(),
+   p_code: code
+  });
+  if(error) throw error;
+
+  const row = Array.isArray(rowsRaw) ? rowsRaw[0] : rowsRaw;
+
+  sbLastPullMs = Date.now();
+  localStorage.setItem(SB_LAST_PULL_KEY, String(sbLastPullMs));
+
+  if(!row){
+   sbSetState("error", "Record no longer exists in the cloud.");
+   showSyncBanner("cloud-newer", "Record missing",
+    "This congregation is no longer in the cloud. Use <b>New congregation…</b> to create it again.");
+   return false;
+  }
+
+  const remoteMs = parseMetaDate(row.updated_at);
+  sbRemoteDevice = (row.device || "").trim();
+
+  const remoteIsNewer = remoteMs > (localUpdatedAtMs + 1000);
+  const sameContent = JSON.stringify(row.data) === currentAppSnapshot();
+
+  if(force || (remoteIsNewer && !sameContent)){
+   if(!force && sbUserIsTyping()){
+    sbSetState("pending");
+    return false;
+   }
+   sbApplyRemote(row.data, force ? Date.now() : remoteMs, sbRemoteDevice);
+   sbSetState("synced");
+   if(force) await sbPush({silent:true});
+   return true;
+  }
+
+  if(sbDirty){
+   await sbPush({silent:true});
+   return true;
+  }
+
+  sbSetState("synced");
+  hideSyncBanner();
+  if(!silent) sbToast("Already up to date.");
+  return true;
+ }catch(e){
+  const kind = sbErrorKind(e);
+  if(kind === "BAD_CODE" || kind === "LOCKED"){
+   sbSetCode(getDocId(), "");
+   sbSetState("locked", sbExplainError(kind));
+   showSyncBanner("cloud-newer", "Access code rejected", sbExplainError(kind));
+  }else{
+   sbSetState(navigator.onLine ? "error" : "offline", e?.message || String(e));
+  }
+  if(!silent) sbToast("Download failed: " + sbExplainError(kind, e?.message));
+  return false;
+ }
+}
+
+/* ---------- congregations (multi-tenant without login) ---------- */
+
+async function sbListCongregations(){
+ if(!db) return [];
+ try{
+  const { data, error } = await db.rpc("mic_list");
+  if(error) throw error;
+  return data || [];
+ }catch(e){
+  sbSetState("error", e?.message || String(e));
+  return [];
+ }
+}
+
+async function sbRenderCongregationList(){
+ const sel = document.getElementById("sbCongregationSelect");
+ if(!sel) return;
+ const current = getCongregationName();
+ const rows = await sbListCongregations();
+
+ sel.innerHTML = "";
+ const seen = new Set();
+
+ rows.forEach(r=>{
+  const label = (r.congregation && r.congregation !== "(unnamed)") ? r.congregation : r.id;
+  if(seen.has(label)) return;
+  seen.add(label);
+  const opt = document.createElement("option");
+  opt.value = label;
+  opt.textContent = label;
+  sel.appendChild(opt);
+ });
+
+ if(current && !seen.has(current)){
+  const opt = document.createElement("option");
+  opt.value = current;
+  opt.textContent = current;
+  sel.insertBefore(opt, sel.firstChild);
+ }
+
+ if(!sel.options.length){
+  const opt = document.createElement("option");
+  opt.value = "";
+  opt.textContent = "— no congregation yet —";
+  sel.appendChild(opt);
+ }
+
+ sel.value = current || sel.options[0].value;
+ sbUpdateCongregationLabel();
+}
+
+function sbUpdateCongregationLabel(){
+ const el = document.getElementById("sbCongregationCurrent");
+ if(!el) return;
+ const name = getCongregationName();
+ el.innerHTML = name
+  ? `Active: <b>${name}</b> &middot; record <code>${getDocId()}</code>`
+  : `No congregation selected &ndash; using the legacy record <code>${LEGACY_DOC_ID}</code>.`;
+}
+
+function sbPromptCode(title){
+ const code = prompt(`${title}\n\nAccess code (5 digits):`, "");
+ if(code === null) return null;
+ const clean = String(code).trim();
+ if(!sbValidCodeFormat(clean)){
+  alert("The access code must be exactly 5 digits.");
+  return null;
+ }
+ return clean;
+}
+
+/* Unlock the currently selected congregation by asking for its code. */
+async function sbUnlockCurrent(){
+ const id = getDocId();
+ const name = getCongregationName() || id;
+ const code = sbPromptCode(`Unlock "${name}"`);
+ if(!code) return false;
+
+ sbSetCode(id, code);
+ sbSetState("saving");
+ const ok = await sbPull({silent:true});
+ if(ok){
+  sbToast(`"${name}" unlocked on this device.`);
+ }else{
+  sbSetCode(id, "");
+  sbUpdateUI();
+ }
+ return ok;
+}
+
+async function sbSwitchCongregation(name){
+ const clean = String(name || "").trim();
+ if(!clean){ alert("Please enter a congregation name."); return false; }
+
+ const slug = sbSlugify(clean);
+ if(!slug){ alert("That name contains no usable characters."); return false; }
+ const newId = `mic_${slug}`;
+
+ if(newId === getDocId() && clean === getCongregationName() && sbCurrentCode()){
+  sbToast("Already on this congregation.");
+  return true;
+ }
+
+ if(sbDirty && sbCurrentCode()){
+  if(confirm("There are unsaved changes for the current congregation. Upload them before switching?")){
+   await sbPush({silent:true});
+  }
+ }
+
+ // Does the record exist at all?
+ const known = await sbListCongregations();
+ const exists = known.some(r => r.id === newId);
+
+ if(!exists){
+  if(!confirm(`No congregation "${clean}" exists yet.\n\nOK = create it now.\nCancel = stay on the current one.`)){
+   await sbRenderCongregationList();
+   sbUpdateUI();
+   return false;
+  }
+
+  const code = sbPromptCode(`Choose an access code for "${clean}".\nEveryone in that congregation will need it.`);
+  if(!code){ await sbRenderCongregationList(); sbUpdateUI(); return false; }
+
+  const confirmCode = sbPromptCode(`Repeat the access code for "${clean}"`);
+  if(confirmCode !== code){
+   alert("The two codes do not match. Nothing was created.");
+   await sbRenderCongregationList();
+   sbUpdateUI();
+   return false;
+  }
+
+  const carryOver = confirm(
+   `Start "${clean}" with the data currently on this device?\n\n` +
+   `OK = copy the ${appData.brothers.length} brother(s) and ${appData.assignments.length} meeting(s) shown right now.\n` +
+   `Cancel = start completely empty.`
+  );
+
+  const payload = carryOver ? appData : { brothers: [], assignments: [] };
+
+  try{
+   sbSetState("saving");
+   const { error } = await db.rpc("mic_create", {
+    p_id: newId,
+    p_congregation: clean,
+    p_code: code,
+    p_data: payload,
+    p_device: getDeviceName() || "unnamed device"
+   });
+   if(error) throw error;
+  }catch(e){
+   const kind = sbErrorKind(e);
+   sbSetState("error", e?.message || String(e));
+   alert("Could not create the congregation: " + sbExplainError(kind, e?.message));
+   return false;
+  }
+
+  localStorage.setItem(SB_CONGREGATION_KEY, clean);
+  sbSetCode(newId, code);
+  sbApplyingRemote = true;
+  appData = normalizeIncomingData(payload);
+  setLocalUpdatedAt(Date.now());
+  saveLocal(false);
+  sbApplyingRemote = false;
+  sbDirty = false;
+  sbSetState("synced");
+ } else {
+  // Existing record – we need its code.
+  let code = sbGetCode(newId);
+  if(!code){
+   code = sbPromptCode(`Unlock "${clean}"`);
+   if(!code){ await sbRenderCongregationList(); sbUpdateUI(); return false; }
+  }
+
+  let row = null;
+  try{
+   sbSetState("saving");
+   const { data, error } = await db.rpc("mic_read", { p_id: newId, p_code: code });
+   if(error) throw error;
+   row = Array.isArray(data) ? data[0] : data;
+  }catch(e){
+   const kind = sbErrorKind(e);
+   sbSetCode(newId, "");
+   sbSetState("locked", sbExplainError(kind));
+   alert(sbExplainError(kind, e?.message));
+   await sbRenderCongregationList();
+   sbUpdateUI();
+   return false;
+  }
+
+  if(!row){
+   alert("That congregation has no data record.");
+   sbUpdateUI();
+   return false;
+  }
+
+  localStorage.setItem(SB_CONGREGATION_KEY, clean);
+  sbSetCode(newId, code);
+  sbApplyingRemote = true;
+  appData = normalizeIncomingData(row.data);
+  setLocalUpdatedAt(parseMetaDate(row.updated_at) || Date.now());
+  saveLocal(false);
+  sbApplyingRemote = false;
+  sbRemoteDevice = (row.device || "").trim();
+  sbDirty = false;
+  sbSetState("synced");
+ }
+
  updateFilterOptions();
  renderBrothers();
  renderAssignments();
  renderStats();
+ await sbRenderCongregationList();
+ sbUpdateUI();
+ sbToast(`Switched to "${clean}".`);
  return true;
- }catch(e){
- odUpdateUI("read failed");
- alert("Read failed: " + (e?.message || e));
- return false;
- }
 }
 
-
-function updateOneDriveDirtyFromSnapshot(){
- if(!odFileHandle){
- hasUnsavedOneDriveChanges = false;
- return;
- }
- const snap = currentAppSnapshot();
- hasUnsavedOneDriveChanges = !!(snap && odLastSavedSnapshot && snap !== odLastSavedSnapshot);
- // If we have never saved this dataset to OneDrive in this browser, show it as needing a first save.
- if(snap && !odLastSavedSnapshot && odLastWriteMs === 0) hasUnsavedOneDriveChanges = true;
+function sbStartPolling(){
+  if(sbPollTimer) clearInterval(sbPollTimer);
+  sbPollTimer = setInterval(()=>{
+    if(document.hidden) return;
+    if(!navigator.onLine) return;
+    if(!sbCurrentCode()) return;
+    sbPull({silent:true});
+  }, SB_POLL_INTERVAL_MS);
 }
 
-function odUpdateUI(extra=""){
- const dot = document.getElementById("odDot");
- const lbl = document.getElementById("odLabel");
- const line = document.getElementById("odStatusLine");
- const saveBtn = document.getElementById("odSaveBtn");
- const readBtn = document.getElementById("odReadBtn");
- const checkBtn = document.getElementById("odCheckBtn");
- const chooseBtn = document.getElementById("odChooseBtn");
-
- const supported = odSupported();
- updateOneDriveDirtyFromSnapshot();
- const hasFile = !!odFileHandle;
-
- dot.classList.remove("ok","warn","bad");
- if(!supported){
- dot.classList.add("bad");
- lbl.textContent = "OneDrive: unsupported";
- updateHeaderSavedInfo();
- if(saveBtn) saveBtn.disabled = true;
- if(readBtn) readBtn.disabled = true;
- if(checkBtn) checkBtn.disabled = true;
- if(chooseBtn) chooseBtn.disabled = true;
- if(line) line.innerHTML =
- `<span><b>Status:</b> unsupported</span><span><b>File:</b> —</span><span><b>Last write:</b> —</span><span><b>Last read:</b> —</span>`;
- return;
- }
-
- if(!hasFile){
- dot.classList.add("warn");
- lbl.textContent = "OneDrive: pick file";
- if(saveBtn) saveBtn.disabled = true;
- if(readBtn) readBtn.disabled = true;
- if(checkBtn) checkBtn.disabled = true;
- } else {
- dot.classList.add("ok");
- lbl.textContent = "OneDrive: ready";
- if(saveBtn) saveBtn.disabled = false;
- if(readBtn) readBtn.disabled = false;
- if(checkBtn) checkBtn.disabled = false;
- }
-
- const fileTxt = hasFile ? "set" : "—";
- const lastW = odFormatTs(odLastWriteMs);
- const lastR = odFormatTs(odLastReadMs);
- const writer = lastCloudMeta?.deviceName || getDeviceName();
- let baseStatus = hasFile ? "ready" : "pick file";
- if(hasFile && hasUnsavedOneDriveChanges) baseStatus = "unsaved changes";
- const statusTxt = baseStatus + (extra ? " · " + extra : "");
-
- if(line){
- line.innerHTML =
- `<span><b>Status:</b> ${statusTxt}</span><span><b>File:</b> ${fileTxt}</span><span><b>Last write:</b> ${lastW}</span><span><b>Last read:</b> ${lastR}</span><span><b>Last writer:</b> ${writer}</span>`;
- }
-
- updatePlannerSyncButton();
- updateHeaderSavedInfo();
- updateDeviceHint();
-}
-
-
-function markOneDriveDirty(){
- if(!odFileHandle) return;
- updateOneDriveDirtyFromSnapshot();
- odUpdateUI();
-}
-
-function markOneDriveSaved(extra="saved"){
- odLastSavedSnapshot = currentAppSnapshot();
- if(odLastSavedSnapshot) localStorage.setItem(OD_LAST_SAVED_SNAPSHOT_KEY, odLastSavedSnapshot);
- hasUnsavedOneDriveChanges = false;
- odUpdateUI(extra);
-}
-
-function updatePlannerSyncButton(stateOverride=""){
- const btn = document.getElementById("plannerSyncBtn");
- if(!btn) return;
- updatePlannerSyncStatus(stateOverride);
-
- const supported = odSupported();
- const hasFile = !!odFileHandle;
-
- btn.classList.remove("state-disabled","state-unsaved","state-saved","state-working");
- btn.disabled = false;
-
- if(!supported){
- btn.classList.add("state-disabled");
- btn.textContent = "OneDrive unsupported";
- btn.title = "This browser does not support file access for OneDrive saving.";
- btn.disabled = true;
- return;
- }
-
- if(stateOverride === "working"){
- btn.classList.add("state-working");
- btn.textContent = "Saving…";
- btn.title = "Saving current planner data to OneDrive.";
- return;
- }
-
- if(!hasFile){
- btn.classList.add("state-disabled");
- btn.textContent = "OneDrive not connected";
- btn.title = "Choose your OneDrive JSON file first.";
- return;
- }
-
- if(hasUnsavedOneDriveChanges){
- btn.classList.add("state-unsaved");
- btn.textContent = "Save changes";
- btn.title = "There are unsaved OneDrive changes. Click to save now.";
- return;
- }
-
- btn.classList.add("state-saved");
- btn.textContent = "All changes saved";
- btn.title = "Current planner data matches the last OneDrive save.";
- updateHeaderSavedInfo();
-}
-
-
-function updatePlannerSyncStatus(stateOverride=""){
- const el = document.getElementById("plannerSyncStatus");
- if(!el) return;
-
- el.classList.remove("saved","unsaved","saving");
-
- if(!odFileHandle){
- el.textContent = "OneDrive not connected";
- return;
- }
-
- if(stateOverride === "working"){
- el.classList.add("saving");
- el.textContent = "saving changes…";
- return;
- }
-
- const t = odTimeOnly(odLastWriteMs);
- if(hasUnsavedOneDriveChanges){
- el.classList.add("unsaved");
- el.textContent = t ? `unsaved · last save ${t}` : "unsaved changes";
- return;
- }
-
- el.classList.add("saved");
- if(odLastAutoCheckMs){
- const checkTime = odTimeOnly(odLastAutoCheckMs);
- el.textContent = checkTime ? `synced · checked ${checkTime}` : (t ? `all changes saved ${t}` : "ready · no changes");
- return;
- }
- el.textContent = t ? `all changes saved ${t}` : "ready · no changes";
-}
-
-function odIdbOpen(){
- return new Promise((resolve, reject)=>{
- const req = indexedDB.open(OD_DB.name, OD_DB.version);
- req.onupgradeneeded = ()=>{
- const db = req.result;
- if(!db.objectStoreNames.contains(OD_DB.store)) db.createObjectStore(OD_DB.store);
- };
- req.onsuccess = ()=>resolve(req.result);
- req.onerror = ()=>reject(req.error);
- });
-}
-
-async function odIdbGet(key){
+/* Fire-and-forget upload when the page is being closed or backgrounded. */
+function sbFlushOnExit(){
+ if(!sbConfigured() || !sbDirty) return;
+ const code = sbCurrentCode();
+ if(!code) return;
  try{
- const db = await odIdbOpen();
- return await new Promise((resolve,reject)=>{
- const tx = db.transaction(OD_DB.store, "readonly");
- const st = tx.objectStore(OD_DB.store);
- const r = st.get(key);
- r.onsuccess = ()=>resolve(r.result ?? null);
- r.onerror = ()=>reject(r.error);
- });
- }catch{
- return null;
- }
+  const row = sbBuildRow();
+  fetch(`${SUPABASE_URL}/rest/v1/rpc/mic_write`, {
+   method: "POST",
+   keepalive: true,
+   headers: {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    "Content-Type": "application/json"
+   },
+   body: JSON.stringify({
+    p_id: row.id,
+    p_congregation: row.congregation,
+    p_code: code,
+    p_data: row.data,
+    p_device: row.device,
+    p_updated_at: row.updated_at
+   })
+  }).catch(()=>{});
+  sbDirty = false;
+ }catch{}
 }
 
-async function odIdbSet(key, value){
- try{
- const db = await odIdbOpen();
- return await new Promise((resolve,reject)=>{
- const tx = db.transaction(OD_DB.store, "readwrite");
- const st = tx.objectStore(OD_DB.store);
- const r = st.put(value, key);
- r.onsuccess = ()=>resolve(true);
- r.onerror = ()=>reject(r.error);
- });
- }catch{
- return false;
- }
-}
-
-async function odVerifyPermission(handle, mode="readwrite"){
- if(!handle) return false;
- try{
- if(handle.queryPermission){
- const q = await handle.queryPermission({ mode });
- if(q === "granted") return true;
- const r = await handle.requestPermission({ mode });
- return r === "granted";
- }
- return true;
- }catch{
- return false;
- }
-}
-
-async function odChooseFile(){
- if(!odSupported()){
- alert("Your browser does not support OneDrive file access. Please use Microsoft Edge or Google Chrome.");
- return;
- }
- const [handle] = await window.showOpenFilePicker({
- multiple:false,
- types:[{ description:"JSON", accept:{ "application/json":[".json"] } }]
- });
- if(!handle) return;
-
- odFileHandle = handle;
- updateOneDriveDirtyFromSnapshot();
- await odIdbSet(OD_KEY, handle);
- odUpdateUI("file selected");
- await checkOneDriveVersion({silent:false, showSame:true});
-}
-
-async function odReadJson(){
- if(!odFileHandle){
- odUpdateUI("pick file first");
- return null;
- }
- const obj = await odReadJsonRaw({silent:false});
- if(obj) hasUnsavedOneDriveChanges = false;
- return obj;
-}
-
-async function odWriteJson(payload){
- if(!odFileHandle){
- odUpdateUI("pick file first");
- return;
- }
- const ok = await odVerifyPermission(odFileHandle, "readwrite");
- if(!ok){
- odUpdateUI("permission denied");
- alert("No permission to write to the selected OneDrive file. Please choose the file again.");
- return;
- }
- const writable = await odFileHandle.createWritable();
- await writable.write(JSON.stringify(payload, null, 2));
- await writable.close();
- hasUnsavedOneDriveChanges = false;
-}
-
-async function odInit(){
- if(odSupported()){
- const h = await odIdbGet(OD_KEY);
- if(h) odFileHandle = h;
- }
- updateOneDriveDirtyFromSnapshot();
- odUpdateUI();
- await checkOneDriveVersion({silent:true, showSame:false, background:true});
-}
+document.addEventListener("visibilitychange", ()=>{
+  if(document.hidden){
+    sbFlushOnExit();
+  }else{
+    sbPull({silent:true});
+  }
+});
+window.addEventListener("pagehide", sbFlushOnExit);
+window.addEventListener("online", ()=>{ sbSetState("pending"); sbPull({silent:true}); });
+window.addEventListener("offline", ()=>{ sbSetState("offline"); });
 
 /* =========================
  App Data / Planner
@@ -1033,7 +1243,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "2.2.8";
+const APP_VERSION = "3.2.0";
 
 let appData = {
  brothers: [],
@@ -1044,22 +1254,17 @@ let filterYear = "all";
 let filterMonth = "all";
 let filterRange = "focus";
 
-function buildOneDrivePayload(){
+function buildExportPayload(){
  if(!localUpdatedAtMs) setLocalUpdatedAt(Date.now());
  const updatedAt = new Date(localUpdatedAtMs).toISOString();
  const deviceName = getDeviceName();
  return {
- ...appData,
- version: APP_VERSION,
- generatedAt: new Date().toISOString(),
- updatedAt,
- deviceName,
- meta:{
- app:"Microphone Service Tool",
- version:APP_VERSION,
- updatedAt,
- deviceName
- }
+  ...appData,
+  version: APP_VERSION,
+  generatedAt: new Date().toISOString(),
+  updatedAt,
+  deviceName,
+  meta:{ app:"Microphone Service Tool", version:APP_VERSION, updatedAt, deviceName }
  };
 }
 
@@ -1092,12 +1297,11 @@ function saveLocal(markEdit=true){
  if(markEdit) setLocalUpdatedAt(Date.now());
  __lastSavedSnapshot = snapshot;
  localStorage.setItem(STORAGE_KEY, snapshot ?? JSON.stringify(appData));
- if(markEdit){
- hideOneDriveCompareBanner();
- markOneDriveDirty();
+ if(markEdit && !sbApplyingRemote){
+  hideSyncBanner();
+  sbSchedulePush();
  } else {
- updateOneDriveDirtyFromSnapshot();
- odUpdateUI();
+  sbUpdateUI();
  }
 }
 
@@ -1699,7 +1903,7 @@ function clearMeetings(){
 
 function exportJSON(){
  try{
- const dataStr = JSON.stringify(appData, null, 2);
+ const dataStr = JSON.stringify(buildExportPayload(), null, 2);
  const blob = new Blob([dataStr], { type:"application/json" });
  const url = URL.createObjectURL(blob);
  const now=new Date();
@@ -1742,45 +1946,11 @@ function importJSONFile(file){
 
 
 window.addEventListener("beforeunload", (event) => {
- if(!odFileHandle) return;
- if(!hasUnsavedOneDriveChanges) return;
-
- // Less intrusive: only warn if changes have been unsaved for a while.
- // Fresh edits are already clearly shown by the Save button/status.
- if(odLastWriteMs && Date.now() - odLastWriteMs < OD_UNSAVED_GRACE_MS) return;
-
+ if(!sbConfigured()) return;
+ if(!sbDirty) return;
  event.preventDefault();
  event.returnValue = "";
 });
-
-async function saveCurrentDataToOneDrive(showAlert=true){
- if(!odSupported()){
- alert("Your browser does not support OneDrive file access. Please use Microsoft Edge or Google Chrome.");
- return false;
- }
-
- if(!odFileHandle){
- alert("Please choose your OneDrive JSON file first in the JSON & Stats tab.");
- return false;
- }
-
- try{
- updatePlannerSyncButton("working");
- const payload = buildOneDrivePayload();
- await odWriteJson(payload);
- odLastWriteMs = Date.now();
- localStorage.setItem(OD_LAST_WRITE_KEY, String(odLastWriteMs));
- lastCloudMeta = getPayloadMeta(payload);
- markOneDriveSaved("saved");
- hideOneDriveCompareBanner();
- if(showAlert) alert("Saved to OneDrive.");
- return true;
- }catch(e){
- odUpdateUI("save failed");
- alert("Save failed: " + (e?.message || e));
- return false;
- }
-}
 
 document.addEventListener("DOMContentLoaded", async ()=>{
  loadLocal();
@@ -1789,24 +1959,29 @@ document.addEventListener("DOMContentLoaded", async ()=>{
  applyTheme(storedTheme);
 
  document.getElementById("startDate").value = dateToISO(new Date());
- setDeviceName(localStorage.getItem(OD_DEVICE_NAME_KEY) || "");
+ setDeviceName(localStorage.getItem(SB_DEVICE_NAME_KEY) || "");
  updateDeviceHint();
- const odDismissDeviceHint = document.getElementById("odDismissDeviceHint");
- if(odDismissDeviceHint){
- odDismissDeviceHint.addEventListener("click", ()=>{
- localStorage.setItem(OD_DEVICE_HINT_DISMISSED_KEY, "true");
- updateDeviceHint();
- });
+
+ const sbDismissHint = document.getElementById("sbDismissDeviceHint");
+ if(sbDismissHint){
+  sbDismissHint.addEventListener("click", ()=>{
+   localStorage.setItem(SB_DEVICE_HINT_DISMISSED_KEY, "true");
+   updateDeviceHint();
+  });
  }
- const odDeviceInput = document.getElementById("odDeviceName");
- if(odDeviceInput){
- odDeviceInput.addEventListener("input", ()=>{
- setDeviceName(odDeviceInput.value);
- updateDeviceHint();
- odUpdateUI("device saved");
- if(lastCloudMeta) compareCloudWithLocal(lastCloudMeta, {showSame:false});
- });
- odDeviceInput.addEventListener("blur", ()=>{ setDeviceName(odDeviceInput.value); updateDeviceHint(); odUpdateUI(); });
+
+ const sbDeviceInput = document.getElementById("sbDeviceName");
+ if(sbDeviceInput){
+  sbDeviceInput.addEventListener("input", ()=>{
+   setDeviceName(sbDeviceInput.value);
+   updateDeviceHint();
+   sbUpdateUI();
+  });
+  sbDeviceInput.addEventListener("blur", ()=>{
+   setDeviceName(sbDeviceInput.value);
+   updateDeviceHint();
+   sbUpdateUI();
+  });
  }
 
  document.getElementById("addWeekBtn").onclick = (e)=>{ e?.preventDefault?.(); addWeeks(1); };
@@ -1865,41 +2040,76 @@ document.addEventListener("DOMContentLoaded", async ()=>{
  };
  });
 
- // OneDrive buttons
- document.getElementById("odChooseBtn").onclick = async ()=>{
- try{ await odChooseFile(); }
- catch(e){ alert("Could not choose OneDrive file: " + (e?.message || e)); odUpdateUI("error"); }
+ // Congregation switching
+ document.getElementById("sbSwitchCongBtn").onclick = async ()=>{
+  const sel = document.getElementById("sbCongregationSelect");
+  if(!sel.value) return;
+  await sbSwitchCongregation(sel.value);
  };
 
- document.getElementById("odCheckBtn").onclick = async ()=>{
- await checkOneDriveVersion({silent:false, showSame:true});
+ document.getElementById("sbNewCongBtn").onclick = async ()=>{
+  const name = prompt("Name of the congregation (e.g. \"Augsburg English\"):", "");
+  if(name === null) return;
+  await sbSwitchCongregation(name);
  };
 
- document.getElementById("odSaveBtn").onclick = async ()=>{
- await saveCurrentDataToOneDrive(false);
+ document.getElementById("sbForgetCodeBtn").onclick = ()=>{
+  const id = getDocId();
+  if(!sbGetCode(id)){ sbToast("No code stored for this congregation."); return; }
+  if(!confirm("Remove the stored access code from this device? You will need to enter it again.")) return;
+  sbSetCode(id, "");
+  sbSetState("locked");
+  sbToast("Access code removed from this device.");
+ };
+
+ // Cloud sync buttons
+ document.getElementById("sbSyncNowBtn").onclick = async ()=>{
+  if(sbDirty) await sbPush({silent:false});
+  await sbPull({silent:false});
+ };
+
+ document.getElementById("sbPullBtn").onclick = async ()=>{
+  if(!confirm("Download the cloud data and overwrite the local data?")) return;
+  await sbPull({silent:false, force:true});
+ };
+
+ document.getElementById("sbPushBtn").onclick = async ()=>{
+  if(!confirm("Upload the local data and overwrite the cloud record?")) return;
+  setLocalUpdatedAt(Date.now());
+  await sbPush({silent:false});
  };
 
  document.getElementById("plannerSyncBtn").onclick = async ()=>{
- if(!odFileHandle){
- document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
- document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
- document.querySelector('.tab-button[data-tab="json-tab"]').classList.add("active");
- document.getElementById("json-tab").classList.add("active");
- alert("Please choose your OneDrive JSON file first.");
- return;
+  if(sbState === "locked" || (sbConfigured() && !sbCurrentCode())){
+   await sbUnlockCurrent();
+   return;
+  }
+  if(!sbConfigured()){
+   document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
+   document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+   document.querySelector('.tab-button[data-tab="json-tab"]').classList.add("active");
+   document.getElementById("json-tab").classList.add("active");
+   return;
+  }
+  if(sbDirty) await sbPush({silent:false});
+  await sbPull({silent:false});
+ };
+
+ // Start cloud sync
+ if(sbInit()){
+  await sbRenderCongregationList();
+  if(sbCurrentCode()){
+   sbSetState(navigator.onLine ? "pending" : "offline");
+   await sbPull({silent:true});
+  } else {
+   sbSetState("locked");
+   showSyncBanner("cloud-newer", "Cloud locked",
+    "Pick your congregation below and enter its 5-digit access code. Until then the planner works offline with the data stored on this device.");
+  }
+  sbStartPolling();
  }
- await saveCurrentDataToOneDrive(false);
- };
-
- document.getElementById("odReadBtn").onclick = async ()=>{
- const ok = confirm("Read from OneDrive and overwrite the current local data?");
- if(!ok) return;
- await loadCurrentOneDriveFile();
- };
-
- await odInit();
- startOneDriveAutoCheck();
- updatePlannerSyncButton();
+ sbUpdateCongregationLabel();
+ sbUpdateUI();
 
  updateFilterOptions();
  renderBrothers();
