@@ -165,6 +165,39 @@
 
     .footer { margin-top: 40px; text-align: center; color: var(--muted); font-size: 0.85rem; padding-bottom: 20px; }
 
+    /* Scroll to Top Button */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .scroll-top-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .scroll-top-btn:hover {
+      background: #252b33;
+      transform: translateY(-4px);
+      border-color: var(--primary);
+    }
+
     @media (min-width: 768px) {
       .hero h1 { font-size: 4rem; }
       .notices { grid-template-columns: 1fr 1fr; }
@@ -338,9 +371,15 @@
     </footer>
   </div>
 
+  <!-- Scroll to Top Button Element -->
+  <button id="scrollToTopBtn" class="scroll-top-btn" aria-label="Scroll to top" title="Scroll to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
   <script>
     function filterTools(category, event) {
-      // Wählt sowohl die Karten als auch die neuen Zwischenüberschriften aus
       const items = document.querySelectorAll('.card, .section-title');
       const buttons = document.querySelectorAll('.filter-btn');
       
@@ -359,6 +398,24 @@
     function addBookmark() {
       alert("To bookmark this page, please press:\n\nCTRL + D (Windows/Linux)\nCMD + D (Mac)");
     }
+
+    // Scroll to Top Logic
+    const scrollTopBtn = document.getElementById("scrollToTopBtn");
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 250) {
+        scrollTopBtn.classList.add("show");
+      } else {
+        scrollTopBtn.classList.remove("show");
+      }
+    });
+
+    scrollTopBtn.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
   </script>
 </body>
 </html>
