@@ -490,7 +490,7 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 3.2.1</footer>
+ <footer>Made with Love © – Microphone Service Tool V 3.2.3</footer>
  </div>
 </div>
 
@@ -999,6 +999,7 @@ async function sbRenderCongregationList(){
   const opt = document.createElement("option");
   opt.value = label;
   opt.textContent = label;
+  opt.dataset.recordId = r.id;
   sel.appendChild(opt);
  });
 
@@ -1006,6 +1007,7 @@ async function sbRenderCongregationList(){
   const opt = document.createElement("option");
   opt.value = current;
   opt.textContent = current;
+  opt.dataset.recordId = getDocId();
   sel.insertBefore(opt, sel.firstChild);
  }
 
@@ -1018,6 +1020,13 @@ async function sbRenderCongregationList(){
 
  sel.value = current || sel.options[0].value;
  sbUpdateCongregationLabel();
+}
+
+function sbSelectedCongregation(){
+ const sel = document.getElementById("sbCongregationSelect");
+ const opt = sel && sel.selectedOptions ? sel.selectedOptions[0] : null;
+ if(!opt || !opt.value) return null;
+ return { name: opt.value, id: opt.dataset.recordId || `mic_${sbSlugify(opt.value)}` };
 }
 
 function sbUpdateCongregationLabel(){
@@ -1041,17 +1050,30 @@ function sbPromptCode(title){
 }
 
 /* Unlock the currently selected congregation by asking for its code. */
+/* Unlock whatever congregation is currently selected.
+   On a fresh device nothing is stored yet, so we must resolve the record from
+   the picker instead of falling back to the legacy id. */
 async function sbUnlockCurrent(){
+ const picked = sbSelectedCongregation();
+ const storedName = getCongregationName();
+
+ if(!storedName){
+  if(!picked){
+   alert("Please choose a congregation in the JSON & Stats tab first.");
+   return false;
+  }
+  return await sbSwitchCongregation(picked.name, picked.id);
+ }
+
  const id = getDocId();
- const name = getCongregationName() || id;
- const code = sbPromptCode(`Unlock "${name}"`);
+ const code = sbPromptCode(`Unlock "${storedName}"`);
  if(!code) return false;
 
  sbSetCode(id, code);
  sbSetState("saving");
  const ok = await sbPull({silent:true});
  if(ok){
-  sbToast(`"${name}" unlocked on this device.`);
+  sbToast(`"${storedName}" unlocked on this device.`);
  }else{
   sbSetCode(id, "");
   sbUpdateUI();
@@ -1059,13 +1081,13 @@ async function sbUnlockCurrent(){
  return ok;
 }
 
-async function sbSwitchCongregation(name){
+async function sbSwitchCongregation(name, explicitId){
  const clean = String(name || "").trim();
  if(!clean){ alert("Please enter a congregation name."); return false; }
 
  const slug = sbSlugify(clean);
- if(!slug){ alert("That name contains no usable characters."); return false; }
- const newId = `mic_${slug}`;
+ if(!slug && !explicitId){ alert("That name contains no usable characters."); return false; }
+ const newId = explicitId || `mic_${slug}`;
 
  if(newId === getDocId() && clean === getCongregationName() && sbCurrentCode()){
   sbToast("Already on this congregation.");
@@ -1133,6 +1155,8 @@ async function sbSwitchCongregation(name){
   saveLocal(false);
   sbApplyingRemote = false;
   sbDirty = false;
+  sbLastPushMs = Date.now();
+  localStorage.setItem(SB_LAST_PUSH_KEY, String(sbLastPushMs));
   sbSetState("synced");
  } else {
   // Existing record – we need its code.
@@ -1173,6 +1197,8 @@ async function sbSwitchCongregation(name){
   sbApplyingRemote = false;
   sbRemoteDevice = (row.device || "").trim();
   sbDirty = false;
+  sbLastPullMs = Date.now();
+  localStorage.setItem(SB_LAST_PULL_KEY, String(sbLastPullMs));
   sbSetState("synced");
  }
 
@@ -1243,7 +1269,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "3.2.1";
+const APP_VERSION = "3.2.3";
 
 let appData = {
  brothers: [],
@@ -1384,7 +1410,15 @@ function ensureAssignment(dateISO, meetingType, timeStr){
  }
 }
 
+/* A meeting that already happened is history: availability rules must never
+   change it, otherwise past assignments silently lose their selected brother. */
+function isPastMeeting(meetingDateISO){
+ if(!meetingDateISO) return false;
+ return meetingDateISO < dateToISO(new Date());
+}
+
 function isBrotherAvailable(b, meetingDateISO){
+ if(isPastMeeting(meetingDateISO)) return true;
  if(!b.active) return false;
  if(!b.unavailableUntil) return true;
  const until = parseISODate(b.unavailableUntil);
@@ -1464,7 +1498,7 @@ function populateSelect(sel, selected, meetingDateISO){
  const stats = meetingDateISO ? buildStats(meetingDateISO) : buildStats(null);
 
  const candidates = appData.brothers
- .filter(b=> !meetingDateISO || isBrotherAvailable(b, meetingDateISO))
+ .filter(b=> !meetingDateISO || isBrotherAvailable(b, meetingDateISO) || b.name === selected)
  .map(b=>{
  const s = stats[b.name] || { mic1:0, mic2:0, last:null };
  const total = s.mic1+s.mic2;
@@ -1473,7 +1507,8 @@ function populateSelect(sel, selected, meetingDateISO){
  const lastDate=parseISODate(s.last);
  if(lastDate) weeksAgo = Math.max(0, Math.round(daysBetween(lastDate, meetDate)/7));
  }
- return { name:b.name, total, last:s.last, weeksAgo };
+ const unavailable = !!meetingDateISO && !isBrotherAvailable(b, meetingDateISO);
+  return { name:b.name, total, last:s.last, weeksAgo, unavailable };
  })
  .sort((a,b)=>a.name.localeCompare(b.name));
 
@@ -1490,6 +1525,8 @@ function populateSelect(sel, selected, meetingDateISO){
  const wText = (w==="—") ? "—" : `${w} week${w===1?"":"s"} ago`;
  fullLabel = `${c.name} — last ${formatDate(c.last)} (${wText})`;
  }
+
+ if(c.unavailable) fullLabel = `⚠ ${fullLabel} — unavailable`;
 
  opt.dataset.nameOnly = c.name;
  opt.dataset.fullLabel = fullLabel;
@@ -2042,9 +2079,9 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
  // Congregation switching
  document.getElementById("sbSwitchCongBtn").onclick = async ()=>{
-  const sel = document.getElementById("sbCongregationSelect");
-  if(!sel.value) return;
-  await sbSwitchCongregation(sel.value);
+  const picked = sbSelectedCongregation();
+  if(!picked) return;
+  await sbSwitchCongregation(picked.name, picked.id);
  };
 
  document.getElementById("sbNewCongBtn").onclick = async ()=>{
