@@ -248,9 +248,6 @@ table.dash-table tbody tr:hover td{background:#fafcff}
 .event-stack input{font-size:14px;font-weight:700;padding:9px 11px}
 .global-search-wrap{position:relative;padding:7px 9px;border:1px solid #d9dee2;border-radius:11px;background:rgba(255,255,255,.72)}
 .global-search-wrap input{padding-right:36px;font-size:13px;background:#fff;border-color:#cfd6dc}
-.global-search-clear{position:absolute;right:17px;bottom:13px;width:21px;height:21px;line-height:1;padding:0;
-  border-radius:999px;border:1px solid var(--line);background:#fff;color:#35506f;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px}
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .contact-grid .span-2{grid-column:span 2}
 .contact-card{padding:11px;border:1px solid var(--line);border-radius:14px;background:rgba(248,250,252,.9)}
@@ -331,7 +328,6 @@ table.dash-table tbody tr:hover td{background:#fafcff}
       <div class="global-search-wrap no-print">
         <label for="globalSearch">Global search</label>
         <input id="globalSearch" placeholder="Name, congregation, team, shift, flags, remarks..." oninput="applyGlobalSearch()">
-        <span class="global-search-clear" onclick="clearGlobalSearch()">✕</span>
       </div>
     </div>
     <div class="contact-card">
@@ -349,7 +345,14 @@ table.dash-table tbody tr:hover td{background:#fafcff}
   <div class="toolbar no-print">
     <button class="primary" onclick="addCongregationRow()">+ Congregation / Group</button>
     <button class="primary" onclick="addAttendantRow()">+ Attendant</button>
-    <button class="success" onclick="copyActiveAttendantsSummary(this)">Copy active A–Z</button>
+    <button class="success" onclick="copyActiveAttendantsSummary(this)" style="display:inline-flex;align-items:center;gap:7px">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;flex:0 0 auto">
+        <path fill="currentColor" d="M6 2h8l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" opacity=".95"/>
+        <path fill="#fff" d="M14 2v5h5v1h-6V2h1Z" opacity=".9"/>
+        <path fill="#fff" d="M7 10h8v8H7v-8Zm1.2 1.2v1.6h2.4v-1.6H8.2Zm3.6 0v1.6h2v-1.6h-2Zm-3.6 2.8v1.6h2.4V14H8.2Zm3.6 0v1.6h2V14h-2Z"/>
+      </svg>
+      <span>Copy active A–Z</span>
+    </button>
     <button class="warn-btn" onclick="resetStatuses()">Reset contacted / replied</button>
 
     <button class="danger" onclick="resetAttendants()">Reset attendants</button>
@@ -586,7 +589,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.4</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.5</div>
 </div>
 
 <script>
