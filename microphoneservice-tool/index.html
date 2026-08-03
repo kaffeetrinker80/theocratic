@@ -441,6 +441,7 @@
     <button class="secondary" id="sbSwitchCongBtn" type="button">Switch</button>
     <button class="secondary" id="sbNewCongBtn" type="button">&#10133; New congregation…</button>
     <button class="secondary" id="sbForgetCodeBtn" type="button">&#128274; Forget code on this device</button>
+    <button class="danger" id="sbDeleteCongBtn" type="button">&#128465; Delete congregation</button>
    </div>
 
    <p class="muted" id="sbCongregationCurrent" style="margin:8px 0 0;"></p>
@@ -518,7 +519,7 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 3.3.0</footer>
+ <footer>Made with Love © – Microphone Service Tool V 3.4.0</footer>
  </div>
 </div>
 
@@ -1110,6 +1111,69 @@ async function sbUnlockCurrent(){
  return ok;
 }
 
+/* Removing a congregation needs its own access code plus two typed
+   confirmations. The record is only flagged as deleted, never dropped, so an
+   accidental removal can still be recovered from the database. */
+async function sbDeleteCongregation(){
+ const picked = sbSelectedCongregation();
+ if(!picked){ alert("No congregation selected."); return false; }
+
+ const { name, id } = picked;
+
+ let code = sbGetCode(id);
+ if(!code){
+  code = sbPromptCode(`Delete "${name}"`);
+  if(!code) return false;
+ }
+
+ const typed = prompt(
+  `This removes "${name}" for EVERY device.\n\n` +
+  `Type the congregation name exactly to continue:`, "");
+ if(typed === null) return false;
+ if(String(typed).trim() !== name){
+  alert("The name does not match. Nothing was deleted.");
+  return false;
+ }
+
+ const typedDelete = prompt(`Last step: type DELETE in capitals to remove "${name}".`, "");
+ if(typedDelete === null) return false;
+ if(String(typedDelete).trim() !== "DELETE"){
+  alert("Not confirmed. Nothing was deleted.");
+  return false;
+ }
+
+ try{
+  sbSetState("saving");
+  const { error } = await db.rpc("mic_delete", { p_id: id, p_code: code });
+  if(error) throw error;
+ }catch(e){
+  const kind = sbErrorKind(e);
+  if(kind === "BAD_CODE") sbSetCode(id, "");
+  sbSetState("error", e?.message || String(e));
+  alert("Could not delete: " + sbExplainError(kind, e?.message));
+  sbUpdateUI();
+  return false;
+ }
+
+ sbSetCode(id, "");
+ const wasCurrent = (id === getDocId());
+ if(wasCurrent){
+  localStorage.removeItem(SB_CONGREGATION_KEY);
+  sbDirty = false;
+  clearTimeout(sbPushTimer);
+ }
+
+ await sbRenderCongregationList();
+ sbSetState("locked");
+ updateHeaderTitle();
+ sbUpdateUI();
+ showSyncBanner("cloud-newer", "Congregation deleted",
+  `"${name}" was removed from the cloud. The data currently on this device is untouched &ndash; ` +
+  `use <b>New congregation…</b> if you want to upload it again under a different name.`);
+ sbToast(`"${name}" deleted.`);
+ return true;
+}
+
 async function sbSwitchCongregation(name, explicitId){
  const clean = String(name || "").trim();
  if(!clean){ alert("Please enter a congregation name."); return false; }
@@ -1300,7 +1364,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "3.3.0";
+const APP_VERSION = "3.4.0";
 
 let appData = {
  brothers: [],
@@ -2219,6 +2283,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const name = prompt("Name of the congregation (e.g. \"Augsburg English\"):", "");
   if(name === null) return;
   await sbSwitchCongregation(name);
+ };
+
+ document.getElementById("sbDeleteCongBtn").onclick = async ()=>{
+  await sbDeleteCongregation();
  };
 
  document.getElementById("sbForgetCodeBtn").onclick = ()=>{
