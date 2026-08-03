@@ -321,12 +321,12 @@
 <header>
  <div class="header-inner">
  <div>
- <h1>Augsburg English - Microphone Assignments</h1>
- <p>Midweek Meeting (Wednesday 7:00 pm) · Weekend Meeting (Sunday 1:00 pm)</p>
+ <h1 id="headerTitle">Sample Congregation &ndash; Microphone Assignments</h1>
+ <p id="headerSubtitle">Midweek Meeting (Wednesday 7:00 pm) &middot; Weekend Meeting (Sunday 1:00 pm)</p>
  </div>
 
  <div class="header-actions">
- <div class="sync-chip" title="Supabase cloud sync status">
+ <div class="sync-chip" title="Cloud sync status">
  <span id="sbDot" class="dot warn"></span>
  <span class="sync-chip-text">
  <span id="sbLabel">Cloud: connecting…</span>
@@ -426,7 +426,7 @@
  </div>
 
  <div class="sync-panel">
- <h3 style="margin-top:0;">Cloud sync (Supabase)</h3>
+ <h3 style="margin-top:0;">Cloud sync</h3>
    <p class="muted" style="margin-top:4px;">
     All devices that open this page share <b>one</b> data record. Changes are uploaded automatically after a
     short pause and picked up by the other devices within about 20 seconds. No login required &ndash; anyone
@@ -474,6 +474,34 @@
    <div class="sync-kv" id="sbStatusLine">
     <span><b>Status:</b> &mdash;</span>
    </div>
+
+   <h3 style="margin-top:22px;">Meeting times</h3>
+   <p class="muted" style="margin-top:4px;">
+    Shown in the header and used when new weeks are generated. Stored with the congregation,
+    so every device sees the same settings.
+   </p>
+
+   <div class="sync-device-row">
+    <div class="form-group">
+     <label for="setMidweekDay">Midweek meeting</label>
+     <select id="setMidweekDay"></select>
+    </div>
+    <div class="form-group">
+     <label for="setMidweekTime">Time</label>
+     <input type="time" id="setMidweekTime">
+    </div>
+   </div>
+
+   <div class="sync-device-row">
+    <div class="form-group">
+     <label for="setWeekendDay">Weekend meeting</label>
+     <select id="setWeekendDay"></select>
+    </div>
+    <div class="form-group">
+     <label for="setWeekendTime">Time</label>
+     <input type="time" id="setWeekendTime">
+    </div>
+   </div>
   </div>
 
   <h3 style="margin-top:18px;">Microphone duty statistics</h3>
@@ -490,13 +518,13 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 3.2.3</footer>
+ <footer>Made with Love © – Microphone Service Tool V 3.3.0</footer>
  </div>
 </div>
 
 <script>
 /* =========================
- Supabase Cloud Sync (no login, one shared dataset)
+ Cloud sync (no login, one shared record per congregation)
  - one row per congregation (slug of the congregation name)
  - auto push (debounced) + auto pull (poll)
  - last write wins, per-device attribution
@@ -787,6 +815,7 @@ function sbUpdateUI(){
   }
 
   updateHeaderSavedInfo();
+ updateHeaderTitle();
 }
 
 /* ---------- core sync ---------- */
@@ -795,11 +824,11 @@ function sbInit(){
   if(!sbConfigured()){
     sbSetState("init");
     showSyncBanner("cloud-newer", "Cloud key missing",
-      "Paste your Supabase anon key into <b>SUPABASE_ANON_KEY</b> at the top of the script block. Until then the tool works offline with local storage only.");
+      "No cloud access key is set in this file. Until then the tool works offline with the data stored on this device.");
     return false;
   }
   if(!window.supabase?.createClient){
-    sbSetState("error", "Supabase library not loaded");
+    sbSetState("error", "Cloud library not loaded");
     return false;
   }
   db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -1207,6 +1236,8 @@ async function sbSwitchCongregation(name, explicitId){
  renderAssignments();
  renderStats();
  await sbRenderCongregationList();
+ renderMeetingSettings();
+ updateHeaderTitle();
  sbUpdateUI();
  sbToast(`Switched to "${clean}".`);
  return true;
@@ -1269,7 +1300,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "3.2.3";
+const APP_VERSION = "3.3.0";
 
 let appData = {
  brothers: [],
@@ -1294,6 +1325,103 @@ function buildExportPayload(){
  };
 }
 
+const DEFAULT_MEETINGS = {
+ midweekDay: 3, midweekTime: "19:00",
+ weekendDay: 0, weekendTime: "13:00"
+};
+
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function normalizeMeetings(m){
+ const src = (m && typeof m === "object") ? m : {};
+ const day = (v, fallback)=>{
+  const n = parseInt(v,10);
+  return (Number.isInteger(n) && n >= 0 && n <= 6) ? n : fallback;
+ };
+ const time = (v, fallback)=> /^\d{2}:\d{2}$/.test(String(v||"")) ? v : fallback;
+ return {
+  midweekDay:  day(src.midweekDay,  DEFAULT_MEETINGS.midweekDay),
+  midweekTime: time(src.midweekTime, DEFAULT_MEETINGS.midweekTime),
+  weekendDay:  day(src.weekendDay,  DEFAULT_MEETINGS.weekendDay),
+  weekendTime: time(src.weekendTime, DEFAULT_MEETINGS.weekendTime)
+ };
+}
+
+function getMeetings(){
+ appData.meetings = normalizeMeetings(appData.meetings);
+ return appData.meetings;
+}
+
+function formatMeetingTime(hhmm){
+ const [h,m] = String(hhmm||"").split(":").map(n=>parseInt(n,10));
+ if(!Number.isInteger(h)) return hhmm || "";
+ const suffix = h < 12 ? "am" : "pm";
+ const hour12 = h % 12 === 0 ? 12 : h % 12;
+ return `${hour12}:${String(m||0).padStart(2,"0")} ${suffix}`;
+}
+
+/* The header reflects the congregation you are actually working on. */
+function renderMeetingSettings(){
+ const m = getMeetings();
+ [["setMidweekDay","midweekDay"],["setWeekendDay","weekendDay"]].forEach(([id,key])=>{
+  const sel = document.getElementById(id);
+  if(!sel) return;
+  if(!sel.options.length){
+   DAY_NAMES.forEach((name,i)=>{
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = name;
+    sel.appendChild(opt);
+   });
+  }
+  sel.value = String(m[key]);
+ });
+ const mw = document.getElementById("setMidweekTime");
+ const we = document.getElementById("setWeekendTime");
+ if(mw) mw.value = m.midweekTime;
+ if(we) we.value = m.weekendTime;
+}
+
+function wireMeetingSettings(){
+ const apply = (key, value)=>{
+  const m = getMeetings();
+  m[key] = value;
+  appData.meetings = normalizeMeetings(m);
+  saveLocal();
+  renderMeetingSettings();
+  updateHeaderTitle();
+ };
+
+ const bind = (id, key, transform)=>{
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.onchange = ()=> apply(key, transform(el.value));
+ };
+
+ bind("setMidweekDay","midweekDay", v=>parseInt(v,10));
+ bind("setWeekendDay","weekendDay", v=>parseInt(v,10));
+ bind("setMidweekTime","midweekTime", v=>v);
+ bind("setWeekendTime","weekendTime", v=>v);
+}
+
+function updateHeaderTitle(){
+ const h1 = document.getElementById("headerTitle");
+ const sub = document.getElementById("headerSubtitle");
+ const unlocked = sbConfigured() ? !!sbCurrentCode() : true;
+ const name = (unlocked && getCongregationName()) ? getCongregationName() : "Sample Congregation";
+
+ if(h1) h1.textContent = `${name} \u2013 Microphone Assignments`;
+
+ if(sub){
+  const m = getMeetings();
+  sub.textContent =
+   `Midweek Meeting (${DAY_NAMES[m.midweekDay]} ${formatMeetingTime(m.midweekTime)})` +
+   ` \u00b7 Weekend Meeting (${DAY_NAMES[m.weekendDay]} ${formatMeetingTime(m.weekendTime)})`;
+ }
+
+ document.title = `${name} – Microphone Assignments`;
+}
+
 function normalizeIncomingData(obj){
  if(!obj || !Array.isArray(obj.brothers) || !Array.isArray(obj.assignments)){
  throw new Error("Invalid JSON structure (expected { brothers:[], assignments:[] }).");
@@ -1314,6 +1442,7 @@ function normalizeIncomingData(obj){
  data.brothers.sort((a,b)=>a.name.localeCompare(b.name));
 
  if(!Array.isArray(data.assignments)) data.assignments = [];
+ data.meetings = normalizeMeetings(data.meetings);
  return data;
 }
 
@@ -1580,8 +1709,9 @@ function ensureFutureMeetingsForFocus(minVisibleAfter){
  for(let i=0;i<daysToScan;i++){
  const day=d.getDay();
  const iso=dateToISO(d);
- if(day===3) ensureAssignment(iso,"Midweek","19:00");
- if(day===0) ensureAssignment(iso,"Weekend","13:00");
+ const m=getMeetings();
+ if(day===m.midweekDay) ensureAssignment(iso,"Midweek",m.midweekTime);
+ if(day===m.weekendDay) ensureAssignment(iso,"Weekend",m.weekendTime);
  d.setDate(d.getDate()+1);
  }
  saveLocal();
@@ -1916,8 +2046,9 @@ function addWeeks(countWeeks){
  for(let i=0;i<daysToScan;i++){
  const day=d.getDay();
  const iso=dateToISO(d);
- if(day===3) ensureAssignment(iso,"Midweek","19:00");
- if(day===0) ensureAssignment(iso,"Weekend","13:00");
+ const m=getMeetings();
+ if(day===m.midweekDay) ensureAssignment(iso,"Midweek",m.midweekTime);
+ if(day===m.weekendDay) ensureAssignment(iso,"Weekend",m.weekendTime);
  d.setDate(d.getDate()+1);
  }
 
@@ -2147,6 +2278,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
  }
  sbUpdateCongregationLabel();
  sbUpdateUI();
+
+ wireMeetingSettings();
+ renderMeetingSettings();
+ updateHeaderTitle();
 
  updateFilterOptions();
  renderBrothers();
