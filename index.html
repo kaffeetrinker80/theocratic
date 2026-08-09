@@ -46,6 +46,7 @@
     body::after { background: #8dc2ff; bottom: 10%; right: -150px; }
 
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUpCard { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes shine { to { background-position: 200% center; } }
     @keyframes starPulse {
       0% { transform: scale(1); opacity: 0.7; }
@@ -56,7 +57,6 @@
     .animate-in { animation: fadeInUp 0.6s var(--transition-smooth) forwards; opacity: 0; }
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
 
     .container { max-width: 1120px; margin: 0 auto; padding: 20px 20px 40px; position: relative; }
 
@@ -119,6 +119,7 @@
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
+      opacity: 0; animation: fadeUpCard 0.6s var(--transition-smooth) forwards;
     }
     .section-title::before {
       content: "";
@@ -136,8 +137,29 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 20px; padding: 24px; display: flex; flex-direction: column;
       transition: var(--transition-smooth); height: 100%;
+      opacity: 0; animation: fadeUpCard 0.6s var(--transition-smooth) forwards;
     }
     .card:hover { transform: translateY(-5px); border-color: var(--c-theme); }
+
+    /* Cascading Animation Delays for all grid items (titles + cards) */
+    .grid > *:nth-child(1) { animation-delay: 0.15s; }
+    .grid > *:nth-child(2) { animation-delay: 0.20s; }
+    .grid > *:nth-child(3) { animation-delay: 0.25s; }
+    .grid > *:nth-child(4) { animation-delay: 0.30s; }
+    .grid > *:nth-child(5) { animation-delay: 0.35s; }
+    .grid > *:nth-child(6) { animation-delay: 0.40s; }
+    .grid > *:nth-child(7) { animation-delay: 0.45s; }
+    .grid > *:nth-child(8) { animation-delay: 0.50s; }
+    .grid > *:nth-child(9) { animation-delay: 0.55s; }
+    .grid > *:nth-child(10) { animation-delay: 0.60s; }
+    .grid > *:nth-child(11) { animation-delay: 0.65s; }
+    .grid > *:nth-child(12) { animation-delay: 0.70s; }
+    .grid > *:nth-child(13) { animation-delay: 0.75s; }
+    .grid > *:nth-child(14) { animation-delay: 0.80s; }
+    .grid > *:nth-child(15) { animation-delay: 0.85s; }
+    .grid > *:nth-child(16) { animation-delay: 0.90s; }
+    .grid > *:nth-child(17) { animation-delay: 0.95s; }
+    .grid > *:nth-child(18) { animation-delay: 1.00s; }
 
     .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.1); }
     .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.1); }
@@ -146,7 +168,11 @@
     .theme-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.1); }
 
     .icon-wrap { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: var(--c-soft); }
-    .icon-wrap img { width: 36px; height: 36px; object-fit: contain; }
+    .icon-wrap img { 
+      width: 36px; height: 36px; object-fit: contain; 
+      transition: transform var(--transition-smooth);
+    }
+    .card:hover .icon-wrap img { transform: scale(1.15); }
 
     .card h2 { font-size: 1.3rem; color: #fff; margin-bottom: 8px; }
     .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
@@ -163,7 +189,11 @@
     }
     .btn-card:hover { background: var(--c-theme); color: #102036; }
 
-    .footer { margin-top: 40px; text-align: center; color: var(--muted); font-size: 0.85rem; padding-bottom: 20px; }
+    .footer { 
+      margin-top: 40px; text-align: center; color: var(--muted); 
+      font-size: 0.85rem; padding-bottom: 20px;
+      opacity: 0; animation: fadeUpCard 0.6s var(--transition-smooth) forwards; animation-delay: 1.0s;
+    }
 
     /* Scroll to Top Button */
     .scroll-top-btn {
@@ -243,7 +273,7 @@
       <button class="filter-btn" onclick="filterTools('kh', event)">Kingdom Hall</button>
     </div>
 
-    <section class="grid animate-in delay-3">
+    <section class="grid">
       
       <!-- ==========================================
            ASSEMBLY & REGIONAL CONVENTION
@@ -366,7 +396,7 @@
 
     </section>
 
-    <footer class="footer animate-in delay-3">
+    <footer class="footer">
       <p>Made with Love © · kaffeetrinker80</p>
     </footer>
   </div>
