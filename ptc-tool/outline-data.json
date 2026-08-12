@@ -1,0 +1,1366 @@
+{
+  "schemaVersion": 1,
+  "source": "S-99-E 2/26 + announced updates",
+  "edition": "S-99-E 2/26",
+  "updatedAt": "2026-08-12",
+  "outlines": {
+    "1": {
+      "title": "How Well Do You Know God?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "2": {
+      "title": "Will You Be a Survivor of the Last Days?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "3": {
+      "title": "Move Ahead With Jehovah’s Unified Organization",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "4": {
+      "title": "Evidence of God in the World Around Us",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "5": {
+      "title": "Real Help for the Family",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "6": {
+      "title": "The Flood of Noah’s Day and You",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "7": {
+      "title": "Imitate “the Father of Tender Mercies”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "8": {
+      "title": "Living to Do God’s Will, Not Our Own",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "9": {
+      "title": "Be a Hearer and a Doer of God’s Word",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "10": {
+      "title": "Be Honest in All You Say and Do",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "11": {
+      "title": "“No Part of the World”—In Imitation of Christ",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "12": {
+      "title": "Your View of Authority Matters to God",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "13": {
+      "title": "A Godly View of Sex and Marriage",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "14": {
+      "title": "A Clean People Honors Jehovah",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "15": {
+      "title": "“Work What Is Good Toward All”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "16": {
+      "title": "Keep Growing in Your Relationship With God",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "17": {
+      "title": "Glorifying God With All We Have",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "18": {
+      "title": "Make Jehovah Your Stronghold",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "19": {
+      "title": "Your Future—How Can It Be Known?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "20": {
+      "title": "Is It Time for God to Rule the World?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "21": {
+      "title": "Cherish Your Place in the Kingdom Arrangement",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "22": {
+      "title": "Are You Benefiting From Jehovah’s Provisions?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "23": {
+      "title": "Life Does Have a Purpose",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "24": {
+      "title": "Have You Found a “Pearl of High Value”?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "25": {
+      "title": "Resist the Spirit of the World!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "26": {
+      "title": "Do You Matter to God?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "27": {
+      "title": "Getting Marriage Off to a Good Start",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "28": {
+      "title": "Show Respect and Love in Your Marriage",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "29": {
+      "title": "The Responsibilities and Rewards of Parenthood",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "30": {
+      "title": "How to Improve Family Communication",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "31": {
+      "title": "Are You Conscious of Your Spiritual Need?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "32": {
+      "title": "Coping With Life’s Anxieties",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "33": {
+      "title": "Will We Ever See True Justice?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "34": {
+      "title": "Will You Be Marked for Survival?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "35": {
+      "title": "Can You Live Forever? Will You?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "36": {
+      "title": "Is This Life All There Is?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "37": {
+      "title": "Are God’s Ways Really Beneficial?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "38": {
+      "title": "How Can You Survive the End of the World?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "39": {
+      "title": "Jesus Christ, World Conqueror—How and When?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "40": {
+      "title": "What Does the Near Future Hold?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "41": {
+      "title": "“Stand Still, and See the Salvation of Jehovah”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "42": {
+      "title": "Can Love Conquer Hatred?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "43": {
+      "title": "God’s Requirements—Always Beneficial",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "44": {
+      "title": "How Can Jesus’ Teachings Benefit You?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "45": {
+      "title": "Follow the Way to Life",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "46": {
+      "title": "Maintain Your Confidence Firm to the End",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "47": {
+      "title": "”Have Faith in the Good News”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "48": {
+      "title": "Meeting the Test of Christian Loyalty",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "49": {
+      "title": "A Cleansed Earth—Is It Possible?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "50": {
+      "title": "How to Make Decisions That Lead to Success",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "51": {
+      "title": "Is the Truth Transforming Your Life?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "52": {
+      "title": "Who Is Your God?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "53": {
+      "title": "Does Your Thinking Agree With God’s?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "54": {
+      "title": "Build Your Faith in God and His Promises",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "55": {
+      "title": "How Can You Make a Good Name With God?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "56": {
+      "title": "Whose Leadership Can You Trust?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "57": {
+      "title": "Bearing Up Under Persecution",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "58": {
+      "title": "Who Are the Real Followers of Christ?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "59": {
+      "title": "(Do not use)",
+      "status": "do_not_use",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "60": {
+      "title": "What Is Your Purpose in Life?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "61": {
+      "title": "On Whose Promises Do You Rely?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "62": {
+      "title": "Where Can You Find Real Hope?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "63": {
+      "title": "Can Truth Be Found?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "64": {
+      "title": "Will You Be a ‘Lover of Pleasures’ or a ‘Lover of God’?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "65": {
+      "title": "How to Cultivate Peace in an Angry World",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "66": {
+      "title": "Will You Be a Worker in the Harvest?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "67": {
+      "title": "Meditate on Jehovah’s Word and His Works",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "68": {
+      "title": "“Continue . . . Forgiving One Another Freely”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "69": {
+      "title": "Why Show Self-Sacrificing Love?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "70": {
+      "title": "Why Is God Worthy of Your Trust?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "71": {
+      "title": "“Stay Awake”—Why and How?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "72": {
+      "title": "Love Identifies the True Christian Congregation",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "73": {
+      "title": "Acquiring “a Heart of Wisdom”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "74": {
+      "title": "Jehovah’s Eyes Are Upon Us",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "75": {
+      "title": "Support Jehovah’s Rulership in Your Personal Life",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "76": {
+      "title": "Bible Principles—Can They Help Us to Cope With Today’s Problems?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "77": {
+      "title": "“Follow the Course of Hospitality”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "78": {
+      "title": "Serve Jehovah With a Joyful Heart",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "79": {
+      "title": "Whose Friendship Will You Choose?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "80": {
+      "title": "Does Your Hope Rest on Science or the Bible?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "81": {
+      "title": "Who Are Qualified to Make Disciples?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "82": {
+      "title": "(Do not use)",
+      "status": "do_not_use",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "83": {
+      "title": "Must Christians Obey the Ten Commandments?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "84": {
+      "title": "Will You Escape This World’s Destiny?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "85": {
+      "title": "Good News in a Violent World",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "86": {
+      "title": "Prayers That Are Heard by God",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "87": {
+      "title": "What Is Your Relationship With God?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "88": {
+      "title": "Why Live by Bible Standards?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "89": {
+      "title": "Come, You Who Thirst for the Truth!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "90": {
+      "title": "Reach Out for the Real Life!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "91": {
+      "title": "The Messiah’s Presence and His Rule",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "92": {
+      "title": "Religion’s Role in World Affairs",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "93": {
+      "title": "Natural Disasters—When Will They End?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "94": {
+      "title": "True Religion Meets the Needs of Human Society",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "95": {
+      "title": "Do Not Be Deceived by Spiritism!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "96": {
+      "title": "What Is Religion’s Future?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "97": {
+      "title": "Remaining Blameless Amid a Crooked Generation",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "98": {
+      "title": "“The Scene of This World Is Changing”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "99": {
+      "title": "Why You Can Trust the Bible",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "100": {
+      "title": "How to Build Strong and Lasting Friendships",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "101": {
+      "title": "Jehovah—The “Grand Creator”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "102": {
+      "title": "Pay Attention to “the Prophetic Word”",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "103": {
+      "title": "How Can You Find Real Joy?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "104": {
+      "title": "Parents—Are You Building With Fire-Resistant Materials?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "105": {
+      "title": "Gaining Comfort in All Our Tribulations",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "106": {
+      "title": "Ruining the Earth Brings Divine Retribution",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "107": {
+      "title": "Are You Benefiting From a Trained Conscience?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "108": {
+      "title": "You Can Face the Future With Confidence!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "109": {
+      "title": "The Kingdom of God Is Near",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "110": {
+      "title": "God Comes First in Successful Family Life",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "111": {
+      "title": "Complete Healing for Mankind—How?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "112": {
+      "title": "How to Show Love in a Selfish World",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "113": {
+      "title": "How Can Youths Find Success and Happiness?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "114": {
+      "title": "Appreciating Marvels of God’s Creation",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "115": {
+      "title": "Protect Yourself From Satan’s Crafty Acts",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "116": {
+      "title": "Choose Your Associates Wisely!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "117": {
+      "title": "How to Conquer Evil With Good",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "118": {
+      "title": "Looking at Youths From Jehovah’s Standpoint",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "119": {
+      "title": "Christian Separateness From the World—Why Beneficial",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "120": {
+      "title": "Why Submit to God’s Rulership Now",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "121": {
+      "title": "A Worldwide Brotherhood Saved From Calamity",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "122": {
+      "title": "(Do not use)",
+      "status": "do_not_use",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "123": {
+      "title": "(Do not use)",
+      "status": "do_not_use",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "124": {
+      "title": "Basis for Confidence in the Bible’s Divine Authorship",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "125": {
+      "title": "Why Mankind Needs a Ransom",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "126": {
+      "title": "Who Can Be Saved?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "127": {
+      "title": "What Happens When We Die?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "128": {
+      "title": "Is Hell Really a Place of Fiery Torment?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "129": {
+      "title": "Is the Trinity a Bible Teaching?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "130": {
+      "title": "The Earth Will Remain Forever",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "131": {
+      "title": "Stand Firm Against the Devil!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "132": {
+      "title": "The Resurrection—Victory Over Death!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "133": {
+      "title": "The Origin of Humans—Does It Matter What You Believe?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "134": {
+      "title": "Should Christians Keep the Sabbath?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "135": {
+      "title": "The Sacredness of Life and Blood",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "136": {
+      "title": "Does God Approve of the Use of Images in Worship?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "137": {
+      "title": "Did the Miracles of the Bible Really Happen?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "138": {
+      "title": "Live With Soundness of Mind in a Depraved World",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "139": {
+      "title": "Godly Wisdom in a Scientific World",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "140": {
+      "title": "Who Really Is Jesus Christ?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "141": {
+      "title": "Human Creation’s Groaning—When Will It End?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "142": {
+      "title": "Why Take Refuge in Jehovah",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "143": {
+      "title": "Trust in the God of All Comfort",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "144": {
+      "title": "A Loyal Congregation Under Christ’s Leadership",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "145": {
+      "title": "Who Is Like Jehovah Our God?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "146": {
+      "title": "Use Education to Praise Jehovah",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "147": {
+      "title": "Trust in Jehovah’s Saving Power",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "148": {
+      "title": "Do You Share God’s View of Life?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "149": {
+      "title": "Are You Walking With God?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "150": {
+      "title": "Is This World Doomed to Ruin?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "151": {
+      "title": "Jehovah Is “a Secure Height” for His People",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "152": {
+      "title": "The Real Armageddon—Why? When?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "153": {
+      "title": "Keep Close in Mind the “Awe-Inspiring Day”!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "154": {
+      "title": "Human Rule—Weighed in the Balance",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "155": {
+      "title": "Has Babylon’s Judgment Hour Arrived?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "156": {
+      "title": "Judgment Day—A Time of Fear or Hope?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "157": {
+      "title": "How True Christians Adorn Divine Teaching",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "158": {
+      "title": "Be Courageous, and Trust in Jehovah",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "159": {
+      "title": "Finding Security in a Dangerous World",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "160": {
+      "title": "Safeguard Your Christian Identity!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "161": {
+      "title": "Why Did Jesus Suffer and Die?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "162": {
+      "title": "Deliverance From a World of Darkness",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "163": {
+      "title": "Why Fear the True God?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "164": {
+      "title": "Is God Still in Control?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "165": {
+      "title": "Whose Values Do You Cherish?",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "166": {
+      "title": "True Faith—What Is It, and How Is It Shown?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "167": {
+      "title": "Act Wisely in a Senseless World",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "168": {
+      "title": "You Can Feel Safe in This Troubled World!",
+      "status": "retiring",
+      "effectiveDate": "2026-09-01",
+      "replacement": null,
+      "note": ""
+    },
+    "169": {
+      "title": "Why Be Guided by the Bible?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "170": {
+      "title": "Who Is Qualified to Rule Mankind?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "171": {
+      "title": "You Can Enjoy Life in Peace Now—And Forever!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "172": {
+      "title": "What Is Your Standing With God?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "173": {
+      "title": "Is There a True Religion From God’s Standpoint?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "174": {
+      "title": "God’s New World—Who Will Qualify to Enter?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "175": {
+      "title": "What Marks the Bible as Authentic?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "176": {
+      "title": "Real Peace and Security—When?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "177": {
+      "title": "Where Can You Get Help in Times of Distress?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "178": {
+      "title": "Walk in the Way of Integrity",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "179": {
+      "title": "Reject Worldly Fantasies, Pursue Kingdom Realities",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "180": {
+      "title": "The Resurrection—Why That Hope Should Be Real to You",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "181": {
+      "title": "Is It Later Than You Think?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "182": {
+      "title": "What God’s Kingdom Is Doing for Us Now",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "183": {
+      "title": "Turn Your Eyes Away From Worthless Things!",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "184": {
+      "title": "Does Death End It All?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "185": {
+      "title": "Does the Truth Affect Your Life?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "186": {
+      "title": "Unite With God’s Happy People",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "187": {
+      "title": "Why Would a Loving God Permit Wickedness?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "188": {
+      "title": "Is Your Confidence in Jehovah?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "189": {
+      "title": "Walking With God Brings Blessings Now and Forever",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "190": {
+      "title": "A Promise of Perfect Family Happiness",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "191": {
+      "title": "How Love and Faith Conquer the World",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "192": {
+      "title": "Are You on the Road to Everlasting Life?",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "193": {
+      "title": "Rescue From World Distress",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    },
+    "194": {
+      "title": "How Godly Wisdom Benefits Us",
+      "status": "active",
+      "effectiveDate": "",
+      "replacement": null,
+      "note": ""
+    }
+  }
+}
