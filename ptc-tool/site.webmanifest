@@ -6,7 +6,7 @@
   "scope": "/PTC-tool/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f5f6f8",
+  "background_color": "#f6f2ea",
   "theme_color": "#2e7d32",
   "icons": [
     {
