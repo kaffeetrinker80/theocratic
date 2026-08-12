@@ -115,10 +115,12 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 
 /* ---- status readout: deliberately NOT button-shaped ---- */
 .status-strip {
-  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
-  margin-left:auto; padding:6px 11px;
-  background:#faf6ef; border:1px solid var(--line); border-radius:999px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:1px;
+  margin-left:auto; padding:5px 12px; max-width:340px;
+  background:#faf6ef; border:1px solid var(--line); border-radius:12px;
 }
+.status-line { display:flex; align-items:center; gap:8px; }
+.status-strip .small { font-size:11px; line-height:1.35; }
 .status-strip-label {
   font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
   color:var(--eyebrow);
@@ -142,7 +144,7 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
   margin:-2px -2px 10px; padding:0 2px 9px; border-bottom:1px solid var(--line); flex-wrap:wrap;
 }
 .results-header strong { font-family:var(--font-display); font-size:16px; font-weight:600; letter-spacing:-.005em; }
-.list { display:grid; gap:12px; max-height:var(--list-h, calc(100vh - 175px)); min-height:var(--list-h, calc(100vh - 175px)); overflow:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
+.list { display:grid; gap:12px; flex:1 1 auto; min-height:0; overflow:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
 .list::-webkit-scrollbar { width:9px; }
 .list::-webkit-scrollbar-thumb { background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
 .list::-webkit-scrollbar-thumb:hover { background:#c4b49d; }
@@ -212,7 +214,10 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .footer { color:var(--muted); text-align:center; padding:20px 0 8px; font-size:12px; }
 .hidden { display:none !important; }
 .small { font-size:12px; }
-.results-panel { display:flex; flex-direction:column; }
+.results-panel {
+  display:flex; flex-direction:column; align-self:start;
+  position:sticky; top:12px; max-height:calc(100vh - 24px);
+}
 .panel { min-height:220px; }
 .home-chip { background:#f6ebd8; border-color:#efd3a4; color:#8a5a14; }
 .toolbar-grid { align-items:start; }
@@ -276,8 +281,8 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .toolbar-grid-main .span-2 { grid-column:span 2; }
   .toolbar-grid-distance { grid-template-columns:1fr 1fr; }
   .toolbar-grid-distance .distance-row-info { grid-column:span 2; }
-  .list { max-height:none; min-height:420px; }
-  :root { --list-h:auto; }
+  .list { min-height:420px; }
+  .results-panel { position:static; max-height:none; }
 }
 @media (max-width: 640px) {
   .statgrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -390,8 +395,10 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <button class="warn" id="resetBtn">Reset local data</button>
       </div>
       <div class="status-strip">
-        <span class="status-strip-label">Status</span>
-        <span class="status-badge passive" id="statusBadge" role="status" aria-live="polite">Ready</span>
+        <div class="status-line">
+          <span class="status-strip-label">Status</span>
+          <span class="status-badge passive" id="statusBadge" role="status" aria-live="polite">Ready</span>
+        </div>
         <span class="small subtle" id="warningHint"></span>
       </div>
     </div>
@@ -435,7 +442,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.4.0</div>
+  <div class="footer">Made with love © v.2.2.0</div>
 </div>
 
 <script>
@@ -3258,7 +3265,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.2.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3378,26 +3385,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 
 <script>
-/* cosmetic only: let the results list use the space that is actually left below the toolbar */
-(function () {
-  function syncListHeight() {
-    const layout = document.querySelector('.layout');
-    if (!layout || window.innerWidth <= 1100) {
-      document.documentElement.style.removeProperty('--list-h');
-      return;
-    }
-    const top = layout.getBoundingClientRect().top + window.scrollY;
-    const h = Math.max(360, Math.round(window.innerHeight - top - 78));
-    document.documentElement.style.setProperty('--list-h', h + 'px');
-  }
-  window.addEventListener('resize', syncListHeight);
-  document.addEventListener('DOMContentLoaded', function () {
-    syncListHeight();
-    const toolbar = document.querySelector('.toolbar');
-    if (toolbar && 'ResizeObserver' in window) new ResizeObserver(syncListHeight).observe(toolbar);
-  });
-})();
-
 document.addEventListener('DOMContentLoaded', function () {
   const openBtn  = document.getElementById('openHelpBtn');
   const closeBtn = document.getElementById('closeHelpBtn');
