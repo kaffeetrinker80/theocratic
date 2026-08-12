@@ -415,7 +415,7 @@
       "status": "do_not_use",
       "effectiveDate": "",
       "replacement": null,
-      "note": ""
+      "note": "Announcements and Reminders  May 2025"
     },
     "60": {
       "title": "What Is Your Purpose in Life?",
@@ -825,8 +825,8 @@
     },
     "118": {
       "title": "Looking at Youths From Jehovah’s Standpoint",
-      "status": "active",
-      "effectiveDate": "",
+      "status": "do_not_use",
+      "effectiveDate": "2026-05-01",
       "replacement": null,
       "note": ""
     },
@@ -856,7 +856,7 @@
       "status": "do_not_use",
       "effectiveDate": "",
       "replacement": null,
-      "note": ""
+      "note": "Announcements and Reminders  May 2025"
     },
     "123": {
       "title": "(Do not use)",
@@ -975,7 +975,7 @@
       "status": "retiring",
       "effectiveDate": "2026-09-01",
       "replacement": null,
-      "note": ""
+      "note": "Scheduled to retire on 1 September 2026."
     },
     "140": {
       "title": "Who Really Is Jesus Christ?",
