@@ -295,6 +295,114 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .toolbar-grid-main .span-2, .toolbar-grid-distance .distance-row-info { grid-column:auto; }
   .header h1 { font-size:26px; }
 }
+
+/* ===== outline directory modal ===== */
+#outlineOverlay{
+  display:none; position:fixed; inset:0; z-index:9998;
+  background:rgba(44,32,24,.55); padding:24px; overflow:auto;
+}
+.ol-dialog{
+  max-width:940px; margin:0 auto; background:var(--card); color:var(--text);
+  border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
+  display:flex; flex-direction:column; max-height:calc(100vh - 48px);
+}
+.ol-controls{
+  display:grid; grid-template-columns:1fr 190px auto; gap:9px; align-items:center;
+  padding:13px 18px; border-bottom:1px solid var(--line); background:#faf6ef;
+}
+.ol-controls input[type="text"], .ol-controls select{ padding:8px 11px; border-radius:10px; }
+.ol-check{
+  display:inline-flex; align-items:center; gap:7px; white-space:nowrap;
+  font-size:12.5px; color:#52463a; cursor:pointer;
+}
+.ol-check input{ width:15px; height:15px; accent-color:var(--accent); cursor:pointer; }
+.ol-stats{
+  display:flex; flex-wrap:wrap; gap:7px; align-items:center;
+  padding:10px 18px; border-bottom:1px solid var(--line);
+}
+.ol-stat{
+  display:inline-flex; align-items:baseline; gap:6px; padding:4px 10px; border-radius:999px;
+  background:#f5f0e7; border:1px solid var(--line); font-size:11.5px; color:#52463a;
+}
+.ol-stat b{ font-size:13px; font-variant-numeric:tabular-nums; }
+.ol-stat.is-retiring{ background:#faf0da; border-color:#e8cf96; color:#8a5a14; }
+.ol-stat.is-retired{ background:#fae6e1; border-color:#e7bcae; color:#8b3a28; }
+.ol-count{ margin-left:auto; font-size:11.5px; color:var(--muted); white-space:nowrap; }
+
+.ol-list{ overflow:auto; padding:8px 10px 10px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
+.ol-list::-webkit-scrollbar{ width:9px; }
+.ol-list::-webkit-scrollbar-thumb{ background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
+.ol-row{
+  display:grid; grid-template-columns:56px minmax(0,1fr); gap:12px; align-items:start;
+  width:100%; text-align:left; background:none; border:1px solid transparent; border-radius:11px;
+  padding:9px 10px; font:inherit; color:inherit; cursor:pointer; scroll-margin:14px;
+}
+.ol-row:hover{ background:#faf6ef; border-color:var(--line); }
+.ol-row.is-flash{ background:#f8ede4; border-color:#e6cdb6; }
+.ol-no{
+  font-weight:700; color:var(--accent2); font-variant-numeric:tabular-nums; font-size:13.5px;
+  padding-top:1px;
+}
+.ol-row.st-retiring .ol-no{ color:#8a5a14; }
+.ol-row.st-retired .ol-no, .ol-row.st-do_not_use .ol-no{ color:#8b3a28; }
+.ol-title{ display:block; font-size:14px; line-height:1.4; }
+.ol-row.st-do_not_use .ol-title{ color:var(--muted); font-style:italic; }
+.ol-meta{ display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; margin-top:5px; }
+.ol-pill{
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  padding:2px 8px; border-radius:999px; background:#edf2e7; color:#4b6b41; white-space:nowrap;
+}
+.ol-pill.retiring{ background:#faf0da; color:#8a5a14; }
+.ol-pill.retired, .ol-pill.do_not_use{ background:#fae6e1; color:#8b3a28; }
+.ol-when{ font-size:11.5px; color:var(--muted); }
+.ol-speakers{ font-size:11.5px; color:#52463a; background:#f3ebdf; border-radius:999px; padding:2px 9px; }
+.ol-speakers.none{ background:transparent; color:var(--muted); padding-left:0; }
+.ol-repl{ font-size:11.5px; color:var(--accent2); font-weight:600; }
+.ol-note{
+  display:inline-flex; align-items:center; gap:5px; max-width:100%;
+  font-size:11.5px; color:var(--muted); cursor:help; border-bottom:1px dotted #c9bba6;
+}
+.ol-note::before{
+  content:'i'; flex:0 0 auto; width:13px; height:13px; border-radius:999px;
+  background:#e0d4c0; color:#52463a; font-size:9px; font-weight:700; font-style:normal;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.ol-note-text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ol-note:hover, .ol-note:focus-visible{ color:var(--text); border-bottom-color:var(--accent); outline:none; }
+.ol-empty{ padding:26px 14px; text-align:center; color:var(--muted); font-size:13px; }
+.ol-foot{
+  padding:9px 18px; border-top:1px solid var(--line); background:#faf6ef;
+  font-size:11.5px; color:var(--muted);
+}
+/* floating note tooltip, positioned outside the scroll container so nothing gets clipped */
+#olTip{
+  position:fixed; z-index:10000; display:none; max-width:min(420px, calc(100vw - 32px));
+  background:#2b231e; color:#f6f2ea; padding:9px 12px; border-radius:10px;
+  font-size:12.5px; line-height:1.5; box-shadow:0 10px 26px rgba(43,35,30,.34);
+}
+#olTip.show{ display:block; }
+
+/* browse button inside the outline filter field */
+.outline-filter-wrap input{ padding-right:76px; }
+.icon-browse{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  width:26px; height:26px; padding:0; border:1px solid var(--line); border-radius:8px;
+  background:#f3ede2; color:#52463a; font-size:13px; line-height:1;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.icon-browse:hover{ background:#e7dccb; border-color:#d8ccb9; }
+.icon-clear{ right:40px; }
+
+/* outline chips are clickable and open the directory */
+.outline[data-outline-no]{ cursor:pointer; transition:border-color .15s ease, background .15s ease; }
+.outline[data-outline-no]:hover{ border-color:var(--accent); background:#f8ede4; }
+
+@media (max-width:720px){
+  #outlineOverlay{ padding:10px; }
+  .ol-dialog{ max-height:calc(100vh - 20px); }
+  .ol-controls{ grid-template-columns:1fr; }
+  .ol-count{ margin-left:0; }
+}
 </style>
 
 <style id="ptc-v202-style-patch">
@@ -351,6 +459,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <div class="outline-filter-wrap">
           <input id="outlineFilter" type="text" list="outlineSuggestions" placeholder="Outline # or title (e.g. 76)" title="Type a number like 76 or a word from the theme.">
           <button type="button" id="clearOutlineBtn" class="icon-clear hidden" title="Clear outline filter" aria-label="Clear outline filter">&times;</button>
+          <button type="button" id="browseOutlinesBtn" class="icon-browse" title="Browse all outlines" aria-label="Browse all outlines">&#8801;</button>
         </div>
         <datalist id="outlineSuggestions"></datalist>
       </div>
@@ -442,7 +551,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.2.0</div>
+  <div class="footer">Made with love © v.2.2.1</div>
 </div>
 
 <script>
@@ -1099,7 +1208,8 @@ function renderOutline(no) {
   if (!outlineConfigInfo.loaded) extra.push('Outline data unavailable');
   if (meta.note) extra.push(meta.note);
   if (meta.replacement) extra.push('Replacement: #' + meta.replacement);
-  return `<span class="outline ${escapeHtml(cls || 'active')}"${extra.length ? ` title="${escapeHtml(extra.join(' · '))}"` : ''}>${escapeHtml(label)}</span>`;
+  const tip = extra.length ? extra.join(' · ') + ' · Click for details' : 'Click for details';
+  return `<span class="outline ${escapeHtml(cls || 'active')}" data-outline-no="${escapeHtml(String(no))}" title="${escapeHtml(tip)}">${escapeHtml(label)}</span>`;
 }
 
 function renderPhoneChips(phones, fallbackCountry = '') {
@@ -3260,12 +3370,41 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+<div id="outlineOverlay" aria-hidden="true">
+  <div class="ol-dialog" role="dialog" aria-modal="true" aria-label="Outline directory">
+    <div class="help-head">
+      <div>
+        <h2>Outline directory</h2>
+        <div class="help-sub" id="outlineModalMeta">outline-data.json</div>
+      </div>
+      <button type="button" class="ghost" id="closeOutlineBtn">Close</button>
+    </div>
+
+    <div class="ol-controls">
+      <input id="outlineModalSearch" type="text" placeholder="Search number, title, or note…">
+      <select id="outlineModalStatus">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="retiring">Retiring</option>
+        <option value="retired">Retired</option>
+        <option value="do_not_use">Do not use</option>
+      </select>
+      <label class="ol-check"><input type="checkbox" id="outlineModalUsed"> Only with speakers</label>
+    </div>
+
+    <div class="ol-stats" id="outlineModalStats"></div>
+    <div class="ol-list" id="outlineModalList"></div>
+    <div class="ol-foot">Click an outline to filter the speaker list by it. Hover the <b>i</b> marker to read the full note.</div>
+  </div>
+</div>
+<div id="olTip" role="tooltip"></div>
+
 <div id="helpOverlay" aria-hidden="true">
   <div class="help-dialog" role="dialog" aria-modal="true" aria-label="Help">
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.2.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.2.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3343,6 +3482,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <section class="help-section" id="help-s7">
           <h3><span class="help-num">07</span> Outline search</h3>
           <p>The outline filter works two ways: by number, for example <b>76</b>, or by words from the title, for example <b>family</b>, <b>hope</b>, or <b>hospitality</b>. That makes it easy to find brothers even when you only remember the subject but not the exact outline number.</p>
+          <p>The <b>≡</b> button in the outline field opens the <b>outline directory</b>: every outline from <b>outline-data.json</b> with its title, status, retiring date, and how many speakers in the current list offer it. Search it by number, title, or note, narrow it by status, or tick <b>Only with speakers</b> to hide outlines nobody covers. Clicking an entry filters the speaker list by that outline.</p>
+          <p>Where an outline carries a note, an <b>i</b> marker appears. The note is shortened in the row and shown in full when you hover or tap the marker, so a long note never pushes the list apart. Outline chips on the result cards and in the speaker details are clickable too and open the directory at that outline.</p>
         </section>
 
         <section class="help-section" id="help-s8">
@@ -3385,6 +3526,213 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 
 <script>
+/* ===== outline directory =====
+   Reads OUTLINE_DATA (from outline-data.json) and shows it as a searchable list.
+   Long notes are never printed in full inside a row; they live in a floating tooltip. */
+(function () {
+  const overlay   = document.getElementById('outlineOverlay');
+  const openBtn   = document.getElementById('browseOutlinesBtn');
+  const closeBtn  = document.getElementById('closeOutlineBtn');
+  const listEl    = document.getElementById('outlineModalList');
+  const searchEl  = document.getElementById('outlineModalSearch');
+  const statusEl  = document.getElementById('outlineModalStatus');
+  const usedEl    = document.getElementById('outlineModalUsed');
+  const statsEl   = document.getElementById('outlineModalStats');
+  const metaEl    = document.getElementById('outlineModalMeta');
+  const tip       = document.getElementById('olTip');
+  if (!overlay || !listEl) return;
+
+  const NOTE_PREVIEW = 58;
+  let focusNo = null;
+
+  function speakerCounts() {
+    const counts = new Map();
+    (state.dataset ? state.dataset.speakers : []).forEach(sp => {
+      (sp.outlines || []).forEach(no => counts.set(Number(no), (counts.get(Number(no)) || 0) + 1));
+    });
+    return counts;
+  }
+
+  function statusLabel(status) {
+    if (status === 'retiring') return 'Retiring';
+    if (status === 'retired') return 'Retired';
+    if (status === 'do_not_use') return 'Do not use';
+    return 'Active';
+  }
+
+  function renderMeta(shown, total) {
+    const bits = [];
+    if (outlineConfigInfo.loaded) {
+      if (outlineConfigInfo.source) bits.push(outlineConfigInfo.source);
+      if (outlineConfigInfo.updatedAt) bits.push('updated ' + outlineConfigInfo.updatedAt);
+    } else {
+      bits.push('outline-data.json unavailable');
+    }
+    metaEl.textContent = bits.join(' · ') || 'outline-data.json';
+    const counted = statsEl.querySelector('.ol-count');
+    if (counted) counted.textContent = shown === total ? `${total} outlines` : `${shown} of ${total} outlines`;
+  }
+
+  function renderStats(rows, total) {
+    const by = { active:0, retiring:0, retired:0, do_not_use:0 };
+    Object.keys(OUTLINE_DATA).forEach(no => { by[outlineEffectiveState(no).status in by ? outlineEffectiveState(no).status : 'active']++; });
+    statsEl.innerHTML =
+      `<span class="ol-stat"><b>${total}</b> total</span>` +
+      `<span class="ol-stat"><b>${by.active}</b> active</span>` +
+      `<span class="ol-stat is-retiring"><b>${by.retiring}</b> retiring</span>` +
+      `<span class="ol-stat is-retired"><b>${by.retired + by.do_not_use}</b> retired / do not use</span>` +
+      `<span class="ol-count"></span>`;
+    renderMeta(rows, total);
+  }
+
+  let lastSig = null;
+  function render(force) {
+    const sig = [
+      searchEl.value, statusEl.value, usedEl.checked,
+      Object.keys(OUTLINE_DATA).length,
+      state.dataset ? state.dataset.speakers.length : 0
+    ].join('\u0001');
+    if (!force && sig === lastSig) return;
+    lastSig = sig;
+
+    const q = normalizeText(searchEl.value);
+    const wantStatus = statusEl.value;
+    const onlyUsed = usedEl.checked;
+    const counts = speakerCounts();
+    const all = Object.keys(OUTLINE_DATA).map(Number).sort((a, b) => a - b);
+
+    const rows = all.filter(no => {
+      const meta = outlineEffectiveState(no);
+      if (wantStatus && meta.status !== wantStatus) return false;
+      if (onlyUsed && !counts.get(no)) return false;
+      if (!q) return true;
+      return normalizeText([no, meta.title, meta.note, statusLabel(meta.status), meta.replacement ? '#' + meta.replacement : ''].join(' ')).includes(q);
+    });
+
+    renderStats(rows.length, all.length);
+
+    if (!all.length) {
+      listEl.innerHTML = '<div class="ol-empty">No outline data loaded. Place <b>outline-data.json</b> next to this file and reload.</div>';
+      return;
+    }
+    if (!rows.length) {
+      listEl.innerHTML = '<div class="ol-empty">No outline matches these filters.</div>';
+      return;
+    }
+
+    listEl.innerHTML = rows.map(no => {
+      const meta = outlineEffectiveState(no);
+      const n = counts.get(no) || 0;
+      const when = meta.effectiveDate ? formatOutlineDate(meta.effectiveDate) : '';
+      const whenLabel = meta.status === 'retiring' ? 'from ' + when : (meta.status === 'retired' && when ? 'since ' + when : '');
+      const note = meta.note || '';
+      const preview = note.length > NOTE_PREVIEW ? note.slice(0, NOTE_PREVIEW).trimEnd() + '…' : note;
+      return `<button type="button" class="ol-row st-${escapeHtml(meta.status)}" data-no="${no}">
+        <span class="ol-no">#${no}</span>
+        <span>
+          <span class="ol-title">${escapeHtml(meta.title || '(no title in outline-data.json)')}</span>
+          <span class="ol-meta">
+            ${meta.status === 'active' ? '' : `<span class="ol-pill ${escapeHtml(meta.status)}">${escapeHtml(statusLabel(meta.status))}</span>`}
+            ${whenLabel ? `<span class="ol-when">${escapeHtml(whenLabel)}</span>` : ''}
+            ${state.dataset ? `<span class="ol-speakers ${n ? '' : 'none'}">${n ? n + (n === 1 ? ' speaker' : ' speakers') : 'no speaker in list'}</span>` : ''}
+            ${meta.replacement ? `<span class="ol-repl">→ #${escapeHtml(String(meta.replacement))}</span>` : ''}
+            ${note ? `<span class="ol-note" tabindex="0" data-note="${escapeHtml(note)}"><span class="ol-note-text">${escapeHtml(preview)}</span></span>` : ''}
+          </span>
+        </span>
+      </button>`;
+    }).join('');
+
+    if (focusNo != null) {
+      const row = listEl.querySelector(`.ol-row[data-no="${focusNo}"]`);
+      if (row) {
+        row.classList.add('is-flash');
+        requestAnimationFrame(() => row.scrollIntoView({ block:'center' }));
+      }
+      focusNo = null;
+    }
+  }
+
+  /* --- floating note tooltip: kept outside the scrolling list so it can never be clipped --- */
+  function showTip(el) {
+    tip.textContent = el.dataset.note || '';
+    tip.classList.add('show');
+    const r = el.getBoundingClientRect();
+    const t = tip.getBoundingClientRect();
+    let left = Math.min(Math.max(12, r.left), window.innerWidth - t.width - 12);
+    let top = r.top - t.height - 8;
+    if (top < 12) top = Math.min(r.bottom + 8, window.innerHeight - t.height - 12);
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  function hideTip() { tip.classList.remove('show'); }
+
+  listEl.addEventListener('mouseover', e => { const n = e.target.closest('.ol-note'); if (n) showTip(n); });
+  listEl.addEventListener('mouseout',  e => { if (e.target.closest('.ol-note')) hideTip(); });
+  listEl.addEventListener('focusin',   e => { const n = e.target.closest('.ol-note'); if (n) showTip(n); });
+  listEl.addEventListener('focusout',  hideTip);
+  listEl.addEventListener('scroll', hideTip);
+
+  /* tapping the note marker on a touch device shows the tooltip without triggering the filter */
+  listEl.addEventListener('click', e => {
+    const note = e.target.closest('.ol-note');
+    if (note) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (tip.classList.contains('show') && tip.textContent === note.dataset.note) hideTip();
+      else showTip(note);
+      return;
+    }
+    const row = e.target.closest('.ol-row');
+    if (!row) return;
+    applyOutline(Number(row.dataset.no));
+  });
+
+  function applyOutline(no) {
+    const input = document.getElementById('outlineFilter');
+    if (input) {
+      input.value = '#' + no;
+      input.dispatchEvent(new Event('input', { bubbles:true }));
+    }
+    close();
+    setStatus('Filtered by outline #' + no);
+  }
+
+  function open(no) {
+    focusNo = no == null ? null : Number(no);
+    if (focusNo != null) { searchEl.value = ''; statusEl.value = ''; usedEl.checked = false; }
+    render(true);
+    overlay.style.display = 'block';
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (focusNo == null) setTimeout(() => searchEl.focus(), 0);
+  }
+  function close() {
+    hideTip();
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (openBtn) openBtn.addEventListener('click', () => open(null));
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  searchEl.addEventListener('input', () => render());
+  statusEl.addEventListener('change', () => render());
+  usedEl.addEventListener('change', () => render());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay.style.display === 'block') close();
+  });
+
+  /* an outline chip anywhere in the app opens the directory at that outline */
+  document.addEventListener('click', e => {
+    const chip = e.target.closest('.outline[data-outline-no]');
+    if (!chip) return;
+    e.preventDefault();
+    e.stopPropagation();
+    open(chip.dataset.outlineNo);
+  }, true);
+})();
+
 document.addEventListener('DOMContentLoaded', function () {
   const openBtn  = document.getElementById('openHelpBtn');
   const closeBtn = document.getElementById('closeHelpBtn');
