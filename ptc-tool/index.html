@@ -29,50 +29,52 @@
 html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.5 var(--font-body); -webkit-font-smoothing:antialiased; }
 a { color:var(--accent2); text-decoration:none; }
 button, select, input, textarea { font:inherit; }
-.container { max-width:1600px; margin:0 auto; padding:18px; }
+.container { max-width:1600px; margin:0 auto; padding:14px 16px; }
 .header {
   position:relative; overflow:hidden;
   background:linear-gradient(135deg,#2b231e 0%, #6e4231 52%, #b4633f 100%);
-  color:#fff; border-radius:20px; padding:22px 24px; box-shadow:var(--shadow);
+  color:#fff; border-radius:16px; padding:15px 18px; box-shadow:var(--shadow);
 }
 .header::after {
-  content:''; position:absolute; right:-70px; top:-90px; width:260px; height:260px;
+  content:''; position:absolute; right:-70px; top:-90px; width:230px; height:230px;
   border-radius:999px; background:rgba(255,255,255,.07); pointer-events:none;
 }
 .header > * { position:relative; z-index:1; }
-.header h1 { margin:0; font-family:var(--font-display); font-size:33px; line-height:1.1; letter-spacing:-.01em; font-weight:600; }
-.header p { margin:8px 0 0; opacity:.95; max-width:780px; }
-.header-grid { display:grid; grid-template-columns:1.4fr .9fr; gap:16px; align-items:start; }
-.fact-row { display:flex; flex-wrap:wrap; gap:20px 28px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.20); }
-.fact { display:flex; flex-direction:column; gap:2px; }
-.fact-label { font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; opacity:.68; }
-.fact-value { font-size:13px; font-weight:600; }
-.header-filters { margin-top:8px; font-size:12.5px; color:rgba(255,255,255,.88); }
+.header-title-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.header h1 { margin:0; font-family:var(--font-display); font-size:24px; line-height:1.15; letter-spacing:-.01em; font-weight:600; }
+.header p { margin:5px 0 0; font-size:12.5px; opacity:.9; max-width:70ch; }
+.header-grid { display:grid; grid-template-columns:1.45fr .95fr; gap:18px; align-items:start; }
+.fact-row { display:flex; flex-wrap:wrap; gap:4px 22px; margin-top:9px; padding-top:8px; border-top:1px solid rgba(255,255,255,.18); }
+.fact { display:flex; align-items:baseline; gap:6px; }
+.fact-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; opacity:.62; }
+.fact-value { font-size:12px; font-weight:600; }
+.header-filters { margin-top:6px; font-size:12px; color:rgba(255,255,255,.88); }
 .header-filters strong { font-weight:700; color:#fff; }
-.statbox { background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.20); border-radius:16px; padding:14px 16px; backdrop-filter:blur(2px); }
-.statbox > div:first-child strong { font-size:11px; text-transform:uppercase; letter-spacing:.07em; opacity:.85; }
-.statgrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; }
-.stat { background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.10); border-radius:12px; padding:10px 12px; }
-.stat .label { font-size:11.5px; opacity:.82; }
-.stat .value { font-size:22px; font-weight:700; margin-top:2px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
-.header-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.statbox { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.18); border-radius:13px; padding:10px 12px; }
+.statgrid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.stat { background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.10); border-radius:10px; padding:7px 9px; }
+.stat .label { font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; opacity:.72; white-space:nowrap; }
+.stat .value { font-size:19px; font-weight:700; margin-top:1px; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.statbox .small { margin-top:8px; font-size:11px; opacity:.82; line-height:1.4; }
+.header-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .header-actions button {
+  padding:7px 12px; font-size:13px;
   background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.34); color:#fff;
 }
 .header-actions button:hover { background:rgba(255,255,255,.26); border-color:rgba(255,255,255,.5); }
 
 .toolbar, .panel {
-  margin-top:18px; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:var(--shadow);
+  margin-top:12px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:13px 14px; box-shadow:var(--shadow);
 }
-.toolbar-grid { display:grid; gap:10px; }
-.toolbar-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+.toolbar-grid { display:grid; gap:9px; }
+.toolbar-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:0; align-items:center; }
 
 /* small uppercase eyebrow that names each toolbar row */
 .row-label {
   display:block; font-size:10.5px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.09em; color:var(--eyebrow); margin:0 0 8px;
+  letter-spacing:.09em; color:var(--eyebrow); margin:0 0 6px;
 }
-.toolbar-block + .toolbar-block { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+.toolbar-block + .toolbar-block { margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
 
 /* action buttons grouped by purpose, with a hairline between groups */
 .action-group { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
@@ -80,7 +82,7 @@ button, select, input, textarea { font:inherit; }
 .action-group:not(:has(button:not(.hidden))) { display:none; }
 
 input[type="text"], input[type="number"], select, textarea {
-  width:100%; border:1px solid #dcd1c0; border-radius:12px; padding:12px 13px; background:#fff;
+  width:100%; border:1px solid #dcd1c0; border-radius:10px; padding:9px 11px; background:#fff;
   transition:border-color .15s ease, box-shadow .15s ease;
 }
 input[type="text"]:hover, select:hover, textarea:hover { border-color:#c9bba6; }
@@ -89,7 +91,7 @@ textarea { min-height:112px; resize:vertical; }
   outline:none; box-shadow:var(--focus); border-color:var(--accent);
 }
 button {
-  border:1px solid transparent; border-radius:12px; padding:10px 14px; cursor:pointer;
+  border:1px solid transparent; border-radius:10px; padding:8px 12px; font-size:13px; cursor:pointer;
   background:#f0e8dc; color:#4a3a2c; font-weight:600;
   transition:background .15s ease, box-shadow .15s ease, transform .1s ease, border-color .15s ease;
 }
@@ -104,7 +106,7 @@ button.warn:hover { background:#99621f; }
 button.ghost { background:#faf6ef; border:1px solid var(--line); color:#52463a; }
 button.ghost:hover { background:#f3ede2; border-color:#d8ccb9; }
 button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; filter:none !important; box-shadow:none !important; }
-.workflow-hint { margin-top:12px; padding:10px 12px; border:1px solid #e8dfd0; border-radius:12px; background:#fdfbf6; color:var(--muted); font-size:12px; }
+.workflow-hint { margin-top:9px; padding:7px 11px; border:1px solid #e8dfd0; border-radius:10px; background:#fdfbf6; color:var(--muted); font-size:11.5px; line-height:1.45; }
 .workflow-hint.ready { background:#f1f5ec; border-color:#cbdcc0; color:#47603c; }
 
 .badge {
@@ -113,9 +115,9 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 
 /* ---- status readout: deliberately NOT button-shaped ---- */
 .status-strip {
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  margin-top:12px; padding:9px 12px;
-  background:#faf6ef; border:1px solid var(--line); border-radius:12px;
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  margin-left:auto; padding:6px 11px;
+  background:#faf6ef; border:1px solid var(--line); border-radius:999px;
 }
 .status-strip-label {
   font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
@@ -134,13 +136,13 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 .status-badge.passive { color:var(--muted); font-weight:500; }
 .status-badge.passive::before { background:#a99c8c; box-shadow:0 0 0 3px rgba(169,156,140,.20); }
 .subtle { color:var(--muted); }
-.layout { display:grid; grid-template-columns: minmax(360px, 1.1fr) minmax(340px, .9fr); gap:18px; margin-top:18px; }
+.layout { display:grid; grid-template-columns: minmax(360px, 1.1fr) minmax(340px, .9fr); gap:14px; margin-top:12px; }
 .results-header {
   display:flex; justify-content:space-between; gap:12px; align-items:center;
-  margin:-4px -4px 12px; padding:0 4px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap;
+  margin:-2px -2px 10px; padding:0 2px 9px; border-bottom:1px solid var(--line); flex-wrap:wrap;
 }
 .results-header strong { font-family:var(--font-display); font-size:16px; font-weight:600; letter-spacing:-.005em; }
-.list { display:grid; gap:12px; max-height:calc(100vh - 175px); min-height:calc(100vh - 175px); overflow:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
+.list { display:grid; gap:12px; max-height:var(--list-h, calc(100vh - 175px)); min-height:var(--list-h, calc(100vh - 175px)); overflow:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
 .list::-webkit-scrollbar { width:9px; }
 .list::-webkit-scrollbar-thumb { background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
 .list::-webkit-scrollbar-thumb:hover { background:#c4b49d; }
@@ -228,7 +230,7 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .correction-checks { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .correction-checks label { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #e2d7c4; border-radius:999px; background:#fff; font-size:12px; }
 .correction-box textarea { min-height:92px; }
-.outline-help { margin-top:6px; font-size:12px; color:var(--muted); }
+.outline-help { display:none; }
 
 .outline-filter-wrap { position:relative; display:flex; align-items:center; }
 .outline-filter-wrap input { padding-right:48px; width:100%; }
@@ -275,9 +277,16 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .toolbar-grid-distance { grid-template-columns:1fr 1fr; }
   .toolbar-grid-distance .distance-row-info { grid-column:span 2; }
   .list { max-height:none; min-height:420px; }
+  :root { --list-h:auto; }
+}
+@media (max-width: 640px) {
+  .statgrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .stat .label { white-space:normal; }
+  .header-title-row { align-items:flex-start; }
 }
 @media (max-width: 720px) {
   .toolbar-grid-main, .toolbar-grid-distance, .meta { grid-template-columns:1fr; }
+  .status-strip { margin-left:0; }
   .toolbar-grid-main .span-2, .toolbar-grid-distance .distance-row-info { grid-column:auto; }
   .header h1 { font-size:26px; }
 }
@@ -302,28 +311,28 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="header">
     <div class="header-grid">
       <div>
-        <h1>PTC Tool – English Public Speakers (EU)</h1>
+        <div class="header-title-row">
+          <h1>PTC Tool – English Public Speakers (EU)</h1>
+          <div class="header-actions">
+            <button type="button" class="ghost" id="goHomeCongBtn">Home congregation</button>
+            <button type="button" class="ghost" id="openHelpBtn">Help</button>
+          </div>
+        </div>
         <p>Search and filter every public speaker congregation, then jump straight to the Kingdom Hall in Google Maps.</p>
-        <p class="header-filters"><strong>Filters:</strong> country · circuit · meeting day · role · congregation · speaker · outline</p>
         <div class="fact-row">
-          <div class="fact"><span class="fact-label">Data source</span><span class="fact-value">CSV import only – no hardcoded speaker list</span></div>
+          <div class="fact"><span class="fact-label">Data source</span><span class="fact-value">CSV import only</span></div>
           <div class="fact"><span class="fact-label">Outline data</span><span class="fact-value" id="outlineDataInfo">Loading outline-data.json…</span></div>
           <div class="fact"><span class="fact-label">Backup</span><span class="fact-value">JSON export incl. notes</span></div>
         </div>
-        <div class="header-actions">
-          <button type="button" class="ghost" id="goHomeCongBtn">Home congregation</button>
-          <button type="button" class="ghost" id="openHelpBtn">Help</button>
-        </div>
       </div>
       <div class="statbox">
-        <div><strong>Current dataset</strong></div>
         <div class="statgrid">
           <div class="stat"><div class="label">Congregations</div><div class="value" id="statCongs">0</div></div>
           <div class="stat"><div class="label">Speakers</div><div class="value" id="statSpeakers">0</div></div>
           <div class="stat"><div class="label">Countries</div><div class="value" id="statCountries">0</div></div>
-          <div class="stat"><div class="label">Outlines in use</div><div class="value" id="statOutlines">0</div></div>
+          <div class="stat"><div class="label">Outlines</div><div class="value" id="statOutlines">0</div></div>
         </div>
-        <div style="margin-top:10px" class="small" id="datasetInfo">No data loaded yet.</div>
+        <div class="small" id="datasetInfo">No data loaded yet.</div>
       </div>
     </div>
   </div>
@@ -335,11 +344,10 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
       <div class="span-2"><input id="searchInput" type="text" placeholder="Search speaker, congregation, city, country, circuit, email, phone, outline title…"></div>
       <div class="span-2">
         <div class="outline-filter-wrap">
-          <input id="outlineFilter" type="text" list="outlineSuggestions" placeholder="Outline # or title…">
+          <input id="outlineFilter" type="text" list="outlineSuggestions" placeholder="Outline # or title (e.g. 76)" title="Type a number like 76 or a word from the theme.">
           <button type="button" id="clearOutlineBtn" class="icon-clear hidden" title="Clear outline filter" aria-label="Clear outline filter">&times;</button>
         </div>
         <datalist id="outlineSuggestions"></datalist>
-        <div class="outline-help">Type a number like 76 or a word from the theme.</div>
       </div>
       <div><select id="countryFilter"><option value="">All countries</option></select></div>
       <div><select id="circuitFilter"><option value="">All circuits</option></select></div>
@@ -381,12 +389,11 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <button id="clearFiltersBtn">Clear filters</button>
         <button class="warn" id="resetBtn">Reset local data</button>
       </div>
-    </div>
-
-    <div class="status-strip">
-      <span class="status-strip-label">Status</span>
-      <span class="status-badge passive" id="statusBadge" role="status" aria-live="polite">Ready</span>
-      <span class="small subtle" id="warningHint"></span>
+      <div class="status-strip">
+        <span class="status-strip-label">Status</span>
+        <span class="status-badge passive" id="statusBadge" role="status" aria-live="polite">Ready</span>
+        <span class="small subtle" id="warningHint"></span>
+      </div>
     </div>
 
     <div class="workflow-hint" id="assistantImportHint">
@@ -428,7 +435,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.3.0</div>
+  <div class="footer">Made with love © v.2.4.0</div>
 </div>
 
 <script>
@@ -3251,7 +3258,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3371,6 +3378,26 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 
 <script>
+/* cosmetic only: let the results list use the space that is actually left below the toolbar */
+(function () {
+  function syncListHeight() {
+    const layout = document.querySelector('.layout');
+    if (!layout || window.innerWidth <= 1100) {
+      document.documentElement.style.removeProperty('--list-h');
+      return;
+    }
+    const top = layout.getBoundingClientRect().top + window.scrollY;
+    const h = Math.max(360, Math.round(window.innerHeight - top - 78));
+    document.documentElement.style.setProperty('--list-h', h + 'px');
+  }
+  window.addEventListener('resize', syncListHeight);
+  document.addEventListener('DOMContentLoaded', function () {
+    syncListHeight();
+    const toolbar = document.querySelector('.toolbar');
+    if (toolbar && 'ResizeObserver' in window) new ResizeObserver(syncListHeight).observe(toolbar);
+  });
+})();
+
 document.addEventListener('DOMContentLoaded', function () {
   const openBtn  = document.getElementById('openHelpBtn');
   const closeBtn = document.getElementById('closeHelpBtn');
