@@ -399,6 +399,99 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .ol-controls{ grid-template-columns:1fr; }
   .ol-count{ margin-left:0; }
 }
+
+/* ===== print module ===== */
+#printOverlay{ display:none; position:fixed; inset:0; z-index:9997; background:rgba(44,32,24,.55); padding:24px; overflow:auto; }
+.pr-dialog{
+  max-width:1080px; margin:0 auto; background:var(--card); color:var(--text);
+  border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
+  display:flex; flex-direction:column; max-height:calc(100vh - 48px);
+}
+.pr-body{ display:grid; grid-template-columns:290px minmax(0,1fr); min-height:0; }
+.pr-side{ border-right:1px solid var(--line); background:#faf6ef; padding:14px; overflow:auto; }
+.pr-side .row-label{ margin-top:14px; }
+.pr-side .row-label:first-child{ margin-top:0; }
+.pr-side select{ padding:8px 11px; border-radius:10px; }
+.pr-opt{ display:flex; align-items:flex-start; gap:8px; padding:4px 0; font-size:12.5px; color:#52463a; cursor:pointer; }
+.pr-opt input{ width:15px; height:15px; margin-top:1px; accent-color:var(--accent); cursor:pointer; flex:0 0 auto; }
+.pr-opt.is-off{ opacity:.45; }
+.pr-hint{ font-size:11px; color:var(--muted); line-height:1.45; margin-top:4px; }
+.pr-preview-wrap{ overflow:auto; background:#efe9df; padding:16px; }
+.pr-sheet{
+  background:#fff; margin:0 auto; width:190mm; min-height:120mm; padding:12mm;
+  box-shadow:0 6px 20px rgba(58,40,28,.18); border-radius:2px;
+}
+.pr-foot{ display:flex; gap:9px; align-items:center; flex-wrap:wrap; padding:11px 16px; border-top:1px solid var(--line); background:#faf6ef; }
+.pr-summary{ font-size:11.5px; color:var(--muted); margin-right:auto; }
+
+/* ---- the printed document itself (shared by preview and paper) ---- */
+.pdoc{ font-family:var(--font-body); color:#111; font-size:9.5pt; line-height:1.4; }
+.pdoc.sz-compact{ font-size:8.5pt; }
+.pdoc.sz-large{ font-size:10.5pt; }
+.pdoc-head{ border-bottom:1.5pt solid #111; padding-bottom:5pt; margin-bottom:9pt; }
+.pdoc-head h1{ font-family:var(--font-display); font-size:15pt; margin:0; font-weight:600; letter-spacing:-.01em; }
+.pdoc-head .pdoc-sub{ font-size:8pt; color:#444; margin-top:2pt; }
+.pcong{ margin-bottom:11pt; break-inside:avoid; }
+.pcong.pbreak{ break-before:page; }
+.pcong-head{ border-bottom:.75pt solid #111; padding-bottom:3pt; margin-bottom:4pt; display:flex; justify-content:space-between; gap:10pt; align-items:baseline; }
+.pcong-name{ font-family:var(--font-display); font-size:12pt; font-weight:600; }
+.pcong-circuit{ font-size:8pt; color:#333; white-space:nowrap; }
+.pcong-meta{ font-size:8pt; color:#333; margin-bottom:4pt; }
+.pcong-meta span+span::before{ content:' · '; color:#999; }
+.pcong-contacts{ font-size:8pt; margin-bottom:5pt; }
+.pcong-contacts div{ margin-bottom:1pt; }
+.pcong-contacts b{ display:inline-block; min-width:100pt; }
+.ptab{ width:100%; border-collapse:collapse; }
+.ptab thead{ display:table-header-group; }
+.ptab th{
+  text-align:left; font-size:7pt; text-transform:uppercase; letter-spacing:.06em; color:#555;
+  border-bottom:.5pt solid #999; padding:2pt 4pt 2pt 0; font-weight:700;
+}
+.ptab td{ padding:3pt 4pt 3pt 0; border-bottom:.4pt solid #ddd; vertical-align:top; }
+.ptab tr{ break-inside:avoid; }
+.ptab .c-name{ width:26%; }
+.ptab .c-contact{ width:30%; }
+.ptab .c-out{ width:30%; }
+.pdoc.with-titles .ptab .c-contact{ width:25%; }
+.pdoc.with-titles .ptab .c-out{ width:37%; }
+.ptab .c-notes{ width:14%; }
+.pname{ font-weight:700; }
+.prole{ font-size:7.5pt; color:#555; font-weight:400; }
+.pfav{ font-weight:700; }
+.pcontact{ font-size:8pt; line-height:1.35; }
+.pcontact div{ word-break:break-word; }
+.pnums{ font-variant-numeric:tabular-nums; }
+.ptitles{ font-size:6.8pt; line-height:1.3; color:#222; margin:0; padding:0; list-style:none; }
+.ptitles li{ margin:0 0 .5pt; }
+.ptitles .n{ font-weight:700; font-variant-numeric:tabular-nums; }
+.ptitles .rt{ color:#666; }
+.pnote{ font-size:7.5pt; color:#333; }
+.pflat .ptab .c-cong{ width:24%; }
+.pout-block{ break-inside:avoid; margin-bottom:7pt; }
+.pout-head{ font-weight:700; font-size:9.5pt; border-bottom:.5pt solid #999; padding-bottom:2pt; margin-bottom:3pt; }
+.pout-head .rt{ font-weight:400; font-size:7.5pt; color:#666; }
+.pout-sp{ font-size:8pt; padding:1.5pt 0; border-bottom:.4pt dotted #ddd; display:flex; gap:8pt; justify-content:space-between; }
+.pout-sp .w{ color:#555; }
+.pdoc-foot{ margin-top:8pt; padding-top:4pt; border-top:.5pt solid #999; font-size:7pt; color:#666; display:flex; justify-content:space-between; }
+.pempty{ padding:20pt; text-align:center; color:#666; font-size:9pt; }
+
+/* screen: the real print container is parked out of sight */
+#printRoot{ display:none; }
+
+@media print{
+  body > *{ display:none !important; }
+  body > #printRoot{ display:block !important; }
+  #printRoot{ margin:0; padding:0; }
+  .pdoc{ color:#000; }
+  @page{ size:A4 portrait; margin:12mm; }
+}
+
+@media (max-width:900px){
+  #printOverlay{ padding:10px; }
+  .pr-body{ grid-template-columns:1fr; }
+  .pr-side{ border-right:0; border-bottom:1px solid var(--line); }
+  .pr-sheet{ width:auto; padding:10mm; }
+}
 </style>
 
 <style id="ptc-v202-style-patch">
@@ -424,6 +517,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
           <h1>PTC Tool – English Public Speakers (EU)</h1>
           <div class="header-actions">
             <button type="button" class="ghost" id="goHomeCongBtn">Home congregation</button>
+            <button type="button" class="ghost" id="openPrintBtn">Print</button>
             <button type="button" class="ghost" id="openHelpBtn">Help</button>
           </div>
         </div>
@@ -547,7 +641,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.2.1</div>
+  <div class="footer">Made with love © v.2.3.0</div>
 </div>
 
 <script>
@@ -3366,6 +3460,67 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+<div id="printOverlay" aria-hidden="true">
+  <div class="pr-dialog" role="dialog" aria-modal="true" aria-label="Print">
+    <div class="help-head">
+      <div>
+        <h2>Print / PDF</h2>
+        <div class="help-sub">Speaker lists for printing or saving as PDF</div>
+      </div>
+      <button type="button" class="ghost" id="closePrintBtn">Close</button>
+    </div>
+
+    <div class="pr-body">
+      <div class="pr-side">
+        <span class="row-label">What to print</span>
+        <select id="prScope">
+          <option value="results">Current filter results</option>
+          <option value="favorites">Favorites only</option>
+          <option value="selected">Selected congregation only</option>
+          <option value="all">All congregations</option>
+        </select>
+
+        <span class="row-label">Layout</span>
+        <select id="prLayout">
+          <option value="cong">By congregation</option>
+          <option value="speakers">Flat speaker list</option>
+          <option value="outlines">By outline number</option>
+        </select>
+
+        <span class="row-label">Content</span>
+        <label class="pr-opt"><input type="checkbox" id="prContacts" checked> Contact details</label>
+        <label class="pr-opt"><input type="checkbox" id="prPtc" checked> PTC and COBE contacts</label>
+        <label class="pr-opt"><input type="checkbox" id="prMeeting" checked> Address and meeting time</label>
+        <label class="pr-opt"><input type="checkbox" id="prOutlines" checked> Outline numbers</label>
+        <label class="pr-opt"><input type="checkbox" id="prTitles"> Outline titles (small)</label>
+        <label class="pr-opt"><input type="checkbox" id="prRetiring" checked> Mark retiring outlines</label>
+        <label class="pr-opt"><input type="checkbox" id="prNotes"> My notes and dates</label>
+        <label class="pr-opt"><input type="checkbox" id="prDistance"> Distance from home</label>
+
+        <span class="row-label">Page</span>
+        <label class="pr-opt"><input type="checkbox" id="prBreak"> New page per congregation</label>
+        <select id="prSize">
+          <option value="sz-compact">Compact type</option>
+          <option value="" selected>Normal type</option>
+          <option value="sz-large">Large type</option>
+        </select>
+        <div class="pr-hint">Use your browser's print dialog to save as PDF. Turn off headers and footers there for a clean sheet.</div>
+      </div>
+
+      <div class="pr-preview-wrap">
+        <div class="pr-sheet" id="prPreview"></div>
+      </div>
+    </div>
+
+    <div class="pr-foot">
+      <span class="pr-summary" id="prSummary"></span>
+      <button type="button" class="ghost" id="prResetBtn">Reset options</button>
+      <button type="button" class="primary" id="prPrintBtn">Print…</button>
+    </div>
+  </div>
+</div>
+<div id="printRoot" aria-hidden="true"></div>
+
 <div id="outlineOverlay" aria-hidden="true">
   <div class="ol-dialog" role="dialog" aria-modal="true" aria-label="Outline directory">
     <div class="help-head">
@@ -3400,7 +3555,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.2.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3415,6 +3570,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <a href="#help-s5">Speaker and congregation view</a>
         <a href="#help-s6">Back to congregation</a>
         <a href="#help-s7">Outline search</a>
+        <a href="#help-s7b">Printing and PDF</a>
         <a href="#help-s8">Favorites and memory</a>
         <a href="#help-s9">Contacts and shortcuts</a>
         <a href="#help-s10">Corrections</a>
@@ -3482,25 +3638,32 @@ document.addEventListener('DOMContentLoaded', function () {
           <p>Where an outline carries a note, an <b>i</b> marker appears. The note is shortened in the row and shown in full when you hover or tap the marker, so a long note never pushes the list apart. Outline chips on the result cards and in the speaker details are clickable too and open the directory at that outline.</p>
         </section>
 
+        <section class="help-section" id="help-s7b">
+          <h3><span class="help-num">08</span> Printing and PDF</h3>
+          <p>The <b>Print</b> button in the header opens a dialog with a live preview of the exact sheet that will be printed. Choose what goes on it — the current filter results, favorites only, just the selected congregation, or the whole list — and pick one of three layouts: grouped by congregation, a flat speaker list, or grouped by outline number, which answers "who can give talk #45" at a glance.</p>
+          <p>Switch on <b>Outline titles</b> to print the title next to every number in very small type. It costs little space and turns the sheet into something you can work from without looking anything up. Retiring and withdrawn outlines are marked, either with the status in brackets or with an asterisk when only numbers are printed.</p>
+          <p>Print to PDF through your browser's print dialog. Turning off the browser's own headers and footers there gives a clean sheet. <b>New page per congregation</b> is useful when you want to file or send one sheet per congregation.</p>
+        </section>
+
         <section class="help-section" id="help-s8">
-          <h3><span class="help-num">08</span> Favorites and speaker memory</h3>
+          <h3><span class="help-num">09</span> Favorites and speaker memory</h3>
           <p>For each speaker you can save favorite status, last invited, last used, notes, and manual PTC assistant entries for congregations.</p>
           <p>This is local browser memory and is also included in the JSON export. Use <b>Export Notes + Assistants</b> if you only want to back up your personal additions. It helps with brothers you invite often, brothers you want to keep in mind, or avoiding the same speaker too frequently.</p>
         </section>
 
         <section class="help-section" id="help-s9">
-          <h3><span class="help-num">09</span> Contacts and shortcuts</h3>
+          <h3><span class="help-num">10</span> Contacts and shortcuts</h3>
           <p>The tool turns saved data into practical shortcuts: e-mail links, phone and WhatsApp links where possible, the hall address to Google Maps, and PTC contact export as <b>.vcf</b>. This is meant to reduce copy and paste work.</p>
         </section>
 
         <section class="help-section" id="help-s10">
-          <h3><span class="help-num">10</span> Corrections</h3>
+          <h3><span class="help-num">11</span> Corrections</h3>
           <p>If something in the list is outdated or incomplete, use the correction section on a speaker or congregation. You can describe what is wrong, suggest the correction, and send a prepared WhatsApp or email message.</p>
           <p>The page <b>Help Us Improve</b> also collects likely field issues in one place for easier review.</p>
         </section>
 
         <section class="help-section" id="help-s11">
-          <h3><span class="help-num">11</span> A practical routine</h3>
+          <h3><span class="help-num">12</span> A practical routine</h3>
           <ol class="mini-list">
             <li>Import the newest CSV.</li>
             <li>Set or confirm your home congregation.</li>
@@ -3513,7 +3676,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </section>
 
         <section class="help-section" id="help-s12">
-          <h3><span class="help-num">12</span> One reminder</h3>
+          <h3><span class="help-num">13</span> One reminder</h3>
           <p>The tool makes the list much easier to work with, but the results still depend on the quality of the imported data. Careful review, timely updates, and useful corrections remain very valuable.</p>
         </section>
       </div>
@@ -3522,6 +3685,287 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 
 <script>
+/* ===== print module =====
+   Builds a plain, toner-friendly document from the current dataset and renders the
+   very same markup into the on-screen preview and into #printRoot, so what the user
+   sees in the dialog is exactly what leaves the printer. */
+(function () {
+  const overlay  = document.getElementById('printOverlay');
+  const openBtn  = document.getElementById('openPrintBtn');
+  const closeBtn = document.getElementById('closePrintBtn');
+  const preview  = document.getElementById('prPreview');
+  const root     = document.getElementById('printRoot');
+  const summary  = document.getElementById('prSummary');
+  if (!overlay || !preview) return;
+
+  const OPT = ['prContacts','prPtc','prMeeting','prOutlines','prTitles','prRetiring','prNotes','prDistance','prBreak'];
+  const SEL = ['prScope','prLayout','prSize'];
+  const DEFAULTS = { prContacts:true, prPtc:true, prMeeting:true, prOutlines:true, prTitles:false,
+                     prRetiring:true, prNotes:false, prDistance:false, prBreak:false,
+                     prScope:'results', prLayout:'cong', prSize:'' };
+  const el = id => document.getElementById(id);
+  const on = id => !!(el(id) && el(id).checked);
+
+  function esc(v) { return escapeHtml(v == null ? '' : String(v)); }
+
+  /* --- which congregations and speakers are in scope --- */
+  function collect() {
+    const ds = state.dataset;
+    if (!ds) return { congs: [], speakerCount: 0 };
+    const scope = el('prScope').value;
+    const fs = filterState();
+    let congs = ds.congregations.slice();
+    let keep = () => true;
+
+    if (scope === 'selected') {
+      const [kind, id] = (state.selectedKey || '').split(':');
+      let congId = kind === 'cong' ? id : null;
+      if (kind === 'speaker') {
+        const sp = ds.speakers.find(x => x.id === id);
+        congId = sp ? sp.congregationId : null;
+      }
+      congs = congs.filter(c => c.id === congId);
+    } else if (scope === 'favorites') {
+      keep = sp => noteRecord(sp.notesKey).favorite;
+      congs = congs.filter(c => c.speakers.some(keep));
+    } else if (scope === 'results') {
+      congs = congs.filter(c => congregationMatches(c, fs));
+      keep = (sp, cong) => speakerMatches(sp, fs, cong);
+    }
+
+    const out = congs.map(cong => {
+      const speakers = cong.speakers.filter(sp => keep(sp, cong))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      return { cong, speakers };
+    }).filter(entry => entry.speakers.length)
+      .sort((a, b) => a.cong.name.localeCompare(b.cong.name));
+
+    return { congs: out, speakerCount: out.reduce((n, e) => n + e.speakers.length, 0) };
+  }
+
+  /* --- small building blocks --- */
+  function outlineCell(sp) {
+    if (!on('prOutlines') && !on('prTitles')) return '';
+    const list = sp.outlines || [];
+    if (!list.length) return '<span class="rt">—</span>';
+    if (on('prTitles')) {
+      return '<ul class="ptitles">' + list.map(no => {
+        const meta = outlineEffectiveState(no);
+        const mark = on('prRetiring') && meta.status !== 'active'
+          ? ` <span class="rt">(${meta.status === 'retiring' ? 'retiring' : meta.status === 'retired' ? 'retired' : 'do not use'})</span>` : '';
+        return `<li><span class="n">${no}</span> ${esc(meta.title || '')}${mark}</li>`;
+      }).join('') + '</ul>';
+    }
+    return '<span class="pnums">' + list.map(no => {
+      const meta = outlineEffectiveState(no);
+      const mark = on('prRetiring') && meta.status !== 'active' ? '*' : '';
+      return no + mark;
+    }).join(', ') + '</span>';
+  }
+
+  function contactCell(sp) {
+    if (!on('prContacts')) return '';
+    const bits = [].concat(sp.phones || [], sp.emails || []).filter(Boolean);
+    return '<div class="pcontact">' + (bits.length ? bits.map(b => `<div>${esc(b)}</div>`).join('') : '<span class="rt">—</span>') + '</div>';
+  }
+
+  function notesCell(sp) {
+    if (!on('prNotes')) return '';
+    const rec = noteRecord(sp.notesKey);
+    const bits = [];
+    if (rec.lastInvited) bits.push('Inv. ' + formatDateLabel(rec.lastInvited));
+    if (rec.lastUsed) bits.push('Used ' + formatDateLabel(rec.lastUsed));
+    if (rec.text) bits.push(rec.text);
+    if (sp.importNote) bits.push(sp.importNote);
+    return '<div class="pnote">' + (bits.length ? esc(bits.join(' · ')) : '') + '</div>';
+  }
+
+  function speakerRows(entry, withCong) {
+    return entry.speakers.map(sp => {
+      const rec = noteRecord(sp.notesKey);
+      const star = rec.favorite ? '<span class="pfav">★ </span>' : '';
+      return `<tr>
+        <td class="c-name">${star}<span class="pname">${esc(sp.name)}</span> <span class="prole">(${esc(sp.role)})</span></td>
+        ${withCong ? `<td class="c-cong">${esc(sp.congregationName)}</td>` : ''}
+        ${on('prContacts') ? `<td class="c-contact">${contactCell(sp)}</td>` : ''}
+        ${(on('prOutlines') || on('prTitles')) ? `<td class="c-out">${outlineCell(sp)}</td>` : ''}
+        ${on('prNotes') ? `<td class="c-notes">${notesCell(sp)}</td>` : ''}
+      </tr>`;
+    }).join('');
+  }
+
+  function tableHead(withCong) {
+    return `<thead><tr>
+      <th class="c-name">Public speaker</th>
+      ${withCong ? '<th class="c-cong">Congregation</th>' : ''}
+      ${on('prContacts') ? '<th class="c-contact">Contact details</th>' : ''}
+      ${(on('prOutlines') || on('prTitles')) ? '<th class="c-out">Outlines</th>' : ''}
+      ${on('prNotes') ? '<th class="c-notes">Notes</th>' : ''}
+    </tr></thead>`;
+  }
+
+  function congBlock(entry, index) {
+    const c = entry.cong;
+    const meta = [];
+    if (on('prMeeting')) {
+      const addr = [c.address, [c.postalCode, c.city].filter(Boolean).join(' '), c.country].filter(Boolean).join(', ');
+      if (addr) meta.push(`<span>${esc(addr)}</span>`);
+      const mt = c.meetingRaw || [c.meetingDay, c.meetingTime].filter(Boolean).join(' ');
+      if (mt) meta.push(`<span>${esc(mt)}</span>`);
+      if (c.hallPhone) meta.push(`<span>Hall ${esc(c.hallPhone)}</span>`);
+    }
+    if (on('prDistance')) {
+      const d = distanceLabelForCong(c);
+      if (d) meta.push(`<span>${esc(d)}</span>`);
+    }
+
+    const contacts = [];
+    if (on('prPtc')) {
+      const ptc = [c.ptcName, ...(c.ptcPhones || []), ...(c.ptcEmails || [])].filter(Boolean);
+      if (ptc.length) contacts.push(`<div><b>Public talk coord.</b> ${esc(ptc.join(' · '))}</div>`);
+      const cobe = [c.cobeName, c.cobePhone].filter(Boolean);
+      if (cobe.length) contacts.push(`<div><b>Coord. body of elders</b> ${esc(cobe.join(' · '))}</div>`);
+      const a = noteRecord(c.notesKey).ptcAssistant || {};
+      const asst = [a.name, a.phone, a.email].filter(Boolean);
+      if (asst.length) contacts.push(`<div><b>PTC assistant</b> ${esc(asst.join(' · '))}</div>`);
+    }
+
+    return `<section class="pcong${on('prBreak') && index > 0 ? ' pbreak' : ''}">
+      <div class="pcong-head">
+        <span class="pcong-name">${esc(c.name)}</span>
+        ${c.circuit ? `<span class="pcong-circuit">Circuit ${esc(c.circuit)}</span>` : ''}
+      </div>
+      ${meta.length ? `<div class="pcong-meta">${meta.join('')}</div>` : ''}
+      ${contacts.length ? `<div class="pcong-contacts">${contacts.join('')}</div>` : ''}
+      <table class="ptab">${tableHead(false)}<tbody>${speakerRows(entry, false)}</tbody></table>
+    </section>`;
+  }
+
+  function outlineBlocks(data) {
+    const map = new Map();
+    data.congs.forEach(entry => entry.speakers.forEach(sp => {
+      (sp.outlines || []).forEach(no => {
+        if (!map.has(no)) map.set(no, []);
+        map.get(no).push(sp);
+      });
+    }));
+    const nums = [...map.keys()].sort((a, b) => a - b);
+    if (!nums.length) return '';
+    return nums.map(no => {
+      const meta = outlineEffectiveState(no);
+      const mark = on('prRetiring') && meta.status !== 'active'
+        ? ` <span class="rt">— ${meta.status === 'retiring' ? 'retiring' + (meta.effectiveDate ? ' ' + formatOutlineDate(meta.effectiveDate) : '') : meta.status === 'retired' ? 'retired' : 'do not use'}</span>` : '';
+      const speakers = map.get(no).sort((a, b) => a.name.localeCompare(b.name)).map(sp => {
+        const extra = [sp.congregationName];
+        if (on('prDistance')) {
+          const cong = state.dataset.congregations.find(c => c.id === sp.congregationId);
+          const d = cong ? distanceLabelForCong(cong) : '';
+          if (d) extra.push(d);
+        }
+        if (on('prContacts')) extra.push([].concat(sp.phones || [], sp.emails || []).filter(Boolean).join(' · '));
+        return `<div class="pout-sp"><span>${esc(sp.name)} <span class="prole">(${esc(sp.role)})</span></span><span class="w">${esc(extra.filter(Boolean).join(' · '))}</span></div>`;
+      }).join('');
+      return `<div class="pout-block">
+        <div class="pout-head">#${no}${on('prTitles') && meta.title ? ' – ' + esc(meta.title) : ''}${mark}</div>
+        ${speakers}
+      </div>`;
+    }).join('');
+  }
+
+  function buildDoc() {
+    const data = collect();
+    const scopeLabel = {
+      results: 'Current filter results',
+      favorites: 'Favorites only',
+      selected: 'Selected congregation',
+      all: 'All congregations'
+    }[el('prScope').value];
+    const layout = el('prLayout').value;
+    const home = homeCongregation();
+    const printed = new Date().toLocaleDateString();
+
+    const subBits = [scopeLabel, `${data.congs.length} congregation${data.congs.length === 1 ? '' : 's'}`, `${data.speakerCount} speaker${data.speakerCount === 1 ? '' : 's'}`];
+    if (home) subBits.push('Home: ' + home.name);
+    if (outlineConfigInfo.loaded && outlineConfigInfo.edition) subBits.push(outlineConfigInfo.edition);
+
+    let body;
+    if (!data.congs.length) {
+      body = '<div class="pempty">Nothing to print with these settings.</div>';
+    } else if (layout === 'outlines') {
+      body = outlineBlocks(data);
+    } else if (layout === 'speakers') {
+      const flat = data.congs.flatMap(e => e.speakers).sort((a, b) => a.name.localeCompare(b.name));
+      body = `<div class="pflat"><table class="ptab">${tableHead(true)}<tbody>${speakerRows({ speakers: flat }, true)}</tbody></table></div>`;
+    } else {
+      body = data.congs.map(congBlock).join('');
+    }
+
+    const legend = on('prRetiring') && !on('prTitles') && layout !== 'outlines'
+      ? '* outline is retiring or no longer in use' : '';
+
+    summary.textContent = `${data.congs.length} congregations · ${data.speakerCount} speakers`;
+
+    return `<div class="pdoc ${esc(el('prSize').value)}${on('prTitles') ? ' with-titles' : ''}">
+      <div class="pdoc-head">
+        <h1>Public Speakers List</h1>
+        <div class="pdoc-sub">${esc(subBits.join(' · '))}</div>
+      </div>
+      ${body}
+      <div class="pdoc-foot"><span>${esc(legend)}</span><span>Printed ${esc(printed)}</span></div>
+    </div>`;
+  }
+
+  function render() {
+    const html = buildDoc();
+    preview.innerHTML = html;
+    root.innerHTML = html;
+    // grey out options that the chosen layout ignores
+    const layout = el('prLayout').value;
+    document.querySelectorAll('.pr-opt').forEach(opt => opt.classList.remove('is-off'));
+    if (layout === 'outlines') {
+      ['prPtc','prMeeting','prNotes','prBreak','prOutlines'].forEach(id => el(id).closest('.pr-opt').classList.add('is-off'));
+    } else if (layout === 'speakers') {
+      ['prPtc','prMeeting','prBreak'].forEach(id => el(id).closest('.pr-opt').classList.add('is-off'));
+    }
+  }
+
+  function open() {
+    if (!state.dataset) { setStatus('Import a CSV before printing'); return; }
+    const [kind] = (state.selectedKey || '').split(':');
+    el('prScope').querySelector('option[value="selected"]').disabled = !(kind === 'cong' || kind === 'speaker');
+    if (el('prScope').value === 'selected' && el('prScope').selectedOptions[0].disabled) el('prScope').value = 'results';
+    render();
+    overlay.style.display = 'block';
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (openBtn) openBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  OPT.concat(SEL).forEach(id => { const node = el(id); if (node) node.addEventListener('change', render); });
+  el('prResetBtn').addEventListener('click', () => {
+    Object.entries(DEFAULTS).forEach(([id, v]) => {
+      const node = el(id);
+      if (!node) return;
+      if (node.type === 'checkbox') node.checked = v; else node.value = v;
+    });
+    render();
+  });
+  el('prPrintBtn').addEventListener('click', () => {
+    render();
+    window.print();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay.style.display === 'block') close();
+  });
+})();
+
 /* ===== outline directory =====
    Reads OUTLINE_DATA (from outline-data.json) and shows it as a searchable list.
    Long notes are never printed in full inside a row; they live in a floating tooltip. */
