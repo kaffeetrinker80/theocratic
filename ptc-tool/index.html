@@ -5,14 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PTC Tool – English Public Speakers (EU)</title>
 <!-- Icons + Manifest -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico">
-
+<link rel="icon" href="favicon.ico" sizes="any">
 <link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#2b231e">
+<meta name="theme-color" content="#172f4d">
+<meta name="apple-mobile-web-app-title" content="PTC Tool">
+<meta name="application-name" content="PTC Tool English Public Speakers (EU)">
+
+<!-- Link-Vorschau -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="PTC Tool English Public Speakers (EU)">
+<meta property="og:description" content="Public Talks Coordination Tool for congregations and speakers.">
+<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/ptc-tool/">
+<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/ptc-tool/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root {
   --bg:#f6f2ea; --card:#fffdfa; --text:#241f1a; --muted:#7c7268; --line:#e6ddd0;
@@ -411,7 +419,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .pr-side{ border-right:1px solid var(--line); background:#faf6ef; padding:14px; overflow:auto; }
 .pr-side .row-label{ margin-top:14px; }
 .pr-side .row-label:first-child{ margin-top:0; }
-.pr-side select{ padding:8px 11px; border-radius:10px; }
+.pr-side select, .pr-side input[type="text"]{ padding:8px 11px; border-radius:10px; }
 .pr-opt{ display:flex; align-items:flex-start; gap:8px; padding:4px 0; font-size:12.5px; color:#52463a; cursor:pointer; }
 .pr-opt input{ width:15px; height:15px; margin-top:1px; accent-color:var(--accent); cursor:pointer; flex:0 0 auto; }
 .pr-opt.is-off{ opacity:.45; }
@@ -431,24 +439,26 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .pdoc-head{ border-bottom:1.5pt solid #111; padding-bottom:5pt; margin-bottom:9pt; }
 .pdoc-head h1{ font-family:var(--font-display); font-size:15pt; margin:0; font-weight:600; letter-spacing:-.01em; }
 .pdoc-head .pdoc-sub{ font-size:8pt; color:#444; margin-top:2pt; }
-.pcong{ margin-bottom:11pt; break-inside:avoid; }
+.pdoc-head .pdoc-note{ font-size:8.5pt; color:#111; margin-top:3pt; font-weight:700; }
+.pcong{ margin-bottom:11pt; }
 .pcong.pbreak{ break-before:page; }
-.pcong-head{ border-bottom:.75pt solid #111; padding-bottom:3pt; margin-bottom:4pt; display:flex; justify-content:space-between; gap:10pt; align-items:baseline; }
+.pcong-head{ border-bottom:.75pt solid #111; padding-bottom:3pt; margin-bottom:4pt; display:flex; justify-content:space-between; gap:10pt; align-items:baseline; break-after:avoid; }
 .pcong-name{ font-family:var(--font-display); font-size:12pt; font-weight:600; }
 .pcong-circuit{ font-size:8pt; color:#333; white-space:nowrap; }
-.pcong-meta{ font-size:8pt; color:#333; margin-bottom:4pt; }
+.pcong-meta{ font-size:8pt; color:#333; margin-bottom:4pt; break-after:avoid; }
 .pcong-meta span+span::before{ content:' · '; color:#999; }
-.pcong-contacts{ font-size:8pt; margin-bottom:5pt; }
+.pcong-contacts{ font-size:8pt; margin-bottom:5pt; break-after:avoid; }
 .pcong-contacts div{ margin-bottom:1pt; }
 .pcong-contacts b{ display:inline-block; min-width:100pt; }
 .ptab{ width:100%; border-collapse:collapse; }
-.ptab thead{ display:table-header-group; }
+.ptab thead{ display:table-header-group; break-after:avoid; }
 .ptab th{
   text-align:left; font-size:7pt; text-transform:uppercase; letter-spacing:.06em; color:#555;
   border-bottom:.5pt solid #999; padding:2pt 4pt 2pt 0; font-weight:700;
 }
 .ptab td{ padding:3pt 4pt 3pt 0; border-bottom:.4pt solid #ddd; vertical-align:top; }
 .ptab tr{ break-inside:avoid; }
+.pdoc.with-titles .ptab tr{ break-inside:auto; }
 .ptab .c-name{ width:26%; }
 .ptab .c-contact{ width:30%; }
 .ptab .c-out{ width:30%; }
@@ -641,7 +651,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.3.0</div>
+  <div class="footer">Made with love © v.2.3.1</div>
 </div>
 
 <script>
@@ -3497,6 +3507,10 @@ document.addEventListener('DOMContentLoaded', function () {
         <label class="pr-opt"><input type="checkbox" id="prNotes"> My notes and dates</label>
         <label class="pr-opt"><input type="checkbox" id="prDistance"> Distance from home</label>
 
+        <span class="row-label">Sheet header</span>
+        <input type="text" id="prHeaderNote" placeholder="e.g. Data status August 2026">
+        <div class="pr-hint">Printed under the title. Filled from the imported file the first time; edit or clear it as you like.</div>
+
         <span class="row-label">Page</span>
         <label class="pr-opt"><input type="checkbox" id="prBreak"> New page per congregation</label>
         <select id="prSize">
@@ -3555,7 +3569,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3699,10 +3713,10 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!overlay || !preview) return;
 
   const OPT = ['prContacts','prPtc','prMeeting','prOutlines','prTitles','prRetiring','prNotes','prDistance','prBreak'];
-  const SEL = ['prScope','prLayout','prSize'];
+  const SEL = ['prScope','prLayout','prSize','prHeaderNote'];
   const DEFAULTS = { prContacts:true, prPtc:true, prMeeting:true, prOutlines:true, prTitles:false,
                      prRetiring:true, prNotes:false, prDistance:false, prBreak:false,
-                     prScope:'results', prLayout:'cong', prSize:'' };
+                     prScope:'results', prLayout:'cong', prSize:'', prHeaderNote:'' };
   const el = id => document.getElementById(id);
   const on = id => !!(el(id) && el(id).checked);
 
@@ -3883,6 +3897,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const layout = el('prLayout').value;
     const home = homeCongregation();
     const printed = new Date().toLocaleDateString();
+    const headerNote = (el('prHeaderNote').value || '').trim();
 
     const subBits = [scopeLabel, `${data.congs.length} congregation${data.congs.length === 1 ? '' : 's'}`, `${data.speakerCount} speaker${data.speakerCount === 1 ? '' : 's'}`];
     if (home) subBits.push('Home: ' + home.name);
@@ -3909,6 +3924,7 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="pdoc-head">
         <h1>Public Speakers List</h1>
         <div class="pdoc-sub">${esc(subBits.join(' · '))}</div>
+        ${headerNote ? `<div class="pdoc-note">${esc(headerNote)}</div>` : ''}
       </div>
       ${body}
       <div class="pdoc-foot"><span>${esc(legend)}</span><span>Printed ${esc(printed)}</span></div>
@@ -3929,8 +3945,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function defaultHeaderNote() {
+    const ds = state.dataset;
+    const bits = [];
+    if (ds && ds.sourceFileName) bits.push(ds.sourceFileName.replace(/\.(csv|json)$/i, ''));
+    if (ds && ds.importedAt) {
+      const d = new Date(ds.importedAt);
+      if (!isNaN(d.getTime())) bits.push('data status ' + d.toLocaleDateString());
+    }
+    return bits.join(' · ');
+  }
+
+  let headerNoteTouched = false;
+
   function open() {
     if (!state.dataset) { setStatus('Import a CSV before printing'); return; }
+    if (!headerNoteTouched && !el('prHeaderNote').value) el('prHeaderNote').value = defaultHeaderNote();
     const [kind] = (state.selectedKey || '').split(':');
     el('prScope').querySelector('option[value="selected"]').disabled = !(kind === 'cong' || kind === 'speaker');
     if (el('prScope').value === 'selected' && el('prScope').selectedOptions[0].disabled) el('prScope').value = 'results';
@@ -3949,12 +3979,15 @@ document.addEventListener('DOMContentLoaded', function () {
   if (closeBtn) closeBtn.addEventListener('click', close);
   overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
   OPT.concat(SEL).forEach(id => { const node = el(id); if (node) node.addEventListener('change', render); });
+  el('prHeaderNote').addEventListener('input', () => { headerNoteTouched = true; render(); });
   el('prResetBtn').addEventListener('click', () => {
     Object.entries(DEFAULTS).forEach(([id, v]) => {
       const node = el(id);
       if (!node) return;
       if (node.type === 'checkbox') node.checked = v; else node.value = v;
     });
+    headerNoteTouched = false;
+    el('prHeaderNote').value = defaultHeaderNote();
     render();
   });
   el('prPrintBtn').addEventListener('click', () => {
