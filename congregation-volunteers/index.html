@@ -1,94 +1,216 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html lang="en" data-group="Brothers">
 <head>
-  <!-- Icons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
+<!-- Icons + Manifest -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#172f4d">
+<meta name="apple-mobile-web-app-title" content="Volunteers List">
+<meta name="application-name" content="Congregation Volunteers">
 
-  <!-- Meta -->
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
-  <title>Congregation Volunteers List</title>
+<!-- Link-Vorschau -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Congregation Volunteers">
+<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/congregation-volunteers/">
+<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/congregation-volunteers/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Volunteers List</title>
 <style>
     :root{
-      --bg:#f4f8fc;
+      /* neutral base */
+      --bg:#eef2f8;
+      --bg2:#f8fafd;
       --panel:#ffffff;
-      --stroke:#dbe6f3;
-      --stroke2:#cfdced;
-      --text:#1c2430;
-      --muted:#5a6b82;
-      --muted2:#7a8aa0;
-      --btn:#f0f5fb;
+      --stroke:#dde6f2;
+      --stroke2:#c9d6e8;
+      --text:#141c28;
+      --muted:#54637a;
+      --muted2:#7b8aa1;
+      --btn:#f2f6fc;
       --btn2:#e6eef8;
+
+      /* group accent (overwritten by data-group) */
       --accent:#2f6fb3;
-      --accentDark:#1f4f85;
-      --shadow: 0 10px 26px rgba(18, 38, 63, .12);
-      --radius: 14px;
+      --accentDark:#1c4f85;
+      --accentSoft: rgba(47,111,179,.12);
+      --accentLine: rgba(47,111,179,.30);
+
+      --shadow: 0 10px 26px rgba(18, 38, 63, .10);
+      --shadowSoft: 0 2px 8px rgba(18, 38, 63, .06);
+      --radius: 16px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
     }
+
+    /* --- Group identities: Brothers = blue, Sisters = plum --- */
+    :root[data-group="Brothers"]{
+      --accent:#2f6fb3;
+      --accentDark:#1c4f85;
+      --accentSoft: rgba(47,111,179,.12);
+      --accentLine: rgba(47,111,179,.30);
+    }
+    :root[data-group="Sisters"]{
+      --accent:#7a4bb8;
+      --accentDark:#5a3390;
+      --accentSoft: rgba(122,75,184,.12);
+      --accentLine: rgba(122,75,184,.30);
+    }
+
     *{ box-sizing:border-box; }
-    body{ margin:0; font-family:var(--sans); color:var(--text); background:var(--bg); }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 420px at 50% -180px, var(--accentSoft), transparent 70%),
+        var(--bg);
+      background-attachment: fixed;
+      -webkit-text-size-adjust:100%;
+    }
 
     header{
-      background: linear-gradient(180deg, rgba(47,111,179,.20), rgba(47,111,179,.07) 55%, #ffffff);
+      background: linear-gradient(180deg, var(--accentSoft), rgba(255,255,255,.55) 60%, var(--bg2));
       border-bottom:1px solid var(--stroke);
-      box-shadow: 0 6px 18px rgba(18, 38, 63, .10);
+      transition: background .25s ease;
     }
-    .wrap{ max-width:1100px; margin:0 auto; padding:18px 16px 14px; }
-    .headrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .wrap{ max-width:1140px; margin:0 auto; padding:20px 16px 12px; }
+    .headrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      font-weight:800;
+      color:var(--accentDark);
+      margin-bottom:6px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .eyebrow::after{
+      content:"";
+      flex:0 0 46px;
+      height:2px;
+      border-radius:2px;
+      background:var(--accentLine);
+    }
 
     /* Editable header blocks (multi-line, print-safe) */
-    .titleBox{ display:flex; flex-direction:column; gap:6px; min-width: 280px; }
+    .titleBox{ display:flex; flex-direction:column; gap:6px; min-width: 280px; flex:1; }
     .editBlock{
-      border:1px solid rgba(47,111,179,.28);
-      background: rgba(255,255,255,.92);
-      padding:8px 10px;
-      border-radius:12px;
+      border:1px solid transparent;
+      background: transparent;
+      padding:4px 8px;
+      margin-left:-8px;
+      border-radius:10px;
       outline:none;
-      max-width: 720px;
+      max-width: 760px;
       overflow-wrap:anywhere;
       word-break: break-word;
-      white-space: pre-wrap; /* allow manual line breaks */
+      white-space: pre-wrap;
+      transition: background .15s ease, border-color .15s ease;
+      cursor:text;
     }
+    .editBlock:hover{ background: rgba(255,255,255,.75); border-color: var(--stroke); }
     .editTitle{
       font-weight:800;
-      font-size:18px;
-      color:#11233a;
-      line-height:1.2;
+      font-size:26px;
+      letter-spacing:-.02em;
+      color:#0e1a2c;
+      line-height:1.15;
     }
     .editSubtitle{
-      border-color: var(--stroke);
-      background: rgba(255,255,255,.86);
-      font-size:12.5px;
+      font-size:13px;
       color: var(--muted);
-      line-height:1.25;
+      line-height:1.35;
     }
     .editBlock:focus{
-      border-color: rgba(47,111,179,.55);
-      box-shadow: 0 0 0 3px rgba(47,111,179,.12);
-    }
-    .hint{
-      font-size:11.5px;
-      color:var(--muted2);
-      margin-top:2px;
-    }
-
-    .meta{ margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:var(--muted2); font-size:12px; }
-    .pill{
       background:#fff;
-      border:1px solid var(--stroke);
-      padding:6px 10px;
-      border-radius:999px;
-      display:inline-flex; gap:8px; align-items:center;
+      border-color: var(--accentLine);
+      box-shadow: 0 0 0 3px var(--accentSoft);
     }
-    .pill strong{ color:var(--text); }
+    .hint{ font-size:11.5px; color:var(--muted2); margin-top:2px; }
 
-    main{ max-width:1100px; margin:0 auto; padding:16px; }
+    .meta{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; color:var(--muted2); font-size:12px; }
+    .pill{
+      background:rgba(255,255,255,.85);
+      border:1px solid var(--stroke);
+      padding:5px 10px;
+      border-radius:999px;
+      display:inline-flex; gap:7px; align-items:center;
+      box-shadow: var(--shadowSoft);
+    }
+    .pill strong{ color:var(--text); font-variant-numeric: tabular-nums; }
+
+    /* ---------- SIGNATURE: big group switch ---------- */
+    .groupSwitch{
+      max-width:1140px;
+      margin:14px auto 0;
+      padding:0 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .gTab{
+      position:relative;
+      text-align:left;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.7);
+      border-radius:16px;
+      padding:13px 16px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-family:inherit;
+      color:var(--muted);
+      transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      overflow:hidden;
+    }
+    .gTab:hover{ transform: translateY(-1px); border-color: var(--stroke2); background:#fff; }
+    .gTab:focus-visible{ outline:3px solid var(--accentLine); outline-offset:2px; }
+    .gTab .gText{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+    .gTab .gName{ font-weight:800; font-size:16px; color:var(--text); letter-spacing:-.01em; }
+    .gTab .gSub{ font-size:11.5px; color:var(--muted2); }
+    .gTab .gCount{
+      margin-left:auto;
+      font-weight:800;
+      font-size:17px;
+      font-variant-numeric: tabular-nums;
+      background:#eef2f8;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      padding:3px 12px;
+      color:var(--muted);
+    }
+    /* active state uses the group's own colour, not the current accent */
+    .gTab[data-g="Brothers"].active{
+      background: linear-gradient(180deg, rgba(47,111,179,.14), #fff 70%);
+      border-color: rgba(47,111,179,.42);
+      box-shadow: 0 8px 20px rgba(47,111,179,.16);
+    }
+    .gTab[data-g="Sisters"].active{
+      background: linear-gradient(180deg, rgba(122,75,184,.14), #fff 70%);
+      border-color: rgba(122,75,184,.42);
+      box-shadow: 0 8px 20px rgba(122,75,184,.16);
+    }
+    .gTab[data-g="Brothers"].active .gCount{ background: rgba(47,111,179,.14); border-color: rgba(47,111,179,.30); color:#1c4f85; }
+    .gTab[data-g="Sisters"].active .gCount{ background: rgba(122,75,184,.14); border-color: rgba(122,75,184,.30); color:#5a3390; }
+    .gTab.active{ padding-left:19px; }
+    .gTab.active::before{
+      content:"";
+      position:absolute; left:0; top:0; bottom:0;
+      width:5px;
+      background: var(--accent);
+    }
+    .gTab[data-g="Brothers"].active::before{ background:#2f6fb3; }
+    .gTab[data-g="Sisters"].active::before{ background:#7a4bb8; }
+    .gTab.active .gSub{ color:var(--muted); }
+
+    main{ max-width:1140px; margin:0 auto; padding:14px 16px 8px; }
     .panel{
       background:var(--panel);
       border:1px solid var(--stroke);
@@ -97,46 +219,87 @@
       overflow:hidden;
     }
 
+    /* stat strip */
+    .statBar{
+      display:flex; gap:8px; flex-wrap:wrap;
+      padding:10px 14px;
+      background: linear-gradient(180deg, var(--accentSoft), transparent);
+      border-bottom:1px solid var(--stroke);
+    }
+    .stat{
+      display:inline-flex; align-items:baseline; gap:6px;
+      background:#fff;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      padding:4px 11px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .stat b{ font-size:13.5px; color:var(--accentDark); font-variant-numeric: tabular-nums; }
+
     .toolbar{
       padding:10px 12px;
       border-bottom:1px solid var(--stroke);
       background:#fbfdff;
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      position: sticky;
+      top:0;
+      z-index: 20;
     }
 
     .input, select{
       border:1px solid var(--stroke2);
       background:#fff;
       color:var(--text);
-      padding:7px 9px;
+      padding:8px 10px;
       border-radius:10px;
       font-size:13px;
       outline:none;
+      font-family:inherit;
     }
     .input:focus, select:focus{
-      border-color: rgba(47,111,179,.55);
-      box-shadow: 0 0 0 3px rgba(47,111,179,.12);
+      border-color: var(--accentLine);
+      box-shadow: 0 0 0 3px var(--accentSoft);
+    }
+    .searchWrap{ position:relative; flex:1; min-width:220px; display:flex; }
+    .searchWrap .input{ width:100%; padding-left:30px; }
+    .searchWrap::before{
+      content:"🔍";
+      position:absolute; left:9px; top:50%; transform:translateY(-50%);
+      font-size:12px; opacity:.65; pointer-events:none;
     }
 
     .btn{
       border:1px solid var(--stroke2);
       background:var(--btn);
       color:var(--text);
-      padding:8px 10px;
+      padding:8px 11px;
       border-radius:10px;
       font-size:13px;
       cursor:pointer;
       display:inline-flex;
-      gap:8px;
+      gap:7px;
       align-items:center;
       white-space:nowrap;
+      font-family:inherit;
+      transition: background .15s ease, transform .1s ease;
     }
     .btn:hover{ background:var(--btn2); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus-visible{ outline:3px solid var(--accentLine); outline-offset:2px; }
     .btn.primary{
-      background: rgba(47,111,179,.12);
-      border-color: rgba(47,111,179,.28);
+      background: var(--accent);
+      border-color: var(--accent);
+      color:#fff;
+      font-weight:700;
+      box-shadow: 0 6px 16px var(--accentSoft);
+    }
+    .btn.primary:hover{ background: var(--accentDark); border-color: var(--accentDark); }
+    .btn.ghost{
+      background: var(--accentSoft);
+      border-color: var(--accentLine);
       color: var(--accentDark);
-      font-weight: 600;
+      font-weight:600;
     }
     .btn.danger{
       background: rgba(190, 35, 60, .08);
@@ -146,28 +309,62 @@
     .btn.small{ padding:6px 9px; font-size:12px; border-radius:10px; }
     .spacer{ flex:1; }
 
-    .content{ padding: 10px 12px 12px; }
-
-    table{ width:100%; border-collapse:collapse; font-size:13px; }
-    thead th{
-      text-align:left;
-      padding:8px 8px;
-      background:#f6f9fe;
+    /* quick filter chips */
+    .chipRow{
+      display:flex; gap:7px; flex-wrap:wrap; align-items:center;
+      padding:9px 14px;
       border-bottom:1px solid var(--stroke);
-      color:#2b3a4f;
+      background:#fff;
+    }
+    .chipLabel{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted2); font-weight:700; margin-right:2px; }
+    .chip{
+      border:1px solid var(--stroke2);
+      background:#fff;
+      color:var(--muted);
+      border-radius:999px;
+      padding:5px 11px;
+      font-size:12.5px;
+      cursor:pointer;
+      font-family:inherit;
+      transition: all .15s ease;
+    }
+    .chip:hover{ border-color: var(--accentLine); color:var(--accentDark); }
+    .chip:focus-visible{ outline:3px solid var(--accentLine); outline-offset:2px; }
+    .chip.on{
+      background: var(--accentSoft);
+      border-color: var(--accentLine);
+      color: var(--accentDark);
       font-weight:700;
-      white-space:nowrap;
     }
+    .chip.reset{ margin-left:auto; border-style:dashed; }
+
+    .content{ padding: 10px 12px 14px; }
+
+    table{ width:100%; border-collapse:separate; border-spacing:0 8px; font-size:13px; }
+    thead{ display:none; }
     tbody td{
-      padding:6px 6px;
-      border-bottom:1px solid rgba(219,230,243,.85);
+      padding:8px 10px 6px;
+      background:#fff;
+      border:1px solid var(--stroke);
+      border-left:4px solid var(--accentLine);
+      border-radius:12px;
       vertical-align:middle;
+      box-shadow: var(--shadowSoft);
+      transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease;
     }
-    tbody tr:hover{ background:#fbfdff; }
+    tbody tr:hover td{
+      border-color: var(--stroke2);
+      border-left-color: var(--accent);
+      box-shadow: 0 6px 16px rgba(18,38,63,.09);
+    }
+    tbody tr:focus-within td{
+      border-left-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accentSoft);
+    }
 
     .rowTop{
       display:grid;
-      grid-template-columns: 1.65fr 0.85fr 2.05fr 2.25fr auto;
+      grid-template-columns: 1.65fr 0.9fr 2.05fr 2.25fr auto;
       gap:6px;
       align-items:center;
     }
@@ -179,21 +376,20 @@
       grid-template-columns: 1fr auto;
       gap:10px;
       align-items:center;
-      padding: 2px 0 4px;
+      padding: 6px 0 2px;
     }
 
-    .mono{ font-family: var(--mono); }
+    .mono{ font-family: var(--mono); font-size:12.5px; }
     .field{ min-width:0; }
     .field .input, .field select{ width:100%; min-width:0; }
+    .field input[data-field="name"]{ font-weight:700; }
 
-    .copyField{ display:flex; align-items:center; gap:6px; min-width:0; }
+    .copyField{ display:flex; align-items:center; gap:5px; min-width:0; }
     .miniBtn{
-      position:static;
-      transform:none;
-      border: 1px solid rgba(47,111,179,.28);
-      background: rgba(47,111,179,.10);
+      border: 1px solid var(--accentLine);
+      background: var(--accentSoft);
       color: var(--accentDark);
-      padding: 4px 6px;
+      padding: 5px 7px;
       border-radius: 9px;
       font-size: 12px;
       cursor:pointer;
@@ -202,7 +398,10 @@
       justify-content:center;
       line-height: 1;
       user-select:none;
+      transition: background .15s ease;
     }
+    .miniBtn:hover{ background:#fff; }
+    .miniBtn:focus-visible{ outline:3px solid var(--accentLine); outline-offset:2px; }
     .copyField input{ flex:1; min-width:0; }
 
     .notesLine{
@@ -212,15 +411,18 @@
       padding:7px 9px;
       font-size:13px;
       outline:none;
+      font-family:inherit;
+      background:#fcfdff;
     }
     .notesLine:focus{
-      border-color: rgba(47,111,179,.55);
-      box-shadow: 0 0 0 3px rgba(47,111,179,.12);
+      background:#fff;
+      border-color: var(--accentLine);
+      box-shadow: 0 0 0 3px var(--accentSoft);
     }
 
     .checks{
       display:flex;
-      gap:8px;
+      gap:7px;
       flex-wrap:wrap;
       align-items:center;
       color: var(--muted);
@@ -231,62 +433,70 @@
       display:inline-flex;
       gap:5px;
       align-items:center;
-      padding: 2px 5px;
-      border: 1px solid rgba(219,230,243,.9);
+      padding: 3px 8px;
+      border: 1px solid var(--stroke);
       background: #fbfdff;
       border-radius: 999px;
+      cursor:pointer;
     }
+    .checks label:hover{ border-color: var(--stroke2); }
+    .checks label:has(input:checked){
+      background: var(--accentSoft);
+      border-color: var(--accentLine);
+      color: var(--accentDark);
+      font-weight:600;
+    }
+    input[type="checkbox"]{ width: 14px; height: 14px; accent-color: var(--accent); }
 
-    /* Standing selector / pill inside checks (compact) */
     .standingWrap{
       display:inline-flex;
       align-items:center;
       gap:6px;
-      padding: 2px 6px;
-      border: 1px solid rgba(219,230,243,.9);
+      padding: 2px 6px 2px 9px;
+      border: 1px solid var(--stroke);
       background: #fbfdff;
       border-radius: 999px;
     }
-    .standingWrap span{
-      color: var(--muted);
-      font-size:12.5px;
-      line-height:1;
-      white-space:nowrap;
-    }
+    .standingWrap span{ color: var(--muted); font-size:12.5px; line-height:1; white-space:nowrap; }
     .standingSelect{
       border:1px solid var(--stroke2);
       background: var(--panel);
       color:var(--text);
-      padding:3px 7px;
+      padding:4px 8px;
       border-radius:999px;
       font-size:12.5px;
       line-height:1;
       outline:none;
+      font-family:inherit;
     }
     .standingPill{
       display:inline-flex;
       align-items:center;
-      padding: 2px 6px;
+      gap:5px;
+      padding: 4px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(47,111,179,.28);
-      background: rgba(47,111,179,.10);
+      border: 1px solid var(--accentLine);
+      background: var(--accentSoft);
       color: var(--accentDark);
       font-size:12.5px;
+      font-weight:700;
       white-space:nowrap;
     }
 
-
     .lblShort{ display:none; }
-    input[type="checkbox"]{ width: 14px; height: 14px; }
-
     .actions{ display:flex; justify-content:flex-end; gap:8px; white-space:nowrap; }
 
     .emptyState{
       display:none;
       color: var(--muted);
-      padding: 12px 2px 2px;
-      font-size: 13px;
+      padding: 26px 14px;
+      font-size: 13.5px;
+      text-align:center;
+      border:1px dashed var(--stroke2);
+      border-radius:14px;
+      background:#fbfdff;
     }
+    .emptyState strong{ color:var(--accentDark); }
 
     .toast{
       position: fixed;
@@ -294,21 +504,23 @@
       bottom: 16px;
       background: #ffffff;
       border: 1px solid var(--stroke2);
+      border-left:4px solid var(--accent);
       box-shadow: var(--shadow);
       border-radius: 12px;
-      padding: 10px 12px;
+      padding: 11px 14px;
       font-size: 12.5px;
       color: var(--text);
       display:none;
       z-index: 999;
       max-width: min(420px, calc(100vw - 32px));
     }
-    .toast.show{ display:block; }
+    .toast.show{ display:block; animation: toastIn .22s ease; }
+    @keyframes toastIn{ from{ opacity:0; transform: translateY(8px);} to{ opacity:1; transform:none; } }
 
     footer{
-      max-width:1100px;
+      max-width:1140px;
       margin:0 auto;
-      padding: 12px 16px 26px;
+      padding: 14px 16px 30px;
       color: var(--muted2);
       font-size: 12px;
       display:flex;
@@ -318,12 +530,11 @@
     }
     .footerStorage{ font-family:var(--mono); }
 
-    .printGroup{
-      display:none;
-      font-weight:800;
-      font-size:15px;
-      padding: 4px 0 0;
-      color:#000;
+    .printGroup{ display:none; font-weight:800; font-size:15px; padding: 4px 0 0; color:#000; }
+    .groupHeadRow{ display:none; }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important; }
     }
 
     @media (max-width: 980px){
@@ -331,33 +542,36 @@
       .rowBottom{ grid-template-columns: 1fr; }
       .actions{ justify-content:flex-start; }
       .editBlock{ max-width: 100%; }
+      .editTitle{ font-size:21px; }
+      .groupSwitch{ grid-template-columns: 1fr; gap:8px; }
+      .gTab{ padding:11px 14px; }
+      .toolbar{ position:static; }
     }
 
     @media print{
-      .headerActions{ display:none !important; }
-      header .meta, .hint{ display:none !important; }
+      .headerActions, .groupSwitch, .statBar, .chipRow{ display:none !important; }
+      header .meta, .hint, .eyebrow{ display:none !important; }
       .toolbar, .toast{ display:none !important; }
 
-      body{ background:#fff !important; }
-      body{ margin:0 !important; }
-      .panel{ padding: 0 4px !important; }
-
+      body{ background:#fff !important; margin:0 !important; }
       main{ max-width:none; padding:0; }
-      .panel{ border:none; box-shadow:none; }
+      .panel{ border:none; box-shadow:none; padding: 0 4px !important; }
+      .content{ padding:0 !important; }
 
       .actions, .miniBtn{ display:none !important; }
 
-      table{ font-size: 11.5px !important; }
-      tbody td{ padding:4px 6px !important; }
-
-      .notesLine{
-        font-size: 11px !important;
-        padding: 2px 6px !important;
+      table{ font-size: 11.5px !important; border-spacing:0 !important; border-collapse:collapse !important; }
+      tbody td{
+        padding:4px 6px !important;
+        border:none !important;
+        border-bottom:1px solid #d1d5db !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        background:transparent !important;
       }
 
+      .notesLine{ font-size: 11px !important; padding: 2px 6px !important; }
 
-
-      /* PRINT: fixed footer at page bottom (centered) without stealing space */
       @page{ margin: 10mm 10mm 16mm 10mm; }
       footer{
         position: fixed !important;
@@ -368,58 +582,76 @@
         padding: 0 !important;
         justify-content: center !important;
         text-align: center !important;
+        display:block !important;
       }
+      footer > div{ width:100%; }
       footer .footerStorage{ display:none !important; }
-/* PRINT: keep each volunteer entry together + page breaks (max 18 entries per page) */
-tbody tr{
-  break-inside: avoid !important;
-  page-break-inside: avoid !important;
-}
-tr, td, .rowTop, .rowBottom{
-  break-inside: avoid !important;
-  page-break-inside: avoid !important;
-}
-tbody tr:nth-child(18n){
-  break-after: page;
-  page-break-after: always;
-}
+      body{ padding-bottom: 14mm !important; }
 
-      /* PRINT: more side-by-side */
-      .rowTop{
-        grid-template-columns: 2.3fr 0.95fr 1.45fr 2.3fr;
-        gap:6px !important;
+      /* keep each volunteer entry together */
+      tbody tr, tr, td, .rowTop, .rowBottom{
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
       }
-      .rowTop.sisters{
-        grid-template-columns: 2.5fr 1.7fr 2.8fr;
-        gap:6px !important;
+      /* max 18 entries per page (single-group print only) */
+      body:not(.printBoth) tbody tr:nth-child(18n){
+        break-after: page;
+        page-break-after: always;
       }
+      /* group headings when printing both lists */
+      .groupHeadRow{ display:table-row !important; }
+      .groupHeadRow td{
+        border:none !important;
+        border-bottom:2px solid #000 !important;
+        padding: 2px 0 3px !important;
+        font-size: 14pt !important;
+        font-weight:800 !important;
+        color:#000 !important;
+      }
+      .groupHeadRow.breakBefore td{ padding-top: 4mm !important; }
+      .groupHeadRow.breakBefore{ break-before: page !important; page-break-before: always !important; }
+
+      .rowTop{ grid-template-columns: 2.3fr 0.95fr 1.45fr 2.3fr; gap:6px !important; }
+      .rowTop.sisters{ grid-template-columns: 2.5fr 1.7fr 2.8fr; gap:6px !important; }
       .rowBottom{
-        /* Give notes maximum width; keep checkboxes tight and anchored to the right */
         grid-template-columns: 1fr auto;
         gap:6px !important;
         padding: 1px 0 2px !important;
         align-items:center !important;
       }
-      .rowBottom .checks{
-        justify-self:end !important;
-        text-align:right !important;
-      }
-      /* Compact checkbox row in PRINT without hurting readability */
+      .rowBottom .checks{ justify-self:end !important; text-align:right !important; }
+
       .checks{
         gap:6px !important;
-        font-size:11px !important;
+        font-size:10.5px !important;
+        white-space:nowrap !important;
+        flex-wrap:nowrap !important;
       }
       .checks label{
-        padding: 1px 3px !important;
-        border: 1px solid rgba(219,230,243,.65) !important;
+        padding:0 !important;
+        border:none !important;
+        background:transparent !important;
+        border-radius:0 !important;
+        margin:0 !important;
+        font-weight:400 !important;
+        color:#000 !important;
+      }
+      input[type="checkbox"]{ width: 12px !important; height: 12px !important; }
+
+      .standingWrap, .standingPill{
+        border:none !important;
+        background:transparent !important;
+        padding:0 !important;
+        color:#000 !important;
+        font-weight:400 !important;
       }
 
-      /* Print-safe header blocks: wrap, no clipping */
       .editBlock{
         border:none !important;
         box-shadow:none !important;
         background:transparent !important;
         padding:0 !important;
+        margin:0 !important;
         max-width: none !important;
         width: 100% !important;
         overflow: visible !important;
@@ -431,6 +663,7 @@ tbody tr:nth-child(18n){
       .editSubtitle{ font-size: 11.5px !important; color:#000 !important; }
 
       .printGroup{ display:block !important; font-size: 15pt !important; color:#000 !important; }
+      body.printBoth .printGroup{ display:none !important; }
 
       input, select, .notesLine{
         border:none !important;
@@ -440,58 +673,10 @@ tbody tr:nth-child(18n){
         font-size: 11.5px !important;
       }
 
-      .checks{
-        font-size: 10.8px !important;
-        gap:6px !important;
-        white-space:nowrap !important;
-        flex-wrap:nowrap !important;
-      }
-      .checks label{
-        border:none !important;
-        background:transparent !important;
-        padding:0 !important;
-        margin:0 !important;
-      }
-      input[type="checkbox"]{ width: 12px !important; height: 12px !important; }
-      .checks{
-        gap:6px !important;
-        flex-wrap:nowrap !important;
-        font-size:10.5px !important;
-        white-space:nowrap !important;
-      }
-      .checks label{
-        padding:0 !important;
-        border:none !important;
-        background:transparent !important;
-        border-radius:0 !important;
-      }
-
-      .standingWrap{ border:none !important; background:transparent !important; padding:0 !important; }
-      .standingPill{ border:none !important; background:transparent !important; padding:0 !important; }
-
       .lblLong{ display:inline !important; }
       .lblShort{ display:none !important; }
 
-      
-@page{
-  /* bottom margin reserved for the fixed footer */
-  margin: 10mm 10mm 16mm 10mm;
-}
-.footerStorage{ display:none !important; }
-body{ padding-bottom: 14mm !important; }
-footer{
-  display:block !important;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 6mm;
-  padding: 0;
-  margin: 0;
-  text-align: center;
-}
-footer > div{ width:100%; }
-    
-      /* PRINT OVERRIDES: keep header readable even if Dark Mode is enabled */
+      /* neutral colours even if dark mode is on */
       :root{
         --bg:#ffffff;
         --panel:#ffffff;
@@ -502,17 +687,17 @@ footer > div{ width:100%; }
         --stroke2:#cbd5e1;
         --btn:#ffffff;
         --btn2:#ffffff;
+        --accentSoft: transparent;
+        --accentLine:#d1d5db;
       }
-      body, body.dark{
-        background:#fff !important;
-        color:#000 !important;
-      }
+      body, body.dark{ background:#fff !important; color:#000 !important; }
       header{
         background:#fff !important;
         border-bottom: 1px solid #d1d5db !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
+      .wrap{ padding: 0 0 6px !important; }
       .headrow{ justify-content:center !important; }
       .titleBox{ text-align:center !important; align-items:center !important; }
       .editTitle, .editSubtitle{
@@ -521,89 +706,95 @@ footer > div{ width:100%; }
         border:none !important;
         box-shadow:none !important;
       }
-      .editTitle{ font-weight:800 !important; }
-      #printGroup{
-        display:block !important;
-        color:#000 !important;
-      }
+    }
 
-}
-
-    /* --- Soft Dark Mode (toggle via data-theme on <html>) --- */
+    /* --- Soft Dark Mode --- */
     :root[data-theme="dark"]{
-      /* slightly lighter + more neutral grey dark mode */
-      --bg:#20242b;
-      --panel:#2a3038;
-      --stroke:#3a424e;
-      --stroke2:#465062;
-      --text:#e8effa;
-      --muted:#b3bfd2;
-      --muted2:#97a6bd;
-      --btn:#2a3447;
-      --btn2:#324056;
-      --accent:#6aa7ff;
-      --accentDark:#c6ddff;
-      --shadow: 0 10px 26px rgba(0,0,0,.35);
+      --bg:#181c23;
+      --bg2:#1e232b;
+      --panel:#252b34;
+      --stroke:#39414e;
+      --stroke2:#4a5464;
+      --text:#e9effa;
+      --muted:#b4c0d3;
+      --muted2:#8fa0b8;
+      --btn:#2b3444;
+      --btn2:#354054;
+      --shadow: 0 10px 26px rgba(0,0,0,.38);
+      --shadowSoft: 0 2px 8px rgba(0,0,0,.25);
+    }
+    :root[data-theme="dark"][data-group="Brothers"]{
+      --accent:#5a9bf0;
+      --accentDark:#cfe1ff;
+      --accentSoft: rgba(90,155,240,.16);
+      --accentLine: rgba(90,155,240,.34);
+    }
+    :root[data-theme="dark"][data-group="Sisters"]{
+      --accent:#a882ee;
+      --accentDark:#e2d4ff;
+      --accentSoft: rgba(168,130,238,.16);
+      --accentLine: rgba(168,130,238,.34);
     }
     :root[data-theme="dark"] header{
-      background: linear-gradient(180deg, rgba(106,167,255,.22), rgba(106,167,255,.09) 55%, rgba(35,44,61,1));
-      box-shadow: 0 6px 18px rgba(0,0,0,.30);
+      background: linear-gradient(180deg, var(--accentSoft), rgba(30,35,43,.6) 60%, var(--bg2));
     }
-    :root[data-theme="dark"] .editBlock{
-      background: rgba(20,26,36,.72);
-      border-color: rgba(106,167,255,.22);
-    }
-    :root[data-theme="dark"] .editSubtitle{
-      background: rgba(20,26,36,.55);
+    :root[data-theme="dark"] .editTitle{ color: var(--text); }
+    :root[data-theme="dark"] .editBlock:hover{ background: rgba(255,255,255,.05); }
+    :root[data-theme="dark"] .editBlock:focus{ background: rgba(255,255,255,.06); }
+    :root[data-theme="dark"] .pill,
+    :root[data-theme="dark"] .stat,
+    :root[data-theme="dark"] .chip,
+    :root[data-theme="dark"] .gTab{
+      background: rgba(255,255,255,.04);
       border-color: var(--stroke);
       color: var(--muted);
     }
-    :root[data-theme="dark"] .pill{
-      background: rgba(255,255,255,.03);
+    :root[data-theme="dark"] .gTab .gCount{
+      background: rgba(255,255,255,.05);
       border-color: var(--stroke);
+      color: var(--muted);
     }
-    :root[data-theme="dark"] .toolbar{
-      background: rgba(20,26,36,.55);
+    :root[data-theme="dark"] .gTab[data-g="Brothers"].active{
+      background: linear-gradient(180deg, rgba(90,155,240,.22), rgba(37,43,52,1) 70%);
+      border-color: rgba(90,155,240,.45);
+      box-shadow: 0 8px 20px rgba(0,0,0,.35);
     }
+    :root[data-theme="dark"] .gTab[data-g="Sisters"].active{
+      background: linear-gradient(180deg, rgba(168,130,238,.22), rgba(37,43,52,1) 70%);
+      border-color: rgba(168,130,238,.45);
+      box-shadow: 0 8px 20px rgba(0,0,0,.35);
+    }
+    :root[data-theme="dark"] .gTab[data-g="Brothers"].active::before{ background:#5a9bf0; }
+    :root[data-theme="dark"] .gTab[data-g="Sisters"].active::before{ background:#a882ee; }
+    :root[data-theme="dark"] .gTab[data-g="Brothers"].active .gCount{ background: rgba(90,155,240,.18); color:#cfe1ff; }
+    :root[data-theme="dark"] .gTab[data-g="Sisters"].active .gCount{ background: rgba(168,130,238,.18); color:#e2d4ff; }
+    :root[data-theme="dark"] .toolbar{ background: rgba(20,24,31,.7); }
+    :root[data-theme="dark"] .chipRow{ background: var(--panel); }
     :root[data-theme="dark"] .input,
     :root[data-theme="dark"] select,
-    :root[data-theme="dark"] .notesLine{
-      background: rgba(255,255,255,.04);
+    :root[data-theme="dark"] .notesLine,
+    :root[data-theme="dark"] .standingSelect{
+      background: rgba(255,255,255,.05);
       border-color: var(--stroke2);
-      color: var(--text);
-    }
-    
-    :root[data-theme="dark"] .editTitle{
       color: var(--text);
     }
     :root[data-theme="dark"] select option,
-    :root[data-theme="dark"] select optgroup{
+    :root[data-theme="dark"] select optgroup{ background: var(--panel); color: var(--text); }
+    :root[data-theme="dark"] tbody td{
       background: var(--panel);
-      color: var(--text);
+      border-color: var(--stroke);
+      border-left-color: var(--accentLine);
     }
-:root[data-theme="dark"] thead th{
-      background: rgba(20,26,36,.55);
-      color: var(--text);
-    }
-    :root[data-theme="dark"] tbody tr:hover{ background: rgba(255,255,255,.04); }
-    :root[data-theme="dark"] .checks label{
+    :root[data-theme="dark"] tbody tr:hover td{ box-shadow: 0 6px 16px rgba(0,0,0,.32); }
+    :root[data-theme="dark"] .checks label,
+    :root[data-theme="dark"] .standingWrap,
+    :root[data-theme="dark"] .emptyState{
       background: rgba(255,255,255,.04);
-      border-color: rgba(52,67,90,.95);
+      border-color: var(--stroke);
     }
-    :root[data-theme="dark"] .standingWrap{
-      background: rgba(255,255,255,.04);
-      border-color: rgba(52,67,90,.95);
-    }
-    :root[data-theme="dark"] .standingSelect{
-      background: rgba(255,255,255,.04);
-      border-color: var(--stroke2);
-      color: var(--text);
-    }
-    :root[data-theme="dark"] .toast{
-      background: var(--panel);
-      border-color: var(--stroke2);
-    }
-
+    :root[data-theme="dark"] .miniBtn:hover{ background: rgba(255,255,255,.10); }
+    :root[data-theme="dark"] .toast{ background: var(--panel); border-color: var(--stroke2); }
+    :root[data-theme="dark"] .btn.primary{ color:#0e1420; }
   </style>
 </head>
 <body>
@@ -611,6 +802,7 @@ footer > div{ width:100%; }
 <div class="wrap">
 <div class="headrow">
 <div class="titleBox">
+<div class="eyebrow" id="eyebrow">Volunteer roster</div>
 <div class="editBlock editTitle" contenteditable="true" id="hdrTitle" spellcheck="false"></div>
 <div class="editBlock editSubtitle" contenteditable="true" id="hdrSubtitle" spellcheck="false"></div>
 <div class="hint" id="hintLine">Tip: you can write multiple lines (Enter) – printing will wrap without cutting.</div>
@@ -619,43 +811,66 @@ footer > div{ width:100%; }
 <span class="pill"><span id="viewPrefix">View:</span> <strong id="viewLabel">Brothers</strong></span>
 <span class="pill"><span id="lastSavedPrefix">Last saved:</span> <strong id="lastSaved">—</strong></span>
 <span class="pill" id="langPill" title="Language / Sprache">
-<select class="input" id="langSwitch" style="padding:5px 8px; border-radius:999px; min-width:74px;">
+<select class="input" id="langSwitch" style="padding:4px 8px; border-radius:999px; min-width:70px;">
 <option value="en">EN</option>
 <option value="de">DE</option>
 </select>
-</span><span class="pill" title="Theme">
-<button class="btn small" id="themeBtn" style="border-radius:999px; padding:6px 10px;" title="Toggle light/dark">🌙</button>
+</span><span class="pill" title="Theme" style="padding:2px 4px;">
+<button class="btn small" id="themeBtn" style="border-radius:999px; padding:5px 10px; border:none; background:transparent;" title="Toggle light/dark">🌙</button>
 </span>
 </div>
 <div class="printGroup" id="printGroup">Brothers</div>
 </div>
-<div class="headerActions" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+<div class="headerActions" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
 <button class="btn primary" id="addBtn">➕ Add</button>
 <button class="btn" id="printBtn">🖨️ Print / PDF</button>
+<button class="btn" id="printBothBtn">🖨️ Print both</button>
 </div>
 </div>
 </div>
 </header>
+
+<!-- SIGNATURE: two big roster tabs, impossible to miss -->
+<nav class="groupSwitch" id="groupSwitch" aria-label="Roster">
+<button class="gTab active" data-g="Brothers" id="tabBrothers" type="button" aria-pressed="true">
+<span class="gText">
+<span class="gName" id="tabBrothersName">Brothers</span>
+<span class="gSub" id="tabBrothersSub">Privileges, standing, family</span>
+</span>
+<span class="gCount" id="tabBrothersCount">0</span>
+</button>
+<button class="gTab" data-g="Sisters" id="tabSisters" type="button" aria-pressed="false">
+<span class="gText">
+<span class="gName" id="tabSistersName">Sisters</span>
+<span class="gSub" id="tabSistersSub">Standing, family, first aid</span>
+</span>
+<span class="gCount" id="tabSistersCount">0</span>
+</button>
+</nav>
+
 <main>
 <div class="panel">
+<div class="statBar" id="statBar"></div>
 <div class="toolbar">
-<select id="groupFilter" style="min-width: 170px;">
+<select id="groupFilter" hidden>
 <option id="optBrothers" selected="" value="Brothers">Brothers</option>
 <option id="optSisters" value="Sisters">Sisters</option>
 </select>
-<input class="input" id="search" placeholder="Search (name / phone / email / notes) …" style="min-width:240px; flex:1;"/>
-<select id="privFilter" style="min-width: 170px;">
+<div class="searchWrap"><input class="input" id="search" placeholder="Search (name / phone / email / notes) …"/></div>
+<select id="privFilter" style="min-width: 165px;">
 <option id="optAllPriv" value="">All privileges</option>
-<option id="optElder" value="Elder">${t("elder")}</option>
-<option id="optMS" value="MS">${t("ms")}</option>
-<option id="optPublisher" value="Publisher">${t("publisher")}</option>
+<option id="optElder" value="Elder">Elder</option>
+<option id="optMS" value="MS">Ministerial Servant</option>
+<option id="optPublisher" value="Publisher">Publisher</option>
 </select>
 <div class="spacer"></div>
-<button class="btn" id="exportBtn">⬇️ Export JSON</button>
+<button class="btn ghost" id="exportBtn">⬇️ Export JSON</button>
+<button class="btn" id="csvBtn">📄 Export CSV</button>
 <button class="btn" id="importBtn">⬆️ Import JSON</button>
 <input accept="application/json" hidden="" id="importFile" type="file"/>
 <button class="btn danger" id="clearBtn">🧹 Clear</button>
 </div>
+<div class="chipRow" id="chipRow"></div>
 <div class="content">
 <table>
 <thead>
@@ -668,7 +883,7 @@ footer > div{ width:100%; }
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.3</div>
+<div>Made with Love © – Volunteers list v 2.4</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
 <div class="toast" id="toast"></div>
@@ -685,16 +900,25 @@ footer > div{ width:100%; }
   let data = [];
   let cfg = { title: "Volunteers Sample-Congregation", subtitle: "Local file • printable • JSON import/export • copy + one-click call/mail" };
 
+  // active quick filters (flag keys)
+  const activeFlags = new Set();
+  let printBoth = false;
+
   // --- i18n (EN/DE) ---
   const LANG = {
     en: {
       volunteersUnit: "volunteers",
       viewPrefix: "View:",
       lastSavedPrefix: "Last saved:",
+      eyebrow: "Volunteer roster",
       brothers: "Brothers",
       sisters: "Sisters",
+      brothersSub: "Privileges, standing, family",
+      sistersSub: "Standing, family, first aid",
       add: "Add",
       print: "Print / PDF",
+      printBoth: "Print both",
+      printBothTitle: "Print brothers and sisters in one document",
       searchPh: "Search (name / phone / email / notes) …",
       allPrivileges: "All privileges",
       elder: "Elder",
@@ -705,7 +929,6 @@ footer > div{ width:100%; }
       emailPh: "Email",
       notesPh: "Notes…",
       volunteerHead: "Volunteer",
-      empty: "No volunteers found. Click Add or import JSON.",
       standing: "Standing",
       goodStanding: "Good standing",
       exemplary: "Exemplary",
@@ -713,8 +936,17 @@ footer > div{ width:100%; }
       familyHead: "Family head",
       smallChildren: "Small children",
       firstAid: "First aid course (≤2y)",
+      firstAidShort: "First aid",
       firstAidTitle: "First-aid course not older than 2 years (certified first-aider level).",
-
+      filters: "Filter",
+      resetFilters: "Reset filters",
+      statTotal: "In this list",
+      statElders: "Elders",
+      statMS: "Ministerial servants",
+      statPublishers: "Publishers",
+      statFirstAid: "First aid",
+      statExemplary: "Exemplary",
+      statPhone: "With phone",
       hintLine: "Tip: you can write multiple lines (Enter) – printing will wrap without cutting.",
       langTitle: "Language",
       ttCopyMobile: "Copy mobile",
@@ -730,6 +962,7 @@ footer > div{ width:100%; }
       toggleDark: "Dark",
       toggleLight: "Light",
       exportJson: "Export JSON",
+      exportCsv: "Export CSV",
       importJson: "Import JSON",
       clear: "Clear",
       delete: "Delete",
@@ -737,6 +970,7 @@ footer > div{ width:100%; }
       added: "Added ✔",
       deleted: "Deleted ✔",
       exported: "Exported JSON ✔",
+      exportedCsv: "Exported CSV ✔",
       imported: "Imported {n} ✔",
       cleared: "Cleared ✔",
       noPhone: "No phone number",
@@ -745,16 +979,23 @@ footer > div{ width:100%; }
       copied: "Copied ✔",
       importFailed: "Import failed. Please select a valid JSON export from this tool.",
       clearConfirm: "Clear ALL volunteers (Brothers + Sisters) on this device?",
-      exemplaryTip: "Elders and ministerial servants are exemplary by appointment."
+      exemplaryTip: "Elders and ministerial servants are exemplary by appointment.",
+      csvName: "Name", csvGroup: "Group", csvPrivilege: "Privilege", csvStanding: "Standing",
+      csvPhone: "Phone", csvEmail: "Email", csvNotes: "Notes", csvYes: "yes", csvNo: "no"
     },
     de: {
       volunteersUnit: "Freiwillige",
       viewPrefix: "Ansicht:",
       lastSavedPrefix: "Zuletzt gespeichert:",
+      eyebrow: "Freiwilligenliste",
       brothers: "Brüder",
       sisters: "Schwestern",
+      brothersSub: "Vorrechte, Ruf, Familie",
+      sistersSub: "Ruf, Familie, Erste Hilfe",
       add: "Hinzufügen",
       print: "Drucken / PDF",
+      printBoth: "Beide drucken",
+      printBothTitle: "Brüder und Schwestern in einem Dokument drucken",
       searchPh: "Suche (Name / Telefon / E-Mail / Notizen) …",
       allPrivileges: "Alle Vorrechte",
       elder: "Ältester",
@@ -765,7 +1006,6 @@ footer > div{ width:100%; }
       emailPh: "E-Mail",
       notesPh: "Notizen…",
       volunteerHead: "Freiwilliger",
-      empty: "Keine Freiwilligen gefunden. Klicke auf Hinzufügen oder importiere JSON.",
       standing: "Ruf",
       goodStanding: "In gutem Ruf",
       exemplary: "Vorbildlich",
@@ -773,8 +1013,17 @@ footer > div{ width:100%; }
       familyHead: "Familienhaupt",
       smallChildren: "Kleinkinder",
       firstAid: "Erste-Hilfe-Kurs (≤2J)",
+      firstAidShort: "Erste Hilfe",
       firstAidTitle: "Erste-Hilfe-Kurs nicht älter als 2 Jahre (ausgebildeter Ersthelfer).",
-
+      filters: "Filter",
+      resetFilters: "Filter zurücksetzen",
+      statTotal: "In dieser Liste",
+      statElders: "Älteste",
+      statMS: "Dienstamtgehilfen",
+      statPublishers: "Verkündiger",
+      statFirstAid: "Erste Hilfe",
+      statExemplary: "Vorbildlich",
+      statPhone: "Mit Telefon",
       hintLine: "Tipp: Du kannst mehrere Zeilen schreiben (Enter) – beim Drucken wird sauber umgebrochen.",
       langTitle: "Sprache",
       ttCopyMobile: "Handy kopieren",
@@ -790,6 +1039,7 @@ footer > div{ width:100%; }
       toggleDark: "Dunkel",
       toggleLight: "Hell",
       exportJson: "JSON exportieren",
+      exportCsv: "CSV exportieren",
       importJson: "JSON importieren",
       clear: "Leeren",
       delete: "Löschen",
@@ -797,6 +1047,7 @@ footer > div{ width:100%; }
       added: "Hinzugefügt ✔",
       deleted: "Gelöscht ✔",
       exported: "JSON exportiert ✔",
+      exportedCsv: "CSV exportiert ✔",
       imported: "{n} importiert ✔",
       cleared: "Geleert ✔",
       noPhone: "Keine Telefonnummer",
@@ -805,7 +1056,9 @@ footer > div{ width:100%; }
       copied: "Kopiert ✔",
       importFailed: "Import fehlgeschlagen. Bitte eine gültige JSON-Datei aus diesem Tool auswählen.",
       clearConfirm: "ALLE Freiwilligen (Brüder + Schwestern) auf diesem Gerät löschen?",
-      exemplaryTip: "Älteste und Dienstamtgehilfen gelten durch Ernennung als vorbildlich."
+      exemplaryTip: "Älteste und Dienstamtgehilfen gelten durch Ernennung als vorbildlich.",
+      csvName: "Name", csvGroup: "Gruppe", csvPrivilege: "Vorrecht", csvStanding: "Ruf",
+      csvPhone: "Telefon", csvEmail: "E-Mail", csvNotes: "Notizen", csvYes: "ja", csvNo: "nein"
     }
   };
 
@@ -818,88 +1071,6 @@ footer > div{ width:100%; }
       }
     }
     return s;
-  }
-
-  function applyLang(lang){
-    if(!LANG[lang]) lang = "en";
-    currentLang = lang;
-
-    // Persist
-    try{ localStorage.setItem(KEY_LANG, lang); }catch(e){}
-
-    // Header pills
-    const cu = document.getElementById("countUnit");
-    if(cu) cu.textContent = t("volunteersUnit");
-    const vp = document.getElementById("viewPrefix");
-    if(vp) vp.textContent = t("viewPrefix");
-    const lsp = document.getElementById("lastSavedPrefix");
-    if(lsp) lsp.textContent = t("lastSavedPrefix");
-
-    const hint = document.getElementById("hintLine");
-    if(hint) hint.textContent = t("hintLine");
-
-    const langPill = document.getElementById("langPill");
-    if(langPill) langPill.title = t("langTitle");
-    const themeBtn = document.getElementById("themeBtn");
-    if(themeBtn) themeBtn.title = t("ttTheme");
-
-    // Empty state (split parts)
-    const e1 = document.getElementById("emptyText");
-    const e2 = document.getElementById("emptyText2");
-    const e3 = document.getElementById("emptyText3");
-    const eAdd = document.getElementById("emptyAddWord");
-    if(e1) e1.textContent = t("emptyText");
-    if(e2) e2.textContent = t("emptyClick");
-    if(eAdd) eAdd.textContent = t("add");
-    if(e3) e3.textContent = t("emptyOrImport");
-
-    // Toolbar texts
-    const addBtn = document.getElementById("addBtn");
-    if(addBtn) addBtn.textContent = "➕ " + t("add");
-    const printBtn = document.getElementById("printBtn");
-    if(printBtn) printBtn.textContent = "🖨️ " + t("print");
-    const exportBtn = document.getElementById("exportBtn");
-    if(exportBtn) exportBtn.textContent = "⬇️ " + t("exportJson");
-    const importBtn = document.getElementById("importBtn");
-    if(importBtn) importBtn.textContent = "⬆️ " + t("importJson");
-    const clearBtn = document.getElementById("clearBtn");
-    if(clearBtn) clearBtn.textContent = "🧹 " + t("clear");
-
-    const search = document.getElementById("search");
-    if(search) search.placeholder = t("searchPh");
-
-    // Toolbar option labels
-    const ob = document.getElementById("optBrothers");
-    const os = document.getElementById("optSisters");
-    if(ob) ob.textContent = t("brothers");
-    if(os) os.textContent = t("sisters");
-
-    const oAll = document.getElementById("optAllPriv");
-    const oE = document.getElementById("optElder");
-    const oM = document.getElementById("optMS");
-    const oP = document.getElementById("optPublisher");
-    if(oAll) oAll.textContent = t("allPrivileges");
-    if(oE) oE.textContent = t("elder");
-    if(oM) oM.textContent = t("ms");
-    if(oP) oP.textContent = t("publisher");
-
-    // Re-render to update per-row labels & tooltips
-    render();
-  }
-
-  function initLang(){
-    let lang = null;
-    try{ lang = localStorage.getItem(KEY_LANG); }catch(e){}
-    if(lang !== "de" && lang !== "en"){
-      const nav = (navigator.language || "").toLowerCase();
-      lang = nav.startsWith("de") ? "de" : "en";
-    }
-    const ls = document.getElementById("langSwitch");
-    if(ls){
-      ls.value = lang;
-      ls.addEventListener("change", () => applyLang(ls.value));
-    }
-    applyLang(lang);
   }
 
   const $ = (id) => document.getElementById(id);
@@ -918,14 +1089,82 @@ footer > div{ width:100%; }
   const hdrTitle = $("hdrTitle");
   const hdrSubtitle = $("hdrSubtitle");
 
-  // Theme (soft dark mode)
+  function applyLang(lang){
+    if(!LANG[lang]) lang = "en";
+    currentLang = lang;
+    try{ localStorage.setItem(KEY_LANG, lang); }catch(e){}
+
+    const set = (id, txt) => { const el = $(id); if(el) el.textContent = txt; };
+
+    set("countUnit", t("volunteersUnit"));
+    set("viewPrefix", t("viewPrefix"));
+    set("lastSavedPrefix", t("lastSavedPrefix"));
+    set("hintLine", t("hintLine"));
+    set("eyebrow", t("eyebrow"));
+
+    const langPill = $("langPill");
+    if(langPill) langPill.title = t("langTitle");
+    const themeBtn = $("themeBtn");
+    if(themeBtn) themeBtn.title = t("ttTheme");
+
+    set("emptyText", t("emptyText"));
+    set("emptyText2", t("emptyClick"));
+    set("emptyAddWord", t("add"));
+    set("emptyText3", t("emptyOrImport"));
+
+    set("addBtn", "➕ " + t("add"));
+    set("printBtn", "🖨️ " + t("print"));
+    set("printBothBtn", "🖨️ " + t("printBoth"));
+    const pb = $("printBothBtn"); if(pb) pb.title = t("printBothTitle");
+    set("exportBtn", "⬇️ " + t("exportJson"));
+    set("csvBtn", "📄 " + t("exportCsv"));
+    set("importBtn", "⬆️ " + t("importJson"));
+    set("clearBtn", "🧹 " + t("clear"));
+
+    if(search) search.placeholder = t("searchPh");
+
+    set("optBrothers", t("brothers"));
+    set("optSisters", t("sisters"));
+    set("tabBrothersName", t("brothers"));
+    set("tabSistersName", t("sisters"));
+    set("tabBrothersSub", t("brothersSub"));
+    set("tabSistersSub", t("sistersSub"));
+
+    set("optAllPriv", t("allPrivileges"));
+    set("optElder", t("elder"));
+    set("optMS", t("ms"));
+    set("optPublisher", t("publisher"));
+
+    const tb = $("themeBtn");
+    if(tb){
+      const darkOn = document.documentElement.getAttribute("data-theme") === "dark";
+      tb.textContent = darkOn ? ("☀️ " + t("toggleLight")) : ("🌙 " + t("toggleDark"));
+    }
+
+    render();
+  }
+
+  function initLang(){
+    let lang = null;
+    try{ lang = localStorage.getItem(KEY_LANG); }catch(e){}
+    if(lang !== "de" && lang !== "en"){
+      const nav = (navigator.language || "").toLowerCase();
+      lang = nav.startsWith("de") ? "de" : "en";
+    }
+    const ls = $("langSwitch");
+    if(ls){
+      ls.value = lang;
+      ls.addEventListener("change", () => applyLang(ls.value));
+    }
+    applyLang(lang);
+  }
+
+  // Theme
   function applyTheme(mode){
     const root = document.documentElement;
     if(mode === "dark") root.setAttribute("data-theme","dark");
     else root.removeAttribute("data-theme");
-
     try{ localStorage.setItem(KEY_THEME, mode); }catch(e){}
-
     const b = $("themeBtn");
     if(b){
       const darkOn = (mode === "dark");
@@ -948,17 +1187,15 @@ footer > div{ width:100%; }
     return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
   function toast(msg){
-    const t = $("toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 1600);
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 1600);
   }
   function uid(){
     return "v_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
   }
-  function normalize(str){
-    return (str || "").toString().toLowerCase().trim();
-  }
+  function normalize(str){ return (str || "").toString().toLowerCase().trim(); }
   function escapeHtml(s){
     return (s ?? "").toString()
       .replaceAll("&","&amp;")
@@ -971,9 +1208,7 @@ footer > div{ width:100%; }
 
   function cleanTel(s){
     const raw = (s || "").toString().trim();
-    // keep leading +, strip spaces, slashes, etc.
-    const cleaned = raw.replace(/(?!^\+)[^0-9]/g, "").replace(/\s+/g,"");
-    return cleaned;
+    return raw.replace(/(?!^\+)[^0-9]/g, "").replace(/\s+/g,"");
   }
 
   function load(){
@@ -1019,16 +1254,21 @@ footer > div{ width:100%; }
 
   function currentGroup(){ return groupFilter.value; }
 
-  function matches(v){
-    const g = currentGroup();
+  function matches(v, groupOverride){
+    const g = groupOverride || currentGroup();
     if(v.group !== g) return false;
 
     const q = normalize(search.value);
     const pf = privFilter.value;
 
     if(g === "Brothers" && pf && v.privilege !== pf) return false;
-    if(!q) return true;
 
+    for(const flag of activeFlags){
+      if(flag === "exemplary"){ if(v.standing !== "exemplary") return false; }
+      else if(!v[flag]) return false;
+    }
+
+    if(!q) return true;
     const hay = [v.name, v.privilege, v.standing, v.phone, v.email, v.notes].map(normalize).join(" | ");
     return hay.includes(q);
   }
@@ -1037,155 +1277,199 @@ footer > div{ width:100%; }
 
   function setHeaderState(){
     const g = currentGroup();
+    document.documentElement.setAttribute("data-group", g);
+
     viewLabel.textContent = (g === "Brothers") ? t("brothers") : t("sisters");
     printGroup.textContent = (g === "Brothers") ? t("brothers") : t("sisters");
 
-    // Table header label: German gendered for Brothers/Sisters
-    const th = document.getElementById("tableHeadLabel");
+    const th = $("tableHeadLabel");
     if(th){
-      if(currentLang === "de"){
-        th.textContent = (g === "Brothers") ? "Freiwilliger" : "Freiwillige";
-      } else {
-        th.textContent = t("volunteerHead");
-      }
+      if(currentLang === "de") th.textContent = (g === "Brothers") ? "Freiwilliger" : "Freiwillige";
+      else th.textContent = t("volunteerHead");
     }
 
     privFilter.style.display = (g === "Brothers") ? "inline-block" : "none";
     if(g !== "Brothers") privFilter.value = "";
+
+    // tabs
+    document.querySelectorAll(".gTab").forEach(btn => {
+      const on = btn.getAttribute("data-g") === g;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    $("tabBrothersCount").textContent = data.filter(v => v.group === "Brothers").length;
+    $("tabSistersCount").textContent  = data.filter(v => v.group === "Sisters").length;
+  }
+
+  function renderChips(){
+    const g = currentGroup();
+    const flags = (g === "Brothers")
+      ? [["exemplary", t("exemplary")], ["single", t("single")], ["familyHead", t("familyHead")], ["smallChildren", t("smallChildren")]]
+      : [["exemplary", t("exemplary")], ["single", t("single")], ["smallChildren", t("smallChildren")], ["medicalExperience", t("firstAidShort")]];
+
+    // drop flags that don't exist in this group
+    for(const f of Array.from(activeFlags)){
+      if(!flags.some(x => x[0] === f)) activeFlags.delete(f);
+    }
+
+    const chips = flags.map(([key, label]) =>
+      `<button class="chip ${activeFlags.has(key) ? "on" : ""}" data-flag="${key}" type="button">${escapeHtml(label)}</button>`
+    ).join("");
+
+    const reset = activeFlags.size
+      ? `<button class="chip reset" data-reset="1" type="button">✕ ${escapeHtml(t("resetFilters"))}</button>`
+      : "";
+
+    $("chipRow").innerHTML = `<span class="chipLabel">${escapeHtml(t("filters"))}</span>${chips}${reset}`;
+  }
+
+  function renderStats(){
+    const g = currentGroup();
+    const list = data.filter(v => v.group === g);
+    const n = (fn) => list.filter(fn).length;
+
+    const items = (g === "Brothers")
+      ? [
+          [t("statTotal"), list.length],
+          [t("statElders"), n(v => v.privilege === "Elder")],
+          [t("statMS"), n(v => v.privilege === "MS")],
+          [t("statPublishers"), n(v => v.privilege === "Publisher")],
+          [t("statPhone"), n(v => cleanTel(v.phone).length > 4)]
+        ]
+      : [
+          [t("statTotal"), list.length],
+          [t("statExemplary"), n(v => v.standing === "exemplary")],
+          [t("statFirstAid"), n(v => v.medicalExperience)],
+          [t("smallChildren"), n(v => v.smallChildren)],
+          [t("statPhone"), n(v => cleanTel(v.phone).length > 4)]
+        ];
+
+    $("statBar").innerHTML = items
+      .map(([label, val]) => `<span class="stat"><b>${val}</b> ${escapeHtml(label)}</span>`)
+      .join("");
+  }
+
+  function rowHtml(v, g){
+    const topClass = (g === "Sisters") ? "rowTop sisters" : "rowTop";
+
+    const phoneField = `
+      <div class="field copyField">
+        <input class="input mono" data-field="phone" value="${escapeAttr(v.phone||"")}" placeholder="${escapeAttr(t("phonePh"))}" />
+        <button class="miniBtn" data-copy="phone" title="${escapeAttr(t("ttCopyMobile"))}">⧉</button>
+        <button class="miniBtn" data-call="1" title="${escapeAttr(t("ttCall"))}">📞</button>
+        <button class="miniBtn" data-wa="1" title="${escapeAttr(t("ttWhatsApp"))}">💬</button>
+      </div>`;
+
+    const mailField = `
+      <div class="field copyField">
+        <input class="input mono" data-field="email" value="${escapeAttr(v.email||"")}" placeholder="${escapeAttr(t("emailPh"))}" />
+        <button class="miniBtn" data-copy="email" title="${escapeAttr(t("ttCopyEmail"))}">⧉</button>
+        <button class="miniBtn" data-mail="1" title="${escapeAttr(t("ttWriteEmail"))}">✉️</button>
+      </div>`;
+
+    const nameField = `
+      <div class="field">
+        <input class="input" data-field="name" value="${escapeAttr(v.name||"")}" placeholder="${escapeAttr(t("namePh"))}" />
+      </div>`;
+
+    const delField = `
+      <div class="actions">
+        <button class="btn small danger" data-del="1" title="${escapeAttr(t("ttDelete"))}">🗑️</button>
+      </div>`;
+
+    const top = (g === "Brothers")
+      ? `<div class="${topClass}">
+           ${nameField}
+           <div class="field">
+             <select data-field="privilege">
+               <option value="Elder" ${v.privilege==="Elder"?"selected":""}>${t("elder")}</option>
+               <option value="MS" ${v.privilege==="MS"?"selected":""}>${t("ms")}</option>
+               <option value="Publisher" ${v.privilege==="Publisher"?"selected":""}>${t("publisher")}</option>
+             </select>
+           </div>
+           ${phoneField}
+           ${mailField}
+           ${delField}
+         </div>`
+      : `<div class="${topClass}">
+           ${nameField}
+           ${phoneField}
+           ${mailField}
+           ${delField}
+         </div>`;
+
+    const standingSelect = `
+      <span class="standingWrap">
+        <span>${t("standing")}:</span>
+        <select class="standingSelect" data-field="standing" title="${escapeAttr(t("standing"))}">
+          <option value="" ${(!v.standing) ? "selected" : ""}>—</option>
+          <option value="good" ${(v.standing==="good")?"selected":""}>${t("goodStanding")}</option>
+          <option value="exemplary" ${(v.standing==="exemplary")?"selected":""}>${t("exemplary")}</option>
+        </select>
+      </span>`;
+
+    const checks = (g === "Brothers")
+      ? `${
+          (v.privilege === "Elder" || v.privilege === "MS")
+            ? `<span class="standingPill" title="${escapeAttr(t("exemplaryTip"))}">★ ${t("exemplary")}</span>`
+            : standingSelect
+        }
+        <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
+        <label><input type="checkbox" data-check="familyHead" ${v.familyHead ? "checked":""}/> <span class="lblLong">${t("familyHead")}</span></label>
+        <label><input type="checkbox" data-check="smallChildren" ${v.smallChildren ? "checked":""}/> <span class="lblLong">${t("smallChildren")}</span></label>`
+      : `${standingSelect}
+        <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
+        <label><input type="checkbox" data-check="smallChildren" ${v.smallChildren ? "checked":""}/> <span class="lblLong">${t("smallChildren")}</span></label>
+        <label title="${escapeAttr(t("firstAidTitle"))}"><input type="checkbox" data-check="medicalExperience" ${v.medicalExperience ? "checked":""}/> <span class="faShort">${t("firstAid")}</span></label>`;
+
+    return `
+      <tr data-id="${escapeAttr(v.id)}">
+        <td>
+          ${top}
+          <div class="rowBottom">
+            <input class="notesLine" data-field="notes" value="${escapeAttr(v.notes||"")}" placeholder="${escapeAttr(t("notesPh"))}" />
+            <div class="checks">${checks}</div>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  function sorted(list){
+    return list.slice().sort((a,b) => (a.name||"").localeCompare(b.name||"", undefined, {sensitivity:"base"}));
   }
 
   function render(){
     setHeaderState();
+    renderChips();
+    renderStats();
 
-    // Ensure appointed brothers are marked exemplary
+    // appointed brothers are exemplary
     for(const v of data){
       if(v && v.group === "Brothers" && (v.privilege === "Elder" || v.privilege === "MS")){
         v.standing = "exemplary";
       }
-      if(v && !v.standing && v.group && v.group !== "Brothers"){
-        // leave empty for sisters unless set
-      }
     }
 
-    const filtered = data.filter(matches)
-      .sort((a,b) => (a.name||"").localeCompare(b.name||"", undefined, {sensitivity:"base"}));
-
-    countLabel.textContent = filtered.length;
+    if(printBoth){
+      const bro = sorted(data.filter(v => v.group === "Brothers"));
+      const sis = sorted(data.filter(v => v.group === "Sisters"));
+      let html = "";
+      if(bro.length){
+        html += `<tr class="groupHeadRow"><td>${t("brothers")}</td></tr>` + bro.map(v => rowHtml(v, "Brothers")).join("");
+      }
+      if(sis.length){
+        html += `<tr class="groupHeadRow${bro.length ? " breakBefore" : ""}"><td>${t("sisters")}</td></tr>` + sis.map(v => rowHtml(v, "Sisters")).join("");
+      }
+      tbody.innerHTML = html;
+      countLabel.textContent = bro.length + sis.length;
+      emptyState.style.display = "none";
+      return;
+    }
 
     const g = currentGroup();
-
-    tbody.innerHTML = filtered.map(v => {
-      const topClass = (g === "Sisters") ? "rowTop sisters" : "rowTop";
-
-      const top = (g === "Brothers")
-        ? `
-          <div class="${topClass}">
-            <div class="field">
-              <input class="input" data-field="name" value="${escapeAttr(v.name||"")}" placeholder="${escapeAttr(t("namePh"))}" />
-            </div>
-
-            <div class="field">
-              <select data-field="privilege">
-                <option value="Elder" ${v.privilege==="Elder"?"selected":""}>${t("elder")}</option>
-                <option value="MS" ${v.privilege==="MS"?"selected":""}>${t("ms")}</option>
-                <option value="Publisher" ${v.privilege==="Publisher"?"selected":""}>${t("publisher")}</option>
-              </select>
-            </div>
-
-            <div class="field copyField">
-              <input class="input mono" data-field="phone" value="${escapeAttr(v.phone||"")}" placeholder="${escapeAttr(t("phonePh"))}" />
-              <button class="miniBtn" data-pos="1" data-copy="phone" title="${t("ttCopyMobile")}">⧉</button>
-              <button class="miniBtn" data-pos="2" data-call="1" title="${t("ttCall")}">📞</button>
-              <button class="miniBtn" data-pos="3" data-wa="1" title="${t("ttWhatsApp")}">💬</button>
-            </div>
-
-            <div class="field copyField">
-              <input class="input mono" data-field="email" value="${escapeAttr(v.email||"")}" placeholder="${escapeAttr(t("emailPh"))}" />
-              <button class="miniBtn" data-pos="1" data-copy="email" title="${t("ttCopyEmail")}">⧉</button>
-              <button class="miniBtn" data-pos="2" data-mail="1" title="${t("ttWriteEmail")}">✉️</button>
-            </div>
-
-            <div class="actions">
-              <button class="btn small danger" data-del="1" title="${t("ttDelete")}">🗑️</button>
-            </div>
-          </div>
-        `
-        : `
-          <div class="${topClass}">
-            <div class="field">
-              <input class="input" data-field="name" value="${escapeAttr(v.name||"")}" placeholder="${escapeAttr(t("namePh"))}" />
-            </div>
-
-            <div class="field copyField">
-              <input class="input mono" data-field="phone" value="${escapeAttr(v.phone||"")}" placeholder="${escapeAttr(t("phonePh"))}" />
-              <button class="miniBtn" data-pos="1" data-copy="phone" title="${t("ttCopyMobile")}">⧉</button>
-              <button class="miniBtn" data-pos="2" data-call="1" title="${t("ttCall")}">📞</button>
-              <button class="miniBtn" data-pos="3" data-wa="1" title="${t("ttWhatsApp")}">💬</button>
-            </div>
-
-            <div class="field copyField">
-              <input class="input mono" data-field="email" value="${escapeAttr(v.email||"")}" placeholder="${escapeAttr(t("emailPh"))}" />
-              <button class="miniBtn" data-pos="1" data-copy="email" title="${t("ttCopyEmail")}">⧉</button>
-              <button class="miniBtn" data-pos="2" data-mail="1" title="${t("ttWriteEmail")}">✉️</button>
-            </div>
-
-            <div class="actions">
-              <button class="btn small danger" data-del="1" title="${t("ttDelete")}">🗑️</button>
-            </div>
-          </div>
-        `;
-
-      const checks = (g === "Brothers")
-        ? `
-          ${
-            (v.privilege === "Elder" || v.privilege === "MS")
-              ? `<span class="standingPill" title="${escapeAttr(t("exemplaryTip"))}">${t("exemplary")}</span>`
-              : `
-                <span class="standingWrap">
-                  <span>${t("standing")}:</span>
-                  <select class="standingSelect" data-field="standing" title="Standing (either/or)">
-                    <option value="" ${(!v.standing) ? "selected" : ""}>—</option>
-                    <option value="good" ${(v.standing==="good")?"selected":""}>${t("goodStanding")}</option>
-                    <option value="exemplary" ${(v.standing==="exemplary")?"selected":""}>${t("exemplary")}</option>
-                  </select>
-                </span>
-              `
-          }
-          <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
-          <label><input type="checkbox" data-check="familyHead" ${v.familyHead ? "checked":""}/> <span class="lblLong">${t("familyHead")}</span><span class="lblShort">Fam.head</span></label>
-          <label><input type="checkbox" data-check="smallChildren" ${v.smallChildren ? "checked":""}/> <span class="lblLong">${t("smallChildren")}</span><span class="lblShort">Kids</span></label>
-        `
-        : `
-          <span class="standingWrap">
-            <span>${t("standing")}:</span>
-            <select class="standingSelect" data-field="standing" title="Standing (either/or)">
-              <option value="" ${(!v.standing) ? "selected" : ""}>—</option>
-              <option value="good" ${(v.standing==="good")?"selected":""}>${t("goodStanding")}</option>
-              <option value="exemplary" ${(v.standing==="exemplary")?"selected":""}>${t("exemplary")}</option>
-            </select>
-          </span>
-          <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
-          <label><input type="checkbox" data-check="smallChildren" ${v.smallChildren ? "checked":""}/> <span class="lblLong">${t("smallChildren")}</span><span class="lblShort">Kids</span></label>
-          <label><input type="checkbox" data-check="medicalExperience" ${v.medicalExperience ? "checked":""}/> <span class="faShort" title="${escapeAttr(t("firstAidTitle"))}">${t("firstAid")}</span></label>
-        `;
-
-      const bottom = `
-        <div class="rowBottom">
-          <input class="notesLine" data-field="notes" value="${escapeAttr(v.notes||"")}" placeholder="${escapeAttr(t("notesPh"))}" />
-          <div class="checks">${checks}</div>
-        </div>
-      `;
-
-      return `
-        <tr data-id="${escapeAttr(v.id)}">
-          <td>
-            ${top}
-            ${bottom}
-          </td>
-        </tr>
-      `;
-    }).join("");
-
+    const filtered = sorted(data.filter(v => matches(v, g)));
+    countLabel.textContent = filtered.length;
+    tbody.innerHTML = filtered.map(v => rowHtml(v, g)).join("");
     emptyState.style.display = filtered.length ? "none" : "block";
   }
 
@@ -1233,11 +1517,10 @@ footer > div{ width:100%; }
     render();
   }
 
-  // Header editing (save on input)
+  // Header editing
   hdrTitle.addEventListener("input", persistCfg);
   hdrSubtitle.addEventListener("input", persistCfg);
 
-  // prevent rich formatting paste (keep plain text)
   function pastePlain(e){
     e.preventDefault();
     const text = (e.clipboardData || window.clipboardData).getData("text/plain");
@@ -1246,16 +1529,61 @@ footer > div{ width:100%; }
   hdrTitle.addEventListener("paste", pastePlain);
   hdrSubtitle.addEventListener("paste", pastePlain);
 
+  // Group tabs -> keep hidden select as the single source of truth
+  $("groupSwitch").addEventListener("click", (e) => {
+    const btn = e.target.closest(".gTab");
+    if(!btn) return;
+    const g = btn.getAttribute("data-g");
+    if(!g || groupFilter.value === g) return;
+    groupFilter.value = g;
+    activeFlags.clear();
+    render();
+  });
+
   // Toolbar events
-  document.getElementById("addBtn").addEventListener("click", addRow);
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
-  document.getElementById("themeBtn").addEventListener("click", () => {
+  $("addBtn").addEventListener("click", addRow);
+  $("printBtn").addEventListener("click", () => window.print());
+  $("printBothBtn").addEventListener("click", () => {
+    printBoth = true;
+    document.body.classList.add("printBoth");
+    render();
+    setTimeout(() => window.print(), 30);
+    // fallback: some mobile browsers never fire afterprint
+    setTimeout(restoreFromPrintBoth, 20000);
+  });
+  function restoreFromPrintBoth(){
+    if(!printBoth) return;
+    printBoth = false;
+    document.body.classList.remove("printBoth");
+    render();
+  }
+  window.addEventListener("focus", restoreFromPrintBoth);
+  window.addEventListener("afterprint", () => {
+    if(printBoth){
+      printBoth = false;
+      document.body.classList.remove("printBoth");
+      render();
+    }
+  });
+
+  $("themeBtn").addEventListener("click", () => {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     applyTheme(dark ? "light" : "dark");
   });
-  groupFilter.addEventListener("change", () => render());
+  groupFilter.addEventListener("change", render);
   search.addEventListener("input", render);
   privFilter.addEventListener("change", render);
+
+  // quick filter chips
+  $("chipRow").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if(!chip) return;
+    if(chip.dataset.reset){ activeFlags.clear(); render(); return; }
+    const f = chip.dataset.flag;
+    if(!f) return;
+    if(activeFlags.has(f)) activeFlags.delete(f); else activeFlags.add(f);
+    render();
+  });
 
   // Delegated edits + copy + delete
   tbody.addEventListener("input", (e) => {
@@ -1289,19 +1617,19 @@ footer > div{ width:100%; }
 
       v[field] = el.value;
 
-      // If privilege changes to Elder/MS -> standing becomes Exemplary automatically
       if(field === "privilege"){
         if(v.privilege === "Elder" || v.privilege === "MS"){
           v.standing = "exemplary";
         }
         v.updatedAt = Date.now();
         persist();
-        render(); // update UI (pill vs dropdown)
+        render();
         return;
       }
 
       v.updatedAt = Date.now();
       persist();
+      renderStats();
     }
 
     if(el.matches('input[type="checkbox"][data-check]')){
@@ -1311,6 +1639,7 @@ footer > div{ width:100%; }
       v[key] = !!el.checked;
       v.updatedAt = Date.now();
       persist();
+      renderStats();
     }
   });
 
@@ -1335,7 +1664,6 @@ footer > div{ width:100%; }
       if(!v) return;
       const tel = cleanTel(v.phone).replace(/^\+/, "");
       if(!tel){ toast(t("noPhone")); return; }
-      // WhatsApp Click-to-Chat
       window.location.href = `https://wa.me/${tel}`;
       return;
     }
@@ -1361,8 +1689,8 @@ footer > div{ width:100%; }
     }
   });
 
-  // Export / Import / Clear (includes header cfg)
-  document.getElementById("exportBtn").addEventListener("click", () => {
+  // Export / Import / Clear
+  $("exportBtn").addEventListener("click", () => {
     const payload = {
       app: "Volunteers List (Universal)",
       version: "1.0",
@@ -1381,8 +1709,38 @@ footer > div{ width:100%; }
     toast(t("exported"));
   });
 
-  const importFile = document.getElementById("importFile");
-  document.getElementById("importBtn").addEventListener("click", () => importFile.click());
+  // CSV export (semicolon + UTF-8 BOM -> opens cleanly in German Excel)
+  $("csvBtn").addEventListener("click", () => {
+    const yn = (b) => b ? t("csvYes") : t("csvNo");
+    const q = (s) => `"${String(s ?? "").replaceAll('"','""')}"`;
+    const head = [
+      t("csvGroup"), t("csvName"), t("csvPrivilege"), t("csvStanding"),
+      t("csvPhone"), t("csvEmail"),
+      t("single"), t("familyHead"), t("smallChildren"), t("firstAidShort"),
+      t("csvNotes")
+    ];
+    const rows = sorted(data).map(v => [
+      v.group === "Sisters" ? t("sisters") : t("brothers"),
+      v.name || "",
+      v.group === "Brothers" ? t(v.privilege === "Elder" ? "elder" : v.privilege === "MS" ? "ms" : "publisher") : "",
+      v.standing === "exemplary" ? t("exemplary") : (v.standing === "good" ? t("goodStanding") : ""),
+      v.phone || "",
+      v.email || "",
+      yn(v.single), yn(v.familyHead), yn(v.smallChildren), yn(v.medicalExperience),
+      v.notes || ""
+    ]);
+    const csv = "\uFEFF" + [head, ...rows].map(r => r.map(q).join(";")).join("\r\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `volunteers_list_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(t("exportedCsv"));
+  });
+
+  const importFile = $("importFile");
+  $("importBtn").addEventListener("click", () => importFile.click());
 
   importFile.addEventListener("change", async () => {
     const file = importFile.files?.[0];
@@ -1392,7 +1750,7 @@ footer > div{ width:100%; }
       const parsed = JSON.parse(text);
 
       if(parsed && typeof parsed.lang === "string"){
-        const ls = document.getElementById("langSwitch");
+        const ls = $("langSwitch");
         if(ls && (parsed.lang === "de" || parsed.lang === "en")){
           ls.value = parsed.lang;
           applyLang(parsed.lang);
@@ -1445,7 +1803,7 @@ footer > div{ width:100%; }
     }
   });
 
-  document.getElementById("clearBtn").addEventListener("click", () => {
+  $("clearBtn").addEventListener("click", () => {
     if(!confirm(t("clearConfirm"))) return;
     data = [];
     persist();
@@ -1453,14 +1811,14 @@ footer > div{ width:100%; }
     render();
   });
 
-  // PRINT: trim Notes a bit so checkbox line stays on one row
+  // PRINT: trim notes so the checkbox line stays on one row
   const __printNotes = new Map();
   function __truncateNotesForPrint(){
     __printNotes.clear();
     document.querySelectorAll(".notesLine").forEach(inp => {
       const orig = inp.value || "";
       __printNotes.set(inp, orig);
-      const max = 45; // change if you want more/less
+      const max = 45;
       if(orig.length > max){
         inp.value = orig.slice(0, max-1) + "…";
       }
@@ -1474,6 +1832,13 @@ footer > div{ width:100%; }
   }
   window.addEventListener("beforeprint", __truncateNotesForPrint);
   window.addEventListener("afterprint", __restoreNotesAfterPrint);
+
+  // Keyboard: Ctrl/Cmd+K = search, Ctrl/Cmd+Enter = add
+  document.addEventListener("keydown", (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if(mod && e.key.toLowerCase() === "k"){ e.preventDefault(); search.focus(); search.select(); }
+    if(mod && e.key === "Enter"){ e.preventDefault(); addRow(); }
+  });
 
   initLang();
   initTheme();
