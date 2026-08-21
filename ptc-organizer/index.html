@@ -43,18 +43,49 @@
 .outline-table td select,.outline-table td input[type=date],.outline-table td input[type=number]{padding:7px 8px}
 @media(max-width:1100px){.outline-table{min-width:930px}.outline-title-wrap textarea{min-width:280px}}
 
+
+/* v0.5.0 speaker list PDF import */
+.imp-drop{margin-top:12px;border:1.5px dashed #d8cab4;border-radius:14px;background:#faf6ef;padding:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;text-align:center}
+.imp-drop.over{border-color:var(--accent);background:#f6ece2}
+.imp-card .card-head h3{margin:0}
+.imp-target{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.imp-target select{max-width:520px;flex:1;min-width:240px}
+.imp-count{font-size:11.5px;color:var(--muted)}
+.imp-count.on{color:var(--accent2);font-weight:700}
+.imp-block{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.imp-row{display:grid;grid-template-columns:22px 168px minmax(0,1fr) 18px minmax(0,1.2fr);gap:8px;align-items:start;padding:6px 8px;border-radius:9px;font-size:12.5px}
+.imp-row:hover{background:#faf6ef}
+.imp-row input[type=checkbox]{width:auto;margin:2px 0 0}
+.imp-row.miss{grid-template-columns:22px minmax(0,1fr) minmax(0,260px)}
+.imp-row.miss .imp-label{grid-column:2}
+.imp-row.warnrow{background:#fdf5ee}
+.imp-label{font-weight:650}
+.imp-old{color:var(--muted);word-break:break-word}
+.imp-arrow{color:var(--muted);text-align:center}
+.imp-new{color:var(--accent2);font-weight:600;word-break:break-word}
+.imp-row.sp{grid-template-columns:22px 260px minmax(0,1fr)}
+.imp-spgroup{border:1px solid var(--line);border-radius:11px;padding:6px 4px;margin:7px 0;background:#fffdfa}
+.imp-spname{padding:2px 8px 4px;font-weight:700;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.imp-badge{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:2px 7px;font-weight:800}
+.imp-badge.new{background:#e8f0e5;color:#3f6136}.imp-badge.ok{background:#eef1f5;color:#3f5a75}.imp-badge.miss{background:#fae6e1;color:#8b3a28}
+.imp-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.imp-splist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.imp-sp{border:1px solid var(--line);border-radius:11px;padding:8px 10px;background:#fffdfa}
+.imp-footer{position:sticky;bottom:10px;margin-top:12px;display:flex;gap:9px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow)}
+.imp-raw{max-height:52vh;overflow:auto;background:#faf6ef;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:11.5px;white-space:pre-wrap;word-break:break-word}
+@media(max-width:900px){.imp-row,.imp-row.sp,.imp-row.miss{grid-template-columns:22px minmax(0,1fr)}.imp-arrow{display:none}.imp-preview,.imp-splist{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="container">
 <section class="header"><div class="headrow"><div><h1><button type="button" id="homeTitle" class="home-title" title="Back to Home">PTC Organizer</button></h1><p>Master maintenance for congregations, people, speaker assignments and public talk outlines.</p></div><div class="header-actions"><button id="btnOpen">Open PTC Master</button><button id="btnExport">Export</button><button id="btnAdmin">Administration</button><button id="btnHelp">Help</button></div></div><div class="facts"><div class="fact"><label>Congregations</label><b id="fCongs">–</b></div><div class="fact"><label>People</label><b id="fPeople">–</b></div><div class="fact"><label>Speakers</label><b id="fSpeakers">–</b></div><div class="fact"><label>Countries</label><b id="fCountries">–</b></div><div class="fact"><label>Outlines</label><b id="fOutlines">–</b></div><div class="fact issue-fact" id="issuesFact" title="Show validation issues"><label>Issues</label><b id="fIssues">–</b></div></div></section>
 <div class="savebar"><span id="saveDot" class="dot"></span><span id="saveText" class="small muted">No master loaded.</span><span class="spacer"></span><span class="small muted">Editor</span><input id="editorName" style="width:150px" placeholder="Your name"></div>
-<div class="global-nav" id="globalNav"><button class="ghost home-nav" data-global="home" title="Home" aria-label="Home">⌂</button><button class="ghost" data-global="outlines">Outlines</button><button class="ghost" data-global="history">Master History</button><button class="ghost" data-global="admin">Administration</button></div>
+<div class="global-nav" id="globalNav"><button class="ghost home-nav" data-global="home" title="Home" aria-label="Home">⌂</button><button class="ghost" data-global="outlines">Outlines</button><button class="ghost" data-global="import">Import PDF</button><button class="ghost" data-global="history">Master History</button><button class="ghost" data-global="admin">Administration</button></div>
 <div class="app">
 <aside class="side"><span class="row-label">Find a congregation</span><input id="search" placeholder="Congregation, city, speaker, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.4.4 · Master Data Manager</div></div>
-<input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><div id="overlay"></div>
+</div><div class="footer">PTC Organizer v0.5.0 · Master Data Manager</div></div>
+<input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
 const LS_MASTER='ptcOrganizerMaster_v03',LS_OUT='ptcOrganizerOutlines_v03',LS_EDITOR='ptcOrganizerEditor_v03',LS_OPEN='ptcOrganizerCountriesOpen_v03';
@@ -65,7 +96,7 @@ const DEFAULT_COUNTRY_NAMES=Object.fromEntries(DEFAULT_COUNTRIES);
 const safeText=v=>String(v??'');
 const safeCompare=(a,b)=>safeText(a).localeCompare(safeText(b),'en',{sensitivity:'base'});
 const DAYS=['—','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const state={master:null,outlines:null,outlineBaseline:null,fileHandle:null,dirty:false,lastSaved:null,saveMode:'none',selected:null,tab:'home',openCountries:new Set(),expandedSpeakers:new Set(),congOpen:true,showTalkTitles:(localStorage.getItem('ptcOrganizerShowTalkTitles')==='1'),outlineEditMode:false};
+const state={master:null,outlines:null,outlineBaseline:null,fileHandle:null,dirty:false,lastSaved:null,saveMode:'none',selected:null,tab:'home',openCountries:new Set(),expandedSpeakers:new Set(),congOpen:true,showTalkTitles:(localStorage.getItem('ptcOrganizerShowTalkTitles')==='1'),outlineEditMode:false,import:{items:[],busy:false,error:'',lastRaw:''}};
 function editor(){return $('editorName').value.trim()||'unknown'}
 function freshMaster(){return{schemaVersion:3,generated_at:new Date().toISOString(),countries:DEFAULT_COUNTRIES.map(([code,name])=>({code,name})),circuits:[],congregations:[],people:[],changelog:[]}}
 function countryName(code){const c=safeText(code).trim().toUpperCase();const found=(state.master?.countries||[]).find(x=>safeText(x?.code).trim().toUpperCase()===c);return safeText(found?.name||DEFAULT_COUNTRY_NAMES[c]||c||'Not set')}
@@ -76,7 +107,7 @@ function renderSave(){const d=$('saveDot'),t=$('saveText');if(!state.master){d.c
 function normalizeMaster(m){if(!m||typeof m!=='object')throw new Error('Invalid master JSON.');m.schemaVersion=3;const defaults=new Map(DEFAULT_COUNTRIES);if(Array.isArray(m.countries)&&m.countries.length){m.countries=m.countries.map(x=>{if(typeof x==='string'){const code=safeText(x).trim().toUpperCase();return {code,name:defaults.get(code)||code}}const code=safeText(x?.code||x?.country_code||x?.iso||'').trim().toUpperCase();let name=safeText(x?.name||x?.country||x?.label||'').trim();if(!name||name.toUpperCase()===code)name=defaults.get(code)||name||code||'Unknown';return {code,name}}).filter(x=>x.code)}else m.countries=DEFAULT_COUNTRIES.map(([code,name])=>({code,name}));const seenCountries=new Set();m.countries=m.countries.filter(x=>{x.code=safeText(x.code).trim().toUpperCase();x.name=safeText(x.name||defaults.get(x.code)||x.code).trim()||x.code;if(defaults.has(x.code)&&x.name.toUpperCase()===x.code)x.name=defaults.get(x.code);if(!x.code||seenCountries.has(x.code))return false;seenCountries.add(x.code);return true});m.congregations=Array.isArray(m.congregations)?m.congregations:[];m.people=Array.isArray(m.people)?m.people:[];m.changelog=Array.isArray(m.changelog)?m.changelog.filter(x=>x&&typeof x==='object').map(e=>({id:e.id||uuid(),at:safeText(e.at||new Date().toISOString()),by:safeText(e.by||'unknown'),action:safeText(e.action||''),detail:safeText(e.detail||''),entity:e.entity||null})):[];
  // migrate nested v0.2 speakers to global people
  const known=new Map(m.people.map(p=>[p.id,p]));
- m.congregations.forEach(c=>{c.id=c.id||uuid();c.name=String(c.name||'Unnamed congregation');c.country_code=safeText(c.country_code||c.country||'').trim().toUpperCase();c.address=(c.address&&typeof c.address==='object')?c.address:{street:'',postal_code:'',city:''};c.address.street=safeText(c.address.street);c.address.postal_code=safeText(c.address.postal_code);c.address.city=safeText(c.address.city);c.geo=c.geo||{lat:null,lon:null,resolved_address:'',status:'',source:''};c.ptc=c.ptc||{name:'',jwpub_email:'',email:'',mobile:'',home:'',speaker_id:''};c.cobe=c.cobe||{name:'',phone:''};c.meetings=Array.isArray(c.meetings)?c.meetings.filter(x=>x&&typeof x==='object'):[];c.type=(c.type==='group'?'group':'congregation');c.parent_congregation_id=safeText(c.parent_congregation_id||'');c.status=(c.status==='dissolved'?'dissolved':'active');c.dissolved_on=safeText(c.dissolved_on||'');c.note=c.note||'';c.speaker_ids=Array.isArray(c.speaker_ids)?c.speaker_ids:[];
+ m.congregations.forEach(c=>{c.id=c.id||uuid();c.name=String(c.name||'Unnamed congregation');c.country_code=safeText(c.country_code||c.country||'').trim().toUpperCase();c.address=(c.address&&typeof c.address==='object')?c.address:{street:'',postal_code:'',city:''};c.address.street=safeText(c.address.street);c.address.postal_code=safeText(c.address.postal_code);c.address.city=safeText(c.address.city);c.geo=c.geo||{lat:null,lon:null,resolved_address:'',status:'',source:''};c.ptc=c.ptc||{name:'',jwpub_email:'',email:'',mobile:'',home:'',speaker_id:''};c.cobe=c.cobe||{name:'',phone:'',email:''};c.cobe.email=safeText(c.cobe.email||'');c.meetings=Array.isArray(c.meetings)?c.meetings.filter(x=>x&&typeof x==='object'):[];c.type=(c.type==='group'?'group':'congregation');c.parent_congregation_id=safeText(c.parent_congregation_id||'');c.status=(c.status==='dissolved'?'dissolved':'active');c.dissolved_on=safeText(c.dissolved_on||'');c.note=c.note||'';c.speaker_ids=Array.isArray(c.speaker_ids)?c.speaker_ids:[];
    (c.speakers||[]).forEach(s=>{s.id=s.id||uuid();if(!known.has(s.id)){const p={id:s.id,name:s.name||'',appointment:s.role||s.appointment||'elder',status:s.status||'active',status_since:s.status_since||'',status_reason:s.status_reason||'',congregation_id:c.id,talks:Array.isArray(s.talks)?s.talks:[],special_talks:Array.isArray(s.special_talks)?s.special_talks:[],contact:s.contact||{mobile:'',home:'',email:''},availability:s.availability||{max_distance_km:null,zoom:'no',zoom_months:'',raw:''},note:s.note||'',raw_block:s.raw_block||'',membership_history:[{congregation_id:c.id,from:'',to:null,reason:'imported'}]};m.people.push(p);known.set(p.id,p)}if(!c.speaker_ids.includes(s.id))c.speaker_ids.push(s.id)});delete c.speakers;c.meetings.forEach(me=>{me.weekday=Number(me.weekday)||0;me.time=me.time||'';if(me.address_override&&!me.venue)me.venue={enabled:true,address:{street:me.address_override,postal_code:'',city:'',country_code:c.country_code},geo:{lat:null,lon:null,resolved_address:'',status:'',source:''}};delete me.address_override;if(me.venue){me.venue.enabled=true;me.venue.address=me.venue.address||{street:'',postal_code:'',city:'',country_code:c.country_code};me.venue.geo=me.venue.geo||{lat:null,lon:null,resolved_address:'',status:'',source:''};me.venue.valid_from=me.venue.valid_from||me.valid_from||'';me.venue.valid_to=me.venue.valid_to||me.valid_to||'';me.venue.reason=me.venue.reason||me.reason||''}delete me.valid_from;delete me.valid_to;delete me.reason});if(c.meetings.length>1){const base=c.meetings[0],alt=c.meetings.find(x=>x.venue?.enabled)||c.meetings.find(x=>x!==base&&(x.valid_from||x.valid_to));if(alt&&alt!==base&&!base.venue)base.venue=alt.venue||{enabled:true,address:{street:'',postal_code:'',city:'',country_code:c.country_code},geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},valid_from:alt.valid_from||'',valid_to:alt.valid_to||'',reason:alt.reason||''};c.meetings=[base]}});
  m.people.forEach(p=>{p.id=p.id||uuid();p.name=String(p.name||'');p.appointment=p.appointment||p.role||'elder';delete p.role;p.status=p.status||'active';p.congregation_id=safeText(p.congregation_id||'');p.talks=Array.isArray(p.talks)?p.talks:[];p.special_talks=Array.isArray(p.special_talks)?p.special_talks:[];p.contact=p.contact||{mobile:'',home:'',email:''};p.availability=p.availability||{max_distance_km:null,zoom:'no',raw:''};p.membership_history=Array.isArray(p.membership_history)?p.membership_history.filter(x=>x&&typeof x==='object').map(x=>({congregation_id:safeText(x.congregation_id||''),from:safeText(x.from||''),to:x.to==null?null:safeText(x.to),reason:safeText(x.reason||'')})):[];if(p.congregation_id&&!p.membership_history.some(x=>x.congregation_id===p.congregation_id&&x.to==null))p.membership_history.push({congregation_id:p.congregation_id,from:'',to:null,reason:'migrated current assignment'})});
  m.circuits=Array.isArray(m.circuits)?m.circuits.map(x=>safeText(typeof x==='string'?x:(x?.name||x?.code||'')).trim()).filter(Boolean):[];for(const c of m.congregations){const val=safeText(c.circuit||'').trim();if(val&&!m.circuits.some(x=>x.toLowerCase()===val.toLowerCase()))m.circuits.push(val)}m.circuits=[...new Map(m.circuits.map(x=>[x.toLowerCase(),x])).values()].sort(safeCompare);
@@ -94,15 +125,15 @@ function showIssuesModal(onlyCong=null){const arr=onlyCong?issues(onlyCong):allI
 function renderFacts(){if(!state.master){['fCongs','fPeople','fSpeakers','fCountries','fIssues'].forEach(x=>$(x).textContent='–');return}const active=state.master.people.filter(p=>p.status==='active').length;$('fCongs').textContent=state.master.congregations.length;$('fPeople').textContent=state.master.people.length;$('fSpeakers').textContent=active;$('fCountries').textContent=new Set(state.master.congregations.map(c=>c.country_code).filter(Boolean)).size;$('fOutlines').textContent=state.outlines?Object.keys(state.outlines.outlines||{}).length:'–';$('fIssues').textContent=state.master.congregations.reduce((n,c)=>n+issues(c).length,0)}
 function match(c,q){if(!q)return true;const ps=peopleFor(c);return[c.name,c.address?.street,c.address?.city,c.ptc?.name,c.circuit,...ps.map(p=>p.name),...ps.flatMap(p=>p.talks.map(String))].join(' ').toLowerCase().includes(q)}
 function pass(c,f){if(!f)return true;if(f==='issues')return issues(c).length>0;if(f==='noptc')return!c.ptc?.name;if(f==='paused')return peopleFor(c).some(p=>p.status==='paused');if(f==='temporary')return c.meetings?.some(m=>m.venue?.enabled);return true}
-function renderTree(){const h=$('tree');if(!state.master){h.innerHTML='';return}const q=$('search').value.trim().toLowerCase(),f=$('filter').value,list=state.master.congregations.filter(c=>c.status!=='dissolved'&&match(c,q)&&pass(c,f)),groups={};list.forEach(c=>(groups[c.country_code||'??']=groups[c.country_code||'??']||[]).push(c));const force=q||f;h.innerHTML=Object.keys(groups).sort((a,b)=>safeCompare(countryName(a),countryName(b))).map(code=>{const arr=groups[code].sort((a,b)=>safeCompare(a?.name,b?.name)),open=force||state.openCountries.has(code),sp=arr.reduce((n,c)=>n+peopleFor(c).filter(p=>p.status==='active').length,0),cg=arr.filter(c=>c.type!=='group').length,gp=arr.filter(c=>c.type==='group').length;return`<button class="tree-country" data-country="${esc(code)}"><span>${open?'▾':'▸'}</span><span class="country-label"><b>${esc(countryName(code))}</b><span class="country-code">${esc(code)}</span></span><span class="count">${cg} congregation${cg===1?'':'s'}${gp?` · ${gp} group${gp===1?'':'s'}`:''}<br>${sp} speaker${sp===1?'':'s'}</span></button><div class="tree-items ${open?'':'hidden'}">${arr.map(c=>`<button class="tree-item ${c.id===state.selected&&!['home','outlines','history','admin','unassigned'].includes(state.tab)?'active':''}" data-cong="${c.id}">${esc(c.name)}${c.type==='group'?' <span class="pill" style="font-size:8.5px;padding:1px 5px">Group</span>':''}${worst(c)?`<span class="flag ${worst(c)}"></span>`:''}<span class="meta">${esc(c.address?.city||'–')} · ${peopleFor(c).filter(p=>p.status==='active').length} speakers</span></button>`).join('')}</div>`}).join('')||'<div class="empty small">Nothing found.</div>';h.querySelectorAll('[data-country]').forEach(b=>b.onclick=()=>{const x=b.dataset.country;state.openCountries.has(x)?state.openCountries.delete(x):state.openCountries.add(x);localStorage.setItem(LS_OPEN,JSON.stringify([...state.openCountries]));renderTree()});h.querySelectorAll('[data-cong]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.cong;state.tab='congregation';renderAll()})}
+function renderTree(){const h=$('tree');if(!state.master){h.innerHTML='';return}const q=$('search').value.trim().toLowerCase(),f=$('filter').value,list=state.master.congregations.filter(c=>c.status!=='dissolved'&&match(c,q)&&pass(c,f)),groups={};list.forEach(c=>(groups[c.country_code||'??']=groups[c.country_code||'??']||[]).push(c));const force=q||f;h.innerHTML=Object.keys(groups).sort((a,b)=>safeCompare(countryName(a),countryName(b))).map(code=>{const arr=groups[code].sort((a,b)=>safeCompare(a?.name,b?.name)),open=force||state.openCountries.has(code),sp=arr.reduce((n,c)=>n+peopleFor(c).filter(p=>p.status==='active').length,0),cg=arr.filter(c=>c.type!=='group').length,gp=arr.filter(c=>c.type==='group').length;return`<button class="tree-country" data-country="${esc(code)}"><span>${open?'▾':'▸'}</span><span class="country-label"><b>${esc(countryName(code))}</b><span class="country-code">${esc(code)}</span></span><span class="count">${cg} congregation${cg===1?'':'s'}${gp?` · ${gp} group${gp===1?'':'s'}`:''}<br>${sp} speaker${sp===1?'':'s'}</span></button><div class="tree-items ${open?'':'hidden'}">${arr.map(c=>`<button class="tree-item ${c.id===state.selected&&!['home','outlines','import','history','admin','unassigned'].includes(state.tab)?'active':''}" data-cong="${c.id}">${esc(c.name)}${c.type==='group'?' <span class="pill" style="font-size:8.5px;padding:1px 5px">Group</span>':''}${worst(c)?`<span class="flag ${worst(c)}"></span>`:''}<span class="meta">${esc(c.address?.city||'–')} · ${peopleFor(c).filter(p=>p.status==='active').length} speakers</span></button>`).join('')}</div>`}).join('')||'<div class="empty small">Nothing found.</div>';h.querySelectorAll('[data-country]').forEach(b=>b.onclick=()=>{const x=b.dataset.country;state.openCountries.has(x)?state.openCountries.delete(x):state.openCountries.add(x);localStorage.setItem(LS_OPEN,JSON.stringify([...state.openCountries]));renderTree()});h.querySelectorAll('[data-cong]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.cong;state.tab='congregation';renderAll()})}
 function renderAll(){renderFacts();renderTree();renderUnassignedNav();renderWorkspace();renderSave()}
-function renderWorkspace(){const c=current(),global=['home','outlines','history','admin','unassigned'].includes(state.tab);if(!state.master||(!c&&!global)){$('workspaceEmpty').classList.remove('hidden');$('workspaceMain').classList.add('hidden');return}$('workspaceEmpty').classList.add('hidden');$('workspaceMain').classList.remove('hidden');$('mainTabs').classList.toggle('hidden',global);$('btnValidateCong').classList.toggle('hidden',global);document.querySelectorAll('#globalNav [data-global]').forEach(t=>t.classList.toggle('active',t.dataset.global===state.tab));document.querySelectorAll('#mainTabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===state.tab));if(state.tab==='home'){$('wsTitle').textContent='Home';$('wsSub').textContent='PTC master overview';renderHome();return}if(state.tab==='outlines'){$('wsTitle').textContent='Outline Management';$('wsSub').textContent='Global public talk outline data · basis for all speaker assignments';renderOutlines();return}if(state.tab==='history'){$('wsTitle').textContent='Master History';$('wsSub').textContent='Global change log across all congregations, people and master settings';renderHistory();return}if(state.tab==='admin'){$('wsTitle').textContent='Administration';$('wsSub').textContent='Countries, validation and master maintenance';renderAdmin();return}if(state.tab==='unassigned'){$('wsTitle').textContent='Unassigned Speakers';$('wsSub').textContent='People retained in the master without a current congregation or group';renderUnassigned();return}$('wsTitle').textContent=c.name;$('wsSub').textContent=`${c.type==='group'?'Group':'Congregation'} · ${countryName(c.country_code)} · ${c.address?.city||'city not set'} · ${peopleFor(c).filter(p=>p.status==='active').length} active speakers · ${issues(c).length} issue${issues(c).length===1?'':'s'}`;if(state.tab==='speakers')renderSpeakers(c);else renderCongregation(c)}
+function renderWorkspace(){const c=current(),global=['home','outlines','import','history','admin','unassigned'].includes(state.tab);if(!state.master||(!c&&!global)){$('workspaceEmpty').classList.remove('hidden');$('workspaceMain').classList.add('hidden');return}$('workspaceEmpty').classList.add('hidden');$('workspaceMain').classList.remove('hidden');$('mainTabs').classList.toggle('hidden',global);$('btnValidateCong').classList.toggle('hidden',global);document.querySelectorAll('#globalNav [data-global]').forEach(t=>t.classList.toggle('active',t.dataset.global===state.tab));document.querySelectorAll('#mainTabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===state.tab));if(state.tab==='home'){$('wsTitle').textContent='Home';$('wsSub').textContent='PTC master overview';renderHome();return}if(state.tab==='outlines'){$('wsTitle').textContent='Outline Management';$('wsSub').textContent='Global public talk outline data · basis for all speaker assignments';renderOutlines();return}if(state.tab==='import'){$('wsTitle').textContent='Import PDF';$('wsSub').textContent='Import a Public Speakers List PDF and compare it with the master before anything is written';renderImport();return}if(state.tab==='history'){$('wsTitle').textContent='Master History';$('wsSub').textContent='Global change log across all congregations, people and master settings';renderHistory();return}if(state.tab==='admin'){$('wsTitle').textContent='Administration';$('wsSub').textContent='Countries, validation and master maintenance';renderAdmin();return}if(state.tab==='unassigned'){$('wsTitle').textContent='Unassigned Speakers';$('wsSub').textContent='People retained in the master without a current congregation or group';renderUnassigned();return}$('wsTitle').textContent=c.name;$('wsSub').textContent=`${c.type==='group'?'Group':'Congregation'} · ${countryName(c.country_code)} · ${c.address?.city||'city not set'} · ${peopleFor(c).filter(p=>p.status==='active').length} active speakers · ${issues(c).length} issue${issues(c).length===1?'':'s'}`;if(state.tab==='speakers')renderSpeakers(c);else renderCongregation(c)}
 function renderHome(){const congs=state.master.congregations.filter(c=>c.type!=='group'&&c.status!=='dissolved').length,groups=state.master.congregations.filter(c=>c.type==='group'&&c.status!=='dissolved').length,diss=state.master.congregations.filter(c=>c.status==='dissolved').length,un=state.master.people.filter(p=>!p.congregation_id).length,logs=(state.master.changelog||[]).slice(0,8);$('tabContent').innerHTML=`<div class="home-grid"><div class="home-tile"><div class="n">${congs}</div><div class="l">Congregations</div></div><div class="home-tile"><div class="n">${groups}</div><div class="l">Groups</div></div><div class="home-tile"><div class="n">${state.master.people.length}</div><div class="l">People</div></div><div class="home-tile"><div class="n">${un}</div><div class="l">Unassigned</div></div></div><div class="card" style="margin-top:12px"><div class="card-head"><h3>Master overview</h3></div><div class="card-body"><div class="grid3"><div><span class="row-label">Outline data</span><b>${state.outlines?esc(state.outlines.edition||state.outlines.source||'loaded'):'not loaded'}</b></div><div><span class="row-label">Dissolved records</span><b>${diss}</b></div><div><span class="row-label">Open validation issues</span><b>${state.master.congregations.reduce((n,c)=>n+issues(c).length,0)}</b></div></div></div></div>${diss?`<div class="card"><div class="card-head"><h3>Dissolved records</h3><span class="summary">Kept for history; speakers remain separate</span></div><div class="card-body">${state.master.congregations.filter(c=>c.status==='dissolved').sort((a,b)=>safeCompare(a.name,b.name)).map(c=>`<div class="meeting"><b>${esc(c.name)}</b><div class="small muted">${c.type==='group'?'Group':'Congregation'} · ${esc(countryName(c.country_code))}${c.dissolved_on?' · dissolved '+esc(dateDE(c.dissolved_on)):''}</div><div class="actions"><button class="ghost tiny" data-open-dissolved="${c.id}">Open record</button></div></div>`).join('')}</div></div>`:''}<div class="card"><div class="card-head"><h3>Recent changes</h3><span class="spacer"></span><button class="ghost tiny" id="homeHistory">Open Master History</button></div><div class="card-body">${logs.length?logs.map(e=>`<div class="log-line"><span>${new Date(e.at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><span><b>${esc(e.by)}</b> · ${esc(e.detail)}</span><span></span></div>`).join(''):'<div class="muted small">No history entries yet.</div>'}</div></div>`;$('homeHistory').onclick=()=>{state.tab='history';renderWorkspace()};$('tabContent').querySelectorAll('[data-open-dissolved]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.openDissolved;state.tab='congregation';renderAll()})}
 function renderUnassignedNav(){const h=$('unassignedNav');if(!state.master){h.innerHTML='';return}const n=state.master.people.filter(p=>!p.congregation_id).length;h.innerHTML=`<div class="unassigned-box"><button class="ghost unassigned-btn ${state.tab==='unassigned'?'active':''}" id="openUnassigned"><span>Unassigned Speakers</span><b>${n}</b></button></div>`;$('openUnassigned').onclick=()=>{state.tab='unassigned';renderWorkspace()}}
 function renderUnassigned(){const ps=state.master.people.filter(p=>!p.congregation_id).sort((a,b)=>safeCompare(a.name,b.name));$('tabContent').innerHTML=ps.length?`<div class="card"><div class="card-head"><h3>Unassigned Speakers</h3><span class="summary">Retained people with no current English congregation/group assignment</span></div><div class="card-body">${ps.map(p=>`<div class="meeting"><b>${esc(p.name||'(no name)')}</b><div class="small muted">ID ${esc(p.id.slice(0,8))} · ${p.talks.length} talks</div><div class="actions"><button class="ghost tiny" data-assign="${p.id}">Assign to congregation/group…</button></div></div>`).join('')}</div></div>`:'<div class="empty">No unassigned speakers.</div>';$('tabContent').querySelectorAll('[data-assign]').forEach(b=>b.onclick=()=>assignUnassigned(findPerson(b.dataset.assign)))}
 function circuitOptions(sel){const vals=(state.master.circuits||[]).slice().sort(safeCompare);return `<option value="">– not set –</option>`+vals.map(x=>`<option value="${esc(x)}" ${x===sel?'selected':''}>${esc(x)}</option>`).join('')}
 function countryOptions(sel){return(state.master.countries||[]).slice().sort((a,b)=>safeCompare(a?.name,b?.name)).map(x=>`<option value="${esc(x.code)}" ${x.code===sel?'selected':''}>${esc(x.name)} (${esc(x.code)})</option>`).join('')}
-function renderCongregation(c){const sum=[c.address?.city,c.meetings?.[0]?(DAYS[c.meetings[0].weekday]+' '+(c.meetings[0].time||'')):null,c.ptc?.name?'PTC '+c.ptc.name:null].filter(Boolean).join(' · '),parents=state.master.congregations.filter(x=>x.id!==c.id&&x.type!=='group'&&x.status!=='dissolved').sort((a,b)=>safeCompare(a.name,b.name));$('tabContent').innerHTML=`<div class="card cong-card ${state.congOpen?'':'collapsed'}"><div class="card-head"><button class="ghost tiny" id="toggleCong">${state.congOpen?'▾':'▸'}</button><div><h3>${c.type==='group'?'Group':'Congregation'} details</h3><div class="summary">${esc(sum||'Core master data')}</div></div><span class="spacer"></span>${c.status==='dissolved'?'<span class="status-dissolved">Dissolved</span>':'<span class="status-active">Active</span>'}</div><div class="card-body"><div class="section" style="border-top:0;margin-top:0;padding-top:0"><span class="row-label">Type</span><div class="type-switch"><button type="button" data-type="congregation" class="${c.type!=='group'?'active':''}">Congregation</button><button type="button" data-type="group" class="${c.type==='group'?'active':''}">Group</button></div>${c.type==='group'?`<div class="field" style="margin-top:9px;max-width:420px"><label>Attached to congregation</label><select data-c="parent_congregation_id"><option value="">– not set –</option>${parents.map(x=>`<option value="${x.id}" ${x.id===c.parent_congregation_id?'selected':''}>${esc(x.name)} (${esc(countryName(x.country_code))})</option>`).join('')}</select></div>`:''}</div><div class="grid3" style="margin-top:12px"><div class="field" style="grid-column:span 2"><label>Name</label><input data-c="name" value="${esc(c.name)}"></div><div class="field"><label>Country</label><select data-c="country_code"><option value="">– not set –</option>${countryOptions(c.country_code)}</select></div><div class="field"><label>Circuit</label><select data-c="circuit">${circuitOptions(c.circuit||'')}</select></div><div class="field"><label>Kingdom Hall phone</label><input data-c="phone" value="${esc(c.phone||'')}"></div><div class="field" style="display:flex;align-items:end"><button class="${c.status==='dissolved'?'ghost':'danger'} tiny" id="statusAction">${c.status==='dissolved'?'Restore as active…':'Mark as dissolved…'}</button></div></div><div class="section"><span class="row-label">Regular venue</span>${addressEditor('main',c.address,c.country_code,c.geo)}</div><div class="section"><span class="row-label">Weekend Meeting</span><div id="meetings"></div></div><div class="section"><span class="row-label">PTC and coordinator</span><div class="grid4"><div class="field"><label>PTC name</label><input data-p="name" value="${esc(c.ptc.name||'')}"></div><div class="field"><label>jwpub address</label><input data-p="jwpub_email" value="${esc(c.ptc.jwpub_email||'')}"></div><div class="field"><label>Email</label><input data-p="email" value="${esc(c.ptc.email||'')}"></div><div class="field"><label>Mobile</label><input data-p="mobile" value="${esc(c.ptc.mobile||'')}"></div><div class="field"><label>Landline</label><input data-p="home" value="${esc(c.ptc.home||'')}"></div><div class="field"><label>COBE</label><input data-b="name" value="${esc(c.cobe.name||'')}"></div><div class="field"><label>COBE phone</label><input data-b="phone" value="${esc(c.cobe.phone||'')}"></div></div></div><div class="section"><div class="field"><label>Internal ${c.type==='group'?'group':'congregation'} note</label><textarea data-c="note">${esc(c.note||'')}</textarea></div></div></div></div>${congregationHistoryCard(c)}`;$('toggleCong').onclick=()=>{state.congOpen=!state.congOpen;renderCongregation(c)};$('tabContent').querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{const old=c.type;c.type=b.dataset.type;if(c.type!=='group')c.parent_congregation_id='';touch('edit_congregation',`Type: ${old} → ${c.type}`,{cong:c.id,name:c.name});renderCongregation(c);renderTree()});$('statusAction').onclick=()=>c.status==='dissolved'?restoreRecord(c):dissolveRecord(c);bindSimple(c);renderMeetings(c)}
+function renderCongregation(c){const sum=[c.address?.city,c.meetings?.[0]?(DAYS[c.meetings[0].weekday]+' '+(c.meetings[0].time||'')):null,c.ptc?.name?'PTC '+c.ptc.name:null].filter(Boolean).join(' · '),parents=state.master.congregations.filter(x=>x.id!==c.id&&x.type!=='group'&&x.status!=='dissolved').sort((a,b)=>safeCompare(a.name,b.name));$('tabContent').innerHTML=`<div class="card cong-card ${state.congOpen?'':'collapsed'}"><div class="card-head"><button class="ghost tiny" id="toggleCong">${state.congOpen?'▾':'▸'}</button><div><h3>${c.type==='group'?'Group':'Congregation'} details</h3><div class="summary">${esc(sum||'Core master data')}</div></div><span class="spacer"></span>${c.status==='dissolved'?'<span class="status-dissolved">Dissolved</span>':'<span class="status-active">Active</span>'}</div><div class="card-body"><div class="section" style="border-top:0;margin-top:0;padding-top:0"><span class="row-label">Type</span><div class="type-switch"><button type="button" data-type="congregation" class="${c.type!=='group'?'active':''}">Congregation</button><button type="button" data-type="group" class="${c.type==='group'?'active':''}">Group</button></div>${c.type==='group'?`<div class="field" style="margin-top:9px;max-width:420px"><label>Attached to congregation</label><select data-c="parent_congregation_id"><option value="">– not set –</option>${parents.map(x=>`<option value="${x.id}" ${x.id===c.parent_congregation_id?'selected':''}>${esc(x.name)} (${esc(countryName(x.country_code))})</option>`).join('')}</select></div>`:''}</div><div class="grid3" style="margin-top:12px"><div class="field" style="grid-column:span 2"><label>Name</label><input data-c="name" value="${esc(c.name)}"></div><div class="field"><label>Country</label><select data-c="country_code"><option value="">– not set –</option>${countryOptions(c.country_code)}</select></div><div class="field"><label>Circuit</label><select data-c="circuit">${circuitOptions(c.circuit||'')}</select></div><div class="field"><label>Kingdom Hall phone</label><input data-c="phone" value="${esc(c.phone||'')}"></div><div class="field" style="display:flex;align-items:end"><button class="${c.status==='dissolved'?'ghost':'danger'} tiny" id="statusAction">${c.status==='dissolved'?'Restore as active…':'Mark as dissolved…'}</button></div></div><div class="section"><span class="row-label">Regular venue</span>${addressEditor('main',c.address,c.country_code,c.geo)}</div><div class="section"><span class="row-label">Weekend Meeting</span><div id="meetings"></div></div><div class="section"><span class="row-label">PTC and coordinator</span><div class="grid4"><div class="field"><label>PTC name</label><input data-p="name" value="${esc(c.ptc.name||'')}"></div><div class="field"><label>jwpub address</label><input data-p="jwpub_email" value="${esc(c.ptc.jwpub_email||'')}"></div><div class="field"><label>Email</label><input data-p="email" value="${esc(c.ptc.email||'')}"></div><div class="field"><label>Mobile</label><input data-p="mobile" value="${esc(c.ptc.mobile||'')}"></div><div class="field"><label>Landline</label><input data-p="home" value="${esc(c.ptc.home||'')}"></div><div class="field"><label>COBE</label><input data-b="name" value="${esc(c.cobe.name||'')}"></div><div class="field"><label>COBE phone</label><input data-b="phone" value="${esc(c.cobe.phone||'')}"></div><div class="field"><label>COBE email</label><input data-b="email" value="${esc(c.cobe.email||'')}"></div></div></div><div class="section"><div class="field"><label>Internal ${c.type==='group'?'group':'congregation'} note</label><textarea data-c="note">${esc(c.note||'')}</textarea></div></div></div></div>${congregationHistoryCard(c)}`;$('toggleCong').onclick=()=>{state.congOpen=!state.congOpen;renderCongregation(c)};$('tabContent').querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{const old=c.type;c.type=b.dataset.type;if(c.type!=='group')c.parent_congregation_id='';touch('edit_congregation',`Type: ${old} → ${c.type}`,{cong:c.id,name:c.name});renderCongregation(c);renderTree()});$('statusAction').onclick=()=>c.status==='dissolved'?restoreRecord(c):dissolveRecord(c);bindSimple(c);renderMeetings(c)}
 function congregationHistoryCard(c){const logs=(state.master.changelog||[]).filter(e=>e.entity?.cong===c.id||(Array.isArray(e.entity?.congs)&&e.entity.congs.includes(c.id))).slice(0,40);return`<div class="card"><div class="card-head"><h3>Congregation history</h3><span class="spacer"></span><span class="summary">Changes affecting this congregation only</span></div><div class="card-body">${logs.length?`<div class="log-list">${logs.map(e=>`<div class="log-line"><span>${new Date(e.at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><span><b>${esc(e.by)}</b> · ${esc(e.detail)}</span><span></span></div>`).join('')}</div>`:'<div class="small muted">No recorded changes for this congregation yet.</div>'}</div></div>`}
 function addressEditor(prefix,a,cc,g){a=a||{};g=g||{};return`<div class="grid4"><div class="field" style="grid-column:span 2"><label>Street and number</label><input data-addr="${prefix}|street" value="${esc(a.street||'')}"></div><div class="field"><label>Post code</label><input data-addr="${prefix}|postal_code" value="${esc(a.postal_code||'')}"></div><div class="field"><label>City</label><input data-addr="${prefix}|city" value="${esc(a.city||'')}"></div></div><div class="actions"><button class="ghost tiny" data-geo="${prefix}">Look up & confirm address</button><span class="geo-line">${g.lat!=null&&g.lon!=null?`${Number(g.lat).toFixed(5)}, ${Number(g.lon).toFixed(5)} · ${esc(g.resolved_address||'confirmed')}`:'No coordinates yet.'}</span></div><div data-geores="${prefix}"></div>`}
 function bindSimple(c){$('tabContent').querySelectorAll('[data-c]').forEach(el=>el.onchange=()=>{const k=el.dataset.c,old=c[k]||'';c[k]=el.value;if(old!==el.value)touch('edit_congregation',`${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name});renderFacts();renderTree();if(['name','country_code','status'].includes(k))renderWorkspace()});$('tabContent').querySelectorAll('[data-p]').forEach(el=>el.onchange=()=>{const k=el.dataset.p,old=c.ptc[k]||'';c.ptc[k]=el.value;if(old!==el.value)touch('edit_ptc',`PTC ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-b]').forEach(el=>el.onchange=()=>{const k=el.dataset.b,old=c.cobe[k]||'';c.cobe[k]=el.value;if(old!==el.value)touch('edit_cobe',`COBE ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-addr^="main|"]').forEach(el=>el.onchange=()=>{const k=el.dataset.addr.split('|')[1],old=c.address[k]||'';c.address[k]=el.value;if(old!==el.value)touch('edit_address',`${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name});renderTree()});$('tabContent').querySelector('[data-geo="main"]').onclick=()=>geocode(c,'main')}
@@ -170,6 +201,467 @@ async function ensurePdf(){if(window.pdfjsLib)return window.pdfjsLib;await new P
 function linesFrom(items){const rows=[];for(const it of items){const x=it.transform?.[4]||0,y=it.transform?.[5]||0;let r=rows.find(z=>Math.abs(z.y-y)<2.2);if(!r){r={y,items:[]};rows.push(r)}r.items.push({x,s:it.str||''})}return rows.sort((a,b)=>b.y-a.y).map(r=>r.items.sort((a,b)=>a.x-b.x).map(x=>x.s).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean)}
 function parseS99(lines){const e={};let cur=null,b=[];const fin=()=>{if(cur!=null)e[String(cur)]=b.join(' ').replace(/\s+/g,' ').replace(/\s+([,;:.!?])/g,'$1').trim()};for(let l of lines){l=l.trim();if(!l||/^S-99-E\b/i.test(l)||/^Public Talk Titles$/i.test(l))continue;const m=l.match(/^(\d{1,3})\.\s+(.*)$/);if(m){fin();cur=+m[1];b=[m[2]]}else if(cur!=null&&!/^\d+$/.test(l))b.push(l)}fin();return e}
 $('pdfFile').onchange=async e=>{const f=e.target.files[0];if(!f||!state.outlines)return;try{const pdfjs=await ensurePdf(),pdf=await pdfjs.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;let lines=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i),tc=await p.getTextContent();lines.push(...linesFrom(tc.items))}const entries=parseS99(lines);if(Object.keys(entries).length<20)throw new Error('Could not recognize a usable S-99 list.');const added=[],changed=[],missing=[];for(const[n,t]of Object.entries(entries)){if(!state.outlines.outlines[n])added.push({n,t});else if(state.outlines.outlines[n].title!==t)changed.push({n,old:state.outlines.outlines[n].title,t})}for(const[n,x]of Object.entries(state.outlines.outlines))if(!entries[n]&&x.status!=='do_not_use')missing.push({n,t:x.title});modal(`<h3>S-99 comparison</h3><p class="small muted">${Object.keys(entries).length} titles · ${added.length} new · ${changed.length} changed · ${missing.length} missing</p><div class="log-list">${added.map(x=>`<div class="log-line"><span>New #${x.n}</span><span>${esc(x.t)}</span><span></span></div>`).join('')}${changed.map(x=>`<div class="log-line"><span>Changed #${x.n}</span><span>${esc(x.old)} → ${esc(x.t)}</span><span></span></div>`).join('')}${missing.map(x=>`<div class="log-line"><span>Missing #${x.n}</span><span>${esc(x.t)}</span><span></span></div>`).join('')}</div><div class="actions"><button class="primary" id="applyS99">Apply titles + add new</button></div>`,m=>m.querySelector('#applyS99').onclick=()=>{if(!state.outlineEditMode){alert('Official outline data is protected. Enable Edit official data first.');return}if(!confirm('Apply these S-99 changes to the official outline data?'))return;for(const[n,t]of Object.entries(entries)){if(state.outlines.outlines[n])state.outlines.outlines[n].title=t;else state.outlines.outlines[n]={title:t,status:t==='(Do not use)'?'do_not_use':'active',effectiveDate:'',replacement:null,note:'',origin:{title:t,status:'active',effectiveDate:'',replacement:null,note:''},history:[]}}state.outlines.updatedAt=today();localStorage.setItem(LS_OUT,JSON.stringify(state.outlines));closeModal();renderOutlines();renderFacts()})}catch(err){alert(err.message)}finally{e.target.value=''}}
+/* ===================== v0.5.0 · Speaker list PDF import (NW Scheduler / KHS) =====================
+   Reads a "Public Speakers List" PDF, parses congregation header + speaker table,
+   matches it against the master and shows a field-by-field difference.
+   Nothing is written to the master until the user presses Apply. ================================= */
+const IMP_DIAL=[['+352','LU'],['+351','PT'],['+353','IE'],['+358','FI'],['+420','CZ'],['+49','DE'],['+43','AT'],['+41','CH'],['+44','GB'],['+33','FR'],['+31','NL'],['+32','BE'],['+39','IT'],['+34','ES'],['+45','DK'],['+46','SE'],['+47','NO'],['+48','PL']];
+const IMP_DAY={monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6,sunday:7};
+const impNorm=s=>safeText(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const impDigits=s=>safeText(s).replace(/[^\d]/g,'');
+function impSim(a,b){const A=impNorm(a).split(' ').filter(Boolean),B=impNorm(b).split(' ').filter(Boolean);if(!A.length||!B.length)return 0;const set=new Set(B);let hit=0;A.forEach(t=>{if(set.has(t))hit++});return(2*hit)/(A.length+B.length)}
+function impSame(cur,val,key){cur=safeText(cur).trim();val=safeText(val).trim();if(/mobile|home|phone/.test(key||''))return impDigits(cur)===impDigits(val)&&!!impDigits(val);if(/email/.test(key||''))return cur.toLowerCase()===val.toLowerCase();return cur===val}
+
+/* ---------- low level PDF text handling ---------- */
+async function impPdfPages(file){
+  const pdfjs=await ensurePdf(),pdf=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise,pages=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i),tc=await page.getTextContent();
+    pages.push(tc.items.filter(it=>safeText(it.str).trim()).map(it=>({s:safeText(it.str).replace(/\s+/g,' '),x:it.transform[4],y:it.transform[5],w:it.width||0})));
+  }
+  return pages;
+}
+function impJoin(items){let out='';(items||[]).forEach((it,i)=>{if(!i){out=it.s;return}const prev=items[i-1],gap=it.x-(prev.x+(prev.w||0));out+=(gap>0.9?' ':'')+it.s});return out.replace(/\s+/g,' ').trim()}
+function impRows(items,tol=3.2){
+  const rows=[];
+  items.forEach(it=>{let r=rows.find(z=>Math.abs(z.y-it.y)<=tol);if(!r){r={y:it.y,items:[]};rows.push(r)}r.items.push(it)});
+  rows.forEach(r=>{r.items.sort((a,b)=>a.x-b.x);r.text=impJoin(r.items)});
+  return rows.sort((a,b)=>b.y-a.y);
+}
+function impTable(rows){
+  for(let i=0;i<rows.length;i++){
+    const low=rows[i].text.toLowerCase();
+    if(/public speaker/.test(low)&&/contact/.test(low)&&/outline/.test(low)){
+      const xf=re=>{const it=rows[i].items.find(z=>re.test(z.s.trim()));return it?it.x:null};
+      return{i,y:rows[i].y,cName:xf(/^public/i)??rows[i].items[0].x,cContact:xf(/^contact/i),cTalks:xf(/^outline/i),cNote:xf(/^note/i)};
+    }
+  }
+  return null;
+}
+function impCell(x,t){
+  if(t.cNote!=null&&x>=t.cNote-6)return'note';
+  if(t.cTalks!=null&&x>=t.cTalks-6)return'talks';
+  if(t.cContact!=null&&x>=t.cContact-6)return'contact';
+  return'name';
+}
+/* wrapped lines inside one cell: glue broken e-mail tails, otherwise join with a space */
+function impGlue(lines){
+  const arr=(Array.isArray(lines)?lines:safeText(lines).split('\n')).map(x=>safeText(x).trim()).filter(Boolean);
+  let out='';
+  arr.forEach((l,i)=>{
+    if(!i){out=l;return}
+    const glue=/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]*[A-Za-z0-9-]$/.test(out)&&/^[A-Za-z0-9.-]{1,6}$/.test(l)&&!/@/.test(l);
+    out+=(glue?'':' ')+l;
+  });
+  return out.replace(/\s+/g,' ').trim();
+}
+function impPhone(txt,tag){const m=new RegExp('\\('+tag+'\\)\\s*([+0-9][0-9()\\/.\\- ]*)','i').exec(txt);return m?m[1].replace(/\s+/g,' ').replace(/[\s(]+$/,'').trim():''}
+function impContact(lines){
+  const txt=impGlue(lines),out={name:'',mobile:'',home:'',email:'',jwpub_email:'',raw:txt};
+  ((txt.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g))||[]).forEach(e=>{
+    if(/@jwpub\.org$/i.test(e)){if(!out.jwpub_email)out.jwpub_email=e}else if(!out.email)out.email=e;
+  });
+  out.mobile=impPhone(txt,'m');out.home=impPhone(txt,'h');
+  out.name=txt.split(/\((?:m|h)\)|[A-Za-z0-9._%+-]+@|(?=\+\d)/)[0].replace(/[,;|]+$/,'').replace(/\s+/g,' ').trim();
+  return out;
+}
+function impMeetingFrom(str){
+  const d=/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.exec(str),
+        t=/\b(\d{1,2})[:.](\d{2})\s*(a\.?m\.?|p\.?m\.?)?/i.exec(str);
+  let time='';
+  if(t){let hh=+t[1];const mm=t[2],ap=(t[3]||'').toLowerCase().replace(/\./g,'');if(ap==='pm'&&hh<12)hh+=12;if(ap==='am'&&hh===12)hh=0;time=String(hh).padStart(2,'0')+':'+mm}
+  return{weekday:d?IMP_DAY[d[1].toLowerCase()]:0,time};
+}
+function impGuessCountry(text){const t=safeText(text).replace(/[\s()\/.-]/g,'');for(const[dial,code]of IMP_DIAL)if(t.includes(dial))return code;return''}
+
+/* ---------- page level parsing ---------- */
+function impHeader(rows){
+  const h={name:'',street:'',postal_code:'',city:'',circuit:'',phone:'',last_updated:'',meetings:[],meeting:null,
+           ptc:{name:'',mobile:'',home:'',email:'',jwpub_email:''},cobe:{name:'',mobile:'',home:'',email:''}};
+  let rightX=null;
+  rows.forEach(r=>r.items.forEach(it=>{if(rightX==null&&/^public talk coordinator/i.test(it.s.trim()))rightX=it.x}));
+  if(rightX==null){const xs=rows.flatMap(r=>r.items.map(i=>i.x));rightX=xs.length?(Math.min(...xs)+Math.max(...xs))/2:300}
+  const left=[],right=[];
+  rows.forEach(r=>{
+    if(/^public speakers?\s+list/i.test(r.text)||/^page \d+/i.test(r.text))return;
+    const l=impJoin(r.items.filter(i=>i.x<rightX-8)),rr=impJoin(r.items.filter(i=>i.x>=rightX-8));
+    if(l)left.push(l);
+    if(rr)right.push(rr);
+  });
+  /* --- left column: congregation, address, circuit, meeting times --- */
+  const CIRCUIT_RE=/\b([A-Z]{2,3}-[A-Z0-9]{1,3}-\d{1,3}[A-Z]?)\b/;
+  const lines=left.map(x=>x.replace(/\s*\bCircuit\b\s*:?\s*$/i,'').replace(/^\s*Circuit\s*:?\s*/i,'').trim()).filter(Boolean);
+  const rest=[];
+  lines.forEach((l,i)=>{
+    if(i===0){h.name=l.replace(/\s*\(.*\)\s*$/,'').trim();return}
+    const cm=CIRCUIT_RE.exec(l);
+    if(cm&&!h.circuit){h.circuit=cm[1];const left2=l.replace(cm[1],'').trim();if(left2)rest.push(left2);return}
+    if(/^weekend meeting/i.test(l)){const tail=l.replace(/^weekend meeting\s*:?\s*/i,'').trim();if(tail)rest.push(tail);return}
+    rest.push(l);
+  });
+  const addr=[];
+  rest.forEach(l=>{
+    const ym=/^(20\d{2})\s*[:.\-]\s*(.+)$/.exec(l);
+    if(ym){h.meetings.push({year:+ym[1],raw:ym[2],...impMeetingFrom(ym[2])});return}
+    if(/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(l)&&/\d{1,2}[:.]\d{2}/.test(l)){h.meetings.push({year:0,raw:l,...impMeetingFrom(l)});return}
+    if(/^\+?[\d][\d\s()\/.-]{5,}$/.test(l)){if(!h.phone)h.phone=l.trim();return}
+    if(/^last updated/i.test(l)){h.last_updated=l.replace(/^last updated:?\s*/i,'').trim();return}
+    addr.push(l);
+  });
+  const cityIdx=addr.map((l,i)=>({l,i})).filter(x=>/^[A-Z]{0,2}[- ]?\d{3,6}\s+\S/.test(x.l)).pop();
+  if(cityIdx){const m=/^([A-Z]{0,2}[- ]?\d{3,6})\s+(.+)$/.exec(cityIdx.l);h.postal_code=m[1].trim();h.city=m[2].replace(/[,;]$/,'').trim();addr.splice(cityIdx.i,1)}
+  else if(addr.length>1){h.city=addr.pop().replace(/[,;]$/,'').trim()}
+  h.street=addr.join(', ').replace(/,\s*,/g,',').replace(/[,;]\s*$/,'').trim();
+  const yr=new Date().getFullYear();
+  h.meeting=h.meetings.find(m=>m.year===yr)||h.meetings.find(m=>m.year===0)||h.meetings[0]||null;
+  /* --- right column: PTC and COBE --- */
+  let mode='';const ptcL=[],cobeL=[];
+  right.forEach(l=>{
+    if(/^public talk coordinator/i.test(l)){mode='ptc';const t=l.replace(/^public talk coordinator\s*:?\s*/i,'').trim();if(t)ptcL.push(t);return}
+    if(/^coordinator of the body of elders/i.test(l)||/^\s*COBE\b/i.test(l)){mode='cobe';const t=l.replace(/^coordinator of the body of elders\s*:?\s*/i,'').replace(/^COBE\s*:?\s*/i,'').trim();if(t)cobeL.push(t);return}
+    if(/^last updated/i.test(l)){h.last_updated=l.replace(/^last updated:?\s*/i,'').trim();return}
+    if(/^congregation$/i.test(l)||/^circuit$/i.test(l))return;
+    if(mode==='ptc')ptcL.push(l);else if(mode==='cobe')cobeL.push(l);
+  });
+  if(ptcL.length)h.ptc=impContact(ptcL);
+  if(cobeL.length)h.cobe=impContact(cobeL);
+  return h;
+}
+/* Table cells are vertically centred, so a contact line can sit slightly above the speaker's
+   name line. Rows are therefore first grouped into table bands by vertical gap, and a band is
+   only split further when it really contains more than one speaker name. */
+function impSpeakerRows(bodyRows,t){
+  const rows=bodyRows.filter(r=>r.text&&!/^page \d+/i.test(r.text)&&!/^printed\b/i.test(r.text)&&!/^last updated/i.test(r.text));
+  if(!rows.length)return[];
+  const gaps=[];for(let i=1;i<rows.length;i++)gaps.push(rows[i-1].y-rows[i].y);
+  const sorted=gaps.slice().sort((a,b)=>a-b),med=sorted.length?sorted[Math.floor(sorted.length/2)]:12,limit=Math.max(med*1.75,med+4);
+  const bands=[[rows[0]]];
+  for(let i=1;i<rows.length;i++){
+    if(rows[i-1].y-rows[i].y>limit)bands.push([rows[i]]);else bands[bands.length-1].push(rows[i]);
+  }
+  const cellOf=r=>{const b={name:[],contact:[],talks:[],note:[]};r.items.forEach(it=>b[impCell(it.x,t)].push(it));return{name:impJoin(b.name),contact:impJoin(b.contact),talks:impJoin(b.talks),note:impJoin(b.note)}};
+  const isName=s=>!!s&&!/^\(/.test(s)&&/[A-Za-zÀ-ÿ]/.test(s);
+  const recs=[];
+  const push=cells=>{
+    const r={name:[],contact:[],talks:[],note:[]};
+    cells.slice().sort((a,b)=>b.y-a.y).forEach(x=>['name','contact','talks','note'].forEach(k=>{if(x.c[k])r[k].push(x.c[k])}));
+    recs.push(r);
+  };
+  bands.forEach(band=>{
+    const cells=band.map(r=>({y:r.y,c:cellOf(r)})),anchors=cells.filter(x=>isName(x.c.name)).map(x=>x.y);
+    if(!anchors.length){
+      if(!recs.length)return;
+      const last=recs[recs.length-1];
+      cells.slice().sort((a,b)=>b.y-a.y).forEach(x=>['name','contact','talks','note'].forEach(k=>{if(x.c[k])last[k].push(x.c[k])}));
+      return;
+    }
+    if(anchors.length===1){push(cells);return}
+    const groups=anchors.map(()=>[]);
+    cells.forEach(x=>{
+      let best=0,dist=Infinity;
+      anchors.forEach((a,i)=>{const d=Math.abs(a-x.y);if(d<dist){dist=d;best=i}});
+      groups[best].push(x);
+    });
+    groups.forEach(g=>{if(g.length)push(g)});
+  });
+  return recs.map(r=>{
+    const rawName=r.name.join(' ').replace(/\s+/g,' ').trim();
+    const ap=/\((elder|ms|ministerial servant)\)/i.exec(rawName);
+    const name=rawName.replace(/\((elder|ms|ministerial servant)\)/ig,'').replace(/\s+/g,' ').replace(/[,;]$/,'').trim();
+    const talksTxt=impGlue(r.talks);
+    const special=[...new Set((talksTxt.match(/S-\d{1,3}-\d{2}(?:_[A-Za-z]{1,3})?/gi)||[]).map(x=>x.toUpperCase()))];
+    const talks=[...new Set((talksTxt.replace(/S-\d{1,3}-\d{2}(?:_[A-Za-z]{1,3})?/gi,' ').match(/\d{1,3}/g)||[]).map(Number).filter(n=>n>0&&n<400))].sort((a,b)=>a-b);
+    return{name,appointment:ap&&/^m/i.test(ap[1])?'ms':'elder',contact:impContact(r.contact),talks,special,note:impGlue(r.note),raw:[rawName,impGlue(r.contact),talksTxt].filter(Boolean).join(' · ')};
+  }).filter(s=>s.name);
+}
+async function impParseFile(file){
+  const pages=await impPdfPages(file),out=[],raw=[];
+  let cur=null;
+  pages.forEach((items,idx)=>{
+    const rows=impRows(items);
+    raw.push('───── '+file.name+' · page '+(idx+1)+' ─────',...rows.map(r=>r.text));
+    const t=impTable(rows),hdr=impHeader(t?rows.slice(0,t.i):rows);
+    if(hdr.name&&(!cur||impNorm(hdr.name)!==impNorm(cur.name))){
+      cur=Object.assign(hdr,{speakers:[],warnings:[],source:{file:file.name,page:idx+1},raw:[]});
+      out.push(cur);
+    }
+    if(!cur)return;
+    cur.raw.push('───── page '+(idx+1)+' ─────',...rows.map(r=>r.text));
+    if(t)cur.speakers.push(...impSpeakerRows(rows.slice(t.i+1),t));
+  });
+  out.forEach(c=>{
+    c.country_code=impGuessCountry([c.ptc.mobile,c.ptc.home,c.cobe.mobile,c.cobe.home,c.phone,...c.speakers.map(s=>s.contact.mobile+' '+s.contact.home)].join(' '));
+    if(!c.speakers.length)c.warnings.push('No speaker rows recognised in this PDF.');
+    if(!c.meeting||!c.meeting.time)c.warnings.push('No Weekend Meeting time recognised.');
+    if(!c.ptc.name)c.warnings.push('No Public Talk Coordinator recognised.');
+    if(!c.country_code)c.warnings.push('Country could not be derived from the phone numbers — please select it.');
+    const others=c.meetings.filter(m=>m!==c.meeting&&m.time&&(m.time!==c.meeting?.time||m.weekday!==c.meeting?.weekday));
+    others.forEach(m=>c.warnings.push(`Different meeting time listed for ${m.year||'another year'}: ${DAYS[m.weekday]||''} ${m.time} (not imported — the Organizer stores one Weekend Meeting).`));
+    const seen=new Set();
+    c.speakers.forEach(s=>{const k=impNorm(s.name);if(seen.has(k))c.warnings.push('Speaker appears twice in the PDF: '+s.name);seen.add(k)});
+  });
+  if(!out.length)raw.unshift('No congregation header recognised.');
+  return{congs:out,raw:raw.join('\n')};
+}
+
+/* ---------- matching + difference ---------- */
+function impCandidates(p){
+  return state.master.congregations.filter(c=>c.status!=='dissolved').map(c=>{
+    let s=impSim(c.name,p.name)*100;
+    if(impNorm(c.name)===impNorm(p.name))s=140;
+    if(p.city&&impNorm(c.address?.city)===impNorm(p.city))s+=22;
+    if(p.postal_code&&safeText(c.address?.postal_code).trim()===p.postal_code)s+=10;
+    if(p.ptc.name&&impNorm(c.ptc?.name)===impNorm(p.ptc.name))s+=18;
+    if(p.circuit&&safeText(c.circuit).toUpperCase()===p.circuit.toUpperCase())s+=8;
+    return{c,s:Math.round(s)};
+  }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,12);
+}
+function impDiff(item){
+  const p=item.parsed,d={fields:[],speakers:[],missing:[]};
+  if(item.target==='new'||item.target==='skip')return d;
+  const c=state.master.congregations.find(x=>x.id===item.target);
+  if(!c)return d;
+  const add=(key,label,cur,val,set,on)=>{
+    val=safeText(val).trim();cur=safeText(cur).trim();
+    if(!val||impSame(cur,val,key))return;
+    d.fields.push({key,label,cur,val,set,apply:on===undefined?true:on});
+  };
+  add('name','Congregation name',c.name,p.name,(c,v)=>c.name=v,!safeText(c.name).trim());
+  add('street','Street and number',c.address?.street,p.street,(c,v)=>{c.address=c.address||{};c.address.street=v});
+  add('postal_code','Post code',c.address?.postal_code,p.postal_code,(c,v)=>{c.address=c.address||{};c.address.postal_code=v});
+  add('city','City',c.address?.city,p.city,(c,v)=>{c.address=c.address||{};c.address.city=v});
+  add('country_code','Country',c.country_code?countryName(c.country_code)+' ('+c.country_code+')':'',p.country_code?countryName(p.country_code)+' ('+p.country_code+')':'',(c)=>c.country_code=p.country_code,!safeText(c.country_code).trim());
+  add('circuit','Circuit',c.circuit,p.circuit,(c,v)=>{c.circuit=v;state.master.circuits=state.master.circuits||[];if(v&&!state.master.circuits.some(x=>x.toLowerCase()===v.toLowerCase())){state.master.circuits.push(v);state.master.circuits.sort(safeCompare)}});
+  add('phone','Kingdom Hall phone',c.phone,p.phone,(c,v)=>c.phone=v);
+  const cm=(c.meetings&&c.meetings[0])||{weekday:0,time:''};
+  if(p.meeting&&(p.meeting.weekday||p.meeting.time)){
+    const fmt=m=>`${DAYS[m.weekday]||'—'} ${m.time||'—'}`;
+    if(fmt(cm)!==fmt(p.meeting))d.fields.push({key:'meeting',label:'Weekend Meeting',cur:fmt(cm),val:fmt(p.meeting),apply:true,set:c=>{
+      if(!c.meetings||!c.meetings.length)c.meetings=[{weekday:7,time:'',venue:null}];
+      if(p.meeting.weekday)c.meetings[0].weekday=p.meeting.weekday;
+      if(p.meeting.time)c.meetings[0].time=p.meeting.time;
+    }});
+  }
+  add('ptc_name','PTC name',c.ptc?.name,p.ptc.name,(c,v)=>{c.ptc.name=v;c.ptc.speaker_id=''});
+  add('ptc_mobile','PTC mobile',c.ptc?.mobile,p.ptc.mobile,(c,v)=>c.ptc.mobile=v);
+  add('ptc_home','PTC landline',c.ptc?.home,p.ptc.home,(c,v)=>c.ptc.home=v);
+  add('ptc_email','PTC email',c.ptc?.email,p.ptc.email,(c,v)=>c.ptc.email=v);
+  add('ptc_jwpub','PTC jwpub address',c.ptc?.jwpub_email,p.ptc.jwpub_email,(c,v)=>c.ptc.jwpub_email=v);
+  add('cobe_name','COBE name',c.cobe?.name,p.cobe.name,(c,v)=>c.cobe.name=v);
+  add('cobe_phone','COBE phone',c.cobe?.phone,p.cobe.mobile||p.cobe.home,(c,v)=>c.cobe.phone=v);
+  add('cobe_email','COBE email',c.cobe?.email,p.cobe.email,(c,v)=>c.cobe.email=v);
+  /* speakers */
+  const pool=peopleFor(c).filter(x=>x.status!=='inactive'),used=new Set();
+  p.speakers.forEach(s=>{
+    let m=pool.find(x=>!used.has(x.id)&&impNorm(x.name)===impNorm(s.name));
+    if(!m){const best=pool.filter(x=>!used.has(x.id)).map(x=>({x,v:impSim(x.name,s.name)})).sort((a,b)=>b.v-a.v)[0];if(best&&best.v>=.67)m=best.x}
+    if(!m){d.speakers.push({kind:'new',src:s,apply:true});return}
+    used.add(m.id);
+    const ch=[],ca=(key,label,cur,val,set,on)=>{
+      val=safeText(val).trim();cur=safeText(cur).trim();
+      if(!val||impSame(cur,val,key))return;
+      ch.push({key,label,cur,val,set,apply:on===undefined?true:on});
+    };
+    ca('name','Name spelling',m.name,s.name,(p,v)=>p.name=v,false);
+    ca('appointment','Appointment',m.appointment==='ms'?'Ministerial servant':'Elder',s.appointment==='ms'?'Ministerial servant':'Elder',p=>p.appointment=s.appointment);
+    ca('mobile','Mobile',m.contact?.mobile,s.contact.mobile,(p,v)=>{p.contact=p.contact||{};p.contact.mobile=v});
+    ca('home','Landline',m.contact?.home,s.contact.home,(p,v)=>{p.contact=p.contact||{};p.contact.home=v});
+    ca('email','Email',m.contact?.email,s.contact.email,(p,v)=>{p.contact=p.contact||{};p.contact.email=v});
+    ca('note','Note',m.note,s.note,(p,v)=>p.note=v,false);
+    const adds=s.talks.filter(n=>!m.talks.includes(n)),rem=m.talks.filter(n=>!s.talks.includes(n)),
+          spAdd=(s.special||[]).filter(code=>!(m.special_talks||[]).some(x=>safeText(x.code||x.raw).toUpperCase()===code));
+    d.speakers.push({kind:'match',src:s,person:m,changes:ch,adds,rem,spAdd,addApply:true,remApply:false});
+  });
+  pool.filter(x=>!used.has(x.id)).forEach(x=>d.missing.push({person:x,action:'keep'}));
+  return d;
+}
+function impPending(item){
+  if(item.applied||item.target==='skip')return 0;
+  if(item.target==='new')return 1+item.parsed.speakers.length;
+  const d=item.diff||{fields:[],speakers:[],missing:[]};
+  return d.fields.filter(f=>f.apply).length
+    +d.speakers.reduce((n,s)=>n+(s.kind==='new'?(s.apply?1:0):s.changes.filter(x=>x.apply).length+((s.addApply&&s.adds.length)?1:0)+((s.remApply&&s.rem.length)?1:0)+((s.addApply&&s.spAdd.length)?1:0)),0)
+    +d.missing.filter(m=>m.action!=='keep').length;
+}
+
+/* ---------- apply ---------- */
+function impCreatePerson(c,s){
+  const p={id:uuid(),name:s.name,appointment:s.appointment||'elder',status:'active',status_reason:'',status_since:'',congregation_id:c.id,
+    talks:s.talks.slice(),special_talks:(s.special||[]).map(code=>({code,raw:code})),
+    contact:{mobile:s.contact.mobile||'',home:s.contact.home||'',email:s.contact.email||''},
+    availability:{max_distance_km:null,zoom:'no',raw:''},note:s.note||'',
+    membership_history:[{congregation_id:c.id,from:today(),to:null,reason:'imported from speaker list'}]};
+  state.master.people.push(p);
+  c.speaker_ids=c.speaker_ids||[];
+  if(!c.speaker_ids.includes(p.id))c.speaker_ids.push(p.id);
+  log('import_person',`${p.name} imported into ${c.name}`,{cong:c.id,name:c.name,person:p.id});
+  return p;
+}
+function impLinkPtc(c){
+  if(!c.ptc?.name||c.ptc.speaker_id)return;
+  const m=state.master.people.find(p=>p.congregation_id===c.id&&impNorm(p.name)===impNorm(c.ptc.name));
+  if(m)c.ptc.speaker_id=m.id;
+}
+function impApplyAll(){
+  const items=state.import.items.filter(i=>!i.applied&&i.target!=='skip');
+  if(!items.length)return;
+  const total=items.reduce((n,i)=>n+impPending(i),0);
+  if(!total)return alert('Nothing selected to apply.');
+  if(!confirm(`Apply ${total} change${total===1?'':'s'} to the master?\n\nEverything is written to the history and can be reviewed there.`))return;
+  let n=0;
+  items.forEach(item=>{
+    const p=item.parsed;
+    if(item.target==='new'){
+      const cc=item.country||p.country_code||'';
+      const c={id:uuid(),name:p.name||'Imported congregation',type:'congregation',parent_congregation_id:'',country_code:cc,circuit:p.circuit||'',phone:p.phone||'',
+        status:'active',dissolved_on:'',address:{street:p.street||'',postal_code:p.postal_code||'',city:p.city||''},
+        geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},
+        meetings:[{weekday:p.meeting?.weekday||7,time:p.meeting?.time||'',venue:null}],
+        ptc:{name:p.ptc.name||'',jwpub_email:p.ptc.jwpub_email||'',email:p.ptc.email||'',mobile:p.ptc.mobile||'',home:p.ptc.home||'',speaker_id:''},
+        cobe:{name:p.cobe.name||'',phone:p.cobe.mobile||p.cobe.home||'',email:p.cobe.email||''},
+        note:'',speaker_ids:[],
+        import_source:{format:'nws',file:p.source.file,page:p.source.page,at:new Date().toISOString(),last_updated:p.last_updated||''}};
+      state.master.circuits=state.master.circuits||[];
+      if(c.circuit&&!state.master.circuits.some(x=>x.toLowerCase()===c.circuit.toLowerCase())){state.master.circuits.push(c.circuit);state.master.circuits.sort(safeCompare)}
+      state.master.congregations.push(c);
+      log('import_congregation',`${c.name} created from ${p.source.file}`,{cong:c.id,name:c.name});n++;
+      p.speakers.forEach(s=>{impCreatePerson(c,s);n++});
+      impLinkPtc(c);
+      if(c.country_code)state.openCountries.add(c.country_code);
+      item.createdId=c.id;
+    }else{
+      const c=state.master.congregations.find(x=>x.id===item.target);
+      if(!c)return;
+      const d=item.diff;
+      d.fields.filter(f=>f.apply).forEach(f=>{f.set(c,f.val);log('import_edit',`${f.label}: "${f.cur||'–'}" → "${f.val}"`,{cong:c.id,name:c.name});n++});
+      d.speakers.forEach(sp=>{
+        if(sp.kind==='new'){if(sp.apply){impCreatePerson(c,sp.src);n++}return}
+        const per=sp.person;
+        sp.changes.filter(x=>x.apply).forEach(x=>{x.set(per,x.val);log('import_edit',`${per.name}: ${x.label} "${x.cur||'–'}" → "${x.val}"`,{cong:c.id,name:c.name,person:per.id});n++});
+        if(sp.addApply&&sp.adds.length){per.talks=[...new Set([...per.talks,...sp.adds])].sort((a,b)=>a-b);log('import_talks',`${per.name}: added #${sp.adds.join(', #')}`,{cong:c.id,name:c.name,person:per.id});n++}
+        if(sp.remApply&&sp.rem.length){per.talks=per.talks.filter(x=>!sp.rem.includes(x));log('import_talks',`${per.name}: removed #${sp.rem.join(', #')}`,{cong:c.id,name:c.name,person:per.id});n++}
+        if(sp.addApply&&sp.spAdd.length){per.special_talks=per.special_talks||[];sp.spAdd.forEach(code=>per.special_talks.push({code,raw:code}));log('import_talks',`${per.name}: added ${sp.spAdd.join(', ')}`,{cong:c.id,name:c.name,person:per.id});n++}
+      });
+      d.missing.filter(m=>m.action!=='keep').forEach(m=>{
+        const per=m.person,old=per.status;
+        per.status=m.action==='left'?'inactive':'paused';
+        if(per.status==='paused'&&!per.status_reason)per.status_reason='not listed in '+p.source.file;
+        log('import_status',`${per.name}: status "${old}" → "${per.status}" (not listed in the imported PDF)`,{cong:c.id,name:c.name,person:per.id});n++;
+      });
+      c.import_source={format:'nws',file:p.source.file,page:p.source.page,at:new Date().toISOString(),last_updated:p.last_updated||''};
+      impLinkPtc(c);
+    }
+    item.applied=true;
+  });
+  touch('import_pdf',`Speaker list PDF import applied · ${n} change${n===1?'':'s'}`);
+  renderAll();
+}
+
+/* ---------- UI ---------- */
+async function impLoadFiles(files){
+  if(!state.master){alert('Open or create a master first.');return}
+  state.import.busy=true;state.import.error='';if(state.tab==='import')renderImport();
+  try{
+    for(const f of files){
+      const{congs,raw}=await impParseFile(f);
+      if(!congs.length){state.import.error=`No congregation recognised in "${f.name}". Use "Show extracted text" to check the layout.`;state.import.lastRaw=raw;continue}
+      congs.forEach(parsed=>{
+        const cand=impCandidates(parsed),best=cand[0];
+        const item={id:uuid(),parsed,cand,target:best&&best.s>=70?best.c.id:'new',country:parsed.country_code||'',open:true,applied:false,rawText:parsed.raw.join('\n')};
+        item.diff=impDiff(item);
+        state.import.items.push(item);
+      });
+    }
+  }catch(err){state.import.error=safeText(err?.message||err)}
+  state.import.busy=false;if(state.tab==='import')renderImport();else{state.tab='import';renderWorkspace()}
+}
+function impChip(kind){return{new:'<span class="imp-badge new">new</span>',match:'<span class="imp-badge ok">matched</span>',missing:'<span class="imp-badge miss">not in PDF</span>'}[kind]||''}
+function impFieldRow(id,f,i){
+  return`<label class="imp-row"><input type="checkbox" data-imp-field="${id}|${i}" ${f.apply?'checked':''}><span class="imp-label">${esc(f.label)}</span><span class="imp-old">${esc(f.cur||'—')}</span><span class="imp-arrow">→</span><span class="imp-new">${esc(f.val)}</span></label>`;
+}
+function impCard(item){
+  const p=item.parsed,c=item.target!=='new'&&item.target!=='skip'?state.master.congregations.find(x=>x.id===item.target):null,
+        d=item.diff||{fields:[],speakers:[],missing:[]},pend=impPending(item);
+  const options=`<option value="new" ${item.target==='new'?'selected':''}>➕ Create as new congregation</option><option value="skip" ${item.target==='skip'?'selected':''}>⤫ Skip this congregation</option>`+
+    item.cand.map(x=>`<option value="${x.c.id}" ${item.target===x.c.id?'selected':''}>${esc(x.c.name)} — ${esc(countryName(x.c.country_code))}${x.c.address?.city?' · '+esc(x.c.address.city):''} (match ${x.s})</option>`).join('');
+  let body='';
+  if(item.applied){
+    body=`<div class="notice">Applied to the master.${item.createdId?' New congregation created.':''}</div>`;
+  }else if(item.target==='skip'){
+    body='<div class="small muted">This congregation will not be imported.</div>';
+  }else if(item.target==='new'){
+    body=`<div class="notice">This will create a new congregation with <b>${p.speakers.length}</b> speaker${p.speakers.length===1?'':'s'}. Existing master data is not touched.</div>
+    <div class="imp-preview"><div><span class="row-label">Address</span>${esc([p.street,[p.postal_code,p.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')||'—')}</div>
+    <div><span class="row-label">Weekend Meeting</span>${esc(p.meeting?`${DAYS[p.meeting.weekday]||'—'} ${p.meeting.time||'—'}`:'—')}</div>
+    <div><span class="row-label">Circuit</span>${esc(p.circuit||'—')}</div>
+    <div><span class="row-label">PTC</span>${esc(p.ptc.name||'—')}</div>
+    <div><span class="row-label">COBE</span>${esc(p.cobe.name||'—')}</div>
+    <div><span class="row-label">Country</span><select data-imp-country="${item.id}"><option value="">– please select –</option>${(state.master.countries||[]).slice().sort((a,b)=>safeCompare(a.name,b.name)).map(x=>`<option value="${esc(x.code)}" ${x.code===(item.country||p.country_code)?'selected':''}>${esc(x.name)} (${esc(x.code)})</option>`).join('')}</select></div></div>
+    <div class="imp-splist">${p.speakers.map(s=>`<div class="imp-sp"><b>${esc(s.name)}</b> <span class="pill">${s.appointment==='ms'?'MS':'Elder'}</span><div class="small muted">${esc([s.contact.mobile,s.contact.home,s.contact.email].filter(Boolean).join(' · ')||'no contact details')}</div><div class="small">Talks: ${s.talks.length?esc(s.talks.join(', ')):'—'}${s.special.length?' · '+esc(s.special.join(', ')):''}</div></div>`).join('')||'<div class="small muted">No speakers found.</div>'}</div>`;
+  }else if(!c){
+    body='<div class="notice warn">Target congregation no longer exists. Please choose another target.</div>';
+  }else{
+    const fields=d.fields.length?`<div class="imp-block"><span class="row-label">Congregation data · ${d.fields.length} difference${d.fields.length===1?'':'s'}</span>${d.fields.map((f,i)=>impFieldRow(item.id,f,i)).join('')}</div>`:'<div class="imp-block"><span class="row-label">Congregation data</span><div class="small muted">Identical — nothing to change.</div></div>';
+    const spNew=d.speakers.filter(s=>s.kind==='new'),spCh=d.speakers.filter(s=>s.kind==='match'&&(s.changes.length||s.adds.length||s.rem.length||s.spAdd.length)),
+          spSame=d.speakers.filter(s=>s.kind==='match'&&!s.changes.length&&!s.adds.length&&!s.rem.length&&!s.spAdd.length);
+    const spBlock=`<div class="imp-block"><span class="row-label">Speakers · ${spNew.length} new · ${spCh.length} changed · ${d.missing.length} not in PDF · ${spSame.length} unchanged</span>
+      ${spNew.map(s=>{const i=d.speakers.indexOf(s);return`<label class="imp-row sp"><input type="checkbox" data-imp-spnew="${item.id}|${i}" ${s.apply?'checked':''}><span class="imp-label">${esc(s.src.name)} ${impChip('new')}</span><span class="imp-new">${esc(s.src.appointment==='ms'?'MS':'Elder')} · ${esc([s.src.contact.mobile,s.src.contact.email].filter(Boolean).join(' · ')||'no contact')} · talks ${esc(s.src.talks.join(', ')||'—')}</span></label>`}).join('')}
+      ${spCh.map(s=>{const i=d.speakers.indexOf(s);return`<div class="imp-spgroup"><div class="imp-spname">${esc(s.person.name)} ${impChip('match')}${impNorm(s.person.name)!==impNorm(s.src.name)?`<span class="small muted">PDF: ${esc(s.src.name)}</span>`:''}</div>
+        ${s.changes.map((x,k)=>`<label class="imp-row"><input type="checkbox" data-imp-spch="${item.id}|${i}|${k}" ${x.apply?'checked':''}><span class="imp-label">${esc(x.label)}</span><span class="imp-old">${esc(x.cur||'—')}</span><span class="imp-arrow">→</span><span class="imp-new">${esc(x.val)}</span></label>`).join('')}
+        ${(s.adds.length||s.spAdd.length)?`<label class="imp-row"><input type="checkbox" data-imp-spadd="${item.id}|${i}" ${s.addApply?'checked':''}><span class="imp-label">Add talks</span><span class="imp-old">${esc(s.person.talks.join(', ')||'—')}</span><span class="imp-arrow">→</span><span class="imp-new">+ ${esc([...s.adds.map(n=>'#'+n),...s.spAdd].join(', '))}</span></label>`:''}
+        ${s.rem.length?`<label class="imp-row warnrow"><input type="checkbox" data-imp-sprem="${item.id}|${i}" ${s.remApply?'checked':''}><span class="imp-label">Remove talks</span><span class="imp-old">${esc(s.person.talks.join(', '))}</span><span class="imp-arrow">→</span><span class="imp-new">− ${esc(s.rem.map(n=>'#'+n).join(', '))}<br><span class="small muted">Not listed in the PDF. Off by default.</span></span></label>`:''}
+      </div>`}).join('')}
+      ${d.missing.map((m,i)=>`<div class="imp-row miss"><span class="imp-label">${esc(m.person.name)} ${impChip('missing')}</span><span class="imp-new"><select data-imp-miss="${item.id}|${i}"><option value="keep" ${m.action==='keep'?'selected':''}>Keep unchanged</option><option value="paused" ${m.action==='paused'?'selected':''}>Mark as paused</option><option value="left" ${m.action==='left'?'selected':''}>Mark as left</option></select></span></div>`).join('')}
+      ${(!spNew.length&&!spCh.length&&!d.missing.length)?'<div class="small muted">All speakers are identical to the master.</div>':''}
+    </div>`;
+    body=fields+spBlock;
+  }
+  return`<div class="card imp-card ${item.open?'':'collapsed'}">
+    <div class="card-head"><button class="ghost tiny" data-imp-toggle="${item.id}">${item.open?'▾':'▸'}</button>
+      <div><h3>${esc(p.name||'(name not recognised)')}</h3><div class="summary">${esc(p.source.file)} · page ${p.source.page} · ${p.speakers.length} speaker${p.speakers.length===1?'':'s'}${p.last_updated?' · list updated '+esc(p.last_updated):''}</div></div>
+      <span class="spacer"></span>${item.applied?'<span class="status-active">Applied</span>':`<span class="imp-count ${pend?'on':''}">${pend} change${pend===1?'':'s'} selected</span>`}</div>
+    <div class="card-body">
+      ${p.warnings.length?`<div class="notice warn">${p.warnings.map(esc).join('<br>')}</div>`:''}
+      <div class="imp-target"><span class="row-label" style="margin:0">Target record</span><select data-imp-target="${item.id}" ${item.applied?'disabled':''}>${options}</select><button class="ghost tiny" data-imp-raw="${item.id}">Show extracted text</button>${item.applied&&(item.createdId||c)?`<button class="ghost tiny" data-imp-open="${item.createdId||item.target}">Open record</button>`:''}</div>
+      ${body}
+    </div></div>`;
+}
+function renderImport(){
+  const box=$('tabContent');
+  if(!state.master){box.innerHTML='<div class="empty">Open or create a master first.</div>';return}
+  const items=state.import.items,pending=items.reduce((n,i)=>n+impPending(i),0);
+  box.innerHTML=`<div class="card"><div class="card-head"><h3>Speaker list PDF import</h3><span class="spacer"></span><span class="summary">NW Scheduler format · KHS to follow</span></div><div class="card-body">
+    <div class="notice">Reads a <b>Public Speakers List</b> PDF, compares it with the current master and shows exactly what would change. Nothing is written until you press <b>Apply</b>, and every applied change is recorded in the Master History. Reading a PDF needs an internet connection the first time, because the PDF engine is loaded from a CDN.</div>
+    <div class="imp-drop" id="impDrop"><b>Drop PDF files here</b><button class="primary" id="impPick">Choose PDF files…</button><span class="small muted">One file may contain several congregations and several pages per congregation.</span></div>
+    ${state.import.busy?'<div class="notice" style="margin-top:10px">Reading PDF…</div>':''}
+    ${state.import.error?`<div class="notice warn" style="margin-top:10px">${esc(state.import.error)}${state.import.lastRaw?' <button class="ghost tiny" id="impRawErr">Show extracted text</button>':''}</div>`:''}
+  </div></div>
+  ${items.length?items.map(impCard).join(''):'<div class="empty">No PDF loaded yet.</div>'}
+  ${items.some(i=>!i.applied)?`<div class="imp-footer"><span class="small muted">${pending} change${pending===1?'':'s'} selected across ${items.filter(i=>!i.applied&&i.target!=='skip').length} congregation${items.filter(i=>!i.applied&&i.target!=='skip').length===1?'':'s'}</span><span class="spacer"></span><button class="ghost" id="impClear">Clear list</button><button class="primary" id="impApply" ${pending?'':'disabled'}>Apply selected changes</button></div>`:''}`;
+  const drop=$('impDrop');
+  $('impPick').onclick=()=>$('importPdfFile').click();
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+  drop.addEventListener('drop',e=>{const f=[...(e.dataTransfer?.files||[])].filter(x=>/\.pdf$/i.test(x.name));if(f.length)impLoadFiles(f)});
+  if($('impRawErr'))$('impRawErr').onclick=()=>modal(`<h3>Extracted text</h3><pre class="imp-raw">${esc(state.import.lastRaw||'')}</pre>`);
+  if($('impClear'))$('impClear').onclick=()=>{if(confirm('Clear the import list?\n\nAlready applied changes stay in the master.')){state.import.items=[];state.import.error='';renderImport()}};
+  if($('impApply'))$('impApply').onclick=impApplyAll;
+  const find=id=>state.import.items.find(x=>x.id===id);
+  box.querySelectorAll('[data-imp-toggle]').forEach(b=>b.onclick=()=>{const it=find(b.dataset.impToggle);it.open=!it.open;renderImport()});
+  box.querySelectorAll('[data-imp-target]').forEach(s=>s.onchange=()=>{const it=find(s.dataset.impTarget);it.target=s.value;it.diff=impDiff(it);renderImport()});
+  box.querySelectorAll('[data-imp-country]').forEach(s=>s.onchange=()=>{const it=find(s.dataset.impCountry);it.country=s.value;renderImport()});
+  box.querySelectorAll('[data-imp-raw]').forEach(b=>b.onclick=()=>modal(`<h3>Extracted text</h3><p class="small muted">Use this to check the parser if a field was not recognised.</p><pre class="imp-raw">${esc(find(b.dataset.impRaw).rawText||'')}</pre>`));
+  box.querySelectorAll('[data-imp-open]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.impOpen;state.tab='congregation';renderAll()});
+  const refresh=()=>renderImport();
+  box.querySelectorAll('[data-imp-field]').forEach(el=>el.onchange=()=>{const[id,i]=el.dataset.impField.split('|');find(id).diff.fields[+i].apply=el.checked;refresh()});
+  box.querySelectorAll('[data-imp-spnew]').forEach(el=>el.onchange=()=>{const[id,i]=el.dataset.impSpnew.split('|');find(id).diff.speakers[+i].apply=el.checked;refresh()});
+  box.querySelectorAll('[data-imp-spch]').forEach(el=>el.onchange=()=>{const[id,i,k]=el.dataset.impSpch.split('|');find(id).diff.speakers[+i].changes[+k].apply=el.checked;refresh()});
+  box.querySelectorAll('[data-imp-spadd]').forEach(el=>el.onchange=()=>{const[id,i]=el.dataset.impSpadd.split('|');find(id).diff.speakers[+i].addApply=el.checked;refresh()});
+  box.querySelectorAll('[data-imp-sprem]').forEach(el=>el.onchange=()=>{const[id,i]=el.dataset.impSprem.split('|');find(id).diff.speakers[+i].remApply=el.checked;refresh()});
+  box.querySelectorAll('[data-imp-miss]').forEach(el=>el.onchange=()=>{const[id,i]=el.dataset.impMiss.split('|');find(id).diff.missing[+i].action=el.value;refresh()});
+}
+
+$('importPdfFile').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)impLoadFiles(f)};
 function renderAdmin(){$('tabContent').innerHTML=`<div class="admin-grid"><div class="card"><div class="card-head"><h3>Countries</h3><span class="spacer"></span><button class="ghost tiny" id="addCountry">+ Country</button></div><div class="card-body"><div class="notice">Countries are centrally managed here. Congregations use the fixed list; no free-text country names.</div><div id="countries">${state.master.countries.slice().sort((a,b)=>safeCompare(a?.name,b?.name)).map(x=>`<div class="country-row" data-country-row="${esc(x.code)}"><div class="country-name-wrap"><span class="mini-label">Country</span><input value="${esc(x.name)}" data-country-name="${esc(x.code)}"></div><div class="country-code-wrap"><span class="mini-label">Code</span><input value="${esc(x.code)}" maxlength="2" data-country-code="${esc(x.code)}"></div><button class="danger tiny" data-country-del="${esc(x.code)}" style="align-self:end">Delete</button></div>`).join('')}</div></div></div><div class="card"><div class="card-head"><h3>Circuits</h3><span class="spacer"></span><button class="ghost tiny" id="addCircuit">+ Circuit</button></div><div class="card-body"><div class="notice">Circuit names are maintained centrally here. Congregations and groups select from this list, preventing spelling variants. Deleting or merging circuits is deliberately not included yet.</div><div id="circuits">${(state.master.circuits||[]).slice().sort(safeCompare).map(x=>`<div class="circuit-row"><input value="${esc(x)}" data-circuit-old="${esc(x)}"><span class="small muted" style="align-self:center">${state.master.congregations.filter(c=>c.circuit===x).length} used</span></div>`).join('')||'<div class="small muted" style="margin-top:8px">No circuits stored yet.</div>'}</div></div></div><div class="card"><div class="card-head"><h3>Data maintenance</h3></div><div class="card-body"><div class="actions"><button class="ghost" id="validateAll">Validate master</button><button class="ghost" id="dupCheck">Possible duplicates</button><button class="ghost" id="exportMasterAdmin">Export master JSON</button></div><div id="adminResult" style="margin-top:10px"></div></div></div></div>`;$('addCountry').onclick=()=>{const code=(prompt('ISO country code (2 letters):')||'').trim().toUpperCase(),name=(code&&(prompt('Country name:')||'').trim())||'';if(!/^[A-Z]{2}$/.test(code)||!name)return;if(state.master.countries.some(x=>x.code===code))return alert('Country already exists.');state.master.countries.push({code,name});touch('add_country',`${name} (${code}) added`);renderAdmin();renderTree();renderFacts()};$('countries').querySelectorAll('[data-country-name]').forEach(el=>el.onchange=()=>{const x=state.master.countries.find(z=>z.code===el.dataset.countryName),old=x.name;x.name=el.value.trim();touch('edit_country',`${old} → ${x.name}`);renderTree()});$('countries').querySelectorAll('[data-country-code]').forEach(el=>el.onchange=()=>{const old=el.dataset.countryCode,n=el.value.trim().toUpperCase();if(!/^[A-Z]{2}$/.test(n)||state.master.countries.some(x=>x.code===n&&x.code!==old)){alert('Use a unique 2-letter ISO code.');renderAdmin();return}state.master.congregations.forEach(c=>{if(c.country_code===old)c.country_code=n;c.meetings.forEach(m=>{if(m.venue?.address?.country_code===old)m.venue.address.country_code=n})});const x=state.master.countries.find(z=>z.code===old);x.code=n;touch('edit_country',`${old} → ${n}`);renderAll()});$('countries').querySelectorAll('[data-country-del]').forEach(b=>b.onclick=()=>{const code=b.dataset.countryDel;if(state.master.congregations.some(c=>c.country_code===code))return alert('This country is still used by one or more congregations.');if(confirm(`Delete ${countryName(code)}?`)){state.master.countries=state.master.countries.filter(x=>x.code!==code);touch('delete_country',`${code} deleted`);renderAdmin();renderFacts()}});$('addCircuit').onclick=()=>{const name=(prompt('Circuit name:')||'').trim();if(!name)return;if((state.master.circuits||[]).some(x=>x.toLowerCase()===name.toLowerCase()))return alert('This circuit already exists.');state.master.circuits=state.master.circuits||[];state.master.circuits.push(name);state.master.circuits.sort(safeCompare);touch('add_circuit',`${name} added`);renderAdmin()};$('circuits').querySelectorAll('[data-circuit-old]').forEach(el=>el.onchange=()=>{const old=el.dataset.circuitOld,n=el.value.trim();if(!n){alert('Circuit name cannot be empty.');renderAdmin();return}if((state.master.circuits||[]).some(x=>x.toLowerCase()===n.toLowerCase()&&x.toLowerCase()!==old.toLowerCase())){alert('A circuit with this name already exists.');renderAdmin();return}const idx=state.master.circuits.indexOf(old);if(idx>=0)state.master.circuits[idx]=n;state.master.congregations.forEach(c=>{if(c.circuit===old)c.circuit=n});state.master.circuits.sort(safeCompare);touch('edit_circuit',`${old} → ${n}`);renderAdmin();renderTree()});$('validateAll').onclick=()=>{const arr=state.master.congregations.flatMap(c=>issues(c).map(i=>`${c.name}: ${i.text}`));$('adminResult').innerHTML=arr.length?`<div class="notice warn">${arr.map(esc).join('<br>')}</div>`:'<div class="notice">No current validation issues.</div>'};$('dupCheck').onclick=()=>{const pairs=[];for(let i=0;i<state.master.people.length;i++)for(let j=i+1;j<state.master.people.length;j++){const a=state.master.people[i],b=state.master.people[j],na=safeText(a?.name).toLowerCase().replace(/[^a-z0-9]/g,''),nb=safeText(b?.name).toLowerCase().replace(/[^a-z0-9]/g,'');if(na&&nb&&(na===nb||na.includes(nb)||nb.includes(na)))pairs.push(`${a.name} ↔ ${b.name}`)}$('adminResult').innerHTML=pairs.length?`<div class="notice warn"><b>Possible duplicates</b><br>${pairs.map(esc).join('<br>')}</div>`:'<div class="notice">No obvious duplicate names found.</div>'};$('exportMasterAdmin').onclick=exportMaster}
 function renderHistory(){const logs=state.master.changelog||[];$('tabContent').innerHTML=`<div class="card"><div class="card-head"><h3>Master History</h3><span class="spacer"></span><button class="ghost tiny" id="exportLog">Export log</button><button class="danger tiny" id="clearLog">Clear all</button></div><div class="card-body"><div class="notice">This is the central maintenance history. Congregation pages show only the entries that affect that congregation.</div><div class="log-list" style="margin-top:8px">${logs.slice(0,1000).map(e=>`<div class="log-line"><span>${new Date(e.at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><span><b>${esc(e.by)}</b> · ${esc(e.detail)}${e.entity?.name?` <span class="muted">(${esc(e.entity.name)})</span>`:''}</span><button class="danger tiny" data-logdel="${esc(e.id||'')}">×</button></div>`).join('')||'<div class="empty">No history entries.</div>'}</div></div></div>`;$('clearLog').onclick=()=>{if(confirm('Clear the entire maintenance history?\n\nCurrent master data will remain unchanged.')){state.master.changelog=[];touch();renderHistory()}};$('exportLog').onclick=()=>download('ptc-history_'+today()+'.txt',logs.map(e=>`${e.at}	${e.by}	${e.detail}`).join('\r\n'));$('tabContent').querySelectorAll('[data-logdel]').forEach(b=>b.onclick=()=>{const entry=state.master.changelog.find(e=>e.id===b.dataset.logdel);if(!entry)return;if(!confirm('Delete this history entry?\n\n'+(entry.detail||'This action cannot be undone.')))return;state.master.changelog=state.master.changelog.filter(e=>e.id!==b.dataset.logdel);touch();renderHistory()})}
 function showHelp(){
@@ -180,6 +672,7 @@ function showHelp(){
     {title:'Unassigned speakers',kicker:'Keep people without forcing an assignment',body:`<p>The Unassigned Speakers pool is for people who should remain in the master but are currently not assigned to an English congregation or group.</p><ul><li>Dissolving a congregation or group moves its speakers here automatically.</li><li>You can also move an individual speaker here manually from his speaker card.</li><li>Nothing about the person is deleted: ID, talks, contacts and membership history stay intact.</li><li>An unassigned person can later be assigned to another congregation without recreating him.</li></ul>`},
     {title:'Membership history',kicker:'Automatic history',body:`<p>Membership history records where a person has been assigned over time. It is maintained automatically when you move or reassign a speaker.</p><ul><li>The previous membership is closed when the person leaves.</li><li>A new current membership is opened when he is assigned elsewhere.</li><li>Moving a person to Unassigned closes the previous membership without inventing a new congregation.</li><li>This history belongs to the person and survives congregation changes.</li></ul>`},
     {title:'Outlines',kicker:'Global foundation',body:`<p>Outline Management is global and independent of any congregation. It maintains the separate <b>outline-data.json</b> used for talk titles and statuses.</p><ul><li>Outline data is read-only by default. Use <b>✎ Edit official data</b> and confirm the warning before changing title, status, effective date, replacement or maintenance notes.</li><li>Only make changes that reflect official S-99 information or announced updates.</li><li>Import an S-99 PDF for comparison before applying title changes.</li><li>Existing maintenance data is kept separate from the congregation master.</li><li>The Organizer cross-checks speaker talk numbers against the current outline data and can show affected speakers.</li></ul>`},
+    {title:'Import PDF',kicker:'NW Scheduler speaker lists',body:`<p><b>Import PDF</b> reads a congregation's <b>Public Speakers List</b> PDF (NW Scheduler layout; KHS is planned), compares it with the master and shows the exact differences before anything is written.</p><ul><li>One file may contain several congregations, and one congregation may span several pages.</li><li>The Organizer proposes a target record by name, city, post code, PTC and circuit. You can always override it, create a new congregation, or skip the entry.</li><li>Every difference has its own checkbox. Empty PDF values never overwrite existing master data.</li><li>Talk numbers found in the PDF are offered as additions; talks missing from the PDF are offered as removals and are switched off by default.</li><li>Speakers in the master that do not appear in the PDF can be kept, marked <b>paused</b> or marked <b>left</b> — they are never deleted.</li><li>Country is derived from the phone country codes and can be corrected before a new congregation is created.</li><li><b>Show extracted text</b> reveals what the parser actually read from the PDF, which is the quickest way to check an unrecognised field.</li><li>All applied changes are written to the Master History.</li></ul>`},
     {title:'Master History',kicker:'Global audit trail',body:`<p>Master History collects changes across the complete PTC master. Local congregation history is simply a filtered view of the same central log.</p><ul><li>Use it to see who changed what and when.</li><li>Moving a speaker is logged as a real reassignment.</li><li>Deleting a log entry asks for confirmation and changes only the history entry — not the current master data.</li><li>The history can be exported with the master for handover and review.</li></ul>`},
     {title:'Countries & circuits',kicker:'Central reference lists',body:`<p>Countries and circuits are maintained centrally in <b>Administration</b> so local records do not create spelling variants.</p><ul><li>Congregations and groups select a country and circuit from dropdowns.</li><li>Country codes remain visible as a compact reference, while the country name is the primary label.</li><li>Renaming a circuit centrally updates the records currently using that circuit name.</li><li>Circuit deletion/merge is intentionally not part of the current test version.</li></ul>`},
     {title:'Temporary venues',kicker:'Date-aware locations',body:`<p>The regular Weekend Meeting has one day and time. A temporary venue is added separately only when the meeting location changes for a defined period, for example during Kingdom Hall renovation.</p><ul><li>Street, post code, city and country can be stored separately.</li><li>The temporary venue can have its own coordinates.</li><li>The temporary venue carries its own <b>from / until</b> dates in German display format (DD.MM.YYYY).</li></ul>`},
