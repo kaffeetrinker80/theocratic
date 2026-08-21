@@ -86,7 +86,7 @@
 <div class="app">
 <aside class="side"><span class="row-label">Find a congregation</span><input id="search" placeholder="Congregation, city, speaker, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.5.2 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.5.3 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -705,7 +705,7 @@ function showHelp(){
     {title:'Countries & circuits',kicker:'Central reference lists',body:`<p>Countries and circuits are maintained centrally in <b>Administration</b> so local records do not create spelling variants.</p><ul><li>Congregations and groups select a country and circuit from dropdowns.</li><li>Country codes remain visible as a compact reference, while the country name is the primary label.</li><li>Renaming a circuit centrally updates the records currently using that circuit name.</li><li>Circuit deletion/merge is intentionally not part of the current test version.</li></ul>`},
     {title:'Temporary venues',kicker:'Date-aware locations',body:`<p>The regular Weekend Meeting has one day and time. A temporary venue is added separately only when the meeting location changes for a defined period, for example during Kingdom Hall renovation.</p><ul><li>Street, post code, city and country can be stored separately.</li><li>The temporary venue can have its own coordinates.</li><li>The temporary venue carries its own <b>from / until</b> dates in German display format (DD.MM.YYYY).</li></ul>`},
     {title:'Dissolved records',kicker:'Preserve instead of delete',body:`<p>Marking a congregation or group as <b>Dissolved</b> keeps the historical record instead of deleting it.</p><ul><li>Its speakers are moved to Unassigned Speakers, not deleted.</li><li>The dissolved record remains available from Home.</li><li>If the record is restored later, speakers stay unassigned until you deliberately reassign them.</li></ul>`},
-    {title:'Saving & export',kicker:'Working copy & handover',body:`<p>The Organizer keeps a browser working copy automatically. In supported browsers you can additionally connect a JSON file for direct writing.</p><ul><li><b>Open PTC Master</b> loads an existing master file.</li><li><b>Open PTC Master</b> also connects that file for automatic writing in Chrome/Edge.</li><li>Export remains the portable way to back up or hand the current master to another editor.</li><li>Outline data is exported separately as <b>outline-data.json</b>.</li></ul>`},
+    {title:'Saving & export',kicker:'Working copy & handover',body:`<p>The Organizer keeps a browser working copy automatically. In supported browsers you can additionally connect a JSON file for direct writing.</p><ul><li><b>Open PTC Master</b> loads an existing master file.</li><li><b>Open PTC Master</b> also connects that file for automatic writing in Chrome/Edge.</li><li>Export remains the portable way to back up or hand the current master to another editor.</li><li>Outline data is exported separately as <b>outline-data.json</b>.</li><li><b>NWS CSV</b> creates a Neighbor Congregations-compatible CSV without using the encrypted NWS backup format.</li></ul>`},
     {title:'Validation',kicker:'Data quality',body:`<p>Validation is designed to catch maintenance problems before they become PTC Tool problems.</p><ul><li>Missing PTC, coordinates or meeting information can be flagged.</li><li>Unknown, retiring or do-not-use outline assignments can be identified.</li><li>Duplicate checks help spot people who may have been entered more than once.</li><li>Validation never silently deletes or rewrites records.</li></ul>`}
   ];
   modal(`<h3>Help</h3><div class="small muted" style="margin:4px 0 14px">Choose a topic on the left. Only the selected topic is shown.</div><div class="help-grid"><div class="help-nav">${sections.map((x,i)=>`<button type="button" data-help="${i}" class="${i===0?'active':''}">${esc(x.title)}</button>`).join('')}</div><div class="help-pane">${sections.map((x,i)=>`<section class="help-section ${i===0?'active':''}" data-help-section="${i}"><span class="help-kicker">${esc(x.kicker)}</span><h4>${esc(x.title)}</h4>${x.body}</section>`).join('')}</div></div>`,m=>{
@@ -730,10 +730,62 @@ function exportCompleteBackup(){
   };
   download('ptc-organizer-backup_'+today()+'.json',JSON.stringify(backup,null,2),'application/json');
 }
+function nwsCsvEscape(v){
+  const s=safeText(v).replace(/\r?\n/g,'\r\n');
+  return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+}
+function nwsSplitName(full){
+  const parts=safeText(full).trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
+  if(!parts.length)return['',''];
+  if(parts.length===1)return[parts[0],''];
+  return[parts.slice(0,-1).join(' '),parts.at(-1)];
+}
+function nwsPhone(primary,secondary){return[primary,secondary].map(x=>safeText(x).trim()).filter(Boolean).join(', ')}
+function nwsAddress(c){
+  const a=c.address||{},street=safeText(a.street).trim(),postal=safeText(a.postal_code).trim(),city=safeText(a.city).trim();
+  const line2=[postal,city].filter(Boolean).join(' ');
+  return[street,line2].filter(Boolean).join('\r\n');
+}
+function buildNwsCsv(congregations){
+  const headers=['Name','Circuit','KingdomHallAddress','WeekendMeetingDay','WeekendMeetingTime','COBEFirstName','COBELastName','COBEPhone','COBEEmail','PTCFirstName','PTCLastName','PTCPhone','PTCEmail','Notes'];
+  const rows=[headers];
+  congregations.forEach(c=>{
+    const m=c.meetings?.[0]||{},[cobeFirst,cobeLast]=nwsSplitName(c.cobe?.name),[ptcFirst,ptcLast]=nwsSplitName(c.ptc?.name);
+    rows.push([
+      c.name||'',c.circuit||'None',nwsAddress(c),DAYS[Number(m.weekday)]||'',m.time||'',
+      cobeFirst,cobeLast,c.cobe?.phone||'',c.cobe?.email||'',ptcFirst,ptcLast,
+      nwsPhone(c.ptc?.mobile,c.ptc?.home),c.ptc?.email||c.ptc?.jwpub_email||'',c.note||''
+    ]);
+  });
+  return '\ufeff'+rows.map(r=>r.map(nwsCsvEscape).join(',')).join('\r\n')+'\r\n';
+}
+function exportNwsCsv(scope='all'){
+  if(!state.master)return;
+  let list=state.master.congregations.filter(c=>c.status!=='dissolved');
+  if(scope==='current'){
+    const c=current();list=c&&c.status!=='dissolved'?[c]:[];
+  }else if(scope==='country'){
+    const c=current(),cc=c?.country_code||'';list=list.filter(x=>x.country_code===cc);
+  }
+  if(!list.length)return alert('No active congregation/group matches this export scope.');
+  list=list.slice().sort((a,b)=>safeCompare(a?.name,b?.name));
+  const d=new Date(),stamp=[String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),d.getFullYear()].join('.');
+  download(`NWS_Export_${stamp}.csv`,buildNwsCsv(list),'text/csv;charset=utf-8');
+  log('export_nws_csv',`NWS-compatible CSV exported · ${list.length} record${list.length===1?'':'s'} · scope ${scope}`);touch();
+}
+function showNwsExportDialog(){
+  const c=current(),cc=c?.country_code||'',countryLabel=cc?countryName(cc):'';
+  modal(`<h3>NWS CSV Export</h3><p class="muted">Exports the same 14-column Neighbor Congregations CSV structure as the NWS sample: comma-separated, CRLF line endings and UTF-8 BOM.</p><div class="notice">Names are stored as one field in PTC Organizer. For this CSV, the last word is exported as <b>LastName</b> and everything before it as <b>FirstName</b>. Please check compound surnames if needed.</div><div class="export-choice"><button class="primary" id="nwsAll">All active records</button><span>All active congregations and groups in the master.</span></div>${c?`<div class="export-choice"><button class="good" id="nwsCurrent">Current record</button><span>${esc(c.name)}</span></div>`:''}${cc?`<div class="export-choice"><button class="ghost" id="nwsCountry">Current country</button><span>${esc(countryLabel)} (${esc(cc)}) · all active records in this country.</span></div>`:''}`,m=>{
+    m.querySelector('#nwsAll').onclick=()=>{exportNwsCsv('all');closeModal()};
+    m.querySelector('#nwsCurrent')?.addEventListener('click',()=>{exportNwsCsv('current');closeModal()});
+    m.querySelector('#nwsCountry')?.addEventListener('click',()=>{exportNwsCsv('country');closeModal()});
+  });
+}
 function showExportDialog(){
   if(!state.master)return;
-  modal(`<h3>Export</h3><p class="muted">Choose what you want to export.</p><div class="export-choice"><button class="primary" id="expBackup">Complete backup</button><span>PTC master + outline data in one backup file.</span></div><div class="export-choice"><button class="good" id="expOutline" ${state.outlines?'':'disabled'}>outline-data.json</button><span>Current outline file for GitHub / the PTC Tool.</span></div><div class="export-choice"><button class="ghost" id="expMasterOnly">PTC master only</button><span>Portable working master without outline data.</span></div>`,m=>{
+  modal(`<h3>Export</h3><p class="muted">Choose what you want to export.</p><div class="export-choice"><button class="primary" id="expBackup">Complete backup</button><span>PTC master + outline data in one backup file.</span></div><div class="export-choice"><button class="good" id="expNws">NWS CSV</button><span>Neighbor Congregations-compatible CSV for import into NWS · file name NWS_Export_DD.MM.YYYY.csv.</span></div><div class="export-choice"><button class="good" id="expOutline" ${state.outlines?'':'disabled'}>outline-data.json</button><span>Current outline file for GitHub / the PTC Tool.</span></div><div class="export-choice"><button class="ghost" id="expMasterOnly">PTC master only</button><span>Portable working master without outline data.</span></div>`,m=>{
     m.querySelector('#expBackup').onclick=()=>{exportCompleteBackup();closeModal()};
+    m.querySelector('#expNws').onclick=()=>{closeModal();showNwsExportDialog()};
     m.querySelector('#expOutline').onclick=()=>{exportOutlines();closeModal()};
     m.querySelector('#expMasterOnly').onclick=()=>{exportMaster();closeModal()};
   });
