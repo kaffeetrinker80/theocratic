@@ -441,7 +441,15 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .pdoc-head .pdoc-sub{ font-size:8pt; color:#444; margin-top:2pt; }
 .pdoc-head .pdoc-note{ font-size:8.5pt; color:#111; margin-top:3pt; font-weight:700; }
 .pcong{ margin-bottom:11pt; }
-.pcong.pbreak{ break-before:page; }
+/* forced page break: legacy alias first (Firefox/Safari), modern property second (Chrome) */
+.pcong.pbreak{ page-break-before:always; break-before:page; }
+/* on screen the preview is one endless sheet, so show the break as a marker */
+#prPreview .pcong.pbreak{ margin-top:16pt; padding-top:14pt; border-top:1px dashed #c9b8a6; position:relative; }
+#prPreview .pcong.pbreak::before{
+  content:'⤶ new page'; position:absolute; top:-7pt; left:0;
+  background:#efe9df; color:#8a7660; font-size:7pt; letter-spacing:.08em;
+  text-transform:uppercase; padding:1pt 5pt; border-radius:6px;
+}
 .pcong-head{ border-bottom:.75pt solid #111; padding-bottom:3pt; margin-bottom:4pt; display:flex; justify-content:space-between; gap:10pt; align-items:baseline; break-after:avoid; }
 .pcong-name{ font-family:var(--font-display); font-size:12pt; font-weight:600; }
 .pcong-circuit{ font-size:8pt; color:#333; white-space:nowrap; }
@@ -489,9 +497,12 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 #printRoot{ display:none; }
 
 @media print{
+  /* the modal sets body{overflow:hidden}; a clipped root kills forced page breaks in Chrome */
+  html, body{ overflow:visible !important; height:auto !important; }
   body > *{ display:none !important; }
   body > #printRoot{ display:block !important; }
-  #printRoot{ margin:0; padding:0; }
+  #printRoot{ margin:0; padding:0; overflow:visible !important; }
+  .pdoc{ overflow:visible !important; }
   .pdoc{ color:#000; }
   @page{ size:A4 portrait; margin:12mm; }
 }
@@ -651,7 +662,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.3.1</div>
+  <div class="footer">Made with love © v.2.3.2</div>
 </div>
 
 <script>
@@ -3512,7 +3523,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="pr-hint">Printed under the title. Filled from the imported file the first time; edit or clear it as you like.</div>
 
         <span class="row-label">Page</span>
-        <label class="pr-opt"><input type="checkbox" id="prBreak"> New page per congregation</label>
+        <label class="pr-opt"><input type="checkbox" id="prBreak" checked> New page per congregation</label>
         <select id="prSize">
           <option value="sz-compact">Compact type</option>
           <option value="" selected>Normal type</option>
@@ -3569,7 +3580,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3715,7 +3726,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const OPT = ['prContacts','prPtc','prMeeting','prOutlines','prTitles','prRetiring','prNotes','prDistance','prBreak'];
   const SEL = ['prScope','prLayout','prSize','prHeaderNote'];
   const DEFAULTS = { prContacts:true, prPtc:true, prMeeting:true, prOutlines:true, prTitles:false,
-                     prRetiring:true, prNotes:false, prDistance:false, prBreak:false,
+                     prRetiring:true, prNotes:false, prDistance:false, prBreak:true,
                      prScope:'results', prLayout:'cong', prSize:'', prHeaderNote:'' };
   const el = id => document.getElementById(id);
   const on = id => !!(el(id) && el(id).checked);
