@@ -25,7 +25,7 @@
 <div class="app">
 <aside class="side"><span class="row-label">Find a congregation</span><input id="search" placeholder="Congregation, city, speaker, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.3.8 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.3.9 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -190,6 +190,51 @@ async function openMaster(){if('showOpenFilePicker'in window){try{const[h]=await
 $('masterFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{loadMaster(JSON.parse(await f.text()))}catch(err){alert(err.message)}e.target.value=''};$('outlineFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{setOutlines(JSON.parse(await f.text()))}catch(err){alert(err.message)}e.target.value=''};
 $('btnOpen').onclick=openMaster;$('btnHelp').onclick=showHelp;$('btnExport').onclick=showExportDialog;$('btnAdmin').onclick=()=>{if(state.master){state.tab='admin';renderWorkspace()}};$('globalNav').addEventListener('click',e=>{const b=e.target.closest('[data-global]');if(!b||!state.master)return;state.tab=b.dataset.global;renderWorkspace();renderTree();renderUnassignedNav()});$('homeTitle').onclick=()=>{if(!state.master)return;state.tab='home';renderWorkspace();renderTree();renderUnassignedNav()};$('editorName').onchange=()=>localStorage.setItem(LS_EDITOR,$('editorName').value);$('search').oninput=renderTree;$('filter').onchange=renderTree;$('btnExpand').onclick=()=>{if(!state.master)return;const all=new Set(state.master.congregations.map(c=>c.country_code||'??'));state.openCountries.size>=all.size?state.openCountries.clear():all.forEach(x=>state.openCountries.add(x));localStorage.setItem(LS_OPEN,JSON.stringify([...state.openCountries]));renderTree()};$('btnNewCong').onclick=()=>{if(!state.master)loadMaster(freshMaster());const c={id:uuid(),name:'New congregation',type:'congregation',parent_congregation_id:'',country_code:'DE',circuit:'',phone:'',status:'active',dissolved_on:'',address:{street:'',postal_code:'',city:''},geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},meetings:[{weekday:7,time:'',venue:null}],ptc:{name:'',jwpub_email:'',email:'',mobile:'',home:'',speaker_id:''},cobe:{name:'',phone:''},note:'',speaker_ids:[]};state.master.congregations.push(c);state.selected=c.id;state.openCountries.add('DE');touch('add_congregation','New congregation added',{cong:c.id,name:c.name});state.tab='congregation';renderAll()};$('mainTabs').addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(!t)return;state.tab=t.dataset.tab;renderWorkspace()});$('btnValidateCong').onclick=()=>{const c=current();if(!c)return;const a=issues(c);modal(`<h3>Validation — ${esc(c.name)}</h3>${a.length?a.map(i=>`<div class="meeting"><span class="flag ${i.sev}"></span> ${esc(i.text)}</div>`).join(''):'<div class="notice">No current issues.</div>'}`)};
 window.addEventListener('beforeunload',e=>{if(state.master&&state.dirty){e.preventDefault();e.returnValue=''}});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-(function init(){$('editorName').value=localStorage.getItem(LS_EDITOR)||'';try{state.openCountries=new Set(JSON.parse(localStorage.getItem(LS_OPEN)||'[]'))}catch(e){};try{const o=JSON.parse(localStorage.getItem(LS_OUT)||'null');if(o)setOutlines(o)}catch(e){};try{const m=JSON.parse(localStorage.getItem(LS_MASTER)||'null');if(m)loadMaster(m)}catch(e){};if(!state.master){const b=document.createElement('button');b.className='primary';b.textContent='Create new master';b.onclick=()=>loadMaster(freshMaster());$('workspaceEmpty').append(document.createElement('br'),document.createElement('br'),b)}renderSave()})();
+async function loadPublishedOutlines(){
+  // On GitHub Pages / any http(s) host, outline-data.json is expected next to this HTML file.
+  // A browser working copy is kept when present; the published file becomes its comparison baseline.
+  if(location.protocol!=='http:'&&location.protocol!=='https:')return false;
+  try{
+    const url=new URL('outline-data.json',location.href);
+    url.searchParams.set('_ptc',Date.now());
+    const res=await fetch(url,{cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const published=normalizeOut(await res.json());
+    const cachedRaw=localStorage.getItem(LS_OUT);
+    if(cachedRaw){
+      try{
+        const cached=normalizeOut(JSON.parse(cachedRaw));
+        state.outlines=cached;
+        state.outlineBaseline=clone(published);
+      }catch(e){
+        state.outlines=published;
+        state.outlineBaseline=clone(published);
+        localStorage.setItem(LS_OUT,JSON.stringify(published));
+      }
+    }else{
+      state.outlines=published;
+      state.outlineBaseline=clone(published);
+      localStorage.setItem(LS_OUT,JSON.stringify(published));
+    }
+    renderFacts();
+    if(state.tab==='outlines')renderOutlines();
+    console.info('PTC Organizer: loaded',url.pathname);
+    return true;
+  }catch(err){
+    console.warn('PTC Organizer: automatic outline-data.json load failed:',err);
+    return false;
+  }
+}
+
+(async function init(){
+  $('editorName').value=localStorage.getItem(LS_EDITOR)||'';
+  try{state.openCountries=new Set(JSON.parse(localStorage.getItem(LS_OPEN)||'[]'))}catch(e){}
+  // Restore the local outline working copy immediately, then check for the published Git/HTTP file.
+  try{const o=JSON.parse(localStorage.getItem(LS_OUT)||'null');if(o)setOutlines(o)}catch(e){}
+  try{const m=JSON.parse(localStorage.getItem(LS_MASTER)||'null');if(m)loadMaster(m)}catch(e){}
+  await loadPublishedOutlines();
+  if(!state.master){const b=document.createElement('button');b.className='primary';b.textContent='Create new master';b.onclick=()=>loadMaster(freshMaster());$('workspaceEmpty').append(document.createElement('br'),document.createElement('br'),b)}
+  renderSave();
+})();
 </script>
 </body></html>
