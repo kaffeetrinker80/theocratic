@@ -86,7 +86,7 @@
 <div class="app">
 <aside class="side"><span class="row-label">Find a congregation</span><input id="search" placeholder="Congregation, city, speaker, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.5.4 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.5.5 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -705,7 +705,7 @@ function showHelp(){
     {title:'Countries & circuits',kicker:'Central reference lists',body:`<p>Countries and circuits are maintained centrally in <b>Administration</b> so local records do not create spelling variants.</p><ul><li>Congregations and groups select a country and circuit from dropdowns.</li><li>Country codes remain visible as a compact reference, while the country name is the primary label.</li><li>Renaming a circuit centrally updates the records currently using that circuit name.</li><li>Circuit deletion/merge is intentionally not part of the current test version.</li></ul>`},
     {title:'Temporary venues',kicker:'Date-aware locations',body:`<p>The regular Weekend Meeting has one day and time. A temporary venue is added separately only when the meeting location changes for a defined period, for example during Kingdom Hall renovation.</p><ul><li>Street, post code, city and country can be stored separately.</li><li>The temporary venue can have its own coordinates.</li><li>The temporary venue carries its own <b>from / until</b> dates in German display format (DD.MM.YYYY).</li></ul>`},
     {title:'Dissolved records',kicker:'Preserve instead of delete',body:`<p>Marking a congregation or group as <b>Dissolved</b> keeps the historical record instead of deleting it.</p><ul><li>Its speakers are moved to Unassigned Speakers, not deleted.</li><li>The dissolved record remains available from Home.</li><li>If the record is restored later, speakers stay unassigned until you deliberately reassign them.</li></ul>`},
-    {title:'Saving & export',kicker:'Working copy & handover',body:`<p>The Organizer keeps a browser working copy automatically. In supported browsers you can additionally connect a JSON file for direct writing.</p><ul><li><b>Open PTC Master</b> loads an existing master file.</li><li><b>Open PTC Master</b> also connects that file for automatic writing in Chrome/Edge.</li><li>Export remains the portable way to back up or hand the current master to another editor.</li><li>Outline data is exported separately as <b>outline-data.json</b>.</li><li><b>NWS-compatible CSV</b> creates either Public Speakers or Neighbor Congregations CSV without using the encrypted NWS backup format. Public Speakers can be exported for one congregation/group, the current country, or all active records.</li></ul>`},
+    {title:'Saving & export',kicker:'Working copy & handover',body:`<p>The Organizer keeps a browser working copy automatically. In supported browsers you can additionally connect a JSON file for direct writing.</p><ul><li><b>Open PTC Master</b> loads an existing master file.</li><li><b>Open PTC Master</b> also connects that file for automatic writing in Chrome/Edge.</li><li>Export remains the portable way to back up or hand the current master to another editor.</li><li>Outline data is exported separately as <b>outline-data.json</b>.</li><li><b>NWS-compatible CSV</b> creates either Public Speakers or Neighbor Congregations CSV without using the encrypted NWS backup format. Public Speakers can be exported for one congregation/group, or as a ZIP package for a country/all records with one CSV per congregation (matching NWS import behavior).</li></ul>`},
     {title:'Validation',kicker:'Data quality',body:`<p>Validation is designed to catch maintenance problems before they become PTC Tool problems.</p><ul><li>Missing PTC, coordinates or meeting information can be flagged.</li><li>Unknown, retiring or do-not-use outline assignments can be identified.</li><li>Duplicate checks help spot people who may have been entered more than once.</li><li>Validation never silently deletes or rewrites records.</li></ul>`}
   ];
   modal(`<h3>Help</h3><div class="small muted" style="margin:4px 0 14px">Choose a topic on the left. Only the selected topic is shown.</div><div class="help-grid"><div class="help-nav">${sections.map((x,i)=>`<button type="button" data-help="${i}" class="${i===0?'active':''}">${esc(x.title)}</button>`).join('')}</div><div class="help-pane">${sections.map((x,i)=>`<section class="help-section ${i===0?'active':''}" data-help-section="${i}"><span class="help-kicker">${esc(x.kicker)}</span><h4>${esc(x.title)}</h4>${x.body}</section>`).join('')}</div></div>`,m=>{
@@ -799,26 +799,49 @@ function exportNwsNeighborCsv(scope='all'){
   download(`NWS_Export_Neighbor_Congregations_${nwsStamp()}.csv`,buildNwsNeighborCsv(list),'text/csv;charset=utf-8');
   log('export_nws_neighbor_csv',`NWS Neighbor Congregations CSV exported · ${list.length} record${list.length===1?'':'s'} · scope ${scope}`);touch();
 }
+function nwsFileSafe(v){return safeText(v).trim().replace(/[\/:*?"<>|]/g,'_').replace(/\s+/g,' ').slice(0,120)||'Congregation'}
+function crc32(bytes){let c=0xffffffff;for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0)}return(c^0xffffffff)>>>0}
+function u16(n){return[n&255,(n>>>8)&255]}function u32(n){return[n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]}
+function zipStore(files){
+  const enc=new TextEncoder(),parts=[],central=[];let offset=0;
+  for(const f of files){
+    const name=enc.encode(f.name),data=typeof f.data==='string'?enc.encode(f.data):f.data,crc=crc32(data);
+    const local=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...name]);
+    parts.push(local,data);
+    const cen=new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...name]);
+    central.push(cen);offset+=local.length+data.length;
+  }
+  const centralSize=central.reduce((n,x)=>n+x.length,0),end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(centralSize),...u32(offset),...u16(0)]);
+  return new Blob([...parts,...central,end],{type:'application/zip'});
+}
+function downloadBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2500)}
 function exportNwsPublicSpeakersCsv(scope='all'){
-  const list=nwsScopeCongregations(scope);if(!list.length)return alert('No active congregation/group matches this export scope.');
+  const list=nwsScopeCongregations(scope).filter(c=>peopleFor(c).some(p=>!p.deleted_at&&p.status!=='inactive'));
+  if(!list.length)return alert('No public speakers match this export scope.');
   const count=list.reduce((n,c)=>n+peopleFor(c).filter(p=>!p.deleted_at&&p.status!=='inactive').length,0);
-  if(!count)return alert('No public speakers match this export scope.');
-  download(`NWS_Export_Public_Speakers_${nwsStamp()}.csv`,buildNwsPublicSpeakersCsv(list),'text/csv;charset=utf-8');
-  log('export_nws_public_speakers_csv',`NWS Public Speakers CSV exported · ${count} speaker${count===1?'':'s'} from ${list.length} record${list.length===1?'':'s'} · scope ${scope}`);touch();
+  if(scope==='current'||list.length===1){
+    const c=list[0];
+    download(`NWS_Export_Public_Speakers_${nwsFileSafe(c.name)}_${nwsStamp()}.csv`,buildNwsPublicSpeakersCsv([c]),'text/csv;charset=utf-8');
+    log('export_nws_public_speakers_csv',`NWS Public Speakers CSV exported · ${count} speaker${count===1?'':'s'} · ${c.name}`);touch();return;
+  }
+  const files=list.map(c=>({name:`NWS_Export_Public_Speakers_${nwsFileSafe(c.name)}_${nwsStamp()}.csv`,data:buildNwsPublicSpeakersCsv([c])}));
+  const label=scope==='country'?(current()?.country_code||'Country'):'All';
+  downloadBlob(`NWS_Export_Public_Speakers_${nwsFileSafe(label)}_${nwsStamp()}.zip`,zipStore(files));
+  log('export_nws_public_speakers_zip',`NWS Public Speakers package exported · ${count} speakers · ${files.length} congregation files · scope ${scope}`);touch();
 }
 function showNwsScopeDialog(kind){
   const c=current(),cc=c?.country_code||'',countryLabel=cc?countryName(cc):'';
   const isPublic=kind==='public',title=isPublic?'NWS Public Speakers Export':'NWS Neighbor Congregations Export';
-  const desc=isPublic?'Exports the exact NWS Public Speakers CSV column structure from your sample. Each speaker row contains its congregation name, so a country or all-record export can contain multiple congregations in one CSV. Away frequency is deliberately left unset.':'Exports the NWS Neighbor Congregations CSV structure.';
+  const desc=isPublic?'Exports the NWS Public Speakers CSV structure from your sample. NWS requires a Neighbor Congregation to be selected before importing its speakers, so multi-congregation exports are packaged as one CSV per congregation. Away frequency is deliberately left unset.':'Exports the NWS Neighbor Congregations CSV structure.';
   const run=scope=>isPublic?exportNwsPublicSpeakersCsv(scope):exportNwsNeighborCsv(scope);
-  modal(`<h3>${title}</h3><p class="muted">${desc}</p>${isPublic?'<div class="notice">Speaker names are split at the last word for NWS FirstName / LastName. Existing notes, distance limits and explicit Zoom restrictions are written to <b>PublicNotes</b>.</div>':''}<div class="export-choice"><button class="primary" id="nwsAll">All active records</button><span>${isPublic?'All public speakers from all active congregations/groups.':'All active congregations and groups in the master.'}</span></div>${c?`<div class="export-choice"><button class="good" id="nwsCurrent">Current record</button><span>${esc(c.name)}${isPublic?' · only its public speakers':''}</span></div>`:''}${cc?`<div class="export-choice"><button class="ghost" id="nwsCountry">Current country</button><span>${esc(countryLabel)} (${esc(cc)}) · ${isPublic?'all public speakers from this country':'all active records in this country'}.</span></div>`:''}`,m=>{
+  modal(`<h3>${title}</h3><p class="muted">${desc}</p>${isPublic?'<div class="notice">Speaker names are split at the last word for NWS FirstName / LastName. Existing notes, distance limits and explicit Zoom restrictions are written to <b>PublicNotes</b>.</div>':''}<div class="export-choice"><button class="primary" id="nwsAll">All active records</button><span>${isPublic?'ZIP package · one NWS Public Speakers CSV per active congregation/group.':'All active congregations and groups in the master.'}</span></div>${c?`<div class="export-choice"><button class="good" id="nwsCurrent">Current record</button><span>${esc(c.name)}${isPublic?' · only its public speakers':''}</span></div>`:''}${cc?`<div class="export-choice"><button class="ghost" id="nwsCountry">Current country</button><span>${esc(countryLabel)} (${esc(cc)}) · ${isPublic?'ZIP package · one Public Speakers CSV per congregation/group in this country':'all active records in this country'}.</span></div>`:''}`,m=>{
     m.querySelector('#nwsAll').onclick=()=>{run('all');closeModal()};
     m.querySelector('#nwsCurrent')?.addEventListener('click',()=>{run('current');closeModal()});
     m.querySelector('#nwsCountry')?.addEventListener('click',()=>{run('country');closeModal()});
   });
 }
 function showNwsExportDialog(){
-  modal(`<h3>NWS-compatible CSV</h3><p class="muted">Choose which NWS CSV interface you want to create.</p><div class="export-choice"><button class="primary" id="nwsPublic">Public Speakers</button><span>For importing speakers into NWS. Supports one congregation/group, the current country, or all active records.</span></div><div class="export-choice"><button class="ghost" id="nwsNeighbor">Neighbor Congregations</button><span>Congregation master data in the Neighbor Congregations format.</span></div>`,m=>{
+  modal(`<h3>NWS-compatible CSV</h3><p class="muted">Choose which NWS CSV interface you want to create.</p><div class="export-choice"><button class="primary" id="nwsPublic">Public Speakers</button><span>For importing speakers into NWS. One congregation downloads one CSV; country/all downloads a ZIP with one CSV per congregation because NWS requires the target congregation to be selected first.</span></div><div class="export-choice"><button class="ghost" id="nwsNeighbor">Neighbor Congregations</button><span>Congregation master data in the Neighbor Congregations format.</span></div>`,m=>{
     m.querySelector('#nwsPublic').onclick=()=>{closeModal();showNwsScopeDialog('public')};
     m.querySelector('#nwsNeighbor').onclick=()=>{closeModal();showNwsScopeDialog('neighbor')};
   });
