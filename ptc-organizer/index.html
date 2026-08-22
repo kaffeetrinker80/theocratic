@@ -45,6 +45,7 @@
 
 
 /* v0.5.0 speaker list PDF import */
+/* v0.5.6 NWS + KHS speaker PDF auto-detection */
 /* v0.5.1 speaker recycle bin */
 .trash-btn{margin-top:6px}.trash-btn b{display:inline-flex;min-width:22px;justify-content:center;padding:1px 6px;border-radius:999px;background:#fae6e1;color:#8b3a28}.trash-meta{font-size:11.5px;color:var(--muted);margin-top:3px}.trash-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.trash-empty{padding:34px 16px;text-align:center;color:var(--muted)}
 .imp-drop{margin-top:12px;border:1.5px dashed #d8cab4;border-radius:14px;background:#faf6ef;padding:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;text-align:center}
@@ -86,7 +87,7 @@
 <div class="app">
 <aside class="side"><span class="row-label">Find a congregation</span><input id="search" placeholder="Congregation, city, speaker, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.5.5 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.5.6 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -129,7 +130,7 @@ function match(c,q){if(!q)return true;const ps=peopleFor(c);return[c.name,c.addr
 function pass(c,f){if(!f)return true;if(f==='issues')return issues(c).length>0;if(f==='noptc')return!c.ptc?.name;if(f==='paused')return peopleFor(c).some(p=>p.status==='paused');if(f==='temporary')return c.meetings?.some(m=>m.venue?.enabled);return true}
 function renderTree(){const h=$('tree');if(!state.master){h.innerHTML='';return}const q=$('search').value.trim().toLowerCase(),f=$('filter').value,list=state.master.congregations.filter(c=>c.status!=='dissolved'&&match(c,q)&&pass(c,f)),groups={};list.forEach(c=>(groups[c.country_code||'??']=groups[c.country_code||'??']||[]).push(c));const force=q||f;h.innerHTML=Object.keys(groups).sort((a,b)=>safeCompare(countryName(a),countryName(b))).map(code=>{const arr=groups[code].sort((a,b)=>safeCompare(a?.name,b?.name)),open=force||state.openCountries.has(code),sp=arr.reduce((n,c)=>n+peopleFor(c).filter(p=>p.status==='active').length,0),cg=arr.filter(c=>c.type!=='group').length,gp=arr.filter(c=>c.type==='group').length;return`<button class="tree-country" data-country="${esc(code)}"><span>${open?'▾':'▸'}</span><span class="country-label"><b>${esc(countryName(code))}</b><span class="country-code">${esc(code)}</span></span><span class="count">${cg} congregation${cg===1?'':'s'}${gp?` · ${gp} group${gp===1?'':'s'}`:''}<br>${sp} speaker${sp===1?'':'s'}</span></button><div class="tree-items ${open?'':'hidden'}">${arr.map(c=>`<button class="tree-item ${c.id===state.selected&&!['home','outlines','import','history','admin','unassigned','trash'].includes(state.tab)?'active':''}" data-cong="${c.id}">${esc(c.name)}${c.type==='group'?' <span class="pill" style="font-size:8.5px;padding:1px 5px">Group</span>':''}${worst(c)?`<span class="flag ${worst(c)}"></span>`:''}<span class="meta">${esc(c.address?.city||'–')} · ${peopleFor(c).filter(p=>p.status==='active').length} speakers</span></button>`).join('')}</div>`}).join('')||'<div class="empty small">Nothing found.</div>';h.querySelectorAll('[data-country]').forEach(b=>b.onclick=()=>{const x=b.dataset.country;state.openCountries.has(x)?state.openCountries.delete(x):state.openCountries.add(x);localStorage.setItem(LS_OPEN,JSON.stringify([...state.openCountries]));renderTree()});h.querySelectorAll('[data-cong]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.cong;state.tab='congregation';renderAll()})}
 function renderAll(){renderFacts();renderTree();renderUnassignedNav();renderWorkspace();renderSave()}
-function renderWorkspace(){const c=current(),global=['home','outlines','import','history','admin','unassigned','trash'].includes(state.tab);if(!state.master||(!c&&!global)){$('workspaceEmpty').classList.remove('hidden');$('workspaceMain').classList.add('hidden');return}$('workspaceEmpty').classList.add('hidden');$('workspaceMain').classList.remove('hidden');$('mainTabs').classList.toggle('hidden',global);$('btnValidateCong').classList.toggle('hidden',global);document.querySelectorAll('#globalNav [data-global]').forEach(t=>t.classList.toggle('active',t.dataset.global===state.tab));document.querySelectorAll('#mainTabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===state.tab));if(state.tab==='home'){$('wsTitle').textContent='Home';$('wsSub').textContent='PTC master overview';renderHome();return}if(state.tab==='outlines'){$('wsTitle').textContent='Outline Management';$('wsSub').textContent='Global public talk outline data · basis for all speaker assignments';renderOutlines();return}if(state.tab==='import'){$('wsTitle').textContent='Import PDF';$('wsSub').textContent='Import a Public Speakers List PDF and compare it with the master before anything is written';renderImport();return}if(state.tab==='history'){$('wsTitle').textContent='Master History';$('wsSub').textContent='Global change log across all congregations, people and master settings';renderHistory();return}if(state.tab==='admin'){$('wsTitle').textContent='Administration';$('wsSub').textContent='Countries, validation and master maintenance';renderAdmin();return}if(state.tab==='unassigned'){$('wsTitle').textContent='Unassigned Speakers';$('wsSub').textContent='People retained in the master without a current congregation or group';renderUnassigned();return}if(state.tab==='trash'){$('wsTitle').textContent='Recycle Bin';$('wsSub').textContent='Deleted speakers kept safely until restored, moved or permanently removed';renderTrash();return}$('wsTitle').textContent=c.name;$('wsSub').textContent=`${c.type==='group'?'Group':'Congregation'} · ${countryName(c.country_code)} · ${c.address?.city||'city not set'} · ${peopleFor(c).filter(p=>p.status==='active').length} active speakers · ${issues(c).length} issue${issues(c).length===1?'':'s'}`;if(state.tab==='speakers')renderSpeakers(c);else renderCongregation(c)}
+function renderWorkspace(){const c=current(),global=['home','outlines','import','history','admin','unassigned','trash'].includes(state.tab);if(!state.master||(!c&&!global)){$('workspaceEmpty').classList.remove('hidden');$('workspaceMain').classList.add('hidden');return}$('workspaceEmpty').classList.add('hidden');$('workspaceMain').classList.remove('hidden');$('mainTabs').classList.toggle('hidden',global);$('btnValidateCong').classList.toggle('hidden',global);document.querySelectorAll('#globalNav [data-global]').forEach(t=>t.classList.toggle('active',t.dataset.global===state.tab));document.querySelectorAll('#mainTabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===state.tab));if(state.tab==='home'){$('wsTitle').textContent='Home';$('wsSub').textContent='PTC master overview';renderHome();return}if(state.tab==='outlines'){$('wsTitle').textContent='Outline Management';$('wsSub').textContent='Global public talk outline data · basis for all speaker assignments';renderOutlines();return}if(state.tab==='import'){$('wsTitle').textContent='Import PDF';$('wsSub').textContent='Import NWS or KHS Public Speakers PDFs and compare them with the master before anything is written';renderImport();return}if(state.tab==='history'){$('wsTitle').textContent='Master History';$('wsSub').textContent='Global change log across all congregations, people and master settings';renderHistory();return}if(state.tab==='admin'){$('wsTitle').textContent='Administration';$('wsSub').textContent='Countries, validation and master maintenance';renderAdmin();return}if(state.tab==='unassigned'){$('wsTitle').textContent='Unassigned Speakers';$('wsSub').textContent='People retained in the master without a current congregation or group';renderUnassigned();return}if(state.tab==='trash'){$('wsTitle').textContent='Recycle Bin';$('wsSub').textContent='Deleted speakers kept safely until restored, moved or permanently removed';renderTrash();return}$('wsTitle').textContent=c.name;$('wsSub').textContent=`${c.type==='group'?'Group':'Congregation'} · ${countryName(c.country_code)} · ${c.address?.city||'city not set'} · ${peopleFor(c).filter(p=>p.status==='active').length} active speakers · ${issues(c).length} issue${issues(c).length===1?'':'s'}`;if(state.tab==='speakers')renderSpeakers(c);else renderCongregation(c)}
 function renderHome(){const congs=state.master.congregations.filter(c=>c.type!=='group'&&c.status!=='dissolved').length,groups=state.master.congregations.filter(c=>c.type==='group'&&c.status!=='dissolved').length,diss=state.master.congregations.filter(c=>c.status==='dissolved').length,un=state.master.people.filter(p=>!p.deleted_at&&!p.congregation_id).length,trash=state.master.people.filter(p=>p.deleted_at).length,logs=(state.master.changelog||[]).slice(0,8);$('tabContent').innerHTML=`<div class="home-grid"><div class="home-tile"><div class="n">${congs}</div><div class="l">Congregations</div></div><div class="home-tile"><div class="n">${groups}</div><div class="l">Groups</div></div><div class="home-tile"><div class="n">${state.master.people.filter(p=>!p.deleted_at).length}</div><div class="l">People</div></div><div class="home-tile"><div class="n">${un}</div><div class="l">Unassigned</div></div><div class="home-tile"><div class="n">${trash}</div><div class="l">Recycle Bin</div></div></div><div class="card" style="margin-top:12px"><div class="card-head"><h3>Master overview</h3></div><div class="card-body"><div class="grid3"><div><span class="row-label">Outline data</span><b>${state.outlines?esc(state.outlines.edition||state.outlines.source||'loaded'):'not loaded'}</b></div><div><span class="row-label">Dissolved records</span><b>${diss}</b></div><div><span class="row-label">Open validation issues</span><b>${state.master.congregations.reduce((n,c)=>n+issues(c).length,0)}</b></div></div></div></div>${diss?`<div class="card"><div class="card-head"><h3>Dissolved records</h3><span class="summary">Kept for history; speakers remain separate</span></div><div class="card-body">${state.master.congregations.filter(c=>c.status==='dissolved').sort((a,b)=>safeCompare(a.name,b.name)).map(c=>`<div class="meeting"><b>${esc(c.name)}</b><div class="small muted">${c.type==='group'?'Group':'Congregation'} · ${esc(countryName(c.country_code))}${c.dissolved_on?' · dissolved '+esc(dateDE(c.dissolved_on)):''}</div><div class="actions"><button class="ghost tiny" data-open-dissolved="${c.id}">Open record</button></div></div>`).join('')}</div></div>`:''}<div class="card"><div class="card-head"><h3>Recent changes</h3><span class="spacer"></span><button class="ghost tiny" id="homeHistory">Open Master History</button></div><div class="card-body">${logs.length?logs.map(e=>`<div class="log-line"><span>${new Date(e.at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><span><b>${esc(e.by)}</b> · ${esc(e.detail)}</span><span></span></div>`).join(''):'<div class="muted small">No history entries yet.</div>'}</div></div>`;$('homeHistory').onclick=()=>{state.tab='history';renderWorkspace()};$('tabContent').querySelectorAll('[data-open-dissolved]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.openDissolved;state.tab='congregation';renderAll()})}
 function renderUnassignedNav(){const h=$('unassignedNav');if(!state.master){h.innerHTML='';return}const n=state.master.people.filter(p=>!p.deleted_at&&!p.congregation_id).length,t=state.master.people.filter(p=>p.deleted_at).length;h.innerHTML=`<div class="unassigned-box"><button class="ghost unassigned-btn ${state.tab==='unassigned'?'active':''}" id="openUnassigned"><span>Unassigned Speakers</span><b>${n}</b></button><button class="ghost unassigned-btn trash-btn ${state.tab==='trash'?'active':''}" id="openTrash"><span>🗑 Recycle Bin</span><b>${t}</b></button></div>`;$('openUnassigned').onclick=()=>{state.tab='unassigned';renderWorkspace()};$('openTrash').onclick=()=>{state.tab='trash';renderWorkspace()}}
 function renderUnassigned(){const ps=state.master.people.filter(p=>!p.deleted_at&&!p.congregation_id).sort((a,b)=>safeCompare(a.name,b.name));$('tabContent').innerHTML=ps.length?`<div class="card"><div class="card-head"><h3>Unassigned Speakers</h3><span class="summary">Retained people with no current English congregation/group assignment</span></div><div class="card-body">${ps.map(p=>`<div class="meeting"><b>${esc(p.name||'(no name)')}</b><div class="small muted">ID ${esc(p.id.slice(0,8))} · ${p.talks.length} talks</div><div class="actions"><button class="ghost tiny" data-assign="${p.id}">Assign to congregation/group…</button></div></div>`).join('')}</div></div>`:'<div class="empty">No unassigned speakers.</div>';$('tabContent').querySelectorAll('[data-assign]').forEach(b=>b.onclick=()=>assignUnassigned(findPerson(b.dataset.assign)))}
@@ -401,8 +402,106 @@ function impSpeakerRows(bodyRows,t){
     return{name,appointment:ap&&/^m/i.test(ap[1])?'ms':'elder',contact:impContact(r.contact),talks,special,note:impGlue(r.note),raw:[rawName,impGlue(r.contact),talksTxt].filter(Boolean).join(' · ')};
   }).filter(s=>s.name);
 }
+
+/* ---------- KHS Public Speakers PDF parsing ---------- */
+function impKhsAvailability(raw){
+  const t=safeText(raw).trim(),a={max_distance_km:null,zoom:'both',raw:''};
+  const km=/(?:<|up to|about|approx\.?|max\.?\s*)\s*(\d{1,4})\s*km/i.exec(t)||/(\d{1,4})\s*km/i.exec(t);
+  if(km)a.max_distance_km=Number(km[1]);
+  if(/zoom\s*only/i.test(t))a.zoom='only';
+  else if(/(?:or|beyond|over|outside).*zoom|zoom.*(?:beyond|over|outside)|\bkm\s*or\s*zoom/i.test(t))a.zoom='beyond';
+  else if(/in[- ]?person\s*only|no\s*zoom/i.test(t))a.zoom='no';
+  a.raw=t;
+  return a;
+}
+function impKhsSpeakerName(raw){
+  let x=safeText(raw).replace(/\s+/g,' ').trim(),note='';
+  const markers=[/\s+(?=<\s*\d+\s*km\b)/i,/\s+(?=-\s*)/];
+  let cut=-1;
+  markers.forEach(re=>{const m=re.exec(x);if(m&&(cut<0||m.index<cut))cut=m.index});
+  if(cut>=0){note=x.slice(cut).replace(/^\s*-\s*/,'').trim();x=x.slice(0,cut).trim()}
+  return{name:x,note};
+}
+function impParseKhsPages(pages,file){
+  const raw=[],out=[];let cur=null;
+  pages.forEach((items,idx)=>{
+    const rows=impRows(items);raw.push('───── '+file.name+' · page '+(idx+1)+' ─────',...rows.map(r=>r.text));
+    const all=rows.map(r=>r.text).join(' ');
+    if(!/\bPublic Speakers\b/i.test(all))return;
+    let rightX=null;
+    rows.forEach(r=>r.items.forEach(it=>{if(rightX==null&&/^public talk coordinator$/i.test(it.s.trim()))rightX=it.x}));
+    if(rightX==null){const xs=rows.flatMap(r=>r.items.map(i=>i.x));rightX=xs.length?(Math.min(...xs)+Math.max(...xs))/2:300}
+    const split=r=>({left:impJoin(r.items.filter(i=>i.x<rightX-8)),right:impJoin(r.items.filter(i=>i.x>=rightX-8))});
+    const lr=rows.map(r=>Object.assign({row:r},split(r)));
+    const congLabel=lr.findIndex(z=>/^congregation$/i.test(z.left));
+    const circuitLabel=lr.findIndex(z=>/^circuit$/i.test(z.left));
+    const eldersIdx=lr.findIndex(z=>/^elders$/i.test(z.left)||/^elders$/i.test(z.row.text));
+    if(congLabel<0||eldersIdx<0)return;
+    const h={name:'',street:'',postal_code:'',city:'',circuit:'',phone:'',last_updated:'',meetings:[],meeting:null,
+      ptc:{name:'',mobile:'',home:'',email:'',jwpub_email:''},cobe:{name:'',mobile:'',home:'',email:''}};
+    const upd=/last updated\s*:\s*([^\n]+)/i.exec(rows.slice(0,3).map(r=>r.text).join(' '));if(upd)h.last_updated=upd[1].trim();
+    const headerRows=lr.slice(congLabel+1,eldersIdx);
+    const leftLines=[],ptcLines=[],cobeLines=[];let mode='ptc';
+    headerRows.forEach(z=>{
+      if(/^circuit$/i.test(z.left)){mode='cobe';return}
+      if(z.left)leftLines.push(z.left);
+      if(z.right){
+        if(/^coordinator of the body of elders$/i.test(z.right)){mode='cobe';return}
+        if(/^public talk coordinator$/i.test(z.right)){mode='ptc';return}
+        (mode==='cobe'?cobeLines:ptcLines).push(z.right);
+      }
+    });
+    if(leftLines.length){h.name=leftLines.shift().trim()}
+    const cleanLeft=leftLines.filter(x=>!/^germany$|^austria$|^switzerland$|^belgium$|^netherlands$|^france$|^italy$|^spain$|^portugal$|^united kingdom$/i.test(x));
+    cleanLeft.forEach(l=>{
+      if(/^EU-[A-Z0-9-]+$/i.test(l)){h.circuit=l.trim();return}
+      const meet=impMeetingFrom(l);if(meet.weekday&&meet.time){h.meetings.push({year:0,raw:l,...meet});return}
+      if(/^\+?[\d][\d\s()\/.\-]{5,}$/.test(l)){if(!h.phone)h.phone=l.trim();return}
+      const cm=/^([A-Z]{0,2}[- ]?\d{3,6})\s+(.+)$/.exec(l);if(cm){h.postal_code=cm[1].trim();h.city=cm[2].trim();return}
+      if(!h.street)h.street=l.trim();
+    });
+    if(circuitLabel>=0){const after=lr[circuitLabel+1];if(after?.left&&/^EU-/i.test(after.left))h.circuit=after.left.trim()}
+    h.meeting=h.meetings[0]||null;
+    if(ptcLines.length)h.ptc=impContact(ptcLines);
+    if(cobeLines.length)h.cobe=impContact(cobeLines);
+    cur=Object.assign(h,{speakers:[],warnings:[],source:{file:file.name,page:idx+1,format:'khs'},raw:['───── page '+(idx+1)+' ─────',...rows.map(r=>r.text)]});
+    /* speaker area: KHS has name/contact in the left column and outlines in a second column */
+    const body=rows.slice(eldersIdx+1).filter(r=>r.text&&!/^page\s+\d+/i.test(r.text)&&!/^printed\b/i.test(r.text));
+    let talkX=null;
+    for(const r of body){
+      const candidates=r.items.filter(it=>/^\d{1,3}(?:,|$)/.test(it.s.trim()));
+      if(candidates.length){talkX=Math.min(...candidates.map(it=>it.x));break}
+    }
+    if(talkX==null)talkX=rightX;
+    let sp=null;
+    const finish=()=>{if(!sp)return;sp.talks=[...new Set(sp.talks)].sort((a,b)=>a-b);sp.contact=impContact(sp.contactLines);delete sp.contactLines;cur.speakers.push(sp);sp=null};
+    body.forEach(r=>{
+      const left=impJoin(r.items.filter(i=>i.x<talkX-8)),right=impJoin(r.items.filter(i=>i.x>=talkX-8));
+      const nums=(right.match(/\d{1,3}/g)||[]).map(Number).filter(n=>n>0&&n<400);
+      const isContact=/^(?:m|h)\s*:/i.test(left)||/@/.test(left);
+      const isName=left&&/[A-Za-zÀ-ÿ]/.test(left)&&!isContact&&!/^elders$/i.test(left);
+      if(isName){
+        finish();const nn=impKhsSpeakerName(left),av=impKhsAvailability(nn.note);
+        sp={name:nn.name,appointment:'elder',contactLines:[],talks:nums,special:[],note:nn.note,availability:av,raw:left+(right?' · '+right:'')};
+      }else if(sp){
+        if(left)sp.contactLines.push(left);if(nums.length)sp.talks.push(...nums);if(right&&!nums.length)sp.note=[sp.note,right].filter(Boolean).join(' · ');
+      }
+    });finish();
+    cur.country_code=impGuessCountry([cur.ptc.mobile,cur.ptc.home,cur.cobe.mobile,cur.cobe.home,cur.phone,...cur.speakers.map(s=>s.contact.mobile+' '+s.contact.home)].join(' '));
+    if(!cur.speakers.length)cur.warnings.push('No speaker rows recognised in this KHS PDF.');
+    if(!cur.meeting||!cur.meeting.time)cur.warnings.push('No Weekend Meeting time recognised.');
+    if(!cur.ptc.name)cur.warnings.push('No Public Talk Coordinator recognised.');
+    if(!cur.country_code)cur.warnings.push('Country could not be derived from the phone numbers — please select it.');
+    out.push(cur);
+  });
+  if(!out.length)raw.unshift('No KHS congregation header recognised.');
+  return{congs:out,raw:raw.join('\n')};
+}
+
 async function impParseFile(file){
-  const pages=await impPdfPages(file),out=[],raw=[];
+  const pages=await impPdfPages(file),firstText=(pages[0]?impRows(pages[0]).map(r=>r.text).join(' '):'');
+  if(/\bPublic Speakers\b/i.test(firstText)&&/\bElders\b/i.test(firstText)&&/Last updated/i.test(firstText))return impParseKhsPages(pages,file);
+  const out=[],raw=[];
   let cur=null;
   pages.forEach((items,idx)=>{
     const rows=impRows(items);
@@ -495,6 +594,8 @@ function impDiff(item){
     ca('home','Landline',m.contact?.home,s.contact.home,(p,v)=>{p.contact=p.contact||{};p.contact.home=v});
     ca('email','Email',m.contact?.email,s.contact.email,(p,v)=>{p.contact=p.contact||{};p.contact.email=v});
     ca('note','Note',m.note,s.note,(p,v)=>p.note=v,false);
+    if(s.availability?.max_distance_km!=null&&String(m.availability?.max_distance_km??'')!==String(s.availability.max_distance_km))ch.push({key:'distance',label:'Max. in-person distance',cur:m.availability?.max_distance_km==null?'—':m.availability.max_distance_km+' km',val:s.availability.max_distance_km+' km',apply:true,set:p=>{p.availability=p.availability||{};p.availability.max_distance_km=s.availability.max_distance_km}});
+    if(s.availability?.zoom&&s.availability.zoom!=='both'&&safeText(m.availability?.zoom||'both')!==s.availability.zoom)ch.push({key:'zoom',label:'Meeting mode',cur:safeText(m.availability?.zoom||'both'),val:s.availability.zoom,apply:true,set:p=>{p.availability=p.availability||{};p.availability.zoom=s.availability.zoom;p.availability.raw=s.availability.raw||p.availability.raw||''}});
     const adds=s.talks.filter(n=>!m.talks.includes(n)),rem=m.talks.filter(n=>!s.talks.includes(n)),
           spAdd=(s.special||[]).filter(code=>!(m.special_talks||[]).some(x=>safeText(x.code||x.raw).toUpperCase()===code));
     d.speakers.push({kind:'match',src:s,person:m,changes:ch,adds,rem,spAdd,addApply:true,remApply:false});
@@ -516,7 +617,7 @@ function impCreatePerson(c,s){
   const p={id:uuid(),name:s.name,appointment:s.appointment||'elder',status:'active',status_reason:'',status_since:'',congregation_id:c.id,
     talks:s.talks.slice(),special_talks:(s.special||[]).map(code=>({code,raw:code})),
     contact:{mobile:s.contact.mobile||'',home:s.contact.home||'',email:s.contact.email||''},
-    availability:{max_distance_km:null,zoom:'both',raw:''},note:s.note||'',
+    availability:{max_distance_km:s.availability?.max_distance_km??null,zoom:s.availability?.zoom||'both',raw:s.availability?.raw||''},note:s.note||'',
     membership_history:[{congregation_id:c.id,from:today(),to:null,reason:'imported from speaker list'}]};
   state.master.people.push(p);
   c.speaker_ids=c.speaker_ids||[];
@@ -547,7 +648,7 @@ function impApplyAll(){
         ptc:{name:p.ptc.name||'',jwpub_email:p.ptc.jwpub_email||'',email:p.ptc.email||'',mobile:p.ptc.mobile||'',home:p.ptc.home||'',speaker_id:''},
         cobe:{name:p.cobe.name||'',phone:p.cobe.mobile||p.cobe.home||'',email:p.cobe.email||''},
         note:'',speaker_ids:[],
-        import_source:{format:'nws',file:p.source.file,page:p.source.page,at:new Date().toISOString(),last_updated:p.last_updated||''}};
+        import_source:{format:p.source?.format||'nws',file:p.source.file,page:p.source.page,at:new Date().toISOString(),last_updated:p.last_updated||''}};
       state.master.circuits=state.master.circuits||[];
       if(c.circuit&&!state.master.circuits.some(x=>x.toLowerCase()===c.circuit.toLowerCase())){state.master.circuits.push(c.circuit);state.master.circuits.sort(safeCompare)}
       state.master.congregations.push(c);
@@ -575,7 +676,7 @@ function impApplyAll(){
         if(per.status==='paused'&&!per.status_reason)per.status_reason='not listed in '+p.source.file;
         log('import_status',`${per.name}: status "${old}" → "${per.status}" (not listed in the imported PDF)`,{cong:c.id,name:c.name,person:per.id});n++;
       });
-      c.import_source={format:'nws',file:p.source.file,page:p.source.page,at:new Date().toISOString(),last_updated:p.last_updated||''};
+      c.import_source={format:p.source?.format||'nws',file:p.source.file,page:p.source.page,at:new Date().toISOString(),last_updated:p.last_updated||''};
       impLinkPtc(c);
     }
     item.applied=true;
@@ -657,9 +758,9 @@ function renderImport(){
   const box=$('tabContent');
   if(!state.master){box.innerHTML='<div class="empty">Open or create a master first.</div>';return}
   const items=state.import.items,pending=items.reduce((n,i)=>n+impPending(i),0);
-  box.innerHTML=`<div class="card"><div class="card-head"><h3>Speaker list PDF import</h3><span class="spacer"></span><span class="summary">NW Scheduler format · KHS to follow</span></div><div class="card-body">
-    <div class="notice">Reads a <b>Public Speakers List</b> PDF, compares it with the current master and shows exactly what would change. Nothing is written until you press <b>Apply</b>, and every applied change is recorded in the Master History. Reading a PDF needs an internet connection the first time, because the PDF engine is loaded from a CDN.</div>
-    <div class="imp-drop" id="impDrop"><b>Drop PDF files here</b><button class="primary" id="impPick">Choose PDF files…</button><span class="small muted">One file may contain several congregations and several pages per congregation.</span></div>
+  box.innerHTML=`<div class="card"><div class="card-head"><h3>Speaker list PDF import</h3><span class="spacer"></span><span class="summary">Auto-detects NW Scheduler and KHS formats</span></div><div class="card-body">
+    <div class="notice">Reads an <b>NWS or KHS Public Speakers</b> PDF, auto-detects the layout, compares it with the current master and shows exactly what would change. Nothing is written until you press <b>Apply</b>, and every applied change is recorded in the Master History. Reading a PDF needs an internet connection the first time, because the PDF engine is loaded from a CDN.</div>
+    <div class="imp-drop" id="impDrop"><b>Drop NWS or KHS PDF files here</b><button class="primary" id="impPick">Choose PDF files…</button><span class="small muted">NWS and KHS speaker-list PDFs are detected automatically.</span></div>
     ${state.import.busy?'<div class="notice" style="margin-top:10px">Reading PDF…</div>':''}
     ${state.import.error?`<div class="notice warn" style="margin-top:10px">${esc(state.import.error)}${state.import.lastRaw?' <button class="ghost tiny" id="impRawErr">Show extracted text</button>':''}</div>`:''}
   </div></div>
@@ -700,7 +801,7 @@ function showHelp(){
     {title:'Recycle Bin',kicker:'Safe speaker deletion',body:`<p>Deleting a speaker first moves him to the <b>Recycle Bin</b>. This is separate from Unassigned Speakers.</p><ul><li>ID, talks, contacts, notes and membership history are retained.</li><li><b>Restore</b> returns the speaker to the original congregation if it is still active; otherwise he is restored as Unassigned.</li><li><b>Move to congregation/group…</b> restores the same person directly into a different record.</li><li><b>Delete permanently</b> is available only inside the Recycle Bin and requires two confirmations.</li></ul>`},
     {title:'Membership history',kicker:'Automatic history',body:`<p>Membership history records where a person has been assigned over time. It is maintained automatically when you move or reassign a speaker.</p><ul><li>The previous membership is closed when the person leaves.</li><li>A new current membership is opened when he is assigned elsewhere.</li><li>Moving a person to Unassigned closes the previous membership without inventing a new congregation.</li><li>This history belongs to the person and survives congregation changes.</li></ul>`},
     {title:'Outlines',kicker:'Global foundation',body:`<p>Outline Management is global and independent of any congregation. It maintains the separate <b>outline-data.json</b> used for talk titles and statuses.</p><ul><li>Outline data is read-only by default. Use <b>✎ Edit official data</b> and confirm the warning before changing title, status, effective date, replacement or maintenance notes.</li><li>Only make changes that reflect official S-99 information or announced updates.</li><li>Import an S-99 PDF for comparison before applying title changes.</li><li>Existing maintenance data is kept separate from the congregation master.</li><li>The Organizer cross-checks speaker talk numbers against the current outline data and can show affected speakers.</li></ul>`},
-    {title:'Import PDF',kicker:'NW Scheduler speaker lists',body:`<p><b>Import PDF</b> reads a congregation's <b>Public Speakers List</b> PDF (NW Scheduler layout; KHS is planned), compares it with the master and shows the exact differences before anything is written.</p><ul><li>One file may contain several congregations, and one congregation may span several pages.</li><li>The Organizer proposes a target record by name, city, post code, PTC and circuit. You can always override it, create a new congregation, or skip the entry.</li><li>Every difference has its own checkbox. Empty PDF values never overwrite existing master data.</li><li>Talk numbers found in the PDF are offered as additions; talks missing from the PDF are offered as removals and are switched off by default.</li><li>Speakers in the master that do not appear in the PDF can be kept, marked <b>paused</b> or marked <b>left</b> — they are never deleted.</li><li>Country is derived from the phone country codes and can be corrected before a new congregation is created.</li><li><b>Show extracted text</b> reveals what the parser actually read from the PDF, which is the quickest way to check an unrecognised field.</li><li>All applied changes are written to the Master History.</li></ul>`},
+    {title:'Import PDF',kicker:'NW Scheduler speaker lists',body:`<p><b>Import PDF</b> reads a congregation's <b>Public Speakers List</b> PDF (NW Scheduler or KHS layout; detected automatically), compares it with the master and shows the exact differences before anything is written.</p><ul><li>One file may contain several congregations, and one congregation may span several pages.</li><li>The Organizer proposes a target record by name, city, post code, PTC and circuit. You can always override it, create a new congregation, or skip the entry.</li><li>Every difference has its own checkbox. Empty PDF values never overwrite existing master data.</li><li>Talk numbers found in the PDF are offered as additions; talks missing from the PDF are offered as removals and are switched off by default.</li><li>Speakers in the master that do not appear in the PDF can be kept, marked <b>paused</b> or marked <b>left</b> — they are never deleted.</li><li>Country is derived from the phone country codes and can be corrected before a new congregation is created.</li><li>KHS notes such as <b>&lt;50km or Zoom</b> are retained; a clear distance + Zoom rule is also mapped to the speaker availability fields.</li><li><b>Show extracted text</b> reveals what the parser actually read from the PDF, which is the quickest way to check an unrecognised field.</li><li>All applied changes are written to the Master History.</li></ul>`},
     {title:'Master History',kicker:'Global audit trail',body:`<p>Master History collects changes across the complete PTC master. Local congregation history is simply a filtered view of the same central log.</p><ul><li>Use it to see who changed what and when.</li><li>Moving a speaker is logged as a real reassignment.</li><li>Deleting a log entry asks for confirmation and changes only the history entry — not the current master data.</li><li>The history can be exported with the master for handover and review.</li></ul>`},
     {title:'Countries & circuits',kicker:'Central reference lists',body:`<p>Countries and circuits are maintained centrally in <b>Administration</b> so local records do not create spelling variants.</p><ul><li>Congregations and groups select a country and circuit from dropdowns.</li><li>Country codes remain visible as a compact reference, while the country name is the primary label.</li><li>Renaming a circuit centrally updates the records currently using that circuit name.</li><li>Circuit deletion/merge is intentionally not part of the current test version.</li></ul>`},
     {title:'Temporary venues',kicker:'Date-aware locations',body:`<p>The regular Weekend Meeting has one day and time. A temporary venue is added separately only when the meeting location changes for a defined period, for example during Kingdom Hall renovation.</p><ul><li>Street, post code, city and country can be stored separately.</li><li>The temporary venue can have its own coordinates.</li><li>The temporary venue carries its own <b>from / until</b> dates in German display format (DD.MM.YYYY).</li></ul>`},
