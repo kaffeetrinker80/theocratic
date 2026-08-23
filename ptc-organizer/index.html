@@ -79,6 +79,8 @@
 @media(max-width:900px){.imp-row,.imp-row.sp,.imp-row.miss{grid-template-columns:22px minmax(0,1fr)}.imp-arrow{display:none}.imp-preview,.imp-splist{grid-template-columns:1fr}}
 
 /* v0.6.0 master compare & merge */
+/* v0.6.1 KHS role parsing + NWS home-congregation export guard */
+/* v0.6.2 smart JSON open: detect master vs complete backup by structure */
 .merge-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;margin:12px 0}.merge-stat{border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:#faf6ef}.merge-stat b{display:block;font-size:19px}.merge-stat span{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.merge-tools{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.merge-list{display:grid;gap:8px;max-height:56vh;overflow:auto;padding-right:3px}.merge-item{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px}.merge-item.incoming{border-left:4px solid var(--ok)}.merge-item.changed{border-left:4px solid var(--warn)}.merge-item.current{border-left:4px solid var(--bad)}.merge-head{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.merge-title{font-weight:750}.merge-kind{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:2px 7px;background:var(--chip);font-weight:800}.merge-meta{font-size:11px;color:var(--muted);margin-top:2px}.merge-diffs{margin-top:8px;display:grid;gap:4px}.merge-diff{display:grid;grid-template-columns:120px minmax(0,1fr) 18px minmax(0,1fr);gap:7px;font-size:11.5px;padding:5px 7px;border-radius:8px;background:#faf6ef;align-items:start}.merge-diff .k{font-weight:700;color:#6b5c4f}.merge-diff .old{color:var(--muted);word-break:break-word}.merge-diff .new{color:var(--accent2);font-weight:600;word-break:break-word}.merge-choice{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.merge-choice button.selected{background:var(--accent);color:#fff;border-color:var(--accent)}.merge-footer{position:sticky;bottom:-16px;margin:12px -18px -16px;padding:10px 18px;background:rgba(255,253,250,.97);border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.merge-footer .spacer{flex:1}@media(max-width:760px){.merge-summary{grid-template-columns:repeat(2,1fr)}.merge-diff{grid-template-columns:1fr}.merge-diff .arrow{display:none}}
 </style>
 </head>
@@ -90,11 +92,11 @@
 <div class="app">
 <aside class="side"><span class="row-label">Find a congregation</span><input id="search" placeholder="Congregation, city, speaker, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.6.0 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.6.2 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
-const LS_MASTER='ptcOrganizerMaster_v03',LS_OUT='ptcOrganizerOutlines_v03',LS_EDITOR='ptcOrganizerEditor_v03',LS_OPEN='ptcOrganizerCountriesOpen_v03';
+const LS_MASTER='ptcOrganizerMaster_v03',LS_OUT='ptcOrganizerOutlines_v03',LS_EDITOR='ptcOrganizerEditor_v03',LS_OPEN='ptcOrganizerCountriesOpen_v03',LS_NWS_HOME='ptcOrganizerNwsHomeCong_v01';
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=x=>JSON.parse(JSON.stringify(x)),uuid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)}),today=()=>new Date().toISOString().slice(0,10);
 const dateDE=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));return m?`${m[3]}.${m[2]}.${m[1]}`:String(v||'')},dateISO=v=>{const x=String(v||'').trim();let m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(x);if(m)return `${m[3]}-${m[2]}-${m[1]}`;m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(x);return m?x:''};
 const DEFAULT_COUNTRIES=[['AT','Austria'],['BE','Belgium'],['CH','Switzerland'],['CZ','Czechia'],['DE','Germany'],['DK','Denmark'],['ES','Spain'],['FI','Finland'],['FR','France'],['GB','United Kingdom'],['IE','Ireland'],['IT','Italy'],['LU','Luxembourg'],['NL','Netherlands'],['NO','Norway'],['PL','Poland'],['PT','Portugal'],['SE','Sweden']];
@@ -468,7 +470,7 @@ function impParseKhsPages(pages,file){
         (mode==='cobe'?cobeLines:ptcLines).push(z.right);
       }
     });
-    if(leftLines.length){h.name=leftLines.shift().trim()}
+    if(leftLines.length){h.name=leftLines.shift().trim();h.type=/\sGr\.?$/i.test(h.name)?'group':'congregation';if(h.type==='group')h.name=h.name.replace(/\sGr\.?$/i,' Group')}
     const cleanLeft=leftLines.filter(x=>!/^germany$|^austria$|^switzerland$|^belgium$|^netherlands$|^france$|^italy$|^spain$|^portugal$|^united kingdom$/i.test(x));
     cleanLeft.forEach(l=>{
       if(/^EU-[A-Z0-9-]+$/i.test(l)){h.circuit=l.trim();return}
@@ -490,16 +492,23 @@ function impParseKhsPages(pages,file){
       if(candidates.length){talkX=Math.min(...candidates.map(it=>it.x));break}
     }
     if(talkX==null)talkX=rightX;
-    let sp=null;
+    let sp=null,appointment='elder';
     const finish=()=>{if(!sp)return;sp.talks=[...new Set(sp.talks)].sort((a,b)=>a-b);sp.contact=impContact(sp.contactLines);delete sp.contactLines;cur.speakers.push(sp);sp=null};
     body.forEach(r=>{
-      const left=impJoin(r.items.filter(i=>i.x<talkX-8)),right=impJoin(r.items.filter(i=>i.x>=talkX-8));
-      const nums=(right.match(/\d{1,3}/g)||[]).map(Number).filter(n=>n>0&&n<400);
+      let left=impJoin(r.items.filter(i=>i.x<talkX-8)),right=impJoin(r.items.filter(i=>i.x>=talkX-8));
+      if(/^elders?$/i.test(left)||/^elders?$/i.test(r.text)){finish();appointment='elder';return}
+      if(/^ministerial servants?$/i.test(left)||/^ministerial servants?$/i.test(r.text)){finish();appointment='ms';return}
+      let nums=(right.match(/\d{1,3}/g)||[]).map(Number).filter(n=>n>0&&n<400);
+      /* Wrapped outline rows can start a few pixels left of the detected talk column. If the
+         left fragment is numeric-only, treat it as a talk continuation rather than contact data. */
+      if(sp&&left&&/^[#\d,;\s.-]+$/.test(left)){
+        nums.push(...(left.match(/\d{1,3}/g)||[]).map(Number).filter(n=>n>0&&n<400));left='';
+      }
       const isContact=/^(?:m|h)\s*:/i.test(left)||/@/.test(left);
-      const isName=left&&/[A-Za-zÀ-ÿ]/.test(left)&&!isContact&&!/^elders$/i.test(left);
+      const isName=left&&/[A-Za-zÀ-ÿ]/.test(left)&&!isContact&&!/^(?:elders?|ministerial servants?)$/i.test(left);
       if(isName){
         finish();const nn=impKhsSpeakerName(left),av=impKhsAvailability(nn.note);
-        sp={name:nn.name,appointment:'elder',contactLines:[],talks:nums,special:[],note:nn.note,availability:av,raw:left+(right?' · '+right:'')};
+        sp={name:nn.name,appointment,contactLines:[],talks:nums,special:[],note:nn.note,availability:av,raw:left+(right?' · '+right:'')};
       }else if(sp){
         if(left)sp.contactLines.push(left);if(nums.length)sp.talks.push(...nums);if(right&&!nums.length)sp.note=[sp.note,right].filter(Boolean).join(' · ');
       }
@@ -658,7 +667,7 @@ function impApplyAll(){
     const p=item.parsed;
     if(item.target==='new'){
       const cc=item.country||p.country_code||'';
-      const c={id:uuid(),name:p.name||'Imported congregation',type:'congregation',parent_congregation_id:'',country_code:cc,circuit:p.circuit||'',phone:p.phone||'',
+      const c={id:uuid(),name:p.name||'Imported congregation',type:p.type==='group'?'group':'congregation',parent_congregation_id:'',country_code:cc,circuit:p.circuit||'',phone:p.phone||'',
         status:'active',dissolved_on:'',address:{street:p.street||'',postal_code:p.postal_code||'',city:p.city||''},
         geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},
         meetings:[{weekday:p.meeting?.weekday||7,time:p.meeting?.time||'',venue:null}],
@@ -824,7 +833,7 @@ function showHelp(){
     {title:'Temporary venues',kicker:'Date-aware locations',body:`<p>The regular Weekend Meeting has one day and time. A temporary venue is added separately only when the meeting location changes for a defined period, for example during Kingdom Hall renovation.</p><ul><li>Street, post code, city and country can be stored separately.</li><li>The temporary venue can have its own coordinates.</li><li>The temporary venue carries its own <b>from / until</b> dates in German display format (DD.MM.YYYY).</li></ul>`},
     {title:'Dissolved records',kicker:'Preserve instead of delete',body:`<p>Marking a congregation or group as <b>Dissolved</b> keeps the historical record instead of deleting it.</p><ul><li>Its speakers are moved to Unassigned Speakers, not deleted.</li><li>The dissolved record remains available from Home.</li><li>If the record is restored later, speakers stay unassigned until you deliberately reassign them.</li></ul>`},
     {title:'Compare & Merge',kicker:'Safe master updates',body:`<p>When a PTC master is already loaded, <b>Open PTC Master</b> compares the incoming file with your current working copy before anything is changed.</p><ul><li><b>Incoming only</b> records can be added or skipped.</li><li><b>Changed</b> records are compared field by field. Checked fields come from the incoming master; unchecked fields keep your current value.</li><li><b>Missing in incoming</b> records are kept by default. If you deliberately accept the absence, speakers go to the Recycle Bin and congregations are marked Dissolved.</li><li>Master History is used to show the most recent editor when that information is available.</li><li>The merge is applied only after pressing <b>Apply merge</b>.</li></ul>`},
-    {title:'Saving & export',kicker:'Working copy & handover',body:`<p>The Organizer keeps a browser working copy automatically. In supported browsers you can additionally connect a JSON file for direct writing.</p><ul><li><b>Open PTC Master</b> loads an existing master file.</li><li><b>Open PTC Master</b> also connects that file for automatic writing in Chrome/Edge.</li><li>Export remains the portable way to back up or hand the current master to another editor.</li><li>Outline data is exported separately as <b>outline-data.json</b>.</li><li><b>NWS-compatible CSV</b> uses a two-step handover without touching the encrypted NWS backup format: <b>1.</b> export/import <b>Neighbor Congregations</b> first so NWS creates the congregation structure; <b>2.</b> select that Neighbor Congregation in NWS and import its matching <b>Public Speakers</b> CSV. For country/all speaker exports, the Organizer creates a ZIP with one clearly named CSV per congregation.</li></ul>`},
+    {title:'Saving & export',kicker:'Working copy & handover',body:`<p>The Organizer keeps a browser working copy automatically. In supported browsers you can additionally connect a JSON file for direct writing.</p><ul><li><b>Open PTC Master</b> loads an existing master file and still remains the normal entry point for master work.</li><li>If a <b>Complete backup</b> is selected there instead, the Organizer recognizes its data structure automatically and offers to restore the contained PTC master and outline data.</li><li>Opening a normal master in Chrome/Edge can connect that master file for automatic writing. A backup file is never connected for direct writing; restoring it creates a browser working copy instead.</li><li>Export remains the portable way to back up or hand the current master to another editor.</li><li>Outline data is exported separately as <b>outline-data.json</b>.</li><li><b>NWS-compatible CSV</b> uses a two-step handover without touching the encrypted NWS backup format: <b>1.</b> select your <b>NWS home congregation</b> locally so it is excluded; <b>2.</b> export/import <b>Neighbor Congregations</b> so NWS creates only the neighboring congregation structure; <b>3.</b> select that Neighbor Congregation in NWS and import its matching <b>Public Speakers</b> CSV. For country/all speaker exports, the Organizer creates a ZIP with one clearly named CSV per congregation.</li></ul>`},
     {title:'Validation',kicker:'Data quality',body:`<p>Validation is designed to catch maintenance problems before they become PTC Tool problems.</p><ul><li>Missing PTC, coordinates or meeting information can be flagged.</li><li>Unknown, retiring or do-not-use outline assignments can be identified.</li><li>Duplicate checks help spot people who may have been entered more than once.</li><li>Validation never silently deletes or rewrites records.</li></ul>`}
   ];
   modal(`<h3>Help</h3><div class="small muted" style="margin:4px 0 14px">Choose a topic on the left. Only the selected topic is shown.</div><div class="help-grid"><div class="help-nav">${sections.map((x,i)=>`<button type="button" data-help="${i}" class="${i===0?'active':''}">${esc(x.title)}</button>`).join('')}</div><div class="help-pane">${sections.map((x,i)=>`<section class="help-section ${i===0?'active':''}" data-help-section="${i}"><span class="help-kicker">${esc(x.kicker)}</span><h4>${esc(x.title)}</h4>${x.body}</section>`).join('')}</div></div>`,m=>{
@@ -902,11 +911,16 @@ function buildNwsPublicSpeakersCsv(congregations){
   });
   return '\ufeff'+rows.map(r=>r.map(nwsCsvEscape).join(',')).join('\r\n')+'\r\n';
 }
+function nwsHomeCongId(){return safeText(localStorage.getItem(LS_NWS_HOME)).trim()}
+function nwsSetHomeCongId(id){id=safeText(id).trim();if(id)localStorage.setItem(LS_NWS_HOME,id);else localStorage.removeItem(LS_NWS_HOME)}
+function nwsHomeCong(){const id=nwsHomeCongId();return id?state.master?.congregations?.find(c=>c.id===id)||null:null}
 function nwsScopeCongregations(scope='all'){
+
   if(!state.master)return[];
-  let list=state.master.congregations.filter(c=>c.status!=='dissolved');
+  const homeId=nwsHomeCongId();
+  let list=state.master.congregations.filter(c=>c.status!=='dissolved'&&c.id!==homeId);
   if(scope==='current'){
-    const c=current();list=c&&c.status!=='dissolved'?[c]:[];
+    const c=current();list=c&&c.status!=='dissolved'&&c.id!==homeId?[c]:[];
   }else if(scope==='country'){
     const c=current(),cc=c?.country_code||'';list=list.filter(x=>x.country_code===cc);
   }
@@ -914,7 +928,7 @@ function nwsScopeCongregations(scope='all'){
 }
 function nwsStamp(){const d=new Date();return[String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),d.getFullYear()].join('.')}
 function exportNwsNeighborCsv(scope='all'){
-  const list=nwsScopeCongregations(scope);if(!list.length)return alert('No active congregation/group matches this export scope.');
+  const list=nwsScopeCongregations(scope);if(!list.length)return alert(current()?.id===nwsHomeCongId()?'The selected record is your NWS home congregation. It is intentionally excluded from Neighbor Congregations export because NWS maintains the home congregation locally.':'No active neighboring congregation/group matches this export scope.');
   download(`NWS_Export_Neighbor_Congregations_${nwsStamp()}.csv`,buildNwsNeighborCsv(list),'text/csv;charset=utf-8');
   log('export_nws_neighbor_csv',`NWS Neighbor Congregations CSV exported · ${list.length} record${list.length===1?'':'s'} · scope ${scope}`);touch();
 }
@@ -936,7 +950,7 @@ function zipStore(files){
 function downloadBlob(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2500)}
 function exportNwsPublicSpeakersCsv(scope='all'){
   const list=nwsScopeCongregations(scope).filter(c=>peopleFor(c).some(p=>!p.deleted_at&&p.status!=='inactive'));
-  if(!list.length)return alert('No public speakers match this export scope.');
+  if(!list.length)return alert(current()?.id===nwsHomeCongId()?'The selected record is your NWS home congregation. Its speakers are intentionally not exported as Neighbor Public Speakers; NWS maintains local speakers in its person records.':'No neighboring public speakers match this export scope.');
   const count=list.reduce((n,c)=>n+peopleFor(c).filter(p=>!p.deleted_at&&p.status!=='inactive').length,0);
   if(scope==='current'||list.length===1){
     const c=list[0];
@@ -960,9 +974,18 @@ function showNwsScopeDialog(kind){
   });
 }
 function showNwsExportDialog(){
-  modal(`<h3>NWS-compatible CSV</h3><p class="muted">Use these exports in this order when adding external congregations and their speakers to NWS.</p><div class="notice" style="margin:10px 0 12px"><b>NWS import order</b><br><b>1 · Neighbor Congregations:</b> import the congregation structure first (name, meeting time, PTC, address, etc.).<br><b>2 · Public Speakers:</b> in NWS select that Neighbor Congregation, then import its matching Public Speakers CSV.<br><span class="muted">For country/all exports, the speaker download is a ZIP containing one clearly named CSV per congregation.</span></div><div class="export-choice"><button class="primary" id="nwsNeighbor">1 · Neighbor Congregations</button><span><b>Start here.</b> Creates the congregation records NWS needs before speakers can be assigned to them.</span></div><div class="export-choice"><button class="good" id="nwsPublic">2 · Public Speakers</button><span><b>Then import speakers.</b> Select the corresponding Neighbor Congregation in NWS first, then import that congregation's speaker CSV.</span></div>`,m=>{
-    m.querySelector('#nwsPublic').onclick=()=>{closeModal();showNwsScopeDialog('public')};
-    m.querySelector('#nwsNeighbor').onclick=()=>{closeModal();showNwsScopeDialog('neighbor')};
+  const active=(state.master?.congregations||[]).filter(c=>c.status!=='dissolved').slice().sort((a,b)=>safeCompare(a?.name,b?.name));
+  const homeId=nwsHomeCongId(),home=nwsHomeCong();
+  modal(`<h3>NWS-compatible CSV</h3><p class="muted">Use these exports in this order when adding <b>neighboring</b> congregations and their speakers to NWS.</p>
+  <div class="notice warn" style="margin:10px 0 12px"><b>Your NWS home congregation is different.</b> NWS already owns that congregation and maintains its speakers in the local person records. Exporting it as a Neighbor Congregation can create a duplicate, while a Neighbor Public Speakers import may be ignored.<br><br><label class="field"><span class="row-label">My NWS home congregation (saved only in this browser)</span><select id="nwsHomeSelect"><option value="">— not selected —</option>${active.map(c=>`<option value="${c.id}" ${c.id===homeId?'selected':''}>${esc(c.name)} · ${esc(c.address?.city||countryName(c.country_code))}</option>`).join('')}</select></label>${home?`<div class="small" style="margin-top:6px"><b>${esc(home.name)}</b> will be excluded from both NWS export steps.</div>`:''}</div>
+  <div class="notice" style="margin:10px 0 12px"><b>NWS import order</b><br><b>1 · Neighbor Congregations:</b> import the congregation structure first (name, meeting time, PTC, address, etc.).<br><b>2 · Public Speakers:</b> in NWS select that Neighbor Congregation, then import its matching Public Speakers CSV.<br><span class="muted">For country/all exports, the speaker download is a ZIP containing one clearly named CSV per congregation. The selected home congregation is excluded automatically.</span></div>
+  <div class="export-choice"><button class="primary" id="nwsNeighbor">1 · Neighbor Congregations</button><span><b>Start here.</b> Creates only neighboring congregation/group records NWS needs before speakers can be assigned to them.</span></div>
+  <div class="export-choice"><button class="good" id="nwsPublic">2 · Public Speakers</button><span><b>Then import speakers.</b> Select the corresponding Neighbor Congregation in NWS first, then import that congregation's speaker CSV.</span></div>`,m=>{
+    const sel=m.querySelector('#nwsHomeSelect');
+    sel.onchange=()=>{nwsSetHomeCongId(sel.value)};
+    const continueWith=kind=>{nwsSetHomeCongId(sel.value);closeModal();showNwsScopeDialog(kind)};
+    m.querySelector('#nwsPublic').onclick=()=>continueWith('public');
+    m.querySelector('#nwsNeighbor').onclick=()=>continueWith('neighbor');
   });
 }
 function showExportDialog(){
@@ -974,8 +997,40 @@ function showExportDialog(){
     m.querySelector('#expMasterOnly').onclick=()=>{exportMaster();closeModal()};
   });
 }
-async function openMaster(){if('showOpenFilePicker'in window){try{const[h]=await showOpenFilePicker({types:[{description:'PTC master JSON',accept:{'application/json':['.json']}}]});const f=await h.getFile();receiveMaster(JSON.parse(await f.text()),h,f.name)}catch(e){if(e.name!=='AbortError')alert(e.message)}}else $('masterFile').click()}
-$('masterFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{receiveMaster(JSON.parse(await f.text()),null,f.name)}catch(err){alert(err.message)}e.target.value=''};$('outlineFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{setOutlines(JSON.parse(await f.text()))}catch(err){alert(err.message)}e.target.value=''};
+function detectOpenJson(obj){
+  if(!obj||typeof obj!=='object'||Array.isArray(obj))return'unknown';
+  if(obj.backupType==='ptc-organizer-complete-backup'&&obj.ptcMaster&&typeof obj.ptcMaster==='object')return'backup';
+  if(Array.isArray(obj.congregations)&&Array.isArray(obj.people))return'master';
+  if(obj.outlines&&typeof obj.outlines==='object')return'outlines';
+  return'unknown';
+}
+function restoreCompleteBackup(obj,fileName='backup'){
+  if(!obj?.ptcMaster||typeof obj.ptcMaster!=='object')throw new Error('The backup does not contain a valid PTC master.');
+  const hasOut=!!(obj.outlineData&&typeof obj.outlineData==='object');
+  const apply=()=>{
+    const restored=normalizeMaster(clone(obj.ptcMaster));
+    state.fileHandle=null;
+    state.master=restored;
+    state.outlines=hasOut?normalizeOut(clone(obj.outlineData)):null;
+    state.outlineBaseline=hasOut?clone(state.outlines):null;
+    try{if(hasOut)localStorage.setItem(LS_OUT,JSON.stringify(state.outlines));else localStorage.removeItem(LS_OUT)}catch(e){}
+    state.selected=state.master.congregations[0]?.id||null;state.tab='home';state.saveMode='local';state.dirty=false;
+    try{localStorage.setItem(LS_MASTER,JSON.stringify(state.master))}catch(e){}
+    log('restore_complete_backup',`Complete backup restored from ${fileName}${hasOut?' · master + outline data':' · master only'}`,{name:fileName});
+    renderAll();save();closeModal();
+  };
+  const current=!!state.master;
+  modal(`<h3>Complete backup detected</h3><p class="muted"><b>${esc(fileName)}</b> is a PTC Organizer complete backup, not a normal master file. The Organizer recognized it from the file contents.</p><div class="notice ${current?'warn':''}">${current?'<b>Restore will replace the current working master in this browser.</b><br>':'Restore will load the contained PTC master.'}${hasOut?'The backup also contains outline data, which will be restored at the same time.':'No outline data is included in this backup.'}<br><br>The backup file itself will <b>not</b> be connected for automatic writing.</div><div class="actions"><button class="primary" id="restoreDetectedBackup">Restore backup</button><button class="ghost" id="cancelDetectedBackup">Cancel</button></div>`,m=>{m.querySelector('#restoreDetectedBackup').onclick=apply;m.querySelector('#cancelDetectedBackup').onclick=closeModal});
+}
+function handleOpenedJson(obj,fileHandle=null,fileName='PTC master'){
+  const kind=detectOpenJson(obj);
+  if(kind==='master'){receiveMaster(obj,fileHandle,fileName);return}
+  if(kind==='backup'){restoreCompleteBackup(obj,fileName);return}
+  if(kind==='outlines')throw new Error('This file looks like outline data, not a PTC master. Load it through Outline Management instead.');
+  throw new Error('This JSON is not recognized as a PTC master or PTC Organizer complete backup.');
+}
+async function openMaster(){if('showOpenFilePicker'in window){try{const[h]=await showOpenFilePicker({types:[{description:'PTC master or Organizer backup JSON',accept:{'application/json':['.json']}}]});const f=await h.getFile();handleOpenedJson(JSON.parse(await f.text()),h,f.name)}catch(e){if(e.name!=='AbortError')alert(e.message)}}else $('masterFile').click()}
+$('masterFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{handleOpenedJson(JSON.parse(await f.text()),null,f.name)}catch(err){alert(err.message)}e.target.value=''};$('outlineFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{setOutlines(JSON.parse(await f.text()))}catch(err){alert(err.message)}e.target.value=''};
 $('btnOpen').onclick=openMaster;$('issuesFact').onclick=()=>{if(state.master)showIssuesModal()};$('btnHelp').onclick=showHelp;$('btnExport').onclick=showExportDialog;$('btnAdmin').onclick=()=>{if(state.master){state.tab='admin';renderWorkspace()}};$('globalNav').addEventListener('click',e=>{const b=e.target.closest('[data-global]');if(!b||!state.master)return;state.tab=b.dataset.global;renderWorkspace();renderTree();renderUnassignedNav()});$('homeTitle').onclick=()=>{if(!state.master)return;state.tab='home';renderWorkspace();renderTree();renderUnassignedNav()};$('editorName').onchange=()=>localStorage.setItem(LS_EDITOR,$('editorName').value);$('search').oninput=renderTree;$('filter').onchange=renderTree;$('btnExpand').onclick=()=>{if(!state.master)return;const all=new Set(state.master.congregations.map(c=>c.country_code||'??'));state.openCountries.size>=all.size?state.openCountries.clear():all.forEach(x=>state.openCountries.add(x));localStorage.setItem(LS_OPEN,JSON.stringify([...state.openCountries]));renderTree()};$('btnNewCong').onclick=()=>{if(!state.master)loadMaster(freshMaster());const c={id:uuid(),name:'New congregation',type:'congregation',parent_congregation_id:'',country_code:'DE',circuit:'',phone:'',status:'active',dissolved_on:'',address:{street:'',postal_code:'',city:''},geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},meetings:[{weekday:7,time:'',venue:null}],ptc:{name:'',jwpub_email:'',email:'',mobile:'',home:'',speaker_id:''},cobe:{name:'',phone:''},note:'',speaker_ids:[]};state.master.congregations.push(c);state.selected=c.id;state.openCountries.add('DE');touch('add_congregation','New congregation added',{cong:c.id,name:c.name});state.tab='congregation';renderAll()};$('mainTabs').addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(!t)return;state.tab=t.dataset.tab;renderWorkspace()});$('btnValidateCong').onclick=()=>{const c=current();if(c)showIssuesModal(c)};
 window.addEventListener('beforeunload',e=>{if(state.master&&state.dirty){e.preventDefault();e.returnValue=''}});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 async function loadPublishedOutlines(){
