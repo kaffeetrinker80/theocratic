@@ -408,6 +408,43 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .ol-count{ margin-left:0; }
 }
 
+/* ===== speaker modal (v2.4) =====
+   Everything speaker-related lives here; the right pane keeps the congregation data.
+   z-index sits below the outline directory so an outline chip can open on top. */
+#speakerOverlay{
+  display:none; position:fixed; inset:0; z-index:9990;
+  background:rgba(44,32,24,.55); padding:24px; overflow:auto;
+}
+.sp-dialog{
+  max-width:880px; margin:0 auto; background:var(--card); color:var(--text);
+  border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
+  display:flex; flex-direction:column; max-height:calc(100vh - 48px);
+}
+.sp-head{
+  display:flex; align-items:flex-start; gap:14px; justify-content:space-between;
+  padding:15px 18px; border-bottom:1px solid var(--line); background:#faf6ef;
+}
+.sp-head h2{ margin:0; font-size:20px; line-height:1.25; }
+.sp-head-sub{ font-size:12.5px; color:var(--muted); margin-top:3px; }
+.sp-head-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.sp-body{ overflow:auto; padding:4px 18px 16px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
+.sp-body::-webkit-scrollbar{ width:9px; }
+.sp-body::-webkit-scrollbar-thumb{ background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
+.sp-body .detail-section{ margin-top:16px; }
+.sp-foot{
+  padding:10px 18px; border-top:1px solid var(--line); background:#faf6ef;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  font-size:11.5px; color:var(--muted);
+}
+.sp-foot .sp-foot-hint{ margin-right:auto; }
+.card[data-key].is-open-in-modal{ border-color:var(--accent); }
+@media (max-width:720px){
+  #speakerOverlay{ padding:0; }
+  .sp-dialog{ max-height:100vh; min-height:100vh; border-radius:0; }
+  .sp-head{ position:sticky; top:0; z-index:2; }
+  .sp-head h2{ font-size:17px; }
+}
+
 /* ===== print module ===== */
 #printOverlay{ display:none; position:fixed; inset:0; z-index:9997; background:rgba(44,32,24,.55); padding:24px; overflow:auto; }
 .pr-dialog{
@@ -662,7 +699,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.3.2</div>
+  <div class="footer">Made with love © v.2.4</div>
 </div>
 
 <script>
@@ -689,7 +726,8 @@ const state = {
   geoCache: loadGeoCache(),
   homeCongregationId: loadHomeCongregationId(),
   selectedKey: null,
-  lastCongregationKey: null
+  lastCongregationKey: null,
+  modalSpeakerId: null
 };
 
 function loadNotes() {
@@ -2058,6 +2096,10 @@ function congregationMatches(cong, fs) {
 function renderResults() {
   const list = document.getElementById('resultsList');
   const ds = state.dataset;
+  /* v2.4: if the open speaker disappeared (reset, new import), close the modal */
+  if (state.modalSpeakerId && (!ds || !ds.speakers.some(x => x.id === state.modalSpeakerId))) {
+    if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
+  }
   list.innerHTML = '';
   if (!ds) {
     document.getElementById('resultsCount').textContent = '0 matches';
@@ -2092,7 +2134,7 @@ function renderResults() {
       const isHome = state.homeCongregationId && x.cong.id === state.homeCongregationId;
       const distanceLabel = distanceLabelForCong(x.cong, fs.distanceMode);
       return `
-      <div class="card ${state.selectedKey === key ? 'active' : ''}" data-key="${key}">
+      <div class="card ${state.selectedKey === key ? 'active' : ''} ${state.modalSpeakerId === x.sp.id ? 'is-open-in-modal' : ''}" data-key="${key}">
         <div class="list-card-head">
           <div class="card-title">${escapeHtml(x.sp.name)}</div>
           <button type="button" class="list-fav-btn ${meta.favorite ? 'active' : ''}" data-fav-key="${escapeHtml(x.sp.notesKey)}" title="${meta.favorite ? 'Remove favorite' : 'Add to favorites'}">${meta.favorite ? '★' : '☆'}</button>
@@ -2152,7 +2194,13 @@ function renderResults() {
   list.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => {
       state.lastCongregationKey = null;
-      state.selectedKey = card.dataset.key;
+      const key = card.dataset.key || '';
+      /* v2.4: a speaker opens in the modal, the right pane shows his congregation */
+      if (key.startsWith('speaker:')) {
+        openSpeakerModal(key.slice('speaker:'.length));
+        return;
+      }
+      state.selectedKey = key;
       renderResults();
       renderDetail();
     });
@@ -2167,6 +2215,7 @@ function renderResults() {
       persistDataset();
       renderResults();
       renderDetail();
+      refreshSpeakerModal();
       setStatus(rec.favorite ? 'Favorite removed' : 'Favorite saved');
     });
   });
@@ -2292,6 +2341,7 @@ function wireNoteEditor(key, kind = 'speaker') {
     persistDataset();
     renderResults();
     renderDetail();
+    if (typeof refreshSpeakerModal === 'function') refreshSpeakerModal();
   });
 }
 
@@ -2558,8 +2608,12 @@ function renderImprovePage() {
     </div>
   `;
   pane.querySelectorAll('.improve-open').forEach(btn => btn.addEventListener('click', () => {
-    if (btn.dataset.kind === 'speaker' && btn.dataset.speaker) state.selectedKey = 'speaker:' + btn.dataset.speaker;
-    else state.selectedKey = 'cong:' + btn.dataset.cong;
+    /* v2.4: a speaker entry opens directly in the speaker card */
+    if (btn.dataset.kind === 'speaker' && btn.dataset.speaker) {
+      openSpeakerModal(btn.dataset.speaker);
+      return;
+    }
+    state.selectedKey = 'cong:' + btn.dataset.cong;
     renderResults();
     renderDetail();
   }));
@@ -2577,22 +2631,24 @@ function buildCorrectionContext(kind, item, cong) {
   };
 }
 
-function renderCorrectionBox(context) {
+/* v2.4: the correction box can now exist twice at the same time (congregation in the
+   right pane, speaker inside the modal). Everything is therefore scoped to a root
+   element and queried by class instead of by global element id. */
+function renderCorrectionBox(context, scope = 'pane') {
   const checks = ['Name','Address','Country','Circuit','Meeting time','Hall phone','PTC','Speaker phone','Speaker email','Outlines','Other'];
   return `
-    <div class="detail-section">
+    <div class="detail-section corr-root" id="corrRoot_${escapeHtml(scope)}">
       <h3>Correction suggestion</h3>
       <div class="correction-box">
         <div class="subtle">Send a detailed correction proposal directly to Ronald on WhatsApp or email. You can add multiple corrections to one message.</div>
-        <div id="corrRows"></div>
+        <div class="corr-rows"></div>
         <div class="corr-actions">
-          <button type="button" class="ghost" id="addCorrectionRowBtn">+ Add another correction</button>
-          <button type="button" id="sendCorrectionBtn">Send via WhatsApp</button>
-          <button type="button" class="ghost" id="sendCorrectionMailBtn">Send via email</button>
+          <button type="button" class="ghost corr-add-btn">+ Add another correction</button>
+          <button type="button" class="corr-wa-btn">Send via WhatsApp</button>
+          <button type="button" class="ghost corr-mail-btn">Send via email</button>
         </div>
       </div>
-    </div>
-    <template id="corrRowTemplate">
+    <template class="corr-row-template">
       <div class="corr-row">
         <div class="correction-checks">
           ${checks.map(c => `<label><input type="checkbox" name="corrType" value="${escapeHtml(c)}"> ${escapeHtml(c)}</label>`).join('')}
@@ -2616,15 +2672,18 @@ function renderCorrectionBox(context) {
         </div>
       </div>
     </template>
+    </div>
   `;
 }
 
-function wireCorrectionBox(context) {
-  const rows = document.getElementById('corrRows');
-  const tpl = document.getElementById('corrRowTemplate');
-  const addBtn = document.getElementById('addCorrectionRowBtn');
-  const waBtn = document.getElementById('sendCorrectionBtn');
-  const mailBtn = document.getElementById('sendCorrectionMailBtn');
+function wireCorrectionBox(context, scope = 'pane') {
+  const root = document.getElementById('corrRoot_' + scope);
+  if (!root) return;
+  const rows = root.querySelector('.corr-rows');
+  const tpl = root.querySelector('.corr-row-template');
+  const addBtn = root.querySelector('.corr-add-btn');
+  const waBtn = root.querySelector('.corr-wa-btn');
+  const mailBtn = root.querySelector('.corr-mail-btn');
   if (!rows || !tpl || !addBtn) return;
 
   const addRow = () => {
@@ -2721,96 +2780,20 @@ function renderDetail() {
   }
 
   const [kind, id] = state.selectedKey.split(':');
+
+  /* v2.4: the right pane always shows congregation data.
+     If a speaker is selected, we render that speaker's congregation and highlight him
+     in the speaker list; everything speaker-specific lives in the speaker modal. */
+  let cong = null;
+  let highlightSpeakerId = '';
   if (kind === 'speaker') {
     const sp = ds.speakers.find(x => x.id === id);
     if (!sp) return;
-    const cong = ds.congregations.find(c => c.id === sp.congregationId);
-    const noteKey = sp.notesKey;
-    const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
-    pane.innerHTML = `
-      <div class="detail-section">
-        <h3>Congregation</h3>
-        <div class="meta">
-          <div class="meta-item"><div class="meta-label">Congregation</div><div>${escapeHtml(cong.name)}</div></div>
-          <div class="meta-item"><div class="meta-label">Circuit</div><div>${escapeHtml(cong.circuit || '—')}</div></div>
-          <div class="meta-item span-2"><div class="meta-label">Address</div><div>${escapeHtml([cong.address, (cong.postalCode ? cong.postalCode + ' ' : '') + cong.city, cong.country].filter(Boolean).join(', '))}</div></div>
-          <div class="meta-item"><div class="meta-label">Meeting time</div><div>${escapeHtml(cong.meetingRaw || '—')}</div></div>
-          <div class="meta-item"><div class="meta-label">Distance</div><div>${escapeHtml(distanceLabelForCong(cong) || '—')}</div></div>
-          <div class="meta-item span-2"><div class="meta-label">Geo status</div><div>${escapeHtml(cong.geoStatus || (hasCongGeo(cong) ? 'ok' : 'no geo data'))}</div></div>
-          <div class="meta-item"><div class="meta-label">Hall phone</div><div>${cong.hallPhone ? `<a href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>${escapeHtml(cong.hallPhone)}</a>` : '—'}</div></div>
-        </div>
-        <div class="links" style="margin-top:12px;">
-          <a class="chip" href="${mapUrl(cong)}" target="_blank" rel="noreferrer">Open hall in Google Maps</a>
-          <button type="button" class="ghost" id="setHomeCongBtn">${isHome ? '✓ Home congregation' : 'Set as home congregation'}</button>
-          ${isHome ? '<button type="button" class="ghost" id="clearHomeCongBtn">Clear home congregation</button>' : ''}
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="ptc-grid">
-          ${renderPtcContactBox(cong)}
-          ${renderPtcAssistantEditor(cong)}
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <h3>Selected speaker</h3>
-        ${state.lastCongregationKey ? `<div class="back-row"><button type="button" class="ghost" id="backToCongBtn">← Back to congregation</button></div>` : ''}
-        <div class="speaker-mini highlight">
-          <div class="speaker-highlight-head">
-            <h4>${escapeHtml(sp.name)} <span class="small subtle">· ${escapeHtml(sp.role)}</span></h4>
-            <button type="button" class="star-btn star-corner ${noteRecord(noteKey).favorite ? 'active' : ''}" id="selectedSpeakerFavoriteBtn">${noteRecord(noteKey).favorite ? '★ Favorite' : '☆ Add to favorites'}</button>
-          </div>
-          <div class="row">
-            <span class="chip role-${sp.role === 'Elder' ? 'elder' : 'ms'}">${escapeHtml(sp.role)}</span>
-            ${isHome ? `<span class="chip home-chip">Home congregation</span>` : ''}
-            ${!isHome && distanceLabelForCong(cong) ? `<span class="chip">${escapeHtml(distanceLabelForCong(cong))}</span>` : ''}
-          </div>
-          <div class="links">
-            ${renderPhoneChips(sp.phones, cong.country) || '<span class="chip">No phone saved</span>'}
-            ${renderEmailChips(sp.emails) || '<span class="chip">No email saved</span>'}
-          </div>
-          <div class="outline-list">
-            ${sp.outlines.map(no => renderOutline(no)).join('') || '<span class="subtle">No outlines found.</span>'}
-          </div>
-        </div>
-      </div>
-
-      ${renderNoteEditor(noteKey)}
-      ${renderCorrectionBox(buildCorrectionContext('speaker', sp, cong))}
-    `;
-    wireNoteEditor(noteKey);
-    wirePtcLocalNoteEditor(cong);
-    wirePtcAssistantEditor(cong);
-    wireCorrectionBox(buildCorrectionContext('speaker', sp, cong));
-    const setHomeBtn = document.getElementById('setHomeCongBtn');
-    const clearHomeBtn = document.getElementById('clearHomeCongBtn');
-    if (setHomeBtn) setHomeBtn.addEventListener('click', () => { state.homeCongregationId = cong.id; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); setStatus('Home congregation saved'); });
-    if (clearHomeBtn) clearHomeBtn.addEventListener('click', () => { state.homeCongregationId = ''; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); setStatus('Home congregation cleared'); });
-    const ptcVcfBtn = document.getElementById('ptcVcfBtn');
-    if (ptcVcfBtn) ptcVcfBtn.addEventListener('click', () => downloadPtcVcf(cong));
-    const selectedSpeakerFavoriteBtn = document.getElementById('selectedSpeakerFavoriteBtn');
-    if (selectedSpeakerFavoriteBtn) selectedSpeakerFavoriteBtn.addEventListener('click', () => {
-      const rec = noteRecord(noteKey);
-      setNoteRecord(noteKey, { ...rec, favorite: !rec.favorite });
-      saveNotes();
-      persistDataset();
-      renderResults();
-      renderDetail();
-      setStatus(rec.favorite ? 'Favorite removed' : 'Favorite saved');
-    });
-    const backToCongBtn = document.getElementById('backToCongBtn');
-    if (backToCongBtn) backToCongBtn.addEventListener('click', () => {
-      if (!state.lastCongregationKey) return;
-      state.selectedKey = state.lastCongregationKey;
-      document.getElementById('viewMode').value = 'congregation';
-      renderResults();
-      renderDetail();
-    });
-    return;
+    cong = ds.congregations.find(c => c.id === sp.congregationId);
+    highlightSpeakerId = sp.id;
+  } else {
+    cong = ds.congregations.find(x => x.id === id);
   }
-
-  const cong = ds.congregations.find(x => x.id === id);
   if (!cong) return;
 
   const elderCount = cong.speakers.filter(s => s.role === 'Elder').length;
@@ -2852,11 +2835,14 @@ function renderDetail() {
 
     <div class="detail-section">
       <h3>Speakers</h3>
+      <div class="small subtle" style="margin-bottom:10px;">Click a speaker to open his card with outlines, memory and correction form.</div>
       <div class="speaker-table">
-        ${cong.speakers.map(sp => `
-          <div class="speaker-mini cong-speaker-card" data-cong-speaker-id="${escapeHtml(sp.id)}">
+        ${cong.speakers.map(sp => {
+          const rec = noteRecord(sp.notesKey);
+          return `
+          <div class="speaker-mini cong-speaker-card ${sp.id === highlightSpeakerId ? 'highlight' : ''}" data-cong-speaker-id="${escapeHtml(sp.id)}">
             <div class="speaker-highlight-head">
-              <h4>${escapeHtml(sp.name)} <span class="small subtle">· ${escapeHtml(sp.role)}</span></h4>
+              <h4>${escapeHtml(sp.name)} <span class="small subtle">· ${escapeHtml(sp.role)}</span>${rec.favorite ? ' <span class="small">★</span>' : ''}</h4>
               <button type="button" class="ghost open-speaker-detail-btn" data-speaker-id="${escapeHtml(sp.id)}">Open speaker</button>
             </div>
             <div class="small">${renderPhoneLinks(sp.phones, cong.country) || 'No phone'}</div>
@@ -2865,40 +2851,199 @@ function renderDetail() {
               ${sp.outlines.slice(0, 18).map(no => renderOutline(no)).join('')}
               ${sp.outlines.length > 18 ? `<span class="outline">+${sp.outlines.length - 18} more</span>` : ''}
             </div>
-          </div>
-        `).join('') || '<div class="subtle">No speakers found in this import.</div>'}
+          </div>`;
+        }).join('') || '<div class="subtle">No speakers found in this import.</div>'}
       </div>
     </div>
 
-    ${renderCorrectionBox(buildCorrectionContext('congregation', cong, cong))}
+    ${renderCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane')}
   `;
   wirePtcLocalNoteEditor(cong);
   wirePtcAssistantEditor(cong);
-  wireCorrectionBox(buildCorrectionContext('congregation', cong, cong));
+  wireCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane');
   const setHomeBtn = document.getElementById('setHomeCongBtn');
   const clearHomeBtn = document.getElementById('clearHomeCongBtn');
-  if (setHomeBtn) setHomeBtn.addEventListener('click', () => { state.homeCongregationId = cong.id; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); setStatus('Home congregation saved'); });
-  if (clearHomeBtn) clearHomeBtn.addEventListener('click', () => { state.homeCongregationId = ''; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); setStatus('Home congregation cleared'); });
+  if (setHomeBtn) setHomeBtn.addEventListener('click', () => { state.homeCongregationId = cong.id; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation saved'); });
+  if (clearHomeBtn) clearHomeBtn.addEventListener('click', () => { state.homeCongregationId = ''; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation cleared'); });
   const ptcVcfBtn = document.getElementById('ptcVcfBtn');
   if (ptcVcfBtn) ptcVcfBtn.addEventListener('click', () => downloadPtcVcf(cong));
-  document.querySelectorAll('.open-speaker-detail-btn, [data-cong-speaker-id]').forEach(el => {
+  pane.querySelectorAll('[data-cong-speaker-id]').forEach(el => {
     el.addEventListener('click', (ev) => {
-      if (ev.target.closest('.open-speaker-detail-btn')) ev.stopPropagation();
-      const speakerId = el.dataset.speakerId || el.dataset.congSpeakerId;
+      /* outline chips inside the card open the outline directory instead */
+      if (ev.target.closest('.outline[data-outline-no]')) return;
+      if (ev.target.closest('a')) return;
+      const speakerId = el.dataset.congSpeakerId;
       if (!speakerId) return;
-      state.lastCongregationKey = 'cong:' + cong.id;
-      state.selectedKey = 'speaker:' + speakerId;
-      document.getElementById('viewMode').value = 'speaker';
-      renderResults();
-      renderDetail();
+      openSpeakerModal(speakerId);
     });
   });
 }
 
+/* ===== speaker modal (v2.4) =====
+   Everything that belongs to a single speaker lives here: contacts, outlines,
+   speaker memory and the speaker correction form. The right pane keeps the
+   congregation, PTC and assistant data so both can be used side by side. */
+function currentModalSpeaker() {
+  if (!state.modalSpeakerId || !state.dataset) return null;
+  const sp = state.dataset.speakers.find(x => x.id === state.modalSpeakerId);
+  if (!sp) return null;
+  const cong = state.dataset.congregations.find(c => c.id === sp.congregationId);
+  if (!cong) return null;
+  return { sp, cong };
+}
+
+function isSpeakerModalOpen() {
+  const overlay = document.getElementById('speakerOverlay');
+  return !!overlay && overlay.style.display === 'block';
+}
+
+function syncBodyScrollLock() {
+  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay']
+    .map(id => document.getElementById(id))
+    .some(el => el && el.style.display === 'block');
+  document.body.style.overflow = anyOpen ? 'hidden' : '';
+}
+
+function renderSpeakerModalBody() {
+  const found = currentModalSpeaker();
+  const body = document.getElementById('speakerModalBody');
+  if (!found || !body) return;
+  const { sp, cong } = found;
+  const noteKey = sp.notesKey;
+  const rec = noteRecord(noteKey);
+  const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
+  const distanceLabel = distanceLabelForCong(cong);
+
+  document.getElementById('speakerModalTitle').textContent = sp.name;
+  document.getElementById('speakerModalSub').textContent =
+    [sp.role, cong.name, [cong.city, cong.country].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+
+  const favBtn = document.getElementById('speakerModalFavBtn');
+  if (favBtn) {
+    favBtn.classList.toggle('active', !!rec.favorite);
+    favBtn.textContent = rec.favorite ? '★ Favorite' : '☆ Add to favorites';
+  }
+
+  body.innerHTML = `
+    <div class="detail-section">
+      <div class="row">
+        <span class="chip role-${sp.role === 'Elder' ? 'elder' : 'ms'}">${escapeHtml(sp.role)}</span>
+        ${isHome ? `<span class="chip home-chip">Home congregation</span>` : ''}
+        ${!isHome && distanceLabel ? `<span class="chip">${escapeHtml(distanceLabel)}</span>` : ''}
+        ${cong.circuit ? `<span class="chip">${escapeHtml(cong.circuit)}</span>` : ''}
+        ${cong.meetingRaw ? `<span class="chip">${escapeHtml(cong.meetingRaw)}</span>` : ''}
+        ${rec.lastInvited ? `<span class="chip">Invited: ${escapeHtml(formatDateLabel(rec.lastInvited))}</span>` : ''}
+        ${rec.lastUsed ? `<span class="chip">Used: ${escapeHtml(formatDateLabel(rec.lastUsed))}</span>` : ''}
+      </div>
+      <div class="links" style="margin-top:10px;">
+        ${renderPhoneChips(sp.phones, cong.country) || '<span class="chip">No phone saved</span>'}
+        ${renderEmailChips(sp.emails) || '<span class="chip">No email saved</span>'}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Outlines</h3>
+      <div class="outline-list">
+        ${sp.outlines.map(no => renderOutline(no)).join('') || '<span class="subtle">No outlines found.</span>'}
+      </div>
+    </div>
+
+    ${renderNoteEditor(noteKey)}
+    ${renderCorrectionBox(buildCorrectionContext('speaker', sp, cong), 'modal')}
+  `;
+
+  wireNoteEditor(noteKey);
+  wireCorrectionBox(buildCorrectionContext('speaker', sp, cong), 'modal');
+}
+
+function refreshSpeakerModal() {
+  if (!isSpeakerModalOpen()) return;
+  if (!currentModalSpeaker()) { closeSpeakerModal(); return; }
+  renderSpeakerModalBody();
+}
+
+function openSpeakerModal(speakerId) {
+  const overlay = document.getElementById('speakerOverlay');
+  if (!overlay || !state.dataset) return;
+  const sp = state.dataset.speakers.find(x => x.id === speakerId);
+  if (!sp) return;
+
+  state.modalSpeakerId = speakerId;
+  /* keep the list selection and the right pane in sync with the open speaker */
+  state.selectedKey = 'speaker:' + speakerId;
+  renderResults();
+  renderDetail();
+  renderSpeakerModalBody();
+
+  overlay.style.display = 'block';
+  overlay.setAttribute('aria-hidden', 'false');
+  syncBodyScrollLock();
+  const bodyEl = document.getElementById('speakerModalBody');
+  if (bodyEl) bodyEl.scrollTop = 0;
+  const closeBtn = document.getElementById('closeSpeakerBtn');
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeSpeakerModal() {
+  const overlay = document.getElementById('speakerOverlay');
+  if (!overlay) return;
+  state.modalSpeakerId = null;
+  overlay.style.display = 'none';
+  overlay.setAttribute('aria-hidden', 'true');
+  syncBodyScrollLock();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('speakerOverlay');
+  if (!overlay) return;
+  const closeBtn = document.getElementById('closeSpeakerBtn');
+  const favBtn = document.getElementById('speakerModalFavBtn');
+  const congBtn = document.getElementById('speakerModalCongBtn');
+
+  if (closeBtn) closeBtn.addEventListener('click', closeSpeakerModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeSpeakerModal(); });
+  /* capture phase: this runs before the outline directory's own Escape handler,
+     so we can see whether the outline modal is still open. If it is, it sits on top
+     and gets the Escape; the speaker card stays where it is. */
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const outlineOpen = document.getElementById('outlineOverlay')?.style.display === 'block';
+    if (outlineOpen) return;
+    if (isSpeakerModalOpen()) closeSpeakerModal();
+  }, true);
+
+  if (favBtn) favBtn.addEventListener('click', () => {
+    const found = currentModalSpeaker();
+    if (!found) return;
+    const key = found.sp.notesKey;
+    const rec = noteRecord(key);
+    setNoteRecord(key, { ...rec, favorite: !rec.favorite });
+    saveNotes();
+    persistDataset();
+    renderResults();
+    renderDetail();
+    favBtn.classList.toggle('active', !rec.favorite);
+    favBtn.textContent = !rec.favorite ? '★ Favorite' : '☆ Add to favorites';
+    setStatus(rec.favorite ? 'Favorite removed' : 'Favorite saved');
+  });
+
+  if (congBtn) congBtn.addEventListener('click', () => {
+    const found = currentModalSpeaker();
+    if (!found) return;
+    const congId = found.cong.id;
+    closeSpeakerModal();
+    state.selectedKey = 'cong:' + congId;
+    const viewMode = document.getElementById('viewMode');
+    if (viewMode) viewMode.value = 'congregation';
+    renderResults();
+    renderDetail();
+  });
+});
+
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.1.7',
+    version: '2.4',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     sourceFileName: state.dataset.sourceFileName || '',
@@ -3146,8 +3291,8 @@ function importPtcAssistantsFromText(text) {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.1.7', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.1.7', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.4', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.4', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3181,6 +3326,7 @@ function importJsonObject(obj) {
   refreshStats();
   state.selectedKey = null;
   state.lastCongregationKey = null;
+  if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
   renderResults();
   renderDetail();
   setStatus('JSON imported');
@@ -3201,6 +3347,7 @@ function clearFilters() {
   document.getElementById('sortMode').value = 'name';
   state.selectedKey = null;
   state.lastCongregationKey = null;
+  if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
   renderResults();
   renderDetail();
   refreshDistanceRowInfo();
@@ -3218,6 +3365,7 @@ function resetAll() {
   state.homeCongregationId = '';
   state.selectedKey = null;
   state.lastCongregationKey = null;
+  if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
   populateFilters();
   refreshStats();
   document.getElementById('resultsList').innerHTML = '';
@@ -3275,6 +3423,7 @@ document.getElementById('csvInput').addEventListener('change', async (ev) => {
     refreshStats();
     state.selectedKey = null;
     state.lastCongregationKey = null;
+    if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
     renderResults();
     renderDetail();
     updateAssistantImportState();
@@ -3323,6 +3472,7 @@ if (outlineInput) {
       outlineInput.value = '';
       state.selectedKey = null;
       state.lastCongregationKey = null;
+      if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
       updateClearOutlineButton();
       renderResults();
       renderDetail();
@@ -3337,6 +3487,7 @@ if (clearOutlineBtn) {
     outlineInput.value = '';
     state.selectedKey = null;
     state.lastCongregationKey = null;
+    if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
     updateClearOutlineButton();
     renderResults();
     renderDetail();
@@ -3546,6 +3697,26 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 <div id="printRoot" aria-hidden="true"></div>
 
+<div id="speakerOverlay" aria-hidden="true">
+  <div class="sp-dialog" role="dialog" aria-modal="true" aria-labelledby="speakerModalTitle">
+    <div class="sp-head">
+      <div>
+        <h2 id="speakerModalTitle">Speaker</h2>
+        <div class="sp-head-sub" id="speakerModalSub"></div>
+      </div>
+      <div class="sp-head-actions">
+        <button type="button" class="star-btn" id="speakerModalFavBtn">☆ Add to favorites</button>
+        <button type="button" class="ghost" id="closeSpeakerBtn">Close</button>
+      </div>
+    </div>
+    <div class="sp-body" id="speakerModalBody"></div>
+    <div class="sp-foot">
+      <span class="sp-foot-hint">Congregation data, PTC and assistant stay in the right panel. Press Esc to close.</span>
+      <button type="button" class="ghost" id="speakerModalCongBtn">Show congregation →</button>
+    </div>
+  </div>
+</div>
+
 <div id="outlineOverlay" aria-hidden="true">
   <div class="ol-dialog" role="dialog" aria-modal="true" aria-label="Outline directory">
     <div class="help-head">
@@ -3580,7 +3751,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.3.2</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3593,7 +3764,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <a href="#help-s3">Distance tools</a>
         <a href="#help-s4">Home congregation</a>
         <a href="#help-s5">Speaker and congregation view</a>
-        <a href="#help-s6">Back to congregation</a>
+        <a href="#help-s6">The speaker card</a>
         <a href="#help-s7">Outline search</a>
         <a href="#help-s7b">Printing and PDF</a>
         <a href="#help-s8">Favorites and memory</a>
@@ -3647,13 +3818,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <section class="help-section" id="help-s5">
           <h3><span class="help-num">05</span> Speaker and congregation view</h3>
-          <p><b>Speaker View</b> is best when you already know the brother or the outline you need.</p>
-          <p><b>Congregation View</b> is best when you want to review a whole congregation first, including the PTC and all available speakers in one place. There you can click a speaker directly in the speaker list and open his details on the right side.</p>
+          <p>Since v2.4 the two sides have a clear division of labour: the <b>right panel always shows congregation data</b> — address, meeting time, distance, PTC contact, PTC assistant, the speaker list, and the congregation correction form. Everything that belongs to one brother opens in the <b>speaker card</b>, a modal window on top.</p>
+          <p><b>Speaker View</b> is best when you already know the brother or the outline you need. Clicking a result opens his speaker card and at the same time loads his congregation into the right panel, so both are ready.</p>
+          <p><b>Congregation View</b> is best when you want to review a whole congregation first. Click any brother in the speaker list to open his card without losing the congregation you are looking at.</p>
         </section>
 
         <section class="help-section" id="help-s6">
-          <h3><span class="help-num">06</span> Back to congregation</h3>
-          <p>When you open a speaker directly from a congregation, the tool remembers that congregation. In the selected speaker area you will see <b>← Back to congregation</b> directly above the highlighted speaker box, so you can review several brothers from the same congregation without searching again.</p>
+          <h3><span class="help-num">06</span> The speaker card</h3>
+          <p>The speaker card holds the role and distance chips, phone and e-mail links, all outlines, the <b>speaker memory</b> (favorite, last invited, last used, notes), and the correction form for that brother. Close it with <b>Close</b>, the <b>Esc</b> key, or a click on the dark background.</p>
+          <p>Because the congregation stays visible behind the card, you can go through several brothers of the same congregation one after another — no scrolling back and forth. <b>Show congregation →</b> at the bottom of the card closes it and switches the list to Congregation View for that hall.</p>
+          <p>Clicking an outline chip inside the card opens the outline directory on top of it. Choosing an outline there filters the result list and closes the speaker card, so you immediately see who else offers that talk.</p>
         </section>
 
         <section class="help-section" id="help-s7">
@@ -3978,12 +4152,12 @@ document.addEventListener('DOMContentLoaded', function () {
     render();
     overlay.style.display = 'block';
     overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    syncBodyScrollLock();
   }
   function close() {
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    syncBodyScrollLock();
   }
 
   if (openBtn) openBtn.addEventListener('click', open);
@@ -4178,6 +4352,8 @@ document.addEventListener('DOMContentLoaded', function () {
       input.dispatchEvent(new Event('input', { bubbles:true }));
     }
     close();
+    /* the filter changes the result list, so the open speaker card is closed too */
+    if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
     setStatus('Filtered by outline #' + no);
   }
 
@@ -4187,14 +4363,14 @@ document.addEventListener('DOMContentLoaded', function () {
     render(true);
     overlay.style.display = 'block';
     overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    syncBodyScrollLock();
     if (focusNo == null) setTimeout(() => searchEl.focus(), 0);
   }
   function close() {
     hideTip();
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    syncBodyScrollLock();
   }
 
   if (openBtn) openBtn.addEventListener('click', () => open(null));
@@ -4227,14 +4403,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function openHelp() {
     overlay.style.display = 'block';
     overlay.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    syncBodyScrollLock();
     if (content) content.scrollTop = 0;
     if (closeBtn) closeBtn.focus();
   }
   function closeHelp() {
     overlay.style.display = 'none';
     overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    syncBodyScrollLock();
     if (openBtn) openBtn.focus();
   }
 
