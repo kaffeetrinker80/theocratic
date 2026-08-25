@@ -32,6 +32,16 @@
   --eyebrow:#9c9184;
   --font-display:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
   --font-body:"Segoe UI",Roboto,-apple-system,"Helvetica Neue",Arial,sans-serif;
+
+  /* v2.4.2 – reserved strip at the bottom of the screen.
+     An auto-hiding Windows taskbar (or a similar always-on-top bar) lies ON TOP of the
+     browser viewport, so no CSS unit can see it: even 100dvh reaches underneath it.
+     We therefore keep this much space free at the bottom of every fixed element.
+     Set it to 0px if your taskbar does not overlap the browser. */
+  --bottom-safe:56px;
+}
+@media (max-width:720px){
+  :root{ --bottom-safe:env(safe-area-inset-bottom, 0px); }
 }
 * { box-sizing:border-box; }
 html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.5 var(--font-body); -webkit-font-smoothing:antialiased; }
@@ -224,7 +234,7 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
   max-height:calc(100vh - 24px);
   /* dvh follows the visible viewport, so the panel no longer ends up behind a
      mobile URL bar or a taskbar-sized window edge. vh above stays as fallback. */
-  max-height:calc(100dvh - 24px);
+  max-height:calc(100dvh - 24px - var(--bottom-safe));
 }
 .panel { min-height:220px; }
 .home-chip { background:#f6ebd8; border-color:#efd3a4; color:#8a5a14; }
@@ -257,7 +267,7 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
   font-size:10.5px; padding:2px 7px; line-height:1.45;
 }
 .back-row { display:flex; justify-content:flex-start; margin-bottom:10px; }
-.scroll-top { position:fixed; right:22px; bottom:22px; z-index:30; border-radius:999px; width:48px; height:48px; display:none; box-shadow:var(--shadow); }
+.scroll-top { position:fixed; right:22px; bottom:calc(22px + var(--bottom-safe)); z-index:30; border-radius:999px; width:48px; height:48px; display:none; box-shadow:var(--shadow); }
 .scroll-top.show { display:inline-flex; align-items:center; justify-content:center; }
 .correction-box { border:1px solid var(--line); border-radius:16px; padding:14px; background:#fdfbf6; margin-top:14px; }
 .correction-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; }
@@ -296,7 +306,7 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .local-save-status.unsaved { color:var(--warn); font-weight:700; }
 .local-save-status.saved { color:var(--ok); font-weight:700; }
 button.needs-save { background:#faf0da; color:#8a5a14; border:1px solid #e8cf96; }
-@media (max-width: 900px) { .note-grid, .ptc-grid { grid-template-columns:1fr; } .scroll-top { right:14px; bottom:14px; } }
+@media (max-width: 900px) { .note-grid, .ptc-grid { grid-template-columns:1fr; } .scroll-top { right:14px; bottom:calc(14px + var(--bottom-safe)); } }
 
 hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
@@ -330,14 +340,14 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   display:none; position:fixed; inset:0; z-index:9998;
   background:rgba(44,32,24,.55); overflow:auto;
   padding:24px;
-  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-bottom:calc(24px + var(--bottom-safe));
 }
 .ol-dialog{
   max-width:940px; margin:0 auto; background:var(--card); color:var(--text);
   border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
   display:flex; flex-direction:column;
   max-height:calc(100vh - 48px);
-  max-height:calc(100dvh - 48px);
+  max-height:calc(100dvh - 48px - var(--bottom-safe));
 }
 .ol-controls{
   display:grid; grid-template-columns:1fr 190px auto; gap:9px; align-items:center;
@@ -432,10 +442,17 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
 @media (max-width:720px){
   #outlineOverlay{ padding:10px; }
-  .ol-dialog{ max-height:calc(100vh - 20px); max-height:calc(100dvh - 20px); }
+  .ol-dialog{ max-height:calc(100vh - 20px); max-height:calc(100dvh - 20px - var(--bottom-safe)); }
   .ol-controls{ grid-template-columns:1fr; }
   .ol-count{ margin-left:0; }
 }
+
+/* setting row inside the help dialog */
+.help-display-row{
+  display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:12px 0 6px;
+  padding:11px 13px; border:1px solid var(--line); border-radius:12px; background:#faf6ef;
+}
+.help-display-row input[type="number"]{ width:88px; padding:7px 9px; border-radius:9px; }
 
 /* ===== speaker modal (v2.4) =====
    Everything speaker-related lives here; the right pane keeps the congregation data.
@@ -444,14 +461,14 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   display:none; position:fixed; inset:0; z-index:9990;
   background:rgba(44,32,24,.55); overflow:auto;
   padding:24px;
-  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-bottom:calc(24px + var(--bottom-safe));
 }
 .sp-dialog{
   max-width:880px; margin:0 auto; background:var(--card); color:var(--text);
   border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
   display:flex; flex-direction:column;
   max-height:calc(100vh - 48px);
-  max-height:calc(100dvh - 48px);
+  max-height:calc(100dvh - 48px - var(--bottom-safe));
 }
 .sp-head{
   display:flex; align-items:flex-start; gap:14px; justify-content:space-between;
@@ -466,7 +483,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .sp-body .detail-section{ margin-top:16px; }
 .sp-foot{
   padding:10px 18px;
-  padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-bottom:10px;
   border-top:1px solid var(--line); background:#faf6ef;
   display:flex; flex-wrap:wrap; gap:8px; align-items:center;
   font-size:11.5px; color:var(--muted);
@@ -475,7 +492,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .card[data-key].is-open-in-modal{ border-color:var(--accent); }
 @media (max-width:720px){
   #speakerOverlay{ padding:0; }
-  .sp-dialog{ max-height:100vh; max-height:100dvh; min-height:100vh; min-height:100dvh; border-radius:0; }
+  .sp-dialog{ max-height:100vh; max-height:calc(100dvh - var(--bottom-safe)); min-height:100vh; min-height:calc(100dvh - var(--bottom-safe)); border-radius:0; }
   .sp-head{ position:sticky; top:0; z-index:2; }
   .sp-head h2{ font-size:17px; }
 }
@@ -484,14 +501,14 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 #printOverlay{
   display:none; position:fixed; inset:0; z-index:9997; background:rgba(44,32,24,.55); overflow:auto;
   padding:24px;
-  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-bottom:calc(24px + var(--bottom-safe));
 }
 .pr-dialog{
   max-width:1080px; margin:0 auto; background:var(--card); color:var(--text);
   border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
   display:flex; flex-direction:column;
   max-height:calc(100vh - 48px);
-  max-height:calc(100dvh - 48px);
+  max-height:calc(100dvh - 48px - var(--bottom-safe));
 }
 .pr-body{ display:grid; grid-template-columns:290px minmax(0,1fr); min-height:0; }
 .pr-side{ border-right:1px solid var(--line); background:#faf6ef; padding:14px; overflow:auto; }
@@ -740,7 +757,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.4.1</div>
+  <div class="footer">Made with love © v.2.4.2</div>
 </div>
 
 <script>
@@ -3087,7 +3104,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.4.1',
+    version: '2.4.2',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     sourceFileName: state.dataset.sourceFileName || '',
@@ -3335,8 +3352,8 @@ function importPtcAssistantsFromText(text) {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.4.1', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.4.1', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.4.2', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.4.2', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3638,7 +3655,7 @@ document.addEventListener('DOMContentLoaded', function () {
 .help-nav{
   border-right:1px solid var(--line,#e6ddd0); background:#faf6ef;
   padding:18px 12px; align-self:start; position:sticky; top:0;
-  max-height:78vh; max-height:78dvh; overflow:auto;
+  max-height:78vh; max-height:calc(78dvh - var(--bottom-safe)); overflow:auto;
 }
 .help-nav-label{
   font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
@@ -3650,7 +3667,7 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 .help-nav a:hover{ background:#f1e8db; color:var(--accent2,#8c3f26); }
 
-.help-content{ padding:22px 26px 26px; max-height:78vh; max-height:78dvh; overflow:auto; scroll-behavior:smooth; }
+.help-content{ padding:22px 26px 26px; max-height:78vh; max-height:calc(78dvh - var(--bottom-safe)); overflow:auto; scroll-behavior:smooth; }
 .help-lead{ font-size:14px; line-height:1.65; max-width:66ch; margin:0; }
 .help-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px; }
 
@@ -3796,7 +3813,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -3816,6 +3833,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <a href="#help-s9">Contacts and shortcuts</a>
         <a href="#help-s10">Corrections</a>
         <a href="#help-s11">A practical routine</a>
+        <a href="#help-s-display">Screen edge / taskbar</a>
         <a href="#help-s12">One reminder</a>
       </nav>
 
@@ -3919,8 +3937,22 @@ document.addEventListener('DOMContentLoaded', function () {
           </ol>
         </section>
 
+        <section class="help-section" id="help-s-display">
+          <h3><span class="help-num">13</span> Screen edge / taskbar</h3>
+          <p>If a bar sits permanently on top of your browser window — most often a Windows taskbar set to <b>auto-hide</b> — it covers the lowest strip of the page. No web page can measure such a bar, so the tool simply keeps that strip free: the modal footers, the scroll-to-top button, and the sticky result list all stay above it.</p>
+          <p>Default is 56 pixels. Set it to 0 if nothing overlaps your window, or raise it if your bar is taller. The value is stored in this browser.</p>
+          <div class="help-display-row">
+            <label class="small subtle" for="bottomSafeInput">Reserved bottom strip</label>
+            <input id="bottomSafeInput" type="number" min="0" max="160" step="4" value="56">
+            <span class="small subtle">pixels</span>
+            <button type="button" class="ghost" id="bottomSafeResetBtn">Reset to 56</button>
+            <span class="small subtle" id="bottomSafeStatus"></span>
+          </div>
+          <p class="small subtle">Only applies to desktop-sized windows. On phones and tablets the tool uses the device safe area instead.</p>
+        </section>
+
         <section class="help-section" id="help-s12">
-          <h3><span class="help-num">13</span> One reminder</h3>
+          <h3><span class="help-num">14</span> One reminder</h3>
           <p>The tool makes the list much easier to work with, but the results still depend on the quality of the imported data. Careful review, timely updates, and useful corrections remain very valuable.</p>
         </section>
       </div>
@@ -4436,6 +4468,57 @@ document.addEventListener('DOMContentLoaded', function () {
     e.stopPropagation();
     open(chip.dataset.outlineNo);
   }, true);
+})();
+
+/* ===== reserved bottom strip (v2.4.2) =====
+   An auto-hiding taskbar floats above the browser viewport, so neither vh nor dvh can
+   account for it. The user keeps a configurable strip free at the bottom instead.
+   The inline custom property is only set on desktop-sized windows, otherwise it would
+   beat the mobile media query that hands the job to the device safe area. */
+(function () {
+  const KEY = 'ptcToolBottomSafe';
+  const DEFAULT_PX = 56;
+  const desktop = window.matchMedia('(min-width: 721px)');
+
+  function readValue() {
+    const raw = localStorage.getItem(KEY);
+    const n = raw == null ? DEFAULT_PX : Number(raw);
+    if (!Number.isFinite(n) || n < 0) return DEFAULT_PX;
+    return Math.min(160, Math.round(n));
+  }
+
+  function apply() {
+    if (desktop.matches) {
+      document.documentElement.style.setProperty('--bottom-safe', readValue() + 'px');
+    } else {
+      document.documentElement.style.removeProperty('--bottom-safe');
+    }
+  }
+
+  apply();
+  if (desktop.addEventListener) desktop.addEventListener('change', apply);
+  else if (desktop.addListener) desktop.addListener(apply);
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('bottomSafeInput');
+    const resetBtn = document.getElementById('bottomSafeResetBtn');
+    const status = document.getElementById('bottomSafeStatus');
+    if (!input) return;
+
+    input.value = readValue();
+
+    const commit = (value) => {
+      const n = Math.min(160, Math.max(0, Math.round(Number(value) || 0)));
+      localStorage.setItem(KEY, String(n));
+      input.value = n;
+      apply();
+      if (status) status.textContent = n === 0 ? 'No strip reserved.' : n + ' px reserved.';
+    };
+
+    input.addEventListener('input', () => commit(input.value));
+    input.addEventListener('change', () => commit(input.value));
+    if (resetBtn) resetBtn.addEventListener('click', () => commit(DEFAULT_PX));
+  });
 })();
 
 document.addEventListener('DOMContentLoaded', function () {
