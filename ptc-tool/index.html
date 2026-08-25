@@ -266,6 +266,10 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .speaker-mini.compact .outline {
   font-size:10.5px; padding:2px 7px; line-height:1.45;
 }
+.outline-more {
+  background:#efe4d4; border-color:#dcc9ae; color:var(--accent2);
+  font-weight:700; cursor:pointer;
+}
 .back-row { display:flex; justify-content:flex-start; margin-bottom:10px; }
 .scroll-top { position:fixed; right:22px; bottom:calc(22px + var(--bottom-safe)); z-index:30; border-radius:999px; width:48px; height:48px; display:none; box-shadow:var(--shadow); }
 .scroll-top.show { display:inline-flex; align-items:center; justify-content:center; }
@@ -757,7 +761,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.4.2</div>
+  <div class="footer">Made with love © v.2.4.3</div>
 </div>
 
 <script>
@@ -2911,7 +2915,7 @@ function renderDetail() {
               <span>${emails || '<span class="mini-none">No email</span>'}</span>
               <span class="mini-outline-count">${total} outline${total === 1 ? '' : 's'}</span>
             </div>
-            ${total ? `<div class="outline-list">${sp.outlines.slice(0, 24).map(no => renderOutline(no)).join('')}</div>` : ''}
+            ${total ? `<div class="outline-list outline-preview" data-total="${total}" data-rendered="${Math.min(total, 30)}">${sp.outlines.slice(0, 30).map(no => renderOutline(no)).join('')}<span class="outline outline-more" hidden></span></div>` : ''}
           </div>`;
         }).join('') || '<div class="subtle">No speakers found in this import.</div>'}
       </div>
@@ -2938,6 +2942,7 @@ function renderDetail() {
       openSpeakerModal(speakerId);
     });
   });
+  fitAllOutlinePreviews();
 }
 
 /* ===== speaker modal (v2.4) =====
@@ -3101,10 +3106,71 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+/* ===== outline preview fitting (v2.4.3) =====
+   The compact speaker tiles show three rows of outline chips. Rather than cutting the
+   strip off silently, we measure which chips actually fit and end the last row with a
+   "+N more" chip, so it is always visible that the preview is not the full list.
+   Falls back to the plain CSS clamp when no layout information is available. */
+const OUTLINE_PREVIEW_ROWS = 3;
+
+function fitOutlinePreview(box) {
+  const moreChip = box.querySelector('.outline-more');
+  if (!moreChip) return;
+  const chips = Array.from(box.querySelectorAll('.outline:not(.outline-more)'));
+  if (!chips.length) return;
+
+  const total = Number(box.dataset.total || chips.length);
+  const rendered = Number(box.dataset.rendered || chips.length);
+
+  /* start from a clean slate so re-fitting after a resize is idempotent */
+  chips.forEach(c => { c.hidden = false; });
+  moreChip.hidden = true;
+
+  const tops = [...new Set(chips.map(c => c.offsetTop))].sort((a, b) => a - b);
+  /* no layout yet (hidden pane, jsdom, print) – leave the CSS clamp in charge */
+  if (tops.length <= 1 && chips[0].offsetTop === 0 && chips[chips.length - 1].offsetTop === 0 && chips.length > 6) {
+    if (total > rendered) { moreChip.hidden = false; moreChip.textContent = `+${total - rendered} more`; }
+    return;
+  }
+
+  const fitsInRows = tops.length <= OUTLINE_PREVIEW_ROWS;
+  if (fitsInRows && total === rendered) return;   // everything is on screen already
+
+  const lastAllowedTop = tops[Math.min(OUTLINE_PREVIEW_ROWS, tops.length) - 1];
+  let visible = chips.filter(c => c.offsetTop <= lastAllowedTop);
+  chips.forEach(c => { c.hidden = c.offsetTop > lastAllowedTop; });
+
+  moreChip.hidden = false;
+  const update = () => {
+    const hiddenCount = total - visible.length;
+    moreChip.textContent = `+${hiddenCount} more`;
+  };
+  update();
+
+  /* the chip itself needs room in the last row – give way until it fits */
+  let guard = chips.length + 2;
+  while (guard-- > 0 && visible.length > 1 && moreChip.offsetTop > lastAllowedTop) {
+    const dropped = visible.pop();
+    dropped.hidden = true;
+    update();
+  }
+  if (total <= visible.length) moreChip.hidden = true;
+}
+
+function fitAllOutlinePreviews() {
+  document.querySelectorAll('.outline-preview').forEach(fitOutlinePreview);
+}
+
+let outlineFitTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(outlineFitTimer);
+  outlineFitTimer = setTimeout(fitAllOutlinePreviews, 120);
+});
+
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.4.2',
+    version: '2.4.3',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     sourceFileName: state.dataset.sourceFileName || '',
@@ -3352,8 +3418,8 @@ function importPtcAssistantsFromText(text) {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.4.2', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.4.2', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.4.3', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.4.3', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3813,7 +3879,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.2</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.3</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
