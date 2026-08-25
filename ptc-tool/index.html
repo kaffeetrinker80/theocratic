@@ -778,7 +778,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5</span>
+      <span class="footer-version" id="footerVersion">v.2.5.1</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -813,7 +813,7 @@ const VALID_COUNTRIES = new Set(Object.values(COUNTRY_BY_PREFIX));
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.5.1';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1981,6 +1981,9 @@ function parseMasterJsonDataset(obj, fileName = '') {
     const addr = raw.address || {};
     const geo = raw.geo || {};
     const ptc = raw.ptc || {};
+    const masterHasPtcAssistant = Object.prototype.hasOwnProperty.call(raw, 'ptc_assistant');
+    const ptcAssistant = masterHasPtcAssistant && raw.ptc_assistant && typeof raw.ptc_assistant === 'object'
+      ? raw.ptc_assistant : null;
     const cobe = raw.cobe || {};
     const meeting = masterMeeting(raw);
 
@@ -2023,7 +2026,14 @@ function parseMasterJsonDataset(obj, fileName = '') {
       /* extras the CSV cannot carry */
       masterId: raw.id || '',
       congType: (raw.type || '').toLowerCase() === 'group' ? 'group' : 'congregation',
-      importNote: (raw.note || '').trim()
+      importNote: (raw.note || '').trim(),
+      /* v2.5.1: Assistant is authoritative when the Organizer master contains the field.
+         Older masters without ptc_assistant leave the local Assistant untouched. */
+      masterPtcAssistant: masterHasPtcAssistant ? {
+        name: (ptcAssistant?.name || '').trim(),
+        phone: formatPhoneDisplay(ptcAssistant?.mobile || ptcAssistant?.phone || '', country),
+        email: (ptcAssistant?.email || '').trim()
+      } : null
     };
     congregations.push(cong);
     if (raw.id) byMasterId.set(raw.id, cong);
@@ -3865,10 +3875,33 @@ document.getElementById('resetBtn').addEventListener('click', resetAll);
      • speaker list CSV (flat or structured)
      • PTC Organizer master JSON
      • this tool's own backup JSON (full or notes-only) */
+function applyMasterPtcAssistants(dataset) {
+  if (!dataset || dataset.source !== 'json-master' || !Array.isArray(dataset.congregations)) return 0;
+  let synced = 0;
+  dataset.congregations.forEach(cong => {
+    if (!cong || cong.masterPtcAssistant === null || cong.masterPtcAssistant === undefined) return;
+    const rec = noteRecord(cong.notesKey);
+    const existing = normalizePtcAssistant(rec.ptcAssistant);
+    const incoming = normalizePtcAssistant(cong.masterPtcAssistant);
+    const next = {
+      ...existing,
+      name: incoming.name,
+      phone: incoming.phone,
+      email: incoming.email
+      // existing.notes deliberately remains local-only
+    };
+    setNoteRecord(cong.notesKey, { ...rec, ptcAssistant: next });
+    synced++;
+  });
+  if (synced) saveNotes();
+  return synced;
+}
+
 function applyImportedDataset(dataset, previousHome, previousNotes) {
   state.dataset = dataset;
   applyImportedSpeakerNotes(state.dataset);
   preserveLocalCongregationNotesAfterCsvImport(previousNotes);
+  applyMasterPtcAssistants(state.dataset);
   if (previousHome) {
     const match = state.dataset.congregations.find(c => congregationStableKey(c.name) === congregationStableKey(previousHome.name));
     state.homeCongregationId = match ? match.id : '';
@@ -3902,7 +3935,9 @@ function importMasterJson(obj, fileName) {
   if (!dataset.congregations.length) throw new Error('No usable congregations found in this file.');
   applyImportedDataset(dataset, previousHome, previousNotes);
   const rev = dataset.masterRevision != null ? ` · revision ${dataset.masterRevision}` : '';
-  setStatus(`PTC Organizer JSON imported${rev} · ${dataset.congregations.length} congregations, ${dataset.speakers.length} speakers · local notes kept`);
+  const assistantCount = dataset.congregations.filter(c => c.masterPtcAssistant !== null && c.masterPtcAssistant !== undefined).length;
+  const assistantInfo = assistantCount ? ` · ${assistantCount} PTC Assistant record${assistantCount === 1 ? '' : 's'} synced` : '';
+  setStatus(`PTC Organizer JSON imported${rev} · ${dataset.congregations.length} congregations, ${dataset.speakers.length} speakers${assistantInfo} · local notes kept`);
 }
 
 async function handleImportFile(file) {
@@ -4226,7 +4261,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
