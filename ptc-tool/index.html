@@ -709,13 +709,11 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     <div class="toolbar-block">
     <span class="row-label">Data &amp; actions</span>
     <div class="toolbar-actions">
-      <input id="csvInput" type="file" accept=".csv,text/csv" class="hidden">
-      <input id="jsonInput" type="file" accept=".json,application/json" class="hidden">
+      <input id="dataInput" type="file" accept=".csv,.json,text/csv,application/json" class="hidden">
       <input id="assistantCsvInput" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" class="hidden">
       <div class="action-group">
-        <button class="primary" id="loadCsvBtn">Import CSV</button>
-        <button id="loadJsonBtn">Import JSON</button>
-        <button id="importAssistantsBtn" class="ghost" disabled title="Import the main/geocoded CSV first">Import PTC Assistants</button>
+        <button class="primary" id="loadDataBtn" title="Speaker list CSV, PTC Organizer JSON, or a tool backup">Import</button>
+        <button id="importAssistantsBtn" class="ghost" disabled title="Import the speaker list first">Import PTC Assistants</button>
       </div>
       <div class="action-group">
         <button class="good" id="exportJsonBtn">Export JSON</button>
@@ -780,7 +778,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.4.5</span>
+      <span class="footer-version" id="footerVersion">v.2.5</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -815,7 +813,7 @@ const VALID_COUNTRIES = new Set(Object.values(COUNTRY_BY_PREFIX));
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.4.5';
+const APP_VERSION = '2.5';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1197,9 +1195,9 @@ function parseCongregationSide(part, data) {
     return;
   }
   if (looksLikePostalCity(value) && !data.city) {
-    const match = value.match(/^(\d{4,5})\s+(.*)$/);
-    data.postalCode = match ? match[1] : '';
-    data.city = match ? match[2] : value;
+    const split = splitCityLine(value);
+    data.postalCode = split.postalCode;
+    data.city = split.city;
     return;
   }
   if (looksLikePhone(value) && !/^([mh])\s*:/i.test(value) && !data.hallPhone) {
@@ -1849,10 +1847,9 @@ function parseStructuredCsvDataset(text) {
     let cong = congregationMap.get(congName);
     if (!cong) {
       const cityLine = val(cols, 'city_line');
-      let postalCode = '';
-      let city = cityLine;
-      const m = cityLine.match(/^(\d{4,5})\s+(.*)$/);
-      if (m) { postalCode = m[1]; city = m[2]; }
+      const cityParts = splitCityLine(cityLine);
+      const postalCode = cityParts.postalCode;
+      const city = cityParts.city;
       const meetingRaw = val(cols, 'meeting_time') || val(cols, 'meeting_time_2026') || val(cols, 'meeting_time_2027');
       const meeting = parseMeeting(meetingRaw);
       const normalizedCountry = normalizeImportedCountry(val(cols, 'country'), congName);
@@ -1921,8 +1918,204 @@ function parseStructuredCsvDataset(text) {
 }
 
 
+/* ===== PTC Organizer master JSON (v2.5) =====
+   Reads the export of Marco's PTC Organizer and produces exactly the same dataset shape
+   the CSV importers build, so both routes end up with an identical data state.
+   Stable keys (congregation and speaker notesKey) are derived from the names, never from
+   the master UUIDs – that is what keeps your local notes and favorites attached when you
+   switch between a CSV and a JSON import. */
+function looksLikeMasterJson(obj) {
+  return !!obj && typeof obj === 'object'
+    && Array.isArray(obj.people)
+    && Array.isArray(obj.congregations)
+    && obj.congregations.some(c => c && (c.ptc || c.speaker_ids));
+}
+
+function masterCountryName(obj, cong) {
+  const code = (cong.country_code || '').toUpperCase();
+  if (code) {
+    const hit = (obj.countries_available || []).find(c => (c.code || '').toUpperCase() === code)
+             || (obj.countries || []).find(c => (c.code || '').toUpperCase() === code);
+    if (hit && (hit.name_en || hit.name)) return hit.name_en || hit.name;
+  }
+  return cong.country_raw || '';
+}
+
+function masterMeeting(cong) {
+  const m = (cong.meetings || [])[0];
+  if (!m) return { full: '', day: '', time: '' };
+  /* The weekday number is ISO (1 = Monday) and language independent. Preferring it over
+     `raw` also normalizes entries that carry a season prefix such as "2026 - Sunday 10:00",
+     which the plain text parser would not recognize as a weekday. */
+  const day = Number.isFinite(Number(m.weekday)) && Number(m.weekday) >= 1 && Number(m.weekday) <= 7
+    ? WEEKDAYS[Number(m.weekday) - 1]
+    : '';
+  const time = (m.time || '').trim();
+  if (day) return { full: [day, time].filter(Boolean).join(' '), day, time };
+  return parseMeeting(m.raw || '');
+}
+
+function masterPhoneList(country, mobile, home) {
+  return [
+    mobile ? formatPhoneDisplay('m: ' + mobile, country) : '',
+    home ? formatPhoneDisplay('h: ' + home, country) : ''
+  ].filter(Boolean);
+}
+
+function parseMasterJsonDataset(obj, fileName = '') {
+  const warnings = [];
+  const congregations = [];
+  const speakers = [];
+  const byMasterId = new Map();
+
+  let skippedDissolved = 0;
+  let skippedDeleted = 0;
+  let skippedInactive = 0;
+  let orphanPeople = 0;
+
+  (obj.congregations || []).forEach(raw => {
+    if (!raw || !raw.name) return;
+    if ((raw.status || '').toLowerCase() === 'dissolved') { skippedDissolved++; return; }
+
+    const country = normalizeImportedCountry(masterCountryName(obj, raw), raw.name);
+    const addr = raw.address || {};
+    const geo = raw.geo || {};
+    const ptc = raw.ptc || {};
+    const cobe = raw.cobe || {};
+    const meeting = masterMeeting(raw);
+
+    let postalCode = (addr.postal_code || '').trim();
+    let city = (addr.city || '').trim();
+    if (!postalCode && !city && addr.city_line_raw) {
+      const split = splitCityLine(addr.city_line_raw);
+      postalCode = split.postalCode;
+      city = split.city;
+    }
+
+    const cong = {
+      id: congregationStableKey(raw.name),
+      name: raw.name,
+      address: (addr.street || '').trim(),
+      postalCode,
+      city,
+      country,
+      hallPhone: formatPhoneDisplay(raw.phone || '', country),
+      meetingDay: meeting.day,
+      meetingTime: meeting.time,
+      meetingRaw: meeting.full,
+      /* the master keeps richer circuit labels (EU-E10DK, EU-E10Twi) than the CSV
+         sanitizer allows, so we keep the master value and only fall back to parsing */
+      circuit: (raw.circuit || '').trim() || sanitizeCircuit(raw.circuit || ''),
+      ptcName: (ptc.name || '').trim(),
+      ptcJwpub: (ptc.jwpub_email || '').trim(),
+      ptcPhone: formatPhoneDisplay(ptc.mobile || ptc.home || '', country),
+      ptcEmail: (ptc.email || '').trim(),
+      ptcPhones: masterPhoneList(country, ptc.mobile, ptc.home),
+      ptcEmails: [ptc.email, ptc.jwpub_email].map(x => (x || '').trim()).filter(Boolean),
+      cobeName: (cobe.name || '').trim(),
+      cobePhone: formatPhoneDisplay(cobe.phone || '', country),
+      geoLat: parseGeoNumber(geo.lat),
+      geoLon: parseGeoNumber(geo.lon),
+      geoAddress: (geo.resolved_address || '').trim(),
+      geoStatus: (geo.status || '').trim(),
+      speakers: [],
+      notesKey: congregationStableKey(raw.name),
+      /* extras the CSV cannot carry */
+      masterId: raw.id || '',
+      congType: (raw.type || '').toLowerCase() === 'group' ? 'group' : 'congregation',
+      importNote: (raw.note || '').trim()
+    };
+    congregations.push(cong);
+    if (raw.id) byMasterId.set(raw.id, cong);
+  });
+
+  let rowSpeakerId = 1;
+  (obj.people || []).forEach(person => {
+    if (!person || !person.name) return;
+    if (person.deleted_at) { skippedDeleted++; return; }
+    if (person.status && person.status.toLowerCase() !== 'active') { skippedInactive++; return; }
+
+    const cong = byMasterId.get(person.congregation_id);
+    if (!cong) { orphanPeople++; return; }
+
+    const contact = person.contact || {};
+    const avail = person.availability || {};
+    const outlines = [...new Set(
+      [...(person.talks || []), ...(person.special_talks || [])]
+        .map(Number)
+        .filter(no => Number.isFinite(no) && no >= 1 && no <= 999)
+    )].sort((a, b) => a - b);
+
+    const speaker = {
+      id: 'sp-' + (rowSpeakerId++),
+      congregationId: cong.id,
+      congregationName: cong.name,
+      country: cong.country,
+      city: cong.city,
+      circuit: cong.circuit,
+      meetingDay: cong.meetingDay,
+      meetingTime: cong.meetingTime,
+      name: person.name,
+      role: (person.appointment || '').toLowerCase() === 'ms' ? 'MS' : 'Elder',
+      phones: masterPhoneList(cong.country, contact.mobile, contact.home),
+      emails: [(contact.email || '').trim()].filter(Boolean),
+      outlines,
+      notesKey: speakerStableKey(cong.name, person.name),
+      importNote: (person.note || '').trim(),
+      /* extras the CSV cannot carry */
+      masterId: person.id || '',
+      zoom: (avail.zoom || '').trim(),
+      zoomMonths: (avail.zoom_months || '').trim(),
+      maxDistanceKm: Number.isFinite(Number(avail.max_distance_km)) && avail.max_distance_km !== null
+        ? Number(avail.max_distance_km) : null
+    };
+    cong.speakers.push(speaker);
+    speakers.push(speaker);
+  });
+
+  congregations.forEach(c => c.speakers.sort((a, b) => a.name.localeCompare(b.name)));
+
+  if (skippedDissolved) warnings.push(`${skippedDissolved} dissolved congregation(s) were not imported.`);
+  if (skippedDeleted) warnings.push(`${skippedDeleted} deleted speaker(s) were not imported.`);
+  if (skippedInactive) warnings.push(`${skippedInactive} inactive speaker(s) were not imported.`);
+  if (orphanPeople) warnings.push(`${orphanPeople} speaker(s) had no matching congregation and were skipped.`);
+  const empty = congregations.filter(c => !c.speakers.length).length;
+  if (empty) warnings.push(`${empty} congregation(s) were imported without any speakers.`);
+
+  return {
+    source: 'json-master',
+    importedAt: new Date().toISOString(),
+    sourceFileName: fileName,
+    masterRevision: obj.revision ?? null,
+    masterGeneratedAt: obj.generated_at || '',
+    masterOrigin: (obj.origin && obj.origin.imported_from) || '',
+    congregations,
+    speakers,
+    warnings
+  };
+}
+
+/* Splits "80331 Munich", "110 Reykjavík" and the Dutch "1106 AX Amsterdam" into a postal
+   code and a city. The old pattern demanded 4–5 digits and stopped at the first space, so
+   Icelandic three digit codes stayed glued to the city and Dutch letter suffixes were read
+   as part of the city name. Shared by both CSV parsers and the master JSON fallback. */
+function splitCityLine(raw) {
+  const value = String(raw || '').trim();
+  if (!value) return { postalCode: '', city: '' };
+  /* also covers the Polish 70-350 form */
+  const m = value.match(/^(\d{2,3}-\d{3}|\d{3,5}(?:\s?[A-Z]{2})?)\s+(\S.*)$/);
+  if (!m) return { postalCode: '', city: value };
+  return { postalCode: m[1].replace(/\s+/g, ' ').trim(), city: m[2].trim() };
+}
+
 function parseGeoNumber(value) {
-  const n = Number(String(value || '').replace(',', '.').trim());
+  /* Fixed in v2.5: an empty string or null used to fall through Number('') === 0 and was
+     accepted as a valid coordinate, so congregations without geo data silently landed at
+     0/0 in the Gulf of Guinea and produced nonsense distances. */
+  if (value === null || value === undefined) return null;
+  const text = String(value).replace(',', '.').trim();
+  if (!text) return null;
+  const n = Number(text);
   return Number.isFinite(n) ? n : null;
 }
 
@@ -3012,6 +3205,7 @@ function renderDetail() {
       </div>
       <div class="links">
         <a class="chip" href="${mapUrl(cong)}" target="_blank" rel="noreferrer">Open hall in Google Maps</a>
+        ${cong.congType === 'group' ? '<span class="chip">Group, not a congregation</span>' : ''}
         <button type="button" class="ghost" id="setHomeCongBtn">${isHome ? '✓ Home congregation' : 'Set as home congregation'}</button>
         ${isHome ? '<button type="button" class="ghost" id="clearHomeCongBtn">Clear home congregation</button>' : ''}
       </div>
@@ -3135,7 +3329,10 @@ function renderSpeakerModalBody() {
         ${cong.meetingRaw ? `<span class="chip">${escapeHtml(cong.meetingRaw)}</span>` : ''}
         ${rec.lastInvited ? `<span class="chip">Invited: ${escapeHtml(formatDateLabel(rec.lastInvited))}</span>` : ''}
         ${rec.lastUsed ? `<span class="chip">Used: ${escapeHtml(formatDateLabel(rec.lastUsed))}</span>` : ''}
+        ${sp.zoom ? `<span class="chip">Zoom: ${escapeHtml(sp.zoom)}${sp.zoomMonths ? ' (' + escapeHtml(sp.zoomMonths) + ')' : ''}</span>` : ''}
+        ${Number.isFinite(sp.maxDistanceKm) && sp.maxDistanceKm !== null ? `<span class="chip">Travels up to ${escapeHtml(String(sp.maxDistanceKm))} km</span>` : ''}
       </div>
+      ${sp.importNote ? `<div class="small subtle" style="margin-top:10px;"><b>Note from the source data:</b> ${escapeHtml(sp.importNote)}</div>` : ''}
       <div class="links" style="margin-top:10px;">
         ${renderPhoneChips(sp.phones, cong.country) || '<span class="chip">No phone saved</span>'}
         ${renderEmailChips(sp.emails) || '<span class="chip">No email saved</span>'}
@@ -3637,11 +3834,10 @@ function resetAll() {
   setStatus('Local data cleared');
 }
 
-document.getElementById('loadCsvBtn').addEventListener('click', () => document.getElementById('csvInput').click());
-document.getElementById('loadJsonBtn').addEventListener('click', () => document.getElementById('jsonInput').click());
+document.getElementById('loadDataBtn').addEventListener('click', () => document.getElementById('dataInput').click());
 document.getElementById('importAssistantsBtn').addEventListener('click', () => {
   if (!hasMainDataset()) {
-    alert('Please import the main/geocoded CSV first.');
+    alert('Please import the speaker list first.');
     return;
   }
   document.getElementById('assistantCsvInput').click();
@@ -3663,65 +3859,81 @@ document.getElementById('showImproveBtn').addEventListener('click', () => {
 
 document.getElementById('resetBtn').addEventListener('click', resetAll);
 
-document.getElementById('csvInput').addEventListener('change', async (ev) => {
-  const file = ev.target.files?.[0];
-  if (!file) return;
+/* ===== unified import (v2.5) =====
+   One button for every supported file. The route is decided by content, not by the
+   extension alone, so a mistyped file name still lands in the right parser:
+     • speaker list CSV (flat or structured)
+     • PTC Organizer master JSON
+     • this tool's own backup JSON (full or notes-only) */
+function applyImportedDataset(dataset, previousHome, previousNotes) {
+  state.dataset = dataset;
+  applyImportedSpeakerNotes(state.dataset);
+  preserveLocalCongregationNotesAfterCsvImport(previousNotes);
+  if (previousHome) {
+    const match = state.dataset.congregations.find(c => congregationStableKey(c.name) === congregationStableKey(previousHome.name));
+    state.homeCongregationId = match ? match.id : '';
+    saveHomeCongregationId();
+  }
+  persistDataset();
+  populateFilters();
+  refreshStats();
+  state.selectedKey = null;
+  state.lastCongregationKey = null;
+  if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
+  renderResults();
+  renderDetail();
+  updateAssistantImportState();
+}
+
+function importCsvText(text, fileName) {
+  const previousHome = homeCongregation();
+  const previousNotes = cloneNotesStore(state.notes);
+  const looksStructured = /(^|\n)source_pdf;source_page;|(^|\n).*speaker_note;.*talk_numbers/i.test(text);
+  const dataset = looksStructured ? parseStructuredCsvDataset(text) : parseCsvDataset(text);
+  dataset.sourceFileName = fileName;
+  applyImportedDataset(dataset, previousHome, previousNotes);
+  setStatus(`CSV imported · ${dataset.congregations.length} congregations, ${dataset.speakers.length} speakers · local notes kept`);
+}
+
+function importMasterJson(obj, fileName) {
+  const previousHome = homeCongregation();
+  const previousNotes = cloneNotesStore(state.notes);
+  const dataset = parseMasterJsonDataset(obj, fileName);
+  if (!dataset.congregations.length) throw new Error('No usable congregations found in this file.');
+  applyImportedDataset(dataset, previousHome, previousNotes);
+  const rev = dataset.masterRevision != null ? ` · revision ${dataset.masterRevision}` : '';
+  setStatus(`PTC Organizer JSON imported${rev} · ${dataset.congregations.length} congregations, ${dataset.speakers.length} speakers · local notes kept`);
+}
+
+async function handleImportFile(file) {
   const text = await file.text();
-  try {
-    const previousHome = homeCongregation();
-    const previousNotes = cloneNotesStore(state.notes);
-    const looksStructured = /(^|\n)source_pdf;source_page;|(^|\n).*speaker_note;.*talk_numbers/i.test(text);
-    state.dataset = looksStructured ? parseStructuredCsvDataset(text) : parseCsvDataset(text);
-    state.dataset.sourceFileName = file.name;
-    applyImportedSpeakerNotes(state.dataset);
-    preserveLocalCongregationNotesAfterCsvImport(previousNotes);
-    if (previousHome) {
-      const match = state.dataset.congregations.find(c => congregationStableKey(c.name) === congregationStableKey(previousHome.name));
-      state.homeCongregationId = match ? match.id : '';
-      saveHomeCongregationId();
+  const name = file.name || '';
+  const isJsonName = /\.json$/i.test(name);
+  const looksJson = /^\s*[{[]/.test(text);
+
+  if (isJsonName || looksJson) {
+    let obj;
+    try {
+      obj = JSON.parse(text);
+    } catch (e) {
+      throw new Error('This file is not valid JSON (' + e.message + ').');
     }
-    persistDataset();
-    populateFilters();
-    refreshStats();
-    state.selectedKey = null;
-    state.lastCongregationKey = null;
-    if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
-    renderResults();
-    renderDetail();
-    updateAssistantImportState();
-    setStatus('CSV imported · local notes kept');
+    if (looksLikeMasterJson(obj)) importMasterJson(obj, name);
+    else importJsonObject(obj);
+    return;
+  }
+  importCsvText(text, name);
+}
+
+document.getElementById('dataInput').addEventListener('change', async (ev) => {
+  const file = ev.target.files?.[0];
+  if (!file) return;
+  try {
+    await handleImportFile(file);
   } catch (e) {
     console.error(e);
-    alert('CSV import failed: ' + e.message);
+    alert('Import failed: ' + e.message);
     setStatus('Import failed');
-  }
-  ev.target.value = '';
-});
-
-document.getElementById('assistantCsvInput').addEventListener('change', async (ev) => {
-  const file = ev.target.files?.[0];
-  if (!file) return;
-  try {
-    const text = await readFileAsTextWithFallback(file);
-    importPtcAssistantsFromText(text);
-  } catch (e) {
-    console.error(e);
-    alert('PTC Assistant import failed: ' + e.message);
-    setStatus('Assistant import failed');
-  }
-  ev.target.value = '';
-});
-
-document.getElementById('jsonInput').addEventListener('change', async (ev) => {
-  const file = ev.target.files?.[0];
-  if (!file) return;
-  const text = await file.text();
-  try {
-    importJsonObject(JSON.parse(text));
-  } catch (e) {
-    console.error(e);
-    alert('JSON import failed: ' + e.message);
-    setStatus('JSON failed');
   }
   ev.target.value = '';
 });
@@ -4014,7 +4226,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.5</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4040,7 +4252,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       <div class="help-content" id="helpContent">
         <p class="help-lead">
-          This tool helps Public Talk Coordinators work with the English Public Speakers (EU) list faster and more comfortably. It imports the CSV export, searches speakers and congregations, saves local notes and memory, marks favorites, calculates distance from your home congregation when geo data is available, and prepares correction suggestions for Ronald.
+          This tool helps Public Talk Coordinators work with the English Public Speakers (EU) list faster and more comfortably. It imports the speaker list as CSV or as PTC Organizer JSON, searches speakers and congregations, saves local notes and memory, marks favorites, calculates distance from your home congregation when geo data is available, and prepares correction suggestions for Ronald.
         </p>
         <div class="help-chips">
           <span class="chip">CSV import</span>
@@ -4052,8 +4264,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <section class="help-section" id="help-s1">
           <h3><span class="help-num">01</span> Import and updates</h3>
-          <p>Start with <b>Import CSV</b>. The tool reads congregation data, speaker names, contact details, circuits, meeting times, outlines, and optional geo fields.</p>
-          <p>When you get an updated CSV, just import it again. Speaker memory such as favorites, notes, <b>last invited</b>, and <b>last used</b> is matched again when the speaker is recognized.</p>
+          <p>One button, <b>Import</b>, handles every supported file. The tool looks at the content rather than the file name, so it recognizes:</p>
+          <ul class="mini-list">
+            <li>the <b>speaker list CSV</b> — flat or structured/geocoded,</li>
+            <li>the <b>PTC Organizer master JSON</b> — the export of the organizer tool,</li>
+            <li>a <b>tool backup JSON</b> — full backup or notes-only, as written by the export buttons.</li>
+          </ul>
+          <p>CSV and master JSON produce the <b>same data state</b>: congregations, speakers, contacts, outlines, meeting times and coordinates end up identical, because both routes build their keys from congregation and speaker names, never from internal ids. You can therefore switch between the two formats at any time without losing anything.</p>
+          <p>The master JSON additionally carries information the CSV has no columns for: Zoom availability, a maximum travel distance, notes from the source data, and the distinction between a congregation and a group. Where present, these appear as extra chips on the speaker card. It also skips entries that should no longer be used — dissolved congregations, deleted and inactive speakers — and reports each of them under <b>Import warnings</b>.</p>
+          <p>When you get an updated file, just import it again. Speaker memory such as favorites, notes, <b>last invited</b>, and <b>last used</b> is matched again when the speaker is recognized, and your home congregation is re-selected by name.</p>
           <p>Use <b>Export JSON</b> from time to time so your personal work is backed up.</p>
         </section>
 
