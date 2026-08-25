@@ -47,7 +47,14 @@
 html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.5 var(--font-body); -webkit-font-smoothing:antialiased; }
 a { color:var(--accent2); text-decoration:none; }
 button, select, input, textarea { font:inherit; }
-.container { max-width:1600px; margin:0 auto; padding:14px 16px; }
+.container {
+  max-width:1600px; margin:0 auto;
+  padding:14px 16px;
+  /* v2.4.5: scrollable slack at the end of the document. Without it the page simply
+     stops at the last element, so the footer can never be scrolled clear of an
+     overlapping taskbar – no fixed positioning involved, the document is just too short. */
+  padding-bottom:calc(20px + var(--bottom-safe));
+}
 .header {
   position:relative; overflow:hidden;
   background:linear-gradient(135deg,#2b231e 0%, #6e4231 52%, #b4633f 100%);
@@ -302,6 +309,15 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
   margin-top:18px; padding:12px 18px; text-align:center; font-size:12px;
   color:var(--muted); border-top:1px solid var(--line);
 }
+.footer-line {
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px;
+  margin:3px 0;
+}
+.footer-version { font-weight:700; color:var(--text); }
+.footer-btn { font-size:12px; padding:5px 11px; }
+.footer-hint { font-size:11.5px; }
+.footer-hint.done { color:var(--ok); font-weight:700; }
+.footer-hint.warn { color:var(--warn); font-weight:700; }
 
 .note-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
 .field label { display:block; font-size:12px; color:var(--muted); margin:0 0 6px; }
@@ -761,7 +777,16 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.4.3</div>
+  <div class="footer">
+    <div class="footer-line">
+      <span>Made with love ©</span>
+      <span class="footer-version" id="footerVersion">v.2.4.5</span>
+    </div>
+    <div class="footer-line">
+      <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
+      <span class="footer-hint" id="reportProblemStatus">Copies version and setup details so a bug report is easy to answer.</span>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -781,6 +806,116 @@ const DIAL_CODE_BY_COUNTRY = {
   'Hungary': '+36', 'Slovakia': '+421', 'Slovenia': '+386', 'Croatia': '+385'
 };
 const VALID_COUNTRIES = new Set(Object.values(COUNTRY_BY_PREFIX));
+
+/* ===== version and feedback (v2.4.4) =====
+   APP_VERSION is the single source of truth: footer, JSON exports and bug reports all
+   read it, so bumping the version in one place keeps everything in step.
+
+   TOOL_FEEDBACK_EMAIL is for problems with THE TOOL and goes to the tool author.
+   It is deliberately separate from the correction boxes, which send data corrections
+   to Ronald for the main database. Leave it empty to hide the e-mail button; the
+   report can then still be copied and pasted anywhere. */
+const APP_VERSION = '2.4.5';
+const TOOL_FEEDBACK_EMAIL = '';
+const TOOL_FEEDBACK_NAME = 'the tool author';
+
+function buildProblemReport() {
+  const ds = state.dataset;
+  const lines = [];
+  lines.push('PTC Tool EU Public Speakers – problem report');
+  lines.push('');
+  lines.push('Please describe what happened here:');
+  lines.push('');
+  lines.push('');
+  lines.push('What I expected instead:');
+  lines.push('');
+  lines.push('');
+  lines.push('--- technical details (please keep) ---');
+  lines.push(`Tool version: ${APP_VERSION}`);
+  lines.push(`Date: ${new Date().toISOString()}`);
+  try {
+    lines.push(`Browser: ${navigator.userAgent}`);
+    lines.push(`Language: ${navigator.language || '—'}`);
+  } catch (e) {}
+  try {
+    lines.push(`Window: ${window.innerWidth} x ${window.innerHeight}`);
+    lines.push(`Screen: ${window.screen.width} x ${window.screen.height}`);
+  } catch (e) {}
+  if (ds) {
+    lines.push(`Data source: ${ds.source || '—'}${ds.sourceFileName ? ' (' + ds.sourceFileName + ')' : ''}`);
+    lines.push(`Imported at: ${ds.importedAt || '—'}`);
+    lines.push(`Congregations: ${ds.congregations.length}, speakers: ${ds.speakers.length}`);
+  } else {
+    lines.push('Data source: no dataset loaded');
+  }
+  lines.push(`Saved notes: ${Object.keys(state.notes || {}).length}`);
+  lines.push(`Home congregation set: ${state.homeCongregationId ? 'yes' : 'no'}`);
+  const viewMode = document.getElementById('viewMode');
+  lines.push(`View: ${viewMode ? viewMode.value : '—'}`);
+  lines.push(`Selected: ${state.selectedKey || '—'}`);
+  lines.push(`Speaker card open: ${state.modalSpeakerId ? 'yes' : 'no'}`);
+  return lines.join('\n');
+}
+
+async function copyTextToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {}
+  /* file:// and older browsers land here */
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    const okCopy = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return okCopy;
+  } catch (e) {
+    return false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const versionEl = document.getElementById('footerVersion');
+  if (versionEl) versionEl.textContent = 'v.' + APP_VERSION;
+
+  const btn = document.getElementById('reportProblemBtn');
+  const status = document.getElementById('reportProblemStatus');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    const report = buildProblemReport();
+    const copied = await copyTextToClipboard(report);
+
+    if (TOOL_FEEDBACK_EMAIL) {
+      const subject = encodeURIComponent(`PTC Tool ${APP_VERSION} – problem report`);
+      window.location.href = `mailto:${TOOL_FEEDBACK_EMAIL}?subject=${subject}&body=${encodeURIComponent(report)}`;
+      if (status) {
+        status.className = 'footer-hint done';
+        status.textContent = copied
+          ? 'E-mail opened – the report is also on your clipboard.'
+          : 'E-mail opened with the report filled in.';
+      }
+      return;
+    }
+
+    if (status) {
+      if (copied) {
+        status.className = 'footer-hint done';
+        status.textContent = `Report copied – paste it into a message to ${TOOL_FEEDBACK_NAME}.`;
+      } else {
+        status.className = 'footer-hint warn';
+        status.textContent = 'Could not copy automatically – please note the version shown above.';
+      }
+    }
+  });
+});
 
 const state = {
   dataset: null,
@@ -3170,7 +3305,7 @@ window.addEventListener('resize', () => {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.4.3',
+    version: APP_VERSION,
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     sourceFileName: state.dataset.sourceFileName || '',
@@ -3418,8 +3553,8 @@ function importPtcAssistantsFromText(text) {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.4.3', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.4.3', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:APP_VERSION, exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3879,7 +4014,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.3</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.5</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
