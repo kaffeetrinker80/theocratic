@@ -220,7 +220,11 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .small { font-size:12px; }
 .results-panel {
   display:flex; flex-direction:column; align-self:start;
-  position:sticky; top:12px; max-height:calc(100vh - 24px);
+  position:sticky; top:12px;
+  max-height:calc(100vh - 24px);
+  /* dvh follows the visible viewport, so the panel no longer ends up behind a
+     mobile URL bar or a taskbar-sized window edge. vh above stays as fallback. */
+  max-height:calc(100dvh - 24px);
 }
 .panel { min-height:220px; }
 .home-chip { background:#f6ebd8; border-color:#efd3a4; color:#8a5a14; }
@@ -231,6 +235,27 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .distance-row-info strong { color:var(--text); }
 .cong-speaker-card { cursor:pointer; }
 .cong-speaker-card:hover { border-color:var(--accent); box-shadow:0 6px 18px rgba(74,52,36,.09); }
+/* v2.4.1: compact tiles in the congregation panel. Contacts stay fully readable,
+   the outline strip is capped at three rows because the full list is one click away
+   in the speaker card. The header count always shows the real total. */
+.speaker-mini.compact { padding:10px 11px; }
+.speaker-mini.compact h4 { margin:0; font-size:14.5px; }
+.mini-contacts {
+  display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:6px; font-size:12px;
+}
+.mini-contacts .mini-none { color:var(--muted); }
+.mini-outline-count {
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  color:var(--muted); white-space:nowrap;
+}
+.speaker-mini.compact .outline-list {
+  margin-top:8px; gap:5px;
+  /* exactly three rows of chips; anything beyond is cut cleanly */
+  max-height:69px; overflow:hidden;
+}
+.speaker-mini.compact .outline {
+  font-size:10.5px; padding:2px 7px; line-height:1.45;
+}
 .back-row { display:flex; justify-content:flex-start; margin-bottom:10px; }
 .scroll-top { position:fixed; right:22px; bottom:22px; z-index:30; border-radius:999px; width:48px; height:48px; display:none; box-shadow:var(--shadow); }
 .scroll-top.show { display:inline-flex; align-items:center; justify-content:center; }
@@ -303,12 +328,16 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 /* ===== outline directory modal ===== */
 #outlineOverlay{
   display:none; position:fixed; inset:0; z-index:9998;
-  background:rgba(44,32,24,.55); padding:24px; overflow:auto;
+  background:rgba(44,32,24,.55); overflow:auto;
+  padding:24px;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
 }
 .ol-dialog{
   max-width:940px; margin:0 auto; background:var(--card); color:var(--text);
   border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
-  display:flex; flex-direction:column; max-height:calc(100vh - 48px);
+  display:flex; flex-direction:column;
+  max-height:calc(100vh - 48px);
+  max-height:calc(100dvh - 48px);
 }
 .ol-controls{
   display:grid; grid-template-columns:1fr 190px auto; gap:9px; align-items:center;
@@ -403,7 +432,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
 @media (max-width:720px){
   #outlineOverlay{ padding:10px; }
-  .ol-dialog{ max-height:calc(100vh - 20px); }
+  .ol-dialog{ max-height:calc(100vh - 20px); max-height:calc(100dvh - 20px); }
   .ol-controls{ grid-template-columns:1fr; }
   .ol-count{ margin-left:0; }
 }
@@ -413,12 +442,16 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
    z-index sits below the outline directory so an outline chip can open on top. */
 #speakerOverlay{
   display:none; position:fixed; inset:0; z-index:9990;
-  background:rgba(44,32,24,.55); padding:24px; overflow:auto;
+  background:rgba(44,32,24,.55); overflow:auto;
+  padding:24px;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
 }
 .sp-dialog{
   max-width:880px; margin:0 auto; background:var(--card); color:var(--text);
   border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
-  display:flex; flex-direction:column; max-height:calc(100vh - 48px);
+  display:flex; flex-direction:column;
+  max-height:calc(100vh - 48px);
+  max-height:calc(100dvh - 48px);
 }
 .sp-head{
   display:flex; align-items:flex-start; gap:14px; justify-content:space-between;
@@ -432,7 +465,9 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .sp-body::-webkit-scrollbar-thumb{ background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
 .sp-body .detail-section{ margin-top:16px; }
 .sp-foot{
-  padding:10px 18px; border-top:1px solid var(--line); background:#faf6ef;
+  padding:10px 18px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top:1px solid var(--line); background:#faf6ef;
   display:flex; flex-wrap:wrap; gap:8px; align-items:center;
   font-size:11.5px; color:var(--muted);
 }
@@ -440,17 +475,23 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .card[data-key].is-open-in-modal{ border-color:var(--accent); }
 @media (max-width:720px){
   #speakerOverlay{ padding:0; }
-  .sp-dialog{ max-height:100vh; min-height:100vh; border-radius:0; }
+  .sp-dialog{ max-height:100vh; max-height:100dvh; min-height:100vh; min-height:100dvh; border-radius:0; }
   .sp-head{ position:sticky; top:0; z-index:2; }
   .sp-head h2{ font-size:17px; }
 }
 
 /* ===== print module ===== */
-#printOverlay{ display:none; position:fixed; inset:0; z-index:9997; background:rgba(44,32,24,.55); padding:24px; overflow:auto; }
+#printOverlay{
+  display:none; position:fixed; inset:0; z-index:9997; background:rgba(44,32,24,.55); overflow:auto;
+  padding:24px;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+}
 .pr-dialog{
   max-width:1080px; margin:0 auto; background:var(--card); color:var(--text);
   border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
-  display:flex; flex-direction:column; max-height:calc(100vh - 48px);
+  display:flex; flex-direction:column;
+  max-height:calc(100vh - 48px);
+  max-height:calc(100dvh - 48px);
 }
 .pr-body{ display:grid; grid-template-columns:290px minmax(0,1fr); min-height:0; }
 .pr-side{ border-right:1px solid var(--line); background:#faf6ef; padding:14px; overflow:auto; }
@@ -699,7 +740,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
 
-  <div class="footer">Made with love © v.2.4</div>
+  <div class="footer">Made with love © v.2.4.1</div>
 </div>
 
 <script>
@@ -2839,18 +2880,21 @@ function renderDetail() {
       <div class="speaker-table">
         ${cong.speakers.map(sp => {
           const rec = noteRecord(sp.notesKey);
+          const phones = renderPhoneLinks(sp.phones, cong.country);
+          const emails = renderEmailLinks(sp.emails);
+          const total = sp.outlines.length;
           return `
-          <div class="speaker-mini cong-speaker-card ${sp.id === highlightSpeakerId ? 'highlight' : ''}" data-cong-speaker-id="${escapeHtml(sp.id)}">
+          <div class="speaker-mini compact cong-speaker-card ${sp.id === highlightSpeakerId ? 'highlight' : ''}" data-cong-speaker-id="${escapeHtml(sp.id)}">
             <div class="speaker-highlight-head">
               <h4>${escapeHtml(sp.name)} <span class="small subtle">· ${escapeHtml(sp.role)}</span>${rec.favorite ? ' <span class="small">★</span>' : ''}</h4>
               <button type="button" class="ghost open-speaker-detail-btn" data-speaker-id="${escapeHtml(sp.id)}">Open speaker</button>
             </div>
-            <div class="small">${renderPhoneLinks(sp.phones, cong.country) || 'No phone'}</div>
-            <div class="small">${renderEmailLinks(sp.emails) || 'No email'}</div>
-            <div class="outline-list" style="margin-top:8px;">
-              ${sp.outlines.slice(0, 18).map(no => renderOutline(no)).join('')}
-              ${sp.outlines.length > 18 ? `<span class="outline">+${sp.outlines.length - 18} more</span>` : ''}
+            <div class="mini-contacts">
+              <span>${phones || '<span class="mini-none">No phone</span>'}</span>
+              <span>${emails || '<span class="mini-none">No email</span>'}</span>
+              <span class="mini-outline-count">${total} outline${total === 1 ? '' : 's'}</span>
             </div>
+            ${total ? `<div class="outline-list">${sp.outlines.slice(0, 24).map(no => renderOutline(no)).join('')}</div>` : ''}
           </div>`;
         }).join('') || '<div class="subtle">No speakers found in this import.</div>'}
       </div>
@@ -3043,7 +3087,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function persistDataset() {
   if (!state.dataset) return;
   const payload = {
-    version: '2.4',
+    version: '2.4.1',
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     sourceFileName: state.dataset.sourceFileName || '',
@@ -3291,8 +3335,8 @@ function importPtcAssistantsFromText(text) {
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:'2.4', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:'2.4', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:'2.4.1', exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
+    : { version:'2.4.1', exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -3593,7 +3637,8 @@ document.addEventListener('DOMContentLoaded', function () {
 .help-layout{ display:grid; grid-template-columns:216px minmax(0,1fr); }
 .help-nav{
   border-right:1px solid var(--line,#e6ddd0); background:#faf6ef;
-  padding:18px 12px; align-self:start; position:sticky; top:0; max-height:78vh; overflow:auto;
+  padding:18px 12px; align-self:start; position:sticky; top:0;
+  max-height:78vh; max-height:78dvh; overflow:auto;
 }
 .help-nav-label{
   font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
@@ -3605,7 +3650,7 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 .help-nav a:hover{ background:#f1e8db; color:var(--accent2,#8c3f26); }
 
-.help-content{ padding:22px 26px 26px; max-height:78vh; overflow:auto; scroll-behavior:smooth; }
+.help-content{ padding:22px 26px 26px; max-height:78vh; max-height:78dvh; overflow:auto; scroll-behavior:smooth; }
 .help-lead{ font-size:14px; line-height:1.65; max-width:66ch; margin:0; }
 .help-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 4px; }
 
@@ -3751,7 +3796,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.4.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
