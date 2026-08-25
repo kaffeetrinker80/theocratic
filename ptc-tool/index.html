@@ -784,7 +784,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
-      <span class="footer-hint" id="reportProblemStatus">Copies version and setup details so a bug report is easy to answer.</span>
+      <span class="footer-hint" id="reportProblemStatus">Opens an e-mail with version and setup details already filled in.</span>
     </div>
   </div>
 </div>
@@ -816,8 +816,8 @@ const VALID_COUNTRIES = new Set(Object.values(COUNTRY_BY_PREFIX));
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
 const APP_VERSION = '2.4.5';
-const TOOL_FEEDBACK_EMAIL = '';
-const TOOL_FEEDBACK_NAME = 'the tool author';
+const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
+const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
 function buildProblemReport() {
   const ds = state.dataset;
