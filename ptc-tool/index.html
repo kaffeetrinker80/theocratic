@@ -659,9 +659,9 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         </div>
         <p>Search and filter every public speaker congregation, then jump straight to the Kingdom Hall in Google Maps.</p>
         <div class="fact-row">
-          <div class="fact"><span class="fact-label">Data source</span><span class="fact-value">CSV import only</span></div>
+          <div class="fact"><span class="fact-label">Data source</span><span class="fact-value">CSV / Organizer Master</span></div>
           <div class="fact"><span class="fact-label">Outline data</span><span class="fact-value" id="outlineDataInfo">Loading outline-data.json…</span></div>
-          <div class="fact"><span class="fact-label">Backup</span><span class="fact-value">JSON export incl. notes</span></div>
+          <div class="fact"><span class="fact-label">Backup</span><span class="fact-value">Complete local backup available</span></div>
         </div>
       </div>
       <div class="statbox">
@@ -701,7 +701,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     <div class="toolbar-grid toolbar-grid-distance">
       <div><select id="distanceMode"><option value="air">Air-line</option><option value="drive_est">Estimated drive × 1.25</option></select></div>
       <div><select id="distanceFilter"><option value="">Any distance</option><option value="50">within 50 km</option><option value="100">within 100 km</option><option value="150">within 150 km</option><option value="200">within 200 km</option></select></div>
-      <div><select id="sortMode"><option value="name">Sort: Name</option><option value="distance">Sort: Distance</option></select></div>
+      <div><select id="sortMode"><option value="name">Sort: Name</option><option value="outline">Sort: Outline</option><option value="distance">Sort: Distance</option></select></div>
       <div class="distance-row-info" id="distanceRowInfo">Distance tools are inactive until a home congregation with coordinates is available.</div>
     </div>
     </div>
@@ -716,11 +716,10 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <button id="importAssistantsBtn" class="ghost" disabled title="Import the speaker list first">Import PTC Assistants</button>
       </div>
       <div class="action-group">
-        <button class="good" id="exportJsonBtn">Export JSON</button>
-        <button id="exportNotesBtn">Export Notes + Assistants</button>
+        <button class="good" id="exportJsonBtn" title="Save a complete backup of the current tool data and your personal memory">Backup</button>
+        <button id="exportNotesBtn" title="Export only your personal speaker and congregation memory">Personal Notes</button>
       </div>
       <div class="action-group">
-        <button id="showWarningsBtn" class="ghost hidden">Import warnings</button>
         <button id="showImproveBtn" class="ghost hidden">Help Us Improve</button>
       </div>
       <div class="action-group">
@@ -737,7 +736,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     </div>
 
     <div class="workflow-hint" id="assistantImportHint">
-      Workflow: import the main/geocoded CSV first → then optionally add PTC Assistant data. Notes, favorites, dates, and assistants are stored locally and included in JSON export.
+      Workflow: import the main CSV or Organizer Master first → then optionally add the legacy PTC Assistant CSV. Speaker memory and personal notes are stored locally and can be exported separately.
     </div>
     </div>
   </div>
@@ -778,7 +777,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.1</span>
+      <span class="footer-version" id="footerVersion">v.2.5.2</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -804,6 +803,17 @@ const DIAL_CODE_BY_COUNTRY = {
   'Hungary': '+36', 'Slovakia': '+421', 'Slovenia': '+386', 'Croatia': '+385'
 };
 const VALID_COUNTRIES = new Set(Object.values(COUNTRY_BY_PREFIX));
+const ISO2_BY_COUNTRY = {
+  'Austria':'AT','Germany':'DE','Switzerland':'CH','Netherlands':'NL','Belgium':'BE',
+  'France':'FR','Italy':'IT','Spain':'ES','Portugal':'PT','Luxembourg':'LU',
+  'Denmark':'DK','Sweden':'SE','Norway':'NO','Finland':'FI','United Kingdom':'GB',
+  'Ireland':'IE','Czech Republic':'CZ','Poland':'PL','Greece':'GR','Romania':'RO',
+  'Hungary':'HU','Slovakia':'SK','Slovenia':'SI','Croatia':'HR'
+};
+function countryDisplayLabel(country){
+  const code=ISO2_BY_COUNTRY[country]||'';
+  return code ? `${country} – ${code}` : country;
+}
 
 /* ===== version and feedback (v2.4.4) =====
    APP_VERSION is the single source of truth: footer, JSON exports and bug reports all
@@ -813,7 +823,7 @@ const VALID_COUNTRIES = new Set(Object.values(COUNTRY_BY_PREFIX));
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.1';
+const APP_VERSION = '2.5.2';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -2325,18 +2335,18 @@ function populateOutlineSuggestions() {
 }
 
 function renderWarningsButton() {
-  const btn = document.getElementById('showWarningsBtn');
+  /* v2.5.2: parser warnings stay internal. The user-facing action is Help Us Improve,
+     which only shows issues that can actually be reviewed or corrected. */
   const improveBtn = document.getElementById('showImproveBtn');
   const hint = document.getElementById('warningHint');
-  const count = state.dataset?.warnings?.length || 0;
   const issueCount = state.dataset ? detectLikelyIssues().length : 0;
-  btn.classList.toggle('hidden', !count);
-  btn.textContent = count ? `Import warnings (${count})` : 'Import warnings';
   if (improveBtn) {
     improveBtn.classList.toggle('hidden', !issueCount);
     improveBtn.textContent = issueCount ? `Help Us Improve (${issueCount})` : 'Help Us Improve';
   }
-  hint.textContent = count ? `There ${count === 1 ? "is" : "are"} ${count} import warning${count === 1 ? "" : "s"}. Click the warning button above for details.` : (issueCount ? `There ${issueCount === 1 ? "is" : "are"} ${issueCount} likely data issue${issueCount === 1 ? "" : "s"}. Use Help Us Improve to review them.` : "");
+  if (hint) hint.textContent = issueCount
+    ? `There ${issueCount === 1 ? "is" : "are"} ${issueCount} likely data issue${issueCount === 1 ? "" : "s"}. Use Help Us Improve to review them.`
+    : '';
 }
 
 function extractDatasetVersionLabel(fileName) {
@@ -2406,7 +2416,7 @@ function populateFilters() {
   const circuits = [...new Set(ds.congregations.map(c => c.circuit).filter(Boolean))].sort();
   const days = [...new Set(ds.congregations.map(c => c.meetingDay).filter(Boolean))];
 
-  countries.forEach(v => country.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
+  countries.forEach(v => country.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(v)}">${escapeHtml(countryDisplayLabel(v))}</option>`));
   circuits.forEach(v => circuit.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
   days.forEach(v => day.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
   populateOutlineSuggestions();
@@ -2467,6 +2477,26 @@ function speakerMatches(sp, fs, cong) {
   return haystack.includes(fs.q);
 }
 
+
+function matchingOutlineNumbers(sp, outlineFilter){
+  const nums=(sp?.outlines||[]).filter(no=>Number.isFinite(Number(no))).map(Number);
+  if(!outlineFilter?.raw)return nums;
+  return nums.filter(no=>{
+    if(outlineFilter.number!=null && no===outlineFilter.number)return true;
+    return normalizeText(outlineLabel(no)).includes(outlineFilter.text);
+  });
+}
+function speakerOutlineSortKey(sp, outlineFilter){
+  const nums=matchingOutlineNumbers(sp,outlineFilter);
+  return nums.length ? Math.min(...nums) : Number.POSITIVE_INFINITY;
+}
+function congregationOutlineSortKey(cong, outlineFilter){
+  const keys=(cong?.speakers||[])
+    .map(sp=>speakerOutlineSortKey(sp,outlineFilter))
+    .filter(Number.isFinite);
+  return keys.length ? Math.min(...keys) : Number.POSITIVE_INFINITY;
+}
+
 function congregationMatches(cong, fs) {
   if (fs.favorites === 'favorites' && !cong.speakers.some(sp => noteRecord(sp.notesKey).favorite)) return false;
   if (fs.country && cong.country !== fs.country) return false;
@@ -2513,6 +2543,10 @@ function renderResults() {
       .map(sp => { const cong = ds.congregations.find(c => c.id === sp.congregationId); return { sp, cong }; })
       .filter(x => x.cong && speakerMatches(x.sp, fs, x.cong))
       .sort((a,b) => {
+        if (fs.sortMode === 'outline') {
+          const oa=speakerOutlineSortKey(a.sp,fs.outline), ob=speakerOutlineSortKey(b.sp,fs.outline);
+          if(oa!==ob)return oa-ob;
+        }
         if (fs.sortMode === 'distance') {
           const da = getDistanceKmForCong(a.cong, fs.distanceMode);
           const db = getDistanceKmForCong(b.cong, fs.distanceMode);
@@ -2555,6 +2589,10 @@ function renderResults() {
     }).join('');
   } else {
     items = ds.congregations.filter(cong => congregationMatches(cong, fs)).sort((a,b) => {
+      if (fs.sortMode === 'outline') {
+        const oa=congregationOutlineSortKey(a,fs.outline), ob=congregationOutlineSortKey(b,fs.outline);
+        if(oa!==ob)return oa-ob;
+      }
       if (fs.sortMode === 'distance') {
         const da = getDistanceKmForCong(a, fs.distanceMode);
         const db = getDistanceKmForCong(b, fs.distanceMode);
@@ -2813,113 +2851,36 @@ function renderPtcContactBox(cong, extraHtml = '') {
 }
 
 function renderPtcAssistantEditor(cong) {
-  const key = cong.notesKey;
-  const assistant = normalizePtcAssistant(noteRecord(key).ptcAssistant);
+  const assistant = normalizePtcAssistant(noteRecord(cong.notesKey).ptcAssistant);
+  const hasContact = !!(assistant.name || assistant.phone || assistant.email);
   return `
     <div class="ptc-grid-col">
       <h3 class="ptc-column-heading">PTC Assistant</h3>
       <div class="ptc-box">
-        <div class="ptc-assistant-grid">
-          <div><label class="small subtle" for="ptcAssistantName">Name</label><input id="ptcAssistantName" type="text" value="${escapeHtml(assistant.name)}" placeholder="Assistant name"></div>
-          <div><label class="small subtle" for="ptcAssistantEmail">Email address</label><input id="ptcAssistantEmail" type="text" value="${escapeHtml(assistant.email)}" placeholder="Email address"></div>
-          <div><label class="small subtle" for="ptcAssistantPhone">Mobile / phone</label><input id="ptcAssistantPhone" type="text" value="${escapeHtml(assistant.phone)}" placeholder="Mobile / phone"></div>
-          <div><label class="small subtle" for="ptcAssistantNotes">Notes</label><textarea id="ptcAssistantNotes" placeholder="Optional assistant notes...">${escapeHtml(assistant.notes)}</textarea></div>
-        </div>
-        <div class="links" style="margin-top:12px;">
-          <button type="button" class="good" id="savePtcAssistantBtn">Save assistant</button>
-          <button type="button" class="ghost" id="ptcAssistantVcfBtn">Create assistant contact (.vcf)</button>
-          <button type="button" id="clearPtcAssistantBtn">Clear</button>
-        </div>
-        <div class="local-save-status" id="ptcAssistantStatus" style="margin-top:8px;">Manual local field. Click Save assistant after editing. It is kept during CSV imports and included in Export Notes + Assistants.</div>
+        ${hasContact ? `
+          <div class="contact-stack">
+            ${assistant.name ? `<div class="contact-line"><span class="contact-kind">Name</span><strong>${escapeHtml(assistant.name)}</strong></div>` : ''}
+            ${assistant.email ? `<div class="contact-line"><span class="contact-kind">Email</span>${renderEmailChips([assistant.email])}</div>` : ''}
+            ${assistant.phone ? `<div class="contact-line"><span class="contact-kind">Mobile</span>${renderPhoneChips([assistant.phone], cong.country)}</div>` : ''}
+          </div>
+          <div class="links" style="margin-top:12px;">
+            <button type="button" class="ghost" id="ptcAssistantVcfBtn">Create assistant contact (.vcf)</button>
+          </div>
+        ` : `<div class="small subtle">No PTC Assistant is included in the current source data.</div>`}
+        <div class="small subtle" style="margin-top:10px;">Read-only source data. Update it in the source CSV or PTC Organizer Master.</div>
       </div>
     </div>
   `;
 }
 
 function wirePtcAssistantEditor(cong) {
-  const key = cong.notesKey;
-  const saveBtn = document.getElementById('savePtcAssistantBtn');
-  const clearBtn = document.getElementById('clearPtcAssistantBtn');
   const vcfBtn = document.getElementById('ptcAssistantVcfBtn');
-  const status = document.getElementById('ptcAssistantStatus');
-  const assistantFields = ['ptcAssistantName', 'ptcAssistantEmail', 'ptcAssistantPhone', 'ptcAssistantNotes']
-    .map(id => document.getElementById(id))
-    .filter(Boolean);
-  if (!saveBtn) return;
-  const readAssistant = () => ({
-    name: document.getElementById('ptcAssistantName')?.value || '',
-    phone: document.getElementById('ptcAssistantPhone')?.value || '',
-    email: document.getElementById('ptcAssistantEmail')?.value || '',
-    notes: document.getElementById('ptcAssistantNotes')?.value || ''
-  });
-
-  const markUnsaved = () => {
-    saveBtn.classList.add('needs-save');
-    saveBtn.textContent = 'Save assistant *';
-    if (status) {
-      status.textContent = 'Unsaved changes – click Save assistant before importing a new CSV.';
-      status.classList.remove('saved');
-      status.classList.add('unsaved');
-    }
-  };
-  assistantFields.forEach(field => field.addEventListener('input', markUnsaved));
-
-  saveBtn.addEventListener('click', () => {
-    const rec = noteRecord(key);
-    setNoteRecord(key, { ...rec, ptcAssistant: readAssistant() });
-    saveNotes();
-    persistDataset();
-    saveBtn.classList.remove('needs-save');
-    saveBtn.textContent = 'Save assistant';
-    if (status) {
-      status.textContent = 'Assistant saved ✓ Included in Export Notes + Assistants.';
-      status.classList.remove('unsaved');
-      status.classList.add('saved');
-    }
-    setStatus('PTC assistant saved');
-    showToast('PTC assistant saved');
-  });
-
-  if (clearBtn) clearBtn.addEventListener('click', () => {
-    if (!confirm('Clear the manually saved PTC assistant info for this congregation?')) return;
-    const rec = noteRecord(key);
-    setNoteRecord(key, { ...rec, ptcAssistant: defaultPtcAssistant() });
-    saveNotes();
-    persistDataset();
-    renderDetail();
-    setStatus('PTC assistant cleared');
-    showToast('PTC assistant cleared');
-  });
-
-  if (vcfBtn) vcfBtn.addEventListener('click', () => {
-    const assistant = readAssistant();
-    if (!hasPtcAssistant(assistant)) return alert('Please enter assistant info first.');
+  if (!vcfBtn) return;
+  vcfBtn.addEventListener('click', () => {
+    const assistant = normalizePtcAssistant(noteRecord(cong.notesKey).ptcAssistant);
+    if (!assistant.name && !assistant.phone && !assistant.email) return;
     downloadPtcAssistantVcf(cong, assistant);
   });
-}
-
-function detectLikelyIssues(limit = 160) {
-  const issues = [];
-  const ds = state.dataset;
-  if (!ds) return issues;
-  const push = (scope, congregation, speaker, field, current, suggestion) => {
-    if (issues.length >= limit) return;
-    issues.push({ scope, congregation, speaker, field, current, suggestion });
-  };
-  ds.congregations.forEach(cong => {
-    if (!cong.country || /\d{4,}/.test(cong.country || '')) push('Congregation', cong, null, 'Country', cong.country || 'missing', 'Please review country / address');
-    if (cong.circuit && !/^EU-[A-Za-z0-9]/.test(cong.circuit)) push('Congregation', cong, null, 'Circuit', cong.circuit, 'Please review circuit code');
-    if (!cong.circuit) push('Congregation', cong, null, 'Circuit', 'missing', 'Please add circuit');
-    if (cong.meetingRaw && !/(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)/i.test(cong.meetingRaw)) push('Congregation', cong, null, 'Meeting day/time', cong.meetingRaw, 'Please review meeting day / time');
-    if (!cong.meetingRaw) push('Congregation', cong, null, 'Meeting day/time', 'missing', 'Please add meeting day / time');
-    if (!cong.address && !cong.city) push('Congregation', cong, null, 'Address', 'missing', 'Please add hall address');
-    if (!cong.ptcName && !(cong.ptcPhones||[]).length && !(cong.ptcEmails||[]).length && !cong.ptcJwpub) push('Congregation', cong, null, 'PTC', 'missing', 'Please add PTC information');
-    cong.speakers.forEach(sp => {
-      if (!sp.phones.length && !sp.emails.length) push('Speaker', cong, sp, 'Contact', 'missing', 'Please add phone and/or email');
-      if (!sp.outlines.length) push('Speaker', cong, sp, 'Outlines', 'missing', 'Please add available outlines');
-    });
-  });
-  return issues;
 }
 
 function vcfEscape(v) {
@@ -3569,7 +3530,7 @@ function updateAssistantImportState() {
     hint.classList.toggle('ready', ready);
     hint.textContent = ready
       ? 'Main data loaded ✓ Optional: import PTC Assistant data. Existing local assistant fields are kept unless they are blank.'
-      : 'Workflow: import the main/geocoded CSV first → then optionally add PTC Assistant data. Notes, favorites, dates, and assistants are stored locally and included in JSON export.';
+      : 'Workflow: import the main CSV or Organizer Master first → then optionally add the legacy PTC Assistant CSV. Speaker memory and personal notes are stored locally and can be exported separately.';
   }
 }
 
@@ -3757,15 +3718,44 @@ function importPtcAssistantsFromText(text) {
   alert(lines.join('\n'));
 }
 
+function personalNotesSnapshot(){
+  const clean={};
+  Object.entries(state.notes||{}).forEach(([key,raw])=>{
+    const rec=noteRecord(key);
+    const personal={
+      text:rec.text||'',
+      favorite:!!rec.favorite,
+      lastInvited:rec.lastInvited||'',
+      lastUsed:rec.lastUsed||''
+    };
+    if(personal.text || personal.favorite || personal.lastInvited || personal.lastUsed) clean[key]=personal;
+  });
+  return clean;
+}
+function mergePersonalNotesIntoStore(imported){
+  if(!imported || typeof imported!=='object')return;
+  Object.entries(imported).forEach(([key,raw])=>{
+    const old=noteRecord(key);
+    const incoming=(raw && typeof raw==='object') ? raw : {text:String(raw||'')};
+    setNoteRecord(key,{
+      ...old,
+      text:incoming.text||'',
+      favorite:!!incoming.favorite,
+      lastInvited:incoming.lastInvited||'',
+      lastUsed:incoming.lastUsed||''
+      /* ptcAssistant deliberately remains source data from CSV / Organizer Master */
+    });
+  });
+}
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'notes-assistants', includes:'speaker/congregation notes, favorites, dates, manual PTC assistant entries, geo cache, home congregation', notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId }
-    : { version:APP_VERSION, exportedAt:new Date().toISOString(), source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'personal-notes', includes:'speaker memory, favorites, last invited/used dates, speaker/congregation/PTC notes', notes: personalNotesSnapshot() }
+    : { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'full-backup', source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = kind === 'notes' ? `PTC_Tool_Notes_Assistants_${fileDateStamp()}.json` : `PTC_Tool_Data_${fileDateStamp()}.json`;
+  a.download = kind === 'notes' ? `PTC_Tool_Personal_Notes_${fileDateStamp()}.json` : `PTC_Tool_Backup_${fileDateStamp()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -3787,7 +3777,8 @@ function importJsonObject(obj) {
   if (obj.geoCache && typeof obj.geoCache === 'object') state.geoCache = obj.geoCache;
   if (Object.prototype.hasOwnProperty.call(obj, 'homeCongregationId')) state.homeCongregationId = obj.homeCongregationId || ''; 
   if (obj.notes && typeof obj.notes === 'object') {
-    state.notes = obj.notes;
+    if (obj.exportType === 'personal-notes') mergePersonalNotesIntoStore(obj.notes);
+    else state.notes = obj.notes;
     saveNotes();
   }
   persistDataset();
@@ -3798,7 +3789,7 @@ function importJsonObject(obj) {
   if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
   renderResults();
   renderDetail();
-  setStatus('JSON imported');
+  setStatus(obj.exportType === 'personal-notes' ? 'Personal notes imported' : 'Backup imported');
   updateAssistantImportState();
 }
 
@@ -3855,11 +3846,6 @@ document.getElementById('importAssistantsBtn').addEventListener('click', () => {
 document.getElementById('exportJsonBtn').addEventListener('click', () => exportJson('full'));
 document.getElementById('exportNotesBtn').addEventListener('click', () => exportJson('notes'));
 document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
-document.getElementById('showWarningsBtn').addEventListener('click', () => {
-  const warnings = state.dataset?.warnings || [];
-  if (!warnings.length) { alert('No import warnings in the current dataset.'); return; }
-  alert('Import warnings:\n\n' + warnings.map((w,i)=> `${i+1}. ${w}`).join('\n'));
-});
 document.getElementById('showImproveBtn').addEventListener('click', () => {
   if (!state.dataset) return;
   state.selectedKey = '__improve__';
@@ -4261,7 +4247,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4351,6 +4337,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <section class="help-section" id="help-s7">
           <h3><span class="help-num">07</span> Outline search</h3>
           <p>The outline filter works two ways: by number, for example <b>76</b>, or by words from the title, for example <b>family</b>, <b>hope</b>, or <b>hospitality</b>. That makes it easy to find brothers even when you only remember the subject but not the exact outline number.</p>
+          <p><b>Sort: Outline</b> orders the current results by the lowest available outline number. With no outline filter active this naturally starts at 1, 2, 3 …; with an outline search active, the matching outline is used as the sort key.</p>
           <p>The <b>≡</b> button in the outline field opens the <b>outline directory</b>: every outline from <b>outline-data.json</b> with its title, status, retiring date, and how many speakers in the current list offer it. Search it by number, title, or note, narrow it by status, or tick <b>Only with speakers</b> to hide outlines nobody covers. Clicking an entry filters the speaker list by that outline.</p>
           <p>Where an outline carries a note, an <b>i</b> marker appears. The note is shortened in the row and shown in full when you hover or tap the marker, so a long note never pushes the list apart. Outline chips on the result cards and in the speaker details are clickable too and open the directory at that outline.</p>
         </section>
@@ -4364,8 +4351,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <section class="help-section" id="help-s8">
           <h3><span class="help-num">09</span> Favorites and speaker memory</h3>
-          <p>For each speaker you can save favorite status, last invited, last used, notes, and manual PTC assistant entries for congregations.</p>
-          <p>This is local browser memory and is also included in the JSON export. Use <b>Export Notes + Assistants</b> if you only want to back up your personal additions. It helps with brothers you invite often, brothers you want to keep in mind, or avoiding the same speaker too frequently.</p>
+          <p>For each speaker you can save favorite status, last invited, last used and personal notes. Congregation and PTC notes are part of the same local memory.</p>
+          <p>Use <b>Personal Notes</b> to export only this personal memory. PTC Assistant contacts are source data and are intentionally not part of the personal-notes file; they come from the CSV or PTC Organizer Master.</p>
         </section>
 
         <section class="help-section" id="help-s9">
