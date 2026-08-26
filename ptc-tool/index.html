@@ -721,7 +721,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <button id="importAssistantsBtn" class="ghost hidden" disabled aria-hidden="true" tabindex="-1">Import PTC Assistants</button>
       </div>
       <div class="action-group">
-        <button class="ghost" id="backupChoiceBtn" title="Choose Personal Notes only or a complete personal backup">Backup</button>
+        <button class="good" id="backupChoiceBtn" title="Choose Personal Notes only or a complete personal backup">Backup</button>
         <button class="good hidden" id="exportJsonBtn" aria-hidden="true" tabindex="-1">Complete backup</button>
         <button class="hidden" id="exportNotesBtn" aria-hidden="true" tabindex="-1">Personal Notes</button>
       </div>
@@ -783,7 +783,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.5</span>
+      <span class="footer-version" id="footerVersion">v.2.5.6</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +829,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.5';
+const APP_VERSION = '2.5.6';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -3905,14 +3905,16 @@ function openBackupChoice() {
         <div class="small subtle">Favorites, speaker memory, last invited / used dates, and your personal speaker, congregation and PTC notes.</div>
       </div>
       <div style="display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr);gap:14px;align-items:center;padding:14px 0">
-        <button type="button" class="ghost" id="backupFullChoice">Complete personal backup</button>
+        <button type="button" class="good" id="backupFullChoice">Complete personal backup</button>
         <div class="small subtle">Everything currently stored in the tool, including imported speaker data, notes, home congregation and local settings.</div>
       </div>
     </div>
   </div>`;
-  const close=()=>ov.remove();
+  let onKey=null; const close=()=>{if(onKey)document.removeEventListener('keydown',onKey);ov.remove()};
   ov.addEventListener('click',e=>{if(e.target===ov)close()});
   document.body.appendChild(ov);
+  onKey=(e)=>{if(e.key==='Escape'){e.preventDefault();close();}};
+  document.addEventListener('keydown',onKey,{once:true});
   ov.querySelector('#backupChoiceClose').onclick=close;
   ov.querySelector('#backupNotesChoice').onclick=()=>{exportJson('notes');close()};
   ov.querySelector('#backupFullChoice').onclick=()=>{exportJson('full');close()};
@@ -4347,7 +4349,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.5</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.6</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
