@@ -121,6 +121,11 @@ button:active { transform:translateY(1px); }
 button.primary { background:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(194,96,63,.28); }
 button.primary:hover { background:#a94f32; }
 button.good { background:var(--ok); color:#fff; box-shadow:0 4px 12px rgba(94,128,85,.24); }
+button.blue { background:#476a8b; color:#fff; box-shadow:0 4px 12px rgba(71,106,139,.24); }
+button.blue:hover { background:#3d5e7b; }
+button.reset-danger { background:#a8402f; color:#fff; border-color:#8f3426; box-shadow:0 4px 12px rgba(168,64,47,.24); }
+button.reset-danger:hover { background:#8f3426; }
+
 button.good:hover { background:#4e6d46; }
 button.warn { background:var(--warn); color:#fff; box-shadow:0 4px 12px rgba(180,118,42,.26); }
 button.warn:hover { background:#99621f; }
@@ -354,6 +359,26 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .toolbar-grid-main .span-2, .toolbar-grid-distance .distance-row-info { grid-column:auto; }
   .header h1 { font-size:26px; }
 }
+
+
+/* ===== backup choice modal ===== */
+#backupOverlay{
+  display:none; position:fixed; inset:0; z-index:10001;
+  background:rgba(44,32,24,.55); padding:24px; overflow:auto;
+}
+.backup-dialog{
+  width:min(620px,100%); margin:8vh auto 0; background:var(--card); color:var(--text);
+  border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); overflow:hidden;
+}
+.backup-body{padding:18px 20px 20px}
+.backup-choice{
+  display:grid; grid-template-columns:190px minmax(0,1fr); gap:14px; align-items:center;
+  padding:14px 0; border-bottom:1px solid var(--line);
+}
+.backup-choice:last-child{border-bottom:0}
+.backup-choice p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.backup-choice button{width:100%;min-height:42px}
+@media(max-width:620px){.backup-choice{grid-template-columns:1fr}}
 
 /* ===== outline directory modal ===== */
 #outlineOverlay{
@@ -709,22 +734,19 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     <div class="toolbar-block">
     <span class="row-label">Data &amp; actions</span>
     <div class="toolbar-actions">
-      <input id="dataInput" type="file" accept=".csv,.json,text/csv,application/json" class="hidden">
-      <input id="assistantCsvInput" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" class="hidden">
+      <input id="dataInput" type="file" accept=".csv,.tsv,.json,text/csv,text/tab-separated-values,application/json" class="hidden">
       <div class="action-group">
-        <button class="primary" id="loadDataBtn" title="Speaker list CSV, PTC Organizer JSON, or a tool backup">Import</button>
-        <button id="importAssistantsBtn" class="ghost" disabled title="Import the speaker list first">Import PTC Assistants</button>
+        <button class="blue" id="loadDataBtn" title="Automatically recognizes speaker CSV, PTC Assistant CSV, Organizer Master, Personal Notes and complete backups">Import</button>
       </div>
       <div class="action-group">
-        <button class="good" id="exportJsonBtn" title="Save a complete backup of the current tool data and your personal memory">Backup</button>
-        <button id="exportNotesBtn" title="Export only your personal speaker and congregation memory">Personal Notes</button>
+        <button class="ghost" id="backupBtn" title="Choose Personal Notes only or a complete personal backup">Backup</button>
       </div>
       <div class="action-group">
         <button id="showImproveBtn" class="ghost hidden">Help Us Improve</button>
       </div>
       <div class="action-group">
         <button id="clearFiltersBtn">Clear filters</button>
-        <button class="warn" id="resetBtn">Reset local data</button>
+        <button class="reset-danger" id="resetBtn">Reset local data</button>
       </div>
       <div class="status-strip">
         <div class="status-line">
@@ -736,7 +758,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     </div>
 
     <div class="workflow-hint" id="assistantImportHint">
-      Workflow: import the main CSV or Organizer Master first → then optionally add the legacy PTC Assistant CSV. Speaker memory and personal notes are stored locally and can be exported separately.
+      One import button: the tool automatically recognizes speaker CSV, legacy PTC Assistant CSV, Organizer Master, Personal Notes, and complete backups.
     </div>
     </div>
   </div>
@@ -777,7 +799,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.3</span>
+      <span class="footer-version" id="footerVersion">v.2.5.4</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -807,7 +829,7 @@ const ISO2_BY_COUNTRY = {
   'Austria':'AT','Germany':'DE','Switzerland':'CH','Netherlands':'NL','Belgium':'BE',
   'France':'FR','Italy':'IT','Spain':'ES','Portugal':'PT','Luxembourg':'LU',
   'Denmark':'DK','Sweden':'SE','Norway':'NO','Finland':'FI','United Kingdom':'GB',
-  'Ireland':'IE','Czech Republic':'CZ','Poland':'PL','Greece':'GR','Romania':'RO',
+  'Ireland':'IE','Iceland':'IS','Czech Republic':'CZ','Poland':'PL','Greece':'GR','Romania':'RO',
   'Hungary':'HU','Slovakia':'SK','Slovenia':'SI','Croatia':'HR'
 };
 function countryDisplayLabel(country){
@@ -823,7 +845,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.3';
+const APP_VERSION = '2.5.4';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -3562,19 +3584,13 @@ function hasMainDataset() {
 }
 
 function updateAssistantImportState() {
-  const btn = document.getElementById('importAssistantsBtn');
   const hint = document.getElementById('assistantImportHint');
+  if (!hint) return;
   const ready = hasMainDataset();
-  if (btn) {
-    btn.disabled = !ready;
-    btn.title = ready ? 'Import PTC Assistant CSV without replacing the main speaker list' : 'Import the main/geocoded CSV first';
-  }
-  if (hint) {
-    hint.classList.toggle('ready', ready);
-    hint.textContent = ready
-      ? 'Main data loaded ✓ Optional: import PTC Assistant data. Existing local assistant fields are kept unless they are blank.'
-      : 'Workflow: import the main CSV or Organizer Master first → then optionally add the legacy PTC Assistant CSV. Speaker memory and personal notes are stored locally and can be exported separately.';
-  }
+  hint.classList.toggle('ready', ready);
+  hint.textContent = ready
+    ? 'Data loaded ✓ Import automatically recognizes speaker CSV, PTC Assistant CSV, Organizer Master, Personal Notes, and complete backups.'
+    : 'One import button: the tool automatically recognizes speaker CSV, legacy PTC Assistant CSV, Organizer Master, Personal Notes, and complete backups.';
 }
 
 function splitDelimitedRow(line, delimiter) {
@@ -3761,6 +3777,22 @@ function importPtcAssistantsFromText(text) {
   alert(lines.join('\n'));
 }
 
+
+function openBackupOverlay(){
+  const ov=document.getElementById('backupOverlay');
+  if(!ov)return;
+  ov.style.display='block';
+  ov.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeBackupOverlay(){
+  const ov=document.getElementById('backupOverlay');
+  if(!ov)return;
+  ov.style.display='none';
+  ov.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+
 function personalNotesSnapshot(){
   const clean={};
   Object.entries(state.notes||{}).forEach(([key,raw])=>{
@@ -3879,15 +3911,11 @@ function resetAll() {
 }
 
 document.getElementById('loadDataBtn').addEventListener('click', () => document.getElementById('dataInput').click());
-document.getElementById('importAssistantsBtn').addEventListener('click', () => {
-  if (!hasMainDataset()) {
-    alert('Please import the speaker list first.');
-    return;
-  }
-  document.getElementById('assistantCsvInput').click();
-});
-document.getElementById('exportJsonBtn').addEventListener('click', () => exportJson('full'));
-document.getElementById('exportNotesBtn').addEventListener('click', () => exportJson('notes'));
+document.getElementById('backupBtn').addEventListener('click', openBackupOverlay);
+document.getElementById('closeBackupBtn').addEventListener('click', closeBackupOverlay);
+document.getElementById('backupNotesBtn').addEventListener('click', () => { exportJson('notes'); closeBackupOverlay(); });
+document.getElementById('backupCompleteBtn').addEventListener('click', () => { exportJson('full'); closeBackupOverlay(); });
+document.getElementById('backupOverlay').addEventListener('click', (e) => { if (e.target.id === 'backupOverlay') closeBackupOverlay(); });
 document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
 document.getElementById('showImproveBtn').addEventListener('click', () => {
   if (!state.dataset) return;
@@ -3984,6 +4012,15 @@ async function handleImportFile(file) {
     }
     if (looksLikeMasterJson(obj)) importMasterJson(obj, name);
     else importJsonObject(obj);
+    return;
+  }
+  const cleanHeader=(text.split(/\r?\n/,1)[0]||'').toLowerCase().replace(/[\s_"'()./-]+/g,'');
+  const looksAssistantCsv = /ptcassistant|assistantname|ptcassphone|assistantphone|ptcassistantemail|assistantemail/.test(cleanHeader);
+  if (looksAssistantCsv) {
+    if (!hasMainDataset()) throw new Error('Please import the main speaker list or Organizer Master before importing a PTC Assistant CSV.');
+    importPtcAssistantsFromText(text);
+    setStatus('PTC Assistant CSV imported · main speaker data kept');
+    updateAssistantImportState();
     return;
   }
   importCsvText(text, name);
@@ -4256,6 +4293,29 @@ document.addEventListener('DOMContentLoaded', function () {
   </div>
 </div>
 
+
+<div id="backupOverlay" aria-hidden="true">
+  <div class="backup-dialog" role="dialog" aria-modal="true" aria-label="Backup">
+    <div class="help-head">
+      <div>
+        <h2>Backup</h2>
+        <div class="help-sub">Choose how much of your personal PTC Tool data to save</div>
+      </div>
+      <button type="button" class="ghost" id="closeBackupBtn">Close</button>
+    </div>
+    <div class="backup-body">
+      <div class="backup-choice">
+        <button type="button" class="blue" id="backupNotesBtn">Personal Notes only</button>
+        <p>Favorites, speaker memory, last invited / used dates, and your personal speaker, congregation and PTC notes. No imported master data.</p>
+      </div>
+      <div class="backup-choice">
+        <button type="button" class="ghost" id="backupCompleteBtn">Complete personal backup</button>
+        <p>Everything currently stored in the tool: imported speaker data, personal notes, home congregation, geocoding cache and local settings.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="outlineOverlay" aria-hidden="true">
   <div class="ol-dialog" role="dialog" aria-modal="true" aria-label="Outline directory">
     <div class="help-head">
@@ -4290,7 +4350,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.3</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.4</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4395,7 +4455,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <section class="help-section" id="help-s8">
           <h3><span class="help-num">09</span> Favorites and speaker memory</h3>
           <p>For each speaker you can save favorite status, last invited, last used and personal notes. Congregation and PTC notes are part of the same local memory.</p>
-          <p>Use <b>Personal Notes</b> to export only this personal memory. PTC Assistant contacts are source data and are intentionally not part of the personal-notes file; they come from the CSV or PTC Organizer Master.</p>
+          <p>Open <b>Backup</b> and choose <b>Personal Notes only</b> to export only this personal memory. PTC Assistant contacts are source data and are intentionally not part of the personal-notes file; they come from the CSV or PTC Organizer Master.</p>
         </section>
 
         <section class="help-section" id="help-s9">
