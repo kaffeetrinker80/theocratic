@@ -777,7 +777,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.2</span>
+      <span class="footer-version" id="footerVersion">v.2.5.3</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -823,7 +823,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.2';
+const APP_VERSION = '2.5.3';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -2883,6 +2883,49 @@ function wirePtcAssistantEditor(cong) {
   });
 }
 
+
+function detectLikelyIssues(limit = 160) {
+  const issues = [];
+  const ds = state.dataset;
+  if (!ds) return issues;
+  const push = (scope, congregation, speaker, field, current, suggestion) => {
+    if (issues.length >= limit) return;
+    issues.push({ scope, congregation, speaker, field, current, suggestion });
+  };
+  ds.congregations.forEach(cong => {
+    if (!cong.country || /\d{4,}/.test(cong.country || '')) {
+      push('Congregation', cong, null, 'Country', cong.country || 'missing', 'Please review country / address');
+    }
+    if (cong.circuit && !/^EU-[A-Za-z0-9]/.test(cong.circuit)) {
+      push('Congregation', cong, null, 'Circuit', cong.circuit, 'Please review circuit code');
+    }
+    if (!cong.circuit) {
+      push('Congregation', cong, null, 'Circuit', 'missing', 'Please add circuit');
+    }
+    if (cong.meetingRaw && !/(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)/i.test(cong.meetingRaw)) {
+      push('Congregation', cong, null, 'Meeting day/time', cong.meetingRaw, 'Please review meeting day / time');
+    }
+    if (!cong.meetingRaw) {
+      push('Congregation', cong, null, 'Meeting day/time', 'missing', 'Please add meeting day / time');
+    }
+    if (!cong.address && !cong.city) {
+      push('Congregation', cong, null, 'Address', 'missing', 'Please add hall address');
+    }
+    if (!cong.ptcName && !(cong.ptcPhones||[]).length && !(cong.ptcEmails||[]).length && !cong.ptcJwpub) {
+      push('Congregation', cong, null, 'PTC', 'missing', 'Please add PTC information');
+    }
+    (cong.speakers || []).forEach(sp => {
+      if (!(sp.phones||[]).length && !(sp.emails||[]).length) {
+        push('Speaker', cong, sp, 'Contact', 'missing', 'Please add phone and/or email');
+      }
+      if (!(sp.outlines||[]).length) {
+        push('Speaker', cong, sp, 'Outlines', 'missing', 'Please add available outlines');
+      }
+    });
+  });
+  return issues;
+}
+
 function vcfEscape(v) {
   return String(v || '').replace(/\n/g, '\\n').replace(/,/g, '\,').replace(/;/g, '\;');
 }
@@ -4247,7 +4290,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.2</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.3</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
