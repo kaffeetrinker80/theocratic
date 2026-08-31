@@ -783,7 +783,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.6</span>
+      <span class="footer-version" id="footerVersion">v.2.5.7</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +829,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.6';
+const APP_VERSION = '2.5.7';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1747,18 +1747,48 @@ function mergeCsvNote(existingNote, csvNote) {
   return parts.join(' | ');
 }
 
-function applyImportedSpeakerNotes(dataset) {
-  if (!dataset || !Array.isArray(dataset.speakers)) return;
+/* v2.5.7 – source notes and personal notes are deliberately separate.
+   Older 2.5.x builds copied sp.importNote into rec.text.  That made the official
+   source note look like a personal note and successive imports could build a
+   pipe-separated history.  New imports NEVER write source notes to ptcToolNotes.
+
+   The conservative cleanup below removes only an exact copy of the CURRENT
+   source note from a personal-note record.  It does not guess at older wording,
+   because doing so could delete a genuine personal note. */
+function normalizeLegacyNotePart(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+}
+
+function stripCurrentSourceNoteFromPersonalText(text, sourceNote) {
+  const original = String(text || '').trim();
+  const source = String(sourceNote || '').trim();
+  if (!original || !source) return original;
+  const needle = normalizeLegacyNotePart(source);
+  const parts = original.split('|').map(s => s.trim()).filter(Boolean);
+  const filtered = parts.filter(part => normalizeLegacyNotePart(part) !== needle);
+  return filtered.join(' | ');
+}
+
+function cleanLegacyImportedSpeakerNotes(dataset) {
+  if (!dataset || !Array.isArray(dataset.speakers)) return 0;
+  let cleaned = 0;
   dataset.speakers.forEach(sp => {
-    const incoming = (sp.importNote || '').trim();
-    if (!incoming || !sp.notesKey) return;
+    const sourceNote = (sp.importNote || '').trim();
+    if (!sourceNote || !sp.notesKey) return;
     const rec = noteRecord(sp.notesKey);
-    setNoteRecord(sp.notesKey, {
-      ...rec,
-      text: mergeCsvNote(rec.text || '', incoming)
-    });
+    const nextText = stripCurrentSourceNoteFromPersonalText(rec.text || '', sourceNote);
+    if (nextText === (rec.text || '').trim()) return;
+    setNoteRecord(sp.notesKey, { ...rec, text: nextText });
+    cleaned++;
   });
-  saveNotes();
+  if (cleaned) saveNotes();
+  return cleaned;
+}
+
+function applyImportedSpeakerNotes(dataset) {
+  // Kept as a compatibility shim for older call sites. Source notes are read-only
+  // dataset fields and must never be copied into the user's personal note store.
+  return 0;
 }
 
 function splitSemicolonRow(line) {
@@ -3556,6 +3586,8 @@ function restoreDataset() {
       state.notes = obj.notes;
       saveNotes();
     }
+    const legacyCleaned = cleanLegacyImportedSpeakerNotes(state.dataset);
+    if (legacyCleaned) persistDataset();
     return true;
   } catch (e) {
     return false;
@@ -3830,6 +3862,7 @@ function importJsonObject(obj) {
     else state.notes = obj.notes;
     saveNotes();
   }
+  cleanLegacyImportedSpeakerNotes(state.dataset);
   persistDataset();
   populateFilters();
   refreshStats();
@@ -3972,8 +4005,10 @@ function applyMasterPtcAssistants(dataset) {
 
 function applyImportedDataset(dataset, previousHome, previousNotes) {
   state.dataset = dataset;
-  applyImportedSpeakerNotes(state.dataset);
   preserveLocalCongregationNotesAfterCsvImport(previousNotes);
+  // Remove only an exact legacy copy of the CURRENT incoming source note. The old
+  // dataset was already cleaned before previousNotes was cloned in the import route.
+  state.dataset.legacyNotesCleaned = cleanLegacyImportedSpeakerNotes(state.dataset);
   applyMasterPtcAssistants(state.dataset);
   if (previousHome) {
     const match = state.dataset.congregations.find(c => congregationStableKey(c.name) === congregationStableKey(previousHome.name));
@@ -3993,6 +4028,7 @@ function applyImportedDataset(dataset, previousHome, previousNotes) {
 
 function importCsvText(text, fileName) {
   const previousHome = homeCongregation();
+  cleanLegacyImportedSpeakerNotes(state.dataset);
   const previousNotes = cloneNotesStore(state.notes);
   const looksStructured = /(^|\n)source_pdf;source_page;|(^|\n).*speaker_note;.*talk_numbers/i.test(text);
   const dataset = looksStructured ? parseStructuredCsvDataset(text) : parseCsvDataset(text);
@@ -4003,6 +4039,7 @@ function importCsvText(text, fileName) {
 
 function importMasterJson(obj, fileName) {
   const previousHome = homeCongregation();
+  cleanLegacyImportedSpeakerNotes(state.dataset);
   const previousNotes = cloneNotesStore(state.notes);
   const dataset = parseMasterJsonDataset(obj, fileName);
   if (!dataset.congregations.length) throw new Error('No usable congregations found in this file.');
@@ -4264,7 +4301,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <label class="pr-opt"><input type="checkbox" id="prOutlines" checked> Outline numbers</label>
         <label class="pr-opt"><input type="checkbox" id="prTitles"> Outline titles (small)</label>
         <label class="pr-opt"><input type="checkbox" id="prRetiring" checked> Mark retiring outlines</label>
-        <label class="pr-opt"><input type="checkbox" id="prNotes"> My notes and dates</label>
+        <label class="pr-opt"><input type="checkbox" id="prNotes"> Notes and dates</label>
         <label class="pr-opt"><input type="checkbox" id="prDistance"> Distance from home</label>
 
         <span class="row-label">Sheet header</span>
@@ -4394,7 +4431,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <li>a <b>tool backup JSON</b> — full backup or notes-only, as written by the export buttons.</li>
           </ul>
           <p>CSV and master JSON produce the <b>same data state</b>: congregations, speakers, contacts, outlines, meeting times and coordinates end up identical, because both routes build their keys from congregation and speaker names, never from internal ids. You can therefore switch between the two formats at any time without losing anything.</p>
-          <p>The master JSON additionally carries information the CSV has no columns for: Zoom availability, a maximum travel distance, notes from the source data, and the distinction between a congregation and a group. Where present, these appear as extra chips on the speaker card. It also skips entries that should no longer be used — dissolved congregations, deleted and inactive speakers — and reports each of them under <b>Import warnings</b>.</p>
+          <p>The master JSON additionally carries information the CSV has no columns for: Zoom availability, a maximum travel distance, notes from the source data, and the distinction between a congregation and a group. Where present, these appear as extra chips on the speaker card. <b>Source notes stay read-only and separate from your personal notes</b>; importing an updated master never writes them into your local note field. It also skips entries that should no longer be used — dissolved congregations, deleted and inactive speakers — and reports each of them under <b>Import warnings</b>.</p>
           <p>When you get an updated file, just import it again. Speaker memory such as favorites, notes, <b>last invited</b>, and <b>last used</b> is matched again when the speaker is recognized, and your home congregation is re-selected by name.</p>
           <p>Use <b>Export JSON</b> from time to time so your personal work is backed up.</p>
         </section>
@@ -4593,10 +4630,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!on('prNotes')) return '';
     const rec = noteRecord(sp.notesKey);
     const bits = [];
+    if (sp.importNote) bits.push('Source: ' + sp.importNote);
+    if (rec.text) bits.push('My: ' + rec.text);
     if (rec.lastInvited) bits.push('Inv. ' + formatDateLabel(rec.lastInvited));
     if (rec.lastUsed) bits.push('Used ' + formatDateLabel(rec.lastUsed));
-    if (rec.text) bits.push(rec.text);
-    if (sp.importNote) bits.push(sp.importNote);
     return '<div class="pnote">' + (bits.length ? esc(bits.join(' · ')) : '') + '</div>';
   }
 
