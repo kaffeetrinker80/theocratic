@@ -783,7 +783,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.7</span>
+      <span class="footer-version" id="footerVersion">v.2.5.8</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +829,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.7';
+const APP_VERSION = '2.5.8';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1725,7 +1725,14 @@ function mergeNoteStoresPreserveLocal(previousNotes, currentNotes) {
 
 function preserveLocalCongregationNotesAfterCsvImport(previousNotes) {
   if (!state.dataset || !Array.isArray(state.dataset.congregations)) return;
-  state.notes = mergeNoteStoresPreserveLocal(previousNotes, state.notes);
+
+  /* v2.5.8 – IMPORTANT: the imported dataset does not populate state.notes.
+     In 2.5.6/2.5.7 we merged previousNotes with state.notes even though both
+     represented the same local store.  A note such as "only Zoom | only Zoom"
+     was therefore merged with itself on every import and could grow exponentially.
+     Keep the pre-import local store verbatim instead. */
+  state.notes = cloneNotesStore(previousNotes);
+
   state.dataset.congregations.forEach(cong => {
     const stableKey = congregationStableKey(cong.name || '');
     if (!cong.notesKey) cong.notesKey = stableKey;
@@ -1759,8 +1766,21 @@ function normalizeLegacyNotePart(value) {
   return String(value || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 }
 
+function dedupeLegacyPipeParts(text) {
+  const parts = String(text || '').split('|').map(s => s.trim()).filter(Boolean);
+  const seen = new Set();
+  const out = [];
+  parts.forEach(part => {
+    const key = normalizeLegacyNotePart(part);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    out.push(part);
+  });
+  return out.join(' | ');
+}
+
 function stripCurrentSourceNoteFromPersonalText(text, sourceNote) {
-  const original = String(text || '').trim();
+  const original = dedupeLegacyPipeParts(text);
   const source = String(sourceNote || '').trim();
   if (!original || !source) return original;
   const needle = normalizeLegacyNotePart(source);
@@ -1769,15 +1789,49 @@ function stripCurrentSourceNoteFromPersonalText(text, sourceNote) {
   return filtered.join(' | ');
 }
 
+function legacyAvailabilityPhrases(sp) {
+  const phrases = [];
+  const z = String(sp?.zoom || '').trim().toLocaleLowerCase();
+  if (z === 'only') phrases.push('only zoom', 'zoom only');
+  if (z === 'in_person') phrases.push('in-person only', 'in person only');
+  if (z === 'beyond') phrases.push('zoom beyond distance');
+  return new Set(phrases.map(normalizeLegacyNotePart));
+}
+
 function cleanLegacyImportedSpeakerNotes(dataset) {
   if (!dataset || !Array.isArray(dataset.speakers)) return 0;
   let cleaned = 0;
   dataset.speakers.forEach(sp => {
-    const sourceNote = (sp.importNote || '').trim();
-    if (!sourceNote || !sp.notesKey) return;
+    if (!sp.notesKey) return;
     const rec = noteRecord(sp.notesKey);
-    const nextText = stripCurrentSourceNoteFromPersonalText(rec.text || '', sourceNote);
-    if (nextText === (rec.text || '').trim()) return;
+    const originalText = String(rec.text || '').trim();
+    if (!originalText) return;
+
+    // First collapse identical pipe-separated fragments created by the self-merge bug.
+    let nextText = dedupeLegacyPipeParts(originalText);
+
+    // Remove an exact copy of the current official source note.
+    nextText = stripCurrentSourceNoteFromPersonalText(nextText, sp.importNote || '');
+
+    // Old CSV imports also used structured availability wording as a note.
+    // Only remove it automatically when the original record contained that same
+    // phrase more than once – a strong signature of the historical import bug.
+    const rawParts = originalText.split('|').map(s => s.trim()).filter(Boolean);
+    const counts = new Map();
+    rawParts.forEach(part => {
+      const key = normalizeLegacyNotePart(part);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    });
+    const generated = legacyAvailabilityPhrases(sp);
+    if (generated.size) {
+      const parts = nextText.split('|').map(s => s.trim()).filter(Boolean);
+      nextText = parts.filter(part => {
+        const key = normalizeLegacyNotePart(part);
+        return !(generated.has(key) && (counts.get(key) || 0) > 1);
+      }).join(' | ');
+    }
+
+    if (nextText === originalText) return;
     setNoteRecord(sp.notesKey, { ...rec, text: nextText });
     cleaned++;
   });
