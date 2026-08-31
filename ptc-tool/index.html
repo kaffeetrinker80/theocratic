@@ -783,7 +783,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.8</span>
+      <span class="footer-version" id="footerVersion">v.2.5.9</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +829,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.8';
+const APP_VERSION = '2.5.9';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1840,8 +1840,9 @@ function cleanLegacyImportedSpeakerNotes(dataset) {
 }
 
 function applyImportedSpeakerNotes(dataset) {
-  // Kept as a compatibility shim for older call sites. Source notes are read-only
-  // dataset fields and must never be copied into the user's personal note store.
+  // v2.5.9 architecture: imported notes belong to the dataset (sp.importNote).
+  // Personal notes belong exclusively to local ptcToolNotes (rec.text).
+  // There is intentionally NO migration, merge, cleanup or synchronization between them.
   return 0;
 }
 
@@ -2765,16 +2766,17 @@ function renderNoteEditor(key, kind = 'speaker') {
   const meta = noteRecord(key);
   return `
     <div class="detail-section">
-      <h3>${kind === 'speaker' ? 'Speaker memory' : 'Congregation notes'}</h3>
-      ${kind === 'speaker' ? `<div class="note-grid">
+      <h3>${kind === 'speaker' ? 'Personal note' : 'Congregation notes'}</h3>
+      ${kind === 'speaker' ? `<div class="small subtle" style="margin:-4px 0 12px;">Private/local information entered by you. Imports never change this field.</div>
+      <div class="note-grid">
         <div class="field"><label for="lastInvitedBox">Last invited</label><input id="lastInvitedBox" type="date" value="${escapeHtml(meta.lastInvited || '')}"></div>
         <div class="field"><label for="lastUsedBox">Last used</label><input id="lastUsedBox" type="date" value="${escapeHtml(meta.lastUsed || '')}"></div>
       </div>` : ''}
-      <textarea id="noteBox" placeholder="Add your notes here...">${escapeHtml(meta.text || '')}</textarea>
+      <textarea id="noteBox" placeholder="${kind === 'speaker' ? 'Add your personal note here…' : 'Add your notes here…'}">${escapeHtml(meta.text || '')}</textarea>
       <div class="note-save-row">
-        <button class="good" id="saveNoteBtn">Save ${kind === 'speaker' ? 'speaker memory' : 'note'}</button>
+        <button class="good" id="saveNoteBtn">Save ${kind === 'speaker' ? 'personal note' : 'note'}</button>
         <button id="deleteNoteBtn">Delete</button>
-        <span class="small subtle">Saved locally in this browser and included in JSON export.</span>
+        <span class="small subtle">Saved locally in this browser and included in Personal Notes backup.</span>
       </div>
     </div>
   `;
@@ -2796,7 +2798,7 @@ function wireNoteEditor(key, kind = 'speaker') {
   let favorite = noteRecord(key).favorite;
   let originalFavorite = favorite;
 
-  const defaultSaveText = `Save ${kind === 'speaker' ? 'speaker memory' : 'note'}`;
+  const defaultSaveText = `Save ${kind === 'speaker' ? 'personal note' : 'note'}`;
   const dirtySaveText = `${defaultSaveText} *`;
 
   const hasUnsavedChanges = () => {
@@ -2812,7 +2814,7 @@ function wireNoteEditor(key, kind = 'speaker') {
       saveBtn.classList.add('needs-save');
       saveBtn.textContent = dirtySaveText;
       saveBtn.title = kind === 'speaker'
-        ? 'Unsaved changes – click to save speaker memory.'
+        ? 'Unsaved changes – click to save your personal note.'
         : 'Unsaved changes – click to save note.';
     } else {
       saveBtn.classList.remove('needs-save');
@@ -2850,12 +2852,12 @@ function wireNoteEditor(key, kind = 'speaker') {
     saveBtn.classList.remove('needs-save');
     saveBtn.textContent = defaultSaveText;
     saveBtn.removeAttribute('title');
-    setStatus(kind === 'speaker' ? 'Speaker memory saved' : 'Note saved');
-    showToast(kind === 'speaker' ? 'Speaker memory saved' : 'Note saved');
+    setStatus(kind === 'speaker' ? 'Personal note saved' : 'Note saved');
+    showToast(kind === 'speaker' ? 'Personal note saved' : 'Note saved');
   });
   delBtn.addEventListener('click', () => {
     const existing = noteRecord(key);
-    if (kind === 'speaker' && !confirm('Delete this speaker memory? This cannot be undone.')) return;
+    if (kind === 'speaker' && !confirm('Delete this personal note and its dates/favorite data? This cannot be undone.')) return;
     if (kind === 'congregation' && hasPtcAssistant(existing.ptcAssistant)) {
       setNoteRecord(key, { ...existing, text: '' });
       setStatus('Congregation note deleted; assistant info kept');
@@ -2863,7 +2865,7 @@ function wireNoteEditor(key, kind = 'speaker') {
     } else {
       deleteNoteRecord(key);
       setStatus('Entry deleted');
-      showToast(kind === 'speaker' ? 'Speaker memory deleted' : 'Entry deleted');
+      showToast(kind === 'speaker' ? 'Personal note deleted' : 'Entry deleted');
     }
     saveNotes();
     persistDataset();
@@ -3380,7 +3382,7 @@ function renderDetail() {
 
 /* ===== speaker modal (v2.4) =====
    Everything that belongs to a single speaker lives here: contacts, outlines,
-   speaker memory and the speaker correction form. The right pane keeps the
+   personal note area and the speaker correction form. The right pane keeps the
    congregation, PTC and assistant data so both can be used side by side. */
 function currentModalSpeaker() {
   if (!state.modalSpeakerId || !state.dataset) return null;
@@ -3436,11 +3438,16 @@ function renderSpeakerModalBody() {
         ${sp.zoom ? `<span class="chip">Zoom: ${escapeHtml(sp.zoom)}${sp.zoomMonths ? ' (' + escapeHtml(sp.zoomMonths) + ')' : ''}</span>` : ''}
         ${Number.isFinite(sp.maxDistanceKm) && sp.maxDistanceKm !== null ? `<span class="chip">Travels up to ${escapeHtml(String(sp.maxDistanceKm))} km</span>` : ''}
       </div>
-      ${sp.importNote ? `<div class="small subtle" style="margin-top:10px;"><b>Note from the source data:</b> ${escapeHtml(sp.importNote)}</div>` : ''}
       <div class="links" style="margin-top:10px;">
         ${renderPhoneChips(sp.phones, cong.country) || '<span class="chip">No phone saved</span>'}
         ${renderEmailChips(sp.emails) || '<span class="chip">No email saved</span>'}
       </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Imported note</h3>
+      <div class="small subtle" style="margin:-4px 0 10px;">Read-only information from the currently imported Master / CSV. It is never copied into your Personal note.</div>
+      <div>${sp.importNote ? escapeHtml(sp.importNote) : '<span class="subtle">No imported note.</span>'}</div>
     </div>
 
     <div class="detail-section">
@@ -3640,8 +3647,6 @@ function restoreDataset() {
       state.notes = obj.notes;
       saveNotes();
     }
-    const legacyCleaned = cleanLegacyImportedSpeakerNotes(state.dataset);
-    if (legacyCleaned) persistDataset();
     return true;
   } catch (e) {
     return false;
@@ -3885,7 +3890,7 @@ function mergePersonalNotesIntoStore(imported){
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'personal-notes', includes:'speaker memory, favorites, last invited/used dates, speaker/congregation/PTC notes', notes: personalNotesSnapshot() }
+    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'personal-notes', includes:'personal speaker notes, favorites, last invited/used dates, congregation/PTC notes', notes: personalNotesSnapshot() }
     : { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'full-backup', source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
@@ -3916,7 +3921,6 @@ function importJsonObject(obj) {
     else state.notes = obj.notes;
     saveNotes();
   }
-  cleanLegacyImportedSpeakerNotes(state.dataset);
   persistDataset();
   populateFilters();
   refreshStats();
@@ -3989,7 +3993,7 @@ function openBackupChoice() {
     <div style="margin-top:14px;border-top:1px solid var(--line)">
       <div style="display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr);gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)">
         <button type="button" class="blue" id="backupNotesChoice">Personal Notes only</button>
-        <div class="small subtle">Favorites, speaker memory, last invited / used dates, and your personal speaker, congregation and PTC notes.</div>
+        <div class="small subtle">Favorites, personal speaker notes, last invited / used dates, and your congregation / PTC notes.</div>
       </div>
       <div style="display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr);gap:14px;align-items:center;padding:14px 0">
         <button type="button" class="good" id="backupFullChoice">Complete personal backup</button>
@@ -4060,9 +4064,7 @@ function applyMasterPtcAssistants(dataset) {
 function applyImportedDataset(dataset, previousHome, previousNotes) {
   state.dataset = dataset;
   preserveLocalCongregationNotesAfterCsvImport(previousNotes);
-  // Remove only an exact legacy copy of the CURRENT incoming source note. The old
-  // dataset was already cleaned before previousNotes was cloned in the import route.
-  state.dataset.legacyNotesCleaned = cleanLegacyImportedSpeakerNotes(state.dataset);
+  // Imported/source notes live only in the dataset. Personal notes stay local and untouched.
   applyMasterPtcAssistants(state.dataset);
   if (previousHome) {
     const match = state.dataset.congregations.find(c => congregationStableKey(c.name) === congregationStableKey(previousHome.name));
@@ -4082,7 +4084,6 @@ function applyImportedDataset(dataset, previousHome, previousNotes) {
 
 function importCsvText(text, fileName) {
   const previousHome = homeCongregation();
-  cleanLegacyImportedSpeakerNotes(state.dataset);
   const previousNotes = cloneNotesStore(state.notes);
   const looksStructured = /(^|\n)source_pdf;source_page;|(^|\n).*speaker_note;.*talk_numbers/i.test(text);
   const dataset = looksStructured ? parseStructuredCsvDataset(text) : parseCsvDataset(text);
@@ -4093,7 +4094,6 @@ function importCsvText(text, fileName) {
 
 function importMasterJson(obj, fileName) {
   const previousHome = homeCongregation();
-  cleanLegacyImportedSpeakerNotes(state.dataset);
   const previousNotes = cloneNotesStore(state.notes);
   const dataset = parseMasterJsonDataset(obj, fileName);
   if (!dataset.congregations.length) throw new Error('No usable congregations found in this file.');
@@ -4486,7 +4486,7 @@ document.addEventListener('DOMContentLoaded', function () {
           </ul>
           <p>CSV and master JSON produce the <b>same data state</b>: congregations, speakers, contacts, outlines, meeting times and coordinates end up identical, because both routes build their keys from congregation and speaker names, never from internal ids. You can therefore switch between the two formats at any time without losing anything.</p>
           <p>The master JSON additionally carries information the CSV has no columns for: Zoom availability, a maximum travel distance, notes from the source data, and the distinction between a congregation and a group. Where present, these appear as extra chips on the speaker card. <b>Source notes stay read-only and separate from your personal notes</b>; importing an updated master never writes them into your local note field. It also skips entries that should no longer be used — dissolved congregations, deleted and inactive speakers — and reports each of them under <b>Import warnings</b>.</p>
-          <p>When you get an updated file, just import it again. Speaker memory such as favorites, notes, <b>last invited</b>, and <b>last used</b> is matched again when the speaker is recognized, and your home congregation is re-selected by name.</p>
+          <p>When you get an updated file, just import it again. Personal speaker data such as favorites, personal notes, <b>last invited</b>, and <b>last used</b> is matched again when the speaker is recognized, and your home congregation is re-selected by name.</p>
           <p>Use <b>Export JSON</b> from time to time so your personal work is backed up.</p>
         </section>
 
@@ -4522,7 +4522,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <section class="help-section" id="help-s6">
           <h3><span class="help-num">06</span> The speaker card</h3>
-          <p>The speaker card holds the role and distance chips, phone and e-mail links, all outlines, the <b>speaker memory</b> (favorite, last invited, last used, notes), and the correction form for that brother. Close it with <b>Close</b>, the <b>Esc</b> key, or a click on the dark background.</p>
+          <p>The speaker card holds the role and distance chips, phone and e-mail links, all outlines, the <b>personal note</b> area (favorite, last invited, last used, note), and the correction form for that brother. Close it with <b>Close</b>, the <b>Esc</b> key, or a click on the dark background.</p>
           <p>Because the congregation stays visible behind the card, you can go through several brothers of the same congregation one after another — no scrolling back and forth. <b>Show congregation →</b> at the bottom of the card closes it and switches the list to Congregation View for that hall.</p>
           <p>Clicking an outline chip inside the card opens the outline directory on top of it. Choosing an outline there filters the result list and closes the speaker card, so you immediately see who else offers that talk.</p>
         </section>
@@ -4543,7 +4543,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </section>
 
         <section class="help-section" id="help-s8">
-          <h3><span class="help-num">09</span> Favorites and speaker memory</h3>
+          <h3><span class="help-num">09</span> Favorites and personal notes</h3>
           <p>For each speaker you can save favorite status, last invited, last used and personal notes. Congregation and PTC notes are part of the same local memory.</p>
           <p>Open <b>Backup</b> and choose <b>Personal Notes only</b> to export only this personal memory. PTC Assistant contacts are source data and are intentionally not part of the personal-notes file; they come from the CSV or PTC Organizer Master.</p>
         </section>
@@ -4684,8 +4684,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!on('prNotes')) return '';
     const rec = noteRecord(sp.notesKey);
     const bits = [];
-    if (sp.importNote) bits.push('Source: ' + sp.importNote);
-    if (rec.text) bits.push('My: ' + rec.text);
+    if (sp.importNote) bits.push('Imported: ' + sp.importNote);
+    if (rec.text) bits.push('Personal: ' + rec.text);
     if (rec.lastInvited) bits.push('Inv. ' + formatDateLabel(rec.lastInvited));
     if (rec.lastUsed) bits.push('Used ' + formatDateLabel(rec.lastUsed));
     return '<div class="pnote">' + (bits.length ? esc(bits.join(' · ')) : '') + '</div>';
