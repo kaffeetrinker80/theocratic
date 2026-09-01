@@ -783,7 +783,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.9</span>
+      <span class="footer-version" id="footerVersion">v.2.5.10</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +829,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.9';
+const APP_VERSION = '2.5.10';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -3745,23 +3745,17 @@ function parseAssistantCsvRows(text) {
   return rows;
 }
 
-function readFileAsTextWithFallback(file, encodings = ['utf-8', 'windows-1252']) {
-  return new Promise(resolve => {
-    const tryRead = (idx) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const text = String(reader.result || '');
-        if (idx < encodings.length - 1 && text.includes('\uFFFD')) tryRead(idx + 1);
-        else resolve(text);
-      };
-      reader.onerror = () => {
-        if (idx < encodings.length - 1) tryRead(idx + 1);
-        else resolve('');
-      };
-      reader.readAsText(file, encodings[idx]);
-    };
-    tryRead(0);
-  });
+async function readFileAsTextWithFallback(file) {
+  /* v2.5.10: Decode bytes strictly as UTF-8 first. If the byte stream is not
+     valid UTF-8, fall back to Windows-1252. This prevents congregation names
+     such as Koblenz-Süd / Älmhult from becoming replacement characters before
+     the normal accent-insensitive matching gets a chance to run. */
+  const bytes = await file.arrayBuffer();
+  try {
+    return new TextDecoder('utf-8', { fatal:true }).decode(bytes);
+  } catch (e) {
+    return new TextDecoder('windows-1252').decode(bytes);
+  }
 }
 
 function importPtcAssistantsFromText(text) {
@@ -3782,7 +3776,7 @@ function importPtcAssistantsFromText(text) {
   // v2.1.3 logic:
   // CSV is the single source of truth for name / phone / email.
   // assistant.notes and rec.text (PTC Notes) are local-only → never touched by import.
-  // Congregations absent from the CSV → their contact fields are cleared (full sync).
+  // Congregations absent from the CSV are left untouched (safe partial update).
 
   const csvKeys = new Set(rows.map(row => congregationStableKey(row.congregation)));
 
@@ -3818,21 +3812,9 @@ function importPtcAssistantsFromText(text) {
     }
   });
 
-  // Step 2: clear contact fields for congregations NOT in the CSV
-  let cleared = 0;
-  congByKey.forEach((cong) => {
-    if (csvKeys.has(congregationStableKey(cong.congregation || cong.name || ''))) return;
-    const rec = noteRecord(cong.notesKey);
-    const assistant = normalizePtcAssistant(rec.ptcAssistant);
-    if (assistant.name || assistant.phone || assistant.email) {
-      // Preserve notes, wipe only contact fields
-      setNoteRecord(cong.notesKey, {
-        ...rec,
-        ptcAssistant: { ...assistant, name: '', phone: '', email: '' }
-      });
-      cleared++;
-    }
-  });
+  // v2.5.10: Assistant CSV imports are non-destructive partial updates.
+  // Congregations absent from the CSV are intentionally left untouched.
+  const cleared = 0;
 
   saveNotes();
   persistDataset();
@@ -3843,7 +3825,7 @@ function importPtcAssistantsFromText(text) {
     'PTC Assistants imported:',
     `${matched} matched in CSV`,
     `${updated} updated (name / phone / email synced)`,
-    `${cleared} cleared (not in CSV – contact fields wiped)`,
+    '0 cleared (congregations absent from this CSV are left untouched)',
     `${skippedExisting} already up to date`,
     `${unmatched.length} not matched`,
     '',
@@ -3853,8 +3835,8 @@ function importPtcAssistantsFromText(text) {
     lines.push('', 'Not matched:', ...unmatched.slice(0, 20).map(x => '- ' + x));
     if (unmatched.length > 20) lines.push(`…and ${unmatched.length - 20} more`);
   }
-  setStatus(`Assistants imported: ${updated} updated, ${cleared} cleared`);
-  showToast(`PTC Assistants imported: ${updated} updated, ${cleared} cleared`);
+  setStatus(`Assistants imported: ${updated} updated · no missing records cleared`);
+  showToast(`PTC Assistants imported: ${updated} updated`);
   alert(lines.join('\n'));
 }
 
@@ -4105,7 +4087,7 @@ function importMasterJson(obj, fileName) {
 }
 
 async function handleImportFile(file) {
-  const text = await file.text();
+  const text = await readFileAsTextWithFallback(file);
   const name = file.name || '';
   const isJsonName = /\.json$/i.test(name);
   const looksJson = /^\s*[{[]/.test(text);
@@ -4128,7 +4110,7 @@ document.getElementById('dataInput').addEventListener('change', async (ev) => {
   const file = ev.target.files?.[0];
   if (!file) return;
   try {
-    const text = await file.text();
+    const text = await readFileAsTextWithFallback(file);
     const name = file.name || '';
     const looksJson = /\.json$/i.test(name) || /^\s*[{[]/.test(text);
     if (!looksJson) {
@@ -4440,7 +4422,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.6</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.10</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4684,7 +4666,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!on('prNotes')) return '';
     const rec = noteRecord(sp.notesKey);
     const bits = [];
-    if (sp.importNote) bits.push('Imported: ' + sp.importNote);
+    if (sp.importNote) bits.push(sp.importNote);
     if (rec.text) bits.push('Personal: ' + rec.text);
     if (rec.lastInvited) bits.push('Inv. ' + formatDateLabel(rec.lastInvited));
     if (rec.lastUsed) bits.push('Used ' + formatDateLabel(rec.lastUsed));
