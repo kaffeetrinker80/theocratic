@@ -659,6 +659,10 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .pcong-circuit{ font-size:8pt; color:#333; white-space:nowrap; }
 .pcong-meta{ font-size:8pt; color:#333; margin-bottom:4pt; break-after:avoid; }
 .pcong-meta span+span::before{ content:' · '; color:#999; }
+.pcong-venue{
+  font-size:8.5pt; font-weight:700; color:#000; margin:0 0 5pt;
+  padding:2pt 0 2pt 5pt; border-left:2pt solid #000; break-after:avoid; break-inside:avoid;
+}
 .pcong-contacts{ font-size:8pt; margin-bottom:5pt; break-after:avoid; }
 .pcong-contacts div{ margin-bottom:1pt; }
 .pcong-contacts b{ display:inline-block; min-width:100pt; }
@@ -885,7 +889,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.6.1</span>
+      <span class="footer-version" id="footerVersion">v.2.6.2</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -931,7 +935,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.6.1';
+const APP_VERSION = '2.6.2';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -4846,7 +4850,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5146,12 +5150,19 @@ document.addEventListener('DOMContentLoaded', function () {
       const mt = c.meetingRaw || [c.meetingDay, c.meetingTime].filter(Boolean).join(' ');
       if (mt) meta.push(`<span>${esc(mt)}</span>`);
       if (c.hallPhone) meta.push(`<span>Hall ${esc(c.hallPhone)}</span>`);
-      if (c.temporaryVenue) {
-        const tv = c.temporaryVenue;
-        const period = [tv.validFrom ? 'from ' + tv.validFrom : '', tv.validTo ? 'until ' + tv.validTo : ''].filter(Boolean).join(' · ');
-        const details = [tv.address, period, tv.reason].filter(Boolean).join(' · ');
-        meta.push(`<span><b>Temporary venue:</b> ${esc(details || 'configured')}</span>`);
-      }
+    }
+    /* v2.6.2: the temporary venue used to be appended to the running meta line, where
+       it wrapped mid-sentence and read like just another detail. It now gets its own
+       line in full bold, so a changed meeting place cannot be overlooked on paper. */
+    let venueLine = '';
+    if (on('prMeeting') && c.temporaryVenue) {
+      const tv = c.temporaryVenue;
+      const period = [
+        tv.validFrom ? 'from ' + (formatDateLabel(tv.validFrom) || tv.validFrom) : '',
+        tv.validTo ? 'until ' + (formatDateLabel(tv.validTo) || tv.validTo) : ''
+      ].filter(Boolean).join(' ');
+      const details = [tv.address, period, tv.reason].filter(Boolean).join(' · ');
+      venueLine = `<div class="pcong-venue">Temporary venue: ${esc(details || 'configured')}</div>`;
     }
     if (on('prDistance')) {
       const d = distanceLabelForCong(c);
@@ -5175,6 +5186,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ${c.circuit ? `<span class="pcong-circuit">Circuit ${esc(c.circuit)}</span>` : ''}
       </div>
       ${meta.length ? `<div class="pcong-meta">${meta.join('')}</div>` : ''}
+      ${venueLine}
       ${contacts.length ? `<div class="pcong-contacts">${contacts.join('')}</div>` : ''}
       <table class="ptab">${tableHead(false)}<tbody>${speakerRows(entry, false)}</tbody></table>
     </section>`;
