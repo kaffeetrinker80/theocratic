@@ -164,13 +164,83 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 .status-badge.passive { color:var(--muted); font-weight:500; }
 .status-badge.passive::before { background:#a99c8c; box-shadow:0 0 0 3px rgba(169,156,140,.20); }
 .subtle { color:var(--muted); }
-.layout { display:grid; grid-template-columns: minmax(360px, 1.1fr) minmax(340px, .9fr); gap:14px; margin-top:12px; }
+/* ===== v2.6 layout: navigation sidebar + workspace =====
+   The congregations now live in a permanent left-hand list (grouped by country, or
+   flat when sorting by distance/outline). The workspace on the right shows either the
+   result list ("All congregations") or one congregation. No data logic changed —
+   only where things are drawn. */
+.layout, .app {
+  display:grid; grid-template-columns: 320px minmax(0,1fr); gap:14px; margin-top:12px; align-items:start;
+}
+.side {
+  background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+  padding:0 12px 12px; position:sticky; top:12px;
+  max-height:calc(100vh - 24px);
+  max-height:calc(100dvh - 24px - var(--bottom-safe));
+  overflow:auto; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent;
+}
+.side::-webkit-scrollbar { width:9px; }
+.side::-webkit-scrollbar-thumb { background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
+.side-sticky-top {
+  position:sticky; top:0; z-index:20; background:var(--card);
+  padding:12px 0 10px; border-bottom:1px solid var(--line);
+}
+.side-sticky-top .row-label { margin-bottom:6px; }
+.side-sticky-top input { width:100%; }
+.side-sticky-top .side-field { margin-top:8px; }
+.side-hint { font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.4; }
+.side-hint b { color:var(--accent2); }
+.cong-nav { margin-top:10px; display:block; }
+.nav-primary { display:grid; gap:6px; }
+.nav-primary + .nav-tree { margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+.nav-entry {
+  display:flex; width:100%; text-align:left; gap:8px; align-items:flex-start;
+  background:#faf6ef; border:1px solid var(--line); border-radius:12px;
+  padding:9px 11px; font-size:13px; font-weight:600; color:var(--text); cursor:pointer;
+}
+.nav-entry:hover { background:#f3ebdd; border-color:#e0cfb6; }
+.nav-entry.active { background:#f7e9dd; border-color:var(--accent); box-shadow:0 0 0 2px rgba(194,96,63,.14); }
+.nav-entry .nav-main { min-width:0; flex:1 1 auto; }
+.nav-entry .nav-main b { display:block; font-weight:700; }
+.nav-entry .nav-meta { display:block; font-size:10.5px; color:var(--muted); font-weight:500; margin-top:2px; }
+.nav-entry .nav-icon { flex:0 0 auto; font-size:13px; line-height:1.5; color:var(--muted); }
+.nav-entry.home-entry { background:#f9f0dc; border-color:#ecd6a8; }
+.nav-entry.home-entry.active { border-color:var(--accent); }
+.nav-country {
+  display:flex; align-items:center; width:100%; gap:7px; margin-top:7px; padding:7px 9px;
+  background:#f5efe5; border:1px solid var(--line); border-radius:11px; font-size:12.5px; cursor:pointer;
+}
+.nav-country:hover { background:#f0e7d8; }
+.nav-country .country-label { display:flex; flex-direction:column; align-items:flex-start; line-height:1.15; min-width:0; }
+.nav-country .country-label b { font-weight:700; }
+.nav-country .country-code { font-size:9.5px; color:var(--muted); font-weight:700; letter-spacing:.08em; margin-top:3px; }
+.nav-country .count { margin-left:auto; color:var(--muted); font-size:10.5px; font-weight:600; text-align:right; line-height:1.35; white-space:nowrap; }
+.nav-items { margin:3px 0 0 8px; padding-left:7px; border-left:2px solid var(--line); }
+.nav-flat { margin-top:4px; }
+.nav-item {
+  display:block; width:100%; text-align:left; background:transparent; border:1px solid transparent;
+  padding:6px 8px; border-radius:9px; font-size:12.5px; font-weight:500; color:var(--text); cursor:pointer;
+}
+.nav-item:hover { background:#f5efe5; }
+.nav-item.active { background:#f7e9dd; border-color:#e6cdb6; font-weight:700; }
+.nav-item.is-home { background:#fbf4e5; }
+.nav-item.is-home.active { background:#f7e9dd; }
+.nav-item .nav-meta { display:block; font-size:10.5px; color:var(--muted); font-weight:500; margin-top:1px; }
+.nav-item .nav-star { color:#c08a1e; }
+.nav-empty { padding:10px 4px; font-size:12px; color:var(--muted); }
+.workspace { display:grid; gap:14px; min-width:0; }
+.ws-head {
+  display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
+  padding:0 2px;
+}
+.ws-head h2 { margin:0; font-family:var(--font-display); font-size:22px; font-weight:600; letter-spacing:-.01em; }
+.ws-head .ws-sub { color:var(--muted); font-size:12.5px; margin-top:3px; }
 .results-header {
   display:flex; justify-content:space-between; gap:12px; align-items:center;
   margin:-2px -2px 10px; padding:0 2px 9px; border-bottom:1px solid var(--line); flex-wrap:wrap;
 }
 .results-header strong { font-family:var(--font-display); font-size:16px; font-weight:600; letter-spacing:-.005em; }
-.list { display:grid; gap:12px; flex:1 1 auto; min-height:0; overflow:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#d8cbb7 transparent; }
+.list { display:grid; gap:12px; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); align-items:start; min-height:0; }
 .list::-webkit-scrollbar { width:9px; }
 .list::-webkit-scrollbar-thumb { background:#d8cbb7; border-radius:999px; border:2px solid var(--card); }
 .list::-webkit-scrollbar-thumb:hover { background:#c4b49d; }
@@ -240,18 +310,13 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .footer { color:var(--muted); text-align:center; padding:20px 0 8px; font-size:12px; }
 .hidden { display:none !important; }
 .small { font-size:12px; }
-.results-panel {
-  display:flex; flex-direction:column; align-self:start;
-  position:sticky; top:12px;
-  max-height:calc(100vh - 24px);
-  /* dvh follows the visible viewport, so the panel no longer ends up behind a
-     mobile URL bar or a taskbar-sized window edge. vh above stays as fallback. */
-  max-height:calc(100dvh - 24px - var(--bottom-safe));
-}
+/* v2.6: the sidebar is now the sticky element, so the result list simply flows with
+   the page. Cards are laid out as a responsive grid instead of one narrow column. */
+.results-panel { display:flex; flex-direction:column; }
 .panel { min-height:220px; }
 .home-chip { background:#f6ebd8; border-color:#efd3a4; color:#8a5a14; }
 .toolbar-grid { align-items:start; }
-.toolbar-grid-main { grid-template-columns:2.2fr 1.2fr repeat(4,1fr); }
+.toolbar-grid-main { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .toolbar-grid-distance { grid-template-columns:repeat(3,minmax(180px,1fr)) minmax(220px,1.3fr); }
 .distance-row-info { display:flex; align-items:center; padding:0 2px; color:var(--muted); font-size:12px; }
 .distance-row-info strong { color:var(--text); }
@@ -340,13 +405,15 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .card:hover { transform:none; }
 }
 @media (max-width: 1100px) {
-  .header-grid, .layout { grid-template-columns:1fr; }
+  .header-grid, .layout, .app { grid-template-columns:1fr; }
   .toolbar-grid-main { grid-template-columns:1fr 1fr; }
   .toolbar-grid-main .span-2 { grid-column:span 2; }
   .toolbar-grid-distance { grid-template-columns:1fr 1fr; }
   .toolbar-grid-distance .distance-row-info { grid-column:span 2; }
-  .list { min-height:420px; }
-  .results-panel { position:static; max-height:none; }
+  /* stacked: the sidebar sits above the workspace and scrolls with the page,
+     capped so the congregation list never pushes the results off screen */
+  .side { position:static; max-height:none; }
+  .cong-nav { max-height:46vh; overflow:auto; }
 }
 @media (max-width: 640px) {
   .statgrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -683,17 +750,8 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 
   <div class="toolbar">
     <div class="toolbar-block">
-    <span class="row-label">Search &amp; filters</span>
+    <span class="row-label">Filters</span>
     <div class="toolbar-grid toolbar-grid-main">
-      <div class="span-2"><input id="searchInput" type="text" placeholder="Search speaker, congregation, city, country, circuit, email, phone, outline title…"></div>
-      <div class="span-2">
-        <div class="outline-filter-wrap">
-          <input id="outlineFilter" type="text" list="outlineSuggestions" placeholder="Outline # or title (e.g. 76)" title="Type a number like 76 or a word from the theme.">
-          <button type="button" id="clearOutlineBtn" class="icon-clear hidden" title="Clear outline filter" aria-label="Clear outline filter">&times;</button>
-          <button type="button" id="browseOutlinesBtn" class="icon-browse" title="Browse all outlines" aria-label="Browse all outlines">&#8801;</button>
-        </div>
-        <datalist id="outlineSuggestions"></datalist>
-      </div>
       <div><select id="countryFilter"><option value="">All countries</option></select></div>
       <div><select id="circuitFilter"><option value="">All circuits</option></select></div>
       <div><select id="dayFilter"><option value="">All meeting days</option></select></div>
@@ -747,14 +805,31 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     </div>
   </div>
 
-  <div class="layout">
-    <div class="panel results-panel">
-      <div class="results-header">
-        <div>
-          <strong>Results</strong>
-          <div class="small subtle" id="resultsCount">0 matches</div>
+  <div class="app">
+    <aside class="side">
+      <div class="side-sticky-top">
+        <span class="row-label">Search</span>
+        <input id="searchInput" type="text" placeholder="Speaker, congregation, city, circuit, e-mail, phone, outline title…">
+        <div class="side-field">
+          <div class="outline-filter-wrap">
+            <input id="outlineFilter" type="text" list="outlineSuggestions" placeholder="Outline # or title (e.g. 76)" title="Type a number like 76 or a word from the theme.">
+            <button type="button" id="clearOutlineBtn" class="icon-clear hidden" title="Clear outline filter" aria-label="Clear outline filter">&times;</button>
+            <button type="button" id="browseOutlinesBtn" class="icon-browse" title="Browse all outlines" aria-label="Browse all outlines">&#8801;</button>
+          </div>
+          <datalist id="outlineSuggestions"></datalist>
         </div>
-        <div class="results-tools">
+        <div class="side-hint" id="sideNavHint">Search, filters and sorting apply to this list as well.</div>
+      </div>
+      <div class="cong-nav" id="congNav"></div>
+    </aside>
+
+    <main class="workspace">
+      <div class="ws-head">
+        <div>
+          <h2 id="wsTitle">All congregations</h2>
+          <div class="ws-sub" id="wsSub">Import data to get started.</div>
+        </div>
+        <div class="results-tools" id="wsTools">
           <select id="favoriteFilter">
             <option value="">All Speakers</option>
             <option value="favorites">Favorites Only</option>
@@ -765,17 +840,27 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
           </select>
         </div>
       </div>
-      <div class="list" id="resultsList"></div>
-    </div>
 
-    <div class="panel">
-      <div class="detail-grid" id="detailPane">
-        <div class="detail-section">
-          <h3>Welcome</h3>
-          <div class="subtle">Import a CSV first. Then click a result to see the congregation details, speakers, contacts, outline titles, Google Maps link, and notes.</div>
+      <div class="panel results-panel" id="resultsPanel">
+        <div class="results-header">
+          <div>
+            <strong>Results</strong>
+            <div class="small subtle" id="resultsCount">0 matches</div>
+          </div>
+        </div>
+        <div class="list" id="resultsList"></div>
+      </div>
+
+      <div class="panel hidden" id="detailPanel">
+        <div class="back-row"><button type="button" class="ghost" id="backToAllBtn">← All congregations</button></div>
+        <div class="detail-grid" id="detailPane">
+          <div class="detail-section">
+            <h3>Welcome</h3>
+            <div class="subtle">Import a CSV first. Then pick a congregation on the left, or click a result to see congregation details, speakers, contacts, outline titles, Google Maps link, and notes.</div>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 
   <button class="scroll-top" id="scrollTopBtn" title="Back to top">↑</button>
@@ -783,7 +868,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.11</span>
+      <span class="footer-version" id="footerVersion">v.2.6.0</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +914,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.11';
+const APP_VERSION = '2.6.0';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -938,8 +1023,22 @@ const state = {
   homeCongregationId: loadHomeCongregationId(),
   selectedKey: null,
   lastCongregationKey: null,
-  modalSpeakerId: null
+  modalSpeakerId: null,
+  /* v2.6 navigation: 'list' = result list for all congregations (start view),
+     'detail' = one congregation opened in the workspace. Countries that are folded
+     open in the sidebar are remembered per browser. */
+  wsMode: 'list',
+  openCountries: loadOpenCountries()
 };
+
+function loadOpenCountries() {
+  try { return new Set(JSON.parse(localStorage.getItem('ptcToolOpenCountries') || '[]')); }
+  catch (e) { return new Set(); }
+}
+
+function saveOpenCountries() {
+  try { localStorage.setItem('ptcToolOpenCountries', JSON.stringify([...state.openCountries])); } catch (e) {}
+}
 
 function loadNotes() {
   try {
@@ -2626,6 +2725,235 @@ function congregationMatches(cong, fs) {
   return haystack.includes(fs.q);
 }
 
+/* ===== v2.6 navigation sidebar and workspace modes =====
+   Purely a presentation layer. The sidebar uses exactly the same filterState(),
+   congregationMatches() and speakerMatches() as the result list, so search, country,
+   circuit, meeting day, role, distance and sorting behave identically in both places.
+   Nothing here writes to the dataset — the tool stays read-only. */
+
+function currentCongId() {
+  const ds = state.dataset;
+  if (!ds) return '';
+  const [kind, id] = (state.selectedKey || '').split(':');
+  if (kind === 'cong') return id;
+  if (kind === 'speaker') {
+    const sp = ds.speakers.find(x => x.id === id);
+    return sp ? sp.congregationId : '';
+  }
+  return '';
+}
+
+function setWsMode(mode) {
+  state.wsMode = mode === 'detail' ? 'detail' : 'list';
+  const results = document.getElementById('resultsPanel');
+  const detail = document.getElementById('detailPanel');
+  const tools = document.getElementById('wsTools');
+  if (results) results.classList.toggle('hidden', state.wsMode === 'detail');
+  if (detail) detail.classList.toggle('hidden', state.wsMode !== 'detail');
+  if (tools) tools.classList.toggle('hidden', state.wsMode === 'detail');
+}
+
+function showAllView(keepSelection = false) {
+  setWsMode('list');
+  if (!keepSelection) { state.selectedKey = null; state.lastCongregationKey = null; }
+  renderResults();
+  renderDetail();
+}
+
+function selectCongregation(congId) {
+  const ds = state.dataset;
+  if (!ds) return;
+  const cong = ds.congregations.find(c => c.id === congId);
+  if (!cong) return;
+  state.selectedKey = 'cong:' + congId;
+  state.lastCongregationKey = null;
+  setWsMode('detail');
+  renderResults();
+  renderDetail();
+  if (window.matchMedia && window.matchMedia('(max-width: 1100px)').matches) {
+    document.getElementById('detailPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+/* how many speakers of this congregation survive the current filters */
+function navSpeakerCounts(cong, fs) {
+  const total = cong.speakers.length;
+  const shown = cong.speakers.filter(sp => speakerMatches(sp, fs, cong)).length;
+  return { shown, total };
+}
+
+function navFilterSummary(fs) {
+  const bits = [];
+  if (fs.q) bits.push('search');
+  if (fs.outline.raw) bits.push('outline ' + fs.outline.raw);
+  if (fs.country) bits.push(fs.country);
+  if (fs.circuit) bits.push(fs.circuit);
+  if (fs.day) bits.push(fs.day);
+  if (fs.role) bits.push(fs.role === 'Elder' ? 'elders' : 'ministerial servants');
+  if (fs.favorites === 'favorites') bits.push('favorites');
+  if (fs.distanceLimit != null) bits.push('within ' + fs.distanceLimit + ' km');
+  return bits;
+}
+
+function navItemHtml(cong, fs, activeCongId) {
+  const counts = navSpeakerCounts(cong, fs);
+  const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
+  const favorites = cong.speakers.filter(sp => noteRecord(sp.notesKey).favorite).length;
+  const distance = distanceLabelForCong(cong, fs.distanceMode);
+  const meta = [
+    cong.city || cong.country || '–',
+    counts.shown === counts.total ? `${counts.total} speaker${counts.total === 1 ? '' : 's'}` : `${counts.shown} of ${counts.total} speakers`,
+    distance && !isHome ? distance : ''
+  ].filter(Boolean).join(' · ');
+  return `<button type="button" class="nav-item ${cong.id === activeCongId ? 'active' : ''} ${isHome ? 'is-home' : ''}" data-nav-cong="${escapeHtml(cong.id)}">
+    ${escapeHtml(cong.name)}${favorites ? ' <span class="nav-star">★</span>' : ''}
+    <span class="nav-meta">${escapeHtml(meta)}</span>
+  </button>`;
+}
+
+function renderCongNav() {
+  const nav = document.getElementById('congNav');
+  if (!nav) return;
+  const ds = state.dataset;
+  if (!ds) {
+    nav.innerHTML = '<div class="nav-empty">No data loaded yet. Use <b>Import</b> to load a speaker CSV or an Organizer master.</div>';
+    return;
+  }
+
+  const fs = filterState();
+  const matches = ds.congregations.filter(cong => congregationMatches(cong, fs));
+  const activeCongId = state.wsMode === 'detail' ? currentCongId() : '';
+  const homeId = state.homeCongregationId;
+  const home = homeId ? ds.congregations.find(c => c.id === homeId) : null;
+  const filters = navFilterSummary(fs);
+
+  /* 1 · start view, 2 · own congregation — then everything else */
+  let html = `<div class="nav-primary">
+    <button type="button" class="nav-entry ${state.wsMode === 'list' ? 'active' : ''}" data-nav="all">
+      <span class="nav-main"><b>All congregations</b><span class="nav-meta">${matches.length} of ${ds.congregations.length} shown${filters.length ? ' · ' + escapeHtml(filters.join(', ')) : ''}</span></span>
+      <span class="nav-icon">☰</span>
+    </button>`;
+  if (home) {
+    const counts = navSpeakerCounts(home, fs);
+    const homeFavorites = home.speakers.filter(sp => noteRecord(sp.notesKey).favorite).length;
+    html += `<button type="button" class="nav-entry home-entry ${activeCongId === home.id ? 'active' : ''}" data-nav-cong="${escapeHtml(home.id)}">
+      <span class="nav-main"><b>${escapeHtml(home.name)}${homeFavorites ? ' <span class="nav-star">★</span>' : ''}</b><span class="nav-meta">My congregation · ${counts.total} speaker${counts.total === 1 ? '' : 's'}</span></span>
+      <span class="nav-icon">⌂</span>
+    </button>`;
+  }
+  html += '</div>';
+
+  const rest = matches.filter(c => !homeId || c.id !== homeId);
+  let body = '';
+
+  if (!rest.length) {
+    body = home
+      ? '<div class="nav-empty">No other congregation matches the current search and filters.</div>'
+      : '<div class="nav-empty">No congregation matches the current search and filters.</div>';
+  } else if (fs.sortMode === 'distance' || fs.sortMode === 'outline') {
+    /* sorting by distance or outline beats country grouping — a flat, ranked list is
+       what the sort was asked for */
+    const sorted = rest.slice().sort((a, b) => {
+      if (fs.sortMode === 'outline') {
+        const oa = congregationOutlineSortKey(a, fs.outline), ob = congregationOutlineSortKey(b, fs.outline);
+        if (oa !== ob) return oa - ob;
+      } else {
+        const da = getDistanceKmForCong(a, fs.distanceMode);
+        const db = getDistanceKmForCong(b, fs.distanceMode);
+        const aa = da == null ? Number.POSITIVE_INFINITY : da;
+        const bb = db == null ? Number.POSITIVE_INFINITY : db;
+        if (aa !== bb) return aa - bb;
+      }
+      return a.name.localeCompare(b.name);
+    });
+    body = `<div class="nav-flat">${sorted.map(c => navItemHtml(c, fs, activeCongId)).join('')}</div>`;
+  } else {
+    const groups = {};
+    rest.forEach(c => { const key = c.country || '—'; (groups[key] = groups[key] || []).push(c); });
+    const force = filters.length > 0;
+    body = Object.keys(groups).sort((a, b) => a.localeCompare(b)).map(country => {
+      const arr = groups[country].slice().sort((a, b) => a.name.localeCompare(b.name));
+      const open = force || state.openCountries.has(country) || arr.some(c => c.id === activeCongId);
+      const speakers = arr.reduce((n, c) => n + navSpeakerCounts(c, fs).shown, 0);
+      const code = ISO2_BY_COUNTRY[country] || '';
+      return `<button type="button" class="nav-country" data-nav-country="${escapeHtml(country)}">
+        <span>${open ? '▾' : '▸'}</span>
+        <span class="country-label"><b>${escapeHtml(country)}</b>${code ? `<span class="country-code">${escapeHtml(code)}</span>` : ''}</span>
+        <span class="count">${arr.length} congregation${arr.length === 1 ? '' : 's'}<br>${speakers} speaker${speakers === 1 ? '' : 's'}</span>
+      </button>
+      <div class="nav-items ${open ? '' : 'hidden'}">${arr.map(c => navItemHtml(c, fs, activeCongId)).join('')}</div>`;
+    }).join('');
+  }
+
+  nav.innerHTML = html + `<div class="nav-tree">${body}</div>`;
+
+  nav.querySelectorAll('[data-nav="all"]').forEach(btn => btn.addEventListener('click', () => showAllView()));
+  nav.querySelectorAll('[data-nav-cong]').forEach(btn => btn.addEventListener('click', () => selectCongregation(btn.dataset.navCong)));
+  nav.querySelectorAll('[data-nav-country]').forEach(btn => btn.addEventListener('click', () => {
+    const key = btn.dataset.navCountry;
+    if (state.openCountries.has(key)) state.openCountries.delete(key); else state.openCountries.add(key);
+    saveOpenCountries();
+    renderCongNav();
+  }));
+
+  const hint = document.getElementById('sideNavHint');
+  if (hint) {
+    hint.innerHTML = fs.sortMode === 'distance'
+      ? 'Sorted by <b>distance</b> — nearest congregation first.'
+      : fs.sortMode === 'outline'
+        ? 'Sorted by <b>outline</b> — best matching congregation first.'
+        : 'Search, filters and sorting apply to this list as well.';
+  }
+}
+
+function updateWorkspaceHead() {
+  const titleEl = document.getElementById('wsTitle');
+  const subEl = document.getElementById('wsSub');
+  if (!titleEl || !subEl) return;
+  const ds = state.dataset;
+
+  if (state.wsMode === 'detail') {
+    if (state.selectedKey === '__improve__') {
+      titleEl.textContent = 'Help Us Improve';
+      subEl.textContent = 'Fields where the import had to step in or where data looks incomplete';
+      return;
+    }
+    const cong = ds ? ds.congregations.find(c => c.id === currentCongId()) : null;
+    if (cong) {
+      titleEl.textContent = cong.name;
+      const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
+      subEl.textContent = [
+        isHome ? 'My congregation' : '',
+        cong.country || '',
+        cong.city || '',
+        cong.circuit || '',
+        cong.meetingRaw || '',
+        `${cong.speakers.length} speaker${cong.speakers.length === 1 ? '' : 's'}`,
+        distanceLabelForCong(cong)
+      ].filter(Boolean).join(' · ');
+      return;
+    }
+    titleEl.textContent = 'Congregation';
+    subEl.textContent = '';
+    return;
+  }
+
+  const fs = ds ? filterState() : null;
+  titleEl.textContent = 'All congregations';
+  if (!ds) {
+    subEl.textContent = 'Import data to get started.';
+    return;
+  }
+  const filters = navFilterSummary(fs);
+  subEl.textContent = (fs.view === 'speaker' ? 'Speaker view' : 'Congregation view')
+    + ' · ' + (filters.length ? 'active filters: ' + filters.join(', ') : 'no filters active');
+}
+
+function refreshNavAndHead() {
+  renderCongNav();
+  updateWorkspaceHead();
+}
+
 function renderResults() {
   const list = document.getElementById('resultsList');
   const ds = state.dataset;
@@ -2636,6 +2964,7 @@ function renderResults() {
   list.innerHTML = '';
   if (!ds) {
     document.getElementById('resultsCount').textContent = '0 matches';
+    refreshNavAndHead();
     return;
   }
 
@@ -2671,7 +3000,7 @@ function renderResults() {
       const isHome = state.homeCongregationId && x.cong.id === state.homeCongregationId;
       const distanceLabel = distanceLabelForCong(x.cong, fs.distanceMode);
       return `
-      <div class="card ${state.selectedKey === key ? 'active' : ''} ${state.modalSpeakerId === x.sp.id ? 'is-open-in-modal' : ''}" data-key="${key}">
+      <div class="card ${state.modalSpeakerId === x.sp.id ? 'active is-open-in-modal' : ''}" data-key="${key}">
         <div class="list-card-head">
           <div class="card-title">${escapeHtml(x.sp.name)}</div>
           <button type="button" class="list-fav-btn ${meta.favorite ? 'active' : ''}" data-fav-key="${escapeHtml(x.sp.notesKey)}" title="${meta.favorite ? 'Remove favorite' : 'Add to favorites'}">${meta.favorite ? '★' : '☆'}</button>
@@ -2715,7 +3044,7 @@ function renderResults() {
       const favoriteCount = cong.speakers.filter(s => noteRecord(s.notesKey).favorite).length;
       const distanceLabel = distanceLabelForCong(cong, fs.distanceMode);
       return `
-      <div class="card ${state.selectedKey === key ? 'active' : ''}" data-key="${key}">
+      <div class="card ${state.wsMode === 'detail' && state.selectedKey === key ? 'active' : ''}" data-key="${key}">
         <div class="card-title">${escapeHtml(cong.name)}</div>
         <div class="card-sub">${escapeHtml([cong.address, (cong.postalCode ? cong.postalCode + ' ' : '') + cong.city, cong.country].filter(Boolean).join(' · '))}</div>
         <div class="row">
@@ -2741,6 +3070,12 @@ function renderResults() {
         openSpeakerModal(key.slice('speaker:'.length));
         return;
       }
+      /* v2.6: a congregation result branches into the workspace detail view,
+         exactly like picking it in the sidebar */
+      if (key.startsWith('cong:')) {
+        selectCongregation(key.slice('cong:'.length));
+        return;
+      }
       state.selectedKey = key;
       renderResults();
       renderDetail();
@@ -2764,10 +3099,14 @@ function renderResults() {
   if (!items.length) {
     list.innerHTML = `<div class="detail-section"><div class="subtle">No matches with the current filters.</div></div>`;
   } else if (!state.selectedKey) {
+    /* keeps the print scope "current congregation" usable without forcing the
+       workspace out of the start view */
     state.selectedKey = fs.view === 'speaker' ? 'speaker:' + items[0].sp.id : 'cong:' + items[0].id;
     renderResults();
     renderDetail();
+    return;
   }
+  refreshNavAndHead();
 }
 
 function noteValue(key) {
@@ -3093,6 +3432,8 @@ function renderImprovePage() {
   const pane = document.getElementById('detailPane');
   const issues = detectLikelyIssues();
   state.selectedKey = '__improve__';
+  setWsMode('detail');
+  updateWorkspaceHead();
   pane.innerHTML = `
     <div class="detail-section">
       <h3>Help Us Improve</h3>
@@ -3121,9 +3462,7 @@ function renderImprovePage() {
       openSpeakerModal(btn.dataset.speaker);
       return;
     }
-    state.selectedKey = 'cong:' + btn.dataset.cong;
-    renderResults();
-    renderDetail();
+    selectCongregation(btn.dataset.cong);
   }));
 }
 
@@ -3391,6 +3730,7 @@ function renderDetail() {
     });
   });
   fitAllOutlinePreviews();
+  updateWorkspaceHead();
 }
 
 /* ===== speaker modal (v2.4) =====
@@ -3554,11 +3894,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!found) return;
     const congId = found.cong.id;
     closeSpeakerModal();
-    state.selectedKey = 'cong:' + congId;
-    const viewMode = document.getElementById('viewMode');
-    if (viewMode) viewMode.value = 'congregation';
-    renderResults();
-    renderDetail();
+    selectCongregation(congId);
   });
 });
 
@@ -3922,6 +4258,7 @@ function importJsonObject(obj) {
   state.selectedKey = null;
   state.lastCongregationKey = null;
   if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
+  setWsMode('list');
   renderResults();
   renderDetail();
   setStatus(obj.exportType === 'personal-notes' ? 'Personal notes imported' : 'Backup imported');
@@ -3943,6 +4280,7 @@ function clearFilters() {
   state.selectedKey = null;
   state.lastCongregationKey = null;
   if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
+  setWsMode('list');
   renderResults();
   renderDetail();
   refreshDistanceRowInfo();
@@ -3966,6 +4304,10 @@ function resetAll() {
   document.getElementById('resultsList').innerHTML = '';
   document.getElementById('detailPane').innerHTML = `<div class="detail-section"><h3>Reset done</h3><div class="subtle">Local dataset and notes were removed.</div></div>`;
   document.getElementById('resultsCount').textContent = '0 matches';
+  setWsMode('list');
+  state.openCountries = new Set();
+  saveOpenCountries();
+  refreshNavAndHead();
   updateAssistantImportState();
   setStatus('Local data cleared');
 }
@@ -4072,6 +4414,7 @@ function applyImportedDataset(dataset, previousHome, previousNotes) {
   state.selectedKey = null;
   state.lastCongregationKey = null;
   if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
+  setWsMode('list');
   renderResults();
   renderDetail();
   updateAssistantImportState();
@@ -4153,8 +4496,7 @@ if (outlineInput) {
   outlineInput.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       outlineInput.value = '';
-      state.selectedKey = null;
-      state.lastCongregationKey = null;
+      resetSelectionForFilterChange();
       if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
       updateClearOutlineButton();
       renderResults();
@@ -4168,8 +4510,7 @@ if (clearOutlineBtn) {
   clearOutlineBtn.addEventListener('click', () => {
     if (!outlineInput) return;
     outlineInput.value = '';
-    state.selectedKey = null;
-    state.lastCongregationKey = null;
+    resetSelectionForFilterChange();
     if (typeof closeSpeakerModal === 'function') closeSpeakerModal();
     updateClearOutlineButton();
     renderResults();
@@ -4178,9 +4519,24 @@ if (clearOutlineBtn) {
   });
 }
 
+/* v2.6: while a congregation is open in the workspace, filtering must not throw the
+   selection away — otherwise the pane you are reading empties out under your hands.
+   In the start view the old behaviour stays: clear the selection, re-render, done. */
+function resetSelectionForFilterChange() {
+  if (state.wsMode === 'detail') return;
+  state.selectedKey = null;
+  state.lastCongregationKey = null;
+}
+
 ['searchInput','countryFilter','circuitFilter','dayFilter','roleFilter','outlineFilter','favoriteFilter','viewMode','distanceMode','distanceFilter','sortMode'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => { state.selectedKey = null; state.lastCongregationKey = null; renderResults(); renderDetail(); refreshDistanceRowInfo(); });
-  document.getElementById(id).addEventListener('change', () => { state.selectedKey = null; state.lastCongregationKey = null; renderResults(); renderDetail(); refreshDistanceRowInfo(); });
+  document.getElementById(id).addEventListener('input', () => { resetSelectionForFilterChange(); renderResults(); renderDetail(); refreshDistanceRowInfo(); });
+  document.getElementById(id).addEventListener('change', () => { resetSelectionForFilterChange(); renderResults(); renderDetail(); refreshDistanceRowInfo(); });
+});
+
+const backToAllBtn = document.getElementById('backToAllBtn');
+if (backToAllBtn) backToAllBtn.addEventListener('click', () => {
+  showAllView();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 const scrollTopBtn = document.getElementById('scrollTopBtn');
@@ -4206,6 +4562,8 @@ if (restoreDataset()) {
   setStatus('Loaded saved browser data', true);
 } else {
   refreshStats();
+  /* v2.6: draw the empty sidebar and workspace header even without a dataset */
+  refreshNavAndHead();
 }
 
 refreshOutlineDataInfo();
@@ -4225,26 +4583,11 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const viewMode = document.getElementById('viewMode');
-    if (viewMode) {
-      viewMode.value = 'congregation';
-      viewMode.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-
-    const selectHome = () => {
-      const card = document.querySelector('[data-key="cong:' + CSS.escape(String(homeId)) + '"]');
-      if (card) {
-        card.click();
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return true;
-      }
-      return false;
-    };
-
-    if (!selectHome()) {
-      setTimeout(selectHome, 120);
-      setTimeout(selectHome, 320);
-      setTimeout(selectHome, 700);
+    /* v2.6: the home congregation is a fixed entry in the sidebar, so we can open it
+       directly instead of hunting for a card in the result list */
+    if (typeof selectCongregation === 'function') {
+      selectCongregation(String(homeId));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
 });
@@ -4435,7 +4778,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.11</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4443,6 +4786,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-layout">
       <nav class="help-nav" aria-label="Help sections">
         <span class="help-nav-label">On this page</span>
+        <a href="#help-s0">Screen layout</a>
         <a href="#help-s1">Import and updates</a>
         <a href="#help-s2">Search and filters</a>
         <a href="#help-s3">Distance tools</a>
@@ -4465,11 +4809,26 @@ document.addEventListener('DOMContentLoaded', function () {
         </p>
         <div class="help-chips">
           <span class="chip">CSV import</span>
+          <span class="chip">Sidebar navigation</span>
           <span class="chip">Speaker + congregation view</span>
           <span class="chip">Favorites + notes</span>
           <span class="chip">Distance + radius filter</span>
           <span class="chip">JSON backup</span>
         </div>
+
+        <section class="help-section" id="help-s0">
+          <h3><span class="help-num">00</span> Screen layout</h3>
+          <p>Since v2.6 the screen is split like the PTC Organizer: a permanent <b>congregation list on the left</b>, the <b>workspace on the right</b>.</p>
+          <ul class="mini-list">
+            <li><b>All congregations</b> sits at the top of the list and is the start view. It shows the result cards — speakers or congregations, depending on the view selector.</li>
+            <li><b>Your own congregation</b> follows directly below it as soon as a home congregation is set, so it is always one click away.</li>
+            <li>Below a small gap, every other congregation is grouped by country. Click a country to fold it open or closed; the tool remembers that per browser.</li>
+            <li>Clicking any congregation branches to the right: the workspace shows that hall with its contacts, PTC data and speaker list. <b>← All congregations</b> takes you back.</li>
+          </ul>
+          <p>The <b>search</b> and the <b>outline filter</b> now sit directly above the list. They act on both sides at once: the congregation list and the result cards always show the same selection. The country, circuit, meeting day, role, distance and sort controls in the toolbar do exactly the same as before.</p>
+          <p>When you sort by <b>distance</b> or by <b>outline</b>, the list drops the country grouping and shows one flat ranking instead — nearest, or best matching, first. Sorting by name brings the country groups back.</p>
+          <p>Nothing on this screen edits the data. The list, contacts and outlines come from the imported file and stay read-only; only your personal notes, favorites and the home congregation are yours to change.</p>
+        </section>
 
         <section class="help-section" id="help-s1">
           <h3><span class="help-num">01</span> Import and updates</h3>
@@ -4487,7 +4846,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <section class="help-section" id="help-s2">
           <h3><span class="help-num">02</span> Search and filters</h3>
-          <p>The first toolbar row is for the normal list work: main search, outline filter, country, circuit, meeting day, and speaker role.</p>
+          <p>The <b>main search</b> and the <b>outline filter</b> sit above the congregation list on the left. The toolbar keeps the four narrowing filters: country, circuit, meeting day, and speaker role. All of them apply to the congregation list and the result cards at the same time.</p>
           <p>The main search looks through speaker name, congregation, city, country, circuit, phone, email, outline number, outline title, and saved local notes. Outline titles and status information come exclusively from <b>outline-data.json</b>; if that file is unavailable, outline numbers stay usable but titles and statuses are not guessed.</p>
         </section>
 
@@ -4497,28 +4856,28 @@ document.addEventListener('DOMContentLoaded', function () {
           <ul class="mini-list">
             <li><b>Distance mode</b> – air-line or estimated drive × 1.25</li>
             <li><b>Max distance</b> – for example within 50 / 100 / 150 / 200 km</li>
-            <li><b>Sort</b> – by name or by distance</li>
+            <li><b>Sort</b> – by name, by outline, or by distance. Distance and outline sorting also reorder the congregation list on the left into a flat ranking.</li>
           </ul>
           <p>These controls work when the imported CSV contains usable geo coordinates for the congregations.</p>
         </section>
 
         <section class="help-section" id="help-s4">
           <h3><span class="help-num">04</span> Home congregation</h3>
-          <p>Open a congregation and click <b>Set as home congregation</b>. After that the top button <b>Home congregation</b> jumps back to it, distances are calculated from that point, and result cards can show nearby congregations and speakers.</p>
+          <p>Open a congregation and click <b>Set as home congregation</b>. After that it gets a fixed place near the top of the left-hand list, the top button <b>Home congregation</b> jumps back to it, distances are calculated from that point, and result cards can show nearby congregations and speakers.</p>
           <p>If no home congregation is set, the distance tools stay available but cannot calculate meaningful values yet.</p>
         </section>
 
         <section class="help-section" id="help-s5">
           <h3><span class="help-num">05</span> Speaker and congregation view</h3>
-          <p>Since v2.4 the two sides have a clear division of labour: the <b>right panel always shows congregation data</b> — address, meeting time, distance, PTC contact, PTC assistant, the speaker list, and the congregation correction form. Everything that belongs to one brother opens in the <b>speaker card</b>, a modal window on top.</p>
-          <p><b>Speaker View</b> is best when you already know the brother or the outline you need. Clicking a result opens his speaker card and at the same time loads his congregation into the right panel, so both are ready.</p>
-          <p><b>Congregation View</b> is best when you want to review a whole congregation first. Click any brother in the speaker list to open his card without losing the congregation you are looking at.</p>
+          <p>The division of labour is unchanged: the <b>workspace always shows congregation data</b> — address, meeting time, distance, PTC contact, PTC assistant, the speaker list, and the congregation correction form. Everything that belongs to one brother opens in the <b>speaker card</b>, a modal window on top.</p>
+          <p><b>Speaker View</b> is best when you already know the brother or the outline you need. Clicking a result opens his speaker card; <b>Show congregation →</b> at the bottom of the card branches to his hall in the workspace.</p>
+          <p><b>Congregation View</b> is best when you want to review whole congregations first. Pick one from the left-hand list or from a result card; click any brother in its speaker list to open his card without losing the congregation you are looking at.</p>
         </section>
 
         <section class="help-section" id="help-s6">
           <h3><span class="help-num">06</span> The speaker card</h3>
           <p>The speaker card holds the role and distance chips, phone and e-mail links, all outlines, the <b>personal note</b> area (favorite, last invited, last used, note), and the correction form for that brother. Close it with <b>Close</b>, the <b>Esc</b> key, or a click on the dark background.</p>
-          <p>Because the congregation stays visible behind the card, you can go through several brothers of the same congregation one after another — no scrolling back and forth. <b>Show congregation →</b> at the bottom of the card closes it and switches the list to Congregation View for that hall.</p>
+          <p>Because the congregation stays visible behind the card, you can go through several brothers of the same congregation one after another — no scrolling back and forth. <b>Show congregation →</b> at the bottom of the card closes it and opens that hall in the workspace.</p>
           <p>Clicking an outline chip inside the card opens the outline directory on top of it. Choosing an outline there filters the result list and closes the speaker card, so you immediately see who else offers that talk.</p>
         </section>
 
