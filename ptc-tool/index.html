@@ -783,7 +783,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.5.10</span>
+      <span class="footer-version" id="footerVersion">v.2.5.11</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -829,7 +829,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.5.10';
+const APP_VERSION = '2.5.11';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -2044,7 +2044,7 @@ function masterCountryName(obj, cong) {
 
 function masterMeeting(cong) {
   const m = (cong.meetings || [])[0];
-  if (!m) return { full: '', day: '', time: '' };
+  if (!m) return { full: '', day: '', time: '', temporaryVenue: null };
   /* The weekday number is ISO (1 = Monday) and language independent. Preferring it over
      `raw` also normalizes entries that carry a season prefix such as "2026 - Sunday 10:00",
      which the plain text parser would not recognize as a weekday. */
@@ -2052,8 +2052,19 @@ function masterMeeting(cong) {
     ? WEEKDAYS[Number(m.weekday) - 1]
     : '';
   const time = (m.time || '').trim();
-  if (day) return { full: [day, time].filter(Boolean).join(' '), day, time };
-  return parseMeeting(m.raw || '');
+  const venue = m.venue && m.venue.enabled ? m.venue : null;
+  const temporaryVenue = venue ? {
+    address: [venue.address?.street, [venue.address?.postal_code, venue.address?.city].filter(Boolean).join(' '), venue.address?.country_code].filter(Boolean).join(', '),
+    validFrom: (venue.valid_from || '').trim(),
+    validTo: (venue.valid_to || '').trim(),
+    reason: (venue.reason || '').trim(),
+    geoLat: parseGeoNumber(venue.geo?.lat),
+    geoLon: parseGeoNumber(venue.geo?.lon),
+    geoAddress: (venue.geo?.resolved_address || '').trim()
+  } : null;
+  if (day) return { full: [day, time].filter(Boolean).join(' '), day, time, temporaryVenue };
+  const parsed = parseMeeting(m.raw || '');
+  return { ...parsed, temporaryVenue };
 }
 
 function masterPhoneList(country, mobile, home) {
@@ -2107,6 +2118,7 @@ function parseMasterJsonDataset(obj, fileName = '') {
       meetingDay: meeting.day,
       meetingTime: meeting.time,
       meetingRaw: meeting.full,
+      temporaryVenue: meeting.temporaryVenue,
       /* the master keeps richer circuit labels (EU-E10DK, EU-E10Twi) than the CSV
          sanitizer allows, so we keep the master value and only fall back to parsing */
       circuit: (raw.circuit || '').trim() || sanitizeCircuit(raw.circuit || ''),
@@ -3309,6 +3321,7 @@ function renderDetail() {
         <div class="meta-item"><div class="meta-label">Hall phone</div><div>${cong.hallPhone ? `<a href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>${escapeHtml(cong.hallPhone)}</a>` : '—'}</div></div>
         <div class="meta-item"><div class="meta-label">Home congregation</div><div>${isHome ? 'Yes' : 'No'}</div></div>
       </div>
+      ${cong.temporaryVenue ? `<div class="notice" style="margin-top:12px"><b>Temporary venue</b><br>${escapeHtml(cong.temporaryVenue.address || 'Address not set')}${(cong.temporaryVenue.validFrom || cong.temporaryVenue.validTo) ? `<br><span class="small subtle">${escapeHtml([cong.temporaryVenue.validFrom ? 'from ' + cong.temporaryVenue.validFrom : '', cong.temporaryVenue.validTo ? 'until ' + cong.temporaryVenue.validTo : ''].filter(Boolean).join(' · '))}</span>` : ''}${cong.temporaryVenue.reason ? `<br><span class="small subtle">${escapeHtml(cong.temporaryVenue.reason)}</span>` : ''}</div>` : ''}
       <div class="links">
         <a class="chip" href="${mapUrl(cong)}" target="_blank" rel="noreferrer">Open hall in Google Maps</a>
         ${cong.congType === 'group' ? '<span class="chip">Group, not a congregation</span>' : ''}
@@ -4422,7 +4435,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.10</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.5.11</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4706,6 +4719,12 @@ document.addEventListener('DOMContentLoaded', function () {
       const mt = c.meetingRaw || [c.meetingDay, c.meetingTime].filter(Boolean).join(' ');
       if (mt) meta.push(`<span>${esc(mt)}</span>`);
       if (c.hallPhone) meta.push(`<span>Hall ${esc(c.hallPhone)}</span>`);
+      if (c.temporaryVenue) {
+        const tv = c.temporaryVenue;
+        const period = [tv.validFrom ? 'from ' + tv.validFrom : '', tv.validTo ? 'until ' + tv.validTo : ''].filter(Boolean).join(' · ');
+        const details = [tv.address, period, tv.reason].filter(Boolean).join(' · ');
+        meta.push(`<span><b>Temporary venue:</b> ${esc(details || 'configured')}</span>`);
+      }
     }
     if (on('prDistance')) {
       const d = distanceLabelForCong(c);
@@ -4716,11 +4735,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (on('prPtc')) {
       const ptc = [c.ptcName, ...(c.ptcPhones || []), ...(c.ptcEmails || [])].filter(Boolean);
       if (ptc.length) contacts.push(`<div><b>Public talk coord.</b> ${esc(ptc.join(' · '))}</div>`);
-      const cobe = [c.cobeName, c.cobePhone].filter(Boolean);
-      if (cobe.length) contacts.push(`<div><b>Coord. body of elders</b> ${esc(cobe.join(' · '))}</div>`);
       const a = noteRecord(c.notesKey).ptcAssistant || {};
       const asst = [a.name, a.phone, a.email].filter(Boolean);
       if (asst.length) contacts.push(`<div><b>PTC assistant</b> ${esc(asst.join(' · '))}</div>`);
+      const cobe = [c.cobeName, c.cobePhone].filter(Boolean);
+      if (cobe.length) contacts.push(`<div><b>Coord. body of elders</b> ${esc(cobe.join(' · '))}</div>`);
     }
 
     return `<section class="pcong${on('prBreak') && index > 0 ? ' pbreak' : ''}">
