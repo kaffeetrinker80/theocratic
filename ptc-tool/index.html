@@ -229,6 +229,23 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 .nav-item .nav-star { color:#c08a1e; }
 .nav-empty { padding:10px 4px; font-size:12px; color:var(--muted); }
 .workspace { display:grid; gap:14px; min-width:0; }
+/* v2.6.1: the congregation detail is a slim fact strip plus tabs, so the speaker
+   list is the first thing on screen instead of address and PTC blocks. */
+.cong-strip { padding:12px 14px; }
+.cong-strip-facts { display:flex; flex-wrap:wrap; gap:10px 22px; }
+.cong-strip-facts .strip-fact { min-width:0; }
+.cong-strip-facts .strip-fact b { font-weight:650; font-size:13.5px; }
+.cong-strip-facts .strip-address { flex:1 1 260px; }
+.cong-strip .links { margin-top:12px; }
+.detail-tabs { display:flex; flex-wrap:wrap; gap:6px; border-bottom:1px solid var(--line); padding:0 2px; }
+.detail-tab {
+  background:transparent; border:1px solid transparent; border-bottom:0; cursor:pointer;
+  border-radius:11px 11px 0 0; padding:9px 14px; font-size:13px; font-weight:600; color:var(--muted);
+  margin-bottom:-1px;
+}
+.detail-tab:hover { color:var(--text); background:#f7f1e8; }
+.detail-tab.active { background:var(--card); border-color:var(--line); color:var(--accent2); box-shadow:inset 0 2px 0 var(--accent); }
+.detail-tabbody { display:grid; gap:14px; }
 .ws-head {
   display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
   padding:0 2px;
@@ -868,7 +885,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.6.0</span>
+      <span class="footer-version" id="footerVersion">v.2.6.1</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -914,7 +931,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.6.1';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1028,6 +1045,7 @@ const state = {
      'detail' = one congregation opened in the workspace. Countries that are folded
      open in the sidebar are remembered per browser. */
   wsMode: 'list',
+  detailTab: 'speakers',
   openCountries: loadOpenCountries()
 };
 
@@ -2767,6 +2785,7 @@ function selectCongregation(congId) {
   if (!cong) return;
   state.selectedKey = 'cong:' + congId;
   state.lastCongregationKey = null;
+  state.detailTab = 'speakers';
   setWsMode('detail');
   renderResults();
   renderDetail();
@@ -3617,6 +3636,41 @@ function wireCorrectionBox(context, scope = 'pane') {
   });
 }
 
+function detailTabs(cong) {
+  const tabs = [
+    { key:'speakers', label:`Speakers (${cong.speakers.length})` },
+    { key:'congregation', label:'Congregation & PTC' },
+    { key:'correction', label:'Report a correction' }
+  ];
+  return `<div class="detail-tabs" role="tablist">${tabs.map(t =>
+    `<button type="button" class="detail-tab ${state.detailTab === t.key ? 'active' : ''}" role="tab" aria-selected="${state.detailTab === t.key}" data-detail-tab="${t.key}">${escapeHtml(t.label)}</button>`
+  ).join('')}</div>`;
+}
+
+function congSpeakerListHtml(cong, highlightSpeakerId) {
+  return `<div class="speaker-table">
+    ${cong.speakers.map(sp => {
+      const rec = noteRecord(sp.notesKey);
+      const phones = renderPhoneLinks(sp.phones, cong.country);
+      const emails = renderEmailLinks(sp.emails);
+      const total = sp.outlines.length;
+      return `
+      <div class="speaker-mini compact cong-speaker-card ${sp.id === highlightSpeakerId ? 'highlight' : ''}" data-cong-speaker-id="${escapeHtml(sp.id)}">
+        <div class="speaker-highlight-head">
+          <h4>${escapeHtml(sp.name)} <span class="small subtle">&middot; ${escapeHtml(sp.role)}</span>${rec.favorite ? ' <span class="small">&#9733;</span>' : ''}</h4>
+          <button type="button" class="ghost open-speaker-detail-btn" data-speaker-id="${escapeHtml(sp.id)}">Open speaker</button>
+        </div>
+        <div class="mini-contacts">
+          <span>${phones || '<span class="mini-none">No phone</span>'}</span>
+          <span>${emails || '<span class="mini-none">No email</span>'}</span>
+          <span class="mini-outline-count">${total} outline${total === 1 ? '' : 's'}</span>
+        </div>
+        ${total ? `<div class="outline-list outline-preview" data-total="${total}" data-rendered="${Math.min(total, 30)}">${sp.outlines.slice(0, 30).map(no => renderOutline(no)).join('')}<span class="outline outline-more" hidden></span></div>` : ''}
+      </div>`;
+    }).join('') || '<div class="subtle">No speakers found in this import.</div>'}
+  </div>`;
+}
+
 function renderDetail() {
   const pane = document.getElementById('detailPane');
   const ds = state.dataset;
@@ -3628,9 +3682,9 @@ function renderDetail() {
 
   const [kind, id] = state.selectedKey.split(':');
 
-  /* v2.4: the right pane always shows congregation data.
-     If a speaker is selected, we render that speaker's congregation and highlight him
-     in the speaker list; everything speaker-specific lives in the speaker modal. */
+  /* The workspace always shows congregation data. If a speaker is selected, we render
+     that speaker's congregation and highlight him in the speaker list; everything
+     speaker-specific lives in the speaker modal. */
   let cong = null;
   let highlightSpeakerId = '';
   if (kind === 'speaker') {
@@ -3647,78 +3701,92 @@ function renderDetail() {
   const msCount = cong.speakers.filter(s => s.role === 'MS').length;
   const allOutlines = [...new Set(cong.speakers.flatMap(s => s.outlines))].sort((a,b) => a-b);
   const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
+  const address = [cong.address, (cong.postalCode ? cong.postalCode + ' ' : '') + cong.city, cong.country].filter(Boolean).join(', ');
+  if (!['speakers','congregation','correction'].includes(state.detailTab)) state.detailTab = 'speakers';
 
-  pane.innerHTML = `
-    <div class="detail-section">
-      <h3>${escapeHtml(cong.name)}</h3>
-      <div class="meta">
-        <div class="meta-item span-2"><div class="meta-label">Address</div><div>${escapeHtml([cong.address, (cong.postalCode ? cong.postalCode + ' ' : '') + cong.city, cong.country].filter(Boolean).join(', '))}</div></div>
-        <div class="meta-item"><div class="meta-label">Meeting time</div><div>${escapeHtml(cong.meetingRaw || '—')}</div></div>
-        <div class="meta-item"><div class="meta-label">Circuit</div><div>${escapeHtml(cong.circuit || '—')}</div></div>
-        <div class="meta-item"><div class="meta-label">Distance</div><div>${escapeHtml(distanceLabelForCong(cong) || '—')}</div></div>
-        <div class="meta-item"><div class="meta-label">Geo status</div><div>${escapeHtml(cong.geoStatus || (hasCongGeo(cong) ? 'ok' : 'no geo data'))}</div></div>
-        <div class="meta-item"><div class="meta-label">Hall phone</div><div>${cong.hallPhone ? `<a href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>${escapeHtml(cong.hallPhone)}</a>` : '—'}</div></div>
-        <div class="meta-item"><div class="meta-label">Home congregation</div><div>${isHome ? 'Yes' : 'No'}</div></div>
+  /* v2.6.1: a slim always-visible fact strip carries what you need at a glance; the
+     rest moved into tabs so the speaker list is the first thing on screen. */
+  const factStrip = `
+    <div class="detail-section cong-strip">
+      <div class="cong-strip-facts">
+        <div class="strip-fact"><span class="meta-label">Meeting</span><b>${escapeHtml(cong.meetingRaw || '&mdash;')}</b></div>
+        <div class="strip-fact"><span class="meta-label">Circuit</span><b>${escapeHtml(cong.circuit || '&mdash;')}</b></div>
+        <div class="strip-fact"><span class="meta-label">Distance</span><b>${escapeHtml(distanceLabelForCong(cong) || '&mdash;')}</b></div>
+        <div class="strip-fact"><span class="meta-label">Congregation</span><b>${elderCount} elders &middot; ${msCount} MS &middot; ${allOutlines.length} outlines</b></div>
+        <div class="strip-fact strip-address"><span class="meta-label">Address</span><b>${escapeHtml(address || '&mdash;')}</b></div>
       </div>
-      ${cong.temporaryVenue ? `<div class="notice" style="margin-top:12px"><b>Temporary venue</b><br>${escapeHtml(cong.temporaryVenue.address || 'Address not set')}${(cong.temporaryVenue.validFrom || cong.temporaryVenue.validTo) ? `<br><span class="small subtle">${escapeHtml([cong.temporaryVenue.validFrom ? 'from ' + cong.temporaryVenue.validFrom : '', cong.temporaryVenue.validTo ? 'until ' + cong.temporaryVenue.validTo : ''].filter(Boolean).join(' · '))}</span>` : ''}${cong.temporaryVenue.reason ? `<br><span class="small subtle">${escapeHtml(cong.temporaryVenue.reason)}</span>` : ''}</div>` : ''}
+      ${cong.temporaryVenue ? `<div class="notice" style="margin-top:12px"><b>Temporary venue</b><br>${escapeHtml(cong.temporaryVenue.address || 'Address not set')}${(cong.temporaryVenue.validFrom || cong.temporaryVenue.validTo) ? `<br><span class="small subtle">${escapeHtml([cong.temporaryVenue.validFrom ? 'from ' + cong.temporaryVenue.validFrom : '', cong.temporaryVenue.validTo ? 'until ' + cong.temporaryVenue.validTo : ''].filter(Boolean).join(' &middot; '))}</span>` : ''}${cong.temporaryVenue.reason ? `<br><span class="small subtle">${escapeHtml(cong.temporaryVenue.reason)}</span>` : ''}</div>` : ''}
       <div class="links">
         <a class="chip" href="${mapUrl(cong)}" target="_blank" rel="noreferrer">Open hall in Google Maps</a>
+        ${cong.hallPhone ? `<a class="chip" href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>Hall ${escapeHtml(cong.hallPhone)}</a>` : ''}
         ${cong.congType === 'group' ? '<span class="chip">Group, not a congregation</span>' : ''}
-        <button type="button" class="ghost" id="setHomeCongBtn">${isHome ? '✓ Home congregation' : 'Set as home congregation'}</button>
+        ${isHome ? '<span class="chip home-chip">My congregation</span>' : ''}
+        <button type="button" class="ghost" id="setHomeCongBtn">${isHome ? '&#10003; Home congregation' : 'Set as home congregation'}</button>
         ${isHome ? '<button type="button" class="ghost" id="clearHomeCongBtn">Clear home congregation</button>' : ''}
       </div>
-    </div>
+    </div>`;
 
-    <div class="detail-section">
-      <div class="ptc-grid">
-        ${renderPtcContactBox(cong, `
-          <div class="row" style="margin-top:12px;">
-            <span class="chip">${elderCount} elders</span>
-            <span class="chip">${msCount} MS</span>
-            <span class="chip">${allOutlines.length} outlines in congregation</span>
-          </div>
-        `)}
-        ${renderPtcAssistantEditor(cong)}
-      </div>
-    </div>
-
-    <div class="detail-section">
-      <h3>Speakers</h3>
-      <div class="small subtle" style="margin-bottom:10px;">Click a speaker to open his card with outlines, memory and correction form.</div>
-      <div class="speaker-table">
-        ${cong.speakers.map(sp => {
-          const rec = noteRecord(sp.notesKey);
-          const phones = renderPhoneLinks(sp.phones, cong.country);
-          const emails = renderEmailLinks(sp.emails);
-          const total = sp.outlines.length;
-          return `
-          <div class="speaker-mini compact cong-speaker-card ${sp.id === highlightSpeakerId ? 'highlight' : ''}" data-cong-speaker-id="${escapeHtml(sp.id)}">
-            <div class="speaker-highlight-head">
-              <h4>${escapeHtml(sp.name)} <span class="small subtle">· ${escapeHtml(sp.role)}</span>${rec.favorite ? ' <span class="small">★</span>' : ''}</h4>
-              <button type="button" class="ghost open-speaker-detail-btn" data-speaker-id="${escapeHtml(sp.id)}">Open speaker</button>
+  let tabBody = '';
+  if (state.detailTab === 'speakers') {
+    tabBody = `
+      <div class="detail-section">
+        <h3>Speakers</h3>
+        <div class="small subtle" style="margin-bottom:10px;">Click a speaker to open his card with outlines, memory and correction form.</div>
+        ${congSpeakerListHtml(cong, highlightSpeakerId)}
+      </div>`;
+  } else if (state.detailTab === 'congregation') {
+    tabBody = `
+      <div class="detail-section">
+        <div class="ptc-grid">
+          ${renderPtcContactBox(cong, `
+            <div class="row" style="margin-top:12px;">
+              <span class="chip">${elderCount} elders</span>
+              <span class="chip">${msCount} MS</span>
+              <span class="chip">${allOutlines.length} outlines in congregation</span>
             </div>
-            <div class="mini-contacts">
-              <span>${phones || '<span class="mini-none">No phone</span>'}</span>
-              <span>${emails || '<span class="mini-none">No email</span>'}</span>
-              <span class="mini-outline-count">${total} outline${total === 1 ? '' : 's'}</span>
-            </div>
-            ${total ? `<div class="outline-list outline-preview" data-total="${total}" data-rendered="${Math.min(total, 30)}">${sp.outlines.slice(0, 30).map(no => renderOutline(no)).join('')}<span class="outline outline-more" hidden></span></div>` : ''}
-          </div>`;
-        }).join('') || '<div class="subtle">No speakers found in this import.</div>'}
+          `)}
+          ${renderPtcAssistantEditor(cong)}
+        </div>
       </div>
-    </div>
+      <div class="detail-section">
+        <h3>Congregation data</h3>
+        <div class="meta">
+          <div class="meta-item span-2"><div class="meta-label">Address</div><div>${escapeHtml(address || '&mdash;')}</div></div>
+          <div class="meta-item"><div class="meta-label">Meeting time</div><div>${escapeHtml(cong.meetingRaw || '&mdash;')}</div></div>
+          <div class="meta-item"><div class="meta-label">Circuit</div><div>${escapeHtml(cong.circuit || '&mdash;')}</div></div>
+          <div class="meta-item"><div class="meta-label">Distance</div><div>${escapeHtml(distanceLabelForCong(cong) || '&mdash;')}</div></div>
+          <div class="meta-item"><div class="meta-label">Geo status</div><div>${escapeHtml(cong.geoStatus || (hasCongGeo(cong) ? 'ok' : 'no geo data'))}</div></div>
+          <div class="meta-item"><div class="meta-label">Hall phone</div><div>${cong.hallPhone ? `<a href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>${escapeHtml(cong.hallPhone)}</a>` : '&mdash;'}</div></div>
+          <div class="meta-item"><div class="meta-label">Home congregation</div><div>${isHome ? 'Yes' : 'No'}</div></div>
+        </div>
+      </div>`;
+  } else {
+    tabBody = renderCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane');
+  }
 
-    ${renderCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane')}
-  `;
-  wirePtcLocalNoteEditor(cong);
-  wirePtcAssistantEditor(cong);
-  wireCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane');
+  pane.innerHTML = factStrip + detailTabs(cong) + `<div class="detail-tabbody">${tabBody}</div>`;
+
+  pane.querySelectorAll('[data-detail-tab]').forEach(btn => btn.addEventListener('click', () => {
+    state.detailTab = btn.dataset.detailTab;
+    renderDetail();
+  }));
+
+  /* wire only what the active tab actually rendered */
+  if (state.detailTab === 'congregation') {
+    wirePtcLocalNoteEditor(cong);
+    wirePtcAssistantEditor(cong);
+    const ptcVcfBtn = document.getElementById('ptcVcfBtn');
+    if (ptcVcfBtn) ptcVcfBtn.addEventListener('click', () => downloadPtcVcf(cong));
+  }
+  if (state.detailTab === 'correction') {
+    wireCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane');
+  }
+
   const setHomeBtn = document.getElementById('setHomeCongBtn');
   const clearHomeBtn = document.getElementById('clearHomeCongBtn');
   if (setHomeBtn) setHomeBtn.addEventListener('click', () => { state.homeCongregationId = cong.id; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation saved'); });
   if (clearHomeBtn) clearHomeBtn.addEventListener('click', () => { state.homeCongregationId = ''; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation cleared'); });
-  const ptcVcfBtn = document.getElementById('ptcVcfBtn');
-  if (ptcVcfBtn) ptcVcfBtn.addEventListener('click', () => downloadPtcVcf(cong));
+
   pane.querySelectorAll('[data-cong-speaker-id]').forEach(el => {
     el.addEventListener('click', (ev) => {
       /* outline chips inside the card open the outline directory instead */
@@ -3729,7 +3797,7 @@ function renderDetail() {
       openSpeakerModal(speakerId);
     });
   });
-  fitAllOutlinePreviews();
+  if (state.detailTab === 'speakers') fitAllOutlinePreviews();
   updateWorkspaceHead();
 }
 
@@ -4778,7 +4846,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4823,7 +4891,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <li><b>All congregations</b> sits at the top of the list and is the start view. It shows the result cards — speakers or congregations, depending on the view selector.</li>
             <li><b>Your own congregation</b> follows directly below it as soon as a home congregation is set, so it is always one click away.</li>
             <li>Below a small gap, every other congregation is grouped by country. Click a country to fold it open or closed; the tool remembers that per browser.</li>
-            <li>Clicking any congregation branches to the right: the workspace shows that hall with its contacts, PTC data and speaker list. <b>← All congregations</b> takes you back.</li>
+            <li>Clicking any congregation branches to the right. The workspace opens on a slim fact strip — meeting time, circuit, distance, address, Maps link — and then three tabs: <b>Speakers</b> (the default, so the brothers are the first thing you see), <b>Congregation &amp; PTC</b> for contacts, assistant and full master data, and <b>Report a correction</b>. <b>← All congregations</b> takes you back.</li>
           </ul>
           <p>The <b>search</b> and the <b>outline filter</b> now sit directly above the list. They act on both sides at once: the congregation list and the result cards always show the same selection. The country, circuit, meeting day, role, distance and sort controls in the toolbar do exactly the same as before.</p>
           <p>When you sort by <b>distance</b> or by <b>outline</b>, the list drops the country grouping and shows one flat ranking instead — nearest, or best matching, first. Sorting by name brings the country groups back.</p>
