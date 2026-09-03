@@ -113,7 +113,7 @@ select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:fo
 <div class="app">
 <aside class="side"><div class="side-sticky-top"><span class="row-label">Search</span><input id="search" placeholder="Person, congregation, city, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.8.0 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.8.1 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -261,17 +261,51 @@ function invalidateGeo(g){if(!g)return;g.lat=null;g.lon=null;g.resolved_address=
 async function geocode(c,prefix){
   const isMain=prefix==='main',m=c.meetings?.[0],target=isMain?c:(m?.venue||null),a=isMain?c.address:target?.address,g=isMain?c.geo:target?.geo,box=document.querySelector(`[data-geores="${prefix}"]`),btn=document.querySelector(`[data-geo="${prefix}"]`);
   if(!a||!g||!box)return;
-  const parts=[a.street,a.postal_code,a.city,countryName(isMain?c.country_code:(a.country_code||c.country_code))].map(x=>safeText(x).trim()).filter(Boolean);
-  if(parts.length<2){box.innerHTML='<div class="notice warn" style="margin-top:8px">Please enter at least street/city or post code/city before validating the address.</div>';return}
+  const street=safeText(a.street).trim(),postal=safeText(a.postal_code).trim(),city=safeText(a.city).trim();
+  const countryCode=safeText(isMain?c.country_code:(a.country_code||c.country_code)).trim().toLowerCase();
+  const country=countryName(countryCode);
+  if(!((street&&city)||(postal&&city))){box.innerHTML='<div class="notice warn" style="margin-top:8px">Please enter at least street/city or post code/city before validating the address.</div>';return}
   const oldText=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Looking up…'}
   box.innerHTML='<div class="notice" style="margin-top:8px">Checking address…</div>';
   try{
-    const q=encodeURIComponent(parts.join(', '));
-    const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&accept-language=en&q=${q}`;
-    const res=await fetch(url,{headers:{'Accept':'application/json'}});
-    if(!res.ok)throw new Error(`Address service returned ${res.status}`);
-    const hits=await res.json();
-    if(!Array.isArray(hits)||!hits.length){g.status='not_found';box.innerHTML='<div class="notice warn" style="margin-top:8px"><b>No matching address found.</b> Check spelling, post code and city, then try again.</div>';return}
+    const seen=new Set(),hits=[];
+    const addHits=arr=>{for(const x of (Array.isArray(arr)?arr:[])){const key=`${x.place_id||''}|${x.lat||''}|${x.lon||''}`;if(!seen.has(key)){seen.add(key);hits.push(x)}if(hits.length>=5)break}};
+    const lookup=async params=>{
+      const qs=new URLSearchParams({format:'jsonv2',addressdetails:'1',limit:'5','accept-language':'en',...params});
+      if(countryCode)qs.set('countrycodes',countryCode);
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?${qs.toString()}`,{headers:{'Accept':'application/json'}});
+      if(!res.ok)throw new Error(`Address service returned ${res.status}`);
+      return await res.json();
+    };
+
+    // 1) Structured lookup first: less ambiguous than one long free-text string.
+    if(street||postal||city){
+      const structured={};
+      if(street)structured.street=street;
+      if(postal)structured.postalcode=postal;
+      if(city)structured.city=city;
+      addHits(await lookup(structured));
+    }
+
+    // 2) Full free-text query, preserving all entered details.
+    if(!hits.length){
+      const q=[street,postal,city,country].filter(Boolean).join(', ');
+      addHits(await lookup({q}));
+    }
+
+    // 3) Retry without post code; some OSM records use a neighbouring/administrative post code.
+    if(!hits.length&&street&&city){
+      const q=[street,city,country].filter(Boolean).join(', ');
+      addHits(await lookup({q}));
+    }
+
+    // 4) Last useful fallback: post code + city, so the user can at least confirm the locality.
+    if(!hits.length&&postal&&city){
+      const q=[postal,city,country].filter(Boolean).join(', ');
+      addHits(await lookup({q}));
+    }
+
+    if(!hits.length){g.status='not_found';box.innerHTML='<div class="notice warn" style="margin-top:8px"><b>No matching address found after several lookup attempts.</b> The address may still be valid; please check the spelling or try again later if the OpenStreetMap service is temporarily returning no results.</div>';return}
     box.innerHTML=`<div class="notice" style="margin-top:8px"><b>${hits.length===1?'Address found':'Choose the correct address'}.</b> Nothing is saved until you confirm one result.</div><div class="geo-results">${hits.map((x,i)=>`<button type="button" class="geo-hit" data-geopick="${i}"><b>${esc(x.display_name||'Address result')}</b><div class="small muted">${Number(x.lat).toFixed(5)}, ${Number(x.lon).toFixed(5)} · click to confirm</div></button>`).join('')}</div>`;
     box.querySelectorAll('[data-geopick]').forEach(b=>b.onclick=()=>{const x=hits[Number(b.dataset.geopick)];g.lat=Number(x.lat);g.lon=Number(x.lon);g.resolved_address=safeText(x.display_name);g.status='confirmed';g.source='OpenStreetMap / Nominatim';touch('confirm_address',`${c.name}: ${isMain?'regular':'temporary'} venue confirmed as ${g.resolved_address}`,{cong:c.id,name:c.name});box.innerHTML=`<div class="notice" style="margin-top:8px"><b>✓ Address confirmed</b><br>${esc(g.resolved_address)}<br><span class="small muted">${g.lat.toFixed(5)}, ${g.lon.toFixed(5)} · OpenStreetMap</span></div>`;const line=document.querySelector(`[data-geo="${prefix}"]`)?.parentElement?.querySelector('.geo-line');if(line)line.innerHTML=`<b>✓ Confirmed</b> · ${g.lat.toFixed(5)}, ${g.lon.toFixed(5)} · ${esc(g.resolved_address)}`;renderFacts()});
   }catch(err){console.error('Address lookup failed',err);g.status='error';box.innerHTML=`<div class="notice warn" style="margin-top:8px"><b>Address lookup failed.</b> ${esc(err?.message||'Please check the internet connection and try again.')}</div>`}
