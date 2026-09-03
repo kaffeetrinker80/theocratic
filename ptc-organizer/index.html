@@ -113,7 +113,7 @@ select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:fo
 <div class="app">
 <aside class="side"><div class="side-sticky-top"><span class="row-label">Search</span><input id="search" placeholder="Person, congregation, city, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.8.1 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.8.2 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -256,29 +256,85 @@ function circuitOptions(sel){const vals=(state.master.circuits||[]).slice().sort
 function countryOptions(sel){return(state.master.countries||[]).slice().sort((a,b)=>safeCompare(a?.name,b?.name)).map(x=>`<option value="${esc(x.code)}" ${x.code===sel?'selected':''}>${esc(x.name)} (${esc(x.code)})</option>`).join('')}
 function renderCongregation(c){const sum=[c.address?.city,c.meetings?.[0]?(DAYS[c.meetings[0].weekday]+' '+(c.meetings[0].time||'')):null,c.ptc?.name?'PTC '+c.ptc.name:null].filter(Boolean).join(' · ');$('tabContent').innerHTML=`<div class="card cong-card ${state.congOpen?'':'collapsed'}"><div class="card-head"><button class="ghost tiny" id="toggleCong">${state.congOpen?'▾':'▸'}</button><div><h3>${c.type==='group'?'Group':'Congregation'} details</h3><div class="summary">${esc(sum||'Core master data')}</div></div><span class="spacer"></span>${c.status==='dissolved'?'<span class="status-dissolved">Dissolved</span>':'<span class="status-active">Active</span>'}</div><div class="card-body"><div class="section" style="border-top:0;margin-top:0;padding-top:0"><span class="row-label">Type</span><div class="type-switch"><button type="button" data-type="congregation" class="${c.type!=='group'?'active':''}">Congregation</button><button type="button" data-type="group" class="${c.type==='group'?'active':''}">Group</button></div></div><div class="grid3" style="margin-top:12px"><div class="field" style="grid-column:span 2"><label>Name</label><input data-c="name" value="${esc(c.name)}"></div><div class="field"><label>Country</label><select data-c="country_code"><option value="">– not set –</option>${countryOptions(c.country_code)}</select></div><div class="field"><label>Circuit</label><select data-c="circuit">${circuitOptions(c.circuit||'')}</select></div><div class="field"><label>Kingdom Hall phone</label><input data-phone-check data-c="phone" value="${esc(c.phone||'')}"></div><div class="field" style="display:flex;align-items:end"><button class="${c.status==='dissolved'?'ghost':'danger'} tiny" id="statusAction">${c.status==='dissolved'?'Restore as active…':'Mark as dissolved…'}</button></div></div><div class="section"><span class="row-label">Regular venue</span>${addressEditor('main',c.address,c.country_code,c.geo)}</div><div class="section"><span class="row-label">Weekend Meeting</span><div id="meetings"></div></div><div class="section"><span class="row-label">PTC and coordinator</span><div class="grid4"><div class="field"><label>PTC name</label><input data-p="name" value="${esc(c.ptc.name||'')}"></div><div class="field"><label>jwpub address</label><input data-email-check data-p="jwpub_email" value="${esc(c.ptc.jwpub_email||'')}"></div><div class="field"><label>Email</label><input data-email-check data-p="email" value="${esc(c.ptc.email||'')}"></div><div class="field"><label>Mobile</label><input data-phone-check data-p="mobile" value="${esc(c.ptc.mobile||'')}"></div><div class="field"><label>Landline</label><input data-phone-check data-p="home" value="${esc(c.ptc.home||'')}"></div></div><div class="section"><span class="row-label">PTC Assistant</span><div class="grid3"><div class="field"><label>Assistant name</label><input data-pa="name" value="${esc(c.ptc_assistant?.name||'')}"></div><div class="field"><label>Mobile</label><input data-phone-check data-pa="mobile" value="${esc(c.ptc_assistant?.mobile||'')}"></div><div class="field"><label>Email</label><input data-email-check data-pa="email" value="${esc(c.ptc_assistant?.email||'')}"></div></div><div class="small muted" style="margin-top:7px">Included in the master JSON and picked up automatically by the PTC Tool import.</div></div><div class="section"><span class="row-label">Coordinator of the Body of Elders</span><div class="grid3"><div class="field"><label>COBE</label><input data-b="name" value="${esc(c.cobe.name||'')}"></div><div class="field"><label>COBE phone</label><input data-phone-check data-b="phone" value="${esc(c.cobe.phone||'')}"></div><div class="field"><label>COBE email</label><input data-email-check data-b="email" value="${esc(c.cobe.email||'')}"></div></div></div><div class="section"><div class="field"><label>Internal ${c.type==='group'?'group':'congregation'} note</label><textarea data-c="note">${esc(c.note||'')}</textarea></div></div></div></div>${congregationHistoryCard(c)}`;$('toggleCong').onclick=()=>{state.congOpen=!state.congOpen;renderCongregation(c)};$('tabContent').querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{const old=c.type;c.type=b.dataset.type;touch('edit_congregation',`Type: ${old} → ${c.type}`,{cong:c.id,name:c.name});renderCongregation(c);renderTree()});$('statusAction').onclick=()=>c.status==='dissolved'?restoreRecord(c):dissolveRecord(c);bindSimple(c);renderMeetings(c);bindEmailChecks()}
 function congregationHistoryCard(c){const logs=(state.master.changelog||[]).filter(e=>e.entity?.cong===c.id||(Array.isArray(e.entity?.congs)&&e.entity.congs.includes(c.id))).slice(0,40);return`<div class="card"><div class="card-head"><h3>Congregation history</h3><span class="spacer"></span><span class="summary">Changes affecting this congregation only</span></div><div class="card-body">${logs.length?`<div class="log-list">${logs.map(e=>`<div class="log-line"><span>${new Date(e.at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><span><b>${esc(e.by)}</b> · ${esc(e.detail)}</span><span></span></div>`).join('')}</div>`:'<div class="small muted">No recorded changes for this congregation yet.</div>'}</div></div>`}
-function addressEditor(prefix,a,cc,g){a=a||{};g=g||{};return`<div class="grid4"><div class="field" style="grid-column:span 2"><label>Street and number</label><input data-addr="${prefix}|street" value="${esc(a.street||'')}"></div><div class="field"><label>Post code</label><input data-addr="${prefix}|postal_code" value="${esc(a.postal_code||'')}"></div><div class="field"><label>City</label><input data-addr="${prefix}|city" value="${esc(a.city||'')}"></div></div><div class="actions"><button class="ghost tiny" data-geo="${prefix}">Look up & confirm address</button><span class="geo-line">${g.lat!=null&&g.lon!=null?`${Number(g.lat).toFixed(5)}, ${Number(g.lon).toFixed(5)} · ${esc(g.resolved_address||'confirmed')}`:'No coordinates yet.'}</span></div><div data-geores="${prefix}"></div>`}
+function addressEditor(prefix,a,cc,g){a=a||{};g=g||{};const isMain=prefix==='main';
+  /* v0.8.2: the temporary venue gets its own country selector. Until now it silently
+     inherited the congregation country, and that inherited code is also used as the
+     Nominatim countrycodes filter — a stale or wrong code filters away every result
+     even though the address itself is perfectly correct. */
+  const countryField=isMain?'':`<div class="field"><label>Country</label><select data-addr="${prefix}|country_code"><option value="">– same as congregation –</option>${countryOptions(safeText(a.country_code))}</select></div>`;
+  return`<div class="grid4"><div class="field" style="grid-column:span 2"><label>Street and number</label><input data-addr="${prefix}|street" value="${esc(a.street||'')}"></div><div class="field"><label>Post code</label><input data-addr="${prefix}|postal_code" value="${esc(a.postal_code||'')}"></div><div class="field"><label>City</label><input data-addr="${prefix}|city" value="${esc(a.city||'')}"></div>${countryField}</div><div class="actions"><button class="ghost tiny" data-geo="${prefix}">Look up &amp; confirm address</button><button class="ghost tiny" data-geoman="${prefix}" title="Enter coordinates by hand, for example copied from Google Maps">Enter coordinates manually…</button><span class="geo-line" data-geoline="${prefix}">${g.lat!=null&&g.lon!=null?`${Number(g.lat).toFixed(5)}, ${Number(g.lon).toFixed(5)} · ${esc(g.resolved_address||'confirmed')}`:'No coordinates yet.'}</span></div><div data-geores="${prefix}"></div>`}
+
 function invalidateGeo(g){if(!g)return;g.lat=null;g.lon=null;g.resolved_address='';g.status='changed';g.source=''}
+function geoTarget(c,prefix){
+  const isMain=prefix==='main',m=c.meetings?.[0],venue=m?.venue||null;
+  return{isMain,a:isMain?c.address:venue?.address,g:isMain?c.geo:venue?.geo};
+}
+function writeGeoLine(prefix,g){
+  const line=document.querySelector(`[data-geoline="${prefix}"]`);
+  if(!line)return;
+  line.innerHTML=(g&&g.lat!=null&&g.lon!=null)
+    ?`<b>✓ Confirmed</b> · ${Number(g.lat).toFixed(5)}, ${Number(g.lon).toFixed(5)} · ${esc(g.resolved_address||'confirmed')}`
+    :'No coordinates yet.';
+}
+function applyGeoHit(c,prefix,g,lat,lon,label,source){
+  const{isMain}=geoTarget(c,prefix);
+  g.lat=Number(lat);g.lon=Number(lon);g.resolved_address=safeText(label);g.status='confirmed';g.source=source||'manual entry';
+  touch('confirm_address',`${c.name}: ${isMain?'regular':'temporary'} venue set to ${g.resolved_address||g.lat+', '+g.lon}`,{cong:c.id,name:c.name});
+  writeGeoLine(prefix,g);renderFacts();
+}
+/* v0.8.2: manual coordinates. OpenStreetMap does not know every address, and a
+   temporary venue is often a rented hall that simply is not mapped. Rather than
+   leaving the record without coordinates, paste them from any map service. */
+function geocodeManual(c,prefix){
+  const{g}=geoTarget(c,prefix);
+  if(!g)return;
+  const current=(g.lat!=null&&g.lon!=null)?`${g.lat}, ${g.lon}`:'';
+  const raw=prompt('Enter coordinates as "latitude, longitude".\n\nIn Google Maps: right-click the spot and click the numbers to copy them.\nExample: 48.13743, 11.57549',current);
+  if(raw===null)return;
+  const t=safeText(raw).replace(/[()]/g,'').trim();
+  if(!t){invalidateGeo(g);writeGeoLine(prefix,g);touch('edit_address','Coordinates cleared',{cong:c.id,name:c.name});return}
+  const m=t.split(/[,;\s]+/).filter(Boolean);
+  const lat=Number(String(m[0]).replace(',','.')),lon=Number(String(m[1]).replace(',','.'));
+  if(m.length<2||!isFinite(lat)||!isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){
+    alert('Please enter two numbers, latitude first, for example: 48.13743, 11.57549');return;
+  }
+  const{a}=geoTarget(c,prefix);
+  const label=[a?.street,[a?.postal_code,a?.city].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  applyGeoHit(c,prefix,g,lat,lon,label||`${lat}, ${lon}`,'manual entry');
+  const box=document.querySelector(`[data-geores="${prefix}"]`);
+  if(box)box.innerHTML=`<div class="notice" style="margin-top:8px"><b>✓ Coordinates saved manually</b><br>${lat.toFixed(5)}, ${lon.toFixed(5)}<br><span class="small muted">Source recorded as manual entry, not OpenStreetMap.</span></div>`;
+}
 async function geocode(c,prefix){
-  const isMain=prefix==='main',m=c.meetings?.[0],target=isMain?c:(m?.venue||null),a=isMain?c.address:target?.address,g=isMain?c.geo:target?.geo,box=document.querySelector(`[data-geores="${prefix}"]`),btn=document.querySelector(`[data-geo="${prefix}"]`);
+  const{isMain,a,g}=geoTarget(c,prefix);
+  const box=document.querySelector(`[data-geores="${prefix}"]`),btn=document.querySelector(`[data-geo="${prefix}"]`);
   if(!a||!g||!box)return;
   const street=safeText(a.street).trim(),postal=safeText(a.postal_code).trim(),city=safeText(a.city).trim();
+  /* the venue may sit in a different country than the congregation */
   const countryCode=safeText(isMain?c.country_code:(a.country_code||c.country_code)).trim().toLowerCase();
   const country=countryName(countryCode);
   if(!((street&&city)||(postal&&city))){box.innerHTML='<div class="notice warn" style="margin-top:8px">Please enter at least street/city or post code/city before validating the address.</div>';return}
   const oldText=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Looking up…'}
-  box.innerHTML='<div class="notice" style="margin-top:8px">Checking address…</div>';
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const log=[];
   try{
     const seen=new Set(),hits=[];
     const addHits=arr=>{for(const x of (Array.isArray(arr)?arr:[])){const key=`${x.place_id||''}|${x.lat||''}|${x.lon||''}`;if(!seen.has(key)){seen.add(key);hits.push(x)}if(hits.length>=5)break}};
-    const lookup=async params=>{
+    let calls=0;
+    /* OpenStreetMap allows one request per second. The old version fired all
+       fallbacks back to back, which can be answered with an empty list. */
+    const lookup=async(params,useCountry=true)=>{
+      if(calls++)await sleep(1150);
       const qs=new URLSearchParams({format:'jsonv2',addressdetails:'1',limit:'5','accept-language':'en',...params});
-      if(countryCode)qs.set('countrycodes',countryCode);
+      if(useCountry&&countryCode)qs.set('countrycodes',countryCode);
       const res=await fetch(`https://nominatim.openstreetmap.org/search?${qs.toString()}`,{headers:{'Accept':'application/json'}});
-      if(!res.ok)throw new Error(`Address service returned ${res.status}`);
-      return await res.json();
+      if(!res.ok){log.push(`${params.q||'structured'} → HTTP ${res.status}`);throw new Error(`Address service returned ${res.status}`)}
+      const data=await res.json();
+      log.push(`${params.q||['street='+(params.street||'–'),'postalcode='+(params.postalcode||'–'),'city='+(params.city||'–')].join(' ')}${useCountry&&countryCode?' [country='+countryCode+']':' [no country filter]'} → ${Array.isArray(data)?data.length:0} result(s)`);
+      return data;
     };
+    const progress=step=>{box.innerHTML=`<div class="notice" style="margin-top:8px">Checking address… (attempt ${step})<br><span class="small muted">OpenStreetMap allows one lookup per second, so several attempts take a few seconds.</span></div>`};
 
-    // 1) Structured lookup first: less ambiguous than one long free-text string.
+    progress(1);
     if(street||postal||city){
       const structured={};
       if(street)structured.street=street;
@@ -286,32 +342,32 @@ async function geocode(c,prefix){
       if(city)structured.city=city;
       addHits(await lookup(structured));
     }
+    if(!hits.length){progress(2);addHits(await lookup({q:[street,postal,city,country].filter(Boolean).join(', ')}))}
+    if(!hits.length&&street&&city){progress(3);addHits(await lookup({q:[street,city,country].filter(Boolean).join(', ')}))}
+    if(!hits.length&&postal&&city){progress(4);addHits(await lookup({q:[postal,city,country].filter(Boolean).join(', ')}))}
+    /* Final attempt without the country filter. If the stored country code is stale
+       or wrong, every earlier attempt was filtered down to nothing. */
+    if(!hits.length){progress(5);addHits(await lookup({q:[street,postal,city,country].filter(Boolean).join(', ')},false))}
 
-    // 2) Full free-text query, preserving all entered details.
     if(!hits.length){
-      const q=[street,postal,city,country].filter(Boolean).join(', ');
-      addHits(await lookup({q}));
+      g.status='not_found';
+      box.innerHTML=`<div class="notice warn" style="margin-top:8px"><b>No matching address found after several lookup attempts.</b> The address may still be valid — OpenStreetMap does not know every building, and rented or temporary halls are often missing entirely.<br><span class="small muted">Country filter used: <b>${esc(countryCode?countryCode.toUpperCase()+' · '+country:'none')}</b>. If that is not the country of this venue, correct it in the Country field above.</span><div class="small muted" style="margin-top:8px"><b>What was tried</b><br>${log.map(x=>esc(x)).join('<br>')}</div><div class="small muted" style="margin-top:8px">You can still set the position with <b>Enter coordinates manually…</b>.</div></div>`;
+      return;
     }
-
-    // 3) Retry without post code; some OSM records use a neighbouring/administrative post code.
-    if(!hits.length&&street&&city){
-      const q=[street,city,country].filter(Boolean).join(', ');
-      addHits(await lookup({q}));
-    }
-
-    // 4) Last useful fallback: post code + city, so the user can at least confirm the locality.
-    if(!hits.length&&postal&&city){
-      const q=[postal,city,country].filter(Boolean).join(', ');
-      addHits(await lookup({q}));
-    }
-
-    if(!hits.length){g.status='not_found';box.innerHTML='<div class="notice warn" style="margin-top:8px"><b>No matching address found after several lookup attempts.</b> The address may still be valid; please check the spelling or try again later if the OpenStreetMap service is temporarily returning no results.</div>';return}
     box.innerHTML=`<div class="notice" style="margin-top:8px"><b>${hits.length===1?'Address found':'Choose the correct address'}.</b> Nothing is saved until you confirm one result.</div><div class="geo-results">${hits.map((x,i)=>`<button type="button" class="geo-hit" data-geopick="${i}"><b>${esc(x.display_name||'Address result')}</b><div class="small muted">${Number(x.lat).toFixed(5)}, ${Number(x.lon).toFixed(5)} · click to confirm</div></button>`).join('')}</div>`;
-    box.querySelectorAll('[data-geopick]').forEach(b=>b.onclick=()=>{const x=hits[Number(b.dataset.geopick)];g.lat=Number(x.lat);g.lon=Number(x.lon);g.resolved_address=safeText(x.display_name);g.status='confirmed';g.source='OpenStreetMap / Nominatim';touch('confirm_address',`${c.name}: ${isMain?'regular':'temporary'} venue confirmed as ${g.resolved_address}`,{cong:c.id,name:c.name});box.innerHTML=`<div class="notice" style="margin-top:8px"><b>✓ Address confirmed</b><br>${esc(g.resolved_address)}<br><span class="small muted">${g.lat.toFixed(5)}, ${g.lon.toFixed(5)} · OpenStreetMap</span></div>`;const line=document.querySelector(`[data-geo="${prefix}"]`)?.parentElement?.querySelector('.geo-line');if(line)line.innerHTML=`<b>✓ Confirmed</b> · ${g.lat.toFixed(5)}, ${g.lon.toFixed(5)} · ${esc(g.resolved_address)}`;renderFacts()});
-  }catch(err){console.error('Address lookup failed',err);g.status='error';box.innerHTML=`<div class="notice warn" style="margin-top:8px"><b>Address lookup failed.</b> ${esc(err?.message||'Please check the internet connection and try again.')}</div>`}
+    box.querySelectorAll('[data-geopick]').forEach(b=>b.onclick=()=>{
+      const x=hits[Number(b.dataset.geopick)];
+      applyGeoHit(c,prefix,g,x.lat,x.lon,x.display_name,'OpenStreetMap / Nominatim');
+      box.innerHTML=`<div class="notice" style="margin-top:8px"><b>✓ Address confirmed</b><br>${esc(g.resolved_address)}<br><span class="small muted">${g.lat.toFixed(5)}, ${g.lon.toFixed(5)} · OpenStreetMap</span></div>`;
+    });
+  }catch(err){
+    console.error('Address lookup failed',err);g.status='error';
+    box.innerHTML=`<div class="notice warn" style="margin-top:8px"><b>Address lookup failed.</b> ${esc(err?.message||'Please check the internet connection and try again.')}${log.length?`<div class="small muted" style="margin-top:8px"><b>What was tried</b><br>${log.map(x=>esc(x)).join('<br>')}</div>`:''}<div class="small muted" style="margin-top:8px">You can still set the position with <b>Enter coordinates manually…</b>.</div></div>`;
+  }
   finally{if(btn){btn.disabled=false;btn.textContent=oldText||'Look up & confirm address'}}
 }
-function bindSimple(c){$('tabContent').querySelectorAll('[data-c]').forEach(el=>el.onchange=()=>{const k=el.dataset.c,old=c[k]||'';c[k]=el.value;if(old!==el.value)touch('edit_congregation',`${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name});renderFacts();renderTree();if(['name','country_code','status'].includes(k))renderWorkspace()});$('tabContent').querySelectorAll('[data-p]').forEach(el=>el.onchange=()=>{const k=el.dataset.p,old=c.ptc[k]||'';c.ptc[k]=el.value;if(old!==el.value)touch('edit_ptc',`PTC ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-pa]').forEach(el=>el.onchange=()=>{const k=el.dataset.pa;c.ptc_assistant=c.ptc_assistant||{name:'',mobile:'',email:''};const old=c.ptc_assistant[k]||'';c.ptc_assistant[k]=el.value;if(old!==el.value)touch('edit_ptc_assistant',`PTC Assistant ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-b]').forEach(el=>el.onchange=()=>{const k=el.dataset.b,old=c.cobe[k]||'';c.cobe[k]=el.value;if(old!==el.value)touch('edit_cobe',`COBE ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-addr^="main|"]').forEach(el=>el.onchange=()=>{const k=el.dataset.addr.split('|')[1],old=c.address[k]||'';c.address[k]=el.value;if(old!==el.value){invalidateGeo(c.geo);touch('edit_address',`${k}: "${old}" → "${el.value}" · address confirmation reset`,{cong:c.id,name:c.name})}renderTree();renderCongregation(c)});$('tabContent').querySelector('[data-geo="main"]').onclick=()=>geocode(c,'main')}
+
+function bindSimple(c){$('tabContent').querySelectorAll('[data-c]').forEach(el=>el.onchange=()=>{const k=el.dataset.c,old=c[k]||'';c[k]=el.value;if(old!==el.value)touch('edit_congregation',`${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name});renderFacts();renderTree();if(['name','country_code','status'].includes(k))renderWorkspace()});$('tabContent').querySelectorAll('[data-p]').forEach(el=>el.onchange=()=>{const k=el.dataset.p,old=c.ptc[k]||'';c.ptc[k]=el.value;if(old!==el.value)touch('edit_ptc',`PTC ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-pa]').forEach(el=>el.onchange=()=>{const k=el.dataset.pa;c.ptc_assistant=c.ptc_assistant||{name:'',mobile:'',email:''};const old=c.ptc_assistant[k]||'';c.ptc_assistant[k]=el.value;if(old!==el.value)touch('edit_ptc_assistant',`PTC Assistant ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-b]').forEach(el=>el.onchange=()=>{const k=el.dataset.b,old=c.cobe[k]||'';c.cobe[k]=el.value;if(old!==el.value)touch('edit_cobe',`COBE ${k}: "${old}" → "${el.value}"`,{cong:c.id,name:c.name})});$('tabContent').querySelectorAll('[data-addr^="main|"]').forEach(el=>el.onchange=()=>{const k=el.dataset.addr.split('|')[1],old=c.address[k]||'';c.address[k]=el.value;if(old!==el.value){invalidateGeo(c.geo);writeGeoLine('main',c.geo);touch('edit_address',`${k}: "${old}" → "${el.value}" · address confirmation reset`,{cong:c.id,name:c.name})}renderTree()});$('tabContent').querySelector('[data-geo="main"]').onclick=()=>geocode(c,'main');$('tabContent').querySelector('[data-geoman="main"]').onclick=()=>geocodeManual(c,'main')}
 function renderMeetings(c){
   c.meetings=Array.isArray(c.meetings)?c.meetings:[];
   if(!c.meetings.length)c.meetings=[{weekday:7,time:'',venue:null}];
@@ -324,8 +380,13 @@ function renderMeetings(c){
     $('venueFrom').onchange=e=>{const iso=dateISO(e.target.value);if(e.target.value.trim()&&!iso){alert('Please use the date format DD.MM.YYYY, e.g. 20.08.2026.');e.target.value=dateDE(m.venue.valid_from||'');return}const old=m.venue.valid_from||'';m.venue.valid_from=iso;touch('edit_temporary_venue',`Valid from: "${dateDE(old)}" → "${dateDE(iso)}"`,{cong:c.id,name:c.name})};
     $('venueTo').onchange=e=>{const iso=dateISO(e.target.value);if(e.target.value.trim()&&!iso){alert('Please use the date format DD.MM.YYYY, e.g. 20.08.2026.');e.target.value=dateDE(m.venue.valid_to||'');return}const old=m.venue.valid_to||'';m.venue.valid_to=iso;touch('edit_temporary_venue',`Valid until: "${dateDE(old)}" → "${dateDE(iso)}"`,{cong:c.id,name:c.name})};
     $('venueReason').onchange=e=>{const old=m.venue.reason||'';m.venue.reason=e.target.value;touch('edit_temporary_venue',`Reason: "${old}" → "${e.target.value}"`,{cong:c.id,name:c.name})};
-    h.querySelectorAll('[data-addr^="venue"]').forEach(el=>el.onchange=()=>{const [,k]=el.dataset.addr.split('|');m.venue.address=m.venue.address||{};const old=m.venue.address[k]||'';m.venue.address[k]=el.value;if(old!==el.value){invalidateGeo(m.venue.geo);touch('edit_temporary_venue',`${k}: "${old}" → "${el.value}" · address confirmation reset`,{cong:c.id,name:c.name});renderCongregation(c)}});
+    /* v0.8.2: editing an address field no longer re-renders the whole congregation.
+       The old version rebuilt the DOM on "change", which fires when you click the
+       lookup button — so the very button you clicked was destroyed mid-click and the
+       lookup silently never ran. Now only the coordinate line is refreshed. */
+    h.querySelectorAll('[data-addr^="venue"]').forEach(el=>el.onchange=()=>{const [,k]=el.dataset.addr.split('|');m.venue.address=m.venue.address||{};const old=m.venue.address[k]||'';m.venue.address[k]=el.value;if(old!==el.value){invalidateGeo(m.venue.geo);writeGeoLine('venue0',m.venue.geo);touch('edit_temporary_venue',`${k}: "${old}" → "${el.value}" · address confirmation reset`,{cong:c.id,name:c.name})}});
     h.querySelectorAll('[data-geo^="venue"]').forEach(b=>b.onclick=()=>geocode(c,b.dataset.geo));
+    h.querySelectorAll('[data-geoman^="venue"]').forEach(b=>b.onclick=()=>geocodeManual(c,b.dataset.geoman));
   }
 }
 function closeMembership(p,congId,reason,date=today()){p.membership_history=p.membership_history||[];let cur=[...p.membership_history].reverse().find(x=>x.congregation_id===congId&&x.to==null);if(!cur){cur={congregation_id:congId,from:'',to:null,reason:''};p.membership_history.push(cur)}cur.to=date;cur.reason=reason||cur.reason||''}
