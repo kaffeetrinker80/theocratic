@@ -889,7 +889,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.6.2</span>
+      <span class="footer-version" id="footerVersion">v.2.6.3</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -935,7 +935,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.6.2';
+const APP_VERSION = '2.6.3';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1050,16 +1050,29 @@ const state = {
      open in the sidebar are remembered per browser. */
   wsMode: 'list',
   detailTab: 'speakers',
-  openCountries: loadOpenCountries()
+  countryOpen: loadCountryOpen()
 };
 
-function loadOpenCountries() {
-  try { return new Set(JSON.parse(localStorage.getItem('ptcToolOpenCountries') || '[]')); }
-  catch (e) { return new Set(); }
+/* v2.6.3: a country group remembers what YOU decided, not just whether it happens to
+   be open. Storing only "these are open" made a group impossible to close while it
+   contained the congregation you had open in the workspace: that condition re-opened
+   it on every render, so the click appeared to do nothing. An explicit true/false per
+   country always wins over the automatic opening. */
+function loadCountryOpen() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('ptcToolCountryOpen') || '{}');
+    return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+  } catch (e) { return {}; }
 }
 
-function saveOpenCountries() {
-  try { localStorage.setItem('ptcToolOpenCountries', JSON.stringify([...state.openCountries])); } catch (e) {}
+function saveCountryOpen() {
+  try { localStorage.setItem('ptcToolCountryOpen', JSON.stringify(state.countryOpen)); } catch (e) {}
+}
+
+/* auto = open because a filter is active or the open congregation lives here */
+function countryIsOpen(country, auto) {
+  const explicit = state.countryOpen[country];
+  return typeof explicit === 'boolean' ? explicit : auto;
 }
 
 function loadNotes() {
@@ -2790,6 +2803,10 @@ function selectCongregation(congId) {
   state.selectedKey = 'cong:' + congId;
   state.lastCongregationKey = null;
   state.detailTab = 'speakers';
+  /* opening a congregation reveals it in the list — but only as a one-off. The group
+     can be collapsed again right afterwards and stays collapsed, which is exactly what
+     was impossible before. */
+  if (cong.country) { state.countryOpen[cong.country] = true; saveCountryOpen(); }
   setWsMode('detail');
   renderResults();
   renderDetail();
@@ -2896,7 +2913,7 @@ function renderCongNav() {
     const force = filters.length > 0;
     body = Object.keys(groups).sort((a, b) => a.localeCompare(b)).map(country => {
       const arr = groups[country].slice().sort((a, b) => a.name.localeCompare(b.name));
-      const open = force || state.openCountries.has(country) || arr.some(c => c.id === activeCongId);
+      const open = countryIsOpen(country, force);
       const speakers = arr.reduce((n, c) => n + navSpeakerCounts(c, fs).shown, 0);
       const code = ISO2_BY_COUNTRY[country] || '';
       return `<button type="button" class="nav-country" data-nav-country="${escapeHtml(country)}">
@@ -2914,8 +2931,10 @@ function renderCongNav() {
   nav.querySelectorAll('[data-nav-cong]').forEach(btn => btn.addEventListener('click', () => selectCongregation(btn.dataset.navCong)));
   nav.querySelectorAll('[data-nav-country]').forEach(btn => btn.addEventListener('click', () => {
     const key = btn.dataset.navCountry;
-    if (state.openCountries.has(key)) state.openCountries.delete(key); else state.openCountries.add(key);
-    saveOpenCountries();
+    /* read the state actually on screen, so one click always flips what you see */
+    const wasOpen = btn.nextElementSibling && !btn.nextElementSibling.classList.contains('hidden');
+    state.countryOpen[key] = !wasOpen;
+    saveCountryOpen();
     renderCongNav();
   }));
 
@@ -4377,8 +4396,8 @@ function resetAll() {
   document.getElementById('detailPane').innerHTML = `<div class="detail-section"><h3>Reset done</h3><div class="subtle">Local dataset and notes were removed.</div></div>`;
   document.getElementById('resultsCount').textContent = '0 matches';
   setWsMode('list');
-  state.openCountries = new Set();
-  saveOpenCountries();
+  state.countryOpen = {};
+  saveCountryOpen();
   refreshNavAndHead();
   updateAssistantImportState();
   setStatus('Local data cleared');
@@ -4850,7 +4869,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.2</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.3</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
