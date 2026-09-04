@@ -377,7 +377,10 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 /* inside a congregation the strip keeps its full height even when it is half empty,
    which is what makes the tiles line up */
 .cong-speakers .speaker-mini.compact .outline-list { height:69px; max-height:69px; align-content:flex-start; }
-.cong-speakers .outline-empty { font-size:11.5px; color:var(--muted); }
+/* the result cards use the identical strip, so both views read the same way */
+.card .outline-list { margin-top:8px; gap:5px; height:69px; max-height:69px; overflow:hidden; align-content:flex-start; }
+.card .outline-list .outline { font-size:10.5px; padding:2px 7px; line-height:1.45; }
+.outline-empty { font-size:11.5px; color:var(--muted); }
 .speaker-mini.compact .outline {
   font-size:10.5px; padding:2px 7px; line-height:1.45;
 }
@@ -3329,8 +3332,11 @@ function renderResults() {
 
     list.innerHTML = items.map(x => {
       const key = 'speaker:' + x.sp.id;
-      const outlines = x.sp.outlines.slice(0, 8).map(no => renderOutline(no)).join('');
-      const more = x.sp.outlines.length > 8 ? `<span class="outline">+${x.sp.outlines.length - 8} more</span>` : '';
+      /* v2.7.4: same treatment as the speaker tiles inside a congregation — three rows
+         measured after layout instead of a hard cut at eight, and the chip says how many
+         outlines are hidden rather than a bare "more". */
+      const outlineTotal = x.sp.outlines.length;
+      const outlines = x.sp.outlines.slice(0, 30).map(no => renderOutline(no)).join('');
       const meta = noteRecord(x.sp.notesKey);
       const isHome = state.homeCongregationId && x.cong.id === state.homeCongregationId;
       const distanceLabel = distanceLabelForCong(x.cong, fs.distanceMode);
@@ -3351,7 +3357,9 @@ function renderResults() {
           ${meta.lastUsed ? `<span class="chip">Used: ${escapeHtml(formatDateLabel(meta.lastUsed))}</span>` : ''}
           ${distanceLabel ? `<span class="chip">${escapeHtml(distanceLabel)}</span>` : ''}
         </div>
-        <div class="outline-list">${outlines}${more}</div>
+        ${outlineTotal
+          ? `<div class="outline-list outline-preview" data-total="${outlineTotal}" data-rendered="${Math.min(outlineTotal, 30)}">${outlines}<span class="outline outline-more" hidden></span></div>`
+          : '<div class="outline-list"><span class="outline-empty">No outlines recorded</span></div>'}
       </div>`;
     }).join('');
   } else {
