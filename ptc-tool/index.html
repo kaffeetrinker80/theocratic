@@ -246,6 +246,9 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 .detail-tab:hover { color:var(--text); background:#f7f1e8; }
 .detail-tab.active { background:var(--card); border-color:var(--line); color:var(--accent2); box-shadow:inset 0 2px 0 var(--accent); }
 .detail-tabbody { display:grid; gap:14px; }
+.cobe-line { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); font-size:13px; }
+.nws-box .nws-steps { margin:0; padding-left:20px; display:grid; gap:8px; font-size:13px; }
+.nws-box .nws-steps li { padding-left:2px; }
 .ws-head {
   display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
   padding:0 2px;
@@ -889,7 +892,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.6.3</span>
+      <span class="footer-version" id="footerVersion">v.2.7.0</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -935,7 +938,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.6.3';
+const APP_VERSION = '2.7.0';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1502,6 +1505,7 @@ function parseCsvDataset(text) {
       ptcEmails: [],
       cobeName: '',
       cobePhone: '',
+      cobeEmail: '',
       geoLat: null,
       geoLon: null,
       geoAddress: '',
@@ -2108,6 +2112,7 @@ function parseStructuredCsvDataset(text) {
         ptcEmails: [val(cols, 'ptc_email'), val(cols, 'ptc_jwpub_email')].filter(Boolean),
         cobeName: val(cols, 'cobe_name'),
         cobePhone: formatPhoneDisplay(val(cols, 'cobe_phone'), normalizedCountry),
+        cobeEmail: val(cols, 'cobe_email'),
         geoLat: parseGeoNumber(val(cols, 'geo_lat')),
         geoLon: parseGeoNumber(val(cols, 'geo_lon')),
         geoAddress: val(cols, 'geo_address'),
@@ -2264,6 +2269,9 @@ function parseMasterJsonDataset(obj, fileName = '') {
       ptcEmails: [ptc.email, ptc.jwpub_email].map(x => (x || '').trim()).filter(Boolean),
       cobeName: (cobe.name || '').trim(),
       cobePhone: formatPhoneDisplay(cobe.phone || '', country),
+      /* v2.7: the Organizer master already carries the COBE e-mail; the Tool simply
+         did not read it. NWS has a COBEEmail column, so it is pulled through now. */
+      cobeEmail: (cobe.email || '').trim(),
       geoLat: parseGeoNumber(geo.lat),
       geoLon: parseGeoNumber(geo.lon),
       geoAddress: (geo.resolved_address || '').trim(),
@@ -2758,6 +2766,242 @@ function congregationMatches(cong, fs) {
     ].join(' ')).join(' || ')
   ].join(' | '));
   return haystack.includes(fs.q);
+}
+
+/* ===== v2.7 NW Scheduler handover =====================================================
+   One congregation, two CSV files, one ZIP. NW Scheduler imports Neighbour Congregations
+   and Public Speakers in two separate steps, so the files are numbered in the order they
+   have to be imported. Field names follow the official NWS CSV documentation; the export
+   is read-only and never changes any stored data. */
+
+const NWS_SURNAME_PARTICLES = new Set(['van','von','de','del','della','da','di','du','ter','ten','zu','zur','zum','le','la','den','der']);
+
+function nwsSplitName(full) {
+  const parts = String(full || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+  if (!parts.length) return ['', ''];
+  if (parts.length === 1) return [parts[0], ''];
+  for (let i = 1; i < parts.length - 1; i++) {
+    if (NWS_SURNAME_PARTICLES.has(parts[i].toLocaleLowerCase())) {
+      return [parts.slice(0, i).join(' '), parts.slice(i).join(' ')];
+    }
+  }
+  return [parts.slice(0, -1).join(' '), parts.at(-1)];
+}
+
+/* phones are stored for display as "m: +49 …" / "h: +49 …" — NWS wants them apart */
+function nwsPhoneParts(list) {
+  let mobile = '', home = '';
+  (Array.isArray(list) ? list : [list]).filter(Boolean).forEach(entry => {
+    const raw = String(entry).trim();
+    const m = raw.match(/^([mh])\s*:\s*(.+)$/i);
+    if (m) {
+      if (m[1].toLowerCase() === 'm') mobile = mobile || m[2].trim();
+      else home = home || m[2].trim();
+    } else if (!mobile) { mobile = raw; }
+  });
+  return { mobile, home };
+}
+
+function nwsCsvEscape(v) {
+  const t = String(v == null ? '' : v).replace(/\r?\n/g, '\r\n');
+  return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+
+function nwsCsv(rows) {
+  /* BOM + CRLF: NW Scheduler expects UTF-8 and is happiest with Windows line endings */
+  return '\ufeff' + rows.map(r => r.map(nwsCsvEscape).join(',')).join('\r\n') + '\r\n';
+}
+
+function nwsCongregationNotes(cong) {
+  const bits = [];
+  const tv = cong.temporaryVenue;
+  if (tv) {
+    const period = [
+      tv.validFrom ? 'from ' + (formatDateLabel(tv.validFrom) || tv.validFrom) : '',
+      tv.validTo ? 'until ' + (formatDateLabel(tv.validTo) || tv.validTo) : ''
+    ].filter(Boolean).join(' ');
+    bits.push(['TEMPORARY VENUE: ' + (tv.address || 'address not set'), period, tv.reason].filter(Boolean).join(' · '));
+  }
+  if (cong.hallPhone) bits.push('Hall ' + cong.hallPhone);
+  return bits.join('\r\n');
+}
+
+function buildNwsNeighborCsv(cong) {
+  const headers = ['Name','Circuit','KingdomHallAddress','WeekendMeetingDay','WeekendMeetingTime','COBEFirstName','COBELastName','COBEPhone','COBEEmail','PTCFirstName','PTCLastName','PTCPhone','PTCEmail','Notes'];
+  const [cobeFirst, cobeLast] = nwsSplitName(cong.cobeName);
+  const [ptcFirst, ptcLast] = nwsSplitName(cong.ptcName);
+  const address = [cong.address, [cong.postalCode, cong.city].filter(Boolean).join(' ')].filter(Boolean).join('\r\n');
+  const ptcPhone = (cong.ptcPhones || []).map(x => String(x).replace(/^([mh])\s*:\s*/i, '').trim()).filter(Boolean).join(', ')
+    || String(cong.ptcPhone || '').replace(/^([mh])\s*:\s*/i, '').trim();
+  const ptcEmail = (cong.ptcEmails || []).filter(Boolean)[0] || cong.ptcEmail || cong.ptcJwpub || '';
+  return nwsCsv([headers, [
+    cong.name || '', cong.circuit || 'None', address,
+    cong.meetingDay || '', cong.meetingTime || '',
+    cobeFirst, cobeLast, String(cong.cobePhone || '').replace(/^([mh])\s*:\s*/i, '').trim(), cong.cobeEmail || '',
+    ptcFirst, ptcLast, ptcPhone, ptcEmail,
+    nwsCongregationNotes(cong)
+  ]]);
+}
+
+function nwsPublicNote(sp) {
+  const bits = [];
+  if (Number.isFinite(sp.maxDistanceKm) && sp.maxDistanceKm > 0) bits.push('limit: about ' + sp.maxDistanceKm + 'km distance');
+  const z = String(sp.zoom || '').trim().toLowerCase();
+  if (z === 'beyond') bits.push('Zoom beyond distance');
+  else if (z === 'only') bits.push('Zoom only');
+  else if (z === 'in_person') bits.push('In-person only');
+  if (sp.zoomMonths) bits.push('Zoom: ' + sp.zoomMonths);
+  /* only the shared note travels — personal notes stay local by design */
+  const shared = String(sp.importNote || '').trim();
+  if (shared) bits.push(shared);
+  return bits.join(' · ');
+}
+
+function buildNwsSpeakersCsv(cong) {
+  const headers = ['Congregation','FirstName','LastName','Privilege','PhoneHome','PhoneMobile','Email','PublicTalksCanGive','PublicNotes','AwayFrequencyPeriod','AwayFrequencyType'];
+  const rows = [headers];
+  cong.speakers.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(sp => {
+    const [first, last] = nwsSplitName(sp.name);
+    const { mobile, home } = nwsPhoneParts(sp.phones);
+    rows.push([
+      cong.name || '', first, last, sp.role === 'MS' ? 'MS' : 'E',
+      home, mobile, (sp.emails || []).filter(Boolean)[0] || '',
+      (sp.outlines || []).slice().sort((a, b) => a - b).join(','),
+      nwsPublicNote(sp), '', '0'
+    ]);
+  });
+  return nwsCsv(rows);
+}
+
+/* --- minimal ZIP writer (stored, no compression) so the tool stays a single file --- */
+const NWS_CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+
+function nwsCrc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = NWS_CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function nwsZip(files) {
+  const enc = new TextEncoder();
+  const chunks = [], central = [];
+  let offset = 0;
+  const now = new Date();
+  const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+  const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+
+  files.forEach(file => {
+    const nameBytes = enc.encode(file.name);
+    const data = enc.encode(file.content);
+    const crc = nwsCrc32(data);
+    const local = new DataView(new ArrayBuffer(30));
+    local.setUint32(0, 0x04034b50, true);
+    local.setUint16(4, 20, true);
+    local.setUint16(6, 0x0800, true); /* filenames are UTF-8 */
+    local.setUint16(8, 0, true);      /* stored */
+    local.setUint16(10, dosTime, true);
+    local.setUint16(12, dosDate, true);
+    local.setUint32(14, crc, true);
+    local.setUint32(18, data.length, true);
+    local.setUint32(22, data.length, true);
+    local.setUint16(26, nameBytes.length, true);
+    local.setUint16(28, 0, true);
+    chunks.push(new Uint8Array(local.buffer), nameBytes, data);
+
+    const dir = new DataView(new ArrayBuffer(46));
+    dir.setUint32(0, 0x02014b50, true);
+    dir.setUint16(4, 20, true);
+    dir.setUint16(6, 20, true);
+    dir.setUint16(8, 0x0800, true);
+    dir.setUint16(10, 0, true);
+    dir.setUint16(12, dosTime, true);
+    dir.setUint16(14, dosDate, true);
+    dir.setUint32(16, crc, true);
+    dir.setUint32(20, data.length, true);
+    dir.setUint32(24, data.length, true);
+    dir.setUint16(28, nameBytes.length, true);
+    dir.setUint32(42, offset, true);
+    central.push(new Uint8Array(dir.buffer), nameBytes);
+
+    offset += 30 + nameBytes.length + data.length;
+  });
+
+  const centralSize = central.reduce((n, x) => n + x.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, files.length, true);
+  end.setUint16(10, files.length, true);
+  end.setUint32(12, centralSize, true);
+  end.setUint32(16, offset, true);
+  return new Blob([...chunks, ...central, new Uint8Array(end.buffer)], { type: 'application/zip' });
+}
+
+function nwsFileSafe(v) {
+  return String(v || '').trim().replace(/[\/:*?"<>|\\]/g, '_').replace(/\s+/g, ' ').slice(0, 80) || 'Congregation';
+}
+
+function nwsStamp() {
+  const d = new Date();
+  return [String(d.getDate()).padStart(2, '0'), String(d.getMonth() + 1).padStart(2, '0'), d.getFullYear()].join('.');
+}
+
+function exportNwsHandover(cong) {
+  if (!cong) return;
+  const safe = nwsFileSafe(cong.name);
+  const files = [
+    { name: `1 - Import Neighbor Congregation - ${safe}.csv`, content: buildNwsNeighborCsv(cong) },
+    { name: `2 - Import Public Speakers - ${safe}.csv`, content: buildNwsSpeakersCsv(cong) }
+  ];
+  const blob = nwsZip(files);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `NWS Import - ${safe} - ${nwsStamp()}.zip`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setStatus(`NWS handover created for ${cong.name} · ${cong.speakers.length} speaker${cong.speakers.length === 1 ? '' : 's'}`);
+}
+
+function renderNwsBox(cong) {
+  return `
+    <div class="detail-section nws-box">
+      <h3>Hand over to NW Scheduler</h3>
+      <div class="small subtle" style="margin-bottom:10px;">
+        Downloads one ZIP for <b>${escapeHtml(cong.name)}</b> containing the two CSV files NW Scheduler needs.
+        They are numbered in the order they must be imported. Unpack the ZIP into one folder first — NW Scheduler
+        asks for each file separately.
+      </div>
+      <ol class="nws-steps">
+        <li title="Congregation > Circuits, Congregations &amp; Public Speakers > Import > Neighbor Congregations > from CSV file">
+          <b>1 - Import Neighbor Congregation</b><br>
+          <span class="small subtle">Congregation → Circuits, Congregations &amp; Public Speakers → Import → Neighbor Congregations → from CSV file</span>
+        </li>
+        <li title="Congregation > Neighbor Congregations and Public Speakers > select the congregation > Public Speakers > Import">
+          <b>2 - Import Public Speakers</b><br>
+          <span class="small subtle">Congregation → Neighbor Congregations and Public Speakers → select <b>${escapeHtml(cong.name)}</b> → Public Speakers → Import</span>
+        </li>
+      </ol>
+      <div class="notice small" style="margin-top:10px;" title="NW Scheduler merges by exact name. A different spelling creates a second entry instead of updating the first one.">
+        <b>Running this again later updates what you already have.</b> NW Scheduler merges a congregation whose
+        name matches exactly, and a speaker whose first and last name match exactly. If a name differs even
+        slightly, NW Scheduler creates a second entry instead of correcting the first one — so keep the names as
+        they are here.
+      </div>
+      <div class="links" style="margin-top:12px;">
+        <button type="button" class="ghost" id="nwsExportBtn" title="Creates a ZIP with both CSV files, ready for the two import steps above">Download NWS handover (.zip)</button>
+      </div>
+      <div class="small subtle" style="margin-top:8px;">
+        Shared speaker notes, Zoom availability and travel limits are included. Your personal notes stay local and are never exported.
+      </div>
+    </div>`;
 }
 
 /* ===== v2.6 navigation sidebar and workspace modes =====
@@ -3335,6 +3579,17 @@ function renderPtcContactBox(cong, extraHtml = '') {
   `;
 }
 
+/* v2.7: COBE as a plain one-liner. Less important day to day than the PTC, but it is
+   part of the NWS handover and worth having visible. */
+function renderCobeLine(cong) {
+  const bits = [];
+  if (cong.cobeName) bits.push(`<strong>${escapeHtml(cong.cobeName)}</strong>`);
+  if (cong.cobePhone) bits.push(renderPhoneChips([cong.cobePhone], cong.country));
+  if (cong.cobeEmail) bits.push(renderEmailChips([cong.cobeEmail]));
+  if (!bits.length) return '';
+  return `<div class="cobe-line"><span class="contact-kind">Coordinator of the body of elders</span>${bits.join('')}</div>`;
+}
+
 function renderPtcAssistantEditor(cong) {
   const assistant = normalizePtcAssistant(noteRecord(cong.notesKey).ptcAssistant);
   const hasContact = !!(assistant.name || assistant.phone || assistant.email);
@@ -3770,7 +4025,9 @@ function renderDetail() {
           `)}
           ${renderPtcAssistantEditor(cong)}
         </div>
+        ${renderCobeLine(cong)}
       </div>
+      ${renderNwsBox(cong)}
       <div class="detail-section">
         <h3>Congregation data</h3>
         <div class="meta">
@@ -3800,6 +4057,8 @@ function renderDetail() {
     wirePtcAssistantEditor(cong);
     const ptcVcfBtn = document.getElementById('ptcVcfBtn');
     if (ptcVcfBtn) ptcVcfBtn.addEventListener('click', () => downloadPtcVcf(cong));
+    const nwsBtn = document.getElementById('nwsExportBtn');
+    if (nwsBtn) nwsBtn.addEventListener('click', () => exportNwsHandover(cong));
   }
   if (state.detailTab === 'correction') {
     wireCorrectionBox(buildCorrectionContext('congregation', cong, cong), 'pane');
@@ -4869,7 +5128,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.6.3</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -4879,6 +5138,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <span class="help-nav-label">On this page</span>
         <a href="#help-s0">Screen layout</a>
         <a href="#help-s1">Import and updates</a>
+        <a href="#help-snws">NW Scheduler handover</a>
         <a href="#help-s2">Search and filters</a>
         <a href="#help-s3">Distance tools</a>
         <a href="#help-s4">Home congregation</a>
@@ -4900,6 +5160,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </p>
         <div class="help-chips">
           <span class="chip">CSV import</span>
+          <span class="chip">NW Scheduler handover</span>
           <span class="chip">Sidebar navigation</span>
           <span class="chip">Speaker + congregation view</span>
           <span class="chip">Favorites + notes</span>
@@ -4919,6 +5180,17 @@ document.addEventListener('DOMContentLoaded', function () {
           <p>The <b>search</b> and the <b>outline filter</b> now sit directly above the list. They act on both sides at once: the congregation list and the result cards always show the same selection. The country, circuit, meeting day, role, distance and sort controls in the toolbar do exactly the same as before.</p>
           <p>When you sort by <b>distance</b> or by <b>outline</b>, the list drops the country grouping and shows one flat ranking instead — nearest, or best matching, first. Sorting by name brings the country groups back.</p>
           <p>Nothing on this screen edits the data. The list, contacts and outlines come from the imported file and stay read-only; only your personal notes, favorites and the home congregation are yours to change.</p>
+        </section>
+
+        <section class="help-section" id="help-snws">
+          <h3><span class="help-num">NWS</span> NW Scheduler handover</h3>
+          <p>Open a congregation, switch to <b>Congregation &amp; PTC</b> and use <b>Download NWS handover (.zip)</b>. You get one ZIP for that one congregation with the two CSV files NW Scheduler needs, numbered in the order they must be imported. Unpack them into a folder first — NW Scheduler asks for each file on its own.</p>
+          <ul class="mini-list">
+            <li><b>1 - Import Neighbor Congregation</b> — Congregation → Circuits, Congregations &amp; Public Speakers → Import → Neighbor Congregations → from CSV file.</li>
+            <li><b>2 - Import Public Speakers</b> — Congregation → Neighbor Congregations and Public Speakers → select that congregation → Public Speakers → Import.</li>
+          </ul>
+          <p>Running it again later is how you update: NW Scheduler merges a congregation whose name matches exactly, and a speaker whose first and last name match exactly. A different spelling creates a second entry instead of correcting the first, so leave the names as they are.</p>
+          <p>The export is deliberately one congregation at a time. Address, meeting day and time, circuit, PTC, COBE, speakers with privilege, phones, e-mail and outline numbers all travel. Shared speaker notes, Zoom availability and travel limits go into <b>PublicNotes</b>; a temporary venue goes into the congregation <b>Notes</b>, since NW Scheduler has no field of its own for it. Your personal notes stay local and are never exported.</p>
         </section>
 
         <section class="help-section" id="help-s1">
