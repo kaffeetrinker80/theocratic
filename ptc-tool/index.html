@@ -893,7 +893,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.7.1</span>
+      <span class="footer-version" id="footerVersion">v.2.7.2</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -939,7 +939,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.7.1';
+const APP_VERSION = '2.7.2';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1052,6 +1052,7 @@ const state = {
   /* v2.6 navigation: 'list' = result list for all congregations (start view),
      'detail' = one congregation opened in the workspace. Countries that are folded
      open in the sidebar are remembered per browser. */
+  datasetVersion: '',
   wsMode: 'list',
   detailTab: 'speakers',
   countryOpen: loadCountryOpen()
@@ -4344,6 +4345,11 @@ function restoreDataset() {
       speakers,
       warnings: []
     };
+    /* v2.7.2: remember which app version wrote this browser copy. The stored dataset
+       is a full snapshot, so fields added in a newer version (COBE e-mail, for example)
+       are simply absent until the master is imported again. Knowing the version lets us
+       say so instead of leaving the user hunting for a bug that isn't there. */
+    state.datasetVersion = obj.version || '';
     if (obj.geoCache && typeof obj.geoCache === 'object') state.geoCache = obj.geoCache;
     if (Object.prototype.hasOwnProperty.call(obj, 'homeCongregationId')) state.homeCongregationId = obj.homeCongregationId || ''; 
     if (obj.notes && typeof obj.notes === 'object') {
@@ -4913,7 +4919,10 @@ if (restoreDataset()) {
   refreshStats();
   renderResults();
   renderDetail();
-  setStatus('Loaded saved browser data', true);
+  const staleVersion = state.datasetVersion && state.datasetVersion !== APP_VERSION;
+  setStatus(staleVersion
+    ? `Loaded saved browser data (stored by v${state.datasetVersion}) · import your master again to pick up fields added since then`
+    : 'Loaded saved browser data', true);
 } else {
   refreshStats();
   /* v2.6: draw the empty sidebar and workspace header even without a dataset */
@@ -5132,7 +5141,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
