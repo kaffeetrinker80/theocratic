@@ -232,9 +232,12 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 /* v2.6.1: the congregation detail is a slim fact strip plus tabs, so the speaker
    list is the first thing on screen instead of address and PTC blocks. */
 .cong-strip { padding:12px 14px; }
-.cong-strip-facts { display:flex; flex-wrap:wrap; gap:10px 22px; }
-.cong-strip-facts .strip-fact { min-width:0; }
-.cong-strip-facts .strip-fact b { font-weight:650; font-size:13.5px; }
+.cong-strip-facts { display:flex; flex-wrap:wrap; gap:12px 26px; }
+/* v2.7.4: label above the value instead of glued in front of it. The value is what you
+   read, so it is the bigger of the two; the label only has to be findable. */
+.cong-strip-facts .strip-fact { min-width:0; display:flex; flex-direction:column; gap:3px; }
+.cong-strip-facts .meta-label { font-size:9.5px; letter-spacing:.07em; margin:0; }
+.cong-strip-facts .strip-fact b { font-weight:600; font-size:14.5px; line-height:1.25; }
 .cong-strip-facts .strip-address { flex:1 1 260px; }
 .cong-strip .links { margin-top:12px; }
 .detail-tabs { display:flex; flex-wrap:wrap; gap:6px; border-bottom:1px solid var(--line); padding:0 2px; }
@@ -307,6 +310,13 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .contact-kind { font-size:12px; color:var(--muted); min-width:64px; font-weight:600; }
 .links { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
 .speaker-table { display:grid; gap:10px; }
+/* v2.7.4: the speaker tiles inside a congregation are laid out as an even grid and all
+   get the same height. The outline strip always reserves three rows, so a brother with
+   four outlines lines up with one who has forty; the rest is summarised on the chip. */
+.cong-speakers { grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); align-items:stretch; }
+.cong-speakers .speaker-mini { display:flex; flex-direction:column; }
+.cong-speakers .mini-contacts { flex:0 0 auto; }
+.cong-speakers .outline-list { margin-top:auto; }
 .speaker-mini { border:1px solid #e4daca; border-radius:14px; padding:12px; background:#fcf9f3; }
 .speaker-mini.highlight { background:#f8ede4; border-color:#e6cdb6; box-shadow:0 0 0 2px rgba(194,96,63,.10); }
 .speaker-mini .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
@@ -340,7 +350,9 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
 .toolbar-grid { align-items:start; }
 .toolbar-grid-main { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .toolbar-grid-distance { grid-template-columns:repeat(3,minmax(180px,1fr)) minmax(220px,1.3fr); }
-.distance-row-info { display:flex; align-items:center; padding:0 2px; color:var(--muted); font-size:12px; }
+/* a flex container drops whitespace-only text nodes, which glued "Home congregation:"
+   straight onto the name — an explicit gap puts the breathing room back */
+.distance-row-info { display:flex; align-items:center; flex-wrap:wrap; gap:2px 6px; padding:0 2px; color:var(--muted); font-size:12px; }
 .distance-row-info strong { color:var(--text); }
 .cong-speaker-card { cursor:pointer; }
 .cong-speaker-card:hover { border-color:var(--accent); box-shadow:0 6px 18px rgba(74,52,36,.09); }
@@ -362,9 +374,14 @@ a.chip:hover { background:#f3e8da; border-color:#dfccb2; }
   /* exactly three rows of chips; anything beyond is cut cleanly */
   max-height:69px; overflow:hidden;
 }
+/* inside a congregation the strip keeps its full height even when it is half empty,
+   which is what makes the tiles line up */
+.cong-speakers .speaker-mini.compact .outline-list { height:69px; max-height:69px; align-content:flex-start; }
+.cong-speakers .outline-empty { font-size:11.5px; color:var(--muted); }
 .speaker-mini.compact .outline {
   font-size:10.5px; padding:2px 7px; line-height:1.45;
 }
+.chip.chip-attention { background:#fbf0e2; border-color:#e8cfa6; color:#8a5a1c; font-weight:600; }
 .outline-more {
   background:#efe4d4; border-color:#dcc9ae; color:var(--accent2);
   font-weight:700; cursor:pointer;
@@ -894,7 +911,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.7.3</span>
+      <span class="footer-version" id="footerVersion">v.2.7.4</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -940,7 +957,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.7.3';
+const APP_VERSION = '2.7.4';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1930,6 +1947,30 @@ function stripCurrentSourceNoteFromPersonalText(text, sourceNote) {
   return filtered.join(' | ');
 }
 
+/* v2.7.4: the master calls this field "Participation" and offers readable options.
+   The tool used to print the raw stored value ("Zoom: both"), which reads like a Zoom
+   setting rather than how a brother is willing to serve. Same wording as the Organizer
+   now, and the ordinary case is kept visually quiet so the exceptions stand out. */
+const PARTICIPATION_LABELS = {
+  both: 'In-person & Zoom',
+  beyond: 'Zoom beyond distance',
+  only: 'Zoom only',
+  in_person: 'In-person only'
+};
+
+function participationKey(sp) {
+  return String(sp?.zoom || '').trim().toLowerCase();
+}
+
+function participationLabel(sp) {
+  return PARTICIPATION_LABELS[participationKey(sp)] || '';
+}
+
+/* "In-person & Zoom" is what almost everyone does — it is not an exception */
+function participationIsStandard(sp) {
+  return participationKey(sp) === 'both';
+}
+
 function legacyAvailabilityPhrases(sp) {
   const phrases = [];
   const z = String(sp?.zoom || '').trim().toLocaleLowerCase();
@@ -2849,10 +2890,9 @@ function buildNwsNeighborCsv(cong) {
 function nwsPublicNote(sp) {
   const bits = [];
   if (Number.isFinite(sp.maxDistanceKm) && sp.maxDistanceKm > 0) bits.push('limit: about ' + sp.maxDistanceKm + 'km distance');
-  const z = String(sp.zoom || '').trim().toLowerCase();
-  if (z === 'beyond') bits.push('Zoom beyond distance');
-  else if (z === 'only') bits.push('Zoom only');
-  else if (z === 'in_person') bits.push('In-person only');
+  /* "In-person & Zoom" is the normal case and would only be noise in NW Scheduler,
+     so only the exceptions are written into PublicNotes */
+  if (!participationIsStandard(sp) && participationLabel(sp)) bits.push(participationLabel(sp));
   if (sp.zoomMonths) bits.push('Zoom: ' + sp.zoomMonths);
   /* only the shared note travels — personal notes stay local by design */
   const shared = String(sp.importNote || '').trim();
@@ -3935,7 +3975,7 @@ function detailTabs(cong) {
 }
 
 function congSpeakerListHtml(cong, highlightSpeakerId) {
-  return `<div class="speaker-table">
+  return `<div class="speaker-table cong-speakers">
     ${cong.speakers.map(sp => {
       const rec = noteRecord(sp.notesKey);
       const phones = renderPhoneLinks(sp.phones, cong.country);
@@ -3952,7 +3992,9 @@ function congSpeakerListHtml(cong, highlightSpeakerId) {
           <span>${emails || '<span class="mini-none">No email</span>'}</span>
           <span class="mini-outline-count">${total} outline${total === 1 ? '' : 's'}</span>
         </div>
-        ${total ? `<div class="outline-list outline-preview" data-total="${total}" data-rendered="${Math.min(total, 30)}">${sp.outlines.slice(0, 30).map(no => renderOutline(no)).join('')}<span class="outline outline-more" hidden></span></div>` : ''}
+        ${total
+          ? `<div class="outline-list outline-preview" data-total="${total}" data-rendered="${Math.min(total, 30)}">${sp.outlines.slice(0, 30).map(no => renderOutline(no)).join('')}<span class="outline outline-more" hidden></span></div>`
+          : '<div class="outline-list"><span class="outline-empty">No outlines recorded</span></div>'}
       </div>`;
     }).join('') || '<div class="subtle">No speakers found in this import.</div>'}
   </div>`;
@@ -4147,7 +4189,7 @@ function renderSpeakerModalBody() {
         ${cong.meetingRaw ? `<span class="chip">${escapeHtml(cong.meetingRaw)}</span>` : ''}
         ${rec.lastInvited ? `<span class="chip">Invited: ${escapeHtml(formatDateLabel(rec.lastInvited))}</span>` : ''}
         ${rec.lastUsed ? `<span class="chip">Used: ${escapeHtml(formatDateLabel(rec.lastUsed))}</span>` : ''}
-        ${sp.zoom ? `<span class="chip">Zoom: ${escapeHtml(sp.zoom)}${sp.zoomMonths ? ' (' + escapeHtml(sp.zoomMonths) + ')' : ''}</span>` : ''}
+        ${participationLabel(sp) ? `<span class="chip ${participationIsStandard(sp) ? '' : 'chip-attention'}" title="Participation">${escapeHtml(participationLabel(sp))}${sp.zoomMonths ? ' (' + escapeHtml(sp.zoomMonths) + ')' : ''}</span>` : ''}
         ${Number.isFinite(sp.maxDistanceKm) && sp.maxDistanceKm !== null ? `<span class="chip">Travels up to ${escapeHtml(String(sp.maxDistanceKm))} km</span>` : ''}
       </div>
       <div class="links" style="margin-top:10px;">
@@ -4280,7 +4322,7 @@ function fitOutlinePreview(box) {
   const tops = [...new Set(chips.map(c => c.offsetTop))].sort((a, b) => a - b);
   /* no layout yet (hidden pane, jsdom, print) – leave the CSS clamp in charge */
   if (tops.length <= 1 && chips[0].offsetTop === 0 && chips[chips.length - 1].offsetTop === 0 && chips.length > 6) {
-    if (total > rendered) { moreChip.hidden = false; moreChip.textContent = `+${total - rendered} more`; }
+    if (total > rendered) { moreChip.hidden = false; moreChip.textContent = `+${total - rendered} outlines`; }
     return;
   }
 
@@ -4294,7 +4336,7 @@ function fitOutlinePreview(box) {
   moreChip.hidden = false;
   const update = () => {
     const hiddenCount = total - visible.length;
-    moreChip.textContent = `+${hiddenCount} more`;
+    moreChip.textContent = `+${hiddenCount} outline${hiddenCount === 1 ? '' : 's'}`;
   };
   update();
 
@@ -5145,7 +5187,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.3</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.4</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
