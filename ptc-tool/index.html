@@ -249,6 +249,7 @@ button:disabled { opacity:.5; cursor:not-allowed; transform:none !important; fil
 .cobe-line { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); font-size:13px; }
 .nws-box .nws-steps { margin:0; padding-left:20px; display:grid; gap:8px; font-size:13px; }
 .nws-box .nws-steps li { padding-left:2px; }
+.nws-btn { font-size:14px; padding:11px 18px; font-weight:650; }
 .ws-head {
   display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;
   padding:0 2px;
@@ -892,7 +893,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.7.0</span>
+      <span class="footer-version" id="footerVersion">v.2.7.1</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -938,7 +939,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.7.0';
+const APP_VERSION = '2.7.1';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -2980,9 +2981,12 @@ function renderNwsBox(cong) {
         asks for each file separately.
       </div>
       <ol class="nws-steps">
-        <li title="Congregation > Circuits, Congregations &amp; Public Speakers > Import > Neighbor Congregations > from CSV file">
+        <li title="Use the LAST 'from CSV file' button, the one under the separate heading Neighbor Congregations at the bottom of the Import dialog.">
           <b>1 - Import Neighbor Congregation</b><br>
-          <span class="small subtle">Congregation → Circuits, Congregations &amp; Public Speakers → Import → Neighbor Congregations → from CSV file</span>
+          <span class="small subtle">Congregation → Circuits, Congregations &amp; Public Speakers → Import →
+          <b>bottom section “Neighbor Congregations” → from CSV file</b>.
+          Not the “from CSV file” in the upper block “Neighbor Congregations and Public Speakers” — that one expects a
+          combined file and will not read this one.</span>
         </li>
         <li title="Congregation > Neighbor Congregations and Public Speakers > select the congregation > Public Speakers > Import">
           <b>2 - Import Public Speakers</b><br>
@@ -2996,7 +3000,7 @@ function renderNwsBox(cong) {
         they are here.
       </div>
       <div class="links" style="margin-top:12px;">
-        <button type="button" class="ghost" id="nwsExportBtn" title="Creates a ZIP with both CSV files, ready for the two import steps above">Download NWS handover (.zip)</button>
+        <button type="button" class="blue nws-btn" id="nwsExportBtn" title="Creates a ZIP with both CSV files, ready for the two import steps above">⇩ Download NWS handover (.zip)</button>
       </div>
       <div class="small subtle" style="margin-top:8px;">
         Shared speaker notes, Zoom availability and travel limits are included. Your personal notes stay local and are never exported.
@@ -5128,7 +5132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5186,7 +5190,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <h3><span class="help-num">NWS</span> NW Scheduler handover</h3>
           <p>Open a congregation, switch to <b>Congregation &amp; PTC</b> and use <b>Download NWS handover (.zip)</b>. You get one ZIP for that one congregation with the two CSV files NW Scheduler needs, numbered in the order they must be imported. Unpack them into a folder first — NW Scheduler asks for each file on its own.</p>
           <ul class="mini-list">
-            <li><b>1 - Import Neighbor Congregation</b> — Congregation → Circuits, Congregations &amp; Public Speakers → Import → Neighbor Congregations → from CSV file.</li>
+            <li><b>1 - Import Neighbor Congregation</b> — Congregation → Circuits, Congregations &amp; Public Speakers → Import → then the <b>lower</b> section headed <b>Neighbor Congregations</b> → <b>from CSV file</b>. The Import dialog offers <b>two</b> buttons with that same label: the upper one sits under <b>Neighbor Congregations and Public Speakers</b> and expects a combined file, so it silently does nothing with this file. Always use the bottom one.</li>
             <li><b>2 - Import Public Speakers</b> — Congregation → Neighbor Congregations and Public Speakers → select that congregation → Public Speakers → Import.</li>
           </ul>
           <p>Running it again later is how you update: NW Scheduler merges a congregation whose name matches exactly, and a speaker whose first and last name match exactly. A different spelling creates a second entry instead of correcting the first, so leave the names as they are.</p>
