@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reinigungsplan Generator</title>
+<style>
+@page { size:A4 portrait; margin:0; }
+:root{
+  --ink:#0f172a; --fg:#111827; --muted:#64748b; --line:#e2e8f0;
+  --panel:#ffffff; --panel2:#f6f8fa; --edge:#dde3ea; --page:#e8ecf1;
+  --teal:#0d9488; --teal-d:#0f766e; --teal-s:#e6f5f3;
+  --accent:#0d9488; --tint:rgba(13,148,136,.13);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{ font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--fg); background:var(--page); font-size:14px; }
+
+/* ---------------- Layout ---------------- */
+.app{ display:grid; grid-template-columns:336px 1fr; min-height:100vh; }
+.sidebar{ background:var(--panel); border-right:1px solid var(--edge); position:sticky; top:0; height:100vh; overflow-y:auto; padding:14px 14px 40px; }
+.main{ padding:18px 18px 50px; min-width:0; }
+
+.brand{ display:flex; align-items:center; gap:9px; padding:2px 2px 13px; border-bottom:1px solid var(--edge); margin-bottom:12px; }
+.brand .dot{ width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,#5eead4,var(--teal-d)); flex:0 0 auto; }
+.brand b{ font-size:15px; color:var(--ink); }
+.badge{ font-size:10px; padding:2px 7px; border-radius:999px; background:var(--teal-s); color:var(--teal-d); border:1px solid #bfe6e1; font-weight:700; }
+
+.helpdot{ margin-left:auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--edge); background:#fff;
+  color:var(--muted); font:inherit; font-size:13px; font-weight:700; line-height:1; cursor:pointer; }
+.helpdot:hover{ background:var(--teal-s); color:var(--teal-d); border-color:#bfe6e1; }
+.source{ font-size:11px; color:var(--muted); line-height:1.5; margin:-4px 2px 12px; }
+.source a{ color:var(--teal-d); font-weight:650; text-decoration:none; }
+.source a:hover{ text-decoration:underline; }
+.source-sub{ display:block; }
+
+.overlay{ position:fixed; inset:0; z-index:80; background:rgba(15,23,42,.42); display:flex; align-items:center; justify-content:center; padding:20px; }
+.overlay[hidden]{ display:none; }
+.hpanel{ background:#fff; border-radius:16px; width:min(680px,100%); max-height:86vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(15,23,42,.3); }
+.hhead{ display:flex; align-items:center; padding:14px 18px; border-bottom:1px solid var(--edge); }
+.hhead b{ font-size:16px; color:var(--ink); }
+.hclose{ margin-left:auto; border:0; background:transparent; font:inherit; font-size:16px; color:var(--muted); cursor:pointer; padding:4px 6px; border-radius:8px; }
+.hclose:hover{ background:#f0f4f8; color:var(--ink); }
+.hbody{ padding:16px 20px 22px; overflow-y:auto; font-size:13.5px; line-height:1.6; color:#334155; }
+.hbody h4{ margin:18px 0 5px; font-size:13.5px; color:var(--ink); }
+.hbody h4:first-child{ margin-top:0; }
+.hbody p{ margin:0 0 6px; }
+.hbody ul{ margin:0 0 6px; padding-left:20px; }
+.hbody li{ margin:2px 0; }
+.hbody code{ background:#eef2f6; padding:1px 5px; border-radius:4px; font-size:12px; }
+.hbody a{ color:var(--teal-d); font-weight:650; }
+
+details.sec{ border:1px solid var(--edge); border-radius:12px; margin-bottom:9px; background:var(--panel2); overflow:hidden; }
+details.sec>summary{ cursor:pointer; list-style:none; padding:10px 12px; font-weight:650; font-size:13px; color:var(--ink); display:flex; align-items:center; }
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::after{ content:'⌄'; margin-left:auto; color:var(--muted); transition:transform .15s; }
+details.sec[open]>summary::after{ transform:rotate(180deg); }
+details.sec>summary:hover{ background:#eef2f6; }
+details.sec[open]{ background:var(--panel); }
+.sec-body{ padding:2px 12px 13px; display:grid; gap:9px; }
+
+label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; font-weight:600; }
+.sidebar input,.sidebar select,.sidebar textarea{
+  width:100%; font:inherit; font-size:13px; padding:7px 9px; border-radius:9px;
+  border:1px solid var(--edge); background:#fff; color:var(--ink);
+}
+.sidebar textarea{ min-height:150px; resize:vertical; line-height:1.45; font-size:12px; }
+.sidebar input:focus,.sidebar select:focus,.sidebar textarea:focus{ outline:2px solid var(--teal); outline-offset:1px; border-color:var(--teal); }
+.btn{ font:inherit; font-size:13px; font-weight:650; cursor:pointer; padding:8px 11px; border-radius:9px; border:1px solid var(--edge); background:#fff; color:var(--ink); width:100%; }
+.btn:hover{ background:#f0f4f8; border-color:#c9d3dd; }
+.btn.primary{ background:var(--teal); border-color:var(--teal); color:#fff; }
+.btn.primary:hover{ background:var(--teal-d); }
+.btn.danger{ color:#b91c1c; border-color:#f0cfcf; }
+.btn.danger:hover{ background:#fdf2f2; }
+.row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.hint{ font-size:11px; color:var(--muted); line-height:1.5; }
+.hint code{ background:#eef2f6; padding:1px 4px; border-radius:4px; }
+
+.modes{ display:grid; gap:7px; }
+.mode{ display:flex; gap:9px; align-items:flex-start; padding:9px 10px; border-radius:10px; border:1px solid var(--edge); background:#fff; cursor:pointer; }
+.mode:hover{ border-color:#c9d3dd; }
+.mode.on{ border-color:var(--teal); background:var(--teal-s); }
+.mode input{ width:auto; margin-top:3px; accent-color:var(--teal); }
+.mode b{ font-size:13px; display:block; color:var(--ink); }
+.mode span{ font-size:11px; color:var(--muted); }
+
+.switch{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink); }
+.switch input{ width:auto; accent-color:var(--teal); }
+
+.congrow{ display:grid; grid-template-columns:34px 1fr 74px; gap:7px; align-items:center; margin-bottom:6px; }
+.congrow input[type=color]{ width:34px; height:30px; padding:2px; border-radius:8px; }
+.congrow .nm{ font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.congrow select{ font-size:11.5px; padding:5px 4px; }
+
+.chips{ display:flex; flex-wrap:wrap; gap:5px; }
+.chip{ font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid var(--edge); background:#fff; display:flex; gap:6px; align-items:center; }
+.chip i{ width:8px;height:8px;border-radius:50%; display:inline-block; }
+.warn{ font-size:11.5px; color:#b45309; line-height:1.5; }
+.ok{ font-size:11.5px; color:#0f766e; }
+.status{ font-size:11.5px; color:var(--muted); min-height:1.2em; line-height:1.45; }
+.fitinfo{ font-size:11px; color:var(--muted); }
+
+/* ---------------- A4-Blatt ---------------- */
+.sheetwrap{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.sheet{
+  width:210mm; height:296mm; background:#fff; padding:9mm 9mm 7mm; overflow:hidden;
+  display:grid; grid-template-rows:auto auto auto minmax(0,1fr) auto; gap:3.2mm;
+  box-shadow:0 10px 30px rgba(15,23,42,.13); color:var(--fg);
+  --tblfs:9.5pt; --notefs:8.4pt;
+}
+.sheet .accentbar{ height:4.5px; border-radius:3px; background:var(--accent); }
+.sheet header{ text-align:center; display:grid; gap:1.1mm; border-bottom:1.3px solid var(--line); padding-bottom:2.6mm; }
+.sheet h1{ margin:0; font-size:22pt; line-height:1.06; letter-spacing:-.4px; }
+.sheet .hall{ font-size:10pt; font-weight:650; color:#374151; }
+.sheet .meta{ font-size:8.6pt; color:var(--muted); }
+.forbadge{ justify-self:center; margin-top:.6mm; font-size:10pt; font-weight:700; padding:1.1mm 4mm; border-radius:999px; background:var(--tint); color:var(--accent); border:1.1px solid var(--accent); }
+
+.notes{ display:grid; grid-template-columns:1fr 1fr; gap:4mm; border:1.1px dashed var(--accent); border-radius:7px; padding:2.2mm 3mm; background:#f8fafc; font-size:var(--notefs); line-height:1.3; }
+.notes>div:focus{ outline:2px solid var(--teal); outline-offset:2px; border-radius:4px; }
+.notes>div:empty:before{ content:attr(data-ph); color:var(--muted); }
+
+.schedule{ display:grid; grid-template-columns:1fr 1fr; gap:3mm; align-content:start; overflow:hidden; min-height:0; }
+.sheet table{ width:100%; border-collapse:collapse; font-size:var(--tblfs); }
+.sheet thead th{ border-bottom:1.2px solid var(--fg); padding:.9mm .7mm; text-align:left; font-weight:700; font-size:calc(var(--tblfs) - .8pt); }
+.sheet tbody td{ border-bottom:1px solid var(--line); padding:.75mm .7mm; vertical-align:middle; }
+.sheet td.date{ width:19mm; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.sheet td.grp{ width:33mm; }
+.sheet tr.monthrow td{ border-bottom:none; padding-top:1.6mm; padding-bottom:.3mm; font-weight:700; font-size:calc(var(--tblfs) - 1pt); color:var(--muted); }
+.sheet tr.mine td{ background:var(--tint); }
+.sheet tr.mine td.date{ box-shadow:inset 3px 0 0 var(--accent); }
+.sheet select,.sheet input.note-in{ font:inherit; font-size:var(--tblfs); width:100%; border:0; background:transparent; color:inherit; padding:0; }
+.sheet select:hover,.sheet input.note-in:hover{ background:rgba(15,23,42,.05); border-radius:4px; }
+.sheet select:focus,.sheet input.note-in:focus{ outline:1.5px solid var(--teal); border-radius:4px; }
+
+.sheet footer{ border-top:1px solid var(--line); padding-top:1.8mm; font-size:7.6pt; color:var(--muted); display:grid; grid-template-columns:1fr auto; gap:4mm; align-items:end; }
+.sheet footer b{ color:#374151; }
+.sheet .coord-in{ font:inherit; font-size:7.6pt; border:0; border-bottom:1px solid var(--line); background:transparent; min-width:38mm; }
+
+.printstack{ position:absolute; left:-100000px; top:0; }
+.mobilebar{ display:none; }
+.love{ text-align:center; font-size:11px; color:var(--muted); padding:16px 0 4px; }
+
+@media print{
+  body{ background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .app{ display:block; }
+  .sidebar,.mobilebar,.noprint{ display:none !important; }
+  .main{ padding:0; }
+  .sheetwrap{ gap:0; }
+  .sheet{ box-shadow:none; break-inside:avoid; }
+  .sheet+.sheet{ break-before:page; }
+  body.stackmode .sheetwrap{ display:none; }
+  body.stackmode .printstack{ position:static; left:auto; display:flex; flex-direction:column; }
+  select,input{ appearance:none; -webkit-appearance:none; border:0 !important; background:transparent !important; }
+}
+@media screen and (max-width:1180px){
+  .app{ grid-template-columns:1fr; }
+  .sidebar{ position:fixed; z-index:40; left:0; top:0; width:320px; transform:translateX(-100%); transition:transform .18s; box-shadow:0 10px 30px rgba(15,23,42,.2); }
+  body.nav-open .sidebar{ transform:none; }
+  .mobilebar{ display:flex; gap:10px; align-items:center; padding:9px 12px; background:var(--panel); border-bottom:1px solid var(--edge); position:sticky; top:0; z-index:30; }
+  .mobilebar button{ font:inherit; font-weight:650; padding:7px 12px; border-radius:9px; border:0; background:var(--teal); color:#fff; cursor:pointer; }
+  .sheet{ width:100%; height:auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="mobilebar noprint"><button id="navBtn">☰ Menü</button><b>Reinigungsplan Generator</b></div>
+
+<div class="app">
+<aside class="sidebar noprint">
+  <div class="brand">
+    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.4</span>
+    <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
+  </div>
+  <div class="source">
+    <span data-i="sourceLead">Daten kommen vom Plantool</span>
+    <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner ↗</a>
+    <span class="source-sub" data-i="sourceSub">Dort Versammlungen, Gruppen und Aufgaben anlegen, dann exportieren.</span>
+  </div>
+
+  <details class="sec" open><summary data-i="secOutput">Ausgabe</summary>
+    <div class="sec-body">
+      <div class="modes">
+        <label class="mode" id="modePoster"><input type="radio" name="mode" value="poster" /><div><b data-i="modePosterT">Aushang Foyer</b><span data-i="modePosterD">Allgemein, ohne Versammlungsbezug</span></div></label>
+        <label class="mode" id="modeCong"><input type="radio" name="mode" value="cong" /><div><b data-i="modeCongT">Versammlungs-Aushang</b><span data-i="modeCongD">Schwarzes Brett, Sprache und Farbe der Versammlung</span></div></label>
+      </div>
+      <div id="congPick"><label class="f" data-i="congregation">Versammlung</label><select id="cong"></select></div>
+      <div class="row2">
+        <div><label class="f" data-i="year">Jahr</label><select id="year"></select></div>
+        <div><label class="f" data-i="lang">Sprache</label><select id="uiLang"></select></div>
+      </div>
+      <label class="switch"><input type="checkbox" id="monthChk" /><span data-i="showMonths">Monatstrenner anzeigen</span></label>
+      <button class="btn" id="addYearBtn" data-i="addYear">+ Jahr anlegen</button>
+      <div class="fitinfo" id="fitInfo"></div>
+    </div>
+  </details>
+
+  <details class="sec" open><summary data-i="secData">Daten</summary>
+    <div class="sec-body">
+      <button class="btn primary" id="importBtn" data-i="import">Plantool-JSON importieren</button>
+      <input type="file" id="import" accept=".json,application/json" hidden />
+      <div class="row2">
+        <button class="btn" id="exportBtn" data-i="export">Export</button>
+        <button class="btn danger" id="resetBtn" data-i="reset">Zurücksetzen</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+  </details>
+
+  <details class="sec"><summary data-i="secCheck">Belegung</summary>
+    <div class="sec-body"><div class="chips" id="statChips"></div><div id="checkMsg"></div></div>
+  </details>
+
+  <details class="sec"><summary data-i="secCongs">Versammlungen: Sprache &amp; Farbe</summary>
+    <div class="sec-body">
+      <div id="congList"></div>
+      <button class="btn" id="resetColorsBtn" data-i="resetColors">Standardfarben</button>
+      <div class="hint" data-i="congsHint">Die Sprache wird aus dem Namen erkannt und kann hier überschrieben werden.</div>
+    </div>
+  </details>
+
+  <details class="sec"><summary data-i="secTexts">Kopfzeile &amp; Fuß</summary>
+    <div class="sec-body">
+      <div><label class="f" data-i="titleEdit">Titel</label><input id="titleEdit" /><div class="hint" data-i="titleHint">Leer lassen = übersetzter Standardtitel.</div></div>
+      <div><label class="f" data-i="subtitleEdit">Untertitel</label><input id="subtitleEdit" /></div>
+      <div><label class="f" data-i="hallEdit">Saal</label><input id="hallEdit" /></div>
+      <div><label class="f" data-i="locEdit">Ort / Adresse</label><input id="locEdit" /></div>
+      <div><label class="f" data-i="coordEdit">Reinigungskoordinator</label><input id="coordEdit" /></div>
+      <div class="row2">
+        <div><label class="f" data-i="phoneEdit">Telefon</label><input id="phoneEdit" /></div>
+        <div><label class="f" data-i="mailEdit">E-Mail</label><input id="mailEdit" /></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="sec"><summary data-i="secNotes">Hinweistexte</summary>
+    <div class="sec-body">
+      <div class="hint" id="noteLangInfo"></div>
+      <div><label class="f" data-i="noteL">Linke Spalte</label><textarea id="noteLeftEdit"></textarea></div>
+      <div><label class="f" data-i="noteR">Rechte Spalte</label><textarea id="noteRightEdit"></textarea></div>
+      <button class="btn" id="resetNotesBtn" data-i="resetNotes">Standardtext dieser Sprache</button>
+      <div class="hint" data-i="notesHint">Eine Zeile vor einem Aufzählungspunkt wird als Überschrift fett unterstrichen.</div>
+    </div>
+  </details>
+
+  <details class="sec" open><summary data-i="secPrint">Drucken</summary>
+    <div class="sec-body">
+      <button class="btn primary" id="printBtn" data-i="printOne">Aktuelles Blatt drucken</button>
+      <button class="btn" id="printAllBtn" data-i="printAll">Alle Blätter drucken</button>
+      <div class="hint" data-i="printHint">„Alle Blätter“ druckt den Foyer-Aushang plus je ein Blatt pro Versammlung in deren Sprache.</div>
+    </div>
+  </details>
+
+</aside>
+
+<main class="main">
+  <div class="sheetwrap" id="sheetWrap"></div>
+  <div class="printstack" id="printStack"></div>
+  <div class="love noprint">Made with love © · Reinigungsplan Generator v2.4</div>
+</main>
+</div>
+
+<div class="overlay noprint" id="helpOverlay" hidden>
+  <div class="hpanel" role="dialog" aria-modal="true">
+    <div class="hhead"><b id="helpTitle">Hilfe</b><button class="hclose" id="helpClose" aria-label="Schließen">✕</button></div>
+    <div class="hbody" id="helpBody"></div>
+  </div>
+</div>
+
+<datalist id="taskList"></datalist>
+
+<script>
+"use strict";
+
+/* ==================== Sprachen ==================== */
+const LANGS = [
+  {code:'de', label:'Deutsch'},
+  {code:'en', label:'English'},
+  {code:'it', label:'Italiano'},
+  {code:'ru', label:'Русский'},
+  {code:'sh', label:'Hrvatski / Srpski'}
+];
+
+const I18N = {
+de:{
+  titleDefault:'Saalreinigungsplan', metaDefault:'Wöchentlicher Reinigungsplan: Samstag',
+  date:'Datum', group:'Gruppe', note:'Hinweis', coord:'Reinigungskoordinator:', forCong:'Für die Versammlung',
+  months:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+  placeholder:'Hinweise hier eintragen ...',
+  noteLeft:`Innenbereiche (inkl. Keller & Küche)\n• Alle sichtbaren Oberflächen reinigen.\n\nToiletten & Urinale\n• Spültaste, Deckel, Sitz, Rand, Sockel und Rohranschlüsse reinigen.\n• Bürste & Halter, Urinalfronten und Trennwände reinigen.\nHinweis: Toilettenbürsten jährlich ersetzen.\n\nSanitärflächen\n• Griffe, Schalter, Spender, Waschbecken, Ablagen, Siphonbereich abwischen.\n• Kabinentüren, obere Rahmenkante, stark verschmutzte Bereiche reinigen.\nAbschluss: Benutzte Reinigungstücher mitnehmen, waschen und zeitnah wieder zurückbringen.`,
+  noteRight:`Böden & Teppiche\n• Alle Hartböden gründlich feucht wischen.\n• Teppiche und Läufer saugen.\n\nEcken & Kanten\n• Spinnweben entfernen; Sockelleisten und schwer erreichbare Ecken entstauben.\n\nGlas & Spiegel\n• Innenfenster, Spiegel und Glastüren reinigen.\n\nAußenbereich (bei Bedarf, besonders im Herbst)\n• Laub entfernen; Müll rund um Eingänge/Zaun aufsammeln.\n• Kaugummireste und starke Verschmutzungen entfernen.`,
+  stepLabel:'Abschluss:', noteWord:'hinweis',
+  secOutput:'Ausgabe', secData:'Daten', secCheck:'Belegung', secCongs:'Versammlungen: Sprache & Farbe',
+  secTexts:'Kopfzeile & Fuß', secNotes:'Hinweistexte', secPrint:'Drucken', secHelp:'Hilfe',
+  modePosterT:'Aushang Foyer', modePosterD:'Allgemein, ohne Versammlungsbezug',
+  modeCongT:'Versammlungs-Aushang', modeCongD:'Schwarzes Brett, Sprache und Farbe der Versammlung',
+  congregation:'Versammlung', year:'Jahr', lang:'Sprache', addYear:'+ Jahr anlegen', showMonths:'Monatstrenner anzeigen',
+  import:'Plantool-JSON importieren', export:'Export', reset:'Zurücksetzen',
+  titleEdit:'Titel', titleHint:'Leer lassen = übersetzter Standardtitel.', subtitleEdit:'Untertitel', hallEdit:'Saal',
+  locEdit:'Ort / Adresse', coordEdit:'Reinigungskoordinator', phoneEdit:'Telefon', mailEdit:'E-Mail',
+  noteL:'Linke Spalte', noteR:'Rechte Spalte', resetNotes:'Standardtext dieser Sprache',
+  notesHint:'Eine Zeile vor einem Aufzählungspunkt wird als Überschrift fett unterstrichen.',
+  resetColors:'Standardfarben', congsHint:'Die Sprache wird aus dem Namen erkannt und kann hier überschrieben werden.',
+  printOne:'Aktuelles Blatt drucken', printAll:'Alle Blätter drucken',
+  printHint:'„Alle Blätter“ druckt den Foyer-Aushang plus je ein Blatt pro Versammlung in deren Sprache.',
+  imported:(n,y)=>`Import erfolgreich: ${n} Termin(e), Jahre ${y}.`,
+  noRows:'Keine Termine im Import gefunden.',
+  unknown:'Unbekanntes JSON-Format – weder cleaningSchedule noch schedulesByYear gefunden.',
+  invalidYear:'Ungültiges Jahr.', exported:'Generator-Datei exportiert.', resetAsk:'Alle lokalen Daten dieses Generators löschen?',
+  statAll:'Alle Termine belegt.', statOpen:n=>`${n} Termin(e) ohne Versammlung.`,
+  fitOk:'Passt auf eine A4-Seite.', fitShrunk:s=>`Auf eine A4-Seite verkleinert (Tabelle ${s} pt).`,
+  fitTight:'Inhalt ist zu umfangreich für eine Seite – Hinweistexte kürzen.',
+  noteLangInfo:l=>`Bearbeitet wird der Text für: ${l}`,
+  helpTitle:'Hilfe', sourceLead:'Daten kommen vom Plantool', sourceSub:'Dort Versammlungen, Gruppen und Aufgaben anlegen, dann exportieren.',
+  help:`<h4>Woher die Daten kommen</h4>
+<p>Versammlungen, Gruppen, Kontakte, Aufgaben und der Jahresplan werden im <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> gepflegt. Dort legst du die Versammlungen mit ihrer Gruppenzahl und dem Reinigungskoordinator an, definierst die Aufgaben (etwa Fensterreinigung samt Ausweichterminen) und lässt den Jahresplan erzeugen.</p>
+<p>Anschließend dort <b>Daten exportieren</b> wählen und die JSON-Datei hier unter <b>Daten &rarr; Plantool-JSON importieren</b> einlesen. Dieser Generator plant nichts selbst, er macht aus dem Plan den fertigen Aushang.</p>
+<h4>Was der Import übernimmt</h4>
+<ul>
+<li>Versammlungen mit Name, Gruppenzahl, Kontakt und E-Mail</li>
+<li>Den Terminplan je Jahr (Formate <code>cleaningSchedule</code> und <code>schedulesByYear</code>)</li>
+<li>Die Aufgabenliste; sie erscheint als Vorschlag in den Hinweisfeldern</li>
+<li>Das erste Reinigungsdatum je Jahr, daraus entsteht das wöchentliche Raster</li>
+<li>Saal, Adresse, Telefon und E-Mail aus den Grundeinstellungen</li>
+</ul>
+<p>Bereits vorhandene Jahre bleiben erhalten, ersetzt werden nur die importierten.</p>
+<h4>Die zwei Ausgabearten</h4>
+<p><b>Aushang Foyer</b> ist allgemein gehalten: immer deutsch, ohne Versammlungsnamen und ohne farbige Hervorhebung. Gedacht für den Eingangsbereich.</p>
+<p><b>Versammlungs-Aushang</b> ist für das Schwarze Brett einer Versammlung: Überschrift, Tabellenköpfe und Hinweistexte in deren Sprache, die eigenen Termine farbig hinterlegt, in der Fußzeile der eigene Reinigungskoordinator.</p>
+<h4>Sprache und Farbe</h4>
+<p>Jede Versammlung hat eine Sprache: Deutsch, Englisch, Italienisch, Russisch oder Kroatisch/Serbisch. Sie wird aus dem Namen erkannt und lässt sich unter <b>Versammlungen: Sprache &amp; Farbe</b> überschreiben. Dort wählst du auch die Farbe, in der die eigenen Termine markiert werden.</p>
+<p>Beim Wechsel der Versammlung stellt sich das ganze Blatt auf deren Sprache um. Die Hinweise aus dem Plantool werden mit übersetzt, lange Fensterreinigungs-Vermerke dabei auf den Ausweichtermin gekürzt.</p>
+<h4>Hinweistexte</h4>
+<p>Die beiden Textblöcke oben werden je Jahr und Sprache gespeichert. Bearbeiten kannst du sie in der Seitenleiste oder direkt im Blatt. Eine Zeile, die unmittelbar vor einem Aufzählungspunkt steht, wird automatisch als Überschrift fett unterstrichen. <b>Standardtext dieser Sprache</b> stellt die Vorlage wieder her.</p>
+<h4>Immer genau eine A4-Seite</h4>
+<p>Das Blatt ist fest auf eine Seite ausgelegt und läuft nie auf eine zweite über. Wird der Inhalt zu lang, verkleinert der Generator zuerst die Hinweistexte und erst danach die Terminliste. Unter <b>Ausgabe</b> steht, ob alles gepasst hat.</p>
+<h4>Drucken</h4>
+<p><b>Aktuelles Blatt drucken</b> gibt die sichtbare Fassung aus. <b>Alle Blätter drucken</b> erzeugt in einem Durchgang den Foyer-Aushang und je ein Blatt pro Versammlung, jedes in deren Sprache und Farbe. Im Druckdialog A4 wählen und die Skalierung auf 100 Prozent lassen.</p>
+<h4>Speichern</h4>
+<p>Alle Eingaben bleiben lokal im Browser. <b>Export</b> sichert den kompletten Stand als JSON-Datei, <b>Zurücksetzen</b> löscht die lokalen Daten.</p>`
+},
+en:{
+  titleDefault:'Kingdom Hall Cleaning Schedule', metaDefault:'Weekly cleaning schedule: Saturday',
+  date:'Date', group:'Group', note:'Note', coord:'Cleaning coordinator:', forCong:'For the congregation',
+  months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  placeholder:'Add notes here ...',
+  noteLeft:`Interior areas (incl. basement & kitchen)\n• Clean all visible surfaces.\n\nToilets & urinals\n• Clean flush button, lid, seat, rim, base, and pipe connections.\n• Clean brush & holder, urinal fronts, and partitions.\nNote: Replace toilet brushes annually.\n\nSanitary surfaces\n• Wipe handles, switches, dispensers, sinks, shelves, siphon area.\n• Clean cubicle doors, frame tops, heavily soiled areas.\nFinal step: Take used cleaning cloths with you, wash them, and return them promptly.`,
+  noteRight:`Floors & carpets\n• Damp-mop all hard floors thoroughly.\n• Vacuum carpets and runners.\n\nCorners & edges\n• Remove cobwebs; dust baseboards and hard-to-reach corners.\n\nGlass & mirrors\n• Clean interior windows, mirrors, and glass doors.\n\nOutdoor area (as needed, especially in autumn)\n• Remove leaves; pick up trash around entrances/fence.\n• Remove gum residues and heavy dirt.`,
+  stepLabel:'Final step:', noteWord:'note',
+  secOutput:'Output', secData:'Data', secCheck:'Coverage', secCongs:'Congregations: language & colour',
+  secTexts:'Header & footer', secNotes:'Note texts', secPrint:'Print', secHelp:'Help',
+  modePosterT:'Foyer notice', modePosterD:'General, no congregation named',
+  modeCongT:'Congregation notice', modeCongD:'Notice board, in the congregation’s language and colour',
+  congregation:'Congregation', year:'Year', lang:'Language', addYear:'+ Add year', showMonths:'Show month dividers',
+  import:'Import planner JSON', export:'Export', reset:'Reset',
+  titleEdit:'Title', titleHint:'Leave empty for the translated default title.', subtitleEdit:'Subtitle', hallEdit:'Hall',
+  locEdit:'Location / address', coordEdit:'Cleaning coordinator', phoneEdit:'Phone', mailEdit:'E-mail',
+  noteL:'Left column', noteR:'Right column', resetNotes:'Default text for this language',
+  notesHint:'A line before a bullet point is shown as a bold underlined heading.',
+  resetColors:'Default colours', congsHint:'The language is detected from the name and can be overridden here.',
+  printOne:'Print current sheet', printAll:'Print all sheets',
+  printHint:'“Print all” prints the foyer notice plus one sheet per congregation in its language.',
+  imported:(n,y)=>`Import successful: ${n} appointment(s), years ${y}.`,
+  noRows:'No appointments found in the import.',
+  unknown:'Unknown JSON format – neither cleaningSchedule nor schedulesByYear found.',
+  invalidYear:'Invalid year.', exported:'Generator file exported.', resetAsk:'Delete all local data of this generator?',
+  statAll:'All dates assigned.', statOpen:n=>`${n} date(s) without a congregation.`,
+  fitOk:'Fits on one A4 page.', fitShrunk:s=>`Scaled to one A4 page (table ${s} pt).`,
+  fitTight:'Content is too long for one page – shorten the note texts.',
+  noteLangInfo:l=>`Editing the text for: ${l}`,
+  helpTitle:'Help', sourceLead:'Data comes from the planner', sourceSub:'Create congregations, groups and tasks there, then export.',
+  help:`<h4>Where the data comes from</h4>
+<p>Congregations, groups, contacts, tasks and the yearly schedule are maintained in the <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. There you add each congregation with its number of groups and its cleaning coordinator, define the tasks (window cleaning with backup dates, for example) and generate the yearly plan.</p>
+<p>Then choose <b>Export data</b> there and load the JSON file here under <b>Data &rarr; Import planner JSON</b>. This generator does no planning itself; it turns the plan into the finished notice.</p>
+<h4>What the import brings in</h4>
+<ul>
+<li>Congregations with name, group count, contact and e-mail</li>
+<li>The schedule per year (<code>cleaningSchedule</code> and <code>schedulesByYear</code> formats)</li>
+<li>The task list, offered as suggestions in the note fields</li>
+<li>The first cleaning date of each year, which defines the weekly grid</li>
+<li>Hall, address, phone and e-mail from the global settings</li>
+</ul>
+<p>Years already present are kept; only the imported years are replaced.</p>
+<h4>The two outputs</h4>
+<p><b>Foyer notice</b> is general: always German, no congregation named, no colour highlighting. Meant for the entrance area.</p>
+<p><b>Congregation notice</b> is for one congregation's notice board: heading, table headers and note texts in its language, its own dates highlighted in colour, its own cleaning coordinator in the footer.</p>
+<h4>Language and colour</h4>
+<p>Every congregation has a language: German, English, Italian, Russian or Croatian/Serbian. It is detected from the name and can be overridden under <b>Congregations: language &amp; colour</b>, where you also pick the highlight colour.</p>
+<p>Switching congregation switches the whole sheet to its language. Notes from the planner are translated too, and long window-cleaning entries are shortened to the backup date.</p>
+<h4>Note texts</h4>
+<p>The two text blocks at the top are stored per year and per language. Edit them in the sidebar or directly on the sheet. A line immediately before a bullet point becomes a bold underlined heading. <b>Default text for this language</b> restores the template.</p>
+<h4>Always exactly one A4 page</h4>
+<p>The sheet is fixed to a single page and never spills onto a second. If the content grows too long, the note texts are scaled down first and the schedule only after that. <b>Output</b> tells you whether everything fitted.</p>
+<h4>Printing</h4>
+<p><b>Print current sheet</b> outputs what you see. <b>Print all sheets</b> produces the foyer notice plus one sheet per congregation in a single run, each in its own language and colour. Choose A4 in the print dialog and leave scaling at 100 percent.</p>
+<h4>Saving</h4>
+<p>Everything stays local in the browser. <b>Export</b> saves the complete state as a JSON file, <b>Reset</b> clears the local data.</p>`
+},
+it:{
+  titleDefault:'Pulizia della Sala del Regno', metaDefault:'Piano settimanale: sabato',
+  date:'Data', group:'Gruppo', note:'Nota', coord:'Coordinatore delle pulizie:', forCong:'Per la congregazione',
+  months:['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'],
+  placeholder:'Aggiungi note qui ...',
+  noteLeft:`Aree interne (incl. seminterrato & cucina)\n• Pulire tutte le superfici visibili.\n\nWC & orinatoi\n• Pulire pulsante di scarico, coperchio, sedile, bordo, base e collegamenti dei tubi.\n• Pulire spazzola & porta-spazzola, frontali degli orinatoi e divisori.\nNota: sostituire le spazzole WC ogni anno.\n\nSuperfici sanitarie\n• Pulire maniglie, interruttori, dispenser, lavabi, mensole, area del sifone.\n• Pulire porte delle cabine, parte superiore dei telai, aree molto sporche.\nFase finale: portare via i panni usati, lavarli e riportarli prontamente.`,
+  noteRight:`Pavimenti & tappeti\n• Lavare accuratamente con panno umido tutti i pavimenti duri.\n• Aspirare tappeti e passatoie.\n\nAngoli & bordi\n• Rimuovere ragnatele; spolverare battiscopa e angoli difficili da raggiungere.\n\nVetri & specchi\n• Pulire finestre interne, specchi e porte in vetro.\n\nArea esterna (se necessario, soprattutto in autunno)\n• Rimuovere foglie; raccogliere rifiuti intorno a ingressi/recinzione.\n• Rimuovere residui di gomma e sporco pesante.`,
+  stepLabel:'Fase finale:', noteWord:'nota',
+  secOutput:'Uscita', secData:'Dati', secCheck:'Copertura', secCongs:'Congregazioni: lingua e colore',
+  secTexts:'Intestazione e piè di pagina', secNotes:'Testi delle note', secPrint:'Stampa', secHelp:'Aiuto',
+  modePosterT:'Avviso per l’atrio', modePosterD:'Generale, senza congregazione',
+  modeCongT:'Avviso di congregazione', modeCongD:'Bacheca, nella lingua e nel colore della congregazione',
+  congregation:'Congregazione', year:'Anno', lang:'Lingua', addYear:'+ Aggiungi anno', showMonths:'Mostra separatori dei mesi',
+  import:'Importa JSON del pianificatore', export:'Esporta', reset:'Reimposta',
+  titleEdit:'Titolo', titleHint:'Lascia vuoto per il titolo predefinito tradotto.', subtitleEdit:'Sottotitolo', hallEdit:'Sala',
+  locEdit:'Luogo / indirizzo', coordEdit:'Coordinatore delle pulizie', phoneEdit:'Telefono', mailEdit:'E-mail',
+  noteL:'Colonna sinistra', noteR:'Colonna destra', resetNotes:'Testo predefinito di questa lingua',
+  notesHint:'Una riga prima di un elenco puntato diventa un titolo in grassetto sottolineato.',
+  resetColors:'Colori predefiniti', congsHint:'La lingua viene riconosciuta dal nome e può essere modificata qui.',
+  printOne:'Stampa il foglio attuale', printAll:'Stampa tutti i fogli',
+  printHint:'“Stampa tutti” stampa l’avviso per l’atrio più un foglio per ogni congregazione nella sua lingua.',
+  imported:(n,y)=>`Importazione riuscita: ${n} appuntamento/i, anni ${y}.`,
+  noRows:'Nessun appuntamento trovato nell’importazione.',
+  unknown:'Formato JSON sconosciuto – né cleaningSchedule né schedulesByYear trovati.',
+  invalidYear:'Anno non valido.', exported:'File del generatore esportato.', resetAsk:'Eliminare tutti i dati locali di questo generatore?',
+  statAll:'Tutte le date assegnate.', statOpen:n=>`${n} data/e senza congregazione.`,
+  fitOk:'Sta in una pagina A4.', fitShrunk:s=>`Ridotto a una pagina A4 (tabella ${s} pt).`,
+  fitTight:'Contenuto troppo lungo per una pagina – accorcia le note.',
+  noteLangInfo:l=>`Stai modificando il testo per: ${l}`,
+  helpTitle:'Aiuto', sourceLead:'I dati arrivano dal pianificatore', sourceSub:'Lì si creano congregazioni, gruppi e compiti, poi si esporta.',
+  help:`<h4>Da dove arrivano i dati</h4>
+<p>Congregazioni, gruppi, contatti, compiti e il piano annuale si gestiscono nel <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. Lì inserisci ogni congregazione con il numero di gruppi e il coordinatore delle pulizie, definisci i compiti (per esempio la pulizia delle finestre con le date alternative) e generi il piano annuale.</p>
+<p>Poi scegli <b>Esporta dati</b> e carica il file JSON qui sotto <b>Dati &rarr; Importa JSON del pianificatore</b>. Questo generatore non pianifica nulla: trasforma il piano nell'avviso pronto da appendere.</p>
+<h4>Che cosa viene importato</h4>
+<ul>
+<li>Congregazioni con nome, numero di gruppi, contatto ed e-mail</li>
+<li>Il piano per ogni anno (formati <code>cleaningSchedule</code> e <code>schedulesByYear</code>)</li>
+<li>L'elenco dei compiti, proposto nei campi delle note</li>
+<li>La prima data di pulizia dell'anno, che definisce la griglia settimanale</li>
+<li>Sala, indirizzo, telefono ed e-mail dalle impostazioni generali</li>
+</ul>
+<p>Gli anni già presenti restano; vengono sostituiti solo quelli importati.</p>
+<h4>Le due uscite</h4>
+<p><b>Avviso per l'atrio</b> è generale: sempre in tedesco, senza nome di congregazione e senza evidenziazione a colori.</p>
+<p><b>Avviso di congregazione</b> è per la bacheca di una congregazione: titolo, intestazioni e note nella sua lingua, le proprie date evidenziate a colori e il proprio coordinatore in fondo.</p>
+<h4>Lingua e colore</h4>
+<p>Ogni congregazione ha una lingua: tedesco, inglese, italiano, russo o croato/serbo. Viene riconosciuta dal nome e si può modificare in <b>Congregazioni: lingua e colore</b>, dove scegli anche il colore di evidenziazione.</p>
+<p>Cambiando congregazione tutto il foglio passa alla sua lingua. Anche le note del pianificatore vengono tradotte.</p>
+<h4>Testi delle note</h4>
+<p>I due blocchi di testo in alto sono salvati per anno e per lingua. Puoi modificarli nella barra laterale o direttamente sul foglio. Una riga che precede un elenco puntato diventa un titolo in grassetto sottolineato.</p>
+<h4>Sempre una sola pagina A4</h4>
+<p>Il foglio è fissato a una pagina e non passa mai alla seconda. Se il contenuto è troppo lungo vengono ridotte prima le note e solo dopo la tabella.</p>
+<h4>Stampa</h4>
+<p><b>Stampa il foglio attuale</b> stampa ciò che vedi. <b>Stampa tutti i fogli</b> produce l'avviso per l'atrio più un foglio per ogni congregazione, ciascuno nella sua lingua e nel suo colore. Scegli A4 e lascia la scala al 100 percento.</p>
+<h4>Salvataggio</h4>
+<p>Tutto resta in locale nel browser. <b>Esporta</b> salva lo stato completo come file JSON, <b>Reimposta</b> cancella i dati locali.</p>`
+},
+ru:{
+  titleDefault:'Уборка Зала Царства', metaDefault:'Еженедельный график: суббота',
+  date:'Дата', group:'Группа', note:'Заметка', coord:'Координатор уборки:', forCong:'Для собрания',
+  months:['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+  placeholder:'Добавьте заметки здесь ...',
+  noteLeft:`Внутренние помещения (вкл. подвал и кухню)\n• Очистить все видимые поверхности.\n\nТуалеты и писсуары\n• Очистить кнопку смыва, крышку, сиденье, ободок, основание и соединения труб.\n• Очистить щётку и держатель, передние части писсуаров и перегородки.\nПримечание: заменять туалетные щётки ежегодно.\n\nСанитарные поверхности\n• Протереть ручки, выключатели, дозаторы, раковины, полки, область сифона.\n• Очистить двери кабинок, верхние части рам, сильно загрязнённые места.\nЗаключительный шаг: заберите использованные тряпки, постирайте и оперативно верните.`,
+  noteRight:`Полы и ковры\n• Тщательно вымыть все твёрдые полы влажной уборкой.\n• Пропылесосить ковры и дорожки.\n\nУглы и кромки\n• Удалить паутину; протереть плинтусы и труднодоступные углы.\n\nСтекло и зеркала\n• Очистить внутренние окна, зеркала и стеклянные двери.\n\nНаружная территория (при необходимости, особенно осенью)\n• Удалить листья; собрать мусор у входов/ограждения.\n• Удалить жвачку и сильные загрязнения.`,
+  stepLabel:'Заключительный шаг:', noteWord:'примечание',
+  secOutput:'Вывод', secData:'Данные', secCheck:'Заполненность', secCongs:'Собрания: язык и цвет',
+  secTexts:'Шапка и подвал', secNotes:'Тексты заметок', secPrint:'Печать', secHelp:'Справка',
+  modePosterT:'Объявление в фойе', modePosterD:'Общее, без указания собрания',
+  modeCongT:'Объявление для собрания', modeCongD:'Доска объявлений, на языке и в цвете собрания',
+  congregation:'Собрание', year:'Год', lang:'Язык', addYear:'+ Добавить год', showMonths:'Показывать разделители месяцев',
+  import:'Импорт JSON планировщика', export:'Экспорт', reset:'Сброс',
+  titleEdit:'Заголовок', titleHint:'Оставьте пустым для переведённого заголовка по умолчанию.', subtitleEdit:'Подзаголовок', hallEdit:'Зал',
+  locEdit:'Место / адрес', coordEdit:'Координатор уборки', phoneEdit:'Телефон', mailEdit:'Эл. почта',
+  noteL:'Левая колонка', noteR:'Правая колонка', resetNotes:'Текст по умолчанию для этого языка',
+  notesHint:'Строка перед маркированным списком выделяется жирным с подчёркиванием.',
+  resetColors:'Цвета по умолчанию', congsHint:'Язык определяется по названию и может быть изменён здесь.',
+  printOne:'Печать текущего листа', printAll:'Печать всех листов',
+  printHint:'«Печать всех» печатает объявление для фойе и по одному листу на каждое собрание на его языке.',
+  imported:(n,y)=>`Импорт выполнен: ${n} дат(ы), годы ${y}.`,
+  noRows:'В импорте не найдено дат.',
+  unknown:'Неизвестный формат JSON – не найдено ни cleaningSchedule, ни schedulesByYear.',
+  invalidYear:'Неверный год.', exported:'Файл генератора экспортирован.', resetAsk:'Удалить все локальные данные этого генератора?',
+  statAll:'Все даты распределены.', statOpen:n=>`${n} дат(ы) без собрания.`,
+  fitOk:'Помещается на одну страницу A4.', fitShrunk:s=>`Уменьшено до одной страницы A4 (таблица ${s} pt).`,
+  fitTight:'Содержимое не помещается на страницу – сократите заметки.',
+  noteLangInfo:l=>`Редактируется текст для: ${l}`,
+  helpTitle:'Справка', sourceLead:'Данные поступают из планировщика', sourceSub:'Там создаются собрания, группы и задачи, затем экспорт.',
+  help:`<h4>Откуда берутся данные</h4>
+<p>Собрания, группы, контакты, задачи и годовой план ведутся в <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. Там вы добавляете каждое собрание с числом групп и координатором уборки, задаёте задачи (например, мойку окон с резервными датами) и формируете годовой план.</p>
+<p>Затем выберите там <b>Экспорт данных</b> и загрузите файл JSON здесь в разделе <b>Данные &rarr; Импорт JSON планировщика</b>. Этот генератор ничего не планирует сам, он превращает план в готовое объявление.</p>
+<h4>Что переносится при импорте</h4>
+<ul>
+<li>Собрания с названием, числом групп, контактом и эл. почтой</li>
+<li>График по годам (форматы <code>cleaningSchedule</code> и <code>schedulesByYear</code>)</li>
+<li>Список задач, он предлагается в полях заметок</li>
+<li>Первая дата уборки в году, по ней строится недельная сетка</li>
+<li>Зал, адрес, телефон и эл. почта из общих настроек</li>
+</ul>
+<p>Уже имеющиеся годы сохраняются, заменяются только импортированные.</p>
+<h4>Два вида вывода</h4>
+<p><b>Объявление в фойе</b> общее: всегда на немецком, без названия собрания и без цветного выделения.</p>
+<p><b>Объявление для собрания</b> предназначено для доски объявлений: заголовок, шапка таблицы и заметки на его языке, свои даты выделены цветом, внизу свой координатор уборки.</p>
+<h4>Язык и цвет</h4>
+<p>У каждого собрания есть язык: немецкий, английский, итальянский, русский или хорватский/сербский. Он определяется по названию и меняется в разделе <b>Собрания: язык и цвет</b>, там же выбирается цвет выделения.</p>
+<p>При смене собрания весь лист переключается на его язык. Заметки из планировщика тоже переводятся.</p>
+<h4>Тексты заметок</h4>
+<p>Два текстовых блока вверху сохраняются отдельно для каждого года и языка. Их можно править в боковой панели или прямо на листе. Строка перед маркированным списком становится жирным подчёркнутым заголовком.</p>
+<h4>Всегда ровно одна страница A4</h4>
+<p>Лист рассчитан на одну страницу и никогда не переходит на вторую. Если содержимое слишком длинное, сначала уменьшаются заметки и лишь затем таблица.</p>
+<h4>Печать</h4>
+<p><b>Печать текущего листа</b> выводит то, что вы видите. <b>Печать всех листов</b> формирует объявление для фойе и по одному листу на каждое собрание, каждый на своём языке и в своём цвете. Выберите A4 и оставьте масштаб 100 процентов.</p>
+<h4>Сохранение</h4>
+<p>Все данные остаются локально в браузере. <b>Экспорт</b> сохраняет полное состояние в файл JSON, <b>Сброс</b> удаляет локальные данные.</p>`
+},
+sh:{
+  titleDefault:'Čišćenje Dvorane Kraljevstva', metaDefault:'Sedmični raspored: subota',
+  date:'Datum', group:'Grupa', note:'Napomena', coord:'Koordinator čišćenja:', forCong:'Za skupštinu',
+  months:['Siječanj','Veljača','Ožujak','Travanj','Svibanj','Lipanj','Srpanj','Kolovoz','Rujan','Listopad','Studeni','Prosinac'],
+  placeholder:'Dodaj napomene ovdje ...',
+  noteLeft:`Unutarnja područja (uklj. podrum i kuhinju)\n• Očistite sve vidljive površine.\n\nToaleti i pisoari\n• Očistite tipku za ispiranje, poklopac, dasku, rub, bazu i spojeve cijevi.\n• Očistite četku i držač, prednje dijelove pisoara i pregrade.\nNapomena: WC četke mijenjati jednom godišnje.\n\nSanitarne površine\n• Prebrisati kvake, prekidače, dozatore, umivaonike, police, područje sifona.\n• Očistiti vrata kabina, gornje dijelove okvira, jako prljava mjesta.\nZavršni korak: ponesite korištene krpe, operite ih i brzo vratite.`,
+  noteRight:`Podovi i tepisi\n• Temeljito vlažno obrisati sve tvrde podove.\n• Usisati tepihe i staze.\n\nKutovi i rubovi\n• Ukloniti paučinu; obrisati lajsne i teško dostupne kutove.\n\nStaklo i ogledala\n• Očistiti unutarnje prozore, ogledala i staklena vrata.\n\nVanjsko područje (po potrebi, osobito u jesen)\n• Ukloniti lišće; pokupiti smeće oko ulaza/ograde.\n• Ukloniti žvakaće gume i tešku prljavštinu.`,
+  stepLabel:'Završni korak:', noteWord:'napomena',
+  secOutput:'Izlaz', secData:'Podaci', secCheck:'Popunjenost', secCongs:'Skupštine: jezik i boja',
+  secTexts:'Zaglavlje i podnožje', secNotes:'Tekstovi napomena', secPrint:'Ispis', secHelp:'Pomoć',
+  modePosterT:'Obavijest u predvorju', modePosterD:'Općenito, bez navođenja skupštine',
+  modeCongT:'Obavijest za skupštinu', modeCongD:'Oglasna ploča, na jeziku i u boji skupštine',
+  congregation:'Skupština', year:'Godina', lang:'Jezik', addYear:'+ Dodaj godinu', showMonths:'Prikaži razdjelnike mjeseci',
+  import:'Uvezi JSON planera', export:'Izvoz', reset:'Poništi',
+  titleEdit:'Naslov', titleHint:'Ostavite prazno za prevedeni zadani naslov.', subtitleEdit:'Podnaslov', hallEdit:'Dvorana',
+  locEdit:'Mjesto / adresa', coordEdit:'Koordinator čišćenja', phoneEdit:'Telefon', mailEdit:'E-pošta',
+  noteL:'Lijevi stupac', noteR:'Desni stupac', resetNotes:'Zadani tekst ovog jezika',
+  notesHint:'Redak ispred natuknice prikazuje se kao podebljani podvučeni naslov.',
+  resetColors:'Zadane boje', congsHint:'Jezik se prepoznaje iz naziva i ovdje se može promijeniti.',
+  printOne:'Ispiši trenutni list', printAll:'Ispiši sve listove',
+  printHint:'„Ispiši sve“ ispisuje obavijest za predvorje i po jedan list za svaku skupštinu na njezinu jeziku.',
+  imported:(n,y)=>`Uvoz uspješan: ${n} termin(a), godine ${y}.`,
+  noRows:'U uvozu nisu pronađeni termini.',
+  unknown:'Nepoznat JSON format – nije pronađen ni cleaningSchedule ni schedulesByYear.',
+  invalidYear:'Nevažeća godina.', exported:'Datoteka generatora izvezena.', resetAsk:'Izbrisati sve lokalne podatke ovog generatora?',
+  statAll:'Svi termini su dodijeljeni.', statOpen:n=>`${n} termin(a) bez skupštine.`,
+  fitOk:'Stane na jednu A4 stranicu.', fitShrunk:s=>`Smanjeno na jednu A4 stranicu (tablica ${s} pt).`,
+  fitTight:'Sadržaj je predug za jednu stranicu – skratite napomene.',
+  noteLangInfo:l=>`Uređuje se tekst za: ${l}`,
+  helpTitle:'Pomoć', sourceLead:'Podaci dolaze iz planera', sourceSub:'Ondje se stvaraju skupštine, grupe i zadaci, zatim slijedi izvoz.',
+  help:`<h4>Odakle dolaze podaci</h4>
+<p>Skupštine, grupe, kontakti, zadaci i godišnji plan vode se u <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. Ondje unosiš svaku skupštinu s brojem grupa i koordinatorom čišćenja, određuješ zadatke (na primjer čišćenje prozora s rezervnim terminima) i izrađuješ godišnji plan.</p>
+<p>Zatim ondje odaberi <b>Izvoz podataka</b> i učitaj JSON datoteku ovdje pod <b>Podaci &rarr; Uvezi JSON planera</b>. Ovaj generator ne planira ništa sam, on od plana radi gotovu obavijest.</p>
+<h4>Što se uvozi</h4>
+<ul>
+<li>Skupštine s nazivom, brojem grupa, kontaktom i e-poštom</li>
+<li>Raspored po godinama (formati <code>cleaningSchedule</code> i <code>schedulesByYear</code>)</li>
+<li>Popis zadataka, nudi se u poljima za napomene</li>
+<li>Prvi datum čišćenja u godini, iz njega nastaje tjedna mreža</li>
+<li>Dvorana, adresa, telefon i e-pošta iz općih postavki</li>
+</ul>
+<p>Postojeće godine ostaju, zamjenjuju se samo uvezene.</p>
+<h4>Dvije vrste ispisa</h4>
+<p><b>Obavijest za predvorje</b> je općenita: uvijek na njemačkom, bez naziva skupštine i bez isticanja bojom.</p>
+<p><b>Obavijest za skupštinu</b> namijenjena je oglasnoj ploči: naslov, zaglavlja tablice i napomene na njezinu jeziku, vlastiti termini istaknuti bojom, u podnožju vlastiti koordinator čišćenja.</p>
+<h4>Jezik i boja</h4>
+<p>Svaka skupština ima jezik: njemački, engleski, talijanski, ruski ili hrvatski/srpski. Prepoznaje se iz naziva, a mijenja se pod <b>Skupštine: jezik i boja</b>, gdje biraš i boju isticanja.</p>
+<p>Promjenom skupštine cijeli list prelazi na njezin jezik. Prevode se i napomene iz planera.</p>
+<h4>Tekstovi napomena</h4>
+<p>Dva tekstualna bloka na vrhu spremaju se po godini i jeziku. Uređuj ih u bočnoj traci ili izravno na listu. Redak neposredno ispred natuknice postaje podebljani podvučeni naslov.</p>
+<h4>Uvijek točno jedna A4 stranica</h4>
+<p>List je predviđen za jednu stranicu i nikada ne prelazi na drugu. Ako je sadržaj predug, prvo se smanjuju napomene, a tek zatim tablica.</p>
+<h4>Ispis</h4>
+<p><b>Ispiši trenutni list</b> ispisuje ono što vidiš. <b>Ispiši sve listove</b> izrađuje obavijest za predvorje i po jedan list za svaku skupštinu, svaki na svom jeziku i u svojoj boji. Odaberi A4 i ostavi mjerilo na 100 posto.</p>
+<h4>Spremanje</h4>
+<p>Sve ostaje lokalno u pregledniku. <b>Izvoz</b> sprema cjelokupno stanje kao JSON datoteku, <b>Poništi</b> briše lokalne podatke.</p>`
+}
+};
+
+/* Hinweise aus dem Plantool, übersetzt */
+const NOTE_TRANSLATIONS = {
+  de:{ 'Fensterreinigung':'Fensterreinigung','1. Ausweichtermin':'1. Ausweichtermin','2. Ausweichtermin':'2. Ausweichtermin',
+       'Müllcheck Garten / Parkplatz':'Müllcheck Garten / Parkplatz','Garten: Laub entfernen':'Garten: Laub entfernen' },
+  en:{ 'Fensterreinigung':'Window cleaning','1. Ausweichtermin':'1st backup date','2. Ausweichtermin':'2nd backup date',
+       'Müllcheck Garten / Parkplatz':'Litter check garden / car park','Garten: Laub entfernen':'Garden: remove leaves' },
+  it:{ 'Fensterreinigung':'Pulizia finestre','1. Ausweichtermin':'1ª data alternativa','2. Ausweichtermin':'2ª data alternativa',
+       'Müllcheck Garten / Parkplatz':'Controllo rifiuti giardino / parcheggio','Garten: Laub entfernen':'Giardino: rimuovere le foglie' },
+  ru:{ 'Fensterreinigung':'Мойка окон','1. Ausweichtermin':'1-я резервная дата','2. Ausweichtermin':'2-я резервная дата',
+       'Müllcheck Garten / Parkplatz':'Проверка мусора: сад / парковка','Garten: Laub entfernen':'Сад: убрать листья' },
+  sh:{ 'Fensterreinigung':'Čišćenje prozora','1. Ausweichtermin':'1. rezervni termin','2. Ausweichtermin':'2. rezervni termin',
+       'Müllcheck Garten / Parkplatz':'Provjera smeća: vrt / parkiralište','Garten: Laub entfernen':'Vrt: ukloniti lišće' }
+};
+
+const PALETTE = ['#0d9488','#2563eb','#c2410c','#7c3aed','#be123c','#15803d','#a16207','#0369a1','#9333ea','#b91c1c'];
+
+/* ==================== State ==================== */
+const LS_KEY = 'rpg_state_v24';
+const $ = id => document.getElementById(id);
+
+let state = {
+  lang:'de', selectedYear:new Date().getFullYear(), selectedCong:'', mode:'cong', showMonths:false,
+  title:'', subtitle:'', hall:'', location:'', phone:'', email:'',
+  congregations:[
+    {id:'sample-a',name:'Beispielversammlung',groups:4,contact:'',email:''},
+    {id:'sample-b',name:'Beispiel-Italienisch',groups:3,contact:'',email:''}
+  ],
+  colors:{}, langByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
+};
+
+const T = l => I18N[l] || I18N.de;
+function t(){ return T(state.lang); }
+function langLabel(code){ const l=LANGS.find(x=>x.code===code); return l?l.label:code; }
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const raw=localStorage.getItem(LS_KEY); if(raw) state=Object.assign(state, JSON.parse(raw)); }catch(e){} }
+
+/* ==================== Helfer ==================== */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function hexToRgb(h){ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h||''); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[13,148,136]; }
+function tintOf(hex,a){ const [r,g,b]=hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+function fmtDate(iso){ const p=String(iso||'').split('-'); return p.length===3?`${p[2]}.${p[1]}.${p[0]}`:String(iso||''); }
+function isoFromGerman(d){ const p=String(d).split('.'); return p.length===3?`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`:d; }
+function congById(id){ return state.congregations.find(c=>String(c.id)===String(id)) || null; }
+function congName(id){ const c=congById(id); return c?c.name:''; }
+function colorOf(id){
+  if(state.colors[id]) return state.colors[id];
+  const i=state.congregations.findIndex(c=>String(c.id)===String(id));
+  return PALETTE[(i<0?0:i)%PALETTE.length];
+}
+/* Sprache aus dem Versammlungsnamen ableiten */
+function detectLang(name){
+  const n=String(name||'').toLowerCase();
+  if(/russ|русск/.test(n)) return 'ru';
+  if(/ital/.test(n)) return 'it';
+  if(/kroat|croat|serb|srpsk|hrvat/.test(n)) return 'sh';
+  if(/engl/.test(n)) return 'en';
+  return 'de';
+}
+function langOf(congId){
+  if(state.langByCong[congId]) return state.langByCong[congId];
+  return detectLang(congName(congId));
+}
+function selectedCong(){ return congById(state.selectedCong) || state.congregations[0] || null; }
+
+function datesOfYear(year){
+  const out=[]; const cfg=state.yearConfigs && state.yearConfigs[String(year)];
+  let d;
+  if(cfg && /^\d{4}-\d{2}-\d{2}$/.test(cfg.firstCleaningDate||'')){
+    const p=cfg.firstCleaningDate.split('-').map(Number); d=new Date(p[0],p[1]-1,p[2]);
+  }else{
+    d=new Date(year,0,1); while(d.getDay()!==6) d.setDate(d.getDate()+1);
+  }
+  while(d.getFullYear()===+year){
+    out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+    d.setDate(d.getDate()+7);
+  }
+  return out;
+}
+function yearsAvailable(){
+  const s=new Set([new Date().getFullYear(), +state.selectedYear]);
+  Object.keys(state.schedulesByYear||{}).forEach(y=>s.add(+y));
+  Object.keys(state.yearConfigs||{}).forEach(y=>s.add(+y));
+  return [...s].filter(Boolean).sort((a,b)=>a-b);
+}
+function rowMap(){ const m={}; (state.schedulesByYear[String(state.selectedYear)]||[]).forEach(r=>{ m[r.date]=r; }); return m; }
+function setRow(date,row){
+  const y=String(state.selectedYear);
+  if(!state.schedulesByYear[y]) state.schedulesByYear[y]=[];
+  const arr=state.schedulesByYear[y]; const i=arr.findIndex(r=>r.date===date);
+  const clean={ date, group:row.group||'', groupName:row.groupName||congName(row.group)||'', note:row.note||'' };
+  if(i>=0) arr[i]=clean; else arr.push(clean);
+  arr.sort((a,b)=>a.date<b.date?-1:1); save();
+}
+
+/* Hinweise übersetzen; lange Fensterreinigungs-Varianten werden gekürzt */
+function translateNote(note, lang){
+  let raw=String(note||'').trim(); if(!raw) return '';
+  if(/Fensterreinigung/i.test(raw)){
+    if(/1\.\s*Ausweichtermin/i.test(raw)) raw='1. Ausweichtermin';
+    else if(/2\.\s*Ausweichtermin/i.test(raw)) raw='2. Ausweichtermin';
+  }
+  const map=NOTE_TRANSLATIONS[lang]; if(!map) return raw;
+  let out=raw;
+  Object.keys(map).sort((a,b)=>b.length-a.length).forEach(k=>{ if(out.includes(k)) out=out.split(k).join(map[k]); });
+  return out;
+}
+
+/* Hinweistext: Zeilen vor Aufzählungen als Überschrift auszeichnen */
+function templateToHtml(text, lang){
+  const lines=String(text||'').split(/\n/); const out=[];
+  const step=T(lang).stepLabel, noteWord=T(lang).noteWord;
+  const isBullet=s=>/^[•\u2022-]/.test(s);
+  const nextNonEmpty=i=>{ for(let j=i+1;j<lines.length;j++){ const s=(lines[j]||'').trim(); if(s) return s; } return ''; };
+  for(let i=0;i<lines.length;i++){
+    const s=(lines[i]||'').trim();
+    if(!s){ out.push(''); continue; }
+    if(step && s.startsWith(step)){ out.push('<b><u>'+esc(step)+'</u></b>'+esc(s.slice(step.length))); continue; }
+    const isNoteLine = new RegExp('^(note|hinweis|nota|примечание|napomena|'+noteWord+')\\s*:','i').test(s);
+    if(!isBullet(s) && isBullet(nextNonEmpty(i)) && !isNoteLine) out.push('<b><u>'+esc(s)+'</u></b>');
+    else out.push(esc(s));
+  }
+  return out.join('<br>');
+}
+function htmlToText(html){ const d=document.createElement('div'); d.innerHTML=String(html||'').replace(/<br\s*\/?>/gi,'\n'); return (d.textContent||''); }
+
+function ensureNotes(lang){
+  const y=String(state.selectedYear);
+  if(!state.notesByYear[y]) state.notesByYear[y]={};
+  if(!state.notesByYear[y][lang]) state.notesByYear[y][lang]={left:'',right:''};
+  return state.notesByYear[y][lang];
+}
+function noteHtml(side, lang){
+  const st=ensureNotes(lang);
+  if(st[side]) return st[side];
+  return templateToHtml(T(lang)[side==='left'?'noteLeft':'noteRight'], lang);
+}
+
+/* ==================== Import ==================== */
+function normalize(data){
+  const res={ congregations:[], schedulesByYear:{}, globalSettings:data.globalSettings||{}, header:data.appHeader||{}, tasks:[], yearConfigs:data.yearConfigs||{} };
+  if(Array.isArray(data.congregations)){
+    res.congregations=data.congregations.map((c,i)=>({
+      id:String(c.id ?? c.key ?? (i+1)),
+      name:String(c.name ?? c.label ?? ('Congregation '+(i+1))),
+      groups:Number(c.groups ?? c.groupCount ?? 1)||1,
+      contact:String(c.contact ?? c.kontakt ?? c.coordinator ?? ''),
+      email:String(c.email ?? '')
+    }));
+  }
+  if(Array.isArray(data.tasks)) res.tasks=data.tasks.map(x=>typeof x==='string'?x:String(x.name ?? x.title ?? '')).filter(Boolean);
+  if(data.schedulesByYear && typeof data.schedulesByYear==='object'){
+    Object.keys(data.schedulesByYear).forEach(y=>{ if(Array.isArray(data.schedulesByYear[y]) && data.schedulesByYear[y].length) res.schedulesByYear[String(y)]=data.schedulesByYear[y]; });
+  }
+  if(Array.isArray(data.cleaningSchedule) && data.cleaningSchedule.length){
+    const f=data.cleaningSchedule[0];
+    const y=String(data.exportYear || (f && f.date ? String(f.date).slice(0,4) : new Date().getFullYear()));
+    res.schedulesByYear[y]=data.cleaningSchedule;
+  }
+  if(Array.isArray(data.rows) && data.year) res.schedulesByYear[String(data.year)]=data.rows;
+  if(Array.isArray(data) && data.length){
+    const y=String(data[0].date ? String(data[0].date).slice(0,4) : new Date().getFullYear());
+    res.schedulesByYear[y]=data;
+  }
+  return res;
+}
+function mapItem(it){
+  let date=it.date ?? it.datum ?? '';
+  if(typeof date==='string' && date.includes('.')) date=isoFromGerman(date);
+  return {
+    date:String(date||''),
+    group:String(it.versammlungId ?? it.group ?? it.congId ?? ''),
+    groupName:String(it.versammlungName ?? it.groupName ?? ''),
+    note:String(it.hinweise ?? it.note ?? it.hinweis ?? '')
+  };
+}
+function importPlanner(data){
+  const n=normalize(data);
+  const years=Object.keys(n.schedulesByYear);
+  if(!years.length) throw new Error(t().unknown);
+
+  if(n.congregations.length) state.congregations=n.congregations;
+  if(n.tasks.length) state.tasks=n.tasks;
+  if(Object.keys(n.yearConfigs).length) state.yearConfigs=Object.assign({}, state.yearConfigs, n.yearConfigs);
+
+  let total=0;
+  years.forEach(y=>{
+    const list=n.schedulesByYear[y].map(mapItem).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
+    if(!list.length) return;
+    list.sort((a,b)=>a.date<b.date?-1:1);
+    state.schedulesByYear[String(y)]=list; total+=list.length;
+  });
+
+  const gs=n.globalSettings, hd=n.header;
+  // Der Plantool-Titel ist der Name des Verwaltungstools und wird bewusst nicht als Blatt-Titel übernommen.
+  state.hall     = hd.subtitle || gs.appSubtitle || state.hall || '';
+  state.location = hd.location || gs.appLocation || state.location || '';
+  if(gs.phone) state.phone=gs.phone;
+  if(gs.email) state.email=gs.email;
+  if(gs.contact && !state.coordinatorByCong.__global) state.coordinatorByCong.__global=gs.contact;
+  state.congregations.forEach(c=>{ if(c.contact && !state.coordinatorByCong[c.id]) state.coordinatorByCong[c.id]=c.contact; });
+
+  const imported=years.map(Number).sort((a,b)=>a-b);
+  if(!imported.includes(+state.selectedYear)) state.selectedYear=imported[imported.length-1];
+  if(!congById(state.selectedCong)) state.selectedCong=state.congregations[0]?state.congregations[0].id:'';
+  syncLangToMode();
+  save(); renderAll();
+  setStatus(total? t().imported(total, imported.join(', ')) : t().noRows, total?'ok':'warn');
+}
+function setStatus(msg,kind){
+  const el=$('status'); el.textContent=msg||'';
+  el.className='status'+(kind==='ok'?' ok':'')+(kind==='warn'?' warn':'');
+}
+
+/* ==================== Blatt ==================== */
+function buildSheet(cfg){
+  const lang = cfg.lang || 'de';
+  const x = T(lang);
+  const poster = cfg.mode==='poster';
+  const accent = poster ? '#334155' : colorOf(cfg.congId);
+
+  const sheet=document.createElement('section');
+  sheet.className='sheet';
+  sheet.style.setProperty('--accent',accent);
+  sheet.style.setProperty('--tint',tintOf(accent,.14));
+
+  sheet.appendChild(Object.assign(document.createElement('div'),{className:'accentbar'}));
+
+  const head=document.createElement('header');
+  const h1=document.createElement('h1');
+  h1.textContent=`${state.title || x.titleDefault} ${state.selectedYear}`;
+  const hall=document.createElement('div'); hall.className='hall'; hall.textContent=state.hall||'';
+  const meta=document.createElement('div'); meta.className='meta';
+  meta.textContent=[state.location, state.subtitle || x.metaDefault].filter(Boolean).join(' · ');
+  head.append(h1,hall,meta);
+  if(!poster && cfg.congId){
+    const b=document.createElement('div'); b.className='forbadge';
+    b.textContent=`${x.forCong}: ${congName(cfg.congId)}`;
+    head.appendChild(b);
+  }
+  sheet.appendChild(head);
+
+  const notes=document.createElement('section'); notes.className='notes';
+  ['left','right'].forEach(side=>{
+    const d=document.createElement('div');
+    d.innerHTML=noteHtml(side,lang);
+    d.setAttribute('data-ph',x.placeholder);
+    if(cfg.editable){
+      d.contentEditable='true';
+      d.addEventListener('input',()=>{
+        const st=ensureNotes(lang); st[side]=d.innerHTML; save();
+        $(side==='left'?'noteLeftEdit':'noteRightEdit').value=htmlToText(d.innerHTML);
+      });
+      d.addEventListener('blur',()=>fitSheet(sheet));
+    }
+    notes.appendChild(d);
+  });
+  sheet.appendChild(notes);
+
+  const sched=document.createElement('section'); sched.className='schedule';
+  const dates=datesOfYear(state.selectedYear);
+  const map=rowMap();
+  const half=Math.ceil(dates.length/2);
+  [dates.slice(0,half),dates.slice(half)].forEach(chunk=>{
+    const box=document.createElement('div');
+    const tbl=document.createElement('table');
+    tbl.innerHTML=`<thead><tr><th>${esc(x.date)}</th><th>${esc(x.group)}</th><th>${esc(x.note)}</th></tr></thead>`;
+    const tb=document.createElement('tbody');
+    let lastMonth=-1;
+    chunk.forEach(d=>{
+      if(state.showMonths){
+        const m=+d.slice(5,7)-1;
+        if(m!==lastMonth){
+          lastMonth=m;
+          const mr=document.createElement('tr'); mr.className='monthrow';
+          const td=document.createElement('td'); td.colSpan=3; td.textContent=x.months[m]||'';
+          mr.appendChild(td); tb.appendChild(mr);
+        }
+      }
+      tb.appendChild(makeRow(d,map[d],cfg,lang));
+    });
+    tbl.appendChild(tb); box.appendChild(tbl); sched.appendChild(box);
+  });
+  sheet.appendChild(sched);
+
+  const foot=document.createElement('footer');
+  const left=document.createElement('div');
+  const coordName = poster ? (state.coordinatorByCong.__global||'')
+                           : (state.coordinatorByCong[cfg.congId] || (congById(cfg.congId)||{}).contact || '');
+  if(cfg.editable){
+    const lbl=document.createElement('b'); lbl.textContent=x.coord+' ';
+    const inp=document.createElement('input'); inp.className='coord-in'; inp.value=coordName;
+    inp.addEventListener('input',()=>{
+      if(poster) state.coordinatorByCong.__global=inp.value; else state.coordinatorByCong[cfg.congId]=inp.value;
+      $('coordEdit').value=inp.value; save();
+    });
+    left.append(lbl,inp);
+  }else{
+    left.innerHTML=`<b>${esc(x.coord)}</b> ${esc(coordName)}`;
+  }
+  const contact=[state.phone,state.email].filter(Boolean).join(' · ');
+  if(contact){ left.appendChild(document.createTextNode('  ·  '+contact)); }
+  const right=document.createElement('div');
+  right.textContent = poster ? '' : congName(cfg.congId);
+  right.style.fontWeight='700'; right.style.color=accent;
+  foot.append(left,right);
+  sheet.appendChild(foot);
+  return sheet;
+}
+
+function makeRow(date,item,cfg,lang){
+  const tr=document.createElement('tr');
+  const gid=item?item.group:'';
+  if(cfg.mode==='cong' && gid && String(gid)===String(cfg.congId)) tr.classList.add('mine');
+
+  const td1=document.createElement('td'); td1.className='date'; td1.textContent=fmtDate(date);
+  const td2=document.createElement('td'); td2.className='grp';
+  if(cfg.editable){
+    const sel=document.createElement('select');
+    const e0=document.createElement('option'); e0.value=''; e0.textContent='—'; sel.appendChild(e0);
+    state.congregations.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+    sel.value=gid||'';
+    sel.addEventListener('change',()=>{
+      const cur=rowMap()[date]||{};
+      setRow(date,{group:sel.value,groupName:congName(sel.value),note:cur.note||''});
+      renderSheet(); renderStats();
+    });
+    td2.appendChild(sel);
+  }else{
+    td2.textContent=gid?congName(gid):'';
+  }
+  const td3=document.createElement('td');
+  if(cfg.editable){
+    const inp=document.createElement('input'); inp.className='note-in'; inp.setAttribute('list','taskList');
+    inp.value=translateNote(item?item.note:'',lang);
+    inp.addEventListener('change',()=>{
+      const cur=rowMap()[date]||{};
+      setRow(date,{group:cur.group||gid||'',groupName:congName(cur.group||gid),note:inp.value});
+    });
+    td3.appendChild(inp);
+  }else{
+    td3.textContent=translateNote(item?item.note:'',lang);
+  }
+  tr.append(td1,td2,td3);
+  return tr;
+}
+
+/* ---- A4-Passung: Schrift so lange verkleinern, bis alles auf eine Seite passt ---- */
+function fitSheet(sheet){
+  const sched=sheet.querySelector('.schedule');
+  if(!sched || !sched.clientHeight) return null;
+  let f=9.5, nf=8.4, guard=0;
+  sheet.style.setProperty('--tblfs',f+'pt');
+  sheet.style.setProperty('--notefs',nf+'pt');
+  while(sched.scrollHeight > sched.clientHeight+1 && guard++ < 80){
+    if(nf > 6.2){ nf=+(nf-0.15).toFixed(2); sheet.style.setProperty('--notefs',nf+'pt'); }
+    else if(f > 6.8){ f=+(f-0.15).toFixed(2); sheet.style.setProperty('--tblfs',f+'pt'); }
+    else break;
+  }
+  return { tbl:f, note:nf, overflow: sched.scrollHeight > sched.clientHeight+1 };
+}
+
+/* ==================== Render ==================== */
+function renderSheet(){
+  const wrap=$('sheetWrap'); wrap.innerHTML='';
+  const sheet=buildSheet({ mode:state.mode, congId:state.selectedCong, lang:state.lang, editable:true });
+  wrap.appendChild(sheet);
+  const fit=fitSheet(sheet);
+  const info=$('fitInfo');
+  if(!fit){ info.textContent=''; info.className='fitinfo'; }
+  else if(fit.overflow){ info.textContent=t().fitTight; info.className='warn'; }
+  else if(fit.tbl < 9.5){ info.textContent=t().fitShrunk(fit.tbl); info.className='fitinfo'; }
+  else { info.textContent=t().fitOk; info.className='ok'; }
+}
+function applyTexts(){
+  const x=t(); document.documentElement.lang=state.lang;
+  document.querySelectorAll('[data-i]').forEach(el=>{ const k=el.getAttribute('data-i'); if(x[k]) el.textContent=x[k]; });
+  $('helpBody').innerHTML=x.help;
+  $('helpTitle').textContent=x.helpTitle;
+  $('noteLangInfo').textContent=x.noteLangInfo(langLabel(state.lang));
+}
+function fillSelectors(){
+  const x=t();
+  const lv=$('uiLang'); lv.innerHTML='';
+  LANGS.forEach(l=>{ const o=document.createElement('option'); o.value=l.code; o.textContent=l.label; if(l.code===state.lang) o.selected=true; lv.appendChild(o); });
+  const yv=$('year'); yv.innerHTML='';
+  yearsAvailable().forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; if(+y===+state.selectedYear) o.selected=true; yv.appendChild(o); });
+  const cv=$('cong'); cv.innerHTML='';
+  state.congregations.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; if(String(c.id)===String(state.selectedCong)) o.selected=true; cv.appendChild(o); });
+
+  document.querySelectorAll('input[name=mode]').forEach(r=>{ r.checked=(r.value===state.mode); });
+  $('modeCong').classList.toggle('on', state.mode==='cong');
+  $('modePoster').classList.toggle('on', state.mode==='poster');
+  $('congPick').style.opacity = state.mode==='cong'?'1':'.45';
+  $('congPick').style.pointerEvents = state.mode==='cong'?'auto':'none';
+  $('monthChk').checked=!!state.showMonths;
+
+  $('titleEdit').value=state.title||'';
+  $('titleEdit').placeholder=x.titleDefault;
+  $('subtitleEdit').value=state.subtitle||'';
+  $('subtitleEdit').placeholder=x.metaDefault;
+  $('hallEdit').value=state.hall||'';
+  $('locEdit').value=state.location||'';
+  $('phoneEdit').value=state.phone||'';
+  $('mailEdit').value=state.email||'';
+  $('coordEdit').value = state.mode==='poster'
+    ? (state.coordinatorByCong.__global||'')
+    : (state.coordinatorByCong[state.selectedCong] || (selectedCong()||{}).contact || '');
+
+  $('noteLeftEdit').value  = htmlToText(noteHtml('left',state.lang));
+  $('noteRightEdit').value = htmlToText(noteHtml('right',state.lang));
+
+  const dl=$('taskList'); dl.innerHTML='';
+  state.tasks.forEach(n=>{ const o=document.createElement('option'); o.value=translateNote(n,state.lang); dl.appendChild(o); });
+}
+function renderCongList(){
+  const box=$('congList'); box.innerHTML='';
+  state.congregations.forEach(c=>{
+    const row=document.createElement('div'); row.className='congrow';
+    const col=document.createElement('input'); col.type='color'; col.value=colorOf(c.id);
+    col.addEventListener('input',()=>{ state.colors[c.id]=col.value; save(); renderSheet(); renderStats(); });
+    const nm=document.createElement('div'); nm.className='nm'; nm.textContent=c.name; nm.title=c.name;
+    const ls=document.createElement('select');
+    LANGS.forEach(l=>{ const o=document.createElement('option'); o.value=l.code; o.textContent=l.code.toUpperCase(); if(l.code===langOf(c.id)) o.selected=true; ls.appendChild(o); });
+    ls.addEventListener('change',()=>{
+      state.langByCong[c.id]=ls.value; save();
+      if(state.mode==='cong' && String(c.id)===String(state.selectedCong)){ syncLangToMode(); renderAll(); }
+    });
+    row.append(col,nm,ls); box.appendChild(row);
+  });
+}
+function renderStats(){
+  const chips=$('statChips'); chips.innerHTML='';
+  const dates=datesOfYear(state.selectedYear); const map=rowMap();
+  const counts={}; let open=0;
+  dates.forEach(d=>{ const r=map[d]; if(r&&r.group) counts[r.group]=(counts[r.group]||0)+1; else open++; });
+  state.congregations.forEach(c=>{
+    const chip=document.createElement('div'); chip.className='chip';
+    const i=document.createElement('i'); i.style.background=colorOf(c.id);
+    chip.append(i, document.createTextNode(`${c.name} · ${counts[c.id]||0}`));
+    chips.appendChild(chip);
+  });
+  const msg=$('checkMsg');
+  msg.className = open?'warn':'ok';
+  msg.textContent = open ? t().statOpen(open) : t().statAll;
+}
+function renderAll(){ applyTexts(); fillSelectors(); renderCongList(); renderStats(); renderSheet(); }
+
+/* Sprache an Modus/Versammlung koppeln (wie in v2.2) */
+function syncLangToMode(){
+  state.lang = state.mode==='poster' ? 'de' : langOf(state.selectedCong);
+}
+
+/* ==================== Events ==================== */
+$('uiLang').addEventListener('change',e=>{ state.lang=e.target.value; save(); renderAll(); });
+$('year').addEventListener('change',e=>{ state.selectedYear=+e.target.value; save(); renderAll(); });
+$('cong').addEventListener('change',e=>{ state.selectedCong=e.target.value; syncLangToMode(); save(); renderAll(); });
+document.querySelectorAll('input[name=mode]').forEach(r=>{
+  r.addEventListener('change',()=>{ state.mode=r.value; syncLangToMode(); save(); renderAll(); });
+});
+$('monthChk').addEventListener('change',e=>{ state.showMonths=e.target.checked; save(); renderSheet(); });
+$('addYearBtn').addEventListener('click',()=>{
+  const y=parseInt(prompt(t().addYear,String(+state.selectedYear+1)),10);
+  if(!y||y<2000||y>9999){ setStatus(t().invalidYear,'warn'); return; }
+  state.selectedYear=y; if(!state.schedulesByYear[String(y)]) state.schedulesByYear[String(y)]=[];
+  save(); renderAll();
+});
+$('titleEdit').addEventListener('input',e=>{ state.title=e.target.value; save(); renderSheet(); });
+$('subtitleEdit').addEventListener('input',e=>{ state.subtitle=e.target.value; save(); renderSheet(); });
+$('hallEdit').addEventListener('input',e=>{ state.hall=e.target.value; save(); renderSheet(); });
+$('locEdit').addEventListener('input',e=>{ state.location=e.target.value; save(); renderSheet(); });
+$('phoneEdit').addEventListener('input',e=>{ state.phone=e.target.value; save(); renderSheet(); });
+$('mailEdit').addEventListener('input',e=>{ state.email=e.target.value; save(); renderSheet(); });
+$('coordEdit').addEventListener('input',e=>{
+  if(state.mode==='poster') state.coordinatorByCong.__global=e.target.value;
+  else state.coordinatorByCong[state.selectedCong]=e.target.value;
+  save(); renderSheet();
+});
+$('noteLeftEdit').addEventListener('input',e=>{ ensureNotes(state.lang).left=templateToHtml(e.target.value,state.lang); save(); renderSheet(); });
+$('noteRightEdit').addEventListener('input',e=>{ ensureNotes(state.lang).right=templateToHtml(e.target.value,state.lang); save(); renderSheet(); });
+$('resetNotesBtn').addEventListener('click',()=>{ const st=ensureNotes(state.lang); st.left=''; st.right=''; save(); fillSelectors(); renderSheet(); });
+$('resetColorsBtn').addEventListener('click',()=>{ state.colors={}; save(); renderCongList(); renderSheet(); renderStats(); });
+
+$('importBtn').addEventListener('click',()=>$('import').click());
+$('import').addEventListener('change',()=>{
+  const f=$('import').files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ importPlanner(JSON.parse(r.result)); }catch(err){ setStatus(err.message||String(err),'warn'); } $('import').value=''; };
+  r.readAsText(f);
+});
+$('exportBtn').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`reinigungsplan_generator_${state.selectedYear}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000); setStatus(t().exported,'ok');
+});
+$('resetBtn').addEventListener('click',()=>{ if(confirm(t().resetAsk)){ localStorage.removeItem(LS_KEY); location.reload(); } });
+
+$('printBtn').addEventListener('click',()=>{ document.body.classList.remove('stackmode'); window.print(); });
+$('printAllBtn').addEventListener('click',()=>{
+  const stack=$('printStack'); stack.innerHTML='';
+  const sheets=[buildSheet({mode:'poster',congId:'',lang:'de',editable:false})];
+  state.congregations.forEach(c=>sheets.push(buildSheet({mode:'cong',congId:c.id,lang:langOf(c.id),editable:false})));
+  sheets.forEach(s=>stack.appendChild(s));
+  sheets.forEach(s=>fitSheet(s));            // jedes Blatt einzeln auf A4 einpassen
+  document.body.classList.add('stackmode');
+  window.print();
+});
+window.addEventListener('afterprint',()=>document.body.classList.remove('stackmode'));
+$('navBtn').addEventListener('click',()=>document.body.classList.toggle('nav-open'));
+function openHelp(o){ $('helpOverlay').hidden=!o; if(o) $('helpClose').focus(); }
+$('helpBtn').addEventListener('click',()=>openHelp(true));
+$('helpClose').addEventListener('click',()=>openHelp(false));
+$('helpOverlay').addEventListener('click',e=>{ if(e.target===$('helpOverlay')) openHelp(false); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') openHelp(false); });
+window.addEventListener('resize',()=>{ const s=$('sheetWrap').firstChild; if(s) fitSheet(s); });
+
+/* ==================== Start ==================== */
+load();
+if(!state.selectedCong && state.congregations[0]) state.selectedCong=state.congregations[0].id;
+syncLangToMode();
+renderAll();
+</script>
+</body>
+</html>
