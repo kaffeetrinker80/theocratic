@@ -693,6 +693,15 @@
         font-weight:400 !important;
       }
 
+      /* uniform standing in print: no star, no "Standing:" label */
+      .starIcon{ display:none !important; }
+      .standingWrap > span:first-child{ display:none !important; }
+      .standingPill{ font-size:11.5px !important; }
+
+      /* no footer on printouts */
+      footer{ display:none !important; }
+      body{ padding-bottom:0 !important; }
+
       .editBlock{
         border:none !important;
         box-shadow:none !important;
@@ -1099,7 +1108,7 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.5.1</div>
+<div>Made with Love © – Volunteers list v 2.5.2</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
 <div class="nwsBack" id="nwsHelpBack" role="dialog" aria-modal="true" aria-labelledby="nwsHelpTitle">
@@ -1723,7 +1732,7 @@
     const checks = (g === "Brothers")
       ? `${
           (v.privilege === "Elder" || v.privilege === "MS")
-            ? `<span class="standingPill" title="${escapeAttr(t("exemplaryTip"))}">★ ${t("exemplary")}</span>`
+            ? `<span class="standingPill" title="${escapeAttr(t("exemplaryTip"))}"><span class="starIcon">★</span> ${t("exemplary")}</span>`
             : standingSelect
         }
         <label><input type="checkbox" data-check="single" ${v.single ? "checked":""}/> ${t("single")}</label>
