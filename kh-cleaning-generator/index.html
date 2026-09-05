@@ -46,11 +46,6 @@ body{ font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--fg)
 .helpdot{ margin-left:auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--edge); background:#fff;
   color:var(--muted); font:inherit; font-size:13px; font-weight:700; line-height:1; cursor:pointer; }
 .helpdot:hover{ background:var(--teal-s); color:var(--teal-d); border-color:#bfe6e1; }
-.source{ font-size:11px; color:var(--muted); line-height:1.5; margin:-4px 2px 12px; }
-.source a{ color:var(--teal-d); font-weight:650; text-decoration:none; }
-.source a:hover{ text-decoration:underline; }
-.source-sub{ display:block; }
-
 .overlay{ position:fixed; inset:0; z-index:80; background:rgba(15,23,42,.42); display:flex; align-items:center; justify-content:center; padding:20px; }
 .overlay[hidden]{ display:none; }
 .hpanel{ background:#fff; border-radius:16px; width:min(680px,100%); max-height:86vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(15,23,42,.3); }
@@ -197,11 +192,6 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
     <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.5</span>
     <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
   </div>
-  <div class="source">
-    <span data-i="sourceLead">Daten kommen vom Plantool</span>
-    <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner ↗</a>
-    <span class="source-sub" data-i="sourceSub">Dort Versammlungen, Gruppen und Aufgaben anlegen, dann exportieren.</span>
-  </div>
 
   <details class="sec" open><summary data-i="secOutput">Ausgabe</summary>
     <div class="sec-body">
@@ -253,10 +243,6 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
       <div><label class="f" data-i="locEdit">Ort / Adresse</label><input id="locEdit" /></div>
       <div id="congTitleWrap"><label class="f" data-i="congTitleEdit">Versammlungsname in Kopf und Fuß</label><input id="congTitleEdit" /><div class="hint" data-i="congTitleHint">Nur für Kopfzeile und Fußzeile. Der Name im Plan bleibt unverändert.</div></div>
       <div><label class="f" data-i="coordEdit">Reinigungskoordinator</label><input id="coordEdit" /></div>
-      <div class="row2">
-        <div><label class="f" data-i="phoneEdit">Telefon</label><input id="phoneEdit" /></div>
-        <div><label class="f" data-i="mailEdit">E-Mail</label><input id="mailEdit" /></div>
-      </div>
     </div>
   </details>
 
@@ -375,7 +361,7 @@ de:{
 <li>Den Terminplan je Jahr (Formate <code>cleaningSchedule</code> und <code>schedulesByYear</code>)</li>
 <li>Die Aufgabenliste; sie erscheint als Vorschlag in den Hinweisfeldern</li>
 <li>Das erste Reinigungsdatum je Jahr, daraus entsteht das wöchentliche Raster</li>
-<li>Saal, Adresse, Telefon und E-Mail aus den Grundeinstellungen</li>
+<li>Saal und Adresse aus den Grundeinstellungen</li>
 </ul>
 <p>Bereits vorhandene Jahre bleiben erhalten, ersetzt werden nur die importierten.</p>
 <h4>Die zwei Ausgabearten</h4>
@@ -441,7 +427,7 @@ en:{
 <li>The schedule per year (<code>cleaningSchedule</code> and <code>schedulesByYear</code> formats)</li>
 <li>The task list, offered as suggestions in the note fields</li>
 <li>The first cleaning date of each year, which defines the weekly grid</li>
-<li>Hall, address, phone and e-mail from the global settings</li>
+<li>Hall and address from the global settings</li>
 </ul>
 <p>Years already present are kept; only the imported years are replaced.</p>
 <h4>The two outputs</h4>
@@ -507,7 +493,7 @@ it:{
 <li>Il piano per ogni anno (formati <code>cleaningSchedule</code> e <code>schedulesByYear</code>)</li>
 <li>L'elenco dei compiti, proposto nei campi delle note</li>
 <li>La prima data di pulizia dell'anno, che definisce la griglia settimanale</li>
-<li>Sala, indirizzo, telefono ed e-mail dalle impostazioni generali</li>
+<li>Sala e indirizzo dalle impostazioni generali</li>
 </ul>
 <p>Gli anni già presenti restano; vengono sostituiti solo quelli importati.</p>
 <h4>Le due uscite</h4>
@@ -573,7 +559,7 @@ ru:{
 <li>График по годам (форматы <code>cleaningSchedule</code> и <code>schedulesByYear</code>)</li>
 <li>Список задач, он предлагается в полях заметок</li>
 <li>Первая дата уборки в году, по ней строится недельная сетка</li>
-<li>Зал, адрес, телефон и эл. почта из общих настроек</li>
+<li>Зал и адрес из общих настроек</li>
 </ul>
 <p>Уже имеющиеся годы сохраняются, заменяются только импортированные.</p>
 <h4>Два вида вывода</h4>
@@ -639,7 +625,7 @@ sh:{
 <li>Raspored po godinama (formati <code>cleaningSchedule</code> i <code>schedulesByYear</code>)</li>
 <li>Popis zadataka, nudi se u poljima za napomene</li>
 <li>Prvi datum čišćenja u godini, iz njega nastaje tjedna mreža</li>
-<li>Dvorana, adresa, telefon i e-pošta iz općih postavki</li>
+<li>Dvorana i adresa iz općih postavki</li>
 </ul>
 <p>Postojeće godine ostaju, zamjenjuju se samo uvezene.</p>
 <h4>Dvije vrste ispisa</h4>
@@ -1003,8 +989,6 @@ function buildSheet(cfg){
   }else{
     left.innerHTML=`<b>${esc(x.coord)}</b> ${esc(coordName)}`;
   }
-  const contact=[state.phone,state.email].filter(Boolean).join(' · ');
-  if(contact){ left.appendChild(document.createTextNode('  ·  '+contact)); }
   const right=document.createElement('div');
   right.textContent = poster ? '' : congDisplay(cfg.congId);
   right.style.fontWeight='700'; right.style.color=accent;
@@ -1107,8 +1091,6 @@ function fillSelectors(){
   $('subtitleEdit').placeholder=x.metaDefault;
   $('hallEdit').value=state.hall||'';
   $('locEdit').value=state.location||'';
-  $('phoneEdit').value=state.phone||'';
-  $('mailEdit').value=state.email||'';
   $('congTitleEdit').value = state.displayNameByCong[state.selectedCong] || '';
   $('congTitleEdit').placeholder = congName(state.selectedCong) || '';
   $('congTitleWrap').style.display = state.mode==='poster' ? 'none' : '';
@@ -1185,8 +1167,6 @@ $('titleEdit').addEventListener('input',e=>{ state.title=e.target.value; save();
 $('subtitleEdit').addEventListener('input',e=>{ state.subtitle=e.target.value; save(); renderSheet(); });
 $('hallEdit').addEventListener('input',e=>{ state.hall=e.target.value; save(); renderSheet(); });
 $('locEdit').addEventListener('input',e=>{ state.location=e.target.value; save(); renderSheet(); });
-$('phoneEdit').addEventListener('input',e=>{ state.phone=e.target.value; save(); renderSheet(); });
-$('mailEdit').addEventListener('input',e=>{ state.email=e.target.value; save(); renderSheet(); });
 $('congTitleEdit').addEventListener('input',e=>{
   const v=e.target.value;
   if(v.trim()) state.displayNameByCong[state.selectedCong]=v; else delete state.displayNameByCong[state.selectedCong];
