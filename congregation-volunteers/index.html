@@ -1042,7 +1042,7 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.7</div>
+<div>Made with Love © – Volunteers list v 2.8</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
 <div class="nwsBack" id="nwsHelpBack" role="dialog" aria-modal="true" aria-labelledby="nwsHelpTitle">
@@ -2190,7 +2190,7 @@
     sel: new Set(),
     file: "",
     missing: [],
-    filters: { hideRemoved: true, activeOnly: false, pubOnly: false, newOnly: false, showMinors: false },
+    filters: { hideRemoved: true, activeOnly: true, pubOnly: true, newOnly: false, showMinors: false },
     q: ""
   };
   const NWS_MIN_AGE = 16;
@@ -2220,6 +2220,16 @@
     return out.filter(r => r.some(x => String(x).trim() !== ""));
   }
 
+  // "Alexander, Caleb" == "Caleb Alexander" == "alexander caleb"
+  function nwsNameKey(s){
+    return normalize(s)
+      .replace(/[.,;]/g, " ")
+      .split(/\s+/)
+      .filter(Boolean)
+      .sort()
+      .join(" ");
+  }
+
   function nwsAge(dob){
     const s = String(dob || "").trim();
     if(!s) return null;
@@ -2247,13 +2257,13 @@
     const get = (r, n) => { const i = idx[n]; return i === undefined ? "" : String(r[i] ?? "").trim(); };
     const bool = (v) => /^(true|1|ja|yes|wahr|x)$/i.test(String(v).trim());
 
-    const existing = new Set(data.map(v => normalize(v.name)));
+    const existing = new Set(data.map(v => nwsNameKey(v.name)));
 
     const people = matrix.slice(1).map((r, n) => {
       const first = get(r, "firstname");
       const last  = get(r, "lastname");
       const disp  = get(r, "displayname");
-      const name  = (first || last) ? [first, last].filter(Boolean).join(" ") : disp;
+      const name  = (last && first) ? (last + ", " + first) : (last || first || disp);
       if(!name) return null;
 
       const gRaw = get(r, "gender").toLowerCase();
@@ -2289,7 +2299,7 @@
         removed: has("removed") ? bool(get(r, "removed")) : false,
         moved: has("moved") ? bool(get(r, "moved")) : false,
         single: false, smallChildren: false,
-        dup: existing.has(normalize(name))
+        dup: existing.has(nwsNameKey(name))
       };
     }).filter(Boolean);
 
@@ -2307,7 +2317,7 @@
       }
     }
 
-    people.sort((a, b) => a.name.localeCompare(b.name, undefined, {sensitivity:"base"}));
+    people.sort((a, b) => a.name.localeCompare(b.name, "de", {sensitivity:"base", numeric:true}));
     return people;
   }
 
@@ -2320,7 +2330,7 @@
     if(f.activeOnly && !p.active) return false;
     if(f.pubOnly && p.rawPriv === "NO") return false;
     if(f.newOnly && p.dup) return false;
-    if(NWS.q && !normalize(p.name).includes(NWS.q)) return false;
+    if(NWS.q && !normalize(p.name).includes(NWS.q) && !nwsNameKey(p.name).includes(nwsNameKey(NWS.q))) return false;
     return true;
   }
 
@@ -2515,9 +2525,9 @@
       const people = nwsBuild(nwsParseCSV(text));
       if(!people.length) throw new Error("no rows");
       NWS.people = people;
-      const inFile = new Set(people.map(p => normalize(p.name)));
+      const inFile = new Set(people.map(p => nwsNameKey(p.name)));
       NWS.missing = data
-        .filter(v => (v.name || "").trim() && !inFile.has(normalize(v.name)))
+        .filter(v => (v.name || "").trim() && !inFile.has(nwsNameKey(v.name)))
         .map(v => v.name.trim())
         .sort((a, b) => a.localeCompare(b, undefined, {sensitivity:"base"}));
       NWS.sel = new Set();
@@ -2586,7 +2596,7 @@
 
       if(p.dup){
         if(mode === "skip"){ skipped++; continue; }
-        const ex = data.find(v => normalize(v.name) === normalize(p.name));
+        const ex = data.find(v => nwsNameKey(v.name) === nwsNameKey(p.name));
         if(ex){
           if(p.phone) ex.phone = p.phone;
           if(p.email) ex.email = p.email;
