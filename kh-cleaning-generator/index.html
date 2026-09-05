@@ -743,7 +743,8 @@ function datesOfYear(year){
   return out;
 }
 function yearsAvailable(){
-  const s=new Set([new Date().getFullYear(), +state.selectedYear]);
+  const now=new Date().getFullYear();
+  const s=new Set([now, now+1, +state.selectedYear]);   // Folgejahr immer zur Auswahl anbieten
   Object.keys(state.schedulesByYear||{}).forEach(y=>s.add(+y));
   Object.keys(state.yearConfigs||{}).forEach(y=>s.add(+y));
   return [...s].filter(Boolean).sort((a,b)=>a-b);
