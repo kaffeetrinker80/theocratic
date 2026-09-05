@@ -468,6 +468,8 @@
         .mdc-data-table tbody td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
         .mdc-data-table tbody tr { transition: background var(--transition-fast); }
         .mdc-data-table tbody tr:hover { background: var(--surface-2); }
+        .mdc-data-table tbody tr.tinted { background: var(--row-tint); box-shadow: inset 3px 0 0 var(--row-accent); }
+        .mdc-data-table tbody tr.tinted:hover { background: var(--row-tint-hover); }
 
         .email-cell { font-size: 12px; color: var(--muted); word-break: break-all; max-width: 200px; }
         .contact-cell { font-size: 12px; color: var(--muted); white-space: nowrap; }
@@ -591,6 +593,7 @@
         .summary-card {
             background: var(--surface-2);
             border: 1px solid var(--line-soft);
+            border-left: 3px solid var(--card-accent, var(--line-soft));
             border-radius: var(--r-s);
             padding: 9px 11px;
             text-align: left;
@@ -721,6 +724,7 @@
             box-shadow: none;
         }
         .congregation-item:last-child { margin-bottom: 0; }
+        .congregation-item--compact { border-left: 3px solid var(--cong-accent, var(--line)); }
         .congregation-header {
             display: flex;
             justify-content: space-between;
@@ -731,9 +735,25 @@
         .congregation-header h3 { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--ink); }
         .congregation-compact-grid {
             display: grid;
-            grid-template-columns: minmax(170px, 1.4fr) 78px minmax(140px, 1fr) minmax(180px, 1.2fr) auto;
+            grid-template-columns: minmax(160px, 1.4fr) 72px 58px minmax(130px, 1fr) minmax(170px, 1.2fr) auto;
             gap: 10px;
             align-items: end;
+        }
+        .color-field {
+            padding: 2px !important;
+            height: 32px;
+            width: 100%;
+            cursor: pointer;
+            background: var(--surface);
+        }
+        .color-field::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-field::-webkit-color-swatch { border: none; border-radius: 3px; }
+        .cong-dot {
+            display: inline-block;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: 1px;
         }
         .congregation-compact-grid .form-group { margin-bottom: 0; }
         .congregation-compact-grid .mdc-button { height: 30px; padding: 0 12px; }
@@ -770,7 +790,7 @@
             transition: transform var(--transition-fast);
         }
         .add-cong-toggle.is-open .add-cong-plus { transform: rotate(45deg); }
-        @media (max-width: 1150px) { .congregation-compact-grid { grid-template-columns: 1fr 78px 1fr; } }
+        @media (max-width: 1150px) { .congregation-compact-grid { grid-template-columns: 1fr 72px 58px; } }
         @media (max-width: 780px) { .congregation-compact-grid { grid-template-columns: 1fr; } }
 
         /* ---------- Hilfe ---------- */
@@ -1093,15 +1113,8 @@
                         
                         <div class="form-group">
                             <div class="mdc-text-field">
-                                <input type="text" id="globalContact" placeholder=" ">
-                                <label class="label" for="globalContact" data-i18n="globalContact">Global contact</label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="mdc-text-field">
                                 <input type="text" id="globalCommittee" placeholder=" ">
-                                <label class="label" for="globalCommittee" data-i18n="committee">Maintenance committee</label>
+                                <label class="label" for="globalCommittee" data-i18n="committee">Contact (maintenance committee)</label>
                             </div>
                         </div>
                         
@@ -1193,6 +1206,12 @@
                             </div>
                             <div class="form-group">
                                 <div class="mdc-text-field">
+                                    <input type="color" class="color-field" id="newCongColor" value="#3f6b57">
+                                    <label class="label" for="newCongColor" data-i18n="color">Colour</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="mdc-text-field">
                                     <input type="text" id="newCongContact" placeholder=" ">
                                     <label class="label" for="newCongContact" data-i18n="contact">Contact</label>
                                 </div>
@@ -1227,7 +1246,7 @@
                             <p data-i18n="helpStartText">Pick the language in the header. Everything else is set up under Configuration.</p>
                             <ul>
                                 <li data-i18n="helpStartBullet1">Header &amp; title: tool title, subtitle and location line — saved automatically.</li>
-                                <li data-i18n="helpStartBullet2">General settings: contact person, maintenance committee, phone and email. This block appears on printouts and in emails.</li>
+                                <li data-i18n="helpStartBullet2">General settings: the maintenance committee contact, phone and email. This block appears on printouts and in emails.</li>
                             </ul>
                         </div>
                         <div class="help-box">
@@ -1282,7 +1301,7 @@
 
         <!-- Footer -->
         <footer class="footer" id="appFooter">
-            <span id="footerText">Kingdom Hall Cleaning Planner · V2.4.1 · Made with Love ©</span>
+            <span id="footerText">Kingdom Hall Cleaning Planner · V2.4.2 · Made with Love ©</span>
             <a id="footerFeedback" class="footer-feedback" href="#">✉ Feedback</a>
         </footer>
     </div>
@@ -1431,7 +1450,6 @@
         function contactLine(){
             const s = globalSettings || {};
             const parts = [];
-            if (s.contact) parts.push(s.contact);
             if (s.committee) parts.push(s.committee);
             if (s.phone) parts.push(s.phone);
             if (s.email) parts.push(s.email);
@@ -1450,20 +1468,20 @@
 
         const I18N = {
             en: {
-                editHeader:'✎ Edit header', feedback:'Feedback', committee:'Maintenance committee', datesWord:'dates', saturdaysWord:'Saturdays', blocksNone:'no dates yet', blocksStarted:'started block: {rest} of {size}', blocksOne:'1 block of {size}', blocksMany:'{blocks} blocks of {size}', blocksRest:' + {rest} started', headerSettings:'Header & title', headerHint:'Changes appear in the header immediately and are saved automatically.', languageLabel:'Language:', yearLabel:'Year:', addYear:'+ Year', tabPlan:'📅 Cleaning Plan', tabConfig:'⚙️ Configuration', tabHelp:'❔ Help',
+                editHeader:'✎ Edit header', feedback:'Feedback', color:'Colour', committee:'Contact (maintenance committee)', datesWord:'dates', saturdaysWord:'Saturdays', blocksNone:'no dates yet', blocksStarted:'started block: {rest} of {size}', blocksOne:'1 block of {size}', blocksMany:'{blocks} blocks of {size}', blocksRest:' + {rest} started', headerSettings:'Header & title', headerHint:'Changes appear in the header immediately and are saved automatically.', languageLabel:'Language:', yearLabel:'Year:', addYear:'+ Year', tabPlan:'📅 Cleaning Plan', tabConfig:'⚙️ Configuration', tabHelp:'❔ Help',
                 newEntry:'Add new date', date:'Date', congregation:'Congregation', jobcard:'Select jobcard', hints:'Additional notes', addEntry:'Add date',
                 planManagement:'Plan management', completeYear:'Complete annual plan', resetYear:'Reset year', printExport:'Print & Export', printFull:'Print full plan', printCong:'Print congregation', sendEmail:'Send email', exportData:'Export data', importData:'Import data',
                 calendarTitle:'Cleaning dates', overview:'Overview by congregations', generalSettings:'General settings', globalContact:'Global contact', phone:'Phone number', email:'Email address', saveSettings:'Save settings',
                 yearStart:'Configure year start', selectYear:'Select year', firstCleaning:'First cleaning date', saveYearStart:'Save year start', tasksManage:'Manage tasks (jobcards)', newTask:'New task', addTask:'Add task', addCong:'Add congregation', congName:'Congregation name', groups:'Number of groups', contact:'Contact', existingCong:'Existing congregations',
-                helpTitle:'Help & workflow', helpIntro:'Six steps from an empty planner to a printed cleaning plan.', helpStartTitle:'First setup', helpStartText:'Pick the language in the header. Everything else is set up under Configuration.', helpStartBullet1:'Header & title: tool title, subtitle and location line — saved automatically.', helpStartBullet2:'General settings: contact person, maintenance committee, phone and email. This block appears on printouts and in emails.', helpCongTitle:'Congregations', helpCongText:'Under Configuration, add each congregation once using the + button below the list: name, number of cleaning groups, contact and email.', helpCongBullet1:'The number of groups is the block length: 4 groups means four Saturdays in a row.', helpCongBullet2:'Edit fields directly in the list, then press Save changes.', helpCongBullet3:'A congregation in use in the current plan cannot be removed.', helpYearTitle:'Create an annual plan', helpYearText:'Select the year in the header, add it with + Year if missing. Then set the first cleaning date for that year under Configuration — it has to be a Saturday.', helpYearBullet1:'Complete annual plan fills every remaining Saturday, following the block rotation.', helpYearBullet2:'Existing entries stay untouched; only gaps are filled.', helpYearBullet3:'Reset year deletes all cleaning dates of the selected year.', helpPlanTitle:'Work with dates', helpPlanText:'Open Saturdays show a dropdown right in the table — pick a congregation and the date is assigned. Add new date on the left is for single entries.', helpPlanBullet1:'Edit, Swap and Delete sit at the end of each row; Swap exchanges the congregations of two dates.', helpPlanBullet2:'Jobcards such as window cleaning are stored as a note and show up as a star in the row.', helpPlanBullet3:'Notes appear in printouts, emails and the JSON export.', helpOverviewTitle:'Reading the overview', helpOverviewText:'The cards above the table count the dates each congregation has in the selected year and translate them into blocks.', helpOverviewBullet1:'Example: 8 dates for a congregation with 4 groups means 2 blocks of 4.', helpOverviewBullet2:'A remainder such as +2 means a block has started but is not complete yet.', helpOverviewBullet3:'The amber card counts the Saturdays that still have no congregation.', helpPrintTitle:'Print, email, backup', helpPrintText:"Print full plan gives the annual overview, Print congregation a plan for one congregation only, Send email opens your mail program with that congregation's dates.", helpPrintBullet1:'Export data writes the JSON backup — do this before bigger changes.', helpPrintBullet2:'Import data overwrites the local data after confirmation.', helpPrintBullet3:'The offline cleaning plan generator reads exactly this JSON export; do not edit it by hand.',                appTitle:'Tool title', appSubtitle:'Subtitle', appLocation:'Location / note', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0', selectedYear:'Year {year} selected', exported:'Data exported', imported:'Data imported successfully', invalid:'Invalid file format', addYearPrompt:'Which year should be added?', yearAdded:'Year {year} added', yearExists:'This year is already available.', tableDate:'Date', tableCong:'Congregation', tableContact:'Contact', tableEmail:'Email', tableAction:'Action', modalSwapTitle:'Swap date', modalSwapText:'You want to swap the date from ', modalSwapTarget:'Select target date', cancel:'Cancel', swap:'Swap', editTitle:'Edit date', save:'Save', emailTitle:'Send email', printCongTitle:'Print congregation plan', selectCong:'Select congregation', print:'Print', ok:'OK', chooseCong:'Please select a congregation', missingEmail:'No email address is stored for this congregation', noDates:'No dates available for this congregation.', generatedWith:'Generated with Kingdom Hall Cleaning Planner', notFound:'Date not found', datesNotFound:'Dates not found', selectDate:'Please select a date', invalidCong:'Invalid congregation selected', dateExists:'An entry already exists for this date', entryEdited:'Date updated successfully', entryAdded:'Date added successfully', assigned:'Date assigned successfully', noStartHint:'Please configure the year start first (first Saturday) or manually add the first date.', groupsWord:'groups', edit:'Edit', delete:'Delete', unassigned:'Unassigned', chooseCongLabel:'Choose congregation', selectTarget:'Please select a target date', swapped:'Dates swapped successfully', ofDates:'of {count} dates', saturdaysMissing:'Saturdays still open', confirmDeleteEntry:'Do you really want to delete this entry?', entryDeleted:'Entry deleted successfully', settingsSaved:'Settings saved', congNameRequired:'Please enter a congregation name', congAdded:'Congregation added', congNotFound:'Congregation not found', congUpdated:'Congregation updated', confirmRemoveCong:'Do you really want to remove this congregation?', congInUse:'This congregation is still used in dates and cannot be deleted', congRemoved:'Congregation removed', remove:'Remove', name:'Name', saveChanges:'Save changes', taskNameRequired:'Please enter a task name', taskAdded:'Task added', confirmRemoveTask:'Do you really want to remove this task? This action cannot be undone.', taskRemoved:'Task removed', confirmGenerate:'Do you really want to complete the annual plan for {year}? Existing entries will remain.', autoStart:'Year start for {year} was set automatically ({date})', yearCompleted:'Annual plan for {year} has been completed!', confirmReset:'Do you really want to reset all cleaning dates for {year}? All entries will be deleted.', yearReset:'Cleaning plan for {year} was reset!', importError:'Import error: {message}', windowCleaning:'Window cleaning', backup1:'1st backup date', backup2:'2nd backup date', editTooltip:'Click to edit', firstCleaningRequired:'Please enter a date for the first cleaning date', firstCleaningSaturday:'The first cleaning date must be a Saturday', yearConfigSaved:'Year configuration saved', confirmImport:'Do you really want to import data? Existing data will be overwritten.' 
+                helpTitle:'Help & workflow', helpIntro:'Six steps from an empty planner to a printed cleaning plan.', helpStartTitle:'First setup', helpStartText:'Pick the language in the header. Everything else is set up under Configuration.', helpStartBullet1:'Header & title: tool title, subtitle and location line — saved automatically.', helpStartBullet2:'General settings: the maintenance committee contact, phone and email. This block appears on printouts and in emails.', helpCongTitle:'Congregations', helpCongText:'Under Configuration, add each congregation once using the + button below the list: name, number of cleaning groups, contact and email.', helpCongBullet1:'The number of groups is the block length: 4 groups means four Saturdays in a row.', helpCongBullet2:'Edit fields directly in the list, then press Save changes.', helpCongBullet3:'A congregation in use in the current plan cannot be removed.', helpYearTitle:'Create an annual plan', helpYearText:'Select the year in the header, add it with + Year if missing. Then set the first cleaning date for that year under Configuration — it has to be a Saturday.', helpYearBullet1:'Complete annual plan fills every remaining Saturday, following the block rotation.', helpYearBullet2:'Existing entries stay untouched; only gaps are filled.', helpYearBullet3:'Reset year deletes all cleaning dates of the selected year.', helpPlanTitle:'Work with dates', helpPlanText:'Open Saturdays show a dropdown right in the table — pick a congregation and the date is assigned. Add new date on the left is for single entries.', helpPlanBullet1:'Edit, Swap and Delete sit at the end of each row; Swap exchanges the congregations of two dates.', helpPlanBullet2:'Jobcards such as window cleaning are stored as a note and show up as a star in the row.', helpPlanBullet3:'Notes appear in printouts, emails and the JSON export.', helpOverviewTitle:'Reading the overview', helpOverviewText:'The cards above the table count the dates each congregation has in the selected year and translate them into blocks.', helpOverviewBullet1:'Example: 8 dates for a congregation with 4 groups means 2 blocks of 4.', helpOverviewBullet2:'A remainder such as +2 means a block has started but is not complete yet.', helpOverviewBullet3:'The amber card counts the Saturdays that still have no congregation.', helpPrintTitle:'Print, email, backup', helpPrintText:"Print full plan gives the annual overview, Print congregation a plan for one congregation only, Send email opens your mail program with that congregation's dates.", helpPrintBullet1:'Export data writes the JSON backup — do this before bigger changes.', helpPrintBullet2:'Import data overwrites the local data after confirmation.', helpPrintBullet3:'The offline cleaning plan generator reads exactly this JSON export; do not edit it by hand.',                appTitle:'Tool title', appSubtitle:'Subtitle', appLocation:'Location / note', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0', selectedYear:'Year {year} selected', exported:'Data exported', imported:'Data imported successfully', invalid:'Invalid file format', addYearPrompt:'Which year should be added?', yearAdded:'Year {year} added', yearExists:'This year is already available.', tableDate:'Date', tableCong:'Congregation', tableContact:'Contact', tableEmail:'Email', tableAction:'Action', modalSwapTitle:'Swap date', modalSwapText:'You want to swap the date from ', modalSwapTarget:'Select target date', cancel:'Cancel', swap:'Swap', editTitle:'Edit date', save:'Save', emailTitle:'Send email', printCongTitle:'Print congregation plan', selectCong:'Select congregation', print:'Print', ok:'OK', chooseCong:'Please select a congregation', missingEmail:'No email address is stored for this congregation', noDates:'No dates available for this congregation.', generatedWith:'Generated with Kingdom Hall Cleaning Planner', notFound:'Date not found', datesNotFound:'Dates not found', selectDate:'Please select a date', invalidCong:'Invalid congregation selected', dateExists:'An entry already exists for this date', entryEdited:'Date updated successfully', entryAdded:'Date added successfully', assigned:'Date assigned successfully', noStartHint:'Please configure the year start first (first Saturday) or manually add the first date.', groupsWord:'groups', edit:'Edit', delete:'Delete', unassigned:'Unassigned', chooseCongLabel:'Choose congregation', selectTarget:'Please select a target date', swapped:'Dates swapped successfully', ofDates:'of {count} dates', saturdaysMissing:'Saturdays still open', confirmDeleteEntry:'Do you really want to delete this entry?', entryDeleted:'Entry deleted successfully', settingsSaved:'Settings saved', congNameRequired:'Please enter a congregation name', congAdded:'Congregation added', congNotFound:'Congregation not found', congUpdated:'Congregation updated', confirmRemoveCong:'Do you really want to remove this congregation?', congInUse:'This congregation is still used in dates and cannot be deleted', congRemoved:'Congregation removed', remove:'Remove', name:'Name', saveChanges:'Save changes', taskNameRequired:'Please enter a task name', taskAdded:'Task added', confirmRemoveTask:'Do you really want to remove this task? This action cannot be undone.', taskRemoved:'Task removed', confirmGenerate:'Do you really want to complete the annual plan for {year}? Existing entries will remain.', autoStart:'Year start for {year} was set automatically ({date})', yearCompleted:'Annual plan for {year} has been completed!', confirmReset:'Do you really want to reset all cleaning dates for {year}? All entries will be deleted.', yearReset:'Cleaning plan for {year} was reset!', importError:'Import error: {message}', windowCleaning:'Window cleaning', backup1:'1st backup date', backup2:'2nd backup date', editTooltip:'Click to edit', firstCleaningRequired:'Please enter a date for the first cleaning date', firstCleaningSaturday:'The first cleaning date must be a Saturday', yearConfigSaved:'Year configuration saved', confirmImport:'Do you really want to import data? Existing data will be overwritten.' 
             },
             de: {
-                editHeader:'✎ Header bearbeiten', feedback:'Feedback', committee:'Instandhaltungskomitee', datesWord:'Termine', saturdaysWord:'Samstage', blocksNone:'noch keine Termine', blocksStarted:'angefangener Block: {rest} von {size}', blocksOne:'1 Block à {size}', blocksMany:'{blocks} Blöcke à {size}', blocksRest:' + {rest} angefangen', headerSettings:'Kopfzeile & Titel', headerHint:'Änderungen erscheinen sofort im Header und werden automatisch gespeichert.', languageLabel:'Sprache:', yearLabel:'Jahr:', addYear:'+ Jahr', tabPlan:'📅 Reinigungsplan', tabConfig:'⚙️ Konfiguration', tabHelp:'❔ Hilfe',
+                editHeader:'✎ Header bearbeiten', feedback:'Feedback', color:'Farbe', committee:'Ansprechpartner (Instandhaltungskomitee)', datesWord:'Termine', saturdaysWord:'Samstage', blocksNone:'noch keine Termine', blocksStarted:'angefangener Block: {rest} von {size}', blocksOne:'1 Block à {size}', blocksMany:'{blocks} Blöcke à {size}', blocksRest:' + {rest} angefangen', headerSettings:'Kopfzeile & Titel', headerHint:'Änderungen erscheinen sofort im Header und werden automatisch gespeichert.', languageLabel:'Sprache:', yearLabel:'Jahr:', addYear:'+ Jahr', tabPlan:'📅 Reinigungsplan', tabConfig:'⚙️ Konfiguration', tabHelp:'❔ Hilfe',
                 newEntry:'Neuen Termin hinzufügen', date:'Datum', congregation:'Versammlung', jobcard:'Jobcard auswählen', hints:'Zusätzliche Hinweise', addEntry:'Termin hinzufügen',
                 planManagement:'Planverwaltung', completeYear:'Jahresplan vervollständigen', resetYear:'Jahr zurücksetzen', printExport:'Drucken & Export', printFull:'Gesamten Plan drucken', printCong:'Versammlung drucken', sendEmail:'E-Mail senden', exportData:'Daten exportieren', importData:'Daten importieren',
                 calendarTitle:'Reinigungstermine', overview:'Übersicht nach Versammlungen', generalSettings:'Allgemeine Einstellungen', globalContact:'Globaler Ansprechpartner', phone:'Telefonnummer', email:'E-Mail-Adresse', saveSettings:'Einstellungen speichern',
                 yearStart:'Jahresstart konfigurieren', selectYear:'Jahr auswählen', firstCleaning:'Erster Reinigungstermin', saveYearStart:'Jahresstart speichern', tasksManage:'Aufgaben (Jobcards) verwalten', newTask:'Neue Aufgabe', addTask:'Aufgabe hinzufügen', addCong:'Versammlung hinzufügen', congName:'Name der Versammlung', groups:'Anzahl Gruppen', contact:'Kontakt', existingCong:'Vorhandene Versammlungen',
-                helpTitle:'Hilfe & Arbeitsablauf', helpIntro:'In sechs Schritten vom leeren Planer zum fertigen Aushang.', helpStartTitle:'Erste Einrichtung', helpStartText:'Sprache oben im Header wählen. Alles Weitere wird unter Konfiguration eingerichtet.', helpStartBullet1:'Kopfzeile & Titel: Tool-Titel, Untertitel und Standortzeile — wird automatisch gespeichert.', helpStartBullet2:'Allgemeine Einstellungen: Ansprechpartner, Instandhaltungskomitee, Telefon und E-Mail. Dieser Block erscheint im Druck und in E-Mails.', helpCongTitle:'Versammlungen', helpCongText:'Unter Konfiguration jede Versammlung einmal über das + unter der Liste anlegen: Name, Anzahl Reinigungsgruppen, Kontakt und E-Mail.', helpCongBullet1:'Die Gruppenzahl ist die Blocklänge: 4 Gruppen heißt vier Samstage hintereinander.', helpCongBullet2:'Felder direkt in der Liste ändern und dann Änderungen speichern drücken.', helpCongBullet3:'Eine Versammlung, die im aktuellen Plan verwendet wird, lässt sich nicht löschen.', helpYearTitle:'Jahresplan erstellen', helpYearText:'Jahr oben auswählen, fehlende Jahre mit + Jahr ergänzen. Dann unter Konfiguration den ersten Reinigungstermin des Jahres setzen — er muss ein Samstag sein.', helpYearBullet1:'Jahresplan vervollständigen füllt alle restlichen Samstage nach der Blockrotation.', helpYearBullet2:'Vorhandene Einträge bleiben stehen; nur Lücken werden gefüllt.', helpYearBullet3:'Jahr zurücksetzen löscht alle Reinigungstermine des gewählten Jahres.', helpPlanTitle:'Termine bearbeiten', helpPlanText:'Offene Samstage haben direkt in der Tabelle ein Auswahlfeld — Versammlung wählen, fertig. Neuen Termin hinzufügen links ist für Einzeltermine.', helpPlanBullet1:'Bearbeiten, Tauschen und Löschen stehen am Zeilenende; Tauschen vertauscht die Versammlungen zweier Termine.', helpPlanBullet2:'Jobcards wie Fensterreinigung werden als Hinweis gespeichert und erscheinen als Stern in der Zeile.', helpPlanBullet3:'Hinweise erscheinen im Druck, in E-Mails und im JSON-Export.', helpOverviewTitle:'Übersicht lesen', helpOverviewText:'Die Karten über der Tabelle zählen, wie viele Termine jede Versammlung im gewählten Jahr hat, und rechnen das in Blöcke um.', helpOverviewBullet1:'Beispiel: 8 Termine bei 4 Gruppen sind 2 Blöcke à 4.', helpOverviewBullet2:'Ein Rest wie +2 heißt, ein Block hat begonnen, ist aber noch nicht voll.', helpOverviewBullet3:'Die bernsteinfarbene Karte zählt die Samstage, die noch keine Versammlung haben.', helpPrintTitle:'Drucken, E-Mail, Backup', helpPrintText:'Gesamten Plan drucken erzeugt die Jahresübersicht, Versammlung drucken einen Plan für eine einzelne Versammlung, E-Mail senden öffnet das Mailprogramm mit deren Terminen.', helpPrintBullet1:'Daten exportieren schreibt das JSON-Backup — vor größeren Änderungen immer zuerst exportieren.', helpPrintBullet2:'Daten importieren überschreibt nach Bestätigung die lokalen Daten.', helpPrintBullet3:'Der Offline-Reinigungsplan-Generator liest genau diesen JSON-Export; nicht von Hand bearbeiten.',                appTitle:'Tool-Titel', appSubtitle:'Untertitel', appLocation:'Standort / Hinweis', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0', selectedYear:'Jahr {year} ausgewählt', exported:'Daten wurden exportiert', imported:'Daten erfolgreich importiert', invalid:'Ungültiges Dateiformat', addYearPrompt:'Welches Jahr soll ergänzt werden?', yearAdded:'Jahr {year} hinzugefügt', yearExists:'Dieses Jahr ist bereits verfügbar.', tableDate:'Datum', tableCong:'Versammlung', tableContact:'Kontakt', tableEmail:'E-Mail', tableAction:'Aktion', modalSwapTitle:'Termin tauschen', modalSwapText:'Sie möchten den Termin vom ', modalSwapTarget:'Zieltermin auswählen', cancel:'Abbrechen', swap:'Tauschen', editTitle:'Termin bearbeiten', save:'Speichern', emailTitle:'E-Mail senden', printCongTitle:'Versammlungsplan drucken', selectCong:'Versammlung auswählen', print:'Drucken', ok:'OK', chooseCong:'Bitte eine Versammlung auswählen', missingEmail:'Für diese Versammlung ist keine E-Mail-Adresse hinterlegt', noDates:'Keine Termine für diese Versammlung vorhanden.', generatedWith:'Generiert mit Kingdom Hall Cleaning Planner', notFound:'Termin nicht gefunden', datesNotFound:'Termine nicht gefunden', selectDate:'Bitte ein Datum auswählen', invalidCong:'Ungültige Versammlung ausgewählt', dateExists:'Für dieses Datum existiert bereits ein Eintrag', entryEdited:'Termin erfolgreich bearbeitet', entryAdded:'Termin erfolgreich hinzugefügt', assigned:'Termin erfolgreich zugewiesen', noStartHint:'Bitte zuerst den Jahresstart konfigurieren (erster Samstag) oder den ersten Termin manuell hinzufügen.', groupsWord:'Gruppen', edit:'Bearbeiten', delete:'Löschen', unassigned:'Nicht zugewiesen', chooseCongLabel:'Versammlung wählen', selectTarget:'Bitte wählen Sie einen Zieltermin aus', swapped:'Termine erfolgreich getauscht', ofDates:'von {count} Terminen', saturdaysMissing:'Samstage noch offen', confirmDeleteEntry:'Möchten Sie diesen Eintrag wirklich löschen?', entryDeleted:'Eintrag erfolgreich gelöscht', settingsSaved:'Einstellungen gespeichert', congNameRequired:'Bitte einen Namen für die Versammlung eingeben', congAdded:'Versammlung hinzugefügt', congNotFound:'Versammlung nicht gefunden', congUpdated:'Versammlung aktualisiert', confirmRemoveCong:'Möchten Sie diese Versammlung wirklich entfernen?', congInUse:'Diese Versammlung wird noch in Terminen verwendet und kann nicht gelöscht werden', congRemoved:'Versammlung entfernt', remove:'Entfernen', name:'Name', saveChanges:'Änderungen speichern', taskNameRequired:'Bitte geben Sie einen Namen für die Aufgabe ein', taskAdded:'Aufgabe hinzugefügt', confirmRemoveTask:'Möchten Sie diese Aufgabe wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.', taskRemoved:'Aufgabe entfernt', confirmGenerate:'Möchten Sie wirklich den Jahresplan für {year} vervollständigen? Existierende Einträge bleiben erhalten.', autoStart:'Jahresstart für {year} automatisch gesetzt ({date})', yearCompleted:'Jahresplan für {year} wurde vervollständigt!', confirmReset:'Möchten Sie wirklich alle Reinigungstermine für {year} zurücksetzen? Alle Einträge werden gelöscht.', yearReset:'Reinigungsplan für {year} wurde zurückgesetzt!', importError:'Fehler beim Importieren: {message}', windowCleaning:'Fensterreinigung', backup1:'1. Ausweichtermin', backup2:'2. Ausweichtermin', editTooltip:'Zum Bearbeiten anklicken', firstCleaningRequired:'Bitte ein Datum für den ersten Reinigungstermin eingeben', firstCleaningSaturday:'Der erste Reinigungstermin muss ein Samstag sein', yearConfigSaved:'Jahreskonfiguration gespeichert', confirmImport:'Möchten Sie wirklich Daten importieren? Alle vorhandenen Daten werden überschrieben.' 
+                helpTitle:'Hilfe & Arbeitsablauf', helpIntro:'In sechs Schritten vom leeren Planer zum fertigen Aushang.', helpStartTitle:'Erste Einrichtung', helpStartText:'Sprache oben im Header wählen. Alles Weitere wird unter Konfiguration eingerichtet.', helpStartBullet1:'Kopfzeile & Titel: Tool-Titel, Untertitel und Standortzeile — wird automatisch gespeichert.', helpStartBullet2:'Allgemeine Einstellungen: Ansprechpartner vom Instandhaltungskomitee, Telefon und E-Mail. Dieser Block erscheint im Druck und in E-Mails.', helpCongTitle:'Versammlungen', helpCongText:'Unter Konfiguration jede Versammlung einmal über das + unter der Liste anlegen: Name, Anzahl Reinigungsgruppen, Kontakt und E-Mail.', helpCongBullet1:'Die Gruppenzahl ist die Blocklänge: 4 Gruppen heißt vier Samstage hintereinander.', helpCongBullet2:'Felder direkt in der Liste ändern und dann Änderungen speichern drücken.', helpCongBullet3:'Eine Versammlung, die im aktuellen Plan verwendet wird, lässt sich nicht löschen.', helpYearTitle:'Jahresplan erstellen', helpYearText:'Jahr oben auswählen, fehlende Jahre mit + Jahr ergänzen. Dann unter Konfiguration den ersten Reinigungstermin des Jahres setzen — er muss ein Samstag sein.', helpYearBullet1:'Jahresplan vervollständigen füllt alle restlichen Samstage nach der Blockrotation.', helpYearBullet2:'Vorhandene Einträge bleiben stehen; nur Lücken werden gefüllt.', helpYearBullet3:'Jahr zurücksetzen löscht alle Reinigungstermine des gewählten Jahres.', helpPlanTitle:'Termine bearbeiten', helpPlanText:'Offene Samstage haben direkt in der Tabelle ein Auswahlfeld — Versammlung wählen, fertig. Neuen Termin hinzufügen links ist für Einzeltermine.', helpPlanBullet1:'Bearbeiten, Tauschen und Löschen stehen am Zeilenende; Tauschen vertauscht die Versammlungen zweier Termine.', helpPlanBullet2:'Jobcards wie Fensterreinigung werden als Hinweis gespeichert und erscheinen als Stern in der Zeile.', helpPlanBullet3:'Hinweise erscheinen im Druck, in E-Mails und im JSON-Export.', helpOverviewTitle:'Übersicht lesen', helpOverviewText:'Die Karten über der Tabelle zählen, wie viele Termine jede Versammlung im gewählten Jahr hat, und rechnen das in Blöcke um.', helpOverviewBullet1:'Beispiel: 8 Termine bei 4 Gruppen sind 2 Blöcke à 4.', helpOverviewBullet2:'Ein Rest wie +2 heißt, ein Block hat begonnen, ist aber noch nicht voll.', helpOverviewBullet3:'Die bernsteinfarbene Karte zählt die Samstage, die noch keine Versammlung haben.', helpPrintTitle:'Drucken, E-Mail, Backup', helpPrintText:'Gesamten Plan drucken erzeugt die Jahresübersicht, Versammlung drucken einen Plan für eine einzelne Versammlung, E-Mail senden öffnet das Mailprogramm mit deren Terminen.', helpPrintBullet1:'Daten exportieren schreibt das JSON-Backup — vor größeren Änderungen immer zuerst exportieren.', helpPrintBullet2:'Daten importieren überschreibt nach Bestätigung die lokalen Daten.', helpPrintBullet3:'Der Offline-Reinigungsplan-Generator liest genau diesen JSON-Export; nicht von Hand bearbeiten.',                appTitle:'Tool-Titel', appSubtitle:'Untertitel', appLocation:'Standort / Hinweis', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0', selectedYear:'Jahr {year} ausgewählt', exported:'Daten wurden exportiert', imported:'Daten erfolgreich importiert', invalid:'Ungültiges Dateiformat', addYearPrompt:'Welches Jahr soll ergänzt werden?', yearAdded:'Jahr {year} hinzugefügt', yearExists:'Dieses Jahr ist bereits verfügbar.', tableDate:'Datum', tableCong:'Versammlung', tableContact:'Kontakt', tableEmail:'E-Mail', tableAction:'Aktion', modalSwapTitle:'Termin tauschen', modalSwapText:'Sie möchten den Termin vom ', modalSwapTarget:'Zieltermin auswählen', cancel:'Abbrechen', swap:'Tauschen', editTitle:'Termin bearbeiten', save:'Speichern', emailTitle:'E-Mail senden', printCongTitle:'Versammlungsplan drucken', selectCong:'Versammlung auswählen', print:'Drucken', ok:'OK', chooseCong:'Bitte eine Versammlung auswählen', missingEmail:'Für diese Versammlung ist keine E-Mail-Adresse hinterlegt', noDates:'Keine Termine für diese Versammlung vorhanden.', generatedWith:'Generiert mit Kingdom Hall Cleaning Planner', notFound:'Termin nicht gefunden', datesNotFound:'Termine nicht gefunden', selectDate:'Bitte ein Datum auswählen', invalidCong:'Ungültige Versammlung ausgewählt', dateExists:'Für dieses Datum existiert bereits ein Eintrag', entryEdited:'Termin erfolgreich bearbeitet', entryAdded:'Termin erfolgreich hinzugefügt', assigned:'Termin erfolgreich zugewiesen', noStartHint:'Bitte zuerst den Jahresstart konfigurieren (erster Samstag) oder den ersten Termin manuell hinzufügen.', groupsWord:'Gruppen', edit:'Bearbeiten', delete:'Löschen', unassigned:'Nicht zugewiesen', chooseCongLabel:'Versammlung wählen', selectTarget:'Bitte wählen Sie einen Zieltermin aus', swapped:'Termine erfolgreich getauscht', ofDates:'von {count} Terminen', saturdaysMissing:'Samstage noch offen', confirmDeleteEntry:'Möchten Sie diesen Eintrag wirklich löschen?', entryDeleted:'Eintrag erfolgreich gelöscht', settingsSaved:'Einstellungen gespeichert', congNameRequired:'Bitte einen Namen für die Versammlung eingeben', congAdded:'Versammlung hinzugefügt', congNotFound:'Versammlung nicht gefunden', congUpdated:'Versammlung aktualisiert', confirmRemoveCong:'Möchten Sie diese Versammlung wirklich entfernen?', congInUse:'Diese Versammlung wird noch in Terminen verwendet und kann nicht gelöscht werden', congRemoved:'Versammlung entfernt', remove:'Entfernen', name:'Name', saveChanges:'Änderungen speichern', taskNameRequired:'Bitte geben Sie einen Namen für die Aufgabe ein', taskAdded:'Aufgabe hinzugefügt', confirmRemoveTask:'Möchten Sie diese Aufgabe wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.', taskRemoved:'Aufgabe entfernt', confirmGenerate:'Möchten Sie wirklich den Jahresplan für {year} vervollständigen? Existierende Einträge bleiben erhalten.', autoStart:'Jahresstart für {year} automatisch gesetzt ({date})', yearCompleted:'Jahresplan für {year} wurde vervollständigt!', confirmReset:'Möchten Sie wirklich alle Reinigungstermine für {year} zurücksetzen? Alle Einträge werden gelöscht.', yearReset:'Reinigungsplan für {year} wurde zurückgesetzt!', importError:'Fehler beim Importieren: {message}', windowCleaning:'Fensterreinigung', backup1:'1. Ausweichtermin', backup2:'2. Ausweichtermin', editTooltip:'Zum Bearbeiten anklicken', firstCleaningRequired:'Bitte ein Datum für den ersten Reinigungstermin eingeben', firstCleaningSaturday:'Der erste Reinigungstermin muss ein Samstag sein', yearConfigSaved:'Jahreskonfiguration gespeichert', confirmImport:'Möchten Sie wirklich Daten importieren? Alle vorhandenen Daten werden überschrieben.' 
             }
         };
 
@@ -1566,7 +1584,7 @@
         ];
 
         // Kopfzeilen-Texte werden jetzt im Konfigurations-Tab gepflegt.
-        const APP_VERSION = '2.4.1';
+        const APP_VERSION = '2.4.2';
         const APP_NAME = 'Kingdom Hall Cleaning Planner';
         const FEEDBACK_MAIL = 'cryptopower@outlook.de';
 
@@ -1636,7 +1654,7 @@
                 h2.textContent = (key === 'calendarTitle') ? `${t('calendarTitle')} ${currentYear}` : t(key);
             });
             const labels = {
-                date:'date', versammlung:'congregation', jobcard:'jobcard', hinweise:'hints', globalContact:'globalContact', globalCommittee:'committee', globalPhone:'phone', globalEmail:'email', yearConfigSelect:'selectYear', firstCleaningDate:'firstCleaning', newTaskName:'newTask', newCongName:'congName', newCongGroups:'groups', newCongContact:'contact', newCongEmail:'email',
+                date:'date', versammlung:'congregation', jobcard:'jobcard', hinweise:'hints', globalCommittee:'committee', globalPhone:'phone', globalEmail:'email', yearConfigSelect:'selectYear', firstCleaningDate:'firstCleaning', newTaskName:'newTask', newCongName:'congName', newCongGroups:'groups', newCongColor:'color', newCongContact:'contact', newCongEmail:'email',
                 headerTitleInput:'appTitle', headerSubtitleInput:'appSubtitle', headerLocationInput:'appLocation'
             };
             Object.keys(labels).forEach(id => { const lab = document.querySelector(`label[for="${id}"]`); if(lab) lab.textContent = t(labels[id]); });
@@ -1902,7 +1920,6 @@
             } else {
                 globalSettings = Object.assign({}, PUBLIC_DEFAULT_SETTINGS);
             }
-            document.getElementById('globalContact').value = globalSettings.contact || '';
             document.getElementById('globalCommittee').value = globalSettings.committee || '';
             document.getElementById('globalPhone').value = globalSettings.phone || '';
             document.getElementById('globalEmail').value = globalSettings.email || '';
@@ -2987,6 +3004,13 @@
                 
                 if (entry) {
                     const congregation = congregations.find(c => c.id === entry.versammlungId) || {};
+                    const rowColor = congregation.id ? congColor(congregation) : null;
+                    if (rowColor) {
+                        row.classList.add('tinted');
+                        row.style.setProperty('--row-accent', rowColor);
+                        row.style.setProperty('--row-tint', hexToRgba(rowColor, .07));
+                        row.style.setProperty('--row-tint-hover', hexToRgba(rowColor, .13));
+                    }
                     
                     // Stern-Icon immer platzieren, aber nur sichtbar bei Hinweisen
                     const displayHint = translateKnownNotesForDisplay(entry.hinweise);
@@ -3116,6 +3140,30 @@
             swapSourceDate = null;
         }
         
+        // Farbpalette für Versammlungen (wird vergeben, solange keine eigene Farbe gesetzt ist)
+        const CONG_COLORS = ['#3f6b57', '#4d7ea8', '#a8763e', '#7a5ea8', '#a8455e', '#3f8b7d', '#8a8f3f', '#5c6b8a'];
+
+        function defaultCongColor(id){
+            const idx = congregations.findIndex(c => c.id === id);
+            return CONG_COLORS[(idx < 0 ? 0 : idx) % CONG_COLORS.length];
+        }
+
+        function congColor(cong){
+            if (!cong) return 'var(--line)';
+            if (cong.color) return cong.color;
+            return defaultCongColor(cong.id);
+        }
+
+        function congColorById(id){
+            return congColor(congregations.find(c => c.id === id));
+        }
+
+        function hexToRgba(hex, alpha){
+            const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(hex || ''));
+            if (!m) return `rgba(63,107,87,${alpha})`;
+            return `rgba(${parseInt(m[1],16)}, ${parseInt(m[2],16)}, ${parseInt(m[3],16)}, ${alpha})`;
+        }
+
         // Beschreibt, wie sich die Termine einer Versammlung in Blöcke aufteilen
         function describeBlocks(dates, groups){
             const size = groups || 1;
@@ -3169,6 +3217,7 @@
                 const groups = cong.groups || 1;
                 const blockText = describeBlocks(dates, groups);
 
+                card.style.setProperty('--card-accent', congColor(cong));
                 card.title = `${cong.name}: ${dates} ${t('datesWord')} · ${blockText}`;
                 card.innerHTML = `
                     <div class="summary-card-title">${cong.name}</div>
@@ -3225,8 +3274,9 @@
         
         function saveGlobalSettings() {
             globalSettings.appLocation = document.getElementById('appHeaderLocation')?.textContent.trim() || localizedHeaderDefaults().appLocation;
-            globalSettings.contact = document.getElementById('globalContact').value;
             globalSettings.committee = document.getElementById('globalCommittee').value;
+            // Für Weiterverarbeitung (Generator/Export) bleibt contact befüllt – mit dem IK-Kontakt
+            globalSettings.contact = globalSettings.committee;
             globalSettings.phone = document.getElementById('globalPhone').value;
             globalSettings.email = document.getElementById('globalEmail').value;
             
@@ -3247,6 +3297,8 @@
                 if (label) label.textContent = panel.hidden ? t('addCong') : t('cancel');
             }
             if (!panel.hidden) {
+                const colorField = document.getElementById('newCongColor');
+                if (colorField) colorField.value = CONG_COLORS[congregations.length % CONG_COLORS.length];
                 const nameField = document.getElementById('newCongName');
                 if (nameField) nameField.focus();
             }
@@ -3256,6 +3308,7 @@
         function addCongregation() {
             const name = document.getElementById('newCongName').value;
             const groups = parseInt(document.getElementById('newCongGroups').value);
+            const color = document.getElementById('newCongColor').value;
             const contact = document.getElementById('newCongContact').value;
             const email = document.getElementById('newCongEmail').value;
             
@@ -3277,6 +3330,7 @@
                 id: newId,
                 name: name,
                 groups: groups,
+                color: color,
                 contact: contact,
                 email: email
             });
@@ -3289,6 +3343,7 @@
             // Formular zurücksetzen
             document.getElementById('newCongName').value = '';
             document.getElementById('newCongGroups').value = '4';
+            document.getElementById('newCongColor').value = CONG_COLORS[congregations.length % CONG_COLORS.length];
             document.getElementById('newCongContact').value = '';
             document.getElementById('newCongEmail').value = '';
 
@@ -3304,6 +3359,8 @@
         function saveCongregation(id) {
             const name = document.getElementById(`edit-name-${id}`).value;
             const groups = parseInt(document.getElementById(`edit-groups-${id}`).value);
+            const colorField = document.getElementById(`edit-color-${id}`);
+            const color = colorField ? colorField.value : defaultCongColor(id);
             const contact = document.getElementById(`edit-contact-${id}`).value;
             const email = document.getElementById(`edit-email-${id}`).value;
             
@@ -3322,6 +3379,7 @@
                 id: id,
                 name: name,
                 groups: groups,
+                color: color,
                 contact: contact,
                 email: email
             };
@@ -3330,7 +3388,9 @@
             saveCongregationData();
             populateCongregationSelect();
             renderCongregationList();
-            
+            updateCalendarView();
+            updateSummary();
+
             showSnackbar(t('congUpdated'), 'success');
         }
         
@@ -3365,10 +3425,12 @@
             congregations.forEach(cong => {
                 const item = document.createElement('div');
                 item.className = 'congregation-item congregation-item--compact';
-                
+                const color = congColor(cong);
+                item.style.setProperty('--cong-accent', color);
+
                 item.innerHTML = `
                     <div class="congregation-header">
-                        <h3>${cong.name}</h3>
+                        <h3><span class="cong-dot" style="background:${color}"></span>${cong.name}</h3>
                         <button class="mdc-button mdc-button--text mdc-button--danger action-button" onclick="removeCongregation('${cong.id}')">
                             ${t('remove')}
                         </button>
@@ -3384,6 +3446,12 @@
                             <div class="mdc-text-field">
                                 <input type="number" id="edit-groups-${cong.id}" value="${cong.groups}" min="1" max="10" placeholder=" ">
                                 <label class="label" for="edit-groups-${cong.id}">${t('groupsWord')}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="mdc-text-field">
+                                <input type="color" class="color-field" id="edit-color-${cong.id}" value="${color}">
+                                <label class="label" for="edit-color-${cong.id}">${t('color')}</label>
                             </div>
                         </div>
                         <div class="form-group">
