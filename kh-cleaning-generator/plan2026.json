@@ -1,0 +1,746 @@
+{
+  "cleaningSchedule": [
+    {
+      "date": "2026-01-03",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": "Fensterreinigung"
+    },
+    {
+      "date": "2026-01-10",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": "Fensterreinigung (1. Ausweichtermin)"
+    },
+    {
+      "date": "2026-01-17",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+    },
+    {
+      "date": "2026-01-24",
+      "versammlungId": "4.0",
+      "versammlungName": "Englisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-01-31",
+      "versammlungId": "3.0",
+      "versammlungName": "Kroatisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-02-07",
+      "versammlungId": "3.0",
+      "versammlungName": "Kroatisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-02-14",
+      "versammlungId": "4.0",
+      "versammlungName": "Englisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-02-21",
+      "versammlungId": "4.0",
+      "versammlungName": "Englisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-02-28",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-03-07",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-03-14",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-03-21",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-03-28",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-04-04",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": "Fensterreinigung"
+    },
+    {
+      "date": "2026-04-11",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+    },
+    {
+      "date": "2026-04-18",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+    },
+    {
+      "date": "2026-04-25",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-05-02",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-05-09",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-05-16",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-05-23",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-05-30",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-06-06",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-06-13",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-06-20",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-06-27",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-07-04",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": "Fensterreinigung"
+    },
+    {
+      "date": "2026-07-11",
+      "versammlungId": "3.0",
+      "versammlungName": "Kroatisch",
+      "hinweise": "Fensterreinigung (1. Ausweichtermin)"
+    },
+    {
+      "date": "2026-07-18",
+      "versammlungId": "3.0",
+      "versammlungName": "Kroatisch",
+      "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+    },
+    {
+      "date": "2026-07-25",
+      "versammlungId": "4.0",
+      "versammlungName": "Englisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-08-01",
+      "versammlungId": "4.0",
+      "versammlungName": "Englisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-08-08",
+      "versammlungId": "4.0",
+      "versammlungName": "Englisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-08-15",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-08-22",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-08-29",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-09-05",
+      "versammlungId": "5.0",
+      "versammlungName": "Neusäß-Süd",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-09-12",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-09-19",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-09-26",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-10-03",
+      "versammlungId": "6.0",
+      "versammlungName": "Italienisch",
+      "hinweise": "Fensterreinigung"
+    },
+    {
+      "date": "2026-10-10",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": "Fensterreinigung (1. Ausweichtermin)"
+    },
+    {
+      "date": "2026-10-17",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+    },
+    {
+      "date": "2026-10-24",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-10-31",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-11-07",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-11-14",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-11-21",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-11-28",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-12-05",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-12-12",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-12-19",
+      "versammlungId": "2.0",
+      "versammlungName": "Neusäß-Nord",
+      "hinweise": ""
+    },
+    {
+      "date": "2026-12-26",
+      "versammlungId": "3.0",
+      "versammlungName": "Kroatisch",
+      "hinweise": ""
+    }
+  ],
+  "congregations": [
+    {
+      "id": "1.0",
+      "name": "Russisch-Nord",
+      "groups": 4,
+      "color": "#3f6b57",
+      "contact": "Vitalii Oparko",
+      "email": "vitalijoparko@gmail.com"
+    },
+    {
+      "id": "2.0",
+      "name": "Neusäß-Nord",
+      "groups": 3,
+      "contact": "Volker Allmendinger",
+      "email": "allmendinger@agrama.de"
+    },
+    {
+      "id": "3.0",
+      "name": "Kroatisch",
+      "groups": 2,
+      "contact": "Mićo Puskarić",
+      "email": "puskaric.mico@gmail.com"
+    },
+    {
+      "id": "4.0",
+      "name": "Englisch",
+      "groups": 3,
+      "contact": "Gert Zimmerhackl",
+      "email": "zimmerhackl-augsburg@t-online.de"
+    },
+    {
+      "id": "5.0",
+      "name": "Neusäß-Süd",
+      "groups": 4,
+      "contact": "Mario Walter",
+      "email": "mario.walter58@gmail.com"
+    },
+    {
+      "id": "6.0",
+      "name": "Italienisch",
+      "groups": 4,
+      "color": "#ece3a7",
+      "contact": "Vito Matera",
+      "email": "vitomatera@hotmail.de"
+    },
+    {
+      "id": "7.0",
+      "name": "Oberhausen",
+      "groups": 4,
+      "contact": "René Schmid",
+      "email": "rene.schmid3@web.de"
+    }
+  ],
+  "globalSettings": {
+    "appTitle": "Saalreinigung Verwaltungstool",
+    "appSubtitle": "Königreichssaal Augsburg-Oberhausen",
+    "appLocation": "Hirblinger Str. 99, 86156 Augsburg",
+    "contact": "Marco Neudecker",
+    "committee": "Joey Schönemann",
+    "phone": "+49 1514 0424457",
+    "email": "Jsveraugmit@gmail.com"
+  },
+  "yearConfigs": {
+    "2024": {
+      "firstCleaningDate": "2024-01-06"
+    },
+    "2025": {
+      "firstCleaningDate": "2025-01-04"
+    },
+    "2026": {
+      "firstCleaningDate": "2026-01-03"
+    }
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "name": "Fensterreinigung"
+    },
+    {
+      "id": 2,
+      "name": "Fensterreinigung (1. Ausweichtermin)"
+    },
+    {
+      "id": 3,
+      "name": "Fensterreinigung (2. Ausweichtermin)"
+    },
+    {
+      "id": 4,
+      "name": "Müllcheck Garten / Parkplatz"
+    },
+    {
+      "id": 5,
+      "name": "Garten: Laub entfernen"
+    }
+  ],
+  "blockContinuation": {
+    "2025": {
+      "congIndex": 1,
+      "remainingGroups": 3
+    },
+    "2026": {
+      "congIndex": 2,
+      "remainingGroups": 1
+    }
+  },
+  "schedulesByYear": {
+    "2026": [
+      {
+        "date": "2026-01-03",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": "Fensterreinigung"
+      },
+      {
+        "date": "2026-01-10",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": "Fensterreinigung (1. Ausweichtermin)"
+      },
+      {
+        "date": "2026-01-17",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+      },
+      {
+        "date": "2026-01-24",
+        "versammlungId": "4.0",
+        "versammlungName": "Englisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-01-31",
+        "versammlungId": "3.0",
+        "versammlungName": "Kroatisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-02-07",
+        "versammlungId": "3.0",
+        "versammlungName": "Kroatisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-02-14",
+        "versammlungId": "4.0",
+        "versammlungName": "Englisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-02-21",
+        "versammlungId": "4.0",
+        "versammlungName": "Englisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-02-28",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-03-07",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-03-14",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-03-21",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-03-28",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-04-04",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": "Fensterreinigung"
+      },
+      {
+        "date": "2026-04-11",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+      },
+      {
+        "date": "2026-04-18",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+      },
+      {
+        "date": "2026-04-25",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-05-02",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-05-09",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-05-16",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-05-23",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-05-30",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-06-06",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-06-13",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-06-20",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-06-27",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-07-04",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": "Fensterreinigung"
+      },
+      {
+        "date": "2026-07-11",
+        "versammlungId": "3.0",
+        "versammlungName": "Kroatisch",
+        "hinweise": "Fensterreinigung (1. Ausweichtermin)"
+      },
+      {
+        "date": "2026-07-18",
+        "versammlungId": "3.0",
+        "versammlungName": "Kroatisch",
+        "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+      },
+      {
+        "date": "2026-07-25",
+        "versammlungId": "4.0",
+        "versammlungName": "Englisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-08-01",
+        "versammlungId": "4.0",
+        "versammlungName": "Englisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-08-08",
+        "versammlungId": "4.0",
+        "versammlungName": "Englisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-08-15",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-08-22",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-08-29",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-09-05",
+        "versammlungId": "5.0",
+        "versammlungName": "Neusäß-Süd",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-09-12",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-09-19",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-09-26",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-10-03",
+        "versammlungId": "6.0",
+        "versammlungName": "Italienisch",
+        "hinweise": "Fensterreinigung"
+      },
+      {
+        "date": "2026-10-10",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": "Fensterreinigung (1. Ausweichtermin)"
+      },
+      {
+        "date": "2026-10-17",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": "Fensterreinigung (2. Ausweichtermin)"
+      },
+      {
+        "date": "2026-10-24",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-10-31",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-11-07",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-11-14",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-11-21",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-11-28",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-12-05",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-12-12",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-12-19",
+        "versammlungId": "2.0",
+        "versammlungName": "Neusäß-Nord",
+        "hinweise": ""
+      },
+      {
+        "date": "2026-12-26",
+        "versammlungId": "3.0",
+        "versammlungName": "Kroatisch",
+        "hinweise": ""
+      }
+    ]
+  },
+  "appHeader": {
+    "title": "Saalreinigung Verwaltungstool",
+    "subtitle": "Königreichssaal Augsburg-Oberhausen",
+    "location": "Hirblinger Str. 99, 86156 Augsburg"
+  },
+  "appVersion": "2.4.2-planner",
+  "exportDate": "2026-09-05T17:30:06.207Z",
+  "exportTimestampGerman": "05.09.2026 19:30:06",
+  "exportYear": 2026
+}
