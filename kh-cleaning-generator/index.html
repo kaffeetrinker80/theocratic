@@ -43,6 +43,10 @@ body{ font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--fg)
 .brand b{ font-size:15px; color:var(--ink); }
 .badge{ font-size:10px; padding:2px 7px; border-radius:999px; background:var(--teal-s); color:var(--teal-d); border:1px solid #bfe6e1; font-weight:700; }
 
+.navclose{ display:none; margin-left:6px; width:28px; height:28px; border-radius:8px; border:1px solid var(--edge);
+  background:#fff; color:var(--muted); font:inherit; font-size:14px; line-height:1; cursor:pointer; }
+.navclose:hover{ background:#f0f4f8; color:var(--ink); }
+.navscrim{ display:none; }
 .helpdot{ margin-left:auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--edge); background:#fff;
   color:var(--muted); font:inherit; font-size:13px; font-weight:700; line-height:1; cursor:pointer; }
 .helpdot:hover{ background:var(--teal-s); color:var(--teal-d); border-color:#bfe6e1; }
@@ -106,7 +110,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 .congcard label.f{ font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink); }
 .congsel{ display:grid; grid-template-columns:auto 1fr; gap:8px; align-items:center; }
 .congsel i{ width:13px; height:13px; border-radius:50%; background:var(--pick,#0d9488); display:block; }
-.sidebar .congcard select{ font-size:15px; font-weight:650; padding:9px 10px; border-color:var(--pick,#0d9488); }
+.sidebar .congcard select{ border-color:var(--pick,#0d9488); }
 .conghint{ font-size:11px; color:var(--muted); line-height:1.45; margin-top:6px; }
 
 .switch{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink); }
@@ -183,6 +187,9 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
   .app{ grid-template-columns:1fr; }
   .sidebar{ position:fixed; z-index:40; left:0; top:0; width:320px; transform:translateX(-100%); transition:transform .18s; box-shadow:0 10px 30px rgba(15,23,42,.2); }
   body.nav-open .sidebar{ transform:none; }
+  .navclose{ display:block; }
+  .navscrim{ position:fixed; inset:0; z-index:35; background:rgba(15,23,42,.45); opacity:0; pointer-events:none; transition:opacity .18s; }
+  body.nav-open .navscrim{ display:block; opacity:1; pointer-events:auto; }
   .mobilebar{ display:flex; gap:10px; align-items:center; padding:9px 12px; background:var(--panel); border-bottom:1px solid var(--edge); position:sticky; top:0; z-index:30; }
   .mobilebar button{ font:inherit; font-weight:650; padding:7px 12px; border-radius:9px; border:0; background:var(--teal); color:#fff; cursor:pointer; }
   .sheet{ width:100%; height:auto; }
@@ -193,11 +200,14 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 
 <div class="mobilebar noprint"><button id="navBtn">☰ Menü</button><b>Reinigungsplan Generator</b></div>
 
+<div class="navscrim noprint" id="navScrim"></div>
+
 <div class="app">
 <aside class="sidebar noprint">
   <div class="brand">
     <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.5</span>
     <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
+    <button class="navclose" id="navClose" aria-label="Menü schließen">✕</button>
   </div>
 
   <details class="sec" open><summary data-i="secOutput">Ausgabe</summary>
@@ -1228,7 +1238,10 @@ $('printAllBtn').addEventListener('click',()=>{
   window.print();
 });
 window.addEventListener('afterprint',()=>document.body.classList.remove('stackmode'));
-$('navBtn').addEventListener('click',()=>document.body.classList.toggle('nav-open'));
+function setNav(open){ document.body.classList.toggle('nav-open', open); }
+$('navBtn').addEventListener('click',()=>setNav(!document.body.classList.contains('nav-open')));
+$('navClose').addEventListener('click',()=>setNav(false));
+$('navScrim').addEventListener('click',()=>setNav(false));
 /* --- Veröffentlichter Plan hinter einer PIN --- */
 function openWelcome(o){ $('welcomeOverlay').hidden=!o; if(o){ $('pinMsg').textContent=''; $('pinInput').value=''; $('pinInput').focus(); } }
 function setPinMsg(msg,kind){ const el=$('pinMsg'); el.textContent=msg||''; el.className='wmsg'+(kind==='warn'?' warn':'')+(kind==='ok'?' ok':''); }
@@ -1254,7 +1267,9 @@ function openHelp(o){ $('helpOverlay').hidden=!o; if(o) $('helpClose').focus(); 
 $('helpBtn').addEventListener('click',()=>openHelp(true));
 $('helpClose').addEventListener('click',()=>openHelp(false));
 $('helpOverlay').addEventListener('click',e=>{ if(e.target===$('helpOverlay')) openHelp(false); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ openHelp(false); openWelcome(false); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ openHelp(false); openWelcome(false); setNav(false); } });
+/* Nach dem Drucken auf dem Handy die Leiste schliessen, damit das Blatt sichtbar bleibt */
+['printBtn','printAllBtn'].forEach(id=>$(id).addEventListener('click',()=>setNav(false)));
 window.addEventListener('resize',()=>{ const s=$('sheetWrap').firstChild; if(s) fitSheet(s); });
 
 /* ==================== Start ==================== */
