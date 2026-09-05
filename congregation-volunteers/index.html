@@ -795,6 +795,115 @@
     :root[data-theme="dark"] .miniBtn:hover{ background: rgba(255,255,255,.10); }
     :root[data-theme="dark"] .toast{ background: var(--panel); border-color: var(--stroke2); }
     :root[data-theme="dark"] .btn.primary{ color:#0e1420; }
+
+    /* ===== NWS CSV Import Modal ===== */
+    .nwsBack{
+      position:fixed; inset:0; z-index:9000;
+      background: rgba(12,20,32,.55);
+      backdrop-filter: blur(3px);
+      display:none; align-items:center; justify-content:center;
+      padding:18px;
+    }
+    .nwsBack.open{ display:flex; }
+    .nwsModal{
+      width:min(1080px, 100%);
+      max-height: calc(100vh - 36px);
+      display:flex; flex-direction:column;
+      background: var(--panel);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 60px rgba(10,20,35,.35);
+      overflow:hidden;
+      animation: nwsIn .18s ease-out;
+    }
+    @keyframes nwsIn{ from{ opacity:0; transform: translateY(10px) scale(.985);} to{ opacity:1; transform:none;} }
+    .nwsHead{
+      padding:16px 18px 12px;
+      border-bottom:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--accentSoft), transparent);
+      display:flex; align-items:flex-start; gap:12px; justify-content:space-between;
+    }
+    .nwsHead h2{ margin:0; font-size:19px; font-weight:800; letter-spacing:-.01em; }
+    .nwsHead .sub{ color:var(--muted); font-size:12.5px; margin-top:3px; word-break:break-all; }
+    .nwsX{
+      border:1px solid var(--stroke); background:var(--btn); color:var(--muted);
+      width:32px; height:32px; border-radius:10px; cursor:pointer; font-size:16px; line-height:1; flex:0 0 auto;
+    }
+    .nwsX:hover{ background:var(--btn2); color:var(--text); }
+    .nwsStats{ display:flex; flex-wrap:wrap; gap:8px; padding:12px 18px 0; }
+    .nwsStat{
+      font-size:12px; color:var(--muted); background:var(--btn);
+      border:1px solid var(--stroke); border-radius:999px; padding:4px 10px;
+    }
+    .nwsStat b{ color:var(--text); }
+    .nwsTools{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 18px; }
+    .nwsTools input[type="search"]{
+      flex:1 1 220px; min-width:180px;
+      border:1px solid var(--stroke2); background:var(--bg2); color:var(--text);
+      border-radius:12px; padding:8px 12px; font:inherit; font-size:14px; outline:none;
+    }
+    .nwsTools input[type="search"]:focus{ border-color:var(--accent); }
+    .nwsChip{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:12.5px; border:1px solid var(--stroke); background:var(--btn);
+      border-radius:999px; padding:5px 11px; cursor:pointer; user-select:none; color:var(--muted);
+    }
+    .nwsChip.on{ background:var(--accentSoft); border-color:var(--accentLine); color:var(--accentDark); font-weight:700; }
+    .nwsCols{
+      display:grid; grid-template-columns:1fr 1fr; gap:14px;
+      padding:0 18px 14px; overflow:auto; flex:1 1 auto;
+    }
+    .nwsCol{ border:1px solid var(--stroke); border-radius:14px; overflow:hidden; background:var(--bg2); display:flex; flex-direction:column; min-height:0; }
+    .nwsColHead{
+      display:flex; align-items:center; gap:10px; padding:9px 12px;
+      border-bottom:1px solid var(--stroke); background:var(--panel);
+      position:sticky; top:0; z-index:2;
+    }
+    .nwsColHead .dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+    .nwsCol[data-g="Brothers"] .dot{ background:#2f6fb3; }
+    .nwsCol[data-g="Sisters"] .dot{ background:#7a4bb8; }
+    .nwsColHead .ttl{ font-weight:800; font-size:14px; }
+    .nwsColHead .cnt{ margin-left:auto; font-size:12px; color:var(--muted); font-family:var(--mono); }
+    .nwsAll{ font-size:12px; color:var(--muted); display:inline-flex; align-items:center; gap:5px; cursor:pointer; }
+    .nwsList{ overflow:auto; max-height:min(46vh, 420px); padding:6px; }
+    .nwsItem{
+      display:flex; align-items:flex-start; gap:9px;
+      padding:7px 8px; border-radius:10px; cursor:pointer; border:1px solid transparent;
+    }
+    .nwsItem:hover{ background:var(--panel); border-color:var(--stroke); }
+    .nwsItem input{ margin-top:3px; width:16px; height:16px; accent-color:var(--accent); flex:0 0 auto; }
+    .nwsItem .nm{ font-weight:600; font-size:14px; }
+    .nwsItem .meta{ display:flex; flex-wrap:wrap; gap:5px; margin-top:3px; }
+    .nwsItem.locked{ opacity:.6; cursor:not-allowed; }
+    .nwsItem.dup .nm{ color:var(--muted); }
+    .nwsTag{
+      font-size:10.5px; font-weight:700; letter-spacing:.02em;
+      border-radius:999px; padding:2px 7px; border:1px solid var(--stroke2); color:var(--muted); background:var(--panel);
+    }
+    .nwsTag.acc{ background:var(--accentSoft); border-color:var(--accentLine); color:var(--accentDark); }
+    .nwsTag.warn{ background:rgba(214,120,20,.12); border-color:rgba(214,120,20,.35); color:#a35c05; }
+    .nwsTag.mut{ background:transparent; }
+    .nwsEmpty{ padding:16px; text-align:center; color:var(--muted2); font-size:13px; }
+    .nwsFoot{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      padding:12px 18px; border-top:1px solid var(--stroke); background:var(--bg2);
+    }
+    .nwsFoot .sel{ font-size:13px; color:var(--muted); }
+    .nwsFoot .sel b{ color:var(--text); font-size:15px; }
+    .nwsFoot .spacer{ margin-left:auto; }
+    .nwsDup{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); }
+    .nwsDup select{
+      border:1px solid var(--stroke2); background:var(--panel); color:var(--text);
+      border-radius:10px; padding:5px 8px; font:inherit; font-size:12.5px;
+    }
+    @media (max-width: 860px){
+      .nwsCols{ grid-template-columns:1fr; }
+      .nwsList{ max-height:32vh; }
+      .nwsFoot .spacer{ margin-left:0; width:100%; }
+    }
+    :root[data-theme="dark"] .nwsChip.on{ color:#cfe4ff; }
+    :root[data-theme="dark"] .nwsTag.warn{ color:#ffcf8a; }
+    @media print{ .nwsBack{ display:none !important; } }
   </style>
 </head>
 <body>
@@ -868,6 +977,8 @@
 <button class="btn" id="csvBtn">📄 Export CSV</button>
 <button class="btn" id="importBtn">⬆️ Import JSON</button>
 <input accept="application/json" hidden="" id="importFile" type="file"/>
+<button class="btn" id="importCsvBtn">📥 Import NWS-CSV</button>
+<input accept=".csv,text/csv" hidden="" id="importCsvFile" type="file"/>
 <button class="btn danger" id="clearBtn">🧹 Clear</button>
 </div>
 <div class="chipRow" id="chipRow"></div>
@@ -883,9 +994,58 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.4</div>
+<div>Made with Love © – Volunteers list v 2.5</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
+<div class="nwsBack" id="nwsBack" role="dialog" aria-modal="true" aria-labelledby="nwsTitle">
+<div class="nwsModal">
+<div class="nwsHead">
+<div>
+<h2 id="nwsTitle">Import NWS-CSV</h2>
+<div class="sub" id="nwsFileInfo">—</div>
+</div>
+<button class="nwsX" id="nwsClose" type="button" title="Close">✕</button>
+</div>
+<div class="nwsStats" id="nwsStats"></div>
+<div class="nwsTools">
+<input id="nwsSearch" type="search" placeholder="Search…"/>
+<button class="nwsChip on" id="nwsChipHideRemoved" type="button">🚫 <span>Hide removed / moved</span></button>
+<button class="nwsChip" id="nwsChipActive" type="button">✅ <span>Active only</span></button>
+<button class="nwsChip" id="nwsChipNoPub" type="button">📖 <span>Publishers only</span></button>
+<button class="nwsChip" id="nwsChipMinors" type="button">👶 <span>Show under 16</span></button>
+</div>
+<div class="nwsCols">
+<div class="nwsCol" data-g="Brothers">
+<div class="nwsColHead">
+<span class="dot"></span><span class="ttl" id="nwsTtlB">Brothers</span>
+<label class="nwsAll"><input id="nwsAllB" type="checkbox"/> <span id="nwsAllBLbl">All</span></label>
+<span class="cnt" id="nwsCntB">0</span>
+</div>
+<div class="nwsList" id="nwsListB"></div>
+</div>
+<div class="nwsCol" data-g="Sisters">
+<div class="nwsColHead">
+<span class="dot"></span><span class="ttl" id="nwsTtlS">Sisters</span>
+<label class="nwsAll"><input id="nwsAllS" type="checkbox"/> <span id="nwsAllSLbl">All</span></label>
+<span class="cnt" id="nwsCntS">0</span>
+</div>
+<div class="nwsList" id="nwsListS"></div>
+</div>
+</div>
+<div class="nwsFoot">
+<span class="sel"><b id="nwsSelCount">0</b> <span id="nwsSelLbl">selected</span></span>
+<span class="nwsDup"><span id="nwsDupLbl">Existing:</span>
+<select id="nwsDupMode">
+<option value="skip" id="nwsDupSkip">skip</option>
+<option value="update" id="nwsDupUpdate">update phone / email</option>
+</select>
+</span>
+<span class="spacer"></span>
+<button class="btn" id="nwsCancel" type="button">Cancel</button>
+<button class="btn primary" id="nwsApply" type="button">Import selection</button>
+</div>
+</div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 
@@ -957,7 +1117,7 @@
       ttDelete: "Delete",
       emptyText: "No volunteers found.",
       emptyClick: "Click",
-      emptyOrImport: "or import JSON.",
+      emptyOrImport: "or import JSON / NWS-CSV.",
       ttTheme: "Toggle light/dark",
       toggleDark: "Dark",
       toggleLight: "Light",
@@ -1034,7 +1194,7 @@
       ttDelete: "Löschen",
       emptyText: "Keine Freiwilligen gefunden.",
       emptyClick: "Klicke",
-      emptyOrImport: "oder importiere JSON.",
+      emptyOrImport: "oder importiere JSON / NWS-CSV.",
       ttTheme: "Hell/Dunkel umschalten",
       toggleDark: "Dunkel",
       toggleLight: "Hell",
@@ -1116,6 +1276,7 @@
     set("printBtn", "🖨️ " + t("print"));
     set("printBothBtn", "🖨️ " + t("printBoth"));
     const pb = $("printBothBtn"); if(pb) pb.title = t("printBothTitle");
+    try{ if(window.__csvLang) window.__csvLang(); }catch(e){}
     set("exportBtn", "⬇️ " + t("exportJson"));
     set("csvBtn", "📄 " + t("exportCsv"));
     set("importBtn", "⬆️ " + t("importJson"));
@@ -1839,6 +2000,439 @@
     if(mod && e.key.toLowerCase() === "k"){ e.preventDefault(); search.focus(); search.select(); }
     if(mod && e.key === "Enter"){ e.preventDefault(); addRow(); }
   });
+
+  /* ============================================================
+     NWS CSV Import (Persons export) – v2.5
+     ============================================================ */
+  Object.assign(LANG.en, {
+    importCsv: "Import NWS-CSV",
+    nwsTitle: "Import NWS-CSV",
+    nwsSearchPh: "Search name…",
+    nwsHideRemoved: "Hide removed / moved",
+    nwsActiveOnly: "Active only",
+    nwsPubOnly: "Publishers only",
+    nwsShowMinors: "Show under 16",
+    nwsAll: "All",
+    nwsSelected: "selected",
+    nwsDupLbl: "Existing entries:",
+    nwsDupSkip: "skip",
+    nwsDupUpdate: "update phone / email",
+    nwsCancel: "Cancel",
+    nwsApply: "Import selection",
+    nwsStatFound: "in file",
+    nwsStatBrothers: "brothers",
+    nwsStatSisters: "sisters",
+    nwsStatMinors: "under 16",
+    nwsStatDup: "already in list",
+    nwsNone: "Nothing matches the filters.",
+    nwsTagMinor: "under 16",
+    nwsTagYears: "y",
+    nwsTagDup: "already in list",
+    nwsTagUBP: "unbaptized",
+    nwsTagNoPub: "no publisher",
+    nwsTagInactive: "inactive",
+    nwsTagRemoved: "removed",
+    nwsTagMoved: "moved",
+    nwsTagHead: "family head",
+    nwsTagKids: "small children",
+    nwsTagNoGender: "gender?",
+    nwsTagNoAge: "no DOB",
+    nwsResult: "{n} imported · {u} updated · {s} skipped ✔",
+    nwsNoSel: "Nothing selected",
+    nwsBadFile: "CSV not recognized. Please use the NWS Desktop persons export (columns FirstName, LastName, Gender …).",
+    nwsMinorHint: "Under 16 cannot be selected."
+  });
+  Object.assign(LANG.de, {
+    importCsv: "NWS-CSV importieren",
+    nwsTitle: "NWS-CSV importieren",
+    nwsSearchPh: "Name suchen…",
+    nwsHideRemoved: "Ausgeschlossene / Weggezogene aus",
+    nwsActiveOnly: "Nur Aktive",
+    nwsPubOnly: "Nur Verkündiger",
+    nwsShowMinors: "Unter 16 anzeigen",
+    nwsAll: "Alle",
+    nwsSelected: "ausgewählt",
+    nwsDupLbl: "Vorhandene Einträge:",
+    nwsDupSkip: "überspringen",
+    nwsDupUpdate: "Telefon / E-Mail aktualisieren",
+    nwsCancel: "Abbrechen",
+    nwsApply: "Auswahl übernehmen",
+    nwsStatFound: "in Datei",
+    nwsStatBrothers: "Brüder",
+    nwsStatSisters: "Schwestern",
+    nwsStatMinors: "unter 16",
+    nwsStatDup: "schon in Liste",
+    nwsNone: "Keine Treffer für die Filter.",
+    nwsTagMinor: "unter 16",
+    nwsTagYears: "J",
+    nwsTagDup: "schon in Liste",
+    nwsTagUBP: "ungetauft",
+    nwsTagNoPub: "kein Verkündiger",
+    nwsTagInactive: "inaktiv",
+    nwsTagRemoved: "ausgeschlossen",
+    nwsTagMoved: "weggezogen",
+    nwsTagHead: "Familienhaupt",
+    nwsTagKids: "Kleinkinder",
+    nwsTagNoGender: "Geschlecht?",
+    nwsTagNoAge: "kein Geb.-Datum",
+    nwsResult: "{n} übernommen · {u} aktualisiert · {s} übersprungen ✔",
+    nwsNoSel: "Nichts ausgewählt",
+    nwsBadFile: "CSV nicht erkannt. Bitte den NWS-Desktop-Personenexport verwenden (Spalten FirstName, LastName, Gender …).",
+    nwsMinorHint: "Unter 16 kann nicht ausgewählt werden."
+  });
+
+  const NWS = {
+    people: [],
+    sel: new Set(),
+    file: "",
+    filters: { hideRemoved: true, activeOnly: false, pubOnly: false, showMinors: false },
+    q: ""
+  };
+  const NWS_MIN_AGE = 16;
+  const NWS_KID_AGE = 6;
+
+  function nwsParseCSV(text){
+    text = String(text || "").replace(/^\uFEFF/, "");
+    const nl = text.indexOf("\n");
+    const first = nl < 0 ? text : text.slice(0, nl);
+    const d = ((first.split(";").length - 1) > (first.split(",").length - 1)) ? ";" : ",";
+    const out = []; let row = []; let cell = ""; let q = false;
+    for(let i = 0; i < text.length; i++){
+      const c = text[i];
+      if(q){
+        if(c === '"'){
+          if(text[i+1] === '"'){ cell += '"'; i++; }
+          else q = false;
+        } else cell += c;
+      } else {
+        if(c === '"') q = true;
+        else if(c === d){ row.push(cell); cell = ""; }
+        else if(c === "\n"){ row.push(cell); cell = ""; out.push(row); row = []; }
+        else if(c !== "\r") cell += c;
+      }
+    }
+    if(cell.length || row.length){ row.push(cell); out.push(row); }
+    return out.filter(r => r.some(x => String(x).trim() !== ""));
+  }
+
+  function nwsAge(dob){
+    const s = String(dob || "").trim();
+    if(!s) return null;
+    const m = s.match(/(\d{4})[.\-\/](\d{1,2})[.\-\/](\d{1,2})/) || s.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})/);
+    if(!m) return null;
+    let y, mo, dd;
+    if(m[1].length === 4){ y = +m[1]; mo = +m[2]; dd = +m[3]; }
+    else { dd = +m[1]; mo = +m[2]; y = +m[3]; }
+    const b = new Date(y, mo - 1, dd);
+    if(isNaN(b.getTime())) return null;
+    const now = new Date();
+    let a = now.getFullYear() - b.getFullYear();
+    const md = now.getMonth() - b.getMonth();
+    if(md < 0 || (md === 0 && now.getDate() < b.getDate())) a--;
+    return (a >= 0 && a < 120) ? a : null;
+  }
+
+  function nwsBuild(matrix){
+    if(!matrix.length) throw new Error("empty");
+    const head = matrix[0].map(h => String(h).trim().toLowerCase());
+    const idx = {};
+    head.forEach((h, i) => { if(!(h in idx)) idx[h] = i; });
+    const has = (n) => idx[n] !== undefined;
+    if(!has("lastname") && !has("displayname")) throw new Error("no name column");
+    const get = (r, n) => { const i = idx[n]; return i === undefined ? "" : String(r[i] ?? "").trim(); };
+    const bool = (v) => /^(true|1|ja|yes|wahr|x)$/i.test(String(v).trim());
+
+    const existing = new Set(data.map(v => normalize(v.name)));
+
+    const people = matrix.slice(1).map((r, n) => {
+      const first = get(r, "firstname");
+      const last  = get(r, "lastname");
+      const disp  = get(r, "displayname");
+      const name  = (first || last) ? [first, last].filter(Boolean).join(" ") : disp;
+      if(!name) return null;
+
+      const gRaw = get(r, "gender").toLowerCase();
+      const male = /^(m|male|mann|männlich|maennlich|bruder|brother)/.test(gRaw);
+      const female = /^(f|w|female|frau|weiblich|schwester|sister)/.test(gRaw);
+      const group = female ? "Sisters" : "Brothers";
+
+      const age = nwsAge(get(r, "dob"));
+      const childFlag = has("child") ? bool(get(r, "child")) : false;
+      const minor = (age !== null) ? (age < NWS_MIN_AGE) : false;
+
+      const pRaw = get(r, "privilege").toUpperCase();
+      const privilege = (pRaw === "E") ? "Elder" : (pRaw === "MS" ? "MS" : "Publisher");
+
+      const famId = get(r, "familyid");
+      const famNm = get(r, "familyname");
+      const famKey = (famId && famId !== "0") ? ("id:" + famId) : (famNm ? ("nm:" + famNm.toLowerCase()) : ("self:" + n));
+
+      const phone = get(r, "phonemobile") || get(r, "phonehome") || get(r, "phonework");
+      const mail1 = get(r, "email");
+      const mail2 = get(r, "email2");
+      const email = (mail1 && !/@jwpub\.org$/i.test(mail1)) ? mail1 : (mail1 || mail2);
+
+      return {
+        key: "k" + n,
+        name, group, privilege, age, minor, childFlag,
+        rawPriv: pRaw,
+        noGender: !male && !female,
+        phone, email,
+        famKey,
+        famHead: bool(get(r, "familyhead")),
+        active: has("active") ? bool(get(r, "active")) : true,
+        removed: has("removed") ? bool(get(r, "removed")) : false,
+        moved: has("moved") ? bool(get(r, "moved")) : false,
+        single: false, smallChildren: false,
+        dup: existing.has(normalize(name))
+      };
+    }).filter(Boolean);
+
+    // family based hints: single household + small children
+    const fam = new Map();
+    for(const p of people){
+      if(!fam.has(p.famKey)) fam.set(p.famKey, []);
+      fam.get(p.famKey).push(p);
+    }
+    for(const [, members] of fam){
+      const kids = members.some(m => (m.age !== null && m.age <= NWS_KID_AGE) || (m.childFlag && m.age === null));
+      for(const p of members){
+        p.single = members.length === 1;
+        p.smallChildren = kids && !p.minor;
+      }
+    }
+
+    people.sort((a, b) => a.name.localeCompare(b.name, undefined, {sensitivity:"base"}));
+    return people;
+  }
+
+  function nwsSelectable(p){ return !p.minor; }
+
+  function nwsVisible(p){
+    const f = NWS.filters;
+    if(p.minor && !f.showMinors) return false;
+    if(f.hideRemoved && (p.removed || p.moved)) return false;
+    if(f.activeOnly && !p.active) return false;
+    if(f.pubOnly && p.rawPriv === "NO") return false;
+    if(NWS.q && !normalize(p.name).includes(NWS.q)) return false;
+    return true;
+  }
+
+  function nwsTags(p){
+    const tags = [];
+    if(p.age !== null) tags.push(["mut", p.age + " " + t("nwsTagYears")]);
+    else tags.push(["warn", t("nwsTagNoAge")]);
+    if(p.minor) tags.push(["warn", t("nwsTagMinor")]);
+    if(p.privilege === "Elder") tags.push(["acc", t("elder")]);
+    else if(p.privilege === "MS") tags.push(["acc", t("ms")]);
+    if(p.rawPriv === "UBP") tags.push(["mut", t("nwsTagUBP")]);
+    if(p.rawPriv === "NO") tags.push(["mut", t("nwsTagNoPub")]);
+    if(p.famHead && p.group === "Brothers") tags.push(["mut", t("nwsTagHead")]);
+    if(p.smallChildren) tags.push(["mut", t("nwsTagKids")]);
+    if(!p.active) tags.push(["mut", t("nwsTagInactive")]);
+    if(p.removed) tags.push(["warn", t("nwsTagRemoved")]);
+    if(p.moved) tags.push(["warn", t("nwsTagMoved")]);
+    if(p.noGender) tags.push(["warn", t("nwsTagNoGender")]);
+    if(p.dup) tags.push(["warn", t("nwsTagDup")]);
+    return tags.map(([c, txt]) => `<span class="nwsTag ${c}">${escapeHtml(txt)}</span>`).join("");
+  }
+
+  function nwsRenderList(group, elId, cntId, allId){
+    const list = NWS.people.filter(p => p.group === group && nwsVisible(p));
+    const el = $(elId);
+    if(!list.length){
+      el.innerHTML = `<div class="nwsEmpty">${escapeHtml(t("nwsNone"))}</div>`;
+    } else {
+      el.innerHTML = list.map(p => {
+        const lock = !nwsSelectable(p);
+        return `<label class="nwsItem ${lock ? "locked" : ""} ${p.dup ? "dup" : ""}" title="${lock ? escapeAttr(t("nwsMinorHint")) : ""}">
+          <input type="checkbox" data-key="${escapeAttr(p.key)}" ${lock ? "disabled" : ""} ${NWS.sel.has(p.key) ? "checked" : ""}/>
+          <span>
+            <span class="nm">${escapeHtml(p.name)}</span>
+            <span class="meta">${nwsTags(p)}</span>
+          </span>
+        </label>`;
+      }).join("");
+    }
+    const selectable = list.filter(nwsSelectable);
+    const selCnt = selectable.filter(p => NWS.sel.has(p.key)).length;
+    $(cntId).textContent = selCnt + " / " + selectable.length;
+    const all = $(allId);
+    all.checked = selectable.length > 0 && selCnt === selectable.length;
+    all.indeterminate = selCnt > 0 && selCnt < selectable.length;
+  }
+
+  function nwsRender(){
+    const p = NWS.people;
+    const dupN = p.filter(x => x.dup).length;
+    const minN = p.filter(x => x.minor).length;
+    $("nwsStats").innerHTML = [
+      [t("nwsStatFound"), p.length],
+      [t("nwsStatBrothers"), p.filter(x => x.group === "Brothers" && !x.minor).length],
+      [t("nwsStatSisters"), p.filter(x => x.group === "Sisters" && !x.minor).length],
+      [t("nwsStatMinors"), minN],
+      [t("nwsStatDup"), dupN]
+    ].map(([l, v]) => `<span class="nwsStat"><b>${v}</b> ${escapeHtml(l)}</span>`).join("");
+
+    nwsRenderList("Brothers", "nwsListB", "nwsCntB", "nwsAllB");
+    nwsRenderList("Sisters", "nwsListS", "nwsCntS", "nwsAllS");
+    $("nwsSelCount").textContent = NWS.sel.size;
+    $("nwsChipHideRemoved").classList.toggle("on", NWS.filters.hideRemoved);
+    $("nwsChipActive").classList.toggle("on", NWS.filters.activeOnly);
+    $("nwsChipNoPub").classList.toggle("on", NWS.filters.pubOnly);
+    $("nwsChipMinors").classList.toggle("on", NWS.filters.showMinors);
+  }
+
+  function nwsOpen(){
+    $("nwsBack").classList.add("open");
+    document.body.style.overflow = "hidden";
+    nwsRender();
+    setTimeout(() => $("nwsSearch")?.focus(), 30);
+  }
+  function nwsClose(){
+    $("nwsBack").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function nwsApplyLang(){
+    const set = (id, txt) => { const el = $(id); if(el) el.textContent = txt; };
+    set("importCsvBtn", "📥 " + t("importCsv"));
+    set("nwsTitle", t("nwsTitle"));
+    set("nwsAllBLbl", t("nwsAll"));
+    set("nwsAllSLbl", t("nwsAll"));
+    set("nwsTtlB", t("brothers"));
+    set("nwsTtlS", t("sisters"));
+    set("nwsSelLbl", t("nwsSelected"));
+    set("nwsDupLbl", t("nwsDupLbl"));
+    set("nwsDupSkip", t("nwsDupSkip"));
+    set("nwsDupUpdate", t("nwsDupUpdate"));
+    set("nwsCancel", t("nwsCancel"));
+    set("nwsApply", t("nwsApply"));
+    const s = $("nwsSearch"); if(s) s.placeholder = t("nwsSearchPh");
+    const chip = (id, key) => { const el = $(id)?.querySelector("span"); if(el) el.textContent = t(key); };
+    chip("nwsChipHideRemoved", "nwsHideRemoved");
+    chip("nwsChipActive", "nwsActiveOnly");
+    chip("nwsChipNoPub", "nwsPubOnly");
+    chip("nwsChipMinors", "nwsShowMinors");
+    if($("nwsBack")?.classList.contains("open")) nwsRender();
+  }
+  window.__csvLang = nwsApplyLang;
+
+  const importCsvFile = $("importCsvFile");
+  $("importCsvBtn").addEventListener("click", () => importCsvFile.click());
+
+  importCsvFile.addEventListener("change", async () => {
+    const file = importCsvFile.files?.[0];
+    if(!file) return;
+    try{
+      const buf = await file.arrayBuffer();
+      let text = new TextDecoder("utf-8").decode(buf);
+      if(/\uFFFD/.test(text)) text = new TextDecoder("windows-1252").decode(buf);
+      const people = nwsBuild(nwsParseCSV(text));
+      if(!people.length) throw new Error("no rows");
+      NWS.people = people;
+      NWS.sel = new Set();
+      NWS.q = "";
+      NWS.file = file.name;
+      $("nwsSearch").value = "";
+      $("nwsFileInfo").textContent = file.name;
+      nwsOpen();
+    }catch(err){
+      console.error(err);
+      alert(t("nwsBadFile"));
+    }finally{
+      importCsvFile.value = "";
+    }
+  });
+
+  $("nwsClose").addEventListener("click", nwsClose);
+  $("nwsCancel").addEventListener("click", nwsClose);
+  $("nwsBack").addEventListener("click", (e) => { if(e.target === $("nwsBack")) nwsClose(); });
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && $("nwsBack").classList.contains("open")) nwsClose();
+  });
+
+  $("nwsSearch").addEventListener("input", (e) => { NWS.q = normalize(e.target.value); nwsRender(); });
+
+  const nwsChips = [
+    ["nwsChipHideRemoved", "hideRemoved"],
+    ["nwsChipActive", "activeOnly"],
+    ["nwsChipNoPub", "pubOnly"],
+    ["nwsChipMinors", "showMinors"]
+  ];
+  for(const [id, key] of nwsChips){
+    $(id).addEventListener("click", () => { NWS.filters[key] = !NWS.filters[key]; nwsRender(); });
+  }
+
+  for(const [group, allId] of [["Brothers", "nwsAllB"], ["Sisters", "nwsAllS"]]){
+    $(allId).addEventListener("change", (e) => {
+      const on = e.target.checked;
+      NWS.people
+        .filter(p => p.group === group && nwsVisible(p) && nwsSelectable(p))
+        .forEach(p => { if(on) NWS.sel.add(p.key); else NWS.sel.delete(p.key); });
+      nwsRender();
+    });
+  }
+
+  for(const listId of ["nwsListB", "nwsListS"]){
+    $(listId).addEventListener("change", (e) => {
+      const cb = e.target.closest('input[type="checkbox"]');
+      if(!cb) return;
+      const key = cb.getAttribute("data-key");
+      if(!key) return;
+      if(cb.checked) NWS.sel.add(key); else NWS.sel.delete(key);
+      nwsRender();
+    });
+  }
+
+  $("nwsApply").addEventListener("click", () => {
+    if(!NWS.sel.size){ toast(t("nwsNoSel")); return; }
+    const mode = $("nwsDupMode").value;
+    let added = 0, updated = 0, skipped = 0;
+
+    for(const p of NWS.people){
+      if(!NWS.sel.has(p.key) || !nwsSelectable(p)) continue;
+
+      if(p.dup){
+        if(mode === "skip"){ skipped++; continue; }
+        const ex = data.find(v => normalize(v.name) === normalize(p.name));
+        if(ex){
+          if(p.phone) ex.phone = p.phone;
+          if(p.email) ex.email = p.email;
+          ex.updatedAt = Date.now();
+          updated++;
+          continue;
+        }
+      }
+
+      const v = {
+        id: uid(),
+        group: p.group,
+        name: p.name,
+        phone: p.phone || "",
+        email: p.email || "",
+        notes: "",
+        single: !!p.single,
+        smallChildren: !!p.smallChildren,
+        standing: (p.privilege === "Elder" || p.privilege === "MS") ? "exemplary" : "good",
+        updatedAt: Date.now()
+      };
+      if(p.group === "Brothers"){
+        v.privilege = p.privilege;
+        v.familyHead = !!p.famHead;
+      } else {
+        v.medicalExperience = false;
+      }
+      data.push(v);
+      added++;
+    }
+
+    persist();
+    render();
+    nwsClose();
+    toast(t("nwsResult", {n: added, u: updated, s: skipped}));
+  });
+
 
   initLang();
   initTheme();
