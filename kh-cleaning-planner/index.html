@@ -1,1227 +1,797 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<!-- Favicons -->
+<!-- Icons + Manifest -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico">
-
-<!-- Apple -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-
-<!-- Android / PWA -->
+<link rel="icon" href="favicon.ico" sizes="any">
 <link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#172f4d">
+<meta name="apple-mobile-web-app-title" content="KH Cleaning Planner">
+<meta name="application-name" content="Kingdomhall Cleaning Planner">
+
+<!-- Link-Vorschau -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kingdomhall Cleaning Planner">
+<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/">
+<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kingdom Hall Cleaning Planner</title>
+    <title>Kingdom Hall Cleaning Planner v2.4.0</title>
     <style>
-        /* Material Design Variablen */
+        /* ============================================================
+           Saalreinigungsplaner – Design v2.4 "Sage"
+           Feineres, ruhigeres Interface. Klassen-Namen bewusst
+           unverändert, damit die bestehende Logik weiterläuft.
+           ============================================================ */
         :root {
-            /* Primary Colors */
-            --primary-50: #e8eaf6;
-            --primary-100: #c5cae9;
-            --primary-200: #9fa8da;
-            --primary-300: #7986cb;
-            --primary-400: #5c6bc0;
-            --primary-500: #3f51b5;
-            --primary-600: #3949ab;
-            --primary-700: #303f9f;
-            --primary-800: #283593;
-            --primary-900: #1a237e;
-            
-            /* Accent Colors */
-            --accent-100: #ff80ab;
-            --accent-200: #ff4081;
-            --accent-400: #f50057;
-            --accent-700: #c51162;
-            
-            /* Neutral Colors */
-            --gray-50: #fafafa;
-            --gray-100: #f5f5f5;
-            --gray-200: #eeeeee;
-            --gray-300: #e0e0e0;
-            --gray-400: #bdbdbd;
-            --gray-500: #9e9e9e;
-            --gray-600: #757575;
-            --gray-700: #616161;
-            --gray-800: #424242;
-            --gray-900: #212121;
-            
-            /* Semantic Colors */
-            --surface: #ffffff;
-            --background: #f5f5f5;
-            --error: #f44336;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --info: #2196f3;
-            
-            /* Elevation */
-            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --elevation-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-            --elevation-3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-            --elevation-4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-            
-            /* Typography */
-            --font-family: 'Roboto', 'Segoe UI', sans-serif;
-            --font-size-title: 24px;
-            --font-size-headline: 20px;
-            --font-size-body: 16px;
-            --font-size-caption: 14px;
-            --font-size-small: 12px;
-            --font-weight-medium: 500;
+            /* Farbwelt: gedecktes Salbeigrün auf warmem Papierton */
+            --accent:        #3f6b57;
+            --accent-strong: #2f5344;
+            --accent-soft:   #eaf1ec;
+            --accent-line:   #cfdfd5;
+
+            --bg:            #f5f6f3;
+            --surface:       #ffffff;
+            --surface-2:     #fbfcfa;
+
+            --ink:           #1e2723;
+            --ink-2:         #46534d;
+            --muted:         #7b8781;
+            --line:          #e3e7e3;
+            --line-soft:     #eef1ee;
+
+            --danger:        #a8443c;
+            --danger-soft:   #fbeeed;
+            --success:       #3d7a58;
+            --success-soft:  #eaf3ee;
+            --warning:       #9a6b1e;
+            --warning-soft:  #fbf2e2;
+            --info:          #3c6382;
+
+            /* Kompatibilität mit alten Variablennamen */
+            --primary: var(--accent);
+            --primary-dark: var(--accent-strong);
+            --primary-light: var(--accent-soft);
+            --background: var(--bg);
+            --text-primary: var(--ink);
+            --text-secondary: var(--muted);
+            --divider: var(--line);
+            --error: var(--danger);
+            --gray-400: #c3cac5;
+            --gray-800: #263029;
+
+            --font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-size-body: 14px;
+            --font-size-caption: 12.5px;
+            --font-size-small: 11.5px;
+            --font-weight-medium: 600;
             --font-weight-regular: 400;
-            
-            /* Spacing */
+
             --spacing-xs: 4px;
             --spacing-s: 8px;
-            --spacing-m: 16px;
-            --spacing-l: 24px;
-            --spacing-xl: 32px;
-            --spacing-xxl: 48px;
-            
-            /* Border Radius */
-            --border-radius-s: 4px;
-            --border-radius-m: 8px;
-            --border-radius-l: 12px;
-            --border-radius-circle: 50%;
-            
-            /* Transitions */
-            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-medium: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            /* Current Theme */
-            --primary: var(--primary-500);
-            --primary-dark: var(--primary-700);
-            --primary-light: var(--primary-100);
-            --accent: var(--accent-400);
-            --text-primary: var(--gray-900);
-            --text-secondary: var(--gray-600);
-            --text-disabled: var(--gray-400);
-            --divider: var(--gray-300);
+            --spacing-m: 14px;
+            --spacing-l: 20px;
+            --spacing-xl: 28px;
+
+            --r-s: 6px;
+            --r-m: 9px;
+            --r-l: 13px;
+
+            --shadow-1: 0 1px 2px rgba(24,38,32,.05);
+            --shadow-2: 0 4px 14px rgba(24,38,32,.08);
+            --shadow-3: 0 18px 44px rgba(24,38,32,.16);
+
+            --transition-fast: .16s ease;
+            --transition-medium: .24s ease;
         }
-        
-        /* Reset & Base */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: var(--font-family);
             font-size: var(--font-size-body);
-            font-weight: var(--font-weight-regular);
             line-height: 1.5;
-            color: var(--text-primary);
-            background: var(--background);
+            color: var(--ink);
+            background: var(--bg);
             min-height: 100vh;
-            padding: var(--spacing-m);
+            padding: 18px;
+            -webkit-font-smoothing: antialiased;
         }
-        
-        /* Typography */
-        h1 {
-            font-size: var(--font-size-title);
-            font-weight: var(--font-weight-medium);
-            line-height: 1.2;
-            margin-bottom: var(--spacing-xs);
-        }
-        
-        h2 {
-            font-size: var(--font-size-headline);
-            font-weight: var(--font-weight-medium);
-            line-height: 1.3;
-            margin-bottom: var(--spacing-s);
-        }
-        
-        h3 {
-            font-size: var(--font-size-body);
-            font-weight: var(--font-weight-medium);
-            line-height: 1.4;
-            margin-bottom: var(--spacing-xs);
-        }
-        
-        .caption {
-            font-size: var(--font-size-caption);
-            color: var(--text-secondary);
-        }
-        
-        .small {
-            font-size: var(--font-size-small);
-            color: var(--text-secondary);
-        }
-        
-        /* Layout */
+
+        h1 { font-size: 19px; font-weight: 600; letter-spacing: -.015em; line-height: 1.25; }
+        h2 { font-size: 14px; font-weight: 600; letter-spacing: -.005em; }
+        h3 { font-size: 13.5px; font-weight: 600; }
+        .caption { font-size: var(--font-size-caption); color: var(--muted); }
+        .small { font-size: var(--font-size-small); color: var(--muted); }
+
+        /* ---------- Rahmen ---------- */
         .container {
-            max-width: 1400px;
+            max-width: 1320px;
             margin: 0 auto;
             background: var(--surface);
-            border-radius: var(--border-radius-m);
-            box-shadow: var(--elevation-1);
+            border: 1px solid var(--line);
+            border-radius: var(--r-l);
+            box-shadow: var(--shadow-2);
             overflow: hidden;
-            min-height: calc(100vh - 32px);
+            min-height: calc(100vh - 36px);
             display: flex;
             flex-direction: column;
         }
-        
-        /* App Bar */
+
+        /* ---------- Kopfzeile ---------- */
         .app-bar {
-            background: var(--primary);
-            color: white;
-            padding: var(--spacing-m) var(--spacing-l);
-            box-shadow: var(--elevation-2);
+            background: linear-gradient(180deg, #ffffff 0%, var(--surface-2) 100%);
+            border-bottom: 1px solid var(--line);
+            padding: 16px 22px 14px;
             position: relative;
-            z-index: 10;
         }
-        
+        .app-bar::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--accent);
+        }
         .app-bar-content {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             flex-wrap: wrap;
             gap: var(--spacing-m);
         }
-        
-        .app-bar-title {
-            font-size: var(--font-size-title);
-            font-weight: var(--font-weight-medium);
-            color: white;
+        .app-title-wrap { min-width: 240px; flex: 1; }
+        .app-bar-title { font-size: 19px; font-weight: 600; color: var(--ink); letter-spacing: -.015em; }
+        .app-bar-subtitle { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+        .app-bar-location {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 6px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
         }
-        
-        .app-bar-subtitle {
-            color: rgba(255, 255, 255, 0.87);
-            font-size: var(--font-size-caption);
-        }
-        
-        /* Year Selector */
-        .year-selector {
+        .app-actions { display: flex; align-items: center; gap: var(--spacing-s); flex-wrap: wrap; justify-content: flex-end; }
+
+        .year-selector, .language-selector {
             display: flex;
             align-items: center;
-            gap: var(--spacing-s);
-            background: rgba(255, 255, 255, 0.1);
-            padding: var(--spacing-s) var(--spacing-m);
-            border-radius: var(--border-radius-l);
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--r-s);
+            padding: 4px 8px;
+            height: 30px;
         }
-        
-        .year-selector label {
-            color: rgba(255, 255, 255, 0.87);
-            font-size: var(--font-size-caption);
+        .year-selector { border-color: var(--accent-line); background: var(--accent-soft); }
+        .year-selector label, .language-selector label {
+            font-size: 10.5px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
         }
-        
-        .year-selector select {
+        .year-selector label { color: var(--accent-strong); }
+        .year-selector select, .language-selector select {
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
             background: transparent;
             border: none;
-            color: white;
-            font-weight: var(--font-weight-medium);
-            padding: var(--spacing-xs) 0;
+            color: var(--ink);
             cursor: pointer;
+            padding: 0;
         }
-        
-        .year-selector select option {
-            background: var(--surface);
-            color: var(--text-primary);
+        .year-selector select { color: var(--accent-strong); }
+        .year-selector select option, .language-selector select option { background: #fff; color: var(--ink); }
+
+        .mini-pill-button {
+            height: 22px;
+            padding: 0 8px;
+            border-radius: var(--r-s);
+            border: 1px solid var(--accent-line);
+            background: #fff;
+            color: var(--accent-strong);
+            font: inherit;
+            font-size: 11.5px;
+            font-weight: 600;
+            line-height: 1;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+            min-width: auto;
+            box-shadow: none;
+            transition: background var(--transition-fast), border-color var(--transition-fast);
         }
-        
-        /* Tabs */
+        .mini-pill-button:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+        /* ---------- Tabs ---------- */
         .tabs {
             display: flex;
-            background: var(--gray-100);
-            border-bottom: 1px solid var(--divider);
+            gap: 2px;
+            background: var(--surface-2);
+            border-bottom: 1px solid var(--line);
+            padding: 0 18px;
         }
-        
         .tab {
-            padding: var(--spacing-m) var(--spacing-l);
+            padding: 11px 14px;
             background: transparent;
             border: none;
-            font-size: var(--font-size-body);
-            font-weight: var(--font-weight-medium);
-            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
             cursor: pointer;
             position: relative;
             transition: color var(--transition-fast);
         }
-        
-        .tab:hover {
-            color: var(--primary);
-            background: rgba(63, 81, 181, 0.04);
-        }
-        
-        .tab.active {
-            color: var(--primary);
-        }
-        
+        .tab:hover { color: var(--ink); }
+        .tab.active { color: var(--accent-strong); font-weight: 600; }
         .tab.active::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            left: 10px; right: 10px; bottom: -1px;
             height: 2px;
-            background: var(--primary);
+            background: var(--accent);
+            border-radius: 2px 2px 0 0;
         }
-        
-        /* Content */
-        .content {
-            padding: var(--spacing-l);
-            flex: 1;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Layout Grid - WICHTIG: Linke Spalte schlank, rechte groß */
+
+        /* ---------- Inhalt ---------- */
+        .content { padding: 20px; flex: 1; background: var(--bg); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn .22s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
         .layout {
             display: grid;
-            grid-template-columns: 360px 1fr;/* Linke Spalte etwas schlanker, damit rechts genug Platz bleibt */ /* Linke Spalte fix 400px, rechte Spalte nimmt Rest */
-            gap: var(--spacing-l);
+            grid-template-columns: 312px 1fr;
+            gap: 18px;
+            align-items: start;
         }
-        
-        @media (max-width: 1200px) {
-            .layout {
-                grid-template-columns: 320px 1fr;
-            }
-        }
-        
-        @media (max-width: 1024px) {
-            .layout {
-                grid-template-columns: 1fr; /* Auf mobil untereinander */
-            }
-        }
-        
-        /* Cards */
+        @media (max-width: 1180px) { .layout { grid-template-columns: 280px 1fr; } }
+        @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+
+        /* ---------- Karten ---------- */
         .card {
             background: var(--surface);
-            border-radius: var(--border-radius-m);
-            box-shadow: var(--elevation-1);
-            padding: var(--spacing-l);
-            margin-bottom: var(--spacing-l);
-            transition: box-shadow var(--transition-fast);
+            border: 1px solid var(--line);
+            border-radius: var(--r-m);
+            box-shadow: var(--shadow-1);
+            padding: 16px 18px 18px;
+            margin-bottom: 16px;
         }
-        
-        .card:hover {
-            box-shadow: var(--elevation-2);
+        .card:last-child { margin-bottom: 0; }
+        .card > h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--line-soft);
         }
-        
+        .card > h2::before {
+            content: "";
+            width: 3px; height: 11px;
+            border-radius: 2px;
+            background: var(--accent);
+            flex: none;
+        }
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: var(--spacing-m);
             padding-bottom: var(--spacing-s);
-            border-bottom: 1px solid var(--divider);
+            border-bottom: 1px solid var(--line-soft);
         }
-        
-        /* Form Elements */
-        .form-group {
-            margin-bottom: var(--spacing-m);
+        .field-hint {
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.45;
+            margin-top: 10px;
         }
-        
+
+        /* ---------- Formularfelder (statisches Label über dem Feld) ---------- */
+        .form-group { margin-bottom: 12px; }
+        .form-group:last-child { margin-bottom: 0; }
         .form-label {
             display: block;
             margin-bottom: var(--spacing-xs);
-            color: var(--text-secondary);
-            font-size: var(--font-size-caption);
-            font-weight: var(--font-weight-medium);
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: .06em;
         }
-        
+
         .mdc-text-field {
             position: relative;
-            display: block;
+            display: flex;
+            flex-direction: column-reverse;  /* Label (im DOM nach dem Feld) landet darüber */
+            gap: 4px;
         }
-        
+        .mdc-text-field .label {
+            position: static;
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            pointer-events: auto;
+            transition: color var(--transition-fast);
+        }
         .mdc-text-field input,
         .mdc-text-field select,
         .mdc-text-field textarea {
             width: 100%;
-            padding: var(--spacing-m) 0 var(--spacing-s) 0;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--gray-400);
-            font-family: var(--font-family);
-            font-size: var(--font-size-body);
-            color: var(--text-primary);
-            transition: border-color var(--transition-fast);
+            padding: 7px 9px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--r-s);
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--ink);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            cursor: pointer;
         }
-        
         .mdc-text-field select {
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237b8781' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 8px center;
-            background-size: 16px;
-            padding-right: 32px;
+            background-size: 14px;
+            padding-right: 28px;
         }
-        
+        .mdc-text-field input:hover,
+        .mdc-text-field select:hover { border-color: #cdd5cf; }
         .mdc-text-field input:focus,
         .mdc-text-field select:focus,
         .mdc-text-field textarea:focus {
             outline: none;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: calc(var(--spacing-s) - 1px);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(63,107,87,.10);
         }
-        
-        .mdc-text-field .label {
-            position: absolute;
-            top: var(--spacing-m);
-            left: 0;
-            font-size: var(--font-size-body);
-            color: var(--text-secondary);
-            transition: all var(--transition-fast);
-            pointer-events: none;
-        }
-        
         .mdc-text-field input:focus ~ .label,
-        .mdc-text-field input:not(:placeholder-shown) ~ .label,
-        .mdc-text-field select:valid ~ .label,
-        .mdc-text-field textarea:focus ~ .label,
-        .mdc-text-field textarea:not(:placeholder-shown) ~ .label {
-            top: 0;
-            font-size: var(--font-size-caption);
-            color: var(--primary);
-        }
-        
-        /* Buttons */
+        .mdc-text-field select:focus ~ .label { color: var(--accent-strong); }
+
+        /* ---------- Buttons ---------- */
         .mdc-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0 var(--spacing-l);
-            height: 40px;
-            min-width: 100px;
-            border: none;
-            border-radius: var(--border-radius-s);
-            font-family: var(--font-family);
-            font-size: var(--font-size-body);
-            font-weight: var(--font-weight-medium);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            gap: 6px;
+            padding: 0 14px;
+            height: 32px;
+            min-width: auto;
+            border: 1px solid transparent;
+            border-radius: var(--r-s);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-transform: none;
             cursor: pointer;
-            transition: all var(--transition-fast);
-            position: relative;
-            overflow: hidden;
+            transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
         }
-        
-        .mdc-button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
-        }
-        
-        .mdc-button:focus:not(:active)::after {
-            animation: ripple 0.6s ease-out;
-        }
-        
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(20, 20);
-                opacity: 0;
-            }
-        }
-        
         .mdc-button--raised {
-            background: var(--primary);
-            color: white;
-            box-shadow: var(--elevation-1);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: none;
         }
-        
-        .mdc-button--raised:hover {
-            background: var(--primary-dark);
-            box-shadow: var(--elevation-2);
-        }
-        
+        .mdc-button--raised:hover { background: var(--accent-strong); }
         .mdc-button--outlined {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
+            background: var(--surface);
+            color: var(--ink-2);
+            border-color: var(--line);
         }
-        
-        .mdc-button--outlined:hover {
-            background: rgba(63, 81, 181, 0.08);
-            border-color: var(--primary-600);
-        }
-        
+        .mdc-button--outlined:hover { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-strong); }
         .mdc-button--text {
             background: transparent;
-            color: var(--primary);
-            padding: 0 var(--spacing-m);
-            min-width: auto;
+            color: var(--accent-strong);
+            padding: 0 8px;
         }
-        
-        .mdc-button--text:hover {
-            background: rgba(63, 81, 181, 0.04);
-        }
-        
-        .mdc-button--danger {
-            background: var(--error);
-            color: white;
-        }
-        
-        .mdc-button--success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .mdc-button--warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .mdc-button--info {
-            background: var(--info);
-            color: white;
-        }
-        
-        /* Planverwaltung Buttons UNTEREINANDER (nicht nebeneinander) */
-        .plan-management-button {
-            border-left: 3px solid var(--primary-300);
-            background-color: rgba(63, 81, 181, 0.03);
-            transition: all var(--transition-fast);
-            width: 100%;
-            text-align: left;
-            padding-left: var(--spacing-m);
-            margin-bottom: var(--spacing-s);
-            justify-content: flex-start;
-        }
-        
-        .plan-management-button:last-child {
-            margin-bottom: 0;
-        }
-        
-        .plan-management-button:hover {
-            background-color: rgba(63, 81, 181, 0.15);
-            border-left-color: var(--primary-500);
-        }
-        
-        /* Export-Buttons Hover verstärken */
-        .export-button-group .mdc-button--outlined:hover {
-            background-color: rgba(63, 81, 181, 0.12);
-            border-color: var(--primary-600);
-        }
-        
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-s);
-            margin-top: var(--spacing-m);
-        }
-        
-        /* Planverwaltung Button-Gruppe UNTEREINANDER */
-        .plan-management-group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-s);
-            margin-top: var(--spacing-m);
-        }
-        
-        .plan-management-group .mdc-button {
-            width: 100%;
-        }
-        
-        /* Drucken & Export Buttons - alle gleich */
+        .mdc-button--text:hover { background: var(--accent-soft); }
+        .mdc-button--danger { background: transparent; color: var(--danger); }
+        .mdc-button--danger:hover { background: var(--danger-soft); }
+        .mdc-button--raised.mdc-button--danger { background: var(--danger); color: #fff; }
+        .mdc-button--success { background: var(--success); color: #fff; }
+        .mdc-button--warning { background: var(--warning); color: #fff; }
+        .mdc-button--info { background: var(--info); color: #fff; }
+        .full-width { width: 100%; }
+
+        .button-group { display: flex; flex-wrap: wrap; gap: var(--spacing-s); margin-top: var(--spacing-m); }
+
+        /* Listen-artige Buttonspalten (Planverwaltung / Export) */
+        .plan-management-group,
         .export-button-group {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-s);
-            margin-top: var(--spacing-m);
+            gap: 6px;
         }
-        
+        .plan-management-group .mdc-button,
         .export-button-group .mdc-button {
             width: 100%;
-            height: 36px;
+            height: 32px;
             justify-content: flex-start;
-            padding-left: var(--spacing-m);
+            padding-left: 11px;
+            font-weight: 500;
+            color: var(--ink-2);
         }
-        
-        /* Table - Optimiert */
+        .plan-management-button {
+            border-left: 2px solid var(--accent-line);
+            background: var(--surface);
+            text-align: left;
+        }
+        .plan-management-button:hover { border-left-color: var(--accent); }
+
+        /* ---------- Tabelle ---------- */
         .mdc-data-table {
             width: 100%;
             border-collapse: collapse;
-            border-radius: var(--border-radius-s);
+            border: 1px solid var(--line);
+            border-radius: var(--r-s);
             overflow: hidden;
-            box-shadow: var(--elevation-1);
+            box-shadow: none;
+            font-size: 13px;
         }
-        
-        .mdc-data-table thead {
-            background: var(--gray-100);
-        }
-        
+        .mdc-data-table thead { background: var(--surface-2); }
         .mdc-data-table th {
-            padding: var(--spacing-s) var(--spacing-m);
+            padding: 8px 12px;
             text-align: left;
-            font-weight: var(--font-weight-medium);
-            color: var(--text-secondary);
-            font-size: var(--font-size-caption);
+            font-weight: 600;
+            color: var(--muted);
+            font-size: 10.5px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--divider);
+            letter-spacing: .07em;
+            border-bottom: 1px solid var(--line);
             white-space: nowrap;
         }
-        
         .mdc-data-table td {
-            padding: var(--spacing-s) var(--spacing-m);
-            border-bottom: 1px solid var(--divider);
-            color: var(--text-primary);
+            padding: 7px 12px;
+            border-bottom: 1px solid var(--line-soft);
+            color: var(--ink-2);
+            vertical-align: middle;
         }
-        
-        .mdc-data-table tbody tr {
-            transition: background-color var(--transition-fast);
+        .mdc-data-table tbody tr:last-child td { border-bottom: none; }
+        .mdc-data-table tbody td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .mdc-data-table tbody tr { transition: background var(--transition-fast); }
+        .mdc-data-table tbody tr:hover { background: var(--surface-2); }
+
+        .email-cell { font-size: 12px; color: var(--muted); word-break: break-all; max-width: 200px; }
+        .contact-cell { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+        .assign-select {
+            width: 100%;
+            padding: 5px 26px 5px 8px;
+            font-family: inherit;
+            font-size: 12.5px;
+            color: var(--ink-2);
+            background: var(--surface);
+            border: 1px dashed var(--line);
+            border-radius: var(--r-s);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237b8781' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 7px center;
+            background-size: 13px;
         }
-        
-        .mdc-data-table tbody tr:hover {
-            background-color: var(--gray-50);
-        }
-        
-        /* Verbesserte E-Mail-Spalte */
-        .email-cell {
-            font-size: var(--font-size-small);
-            color: var(--text-secondary);
-            word-break: break-all;
-            max-width: 200px;
-            min-width: 150px;
-        }
-        
-        /* Optimierte Kontakt-Zelle */
-        .contact-cell {
-            font-size: var(--font-size-small);
-            color: var(--text-secondary);
-            white-space: nowrap;
-        }
-        
-        /* Aktionen - MIT ALLEN BUTTONS SICHTBAR */
+        .assign-select:hover { border-color: var(--accent-line); background-color: var(--accent-soft); }
+        .assign-select:focus { outline: none; border-style: solid; border-color: var(--accent); }
+
+        /* Aktionen in der Tabelle */
         .actions {
             display: flex;
-            gap: var(--spacing-xs);
-            justify-content: flex-start;
+            gap: 2px;
             align-items: center;
-            min-width: 220px;
+            justify-content: flex-start;
             flex-wrap: nowrap;
         }
-        
         .action-button {
-            padding: 4px 8px;
+            padding: 0 7px;
+            height: 24px;
             min-width: auto;
-            height: auto;
-            font-size: var(--font-size-caption);
+            font-size: 12px;
+            font-weight: 500;
             white-space: nowrap;
+            color: var(--muted);
         }
-        
-        /* Stern-Icon für Hinweise - RESERVIERTER PLATZ */
-        .hint-star-container {
-            display: inline-block;
-            width: 24px;
-            height: 20px;
-            text-align: center;
-            margin-right: var(--spacing-xs);
-        }
-        
+        .action-button:hover { color: var(--accent-strong); }
+        .mdc-button--danger.action-button { color: var(--muted); }
+        .mdc-button--danger.action-button:hover { color: var(--danger); background: var(--danger-soft); }
+
+        /* Hinweis-Marker */
+        .hint-star-container { display: inline-flex; width: 18px; justify-content: center; flex: none; }
         .hint-star {
             color: var(--warning);
             cursor: help;
-            font-size: 16px;
+            font-size: 11px;
             position: relative;
             display: inline-block;
-            width: 100%;
-            height: 100%;
         }
-        
         .hint-star::after {
             content: attr(data-hint);
             position: absolute;
-            bottom: 100%;
+            bottom: 130%;
             left: 50%;
             transform: translateX(-50%);
             background: var(--gray-800);
-            color: white;
-            padding: var(--spacing-s) var(--spacing-m);
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-caption);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: var(--r-s);
+            font-size: 12px;
             white-space: pre-wrap;
-            max-width: 300px;
+            width: max-content;
+            max-width: 260px;
             z-index: 1000;
-            box-shadow: var(--elevation-3);
+            box-shadow: var(--shadow-2);
             opacity: 0;
             visibility: hidden;
             transition: opacity var(--transition-fast), visibility var(--transition-fast);
             pointer-events: none;
         }
-        
-        .hint-star:hover::after {
-            opacity: 1;
-            visibility: visible;
+        .hint-star:hover::after { opacity: 1; visibility: visible; }
+        .hint-text { display: none; }
+
+        /* ---------- Status ---------- */
+        .status-unassigned,
+        .status-assigned {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .02em;
         }
-        
-        /* Im Druck die Hinweise anzeigen */
-        @media print {
-            .hint-star-container {
-                display: none;
-            }
-            
-            .hint-text {
-                display: block !important;
-                font-size: var(--font-size-small);
-                color: var(--text-secondary);
-            }
-            
-            .email-cell {
-                font-size: var(--font-size-caption);
-            }
-            
-            .actions {
-                display: none;
-            }
-        }
-        
-        /* Im Screen die Hinweise ausblenden */
-        .hint-text {
-            display: none;
-        }
-        
-        /* Tasks List (Jobcards) - KLEINERE LÖSCHEN-BUTTONS */
-        .tasks-container {
-            margin-top: var(--spacing-m);
-        }
-        
+        .status-unassigned { background: var(--warning-soft); color: var(--warning); }
+        .status-assigned { background: var(--success-soft); color: var(--success); }
+
+        /* ---------- Aufgaben ---------- */
+        .tasks-container { margin-top: var(--spacing-m); border-top: 1px solid var(--line-soft); }
         .task-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: var(--spacing-xs) 0;
-            border-bottom: 1px solid var(--divider);
+            padding: 5px 0;
+            border-bottom: 1px solid var(--line-soft);
+            font-size: 13px;
         }
-        
-        .task-item:last-child {
-            border-bottom: none;
-        }
-        
-        .task-item label {
-            margin-bottom: 0;
-            font-weight: normal;
-            cursor: pointer;
-            flex: 1;
-        }
-        
-        .task-actions {
-            display: flex;
-            justify-content: flex-end;
-            min-width: 60px;
-            flex-shrink: 0;
-        }
-        
-        /* Kleinerer Löschen-Button für Aufgaben */
+        .task-item:last-child { border-bottom: none; }
+        .task-item label { margin-bottom: 0; font-weight: 400; cursor: default; flex: 1; color: var(--ink-2); }
+        .task-item input[type="checkbox"] { accent-color: var(--accent); }
+        .task-actions { display: flex; justify-content: flex-end; flex-shrink: 0; }
         .task-delete-button {
-            padding: 2px 8px;
-            font-size: 11px;
-            height: 28px;
-            min-width: 60px;
-            line-height: 1;
+            padding: 0 7px;
+            font-size: 11.5px;
+            height: 22px;
+            min-width: auto;
+            color: var(--muted);
         }
-        
-        /* Summary Cards */
+        .task-delete-button:hover { color: var(--danger); background: var(--danger-soft); }
+
+        /* ---------- Übersicht nach Versammlungen ---------- */
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: var(--spacing-m);
-            margin-top: var(--spacing-m);
+            grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+            gap: 8px;
         }
-        
         .summary-card {
-            background: var(--surface);
-            border-radius: var(--border-radius-m);
-            padding: var(--spacing-m);
-            text-align: center;
-            box-shadow: var(--elevation-1);
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            background: var(--surface-2);
+            border: 1px solid var(--line-soft);
+            border-radius: var(--r-s);
+            padding: 9px 11px;
+            text-align: left;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            transition: border-color var(--transition-fast), background var(--transition-fast);
         }
-        
-        .summary-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--elevation-2);
-        }
-        
+        .summary-card:hover { border-color: var(--accent-line); background: var(--accent-soft); transform: none; }
         .summary-card-title {
-            font-size: var(--font-size-caption);
-            color: var(--text-secondary);
-            margin-bottom: var(--spacing-s);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--ink-2);
+            margin-bottom: 0;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-        
         .summary-card-value {
-            font-size: 28px;
-            font-weight: var(--font-weight-medium);
-            color: var(--primary);
-            line-height: 1;
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--accent-strong);
+            line-height: 1.15;
+            letter-spacing: -.02em;
         }
-        
-        .summary-card-subtitle {
-            font-size: var(--font-size-small);
-            color: var(--text-secondary);
-            margin-top: var(--spacing-xs);
-        }
-        
-        /* Modals */
+        .summary-card-subtitle { font-size: 10.5px; color: var(--muted); margin-top: 0; }
+
+        /* ---------- Dialoge ---------- */
         .mdc-dialog {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            inset: 0;
+            background: rgba(22,32,27,.42);
+            backdrop-filter: blur(2px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn .2s ease;
         }
-        
-        .mdc-dialog--open {
-            display: flex;
-        }
-        
+        .mdc-dialog--open { display: flex; }
         .mdc-dialog__surface {
             background: var(--surface);
-            border-radius: var(--border-radius-m);
-            box-shadow: var(--elevation-4);
+            border: 1px solid var(--line);
+            border-radius: var(--r-l);
+            box-shadow: var(--shadow-3);
             min-width: 280px;
-            max-width: 500px;
-            width: 90%;
+            max-width: 440px;
+            width: 92%;
             max-height: 90vh;
             overflow: auto;
         }
-        
-        .mdc-dialog__header {
-            padding: var(--spacing-l);
-            border-bottom: 1px solid var(--divider);
+        .mdc-dialog__header { padding: 16px 20px 12px; border-bottom: 1px solid var(--line-soft); }
+        .mdc-dialog__header h2 {
+            font-size: 14.5px;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: -.005em;
+            color: var(--ink);
         }
-        
-        .mdc-dialog__content {
-            padding: var(--spacing-l);
-        }
-        
+        .mdc-dialog__content { padding: 18px 20px; font-size: 13.5px; color: var(--ink-2); }
         .mdc-dialog__actions {
-            padding: var(--spacing-m) var(--spacing-l);
+            padding: 12px 20px 16px;
             display: flex;
             justify-content: flex-end;
             gap: var(--spacing-s);
-            border-top: 1px solid var(--divider);
+            border-top: 1px solid var(--line-soft);
         }
-        
-        /* Snackbar */
+
+        /* ---------- Snackbar ---------- */
         .mdc-snackbar {
             position: fixed;
-            bottom: var(--spacing-l);
+            bottom: 22px;
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
+            transform: translateX(-50%) translateY(80px);
             background: var(--gray-800);
-            color: white;
-            padding: var(--spacing-m) var(--spacing-l);
-            border-radius: var(--border-radius-s);
-            box-shadow: var(--elevation-3);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: var(--r-m);
+            box-shadow: var(--shadow-3);
             display: flex;
             align-items: center;
             gap: var(--spacing-m);
-            z-index: 1000;
+            font-size: 13px;
+            z-index: 1200;
             opacity: 0;
             transition: all var(--transition-medium);
         }
-        
-        .mdc-snackbar--open {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        
-        .mdc-snackbar__label {
-            flex: 1;
-        }
-        
+        .mdc-snackbar--open { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .mdc-snackbar__label { flex: 1; }
         .mdc-snackbar__action {
-            color: var(--accent-200);
+            color: #a8d5bd;
             background: none;
             border: none;
-            font-weight: var(--font-weight-medium);
+            font: inherit;
+            font-weight: 600;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-transform: none;
+            letter-spacing: 0;
         }
-        
-        /* Config Grid */
+
+        /* ---------- Konfiguration ---------- */
         .config-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: var(--spacing-l);
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            align-items: start;
         }
-        
-        /* Congregation List */
+        .config-grid .card { margin-bottom: 0; }
+
+        /* ---------- Versammlungsliste ---------- */
         .congregation-item {
             background: var(--surface);
-            border-radius: var(--border-radius-m);
-            padding: var(--spacing-l);
-            margin-bottom: var(--spacing-m);
-            box-shadow: var(--elevation-1);
+            border: 1px solid var(--line);
+            border-radius: var(--r-s);
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            box-shadow: none;
         }
-        
+        .congregation-item:last-child { margin-bottom: 0; }
         .congregation-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: var(--spacing-m);
-        }
-
-        .congregation-item--compact {
-            padding: 14px 16px;
+            gap: 12px;
             margin-bottom: 10px;
         }
-
-        .congregation-item--compact .congregation-header {
-            margin-bottom: 8px;
-            gap: 12px;
-        }
-
-        .congregation-item--compact h3 {
-            margin: 0;
-            font-size: 15px;
-            line-height: 1.2;
-        }
-
+        .congregation-header h3 { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--ink); }
         .congregation-compact-grid {
             display: grid;
-            grid-template-columns: minmax(190px, 1.4fr) 82px minmax(150px, 1fr) minmax(190px, 1.25fr) auto;
+            grid-template-columns: minmax(170px, 1.4fr) 78px minmax(140px, 1fr) minmax(180px, 1.2fr) auto;
             gap: 10px;
             align-items: end;
         }
+        .congregation-compact-grid .form-group { margin-bottom: 0; }
+        .congregation-compact-grid .mdc-button { height: 30px; padding: 0 12px; }
+        @media (max-width: 1150px) { .congregation-compact-grid { grid-template-columns: 1fr 78px 1fr; } }
+        @media (max-width: 780px) { .congregation-compact-grid { grid-template-columns: 1fr; } }
 
-        .congregation-compact-grid .form-group {
-            margin-bottom: 0;
+        /* ---------- Hilfe ---------- */
+        .help-card { padding: 20px 22px 24px; }
+        .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+        .help-box {
+            border: 1px solid var(--line);
+            border-radius: var(--r-m);
+            padding: 15px 16px;
+            background: var(--surface-2);
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--ink-2);
         }
+        .help-box h3 { margin-bottom: 8px; font-size: 13px; color: var(--accent-strong); }
+        .help-box ul { margin: 8px 0 0 17px; padding: 0; }
+        .help-box li { margin: 5px 0; font-size: 12.5px; color: var(--muted); }
 
-        .congregation-compact-grid .mdc-text-field input {
-            padding-top: 18px;
-            padding-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .congregation-compact-grid .mdc-button {
-            height: 36px;
-            white-space: nowrap;
-            padding: 0 14px;
-        }
-
-        @media (max-width: 980px) {
-            .congregation-compact-grid {
-                grid-template-columns: 1fr 90px;
-            }
-            .congregation-compact-grid .save-cell {
-                grid-column: 1 / -1;
-            }
-        }
-        
-        /* Footer */
+        /* ---------- Fußzeile ---------- */
         .footer {
-            background: var(--gray-100);
-            padding: var(--spacing-m) var(--spacing-l);
+            background: var(--surface-2);
+            padding: 11px 20px;
             text-align: center;
-            border-top: 1px solid var(--divider);
-            font-size: var(--font-size-small);
-            color: var(--text-secondary);
+            border-top: 1px solid var(--line);
+            font-size: 11.5px;
+            color: var(--muted);
+            letter-spacing: .02em;
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            body {
-                padding: var(--spacing-s);
-            }
-            
-            .content {
-                padding: var(--spacing-m);
-            }
-            
-            .app-bar-content {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: var(--spacing-s);
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab {
-                width: 100%;
-                text-align: left;
-                justify-content: flex-start;
-            }
-            
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .config-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .mdc-data-table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .email-cell {
-                max-width: 120px;
-            }
-            
-            .actions {
-                min-width: auto;
-                flex-wrap: wrap;
-                gap: 4px;
-            }
-            
-            .action-button {
-                padding: 3px 6px;
-                font-size: 11px;
-            }
-            
-            .plan-management-group {
-                flex-direction: column;
-            }
-        }
-        
-        /* Utility Classes */
+
+        /* ---------- Utilities ---------- */
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .text-left { text-align: left; }
-        
         .mt-xs { margin-top: var(--spacing-xs); }
         .mt-s { margin-top: var(--spacing-s); }
         .mt-m { margin-top: var(--spacing-m); }
         .mt-l { margin-top: var(--spacing-l); }
         .mt-xl { margin-top: var(--spacing-xl); }
-        
         .mb-xs { margin-bottom: var(--spacing-xs); }
         .mb-s { margin-bottom: var(--spacing-s); }
         .mb-m { margin-bottom: var(--spacing-m); }
         .mb-l { margin-bottom: var(--spacing-l); }
         .mb-xl { margin-bottom: var(--spacing-xl); }
-        
-        .full-width { width: 100%; }
-        
-        /* Status Colors */
-        .status-unassigned {
-            background: rgba(244, 67, 54, 0.1);
-            color: var(--error);
-            padding: var(--spacing-xs) var(--spacing-s);
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-caption);
-            display: inline-block;
-        }
-        
-        .status-assigned {
-            background: rgba(76, 175, 80, 0.1);
-            color: var(--success);
-            padding: var(--spacing-xs) var(--spacing-s);
-            border-radius: var(--border-radius-s);
-            font-size: var(--font-size-caption);
-            display: inline-block;
-        }
-        
-        /* Select styling consistency */
-        select {
-            cursor: pointer;
+        select { cursor: pointer; }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 768px) {
+            body { padding: 8px; }
+            .content { padding: 14px; }
+            .app-bar-content { flex-direction: column; align-items: flex-start; gap: var(--spacing-s); }
+            .app-actions { justify-content: flex-start; }
+            .tabs { overflow-x: auto; padding: 0 8px; }
+            .tab { white-space: nowrap; padding: 11px 10px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .config-grid { grid-template-columns: 1fr; }
+            .mdc-data-table { display: block; overflow-x: auto; }
+            .email-cell { max-width: 130px; }
+            .actions { flex-wrap: wrap; }
         }
 
-
-        /* v2.3 Public / GitHub polish */
-        :root{
-            --primary:#2563eb;
-            --primary-dark:#1d4ed8;
-            --primary-light:#dbeafe;
-            --accent:#0ea5e9;
-            --background:#eef3f8;
-            --surface:#ffffff;
-            --text-primary:#172033;
-            --text-secondary:#64748b;
-            --divider:#e2e8f0;
-            --border-radius-m:16px;
-            --border-radius-l:999px;
-            --elevation-1:0 10px 28px rgba(15,23,42,.08);
-            --elevation-2:0 16px 36px rgba(15,23,42,.14);
+        /* ---------- Druck ---------- */
+        @media print {
+            .hint-star-container { display: none; }
+            .hint-text { display: block !important; font-size: var(--font-size-small); color: var(--muted); }
+            .email-cell { font-size: var(--font-size-caption); }
+            .actions { display: none; }
         }
-        body{background:linear-gradient(180deg,#eef5ff 0%,#f8fafc 50%,#eef3f8 100%);}
-        .container{border-radius:24px; box-shadow:0 24px 60px rgba(15,23,42,.12); border:1px solid rgba(148,163,184,.22); overflow:hidden;}
-        .app-bar{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 54%,#2563eb 100%); padding:22px 28px;}
-        .app-bar-content{align-items:flex-start;}
-        .app-title-wrap{min-width:260px; flex:1;}
-        .app-bar-title{font-size:28px; letter-spacing:-.02em;}
-        .app-bar-subtitle{font-size:14px; margin-top:4px; opacity:.92;}
-        .app-bar-location{font-size:12px; color:rgba(255,255,255,.74); margin-top:2px;}
-        .app-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-        .year-selector,.language-selector{display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); padding:8px 12px; border-radius:999px; backdrop-filter:blur(8px);}
-        .year-selector label,.language-selector label{color:rgba(255,255,255,.86); font-size:13px;}
-        .year-selector select,.language-selector select{font:inherit; font-size:14px; line-height:1.2; background:transparent; border:none; color:white; font-weight:600; cursor:pointer;}
-        .year-selector select option,.language-selector select option{background:white; color:#172033;}
-        .mini-pill-button{height:32px; min-width:auto; padding:0 12px; border-radius:999px; border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.13); color:white; font-size:14px; font-weight:600; text-transform:none; letter-spacing:0; box-shadow:none;}
-        .mini-pill-button:hover{background:rgba(255,255,255,.22);}
-        .tabs{background:#f8fafc; padding:8px 12px 0; gap:6px;}
-        .tab{border-radius:14px 14px 0 0;}
-        .tab.active{background:white; box-shadow:0 -2px 12px rgba(15,23,42,.06);}
-        .card{border:1px solid rgba(226,232,240,.85); box-shadow:0 10px 28px rgba(15,23,42,.06);}
-        .card:hover{box-shadow:0 14px 34px rgba(15,23,42,.10);}
-        .card h2{letter-spacing:-.01em;}
-        .mdc-button{text-transform:none; letter-spacing:0; border-radius:12px;}
-        .plan-management-button,.export-button-group .mdc-button{border-radius:12px;}
-        .mdc-data-table{border-radius:16px; overflow:hidden; box-shadow:0 8px 22px rgba(15,23,42,.06);}
-        .footer{background:#f8fafc;}
-        .help-card{background:linear-gradient(180deg,#ffffff,#f8fafc); margin-top:0;}
-        .help-card h2{font-size:24px;}
-        .help-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px;}
-        .help-box{border:1px solid var(--divider); border-radius:18px; padding:20px; background:white; font-size:15.5px; line-height:1.55;}
-        .help-box h3{margin-bottom:10px; font-size:17px;}
-
-        /* v2.2.3 visual polish */
-        .app-bar{position:relative; isolation:isolate; background:
-          radial-gradient(circle at 12% 18%,rgba(96,165,250,.45),transparent 28%),
-          linear-gradient(135deg,#111827 0%,#1f2937 45%,#1d4ed8 100%);}
-        .app-bar::after{content:""; position:absolute; inset:auto 24px 0 24px; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);}
-        .editable-header{border-radius:10px; padding:1px 6px; margin-left:-6px; transition:background .18s ease, box-shadow .18s ease;}
-        .editable-header:hover{background:rgba(255,255,255,.10);}
-        .editable-header:focus{outline:none; background:rgba(255,255,255,.16); box-shadow:0 0 0 2px rgba(255,255,255,.28);}
-        .header-edit-chip{margin-top:10px; border:1px solid rgba(255,255,255,.20); background:rgba(255,255,255,.10); color:rgba(255,255,255,.90); border-radius:999px; padding:5px 10px; font:inherit; font-size:12px; cursor:pointer;}
-        .header-edit-chip:hover{background:rgba(255,255,255,.18);}
-        .year-selector select,.language-selector select{font-size:13px; min-width:54px;}
-        .mini-pill-button{height:28px; font-size:13px; padding:0 10px; align-self:center; line-height:1;}
-        .content{background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);}
-        .card{border-radius:20px; background:linear-gradient(180deg,#ffffff,#fbfdff);}
-        .footer{font-weight:500; letter-spacing:.01em;}
-        @media(max-width:768px){.app-actions{justify-content:flex-start}.app-bar-title{font-size:24px}}
-    
-        /* v2.2.2 click/sizing stabilization */
-        .mini-pill-button{font-size:13px!important; line-height:1.2; padding:6px 10px; min-width:auto; height:auto; text-transform:none; position:relative; z-index:20;}
-        .editable-header{outline:0; border-radius:8px; padding:1px 3px; cursor:text;}
-        .editable-header:focus{background:rgba(255,255,255,.14); box-shadow:0 0 0 2px rgba(255,255,255,.25);}
-        .app-actions,.year-selector,.language-selector{position:relative; z-index:25;}
-    
-
-        /* v2.2.5 compact congregation polish */
-        .congregation-item--compact{
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            border: 1px solid var(--divider);
-            box-shadow: none;
-        }
-        .congregation-item--compact .congregation-header{
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-        }
-        .congregation-item--compact .congregation-header h3{
-            margin: 0;
-            font-size: 15px;
-        }
-        .congregation-compact-grid{
-            display: grid;
-            grid-template-columns: minmax(180px, 1.5fr) 90px minmax(150px, 1fr) minmax(190px, 1.2fr) auto;
-            gap: 10px;
-            align-items: end;
-        }
-        .congregation-compact-grid .form-group{
-            margin-bottom: 0;
-        }
-        .congregation-compact-grid .mdc-text-field input{
-            padding-top: 10px;
-            padding-bottom: 5px;
-            font-size: 14px;
-        }
-        .congregation-compact-grid .mdc-button{
-            height: 34px;
-            padding: 0 12px;
-            font-size: 13px;
-        }
-        @media (max-width: 1050px){
-            .congregation-compact-grid{ grid-template-columns: 1fr 80px; }
-            .congregation-compact-grid .save-cell{ grid-column: 1 / -1; }
-        }
-
-
-        /* v2.3.0 readability polish: compact, but no text collisions */
-        .congregation-item--compact{
-            padding: 16px 18px !important;
-            margin-bottom: 14px !important;
-            border-radius: 14px;
-        }
-        .congregation-item--compact .congregation-header{
-            margin-bottom: 12px !important;
-            padding-bottom: 8px !important;
-            border-bottom: 1px solid var(--divider);
-        }
-        .congregation-item--compact .congregation-header h3{
-            font-size: 16px !important;
-            line-height: 1.35 !important;
-            word-break: break-word;
-        }
-        .congregation-compact-grid{
-            grid-template-columns: minmax(220px, 1.35fr) 104px minmax(190px, 1fr) minmax(230px, 1.2fr) minmax(150px, auto) !important;
-            column-gap: 16px !important;
-            row-gap: 14px !important;
-            align-items: end !important;
-        }
-        .congregation-compact-grid .mdc-text-field input{
-            padding-top: 22px !important;
-            padding-bottom: 8px !important;
-            min-height: 46px;
-            font-size: 14.5px !important;
-            line-height: 1.35 !important;
-        }
-        .congregation-compact-grid .mdc-text-field .label{
-            top: 4px !important;
-            font-size: 12px !important;
-            line-height: 1.2 !important;
-            color: var(--text-secondary);
-        }
-        .congregation-compact-grid .mdc-button{
-            height: 40px !important;
-            font-size: 13px !important;
-            padding: 0 14px !important;
-        }
-        @media (max-width: 1200px){
-            .congregation-compact-grid{ grid-template-columns: 1fr 100px 1fr !important; }
-            .congregation-compact-grid .save-cell{ grid-column: auto !important; }
-        }
-        @media (max-width: 820px){
-            .congregation-compact-grid{ grid-template-columns: 1fr !important; }
-            .congregation-compact-grid .save-cell{ grid-column: 1 !important; }
-        }
-
-        .help-card{padding-top: var(--spacing-l) !important;}
-        .help-card h2{font-size: 26px !important; margin-bottom: 18px !important;}
-        .help-grid{grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important; gap: 20px !important;}
-        .help-box{font-size: 16px !important; line-height: 1.62 !important; padding: 22px !important;}
-        .help-box h3{font-size: 18px !important; margin-bottom: 12px !important;}
-        .help-box ul{margin: 10px 0 0 20px; padding: 0;}
-        .help-box li{margin: 7px 0;}
-
     </style>
 </head>
 <body>
@@ -1230,10 +800,9 @@
         <header class="app-bar">
             <div class="app-bar-content">
                 <div class="app-title-wrap">
-                    <h1 class="app-bar-title editable-header" id="appHeaderTitle" contenteditable="true" spellcheck="false" data-edit-title="true" title="Click to edit / Zum Bearbeiten anklicken">Saalreinigung Verwaltungstool</h1>
-                    <div class="app-bar-subtitle editable-header" id="appHeaderSubtitle" contenteditable="true" spellcheck="false" data-edit-title="true" title="Click to edit / Zum Bearbeiten anklicken">Planung & Verwaltung der Reinigungstermine</div>
-                    <div class="app-bar-location editable-header" id="appHeaderLocation" contenteditable="true" spellcheck="false" data-edit-title="true" title="Click to edit / Zum Bearbeiten anklicken">Öffentliche Beispielversion · eigene JSON-Daten importieren</div>
-                    <button type="button" class="header-edit-chip" onclick="focusHeaderTitle()" data-i18n="editHeader">✎ Edit header</button>
+                    <h1 class="app-bar-title" id="appHeaderTitle">Saalreinigung Verwaltungstool</h1>
+                    <div class="app-bar-subtitle" id="appHeaderSubtitle">Planung &amp; Verwaltung der Reinigungstermine</div>
+                    <div class="app-bar-location" id="appHeaderLocation">Öffentliche Beispielversion · eigene JSON-Daten importieren</div>
                 </div>
                 <div class="app-actions">
                     <div class="language-selector">
@@ -1268,7 +837,7 @@
                     <div style="min-width: 0;"> <!-- WICHTIG: Verhindert Überbreite -->
                         <!-- New Entry Card -->
                         <div class="card">
-                            <h2>Neuen Termin hinzufügen</h2>
+                            <h2 data-h2key="newEntry">Neuen Termin hinzufügen</h2>
                             
                             <div class="form-group">
                                 <div class="mdc-text-field">
@@ -1309,7 +878,7 @@
 
                         <!-- Plan Management Card -->
                         <div class="card">
-                            <h2>Planverwaltung</h2>
+                            <h2 data-h2key="planManagement">Planverwaltung</h2>
                             <div class="plan-management-group">
                                 <button class="mdc-button mdc-button--outlined plan-management-button" onclick="generateYear()">
                                     Jahresplan vervollständigen
@@ -1322,7 +891,7 @@
 
                         <!-- Export Card -->
                         <div class="card">
-                            <h2>Drucken & Export</h2>
+                            <h2 data-h2key="printExport">Drucken & Export</h2>
                             <div class="export-button-group">
                                 <button class="mdc-button mdc-button--outlined" onclick="printPlan()">
                                     Gesamten Plan drucken
@@ -1346,9 +915,16 @@
 
                     <!-- Right Column: Calendar - GROSSER PLATZ -->
                     <div style="min-width: 0; overflow: hidden;">
+                        <!-- Summary Card -->
+                        <div class="card">
+                            <h2 data-h2key="overview">Übersicht nach Versammlungen</h2>
+                            <div class="summary-grid" id="summaryGrid">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
                         <!-- Calendar Card -->
                         <div class="card">
-                            <h2 id="calendarTitle">Reinigungstermine 2024</h2>
+                            <h2 data-h2key="calendarTitle" id="calendarTitle">Reinigungstermine 2024</h2>
                             
                             <div style="overflow-x: auto;">
                                 <table class="mdc-data-table">
@@ -1368,13 +944,6 @@
                             </div>
                         </div>
 
-                        <!-- Summary Card -->
-                        <div class="card">
-                            <h2>Übersicht nach Versammlungen</h2>
-                            <div class="summary-grid" id="summaryGrid">
-                                <!-- Dynamic content -->
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1382,9 +951,37 @@
             <!-- Konfiguration Tab -->
             <div class="tab-content" id="configTab">
                 <div class="config-grid">
+                    <!-- Header / Titel Card -->
+                    <div class="card">
+                        <h2 data-h2key="headerSettings">Kopfzeile &amp; Titel</h2>
+
+                        <div class="form-group">
+                            <div class="mdc-text-field">
+                                <input type="text" id="headerTitleInput" placeholder=" " oninput="applyHeaderFromInputs()" onchange="applyHeaderFromInputs()">
+                                <label class="label" for="headerTitleInput" data-i18n="appTitle">Tool title</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="mdc-text-field">
+                                <input type="text" id="headerSubtitleInput" placeholder=" " oninput="applyHeaderFromInputs()" onchange="applyHeaderFromInputs()">
+                                <label class="label" for="headerSubtitleInput" data-i18n="appSubtitle">Subtitle</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="mdc-text-field">
+                                <input type="text" id="headerLocationInput" placeholder=" " oninput="applyHeaderFromInputs()" onchange="applyHeaderFromInputs()">
+                                <label class="label" for="headerLocationInput" data-i18n="appLocation">Location / note</label>
+                            </div>
+                        </div>
+
+                        <p class="field-hint" data-i18n="headerHint">Changes appear in the header immediately and are saved automatically.</p>
+                    </div>
+
                     <!-- Global Settings Card -->
                     <div class="card">
-                        <h2>Allgemeine Einstellungen</h2>
+                        <h2 data-h2key="generalSettings">Allgemeine Einstellungen</h2>
                         
                         <div class="form-group">
                             <div class="mdc-text-field">
@@ -1414,7 +1011,7 @@
 
                     <!-- Year Start Card -->
                     <div class="card">
-                        <h2>Jahresstart konfigurieren</h2>
+                        <h2 data-h2key="yearStart">Jahresstart konfigurieren</h2>
                         
                         <div class="form-group">
                             <div class="mdc-text-field">
@@ -1437,7 +1034,7 @@
 
                     <!-- Tasks Card -->
                     <div class="card">
-                        <h2>Aufgaben (Jobcards) verwalten</h2>
+                        <h2 data-h2key="tasksManage">Aufgaben (Jobcards) verwalten</h2>
                         
                         <div class="form-group">
                             <div class="mdc-text-field">
@@ -1457,7 +1054,7 @@
 
                     <!-- Add Congregation Card -->
                     <div class="card">
-                        <h2>Versammlung hinzufügen</h2>
+                        <h2 data-h2key="addCong">Versammlung hinzufügen</h2>
                         
                         <div class="form-group">
                             <div class="mdc-text-field">
@@ -1495,7 +1092,7 @@
 
                 <!-- Congregation List -->
                 <div class="card mt-l">
-                    <h2>Vorhandene Versammlungen</h2>
+                    <h2 data-h2key="existingCong">Vorhandene Versammlungen</h2>
                     <div id="congregationList">
                         <!-- Dynamic content -->
                     </div>
@@ -1567,7 +1164,7 @@
 
         <!-- Footer -->
         <footer class="footer" id="appFooter">
-            Made with Love © – Kingdom Hall Cleaning Planner V 2.3.1
+            Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0
         </footer>
     </div>
 
@@ -1723,22 +1320,22 @@
 
         const I18N = {
             en: {
-                editHeader:'✎ Edit header', languageLabel:'Language:', yearLabel:'Year:', addYear:'+ Year', tabPlan:'📅 Cleaning Plan', tabConfig:'⚙️ Configuration', tabHelp:'❔ Help',
+                editHeader:'✎ Edit header', headerSettings:'Header & title', headerHint:'Changes appear in the header immediately and are saved automatically.', languageLabel:'Language:', yearLabel:'Year:', addYear:'+ Year', tabPlan:'📅 Cleaning Plan', tabConfig:'⚙️ Configuration', tabHelp:'❔ Help',
                 newEntry:'Add new date', date:'Date', congregation:'Congregation', jobcard:'Select jobcard', hints:'Additional notes', addEntry:'Add date',
                 planManagement:'Plan management', completeYear:'Complete annual plan', resetYear:'Reset year', printExport:'Print & Export', printFull:'Print full plan', printCong:'Print congregation', sendEmail:'Send email', exportData:'Export data', importData:'Import data',
                 calendarTitle:'Cleaning dates', overview:'Overview by congregations', generalSettings:'General settings', globalContact:'Global contact', phone:'Phone number', email:'Email address', saveSettings:'Save settings',
                 yearStart:'Configure year start', selectYear:'Select year', firstCleaning:'First cleaning date', saveYearStart:'Save year start', tasksManage:'Manage tasks (jobcards)', newTask:'New task', addTask:'Add task', addCong:'Add congregation', congName:'Congregation name', groups:'Number of groups', contact:'Contact', existingCong:'Existing congregations',
-                helpTitle:'Help & workflow', helpStartTitle:'1. First setup', helpStartText:'Choose the language at the top. Edit title, subtitle and location directly in the header by clicking the text. Then open Configuration and enter the global contact details.', helpStartBullet1:'Global contact is used for the full printed plan and email text.', helpStartBullet2:'Header text is saved automatically after editing.', helpCongTitle:'2. Congregations', helpCongText:'Add each congregation once with name, number of cleaning groups, contact person and email address. The group number controls the automatic rotation.', helpCongBullet1:'Example: 4 groups means this congregation receives four Saturdays in a row.', helpCongBullet2:'Use Save changes after editing an existing congregation.', helpCongBullet3:'A congregation cannot be removed while it is still used in the current plan.', helpYearTitle:'3. Create an annual plan', helpYearText:'Select the year. If it is missing, use + Year. Under Configuration, set the first cleaning date for that year. It must be a Saturday.', helpYearBullet1:'Click Complete annual plan to fill all remaining Saturdays.', helpYearBullet2:'Existing entries remain; only missing Saturdays are added.', helpYearBullet3:'Reset year deletes all cleaning dates for the selected year.', helpPlanTitle:'4. Work with dates', helpPlanText:'Use Add new date for single entries. In the table you can assign open dates, edit entries, swap two dates or delete an entry.', helpPlanBullet1:'Jobcards such as window cleaning are stored as notes for that date.', helpPlanBullet2:'Additional notes are shown in prints, emails and exports.', helpPlanBullet3:'The overview cards show how many dates each congregation has in the selected year.', helpPrintTitle:'5. Print, email and backup', helpPrintText:'Print full plan creates the yearly overview. Print congregation creates a plan for one congregation only. Send email opens your mail program with the dates for that congregation.', helpPrintBullet1:'Export data creates the JSON backup file.', helpPrintBullet2:'Import data restores a JSON backup and overwrites the current local data after confirmation.', helpPrintBullet3:'Make an export before bigger changes.', helpGeneratorTitle:'6. Generator handoff', helpGeneratorText:'The offline cleaning plan generator reads the planner JSON export. Do not edit the JSON manually before importing it into the generator.', helpGeneratorBullet1:'Important fields such as cleaningSchedule, congregations, tasks and yearConfigs stay in the export.', helpGeneratorBullet2:'Congregation IDs are included so names can be changed without breaking the link.', helpGeneratorBullet3:'If the generator shows missing dates, export again from this planner after checking the selected year.',
-                appTitle:'Tool title', appSubtitle:'Subtitle', appLocation:'Location / note', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.3.1', selectedYear:'Year {year} selected', exported:'Data exported', imported:'Data imported successfully', invalid:'Invalid file format', addYearPrompt:'Which year should be added?', yearAdded:'Year {year} added', yearExists:'This year is already available.', tableDate:'Date', tableCong:'Congregation', tableContact:'Contact', tableEmail:'Email', tableAction:'Action', modalSwapTitle:'Swap date', modalSwapText:'You want to swap the date from ', modalSwapTarget:'Select target date', cancel:'Cancel', swap:'Swap', editTitle:'Edit date', save:'Save', emailTitle:'Send email', printCongTitle:'Print congregation plan', selectCong:'Select congregation', print:'Print', ok:'OK', chooseCong:'Please select a congregation', missingEmail:'No email address is stored for this congregation', noDates:'No dates available for this congregation.', generatedWith:'Generated with Kingdom Hall Cleaning Planner', notFound:'Date not found', datesNotFound:'Dates not found', selectDate:'Please select a date', invalidCong:'Invalid congregation selected', dateExists:'An entry already exists for this date', entryEdited:'Date updated successfully', entryAdded:'Date added successfully', assigned:'Date assigned successfully', noStartHint:'Please configure the year start first (first Saturday) or manually add the first date.', groupsWord:'groups', edit:'Edit', delete:'Delete', unassigned:'Unassigned', chooseCongLabel:'Choose congregation', selectTarget:'Please select a target date', swapped:'Dates swapped successfully', ofDates:'of {count} dates', saturdaysMissing:'Saturdays missing', confirmDeleteEntry:'Do you really want to delete this entry?', entryDeleted:'Entry deleted successfully', settingsSaved:'Settings saved', congNameRequired:'Please enter a congregation name', congAdded:'Congregation added', congNotFound:'Congregation not found', congUpdated:'Congregation updated', confirmRemoveCong:'Do you really want to remove this congregation?', congInUse:'This congregation is still used in dates and cannot be deleted', congRemoved:'Congregation removed', remove:'Remove', name:'Name', saveChanges:'Save changes', taskNameRequired:'Please enter a task name', taskAdded:'Task added', confirmRemoveTask:'Do you really want to remove this task? This action cannot be undone.', taskRemoved:'Task removed', confirmGenerate:'Do you really want to complete the annual plan for {year}? Existing entries will remain.', autoStart:'Year start for {year} was set automatically ({date})', yearCompleted:'Annual plan for {year} has been completed!', confirmReset:'Do you really want to reset all cleaning dates for {year}? All entries will be deleted.', yearReset:'Cleaning plan for {year} was reset!', importError:'Import error: {message}', windowCleaning:'Window cleaning', backup1:'1st backup date', backup2:'2nd backup date', editTooltip:'Click to edit', firstCleaningRequired:'Please enter a date for the first cleaning date', firstCleaningSaturday:'The first cleaning date must be a Saturday', yearConfigSaved:'Year configuration saved', confirmImport:'Do you really want to import data? Existing data will be overwritten.' 
+                helpTitle:'Help & workflow', helpStartTitle:'1. First setup', helpStartText:'Choose the language at the top. Open Configuration to set the header texts (title, subtitle, location) and the global contact details.', helpStartBullet1:'Global contact is used for the full printed plan and email text.', helpStartBullet2:'Header texts are edited under Configuration and saved automatically.', helpCongTitle:'2. Congregations', helpCongText:'Add each congregation once with name, number of cleaning groups, contact person and email address. The group number controls the automatic rotation.', helpCongBullet1:'Example: 4 groups means this congregation receives four Saturdays in a row.', helpCongBullet2:'Use Save changes after editing an existing congregation.', helpCongBullet3:'A congregation cannot be removed while it is still used in the current plan.', helpYearTitle:'3. Create an annual plan', helpYearText:'Select the year. If it is missing, use + Year. Under Configuration, set the first cleaning date for that year. It must be a Saturday.', helpYearBullet1:'Click Complete annual plan to fill all remaining Saturdays.', helpYearBullet2:'Existing entries remain; only missing Saturdays are added.', helpYearBullet3:'Reset year deletes all cleaning dates for the selected year.', helpPlanTitle:'4. Work with dates', helpPlanText:'Use Add new date for single entries. In the table you can assign open dates, edit entries, swap two dates or delete an entry.', helpPlanBullet1:'Jobcards such as window cleaning are stored as notes for that date.', helpPlanBullet2:'Additional notes are shown in prints, emails and exports.', helpPlanBullet3:'The overview cards show how many dates each congregation has in the selected year.', helpPrintTitle:'5. Print, email and backup', helpPrintText:'Print full plan creates the yearly overview. Print congregation creates a plan for one congregation only. Send email opens your mail program with the dates for that congregation.', helpPrintBullet1:'Export data creates the JSON backup file.', helpPrintBullet2:'Import data restores a JSON backup and overwrites the current local data after confirmation.', helpPrintBullet3:'Make an export before bigger changes.', helpGeneratorTitle:'6. Generator handoff', helpGeneratorText:'The offline cleaning plan generator reads the planner JSON export. Do not edit the JSON manually before importing it into the generator.', helpGeneratorBullet1:'Important fields such as cleaningSchedule, congregations, tasks and yearConfigs stay in the export.', helpGeneratorBullet2:'Congregation IDs are included so names can be changed without breaking the link.', helpGeneratorBullet3:'If the generator shows missing dates, export again from this planner after checking the selected year.',
+                appTitle:'Tool title', appSubtitle:'Subtitle', appLocation:'Location / note', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0', selectedYear:'Year {year} selected', exported:'Data exported', imported:'Data imported successfully', invalid:'Invalid file format', addYearPrompt:'Which year should be added?', yearAdded:'Year {year} added', yearExists:'This year is already available.', tableDate:'Date', tableCong:'Congregation', tableContact:'Contact', tableEmail:'Email', tableAction:'Action', modalSwapTitle:'Swap date', modalSwapText:'You want to swap the date from ', modalSwapTarget:'Select target date', cancel:'Cancel', swap:'Swap', editTitle:'Edit date', save:'Save', emailTitle:'Send email', printCongTitle:'Print congregation plan', selectCong:'Select congregation', print:'Print', ok:'OK', chooseCong:'Please select a congregation', missingEmail:'No email address is stored for this congregation', noDates:'No dates available for this congregation.', generatedWith:'Generated with Kingdom Hall Cleaning Planner', notFound:'Date not found', datesNotFound:'Dates not found', selectDate:'Please select a date', invalidCong:'Invalid congregation selected', dateExists:'An entry already exists for this date', entryEdited:'Date updated successfully', entryAdded:'Date added successfully', assigned:'Date assigned successfully', noStartHint:'Please configure the year start first (first Saturday) or manually add the first date.', groupsWord:'groups', edit:'Edit', delete:'Delete', unassigned:'Unassigned', chooseCongLabel:'Choose congregation', selectTarget:'Please select a target date', swapped:'Dates swapped successfully', ofDates:'of {count} dates', saturdaysMissing:'Saturdays missing', confirmDeleteEntry:'Do you really want to delete this entry?', entryDeleted:'Entry deleted successfully', settingsSaved:'Settings saved', congNameRequired:'Please enter a congregation name', congAdded:'Congregation added', congNotFound:'Congregation not found', congUpdated:'Congregation updated', confirmRemoveCong:'Do you really want to remove this congregation?', congInUse:'This congregation is still used in dates and cannot be deleted', congRemoved:'Congregation removed', remove:'Remove', name:'Name', saveChanges:'Save changes', taskNameRequired:'Please enter a task name', taskAdded:'Task added', confirmRemoveTask:'Do you really want to remove this task? This action cannot be undone.', taskRemoved:'Task removed', confirmGenerate:'Do you really want to complete the annual plan for {year}? Existing entries will remain.', autoStart:'Year start for {year} was set automatically ({date})', yearCompleted:'Annual plan for {year} has been completed!', confirmReset:'Do you really want to reset all cleaning dates for {year}? All entries will be deleted.', yearReset:'Cleaning plan for {year} was reset!', importError:'Import error: {message}', windowCleaning:'Window cleaning', backup1:'1st backup date', backup2:'2nd backup date', editTooltip:'Click to edit', firstCleaningRequired:'Please enter a date for the first cleaning date', firstCleaningSaturday:'The first cleaning date must be a Saturday', yearConfigSaved:'Year configuration saved', confirmImport:'Do you really want to import data? Existing data will be overwritten.' 
             },
             de: {
-                editHeader:'✎ Header bearbeiten', languageLabel:'Sprache:', yearLabel:'Jahr:', addYear:'+ Jahr', tabPlan:'📅 Reinigungsplan', tabConfig:'⚙️ Konfiguration', tabHelp:'❔ Hilfe',
+                editHeader:'✎ Header bearbeiten', headerSettings:'Kopfzeile & Titel', headerHint:'Änderungen erscheinen sofort im Header und werden automatisch gespeichert.', languageLabel:'Sprache:', yearLabel:'Jahr:', addYear:'+ Jahr', tabPlan:'📅 Reinigungsplan', tabConfig:'⚙️ Konfiguration', tabHelp:'❔ Hilfe',
                 newEntry:'Neuen Termin hinzufügen', date:'Datum', congregation:'Versammlung', jobcard:'Jobcard auswählen', hints:'Zusätzliche Hinweise', addEntry:'Termin hinzufügen',
                 planManagement:'Planverwaltung', completeYear:'Jahresplan vervollständigen', resetYear:'Jahr zurücksetzen', printExport:'Drucken & Export', printFull:'Gesamten Plan drucken', printCong:'Versammlung drucken', sendEmail:'E-Mail senden', exportData:'Daten exportieren', importData:'Daten importieren',
                 calendarTitle:'Reinigungstermine', overview:'Übersicht nach Versammlungen', generalSettings:'Allgemeine Einstellungen', globalContact:'Globaler Ansprechpartner', phone:'Telefonnummer', email:'E-Mail-Adresse', saveSettings:'Einstellungen speichern',
                 yearStart:'Jahresstart konfigurieren', selectYear:'Jahr auswählen', firstCleaning:'Erster Reinigungstermin', saveYearStart:'Jahresstart speichern', tasksManage:'Aufgaben (Jobcards) verwalten', newTask:'Neue Aufgabe', addTask:'Aufgabe hinzufügen', addCong:'Versammlung hinzufügen', congName:'Name der Versammlung', groups:'Anzahl Gruppen', contact:'Kontakt', existingCong:'Vorhandene Versammlungen',
-                helpTitle:'Hilfe & Arbeitsablauf', helpStartTitle:'1. Erste Einrichtung', helpStartText:'Wähle oben die Sprache. Titel, Untertitel und Standort bearbeitest du direkt im Header, indem du auf den Text klickst. Öffne danach Konfiguration und trage den globalen Ansprechpartner ein.', helpStartBullet1:'Der globale Ansprechpartner wird für den Gesamtdruck und E-Mail-Text verwendet.', helpStartBullet2:'Header-Texte werden nach dem Bearbeiten automatisch gespeichert.', helpCongTitle:'2. Versammlungen', helpCongText:'Lege jede Versammlung einmal mit Name, Anzahl Reinigungsgruppen, Kontaktperson und E-Mail-Adresse an. Die Gruppenzahl steuert die automatische Rotation.', helpCongBullet1:'Beispiel: 4 Gruppen bedeutet, diese Versammlung bekommt vier Samstage hintereinander.', helpCongBullet2:'Nach Änderungen an einer vorhandenen Versammlung immer Änderungen speichern klicken.', helpCongBullet3:'Eine Versammlung kann nicht gelöscht werden, solange sie im aktuellen Plan noch verwendet wird.', helpYearTitle:'3. Jahresplan erstellen', helpYearText:'Wähle das Jahr. Falls es fehlt, nutze + Jahr. Unter Konfiguration legst du den ersten Reinigungstermin für dieses Jahr fest. Er muss ein Samstag sein.', helpYearBullet1:'Mit Jahresplan vervollständigen werden alle fehlenden Samstage gefüllt.', helpYearBullet2:'Vorhandene Einträge bleiben erhalten; nur fehlende Samstage werden ergänzt.', helpYearBullet3:'Jahr zurücksetzen löscht alle Reinigungstermine des ausgewählten Jahres.', helpPlanTitle:'4. Termine bearbeiten', helpPlanText:'Mit Neuen Termin hinzufügen legst du einzelne Termine an. In der Tabelle kannst du offene Termine zuweisen, Einträge bearbeiten, zwei Termine tauschen oder einen Eintrag löschen.', helpPlanBullet1:'Jobcards wie Fensterreinigung werden als Hinweis zum Termin gespeichert.', helpPlanBullet2:'Zusätzliche Hinweise erscheinen im Druck, in E-Mails und im Export.', helpPlanBullet3:'Die Übersichtskarten zeigen, wie viele Termine jede Versammlung im ausgewählten Jahr hat.', helpPrintTitle:'5. Drucken, E-Mail und Backup', helpPrintText:'Gesamten Plan drucken erstellt die Jahresübersicht. Versammlung drucken erstellt einen Plan nur für eine Versammlung. E-Mail senden öffnet dein Mailprogramm mit den Terminen dieser Versammlung.', helpPrintBullet1:'Daten exportieren erstellt die JSON-Backup-Datei.', helpPrintBullet2:'Daten importieren stellt ein JSON-Backup wieder her und überschreibt nach Bestätigung die aktuellen lokalen Daten.', helpPrintBullet3:'Vor größeren Änderungen am besten immer zuerst exportieren.', helpGeneratorTitle:'6. Übergabe an den Generator', helpGeneratorText:'Der Offline-Reinigungsplan-Generator liest den JSON-Export aus diesem Planer. Bearbeite die JSON-Datei nicht manuell, bevor du sie in den Generator importierst.', helpGeneratorBullet1:'Wichtige Felder wie cleaningSchedule, congregations, tasks und yearConfigs bleiben im Export enthalten.', helpGeneratorBullet2:'Versammlungs-IDs werden mitgegeben, damit Namensänderungen die Verbindung nicht brechen.', helpGeneratorBullet3:'Falls der Generator fehlende Termine zeigt, prüfe das gewählte Jahr und exportiere danach neu aus diesem Planer.',
-                appTitle:'Tool-Titel', appSubtitle:'Untertitel', appLocation:'Standort / Hinweis', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.3.1', selectedYear:'Jahr {year} ausgewählt', exported:'Daten wurden exportiert', imported:'Daten erfolgreich importiert', invalid:'Ungültiges Dateiformat', addYearPrompt:'Welches Jahr soll ergänzt werden?', yearAdded:'Jahr {year} hinzugefügt', yearExists:'Dieses Jahr ist bereits verfügbar.', tableDate:'Datum', tableCong:'Versammlung', tableContact:'Kontakt', tableEmail:'E-Mail', tableAction:'Aktion', modalSwapTitle:'Termin tauschen', modalSwapText:'Sie möchten den Termin vom ', modalSwapTarget:'Zieltermin auswählen', cancel:'Abbrechen', swap:'Tauschen', editTitle:'Termin bearbeiten', save:'Speichern', emailTitle:'E-Mail senden', printCongTitle:'Versammlungsplan drucken', selectCong:'Versammlung auswählen', print:'Drucken', ok:'OK', chooseCong:'Bitte eine Versammlung auswählen', missingEmail:'Für diese Versammlung ist keine E-Mail-Adresse hinterlegt', noDates:'Keine Termine für diese Versammlung vorhanden.', generatedWith:'Generiert mit Kingdom Hall Cleaning Planner', notFound:'Termin nicht gefunden', datesNotFound:'Termine nicht gefunden', selectDate:'Bitte ein Datum auswählen', invalidCong:'Ungültige Versammlung ausgewählt', dateExists:'Für dieses Datum existiert bereits ein Eintrag', entryEdited:'Termin erfolgreich bearbeitet', entryAdded:'Termin erfolgreich hinzugefügt', assigned:'Termin erfolgreich zugewiesen', noStartHint:'Bitte zuerst den Jahresstart konfigurieren (erster Samstag) oder den ersten Termin manuell hinzufügen.', groupsWord:'Gruppen', edit:'Bearbeiten', delete:'Löschen', unassigned:'Nicht zugewiesen', chooseCongLabel:'Versammlung wählen', selectTarget:'Bitte wählen Sie einen Zieltermin aus', swapped:'Termine erfolgreich getauscht', ofDates:'von {count} Terminen', saturdaysMissing:'Samstage fehlen', confirmDeleteEntry:'Möchten Sie diesen Eintrag wirklich löschen?', entryDeleted:'Eintrag erfolgreich gelöscht', settingsSaved:'Einstellungen gespeichert', congNameRequired:'Bitte einen Namen für die Versammlung eingeben', congAdded:'Versammlung hinzugefügt', congNotFound:'Versammlung nicht gefunden', congUpdated:'Versammlung aktualisiert', confirmRemoveCong:'Möchten Sie diese Versammlung wirklich entfernen?', congInUse:'Diese Versammlung wird noch in Terminen verwendet und kann nicht gelöscht werden', congRemoved:'Versammlung entfernt', remove:'Entfernen', name:'Name', saveChanges:'Änderungen speichern', taskNameRequired:'Bitte geben Sie einen Namen für die Aufgabe ein', taskAdded:'Aufgabe hinzugefügt', confirmRemoveTask:'Möchten Sie diese Aufgabe wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.', taskRemoved:'Aufgabe entfernt', confirmGenerate:'Möchten Sie wirklich den Jahresplan für {year} vervollständigen? Existierende Einträge bleiben erhalten.', autoStart:'Jahresstart für {year} automatisch gesetzt ({date})', yearCompleted:'Jahresplan für {year} wurde vervollständigt!', confirmReset:'Möchten Sie wirklich alle Reinigungstermine für {year} zurücksetzen? Alle Einträge werden gelöscht.', yearReset:'Reinigungsplan für {year} wurde zurückgesetzt!', importError:'Fehler beim Importieren: {message}', windowCleaning:'Fensterreinigung', backup1:'1. Ausweichtermin', backup2:'2. Ausweichtermin', editTooltip:'Zum Bearbeiten anklicken', firstCleaningRequired:'Bitte ein Datum für den ersten Reinigungstermin eingeben', firstCleaningSaturday:'Der erste Reinigungstermin muss ein Samstag sein', yearConfigSaved:'Jahreskonfiguration gespeichert', confirmImport:'Möchten Sie wirklich Daten importieren? Alle vorhandenen Daten werden überschrieben.' 
+                helpTitle:'Hilfe & Arbeitsablauf', helpStartTitle:'1. Erste Einrichtung', helpStartText:'Wähle oben die Sprache. Unter Konfiguration legst du die Kopfzeilen-Texte (Titel, Untertitel, Standort) und den globalen Ansprechpartner fest.', helpStartBullet1:'Der globale Ansprechpartner wird für den Gesamtdruck und E-Mail-Text verwendet.', helpStartBullet2:'Kopfzeilen-Texte werden in der Konfiguration gepflegt und automatisch gespeichert.', helpCongTitle:'2. Versammlungen', helpCongText:'Lege jede Versammlung einmal mit Name, Anzahl Reinigungsgruppen, Kontaktperson und E-Mail-Adresse an. Die Gruppenzahl steuert die automatische Rotation.', helpCongBullet1:'Beispiel: 4 Gruppen bedeutet, diese Versammlung bekommt vier Samstage hintereinander.', helpCongBullet2:'Nach Änderungen an einer vorhandenen Versammlung immer Änderungen speichern klicken.', helpCongBullet3:'Eine Versammlung kann nicht gelöscht werden, solange sie im aktuellen Plan noch verwendet wird.', helpYearTitle:'3. Jahresplan erstellen', helpYearText:'Wähle das Jahr. Falls es fehlt, nutze + Jahr. Unter Konfiguration legst du den ersten Reinigungstermin für dieses Jahr fest. Er muss ein Samstag sein.', helpYearBullet1:'Mit Jahresplan vervollständigen werden alle fehlenden Samstage gefüllt.', helpYearBullet2:'Vorhandene Einträge bleiben erhalten; nur fehlende Samstage werden ergänzt.', helpYearBullet3:'Jahr zurücksetzen löscht alle Reinigungstermine des ausgewählten Jahres.', helpPlanTitle:'4. Termine bearbeiten', helpPlanText:'Mit Neuen Termin hinzufügen legst du einzelne Termine an. In der Tabelle kannst du offene Termine zuweisen, Einträge bearbeiten, zwei Termine tauschen oder einen Eintrag löschen.', helpPlanBullet1:'Jobcards wie Fensterreinigung werden als Hinweis zum Termin gespeichert.', helpPlanBullet2:'Zusätzliche Hinweise erscheinen im Druck, in E-Mails und im Export.', helpPlanBullet3:'Die Übersichtskarten zeigen, wie viele Termine jede Versammlung im ausgewählten Jahr hat.', helpPrintTitle:'5. Drucken, E-Mail und Backup', helpPrintText:'Gesamten Plan drucken erstellt die Jahresübersicht. Versammlung drucken erstellt einen Plan nur für eine Versammlung. E-Mail senden öffnet dein Mailprogramm mit den Terminen dieser Versammlung.', helpPrintBullet1:'Daten exportieren erstellt die JSON-Backup-Datei.', helpPrintBullet2:'Daten importieren stellt ein JSON-Backup wieder her und überschreibt nach Bestätigung die aktuellen lokalen Daten.', helpPrintBullet3:'Vor größeren Änderungen am besten immer zuerst exportieren.', helpGeneratorTitle:'6. Übergabe an den Generator', helpGeneratorText:'Der Offline-Reinigungsplan-Generator liest den JSON-Export aus diesem Planer. Bearbeite die JSON-Datei nicht manuell, bevor du sie in den Generator importierst.', helpGeneratorBullet1:'Wichtige Felder wie cleaningSchedule, congregations, tasks und yearConfigs bleiben im Export enthalten.', helpGeneratorBullet2:'Versammlungs-IDs werden mitgegeben, damit Namensänderungen die Verbindung nicht brechen.', helpGeneratorBullet3:'Falls der Generator fehlende Termine zeigt, prüfe das gewählte Jahr und exportiere danach neu aus diesem Planer.',
+                appTitle:'Tool-Titel', appSubtitle:'Untertitel', appLocation:'Standort / Hinweis', footer:'Made with Love © – Kingdom Hall Cleaning Planner V 2.4.0', selectedYear:'Jahr {year} ausgewählt', exported:'Daten wurden exportiert', imported:'Daten erfolgreich importiert', invalid:'Ungültiges Dateiformat', addYearPrompt:'Welches Jahr soll ergänzt werden?', yearAdded:'Jahr {year} hinzugefügt', yearExists:'Dieses Jahr ist bereits verfügbar.', tableDate:'Datum', tableCong:'Versammlung', tableContact:'Kontakt', tableEmail:'E-Mail', tableAction:'Aktion', modalSwapTitle:'Termin tauschen', modalSwapText:'Sie möchten den Termin vom ', modalSwapTarget:'Zieltermin auswählen', cancel:'Abbrechen', swap:'Tauschen', editTitle:'Termin bearbeiten', save:'Speichern', emailTitle:'E-Mail senden', printCongTitle:'Versammlungsplan drucken', selectCong:'Versammlung auswählen', print:'Drucken', ok:'OK', chooseCong:'Bitte eine Versammlung auswählen', missingEmail:'Für diese Versammlung ist keine E-Mail-Adresse hinterlegt', noDates:'Keine Termine für diese Versammlung vorhanden.', generatedWith:'Generiert mit Kingdom Hall Cleaning Planner', notFound:'Termin nicht gefunden', datesNotFound:'Termine nicht gefunden', selectDate:'Bitte ein Datum auswählen', invalidCong:'Ungültige Versammlung ausgewählt', dateExists:'Für dieses Datum existiert bereits ein Eintrag', entryEdited:'Termin erfolgreich bearbeitet', entryAdded:'Termin erfolgreich hinzugefügt', assigned:'Termin erfolgreich zugewiesen', noStartHint:'Bitte zuerst den Jahresstart konfigurieren (erster Samstag) oder den ersten Termin manuell hinzufügen.', groupsWord:'Gruppen', edit:'Bearbeiten', delete:'Löschen', unassigned:'Nicht zugewiesen', chooseCongLabel:'Versammlung wählen', selectTarget:'Bitte wählen Sie einen Zieltermin aus', swapped:'Termine erfolgreich getauscht', ofDates:'von {count} Terminen', saturdaysMissing:'Samstage fehlen', confirmDeleteEntry:'Möchten Sie diesen Eintrag wirklich löschen?', entryDeleted:'Eintrag erfolgreich gelöscht', settingsSaved:'Einstellungen gespeichert', congNameRequired:'Bitte einen Namen für die Versammlung eingeben', congAdded:'Versammlung hinzugefügt', congNotFound:'Versammlung nicht gefunden', congUpdated:'Versammlung aktualisiert', confirmRemoveCong:'Möchten Sie diese Versammlung wirklich entfernen?', congInUse:'Diese Versammlung wird noch in Terminen verwendet und kann nicht gelöscht werden', congRemoved:'Versammlung entfernt', remove:'Entfernen', name:'Name', saveChanges:'Änderungen speichern', taskNameRequired:'Bitte geben Sie einen Namen für die Aufgabe ein', taskAdded:'Aufgabe hinzugefügt', confirmRemoveTask:'Möchten Sie diese Aufgabe wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.', taskRemoved:'Aufgabe entfernt', confirmGenerate:'Möchten Sie wirklich den Jahresplan für {year} vervollständigen? Existierende Einträge bleiben erhalten.', autoStart:'Jahresstart für {year} automatisch gesetzt ({date})', yearCompleted:'Jahresplan für {year} wurde vervollständigt!', confirmReset:'Möchten Sie wirklich alle Reinigungstermine für {year} zurücksetzen? Alle Einträge werden gelöscht.', yearReset:'Reinigungsplan für {year} wurde zurückgesetzt!', importError:'Fehler beim Importieren: {message}', windowCleaning:'Fensterreinigung', backup1:'1. Ausweichtermin', backup2:'2. Ausweichtermin', editTooltip:'Zum Bearbeiten anklicken', firstCleaningRequired:'Bitte ein Datum für den ersten Reinigungstermin eingeben', firstCleaningSaturday:'Der erste Reinigungstermin muss ein Samstag sein', yearConfigSaved:'Jahreskonfiguration gespeichert', confirmImport:'Möchten Sie wirklich Daten importieren? Alle vorhandenen Daten werden überschrieben.' 
             }
         };
 
@@ -1832,10 +1429,35 @@
             setTextBySelector('#appHeaderLocation', location);
             const footer = document.getElementById('appFooter');
             if (footer) footer.textContent = t('footer');
+            syncHeaderInputsFromHeader();
         }
 
+        const HEADER_FIELD_PAIRS = [
+            ['headerTitleInput', 'appHeaderTitle', 'appTitle'],
+            ['headerSubtitleInput', 'appHeaderSubtitle', 'appSubtitle'],
+            ['headerLocationInput', 'appHeaderLocation', 'appLocation']
+        ];
+
+        // Kopfzeilen-Texte werden jetzt im Konfigurations-Tab gepflegt.
         function syncHeaderInputsFromHeader(){
-            // Location/note is edited directly in the header now; no separate settings input needed.
+            HEADER_FIELD_PAIRS.forEach(([inputId, targetId]) => {
+                const input = document.getElementById(inputId);
+                const target = document.getElementById(targetId);
+                if (input && target && document.activeElement !== input) {
+                    input.value = target.textContent.trim();
+                }
+            });
+        }
+
+        function applyHeaderFromInputs(){
+            const defaults = localizedHeaderDefaults();
+            HEADER_FIELD_PAIRS.forEach(([inputId, targetId, key]) => {
+                const input = document.getElementById(inputId);
+                const target = document.getElementById(targetId);
+                if (!input || !target) return;
+                target.textContent = input.value.trim() || defaults[key];
+            });
+            saveHeaderFromEditable();
         }
 
         function saveHeaderFromEditable(){
@@ -1865,11 +1487,15 @@
                 ['.plan-management-group button[onclick="generateYear()"]','completeYear'],['.plan-management-group button[onclick="resetYear()"]','resetYear'],
             ];
             // Targeted text updates by known document order, keeps code robust without rewriting the whole HTML.
-            const h2s = document.querySelectorAll('.card h2');
-            const h2Keys = ['newEntry','planManagement','printExport','calendarTitle','overview','generalSettings','yearStart','tasksManage','addCong','existingCong'];
-            h2s.forEach((h2,i)=>{ if(h2Keys[i]) h2.textContent = (h2Keys[i] === 'calendarTitle') ? `${t('calendarTitle')} ${currentYear}` : t(h2Keys[i]); });
+            // Kartentitel werden über data-h2key übersetzt (unabhängig von der Reihenfolge im DOM)
+            document.querySelectorAll('[data-h2key]').forEach(h2 => {
+                const key = h2.getAttribute('data-h2key');
+                if (!key) return;
+                h2.textContent = (key === 'calendarTitle') ? `${t('calendarTitle')} ${currentYear}` : t(key);
+            });
             const labels = {
-                date:'date', versammlung:'congregation', jobcard:'jobcard', hinweise:'hints', globalContact:'globalContact', globalPhone:'phone', globalEmail:'email', yearConfigSelect:'selectYear', firstCleaningDate:'firstCleaning', newTaskName:'newTask', newCongName:'congName', newCongGroups:'groups', newCongContact:'contact', newCongEmail:'email'
+                date:'date', versammlung:'congregation', jobcard:'jobcard', hinweise:'hints', globalContact:'globalContact', globalPhone:'phone', globalEmail:'email', yearConfigSelect:'selectYear', firstCleaningDate:'firstCleaning', newTaskName:'newTask', newCongName:'congName', newCongGroups:'groups', newCongContact:'contact', newCongEmail:'email',
+                headerTitleInput:'appTitle', headerSubtitleInput:'appSubtitle', headerLocationInput:'appLocation'
             };
             Object.keys(labels).forEach(id => { const lab = document.querySelector(`label[for="${id}"]`); if(lab) lab.textContent = t(labels[id]); });
             const buttons = [
@@ -3305,8 +2931,8 @@
                     row.innerHTML = `
                         <td>${formattedDate}</td>
                         <td>
-                            <div style="font-weight: var(--font-weight-medium);">${entry.versammlungName}</div>
-                            <div style="font-size: var(--font-size-small); color: var(--text-secondary);">${congregation.groups || ''} ${t('groupsWord')}</div>
+                            <div style="font-weight:600; color:var(--ink);">${entry.versammlungName}</div>
+                            <div style="font-size:11px; color:var(--muted);">${congregation.groups || ''} ${t('groupsWord')}</div>
                         </td>
                         <td class="contact-cell">${congregation.contact || ''}</td>
                         <td class="email-cell">${congregation.email || ''}</td>
@@ -3327,7 +2953,7 @@
                     `;
                 } else {
                     // Dropdown für direkte Zuweisung
-                    let options = '<option value=""></option>';
+                    let options = `<option value="">${t('chooseCongLabel')}</option>`;
                     congregations.forEach(cong => {
                         options += `<option value="${cong.id}">${cong.name}</option>`;
                     });
@@ -3338,12 +2964,9 @@
                             <span class="status-unassigned">${t('unassigned')}</span>
                         </td>
                         <td>
-                            <div class="mdc-text-field" style="display: block;">
-                                <select onchange="assignDate('${dateStr}', this)" style="width: 100%; padding: 8px 0 4px 0; font-size: 14px; border: none; border-bottom: 1px solid var(--gray-400); background: transparent;">
-                                    ${options}
-                                </select>
-                                <label class="label" style="top: 8px; font-size: var(--font-size-caption); color: var(--text-secondary);">${t('chooseCongLabel')}</label>
-                            </div>
+                            <select class="assign-select" onchange="assignDate('${dateStr}', this)" title="${t('chooseCongLabel')}">
+                                ${options}
+                            </select>
                         </td>
                     `;
                 }
