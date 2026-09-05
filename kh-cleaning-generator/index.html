@@ -162,6 +162,8 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 .printstack{ position:absolute; left:-100000px; top:0; }
 .mobilebar{ display:none; }
 .love{ text-align:center; font-size:11px; color:var(--muted); padding:16px 0 4px; }
+.love a{ color:var(--teal-d); text-decoration:none; }
+.love a:hover{ text-decoration:underline; }
 
 @media print{
   body{ background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -192,7 +194,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <div class="app">
 <aside class="sidebar noprint">
   <div class="brand">
-    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.4.1</span>
+    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.5</span>
     <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
   </div>
   <div class="source">
@@ -281,7 +283,9 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <main class="main">
   <div class="sheetwrap" id="sheetWrap"></div>
   <div class="printstack" id="printStack"></div>
-  <div class="love noprint">Made with love © · Reinigungsplan Generator v2.4.1</div>
+  <div class="love noprint">Reinigungsplan Generator · V2.5 · Made with Love ©
+    · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Reinigungsplan%20Generator%20V2.5">✉ Feedback</a>
+  </div>
 </main>
 </div>
 
@@ -341,6 +345,8 @@ de:{
   import:'Plantool-JSON importieren', export:'Export', reset:'Zurücksetzen',
   welcomeTitle:'Reinigungsplan öffnen', welcomeText:'Für diesen Saal ist ein Plan hinterlegt. Gib die PIN ein, um ihn zu laden – oder starte mit einer eigenen Datei.',
   pinGo:'Plan laden', pinPlaceholder:'PIN', welcomeFile:'Eigene JSON', welcomeFresh:'Ohne Daten starten',
+  remoteLoaded:y=>`Veröffentlichter Plan geladen: ${y}.`, remoteLoadedSingle:'Veröffentlichter Plan geladen.',
+  remoteMissing:y=>`Für ${y} ist kein veröffentlichter Plan hinterlegt.`,
   loadRemote:'Veröffentlichten Plan laden', pinWrong:'PIN stimmt nicht.', remoteLoading:'Plan wird geladen ...',
   remoteFail:'Der hinterlegte Plan konnte nicht geladen werden. Beim Öffnen als lokale Datei geht das nicht – nutze dann den Import.',
   titleEdit:'Titel', titleHint:'Leer lassen = übersetzter Standardtitel.', subtitleEdit:'Untertitel', hallEdit:'Saal',
@@ -387,7 +393,7 @@ de:{
 <h4>Speichern</h4>
 <p>Alle Eingaben bleiben lokal im Browser. <b>Export</b> sichert den kompletten Stand als JSON-Datei, <b>Zurücksetzen</b> löscht die lokalen Daten.</p>
 <h4>Veröffentlichter Plan</h4>
-<p>Liegt neben dieser Seite eine Datei <code>plan.json</code>, lässt sie sich mit der PIN direkt laden: beim ersten Öffnen über den Startdialog, später über <b>Daten &rarr; Veröffentlichten Plan laden</b>. Die PIN hält den Plan aus der normalen Ansicht heraus, schützt ihn aber nicht, denn die Datei bleibt über ihre Adresse öffentlich abrufbar.</p>`
+<p>Neben dieser Seite liegt je Jahr eine Datei, benannt nach dem Muster <code>plan2026.json</code>. Mit der PIN werden alle vorhandenen Jahre auf einmal geladen: beim ersten Öffnen über den Startdialog, später über <b>Daten &rarr; Veröffentlichten Plan laden</b>. Wechselst du danach auf ein Jahr, das noch nicht geladen ist, holt der Generator die passende Datei automatisch nach. Die PIN hält den Plan aus der normalen Ansicht heraus, schützt ihn aber nicht, denn die Datei bleibt über ihre Adresse öffentlich abrufbar.</p>`
 },
 en:{
   titleDefault:'Kingdom Hall Cleaning Schedule', metaDefault:'Weekly cleaning schedule: Saturday',
@@ -405,6 +411,8 @@ en:{
   import:'Import planner JSON', export:'Export', reset:'Reset',
   welcomeTitle:'Open cleaning schedule', welcomeText:'A schedule is published for this hall. Enter the PIN to load it – or start with your own file.',
   pinGo:'Load schedule', pinPlaceholder:'PIN', welcomeFile:'Own JSON', welcomeFresh:'Start empty',
+  remoteLoaded:y=>`Published schedule loaded: ${y}.`, remoteLoadedSingle:'Published schedule loaded.',
+  remoteMissing:y=>`No published schedule available for ${y}.`,
   loadRemote:'Load published schedule', pinWrong:'That PIN is not correct.', remoteLoading:'Loading schedule ...',
   remoteFail:'The published schedule could not be loaded. This does not work when the page is opened as a local file – use the import instead.',
   titleEdit:'Title', titleHint:'Leave empty for the translated default title.', subtitleEdit:'Subtitle', hallEdit:'Hall',
@@ -451,7 +459,7 @@ en:{
 <h4>Saving</h4>
 <p>Everything stays local in the browser. <b>Export</b> saves the complete state as a JSON file, <b>Reset</b> clears the local data.</p>
 <h4>Published schedule</h4>
-<p>If a file <code>plan.json</code> sits next to this page, it can be loaded with the PIN: through the start dialog on first use, later via <b>Data &rarr; Load published schedule</b>. The PIN keeps the schedule out of the normal view but does not protect it, since the file stays publicly reachable at its address.</p>`
+<p>Next to this page there is one file per year, named after the pattern <code>plan2026.json</code>. The PIN loads every year that exists in one go: through the start dialog on first use, later via <b>Data &rarr; Load published schedule</b>. If you then switch to a year that has not been loaded yet, the generator fetches the matching file automatically. The PIN keeps the schedule out of the normal view but does not protect it, since the file stays publicly reachable at its address.</p>`
 },
 it:{
   titleDefault:'Pulizia della Sala del Regno', metaDefault:'Piano settimanale: sabato',
@@ -469,6 +477,8 @@ it:{
   import:'Importa JSON del pianificatore', export:'Esporta', reset:'Reimposta',
   welcomeTitle:'Apri il piano di pulizia', welcomeText:'Per questa sala è pubblicato un piano. Inserisci il PIN per caricarlo, oppure parti da un file tuo.',
   pinGo:'Carica il piano', pinPlaceholder:'PIN', welcomeFile:'File JSON', welcomeFresh:'Inizia vuoto',
+  remoteLoaded:y=>`Piano pubblicato caricato: ${y}.`, remoteLoadedSingle:'Piano pubblicato caricato.',
+  remoteMissing:y=>`Per il ${y} non è disponibile alcun piano pubblicato.`,
   loadRemote:'Carica il piano pubblicato', pinWrong:'PIN non corretto.', remoteLoading:'Caricamento del piano ...',
   remoteFail:'Non è stato possibile caricare il piano pubblicato. Aprendo la pagina come file locale non funziona: usa l\'importazione.',
   titleEdit:'Titolo', titleHint:'Lascia vuoto per il titolo predefinito tradotto.', subtitleEdit:'Sottotitolo', hallEdit:'Sala',
@@ -515,7 +525,7 @@ it:{
 <h4>Salvataggio</h4>
 <p>Tutto resta in locale nel browser. <b>Esporta</b> salva lo stato completo come file JSON, <b>Reimposta</b> cancella i dati locali.</p>
 <h4>Piano pubblicato</h4>
-<p>Se accanto a questa pagina si trova un file <code>plan.json</code>, lo si può caricare con il PIN: al primo avvio tramite la finestra iniziale, in seguito con <b>Dati &rarr; Carica il piano pubblicato</b>. Il PIN tiene il piano fuori dalla vista normale ma non lo protegge, perché il file resta raggiungibile pubblicamente al suo indirizzo.</p>`
+<p>Se accanto a questa pagina si trova un file <code>plan2026.json</code> per ogni anno, la si può caricare con il PIN: al primo avvio tramite la finestra iniziale, in seguito con <b>Dati &rarr; Carica il piano pubblicato</b>. Il PIN tiene il piano fuori dalla vista normale ma non lo protegge, perché il file resta raggiungibile pubblicamente al suo indirizzo.</p>`
 },
 ru:{
   titleDefault:'Уборка Зала Царства', metaDefault:'Еженедельный график: суббота',
@@ -533,6 +543,8 @@ ru:{
   import:'Импорт JSON планировщика', export:'Экспорт', reset:'Сброс',
   welcomeTitle:'Открыть график уборки', welcomeText:'Для этого зала опубликован график. Введите PIN, чтобы загрузить его, или начните со своего файла.',
   pinGo:'Загрузить график', pinPlaceholder:'PIN', welcomeFile:'Свой JSON', welcomeFresh:'Начать без данных',
+  remoteLoaded:y=>`Опубликованный график загружен: ${y}.`, remoteLoadedSingle:'Опубликованный график загружен.',
+  remoteMissing:y=>`Для ${y} опубликованного графика нет.`,
   loadRemote:'Загрузить опубликованный график', pinWrong:'PIN неверный.', remoteLoading:'Загрузка графика ...',
   remoteFail:'Не удалось загрузить опубликованный график. При открытии страницы как локального файла это не работает – используйте импорт.',
   titleEdit:'Заголовок', titleHint:'Оставьте пустым для переведённого заголовка по умолчанию.', subtitleEdit:'Подзаголовок', hallEdit:'Зал',
@@ -579,7 +591,7 @@ ru:{
 <h4>Сохранение</h4>
 <p>Все данные остаются локально в браузере. <b>Экспорт</b> сохраняет полное состояние в файл JSON, <b>Сброс</b> удаляет локальные данные.</p>
 <h4>Опубликованный график</h4>
-<p>Если рядом с этой страницей лежит файл <code>plan.json</code>, его можно загрузить по PIN: при первом открытии через стартовое окно, позже через <b>Данные &rarr; Загрузить опубликованный график</b>. PIN лишь убирает график из обычного вида, но не защищает его: файл остаётся общедоступным по своему адресу.</p>`
+<p>Если рядом с этой страницей лежит файл <code>plan2026.json</code> на каждый год, его можно загрузить по PIN: при первом открытии через стартовое окно, позже через <b>Данные &rarr; Загрузить опубликованный график</b>. PIN лишь убирает график из обычного вида, но не защищает его: файл остаётся общедоступным по своему адресу.</p>`
 },
 sh:{
   titleDefault:'Čišćenje Dvorane Kraljevstva', metaDefault:'Sedmični raspored: subota',
@@ -597,6 +609,8 @@ sh:{
   import:'Uvezi JSON planera', export:'Izvoz', reset:'Poništi',
   welcomeTitle:'Otvori raspored čišćenja', welcomeText:'Za ovu dvoranu objavljen je raspored. Unesi PIN da ga učitaš ili počni s vlastitom datotekom.',
   pinGo:'Učitaj raspored', pinPlaceholder:'PIN', welcomeFile:'Vlastiti JSON', welcomeFresh:'Počni prazno',
+  remoteLoaded:y=>`Objavljeni raspored učitan: ${y}.`, remoteLoadedSingle:'Objavljeni raspored učitan.',
+  remoteMissing:y=>`Za ${y} nema objavljenog rasporeda.`,
   loadRemote:'Učitaj objavljeni raspored', pinWrong:'PIN nije točan.', remoteLoading:'Učitavanje rasporeda ...',
   remoteFail:'Objavljeni raspored nije bilo moguće učitati. Pri otvaranju stranice kao lokalne datoteke to ne radi – koristi uvoz.',
   titleEdit:'Naslov', titleHint:'Ostavite prazno za prevedeni zadani naslov.', subtitleEdit:'Podnaslov', hallEdit:'Dvorana',
@@ -643,7 +657,7 @@ sh:{
 <h4>Spremanje</h4>
 <p>Sve ostaje lokalno u pregledniku. <b>Izvoz</b> sprema cjelokupno stanje kao JSON datoteku, <b>Poništi</b> briše lokalne podatke.</p>
 <h4>Objavljeni raspored</h4>
-<p>Ako uz ovu stranicu stoji datoteka <code>plan.json</code>, može se učitati pomoću PIN-a: pri prvom otvaranju kroz početni dijalog, kasnije preko <b>Podaci &rarr; Učitaj objavljeni raspored</b>. PIN raspored samo skriva iz uobičajenog prikaza, ali ga ne štiti jer datoteka ostaje javno dostupna na svojoj adresi.</p>`
+<p>Ako uz ovu stranicu stoji datoteka <code>plan2026.json</code> za svaku godinu, može se učitati pomoću PIN-a: pri prvom otvaranju kroz početni dijalog, kasnije preko <b>Podaci &rarr; Učitaj objavljeni raspored</b>. PIN raspored samo skriva iz uobičajenog prikaza, ali ga ne štiti jer datoteka ostaje javno dostupna na svojoj adresi.</p>`
 }
 };
 
@@ -667,8 +681,10 @@ const PALETTE = ['#0d9488','#2563eb','#c2410c','#7c3aed','#be123c','#15803d','#a
    Die JSON-Datei liegt im selben Ordner wie diese Seite. Die PIN ist eine
    Klingel, kein Schloss: die Datei bleibt über ihre URL öffentlich abrufbar.
    Beides hier anpassen, wenn Dateiname oder PIN sich ändern.            */
-const PLAN_URL = 'plan.json';
-const PLAN_PIN = '86156';
+const PLAN_FILE     = y => `plan${y}.json`;   // z. B. plan2026.json, plan2027.json
+const PLAN_FALLBACK = 'plan.json';            // genutzt, wenn keine Jahresdatei existiert
+const PLAN_PIN      = '86156';
+const PLAN_SCAN     = 2;                      // wie viele Jahre über das aktuelle hinaus gesucht wird
 
 /* ==================== State ==================== */
 const LS_KEY = 'rpg_state_v24';
@@ -681,7 +697,7 @@ let state = {
     {id:'sample-a',name:'Beispielversammlung',groups:4,contact:'',email:''},
     {id:'sample-b',name:'Beispiel-Italienisch',groups:3,contact:'',email:''}
   ],
-  colors:{}, langByCong:{}, displayNameByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
+  planUnlocked:false, colors:{}, langByCong:{}, displayNameByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
 };
 
 const T = l => I18N[l] || I18N.de;
@@ -837,7 +853,7 @@ function mapItem(it){
     note:String(it.hinweise ?? it.note ?? it.hinweis ?? '')
   };
 }
-function importPlanner(data){
+function importPlanner(data, opts){
   const n=normalize(data);
   const years=Object.keys(n.schedulesByYear);
   if(!years.length) throw new Error(t().unknown);
@@ -864,16 +880,36 @@ function importPlanner(data){
   state.congregations.forEach(c=>{ if(c.contact && !state.coordinatorByCong[c.id]) state.coordinatorByCong[c.id]=c.contact; });
 
   const imported=years.map(Number).sort((a,b)=>a-b);
-  if(!imported.includes(+state.selectedYear)) state.selectedYear=imported[imported.length-1];
+  if(!(opts&&opts.keepYear) && !imported.includes(+state.selectedYear)) state.selectedYear=imported[imported.length-1];
   if(!congById(state.selectedCong)) state.selectedCong=defaultCongId();
   syncLangToMode();
   save(); renderAll();
-  setStatus(total? t().imported(total, imported.join(', ')) : t().noRows, total?'ok':'warn');
+  if(!(opts&&opts.quiet)) setStatus(total? t().imported(total, imported.join(', ')) : t().noRows, total?'ok':'warn');
+  return imported;
 }
-async function loadPublishedPlan(){
-  const res=await fetch(PLAN_URL,{cache:'no-store'});
+async function fetchJson(url){
+  const res=await fetch(url,{cache:'no-store'});
   if(!res.ok) throw new Error('HTTP '+res.status);
-  importPlanner(await res.json());
+  return res.json();
+}
+/* Eine einzelne Jahresdatei nachladen, z. B. beim Wechsel auf ein noch leeres Jahr */
+async function loadPublishedYear(year, opts){
+  importPlanner(await fetchJson(PLAN_FILE(year)), Object.assign({keepYear:true, quiet:true}, opts||{}));
+  return true;
+}
+/* Beim Entsperren alle vorhandenen Jahresdateien einsammeln */
+async function loadPublishedPlan(){
+  const now=new Date().getFullYear();
+  const years=[]; for(let y=now-1; y<=now+PLAN_SCAN; y++) years.push(y);
+  const found=[];
+  for(const y of years){ try{ await loadPublishedYear(y); found.push(y); }catch(e){} }
+  if(!found.length){
+    importPlanner(await fetchJson(PLAN_FALLBACK), {quiet:true});   // wirft, wenn auch die fehlt
+  }else{
+    state.selectedYear = found.includes(now) ? now : found[found.length-1];
+  }
+  state.planUnlocked=true; save(); renderAll();
+  setStatus(found.length ? t().remoteLoaded(found.join(', ')) : t().remoteLoadedSingle, 'ok');
 }
 
 function setStatus(msg,kind){
@@ -1126,7 +1162,14 @@ function syncLangToMode(){
 
 /* ==================== Events ==================== */
 $('uiLang').addEventListener('change',e=>{ state.lang=e.target.value; save(); renderAll(); });
-$('year').addEventListener('change',e=>{ state.selectedYear=+e.target.value; save(); renderAll(); });
+$('year').addEventListener('change',async e=>{
+  state.selectedYear=+e.target.value; save(); renderAll();
+  const y=String(state.selectedYear);
+  if(state.planUnlocked && !(state.schedulesByYear[y]||[]).length){
+    try{ await loadPublishedYear(state.selectedYear); setStatus(t().remoteLoaded(y),'ok'); }
+    catch(err){ setStatus(t().remoteMissing(y),'warn'); }
+  }
+});
 $('cong').addEventListener('change',e=>{ state.selectedCong=e.target.value; syncLangToMode(); save(); renderAll(); });
 document.querySelectorAll('input[name=mode]').forEach(r=>{
   r.addEventListener('change',()=>{ state.mode=r.value; syncLangToMode(); save(); renderAll(); });
