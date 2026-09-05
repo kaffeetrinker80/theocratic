@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <!-- Icons + Manifest -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#172f4d">
-<meta name="apple-mobile-web-app-title" content="KH Cleaning Schedules">
-<meta name="application-name" content="Kingdom Hall Cleaning Generator">
-
-<!-- Link-Vorschau -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="Kingdom Hall Cleaning Generator">
-<meta property="og:description" content="Create cleaning schedules">
-<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-generator/">
-<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-generator/og-image.png">
-<meta name="twitter:card" content="summary_large_image">
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Reinigungsplan Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<title>Cleaning Plan Generator | kaffeetrinker80</title>
+
+<meta name="description" content="Cleaning Plan Generator – turns a Kingdom Hall Cleaning Planner export into ready-to-print A4 notices in five languages.">
+<!-- Favicons / App-Icons – liegen im /theocratic/-Ordner eine Ebene höher -->
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="manifest" href="../site.webmanifest">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151a" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="Cleaning Plan">
+<meta name="application-name" content="Cleaning Plan Generator">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cleaning Plan Generator | kaffeetrinker80">
+<meta property="og:description" content="Turns a Kingdom Hall Cleaning Planner export into ready-to-print A4 notices in five languages.">
+<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-generator/">
+<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/android-chrome-512x512.png">
 <style>
 @page { size:A4 portrait; margin:0; }
 :root{
@@ -186,7 +186,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <div class="app">
 <aside class="sidebar noprint">
   <div class="brand">
-    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.4</span>
+    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.4.1</span>
     <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
   </div>
   <div class="source">
@@ -242,6 +242,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
       <div><label class="f" data-i="subtitleEdit">Untertitel</label><input id="subtitleEdit" /></div>
       <div><label class="f" data-i="hallEdit">Saal</label><input id="hallEdit" /></div>
       <div><label class="f" data-i="locEdit">Ort / Adresse</label><input id="locEdit" /></div>
+      <div id="congTitleWrap"><label class="f" data-i="congTitleEdit">Versammlungsname in Kopf und Fuß</label><input id="congTitleEdit" /><div class="hint" data-i="congTitleHint">Nur für Kopfzeile und Fußzeile. Der Name im Plan bleibt unverändert.</div></div>
       <div><label class="f" data-i="coordEdit">Reinigungskoordinator</label><input id="coordEdit" /></div>
       <div class="row2">
         <div><label class="f" data-i="phoneEdit">Telefon</label><input id="phoneEdit" /></div>
@@ -273,7 +274,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <main class="main">
   <div class="sheetwrap" id="sheetWrap"></div>
   <div class="printstack" id="printStack"></div>
-  <div class="love noprint">Made with love © · Reinigungsplan Generator v2.4</div>
+  <div class="love noprint">Made with love © · Reinigungsplan Generator v2.4.1</div>
 </main>
 </div>
 
@@ -315,6 +316,7 @@ de:{
   import:'Plantool-JSON importieren', export:'Export', reset:'Zurücksetzen',
   titleEdit:'Titel', titleHint:'Leer lassen = übersetzter Standardtitel.', subtitleEdit:'Untertitel', hallEdit:'Saal',
   locEdit:'Ort / Adresse', coordEdit:'Reinigungskoordinator', phoneEdit:'Telefon', mailEdit:'E-Mail',
+  congTitleEdit:'Versammlungsname in Kopf und Fuß', congTitleHint:'Nur für Kopfzeile und Fußzeile. Der Name im Plan bleibt unverändert.',
   noteL:'Linke Spalte', noteR:'Rechte Spalte', resetNotes:'Standardtext dieser Sprache',
   notesHint:'Eine Zeile vor einem Aufzählungspunkt wird als Überschrift fett unterstrichen.',
   resetColors:'Standardfarben', congsHint:'Die Sprache wird aus dem Namen erkannt und kann hier überschrieben werden.',
@@ -372,6 +374,7 @@ en:{
   import:'Import planner JSON', export:'Export', reset:'Reset',
   titleEdit:'Title', titleHint:'Leave empty for the translated default title.', subtitleEdit:'Subtitle', hallEdit:'Hall',
   locEdit:'Location / address', coordEdit:'Cleaning coordinator', phoneEdit:'Phone', mailEdit:'E-mail',
+  congTitleEdit:'Congregation name in header and footer', congTitleHint:'Only for the header and footer. The name in the schedule stays unchanged.',
   noteL:'Left column', noteR:'Right column', resetNotes:'Default text for this language',
   notesHint:'A line before a bullet point is shown as a bold underlined heading.',
   resetColors:'Default colours', congsHint:'The language is detected from the name and can be overridden here.',
@@ -429,6 +432,7 @@ it:{
   import:'Importa JSON del pianificatore', export:'Esporta', reset:'Reimposta',
   titleEdit:'Titolo', titleHint:'Lascia vuoto per il titolo predefinito tradotto.', subtitleEdit:'Sottotitolo', hallEdit:'Sala',
   locEdit:'Luogo / indirizzo', coordEdit:'Coordinatore delle pulizie', phoneEdit:'Telefono', mailEdit:'E-mail',
+  congTitleEdit:'Nome della congregazione in intestazione e piè di pagina', congTitleHint:'Solo per intestazione e piè di pagina. Il nome nel piano resta invariato.',
   noteL:'Colonna sinistra', noteR:'Colonna destra', resetNotes:'Testo predefinito di questa lingua',
   notesHint:'Una riga prima di un elenco puntato diventa un titolo in grassetto sottolineato.',
   resetColors:'Colori predefiniti', congsHint:'La lingua viene riconosciuta dal nome e può essere modificata qui.',
@@ -486,6 +490,7 @@ ru:{
   import:'Импорт JSON планировщика', export:'Экспорт', reset:'Сброс',
   titleEdit:'Заголовок', titleHint:'Оставьте пустым для переведённого заголовка по умолчанию.', subtitleEdit:'Подзаголовок', hallEdit:'Зал',
   locEdit:'Место / адрес', coordEdit:'Координатор уборки', phoneEdit:'Телефон', mailEdit:'Эл. почта',
+  congTitleEdit:'Название собрания в шапке и подвале', congTitleHint:'Только для шапки и подвала. Название в графике остаётся прежним.',
   noteL:'Левая колонка', noteR:'Правая колонка', resetNotes:'Текст по умолчанию для этого языка',
   notesHint:'Строка перед маркированным списком выделяется жирным с подчёркиванием.',
   resetColors:'Цвета по умолчанию', congsHint:'Язык определяется по названию и может быть изменён здесь.',
@@ -543,6 +548,7 @@ sh:{
   import:'Uvezi JSON planera', export:'Izvoz', reset:'Poništi',
   titleEdit:'Naslov', titleHint:'Ostavite prazno za prevedeni zadani naslov.', subtitleEdit:'Podnaslov', hallEdit:'Dvorana',
   locEdit:'Mjesto / adresa', coordEdit:'Koordinator čišćenja', phoneEdit:'Telefon', mailEdit:'E-pošta',
+  congTitleEdit:'Naziv skupštine u zaglavlju i podnožju', congTitleHint:'Samo za zaglavlje i podnožje. Naziv u rasporedu ostaje nepromijenjen.',
   noteL:'Lijevi stupac', noteR:'Desni stupac', resetNotes:'Zadani tekst ovog jezika',
   notesHint:'Redak ispred natuknice prikazuje se kao podebljani podvučeni naslov.',
   resetColors:'Zadane boje', congsHint:'Jezik se prepoznaje iz naziva i ovdje se može promijeniti.',
@@ -613,7 +619,7 @@ let state = {
     {id:'sample-a',name:'Beispielversammlung',groups:4,contact:'',email:''},
     {id:'sample-b',name:'Beispiel-Italienisch',groups:3,contact:'',email:''}
   ],
-  colors:{}, langByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
+  colors:{}, langByCong:{}, displayNameByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
 };
 
 const T = l => I18N[l] || I18N.de;
@@ -630,6 +636,8 @@ function fmtDate(iso){ const p=String(iso||'').split('-'); return p.length===3?`
 function isoFromGerman(d){ const p=String(d).split('.'); return p.length===3?`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`:d; }
 function congById(id){ return state.congregations.find(c=>String(c.id)===String(id)) || null; }
 function congName(id){ const c=congById(id); return c?c.name:''; }
+/* Anzeigename nur fuer Kopf- und Fusszeile; der Name im Plan bleibt der importierte */
+function congDisplay(id){ return (state.displayNameByCong[id]||'').trim() || congName(id); }
 function colorOf(id){
   if(state.colors[id]) return state.colors[id];
   const i=state.congregations.findIndex(c=>String(c.id)===String(id));
@@ -647,6 +655,12 @@ function detectLang(name){
 function langOf(congId){
   if(state.langByCong[congId]) return state.langByCong[congId];
   return detectLang(congName(congId));
+}
+/* Nach dem Import zuerst eine deutschsprachige Versammlung zeigen, sonst eine englische */
+function defaultCongId(){
+  const pick = l => state.congregations.find(c=>langOf(c.id)===l);
+  const c = pick('de') || pick('en') || state.congregations[0];
+  return c ? c.id : '';
 }
 function selectedCong(){ return congById(state.selectedCong) || state.congregations[0] || null; }
 
@@ -789,7 +803,7 @@ function importPlanner(data){
 
   const imported=years.map(Number).sort((a,b)=>a-b);
   if(!imported.includes(+state.selectedYear)) state.selectedYear=imported[imported.length-1];
-  if(!congById(state.selectedCong)) state.selectedCong=state.congregations[0]?state.congregations[0].id:'';
+  if(!congById(state.selectedCong)) state.selectedCong=defaultCongId();
   syncLangToMode();
   save(); renderAll();
   setStatus(total? t().imported(total, imported.join(', ')) : t().noRows, total?'ok':'warn');
@@ -822,7 +836,7 @@ function buildSheet(cfg){
   head.append(h1,hall,meta);
   if(!poster && cfg.congId){
     const b=document.createElement('div'); b.className='forbadge';
-    b.textContent=`${x.forCong}: ${congName(cfg.congId)}`;
+    b.textContent=`${x.forCong}: ${congDisplay(cfg.congId)}`;
     head.appendChild(b);
   }
   sheet.appendChild(head);
@@ -888,7 +902,7 @@ function buildSheet(cfg){
   const contact=[state.phone,state.email].filter(Boolean).join(' · ');
   if(contact){ left.appendChild(document.createTextNode('  ·  '+contact)); }
   const right=document.createElement('div');
-  right.textContent = poster ? '' : congName(cfg.congId);
+  right.textContent = poster ? '' : congDisplay(cfg.congId);
   right.style.fontWeight='700'; right.style.color=accent;
   foot.append(left,right);
   sheet.appendChild(foot);
@@ -990,6 +1004,9 @@ function fillSelectors(){
   $('locEdit').value=state.location||'';
   $('phoneEdit').value=state.phone||'';
   $('mailEdit').value=state.email||'';
+  $('congTitleEdit').value = state.displayNameByCong[state.selectedCong] || '';
+  $('congTitleEdit').placeholder = congName(state.selectedCong) || '';
+  $('congTitleWrap').style.display = state.mode==='poster' ? 'none' : '';
   $('coordEdit').value = state.mode==='poster'
     ? (state.coordinatorByCong.__global||'')
     : (state.coordinatorByCong[state.selectedCong] || (selectedCong()||{}).contact || '');
@@ -1058,6 +1075,11 @@ $('hallEdit').addEventListener('input',e=>{ state.hall=e.target.value; save(); r
 $('locEdit').addEventListener('input',e=>{ state.location=e.target.value; save(); renderSheet(); });
 $('phoneEdit').addEventListener('input',e=>{ state.phone=e.target.value; save(); renderSheet(); });
 $('mailEdit').addEventListener('input',e=>{ state.email=e.target.value; save(); renderSheet(); });
+$('congTitleEdit').addEventListener('input',e=>{
+  const v=e.target.value;
+  if(v.trim()) state.displayNameByCong[state.selectedCong]=v; else delete state.displayNameByCong[state.selectedCong];
+  save(); renderSheet();
+});
 $('coordEdit').addEventListener('input',e=>{
   if(state.mode==='poster') state.coordinatorByCong.__global=e.target.value;
   else state.coordinatorByCong[state.selectedCong]=e.target.value;
@@ -1104,7 +1126,7 @@ window.addEventListener('resize',()=>{ const s=$('sheetWrap').firstChild; if(s) 
 
 /* ==================== Start ==================== */
 load();
-if(!state.selectedCong && state.congregations[0]) state.selectedCong=state.congregations[0].id;
+if(!congById(state.selectedCong)) state.selectedCong=defaultCongId();
 syncLangToMode();
 renderAll();
 </script>
