@@ -903,6 +903,53 @@
     }
     :root[data-theme="dark"] .nwsChip.on{ color:#cfe4ff; }
     :root[data-theme="dark"] .nwsTag.warn{ color:#ffcf8a; }
+
+    /* ===== NWS export help ===== */
+    .nwsHelpBox{ max-width: 720px; }
+    .nwsHelpBody{ padding:16px 18px; overflow:auto; }
+    .nwsSteps{ list-style:none; counter-reset:nwsStep; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+    .nwsSteps li{ counter-increment:nwsStep; display:flex; gap:11px; align-items:flex-start; font-size:14px; line-height:1.45; }
+    .nwsSteps li::before{
+      content: counter(nwsStep);
+      flex:0 0 24px; height:24px; border-radius:8px;
+      background:var(--accentSoft); color:var(--accentDark);
+      border:1px solid var(--accentLine);
+      font-size:12.5px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    }
+    .nwsSteps b{ font-weight:700; }
+    .nwsSteps code{
+      font-family:var(--mono); font-size:12px; background:var(--btn);
+      border:1px solid var(--stroke); border-radius:6px; padding:1px 5px;
+    }
+    .nwsHelpNote{
+      margin-top:14px; font-size:12.5px; color:var(--muted);
+      background:var(--bg2); border:1px solid var(--stroke); border-radius:12px; padding:10px 12px;
+    }
+    .nwsHelpFig{ margin-top:14px; border:1px solid var(--stroke); border-radius:12px; background:var(--bg2); padding:10px; }
+    .nwsHelpFig svg{ display:block; width:100%; height:auto; }
+    .nwsHelpLink{
+      border:1px solid var(--stroke); background:var(--btn); color:var(--muted);
+      border-radius:999px; padding:5px 11px; font:inherit; font-size:12.5px; cursor:pointer; white-space:nowrap;
+    }
+    .nwsHelpLink:hover{ background:var(--btn2); color:var(--text); }
+    .nwsHeadBtns{ display:flex; gap:8px; align-items:center; flex:0 0 auto; }
+
+    .nwsTag.new{ background:rgba(21,128,61,.12); border-color:rgba(21,128,61,.35); color:#15803d; font-weight:800; }
+    :root[data-theme="dark"] .nwsTag.new{ color:#86efac; }
+    .nwsMissing{ margin:10px 18px 0; }
+    .nwsMissing details{
+      border:1px solid var(--stroke2); border-radius:12px; background:var(--bg2); overflow:hidden;
+    }
+    .nwsMissing summary{
+      cursor:pointer; list-style:none; padding:9px 12px; font-size:12.5px; font-weight:700;
+      color:var(--muted); display:flex; align-items:center; gap:8px;
+    }
+    .nwsMissing summary::-webkit-details-marker{ display:none; }
+    .nwsMissing summary::after{ content:"\25BE"; margin-left:auto; font-size:11px; opacity:.7; }
+    .nwsMissing details[open] summary::after{ content:"\25B4"; }
+    .nwsMissing summary:hover{ color:var(--text); }
+    .nwsMissing .body{ padding:0 12px 11px; font-size:12.5px; color:var(--muted); }
+    .nwsMissing .names{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:7px; }
     @media print{ .nwsBack{ display:none !important; } }
   </style>
 </head>
@@ -979,6 +1026,7 @@
 <input accept="application/json" hidden="" id="importFile" type="file"/>
 <button class="btn" id="importCsvBtn">📥 Import NWS-CSV</button>
 <input accept=".csv,text/csv" hidden="" id="importCsvFile" type="file"/>
+<button class="btn ghost" id="nwsHelpBtn" type="button" title="How to export from New World Scheduler">❓</button>
 <button class="btn danger" id="clearBtn">🧹 Clear</button>
 </div>
 <div class="chipRow" id="chipRow"></div>
@@ -994,9 +1042,50 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.5</div>
+<div>Made with Love © – Volunteers list v 2.7</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
+<div class="nwsBack" id="nwsHelpBack" role="dialog" aria-modal="true" aria-labelledby="nwsHelpTitle">
+<div class="nwsModal nwsHelpBox">
+<div class="nwsHead">
+<div>
+<h2 id="nwsHelpTitle">Export from New World Scheduler</h2>
+<div class="sub" id="nwsHelpSub">Persons &#8594; Export &#8594; CSV</div>
+</div>
+<button class="nwsX" id="nwsHelpClose" type="button" title="Close">&#10005;</button>
+</div>
+<div class="nwsHelpBody">
+<ol class="nwsSteps" id="nwsHelpSteps"></ol>
+<div class="nwsHelpFig"><svg viewBox="0 0 420 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Export Persons dialog">
+<rect x="8" y="8" width="404" height="194" rx="10" fill="var(--panel)" stroke="var(--stroke2)"/>
+<rect x="8" y="8" width="404" height="26" rx="10" fill="var(--accentSoft)"/>
+<rect x="8" y="26" width="404" height="8" fill="var(--accentSoft)"/>
+<text x="210" y="26" text-anchor="middle" font-size="12" font-weight="700" fill="var(--accentDark)" font-family="var(--sans)">Export Persons</text>
+<g font-size="10.5" fill="var(--muted)" font-family="var(--sans)">
+<rect x="30" y="46" width="10" height="10" rx="2" fill="none" stroke="var(--stroke2)"/>
+<text x="48" y="55">Include Publisher Reports</text>
+<rect x="30" y="64" width="10" height="10" rx="2" fill="none" stroke="var(--stroke2)"/>
+<text x="48" y="73">Include Emergency Contacts</text>
+<rect x="30" y="82" width="10" height="10" rx="2" fill="none" stroke="var(--stroke2)"/>
+<text x="48" y="91">Family Heads Only</text>
+</g>
+<text x="196" y="55" font-size="10.5" font-weight="700" fill="#a35c05" font-family="var(--sans)">&#8592; all unchecked</text>
+<rect x="30" y="104" width="240" height="22" rx="6" fill="var(--btn2)" stroke="var(--stroke2)"/>
+<text x="150" y="119" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="var(--sans)">to NW Scheduler file</text>
+<rect x="30" y="132" width="240" height="24" rx="6" fill="var(--accentSoft)" stroke="var(--accent)" stroke-width="2"/>
+<text x="150" y="148" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--accentDark)" font-family="var(--sans)">To CSV file</text>
+<text x="286" y="148" font-size="11" font-weight="700" fill="var(--accentDark)" font-family="var(--sans)">&#8592; click this</text>
+<rect x="30" y="162" width="240" height="22" rx="6" fill="var(--btn2)" stroke="var(--stroke2)"/>
+<text x="150" y="177" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="var(--sans)">to PDF file</text>
+</svg></div>
+<div class="nwsHelpNote" id="nwsHelpNote"></div>
+</div>
+<div class="nwsFoot">
+<span class="spacer"></span>
+<button class="btn primary" id="nwsHelpOk" type="button">OK</button>
+</div>
+</div>
+</div>
 <div class="nwsBack" id="nwsBack" role="dialog" aria-modal="true" aria-labelledby="nwsTitle">
 <div class="nwsModal">
 <div class="nwsHead">
@@ -1004,14 +1093,19 @@
 <h2 id="nwsTitle">Import NWS-CSV</h2>
 <div class="sub" id="nwsFileInfo">—</div>
 </div>
+<span class="nwsHeadBtns">
+<button class="nwsHelpLink" id="nwsHelpLink" type="button">❓ <span id="nwsHelpLinkLbl">How do I get this file?</span></button>
 <button class="nwsX" id="nwsClose" type="button" title="Close">✕</button>
+</span>
 </div>
 <div class="nwsStats" id="nwsStats"></div>
+<div class="nwsMissing" id="nwsMissing"></div>
 <div class="nwsTools">
 <input id="nwsSearch" type="search" placeholder="Search…"/>
 <button class="nwsChip on" id="nwsChipHideRemoved" type="button">🚫 <span>Hide removed / moved</span></button>
 <button class="nwsChip" id="nwsChipActive" type="button">✅ <span>Active only</span></button>
 <button class="nwsChip" id="nwsChipNoPub" type="button">📖 <span>Publishers only</span></button>
+<button class="nwsChip" id="nwsChipNew" type="button">✨ <span>New only</span></button>
 <button class="nwsChip" id="nwsChipMinors" type="button">👶 <span>Show under 16</span></button>
 </div>
 <div class="nwsCols">
@@ -2012,6 +2106,11 @@
     nwsActiveOnly: "Active only",
     nwsPubOnly: "Publishers only",
     nwsShowMinors: "Show under 16",
+    nwsNewOnly: "New only",
+    nwsTagNew: "new",
+    nwsStatNew: "new",
+    nwsMissingTitle: "{n} in your list, not in this file",
+    nwsMissingHint: "Only an FYI \u2013 nothing is deleted. Check whether these have moved away or should be removed by hand.",
     nwsAll: "All",
     nwsSelected: "selected",
     nwsDupLbl: "Existing entries:",
@@ -2050,6 +2149,11 @@
     nwsActiveOnly: "Nur Aktive",
     nwsPubOnly: "Nur Verkündiger",
     nwsShowMinors: "Unter 16 anzeigen",
+    nwsNewOnly: "Nur Neue",
+    nwsTagNew: "neu",
+    nwsStatNew: "neu",
+    nwsMissingTitle: "{n} in deiner Liste, nicht in dieser Datei",
+    nwsMissingHint: "Nur ein Hinweis \u2013 es wird nichts gel\u00f6scht. Pr\u00fcfe, ob sie weggezogen sind oder von Hand entfernt werden sollen.",
     nwsAll: "Alle",
     nwsSelected: "ausgewählt",
     nwsDupLbl: "Vorhandene Einträge:",
@@ -2085,7 +2189,8 @@
     people: [],
     sel: new Set(),
     file: "",
-    filters: { hideRemoved: true, activeOnly: false, pubOnly: false, showMinors: false },
+    missing: [],
+    filters: { hideRemoved: true, activeOnly: false, pubOnly: false, newOnly: false, showMinors: false },
     q: ""
   };
   const NWS_MIN_AGE = 16;
@@ -2214,12 +2319,14 @@
     if(f.hideRemoved && (p.removed || p.moved)) return false;
     if(f.activeOnly && !p.active) return false;
     if(f.pubOnly && p.rawPriv === "NO") return false;
+    if(f.newOnly && p.dup) return false;
     if(NWS.q && !normalize(p.name).includes(NWS.q)) return false;
     return true;
   }
 
   function nwsTags(p){
     const tags = [];
+    if(!p.dup) tags.push(["new", t("nwsTagNew")]);
     if(p.age !== null) tags.push(["mut", p.age + " " + t("nwsTagYears")]);
     else tags.push(["warn", t("nwsTagNoAge")]);
     if(p.minor) tags.push(["warn", t("nwsTagMinor")]);
@@ -2271,8 +2378,22 @@
       [t("nwsStatBrothers"), p.filter(x => x.group === "Brothers" && !x.minor).length],
       [t("nwsStatSisters"), p.filter(x => x.group === "Sisters" && !x.minor).length],
       [t("nwsStatMinors"), minN],
+      [t("nwsStatNew"), p.filter(x => !x.dup && !x.minor).length],
       [t("nwsStatDup"), dupN]
     ].map(([l, v]) => `<span class="nwsStat"><b>${v}</b> ${escapeHtml(l)}</span>`).join("");
+
+    const miss = $("nwsMissing");
+    if(NWS.missing.length){
+      miss.innerHTML = `<details>
+        <summary>\u26A0\uFE0F ${escapeHtml(t("nwsMissingTitle", {n: NWS.missing.length}))}</summary>
+        <div class="body">
+          <div class="names">${NWS.missing.map(m => `<span class="nwsTag mut">${escapeHtml(m)}</span>`).join("")}</div>
+          ${escapeHtml(t("nwsMissingHint"))}
+        </div>
+      </details>`;
+    } else {
+      miss.innerHTML = "";
+    }
 
     nwsRenderList("Brothers", "nwsListB", "nwsCntB", "nwsAllB");
     nwsRenderList("Sisters", "nwsListS", "nwsCntS", "nwsAllS");
@@ -2280,6 +2401,7 @@
     $("nwsChipHideRemoved").classList.toggle("on", NWS.filters.hideRemoved);
     $("nwsChipActive").classList.toggle("on", NWS.filters.activeOnly);
     $("nwsChipNoPub").classList.toggle("on", NWS.filters.pubOnly);
+    $("nwsChipNew").classList.toggle("on", NWS.filters.newOnly);
     $("nwsChipMinors").classList.toggle("on", NWS.filters.showMinors);
   }
 
@@ -2313,10 +2435,72 @@
     chip("nwsChipHideRemoved", "nwsHideRemoved");
     chip("nwsChipActive", "nwsActiveOnly");
     chip("nwsChipNoPub", "nwsPubOnly");
+    chip("nwsChipNew", "nwsNewOnly");
     chip("nwsChipMinors", "nwsShowMinors");
+    nwsHelpLang();
     if($("nwsBack")?.classList.contains("open")) nwsRender();
   }
   window.__csvLang = nwsApplyLang;
+
+
+  /* ---- NWS export help (bilingual) ---- */
+  Object.assign(LANG.en, {
+    nwsHelpBtn: "How to export from New World Scheduler",
+    nwsHelpTitle: "Export from New World Scheduler",
+    nwsHelpSub: "Persons \u2192 Export Persons \u2192 To CSV file",
+    nwsHelpLink: "How do I get this file?",
+    nwsHelpOk: "Got it",
+    nwsHelpSteps: [
+      "Open the <b>Persons</b> tab (people icon in the left sidebar).",
+      "Top left, click the fourth button \u2013 <b>Export Persons</b> (arrow leaving the window).",
+      "In the dialog <b>uncheck all three boxes</b>: Include Publisher Reports, Include Emergency Contacts, Family Heads Only. They are not needed for this import.",
+      "Click <b>To CSV file</b> and save the file (the Address / Coordinates option does not matter).",
+      "Back here: <b>Import NWS-CSV</b>, pick the file, tick the people you want."
+    ],
+    nwsHelpNote: "The file stays on your device \u2013 nothing is uploaded. Only name, gender, privilege, date of birth, family and contact details are read; everything else in the CSV is ignored."
+  });
+  Object.assign(LANG.de, {
+    nwsHelpBtn: "Export aus dem New World Scheduler",
+    nwsHelpTitle: "Export aus dem New World Scheduler",
+    nwsHelpSub: "Persons \u2192 Export Persons \u2192 To CSV file",
+    nwsHelpLink: "Woher bekomme ich die Datei?",
+    nwsHelpOk: "Alles klar",
+    nwsHelpSteps: [
+      "Reiter <b>Persons</b> \u00f6ffnen (Personen-Symbol in der linken Leiste).",
+      "Oben links die vierte Schaltfl\u00e4che anklicken \u2013 <b>Export Persons</b> (Pfeil aus dem Fenster heraus).",
+      "Im Fenster <b>alle drei Haken entfernen</b>: Include Publisher Reports, Include Emergency Contacts, Family Heads Only. F\u00fcr diesen Import werden sie nicht gebraucht.",
+      "Auf <b>To CSV file</b> klicken und die Datei speichern (Address / Coordinates ist egal).",
+      "Zur\u00fcck hier: <b>NWS-CSV importieren</b>, Datei w\u00e4hlen, gew\u00fcnschte Personen abhaken."
+    ],
+    nwsHelpNote: "Die Datei bleibt auf deinem Ger\u00e4t \u2013 es wird nichts hochgeladen. Gelesen werden nur Name, Geschlecht, Vorrecht, Geburtsdatum, Familie und Kontaktdaten; alles \u00fcbrige in der CSV wird ignoriert."
+  });
+
+  function nwsHelpOpen(){
+    $("nwsHelpBack").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function nwsHelpClose(){
+    $("nwsHelpBack").classList.remove("open");
+    if(!$("nwsBack").classList.contains("open")) document.body.style.overflow = "";
+  }
+  function nwsHelpLang(){
+    const steps = (LANG[currentLang] && LANG[currentLang].nwsHelpSteps) || [];
+    $("nwsHelpSteps").innerHTML = steps.map(x => `<li><span>${x}</span></li>`).join("");
+    $("nwsHelpTitle").textContent = t("nwsHelpTitle");
+    $("nwsHelpSub").textContent = t("nwsHelpSub");
+    $("nwsHelpNote").textContent = t("nwsHelpNote");
+    $("nwsHelpOk").textContent = t("nwsHelpOk");
+    $("nwsHelpLinkLbl").textContent = t("nwsHelpLink");
+    const hb = $("nwsHelpBtn"); if(hb) hb.title = t("nwsHelpBtn");
+  }
+  $("nwsHelpBtn").addEventListener("click", nwsHelpOpen);
+  $("nwsHelpLink").addEventListener("click", nwsHelpOpen);
+  $("nwsHelpClose").addEventListener("click", nwsHelpClose);
+  $("nwsHelpOk").addEventListener("click", nwsHelpClose);
+  $("nwsHelpBack").addEventListener("click", (e) => { if(e.target === $("nwsHelpBack")) nwsHelpClose(); });
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && $("nwsHelpBack").classList.contains("open")) nwsHelpClose();
+  });
 
   const importCsvFile = $("importCsvFile");
   $("importCsvBtn").addEventListener("click", () => importCsvFile.click());
@@ -2331,6 +2515,11 @@
       const people = nwsBuild(nwsParseCSV(text));
       if(!people.length) throw new Error("no rows");
       NWS.people = people;
+      const inFile = new Set(people.map(p => normalize(p.name)));
+      NWS.missing = data
+        .filter(v => (v.name || "").trim() && !inFile.has(normalize(v.name)))
+        .map(v => v.name.trim())
+        .sort((a, b) => a.localeCompare(b, undefined, {sensitivity:"base"}));
       NWS.sel = new Set();
       NWS.q = "";
       NWS.file = file.name;
@@ -2340,6 +2529,7 @@
     }catch(err){
       console.error(err);
       alert(t("nwsBadFile"));
+      nwsHelpOpen();
     }finally{
       importCsvFile.value = "";
     }
@@ -2358,6 +2548,7 @@
     ["nwsChipHideRemoved", "hideRemoved"],
     ["nwsChipActive", "activeOnly"],
     ["nwsChipNoPub", "pubOnly"],
+    ["nwsChipNew", "newOnly"],
     ["nwsChipMinors", "showMinors"]
   ];
   for(const [id, key] of nwsChips){
