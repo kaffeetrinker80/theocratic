@@ -306,6 +306,26 @@
       border-color: rgba(190, 35, 60, .20);
       color:#8a1f2f;
     }
+    /* NWS CSV import: gently highlighted (teal) */
+    #importCsvBtn{
+      background: rgba(13, 148, 136, .10);
+      border-color: rgba(13, 148, 136, .38);
+      color:#0f766e;
+      font-weight:700;
+    }
+    #importCsvBtn:hover{ background: rgba(13, 148, 136, .18); }
+    #importCsvBtn:focus-visible{ outline:3px solid rgba(13, 148, 136, .35); outline-offset:2px; }
+    #nwsHelpBtn{
+      background: rgba(13, 148, 136, .06);
+      border-color: rgba(13, 148, 136, .28);
+      color:#0f766e;
+    }
+    #nwsHelpBtn:hover{ background: rgba(13, 148, 136, .14); }
+    :root[data-theme="dark"] #importCsvBtn,
+    :root[data-theme="dark"] #nwsHelpBtn{ color:#5eead4; border-color: rgba(94, 234, 212, .35); }
+    :root[data-theme="dark"] #importCsvBtn{ background: rgba(94, 234, 212, .12); }
+    :root[data-theme="dark"] #importCsvBtn:hover{ background: rgba(94, 234, 212, .20); }
+
     .btn.small{ padding:6px 9px; font-size:12px; border-radius:10px; }
     .spacer{ flex:1; }
 
