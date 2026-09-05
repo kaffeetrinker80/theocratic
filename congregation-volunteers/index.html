@@ -757,16 +757,16 @@
 
     /* --- Soft Dark Mode --- */
     :root[data-theme="dark"]{
-      --bg:#181c23;
-      --bg2:#1e232b;
-      --panel:#252b34;
-      --stroke:#39414e;
-      --stroke2:#4a5464;
-      --text:#e9effa;
-      --muted:#b4c0d3;
-      --muted2:#8fa0b8;
-      --btn:#2b3444;
-      --btn2:#354054;
+      --bg:#1e242e;
+      --bg2:#252c37;
+      --panel:#2e3641;
+      --stroke:#434d5c;
+      --stroke2:#556275;
+      --text:#eef3fc;
+      --muted:#c2cddd;
+      --muted2:#9aabc2;
+      --btn:#354052;
+      --btn2:#404d62;
       --shadow: 0 10px 26px rgba(0,0,0,.38);
       --shadowSoft: 0 2px 8px rgba(0,0,0,.25);
     }
@@ -842,6 +842,16 @@
     :root[data-theme="dark"] .miniBtn:hover{ background: rgba(255,255,255,.10); }
     :root[data-theme="dark"] .toast{ background: var(--panel); border-color: var(--stroke2); }
     :root[data-theme="dark"] .btn.primary{ color:#0e1420; }
+    :root[data-theme="dark"] .btn.danger{
+      background: rgba(248, 113, 113, .14);
+      border-color: rgba(248, 113, 113, .40);
+      color:#fda4a4;
+      font-weight:600;
+    }
+    :root[data-theme="dark"] .btn.danger:hover{ background: rgba(248, 113, 113, .22); color:#ffc4c4; }
+    :root[data-theme="dark"] .btn{ background: var(--btn); border-color: var(--stroke2); }
+    :root[data-theme="dark"] .btn:hover{ background: var(--btn2); }
+    :root[data-theme="dark"] .toolbar{ background: rgba(30,36,46,.75); }
 
     /* ===== NWS CSV Import Modal ===== */
     .nwsBack{
@@ -1089,7 +1099,7 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.5</div>
+<div>Made with Love © – Volunteers list v 2.5.1</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
 <div class="nwsBack" id="nwsHelpBack" role="dialog" aria-modal="true" aria-labelledby="nwsHelpTitle">
