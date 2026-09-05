@@ -172,6 +172,10 @@
     .grid > *:nth-child(16) { animation-delay: 0.90s; }
     .grid > *:nth-child(17) { animation-delay: 0.95s; }
     .grid > *:nth-child(18) { animation-delay: 1.00s; }
+    .grid > *:nth-child(19) { animation-delay: 1.05s; }
+    .grid > *:nth-child(20) { animation-delay: 1.10s; }
+    .grid > *:nth-child(21) { animation-delay: 1.15s; }
+    .grid > *:nth-child(22) { animation-delay: 1.20s; }
 
     .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.1); }
     .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.1); }
@@ -193,7 +197,13 @@
     .list li { position: relative; padding-left: 18px; margin-bottom: 6px; color: #d7dee8; font-size: 0.88rem; }
     .list li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--primary); opacity: 0.6; position: absolute; left: 0; top: 0.6em; }
 
-    .meta { font-size: .75rem; font-weight: 600; color: var(--c-theme); background: var(--c-soft); padding: 5px 12px; border-radius: 999px; margin-bottom: 20px; display: inline-block; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .meta, .language {
+      font-size: .75rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+      display: inline-block; width: fit-content; margin: 0;
+    }
+    .meta { color: var(--c-theme); background: var(--c-soft); }
+    .language { color: var(--text); background: rgba(255,255,255,.07); border: 1px solid var(--border); }
 
     .btn-card { 
       width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 12px; border-radius: 12px; 
@@ -300,7 +310,7 @@
           <li>Deutlich umfangreicherer Funktionsumfang</li>
           <li>All-in-One Planung für Tagessonderkongresse</li>
         </ul>
-        <div class="meta">Assembly · Attendants</div>
+        <div class="meta-row"><div class="meta">Assembly · Attendants</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./assembly-attendant-tool/">Open Tool</a></div>
       </article>
 
@@ -308,7 +318,7 @@
         <div class="icon-wrap"><img src="./cleaning-planner-assembly/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Cleaning Planner</h2>
         <p>Cleaning schedules and shift coordination for one-day assemblies.</p>
-        <div class="meta">Assembly · Cleaning</div>
+        <div class="meta-row"><div class="meta">Assembly · Cleaning</div><div class="language">DE / EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./cleaning-planner-assembly/">Open Tool</a></div>
       </article>
 
@@ -316,7 +326,7 @@
         <div class="icon-wrap"><img src="./assembly-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Assembly Counting Tool</h2>
         <p>Counting tool for one-day assemblies with slips and attendance summary.</p>
-        <div class="meta">Assembly · Planning</div>
+        <div class="meta-row"><div class="meta">Assembly · Planning</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./assembly-counting/">Open Tool</a></div>
       </article>
 
@@ -324,7 +334,7 @@
         <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Regional Convention A/V Planner</h2>
         <p>Planning and coordination of audio and video assignments on regional conventions.</p>
-        <div class="meta">Regional Convention · A/V</div>
+        <div class="meta-row"><div class="meta">Regional Convention · A/V</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./av-planner/">Open Tool</a></div>
       </article>
 
@@ -336,7 +346,7 @@
           <li>Leistungsstark für exakte Schichtpläne</li>
           <li>Fokus auf das reine Management der Attendants</li>
         </ul>
-        <div class="meta">Regional Convention · Attendants</div>
+        <div class="meta-row"><div class="meta">Regional Convention · Attendants</div><div class="language">DE</div></div>
         <div class="card-actions"><a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a></div>
       </article>
 
@@ -344,7 +354,7 @@
         <div class="icon-wrap"><img src="./cleaning-planner-rc/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Regional Convention Cleaning Planner</h2>
         <p>Cleaning coordination for three-day regional conventions.</p>
-        <div class="meta">Regional Convention · Cleaning</div>
+        <div class="meta-row"><div class="meta">Regional Convention · Cleaning</div><div class="language">DE / EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./cleaning-planner-rc/">Open Tool</a></div>
       </article>
 
@@ -352,7 +362,7 @@
         <div class="icon-wrap"><img src="./rc-counting/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Regional Convention Counting Tool</h2>
         <p>Counting tool for three-day regional conventions with day overview.</p>
-        <div class="meta">Regional Convention · Planning</div>
+        <div class="meta-row"><div class="meta">Regional Convention · Planning</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./rc-counting/">Open Tool</a></div>
       </article>
 
@@ -360,7 +370,7 @@
         <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Regional Convention Volunteers</h2>
         <p>Designed for convention committees to manage and communicate with volunteers.</p>
-        <div class="meta">Regional Convention · Volunteers</div>
+        <div class="meta-row"><div class="meta">Regional Convention · Volunteers</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./rc-volunteers-management/">Open Tool</a></div>
       </article>
 
@@ -373,7 +383,7 @@
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Microphone Service</h2>
         <p>Planning microphone assignments, shifts and support during meetings.</p>
-        <div class="meta">Congregation · Microphones</div>
+        <div class="meta-row"><div class="meta">Congregation · Microphones</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./microphoneservice-tool/">Open Tool</a></div>
       </article>
 
@@ -381,7 +391,7 @@
         <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Volunteers</h2>
         <p>Managing details and availability of congregation volunteers.</p>
-        <div class="meta">Congregation · Volunteers</div>
+        <div class="meta-row"><div class="meta">Congregation · Volunteers</div><div class="language">DE / EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./congregation-volunteers/">Open Tool</a></div>
       </article>
 
@@ -389,7 +399,7 @@
         <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>PTC Tool</h2>
         <p>Coordination of public talks, speakers and outlines from imported data.</p>
-        <div class="meta">Congregation · Public Talks</div>
+        <div class="meta-row"><div class="meta">Congregation · Public Talks</div><div class="language">EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./ptc-tool/">Open Tool</a></div>
       </article>
 
@@ -402,18 +412,30 @@
         <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>KH Cleaning Planner</h2>
         <p>Annual deep cleaning and yearly hall schedules for multi-congregation halls.</p>
-        <div class="meta">Kingdom Hall · Cleaning</div>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN</div></div>
         <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
       </article>
 
       <article class="card theme-kh" data-cat="kh">
-        <div class="icon-wrap"><img src="./intermediate-cleaning/android-chrome-192x192.png" alt="Icon"></div>
-        <h2>KH Intermediate Cleaning</h2>
-        <p>Schedule intermediate hall cleaning by field service groups, featuring rotating assignments (e.g., foyer/toilets) for multi-congregation complexes.</p>
-        <div class="meta">Kingdom Hall · Cleaning</div>
+        <div class="icon-wrap"><img src="./kh-cleaning-generator/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
+        <h2>KH Cleaning Generator</h2>
+        <p>Create a clean annual congregation notice-board schedule from data exported by the KH Cleaning Planner.</p>
+        <ul class="list">
+          <li>Import the planner export and generate the yearly congregation sheet</li>
+          <li>Ready for print and notice-board use</li>
+        </ul>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Annual Schedule</div><div class="language">DE / EN / IT / RU / SH</div></div>
+        <div class="card-actions"><a class="btn-card" href="./kh-cleaning-generator/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-kh" data-cat="kh">
+        <div class="icon-wrap"><img src="./intermediate-cleaning/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
+        <h2>Intermediate Cleaning Planner</h2>
+        <p>Create rotating intermediate-cleaning schedules for congregations sharing a Kingdom Hall.</p>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN / RU</div></div>
         <div class="card-actions"><a class="btn-card" href="./intermediate-cleaning/">Open Tool</a></div>
       </article>
-      
+
     </section>
 
     <footer class="footer">
