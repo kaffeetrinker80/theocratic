@@ -102,6 +102,13 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 .mode b{ font-size:13px; display:block; color:var(--ink); }
 .mode span{ font-size:11px; color:var(--muted); }
 
+.congcard{ border:2px solid var(--pick,#0d9488); border-radius:12px; padding:9px 11px 10px; background:var(--pickTint,#e6f5f3); }
+.congcard label.f{ font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink); }
+.congsel{ display:grid; grid-template-columns:auto 1fr; gap:8px; align-items:center; }
+.congsel i{ width:13px; height:13px; border-radius:50%; background:var(--pick,#0d9488); display:block; }
+.sidebar .congcard select{ font-size:15px; font-weight:650; padding:9px 10px; border-color:var(--pick,#0d9488); }
+.conghint{ font-size:11px; color:var(--muted); line-height:1.45; margin-top:6px; }
+
 .switch{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink); }
 .switch input{ width:auto; accent-color:var(--teal); }
 
@@ -199,7 +206,11 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
         <label class="mode" id="modePoster"><input type="radio" name="mode" value="poster" /><div><b data-i="modePosterT">Aushang Foyer</b><span data-i="modePosterD">Allgemein, ohne Versammlungsbezug</span></div></label>
         <label class="mode" id="modeCong"><input type="radio" name="mode" value="cong" /><div><b data-i="modeCongT">Versammlungs-Aushang</b><span data-i="modeCongD">Schwarzes Brett, Sprache und Farbe der Versammlung</span></div></label>
       </div>
-      <div id="congPick"><label class="f" data-i="congregation">Versammlung</label><select id="cong"></select></div>
+      <div id="congPick" class="congcard">
+        <label class="f" data-i="congregation">Versammlung</label>
+        <div class="congsel"><i id="congDot"></i><select id="cong"></select></div>
+        <div class="conghint" data-i="congPickHint">Hier die Versammlung umstellen. Sprache und Farbe wechseln automatisch mit.</div>
+      </div>
       <div class="row2">
         <div><label class="f" data-i="year">Jahr</label><select id="year"></select></div>
         <div><label class="f" data-i="lang">Sprache</label><select id="uiLang"></select></div>
@@ -327,6 +338,7 @@ de:{
   secTexts:'Kopfzeile & Fuß', secNotes:'Hinweistexte', secPrint:'Drucken', secHelp:'Hilfe',
   modePosterT:'Aushang Foyer', modePosterD:'Allgemein, ohne Versammlungsbezug',
   modeCongT:'Versammlungs-Aushang', modeCongD:'Schwarzes Brett, Sprache und Farbe der Versammlung',
+  congPickHint:'Hier die Versammlung umstellen. Sprache und Farbe wechseln automatisch mit.',
   congregation:'Versammlung', year:'Jahr', lang:'Sprache', addYear:'+ Jahr anlegen', showMonths:'Monatstrenner anzeigen',
   import:'Plantool-JSON importieren', export:'Export', reset:'Zurücksetzen',
   welcomeTitle:'Reinigungsplan öffnen', welcomeText:'Für diesen Saal ist ein Plan hinterlegt. Gib die PIN ein, um ihn zu laden – oder starte mit einer eigenen Datei.',
@@ -393,6 +405,7 @@ en:{
   secTexts:'Header & footer', secNotes:'Note texts', secPrint:'Print', secHelp:'Help',
   modePosterT:'Foyer notice', modePosterD:'General, no congregation named',
   modeCongT:'Congregation notice', modeCongD:'Notice board, in the congregation’s language and colour',
+  congPickHint:'Switch congregation here. Language and colour change with it.',
   congregation:'Congregation', year:'Year', lang:'Language', addYear:'+ Add year', showMonths:'Show month dividers',
   import:'Import planner JSON', export:'Export', reset:'Reset',
   welcomeTitle:'Open cleaning schedule', welcomeText:'A schedule is published for this hall. Enter the PIN to load it – or start with your own file.',
@@ -459,6 +472,7 @@ it:{
   secTexts:'Intestazione e piè di pagina', secNotes:'Testi delle note', secPrint:'Stampa', secHelp:'Aiuto',
   modePosterT:'Avviso per l’atrio', modePosterD:'Generale, senza congregazione',
   modeCongT:'Avviso di congregazione', modeCongD:'Bacheca, nella lingua e nel colore della congregazione',
+  congPickHint:'Cambia qui la congregazione. Lingua e colore si adattano da soli.',
   congregation:'Congregazione', year:'Anno', lang:'Lingua', addYear:'+ Aggiungi anno', showMonths:'Mostra separatori dei mesi',
   import:'Importa JSON del pianificatore', export:'Esporta', reset:'Reimposta',
   welcomeTitle:'Apri il piano di pulizia', welcomeText:'Per questa sala è pubblicato un piano. Inserisci il PIN per caricarlo, oppure parti da un file tuo.',
@@ -525,6 +539,7 @@ ru:{
   secTexts:'Шапка и подвал', secNotes:'Тексты заметок', secPrint:'Печать', secHelp:'Справка',
   modePosterT:'Объявление в фойе', modePosterD:'Общее, без указания собрания',
   modeCongT:'Объявление для собрания', modeCongD:'Доска объявлений, на языке и в цвете собрания',
+  congPickHint:'Здесь переключается собрание. Язык и цвет меняются автоматически.',
   congregation:'Собрание', year:'Год', lang:'Язык', addYear:'+ Добавить год', showMonths:'Показывать разделители месяцев',
   import:'Импорт JSON планировщика', export:'Экспорт', reset:'Сброс',
   welcomeTitle:'Открыть график уборки', welcomeText:'Для этого зала опубликован график. Введите PIN, чтобы загрузить его, или начните со своего файла.',
@@ -591,6 +606,7 @@ sh:{
   secTexts:'Zaglavlje i podnožje', secNotes:'Tekstovi napomena', secPrint:'Ispis', secHelp:'Pomoć',
   modePosterT:'Obavijest u predvorju', modePosterD:'Općenito, bez navođenja skupštine',
   modeCongT:'Obavijest za skupštinu', modeCongD:'Oglasna ploča, na jeziku i u boji skupštine',
+  congPickHint:'Ovdje se mijenja skupština. Jezik i boja mijenjaju se automatski.',
   congregation:'Skupština', year:'Godina', lang:'Jezik', addYear:'+ Dodaj godinu', showMonths:'Prikaži razdjelnike mjeseci',
   import:'Uvezi JSON planera', export:'Izvoz', reset:'Poništi',
   welcomeTitle:'Otvori raspored čišćenja', welcomeText:'Za ovu dvoranu objavljen je raspored. Unesi PIN da ga učitaš ili počni s vlastitom datotekom.',
@@ -1082,6 +1098,9 @@ function fillSelectors(){
   document.querySelectorAll('input[name=mode]').forEach(r=>{ r.checked=(r.value===state.mode); });
   $('modeCong').classList.toggle('on', state.mode==='cong');
   $('modePoster').classList.toggle('on', state.mode==='poster');
+  const pick = state.mode==='cong' ? colorOf(state.selectedCong) : '#94a3b8';
+  $('congPick').style.setProperty('--pick', pick);
+  $('congPick').style.setProperty('--pickTint', tintOf(pick,.10));
   $('congPick').style.opacity = state.mode==='cong'?'1':'.45';
   $('congPick').style.pointerEvents = state.mode==='cong'?'auto':'none';
   $('monthChk').checked=!!state.showMonths;
