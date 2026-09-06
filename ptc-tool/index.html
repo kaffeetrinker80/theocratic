@@ -631,6 +631,29 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .sp-head h2{ font-size:17px; }
 }
 
+/* v2.7.5: first-run guidance. Shown only when there is no data at all, and only
+   until it has been seen — after that the tool never gets in the way again. */
+#welcomeOverlay{
+  display:none; position:fixed; inset:0; z-index:9996; background:rgba(44,32,24,.55); overflow:auto;
+  padding:24px; padding-bottom:calc(24px + var(--bottom-safe));
+}
+.welcome-dialog{
+  max-width:560px; margin:6vh auto 0; background:var(--card); color:var(--text);
+  border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); padding:24px 26px;
+}
+.welcome-dialog h2{ margin:0 0 6px; font-family:var(--font-display); font-size:22px; font-weight:600; }
+.welcome-dialog p{ margin:0 0 14px; font-size:13px; line-height:1.5; }
+.welcome-steps{ margin:0 0 16px; padding-left:22px; display:grid; gap:16px; font-size:13.5px; }
+.welcome-steps li{ line-height:1.5; }
+.welcome-actions{ display:flex; justify-content:flex-end; }
+.setup-hint{
+  display:flex; gap:14px; align-items:flex-start; justify-content:space-between;
+  background:#f9f0dc; border:1px solid #ecd6a8; border-left:3px solid var(--accent);
+  border-radius:12px; padding:11px 14px; font-size:13px; line-height:1.45;
+}
+.setup-hint .small{ margin-top:3px; }
+.setup-hint button{ flex:0 0 auto; }
+
 /* ===== print module ===== */
 #printOverlay{
   display:none; position:fixed; inset:0; z-index:9997; background:rgba(44,32,24,.55); overflow:auto;
@@ -870,6 +893,13 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     </aside>
 
     <main class="workspace">
+      <div class="setup-hint hidden" id="setupHint">
+        <div>
+          <b>Almost there — pick your congregation.</b>
+          <div class="small">Choose your own congregation in the list on the left, then click <b>Set as home congregation</b> in its fact strip. That switches on distances, sorting by distance and the “My congregation” shortcut.</div>
+        </div>
+        <button type="button" class="ghost" id="setupHintDismiss" title="Hide this hint. It comes back only if you clear the local data.">Not now</button>
+      </div>
       <div class="ws-head">
         <div>
           <h2 id="wsTitle">All congregations</h2>
@@ -914,7 +944,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.7.4</span>
+      <span class="footer-version" id="footerVersion">v.2.7.5</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -960,7 +990,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.7.4';
+const APP_VERSION = '2.7.5';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1074,6 +1104,7 @@ const state = {
      'detail' = one congregation opened in the workspace. Countries that are folded
      open in the sidebar are remembered per browser. */
   datasetVersion: '',
+  setupHintDismissed: false,
   wsMode: 'list',
   detailTab: 'speakers',
   countryOpen: loadCountryOpen()
@@ -3290,6 +3321,7 @@ function updateWorkspaceHead() {
 function refreshNavAndHead() {
   renderCongNav();
   updateWorkspaceHead();
+  if (typeof refreshSetupHint === 'function') refreshSetupHint();
 }
 
 function renderResults() {
@@ -4721,6 +4753,8 @@ function resetAll() {
   setWsMode('list');
   state.countryOpen = {};
   saveCountryOpen();
+  state.setupHintDismissed = false;
+  try { localStorage.removeItem(WELCOME_SEEN_KEY); } catch (e) {}
   refreshNavAndHead();
   updateAssistantImportState();
   setStatus('Local data cleared');
@@ -4947,6 +4981,77 @@ function resetSelectionForFilterChange() {
   document.getElementById(id).addEventListener('change', () => { resetSelectionForFilterChange(); renderResults(); renderDetail(); refreshDistanceRowInfo(); });
 });
 
+/* ===== v2.7.5 first-run guidance =====================================================
+   Two steps, shown once: import, then set the home congregation. The overlay appears
+   only when there is no data at all; the hint bar only while a home congregation is
+   still missing. Both disappear on their own once the step is done. */
+const WELCOME_SEEN_KEY = 'ptcToolWelcomeSeen';
+
+function welcomeSeen() {
+  try { return localStorage.getItem(WELCOME_SEEN_KEY) === '1'; } catch (e) { return true; }
+}
+
+function markWelcomeSeen() {
+  try { localStorage.setItem(WELCOME_SEEN_KEY, '1'); } catch (e) {}
+}
+
+function openWelcome() {
+  const ov = document.getElementById('welcomeOverlay');
+  if (!ov) return;
+  ov.style.display = 'block';
+  ov.setAttribute('aria-hidden', 'false');
+}
+
+function closeWelcome() {
+  const ov = document.getElementById('welcomeOverlay');
+  if (!ov) return;
+  ov.style.display = 'none';
+  ov.setAttribute('aria-hidden', 'true');
+  markWelcomeSeen();
+  refreshSetupHint();
+}
+
+/* step 2 lives in the workspace, not in a modal — it points at something on screen */
+function refreshSetupHint() {
+  const hint = document.getElementById('setupHint');
+  if (!hint) return;
+  const show = !!state.dataset
+    && !state.homeCongregationId
+    && !state.setupHintDismissed
+    && state.wsMode === 'list';
+  hint.classList.toggle('hidden', !show);
+}
+
+function maybeShowWelcome() {
+  if (state.dataset || welcomeSeen()) { refreshSetupHint(); return; }
+  openWelcome();
+}
+
+/* the overlay markup sits further down the document than this script, so the wiring
+   waits for DOMContentLoaded — otherwise every getElementById here returns null */
+function initWelcome() {
+  const importBtn = document.getElementById('welcomeImportBtn');
+  if (importBtn) importBtn.addEventListener('click', () => {
+    closeWelcome();
+    document.getElementById('dataInput').click();
+  });
+  const skipBtn = document.getElementById('welcomeSkipBtn');
+  if (skipBtn) skipBtn.addEventListener('click', () => closeWelcome());
+  const overlay = document.getElementById('welcomeOverlay');
+  if (overlay) overlay.addEventListener('click', ev => {
+    if (ev.target && ev.target.id === 'welcomeOverlay') closeWelcome();
+  });
+  const dismiss = document.getElementById('setupHintDismiss');
+  if (dismiss) dismiss.addEventListener('click', () => {
+    state.setupHintDismissed = true;
+    refreshSetupHint();
+  });
+  maybeShowWelcome();
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initWelcome);
+else initWelcome();
+
 const backToAllBtn = document.getElementById('backToAllBtn');
 if (backToAllBtn) backToAllBtn.addEventListener('click', () => {
   showAllView();
@@ -4982,6 +5087,7 @@ if (restoreDataset()) {
   /* v2.6: draw the empty sidebar and workspace header even without a dataset */
   refreshNavAndHead();
 }
+
 
 refreshOutlineDataInfo();
 loadOutlineConfig();
@@ -5190,12 +5296,36 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 <div id="olTip" role="tooltip"></div>
 
+<div id="welcomeOverlay" aria-hidden="true">
+  <div class="welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <h2 id="welcomeTitle">Welcome — two steps and you are set up</h2>
+    <p class="subtle">This tool keeps everything in this browser. Nothing is uploaded anywhere, and nothing here changes the data you import.</p>
+    <ol class="welcome-steps">
+      <li>
+        <b>Import your data.</b>
+        <div class="small subtle">Use the <b>PTC master JSON</b> from the Organizer, or a speaker <b>CSV</b>. The file type is recognised automatically.</div>
+        <div class="links" style="margin-top:8px;">
+          <button type="button" class="blue" id="welcomeImportBtn">Import master JSON or CSV…</button>
+        </div>
+      </li>
+      <li>
+        <b>Set your home congregation.</b>
+        <div class="small subtle">Open your own congregation from the list on the left and click <b>Set as home congregation</b>. Distances, distance sorting and the “My congregation” shortcut depend on it.</div>
+      </li>
+    </ol>
+    <p class="small subtle">After that: search finds speakers, congregations, cities and outline numbers at once. <b>Help</b> in the header explains printing and the NW Scheduler handover.</p>
+    <div class="welcome-actions">
+      <button type="button" class="ghost" id="welcomeSkipBtn" title="Close this. You can reach everything from the header buttons at any time.">Skip — I'll find my way</button>
+    </div>
+  </div>
+</div>
+
 <div id="helpOverlay" aria-hidden="true">
   <div class="help-dialog" role="dialog" aria-modal="true" aria-label="Help">
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.4</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.5</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
