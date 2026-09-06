@@ -109,6 +109,12 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 .mode b{ font-size:13px; display:block; color:var(--ink); }
 .mode span{ font-size:11px; color:var(--muted); }
 
+.update{ border:1px solid #f0d9a8; background:#fdf6e7; border-radius:11px; padding:9px 11px 10px; display:grid; gap:8px; }
+.update[hidden]{ display:none; }
+.update > div{ font-size:12px; color:#8a5a00; line-height:1.45; }
+.update .btn{ background:#fff; border-color:#e5c88a; color:#8a5a00; font-size:12.5px; padding:7px 10px; }
+.update .btn:hover{ background:#fbf0da; }
+
 .congcard{ border:2px solid var(--pick,#0d9488); border-radius:12px; padding:9px 11px 10px; background:var(--pickTint,#e6f5f3); }
 .congcard label.f{ font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink); }
 .congsel{ display:grid; grid-template-columns:auto 1fr; gap:8px; align-items:center; }
@@ -208,7 +214,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <div class="app">
 <aside class="sidebar noprint">
   <div class="brand">
-    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.5</span>
+    <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.6</span>
     <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
     <button class="navclose" id="navClose" aria-label="Menü schließen">✕</button>
   </div>
@@ -238,6 +244,10 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
     <div class="sec-body">
       <button class="btn primary" id="importBtn" data-i="import">Plantool-JSON importieren</button>
       <input type="file" id="import" accept=".json,application/json" hidden />
+      <div class="update" id="updateBox" hidden>
+        <div id="updateText"></div>
+        <button class="btn" id="updateBtn" data-i="updateNow">Jetzt aktualisieren</button>
+      </div>
       <button class="btn" id="remoteBtn" data-i="loadRemote">Veröffentlichten Plan laden</button>
       <div class="row2">
         <button class="btn" id="exportBtn" data-i="export">Export</button>
@@ -293,8 +303,8 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <main class="main">
   <div class="sheetwrap" id="sheetWrap"></div>
   <div class="printstack" id="printStack"></div>
-  <div class="love noprint">Reinigungsplan Generator · V2.5 · Made with Love ©
-    · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Reinigungsplan%20Generator%20V2.5">✉ Feedback</a>
+  <div class="love noprint">Reinigungsplan Generator · V2.6 · Made with Love ©
+    · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Reinigungsplan%20Generator%20V2.6">✉ Feedback</a>
   </div>
 </main>
 </div>
@@ -361,6 +371,9 @@ de:{
   pinGo:'Plan laden', pinPlaceholder:'PIN', welcomeFile:'Eigene JSON', welcomeFresh:'Ohne Daten starten',
   remoteLoaded:y=>`Veröffentlichter Plan geladen: ${y}.`, remoteLoadedSingle:'Veröffentlichter Plan geladen.',
   remoteMissing:y=>`Für ${y} ist kein veröffentlichter Plan hinterlegt.`,
+  updateNow:'Jetzt aktualisieren',
+  updateFound:y=>`Für ${y} liegt eine neuere Fassung des veröffentlichten Plans vor. Beim Aktualisieren werden die Termine dieses Jahres ersetzt; Hinweistexte, Farben und Namen bleiben.`,
+  updateDone:y=>`Plan ${y} auf den neuesten Stand gebracht.`,
   loadRemote:'Veröffentlichten Plan laden', pinWrong:'PIN stimmt nicht.', remoteLoading:'Plan wird geladen ...',
   remoteFail:'Der hinterlegte Plan konnte nicht geladen werden. Beim Öffnen als lokale Datei geht das nicht – nutze dann den Import.',
   titleEdit:'Titel', titleHint:'Leer lassen = übersetzter Standardtitel.', subtitleEdit:'Untertitel', hallEdit:'Saal',
@@ -433,6 +446,9 @@ en:{
   pinGo:'Load schedule', pinPlaceholder:'PIN', welcomeFile:'Own JSON', welcomeFresh:'Start empty',
   remoteLoaded:y=>`Published schedule loaded: ${y}.`, remoteLoadedSingle:'Published schedule loaded.',
   remoteMissing:y=>`No published schedule available for ${y}.`,
+  updateNow:'Update now',
+  updateFound:y=>`A newer version of the published schedule exists for ${y}. Updating replaces this year's dates; note texts, colours and names are kept.`,
+  updateDone:y=>`Schedule ${y} brought up to date.`,
   loadRemote:'Load published schedule', pinWrong:'That PIN is not correct.', remoteLoading:'Loading schedule ...',
   remoteFail:'The published schedule could not be loaded. This does not work when the page is opened as a local file – use the import instead.',
   titleEdit:'Title', titleHint:'Leave empty for the translated default title.', subtitleEdit:'Subtitle', hallEdit:'Hall',
@@ -505,6 +521,9 @@ it:{
   pinGo:'Carica il piano', pinPlaceholder:'PIN', welcomeFile:'File JSON', welcomeFresh:'Inizia vuoto',
   remoteLoaded:y=>`Piano pubblicato caricato: ${y}.`, remoteLoadedSingle:'Piano pubblicato caricato.',
   remoteMissing:y=>`Per il ${y} non è disponibile alcun piano pubblicato.`,
+  updateNow:'Aggiorna ora',
+  updateFound:y=>`Per il ${y} esiste una versione più recente del piano pubblicato. L'aggiornamento sostituisce le date di quest'anno; note, colori e nomi restano.`,
+  updateDone:y=>`Piano ${y} aggiornato.`,
   loadRemote:'Carica il piano pubblicato', pinWrong:'PIN non corretto.', remoteLoading:'Caricamento del piano ...',
   remoteFail:'Non è stato possibile caricare il piano pubblicato. Aprendo la pagina come file locale non funziona: usa l\'importazione.',
   titleEdit:'Titolo', titleHint:'Lascia vuoto per il titolo predefinito tradotto.', subtitleEdit:'Sottotitolo', hallEdit:'Sala',
@@ -577,6 +596,9 @@ ru:{
   pinGo:'Загрузить график', pinPlaceholder:'PIN', welcomeFile:'Свой JSON', welcomeFresh:'Начать без данных',
   remoteLoaded:y=>`Опубликованный график загружен: ${y}.`, remoteLoadedSingle:'Опубликованный график загружен.',
   remoteMissing:y=>`Для ${y} опубликованного графика нет.`,
+  updateNow:'Обновить',
+  updateFound:y=>`Для ${y} есть более новая версия опубликованного графика. При обновлении даты этого года будут заменены; заметки, цвета и названия сохранятся.`,
+  updateDone:y=>`График ${y} обновлён.`,
   loadRemote:'Загрузить опубликованный график', pinWrong:'PIN неверный.', remoteLoading:'Загрузка графика ...',
   remoteFail:'Не удалось загрузить опубликованный график. При открытии страницы как локального файла это не работает – используйте импорт.',
   titleEdit:'Заголовок', titleHint:'Оставьте пустым для переведённого заголовка по умолчанию.', subtitleEdit:'Подзаголовок', hallEdit:'Зал',
@@ -649,6 +671,9 @@ sh:{
   pinGo:'Učitaj raspored', pinPlaceholder:'PIN', welcomeFile:'Vlastiti JSON', welcomeFresh:'Počni prazno',
   remoteLoaded:y=>`Objavljeni raspored učitan: ${y}.`, remoteLoadedSingle:'Objavljeni raspored učitan.',
   remoteMissing:y=>`Za ${y} nema objavljenog rasporeda.`,
+  updateNow:'Ažuriraj sada',
+  updateFound:y=>`Za ${y} postoji novija verzija objavljenog rasporeda. Ažuriranje zamjenjuje termine ove godine; napomene, boje i nazivi ostaju.`,
+  updateDone:y=>`Raspored ${y} ažuriran.`,
   loadRemote:'Učitaj objavljeni raspored', pinWrong:'PIN nije točan.', remoteLoading:'Učitavanje rasporeda ...',
   remoteFail:'Objavljeni raspored nije bilo moguće učitati. Pri otvaranju stranice kao lokalne datoteke to ne radi – koristi uvoz.',
   titleEdit:'Naslov', titleHint:'Ostavite prazno za prevedeni zadani naslov.', subtitleEdit:'Podnaslov', hallEdit:'Dvorana',
@@ -738,7 +763,7 @@ let state = {
     {id:'sample-a',name:'Beispielversammlung',groups:4,contact:'',email:''},
     {id:'sample-b',name:'Beispiel-Italienisch',groups:3,contact:'',email:''}
   ],
-  planUnlocked:false, colors:{}, langByCong:{}, displayNameByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
+  planUnlocked:false, planHash:{}, colors:{}, langByCong:{}, displayNameByCong:{}, schedulesByYear:{}, notesByYear:{}, coordinatorByCong:{}, tasks:[], yearConfigs:{}
 };
 
 const T = l => I18N[l] || I18N.de;
@@ -754,6 +779,12 @@ function tintOf(hex,a){ const [r,g,b]=hexToRgb(hex); return `rgba(${r},${g},${b}
 function fmtDate(iso){ const p=String(iso||'').split('-'); return p.length===3?`${p[2]}.${p[1]}.${p[0]}`:String(iso||''); }
 function isoFromGerman(d){ const p=String(d).split('.'); return p.length===3?`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`:d; }
 function congById(id){ return state.congregations.find(c=>String(c.id)===String(id)) || null; }
+/* Kurzer Fingerabdruck einer Terminliste, um Änderungen im Repo zu erkennen */
+function hashRows(list){
+  const str=(list||[]).map(r=>r.date+'|'+r.group+'|'+r.note).join('\n');
+  let h=5381; for(let i=0;i<str.length;i++){ h=((h*33) ^ str.charCodeAt(i)) >>> 0; }
+  return h.toString(36)+'-'+str.length;
+}
 function congName(id){ const c=congById(id); return c?c.name:''; }
 /* Anzeigename nur fuer Kopf- und Fusszeile; der Name im Plan bleibt der importierte */
 function congDisplay(id){ return (state.displayNameByCong[id]||'').trim() || congName(id); }
@@ -909,7 +940,9 @@ function importPlanner(data, opts){
     const list=n.schedulesByYear[y].map(mapItem).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
     if(!list.length) return;
     list.sort((a,b)=>a.date<b.date?-1:1);
-    state.schedulesByYear[String(y)]=list; total+=list.length;
+    state.schedulesByYear[String(y)]=list;
+    state.planHash[String(y)]=hashRows(list);   // Stand, wie er veröffentlicht war
+    total+=list.length;
   });
 
   const gs=n.globalSettings, hd=n.header;
@@ -953,6 +986,26 @@ async function loadPublishedPlan(){
   state.planUnlocked=true; save(); renderAll();
   setStatus(found.length ? t().remoteLoaded(found.join(', ')) : t().remoteLoadedSingle, 'ok');
 }
+
+/* Still nachsehen, ob die veröffentlichte Datei des Jahres inzwischen anders aussieht.
+   Es wird nichts überschrieben – nur ein Hinweis eingeblendet.                        */
+let updateYear=null;
+async function checkForUpdate(year){
+  hideUpdate();
+  if(!state.planUnlocked) return;
+  const y=String(year);
+  if(!state.planHash[y]) return;                       // dieses Jahr kam nicht aus dem Repo
+  try{
+    const data=await fetchJson(PLAN_FILE(year));
+    const n=normalize(data);
+    const list=(n.schedulesByYear[y]||[]).map(mapItem).filter(r=>/^\d{4}-\d{2}-\d{2}$/.test(r.date));
+    if(!list.length) return;
+    list.sort((a,b)=>a.date<b.date?-1:1);
+    if(hashRows(list)!==state.planHash[y]) showUpdate(year);
+  }catch(err){ /* Datei weg oder offline: still bleiben */ }
+}
+function showUpdate(year){ updateYear=year; $('updateText').textContent=t().updateFound(year); $('updateBox').hidden=false; }
+function hideUpdate(){ updateYear=null; $('updateBox').hidden=true; }
 
 function setStatus(msg,kind){
   const el=$('status'); el.textContent=msg||'';
@@ -1211,6 +1264,8 @@ $('year').addEventListener('change',async e=>{
   if(state.planUnlocked && !(state.schedulesByYear[y]||[]).length){
     try{ await loadPublishedYear(state.selectedYear); setStatus(t().remoteLoaded(y),'ok'); }
     catch(err){ setStatus(t().remoteMissing(y),'warn'); }
+  }else{
+    checkForUpdate(state.selectedYear);
   }
 });
 $('cong').addEventListener('change',e=>{ state.selectedCong=e.target.value; syncLangToMode(); save(); renderAll(); });
@@ -1286,6 +1341,12 @@ $('pinGo').addEventListener('click',tryPin);
 $('pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryPin(); });
 $('wFile').addEventListener('click',()=>{ openWelcome(false); $('import').click(); });
 $('wFresh').addEventListener('click',()=>openWelcome(false));
+$('updateBtn').addEventListener('click',async ()=>{
+  const y=updateYear; hideUpdate();
+  setStatus(t().remoteLoading);
+  try{ await loadPublishedYear(y); setStatus(t().updateDone(y),'ok'); }
+  catch(err){ setStatus(t().remoteFail,'warn'); }
+});
 $('remoteBtn').addEventListener('click',async ()=>{
   const v=prompt(t().pinAsk(PLAN_HALL),'');
   if(v===null) return;
@@ -1310,6 +1371,7 @@ syncLangToMode();
 renderAll();
 /* Beim ersten Öffnen ohne eigene Daten nach der PIN fragen */
 if(!Object.keys(state.schedulesByYear).length) openWelcome(true);
+else checkForUpdate(state.selectedYear);
 </script>
 </body>
 </html>
