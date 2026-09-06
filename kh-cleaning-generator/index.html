@@ -375,11 +375,13 @@ de:{
   noteLangInfo:l=>`Bearbeitet wird der Text für: ${l}`,
   helpTitle:'Hilfe', sourceLead:'Daten kommen vom Plantool', sourceSub:'Dort Versammlungen, Gruppen und Aufgaben anlegen, dann exportieren.',
   help:`<h4>Woher die Daten kommen</h4>
-<p>Versammlungen, Gruppen, Kontakte, Aufgaben und der Jahresplan werden im <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> gepflegt. Dort legst du die Versammlungen mit ihrer Gruppenzahl und dem Reinigungskoordinator an, definierst die Aufgaben (etwa Fensterreinigung samt Ausweichterminen) und lässt den Jahresplan erzeugen.</p>
-<p>Anschließend dort <b>Daten exportieren</b> wählen und die JSON-Datei hier unter <b>Daten &rarr; Plantool-JSON importieren</b> einlesen. Dieser Generator plant nichts selbst, er macht aus dem Plan den fertigen Aushang.</p>
+<p>Geplant wird zentral, nicht von jedem einzeln. Ein Reinigungskoordinator erstellt den Jahresplan für den ganzen Saalkomplex einmal im <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> und veröffentlicht ihn.</p>
+<p>Für alle anderen heißt das: PIN eingeben, fertig. Die Daten sind dann da, und es geht nur noch darum, den passenden Aushang zu wählen und zu drucken.</p>
+<p>Nur wenn ein Saalkomplex ganz neu anfängt und noch kein Plan veröffentlicht ist, führt der Weg zuerst in den Planer. Dort werden die Versammlungen mit ihren Gruppen und ihrem Reinigungskoordinator angelegt, die Aufgaben festgelegt (etwa Fensterreinigung samt Ausweichterminen) und der Jahresplan erzeugt. Über <b>Daten exportieren</b> entsteht die JSON-Datei, die hier unter <b>Daten &rarr; Plantool-JSON importieren</b> eingelesen wird.</p>
+<p>Dieser Generator plant nichts selbst, er macht aus dem fertigen Plan den Aushang.</p>
 <h4>Was der Import übernimmt</h4>
 <ul>
-<li>Versammlungen mit Name, Gruppenzahl, Kontakt und E-Mail</li>
+<li>Versammlungen mit Name, Gruppenzahl und zuständigem Reinigungskoordinator</li>
 <li>Den Terminplan je Jahr (Formate <code>cleaningSchedule</code> und <code>schedulesByYear</code>)</li>
 <li>Die Aufgabenliste; sie erscheint als Vorschlag in den Hinweisfeldern</li>
 <li>Das erste Reinigungsdatum je Jahr, daraus entsteht das wöchentliche Raster</li>
@@ -442,11 +444,13 @@ en:{
   noteLangInfo:l=>`Editing the text for: ${l}`,
   helpTitle:'Help', sourceLead:'Data comes from the planner', sourceSub:'Create congregations, groups and tasks there, then export.',
   help:`<h4>Where the data comes from</h4>
-<p>Congregations, groups, contacts, tasks and the yearly schedule are maintained in the <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. There you add each congregation with its number of groups and its cleaning coordinator, define the tasks (window cleaning with backup dates, for example) and generate the yearly plan.</p>
-<p>Then choose <b>Export data</b> there and load the JSON file here under <b>Data &rarr; Import planner JSON</b>. This generator does no planning itself; it turns the plan into the finished notice.</p>
+<p>Planning happens centrally, not by everyone separately. One cleaning coordinator draws up the yearly plan for the whole hall complex once in the <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> and publishes it.</p>
+<p>For everyone else that means: enter the PIN and you are done. The data is there, and all that remains is choosing the right notice and printing it.</p>
+<p>Only when a hall complex starts from scratch and nothing has been published yet does the road lead through the planner first. There the congregations are created with their groups and their cleaning coordinator, the tasks are defined (window cleaning with backup dates, for example) and the yearly plan is generated. <b>Export data</b> produces the JSON file, which is read in here under <b>Data &rarr; Import planner JSON</b>.</p>
+<p>This generator does no planning itself; it turns the finished plan into the notice.</p>
 <h4>What the import brings in</h4>
 <ul>
-<li>Congregations with name, group count, contact and e-mail</li>
+<li>Congregations with name, group count and their cleaning coordinator</li>
 <li>The schedule per year (<code>cleaningSchedule</code> and <code>schedulesByYear</code> formats)</li>
 <li>The task list, offered as suggestions in the note fields</li>
 <li>The first cleaning date of each year, which defines the weekly grid</li>
@@ -509,11 +513,13 @@ it:{
   noteLangInfo:l=>`Stai modificando il testo per: ${l}`,
   helpTitle:'Aiuto', sourceLead:'I dati arrivano dal pianificatore', sourceSub:'Lì si creano congregazioni, gruppi e compiti, poi si esporta.',
   help:`<h4>Da dove arrivano i dati</h4>
-<p>Congregazioni, gruppi, contatti, compiti e il piano annuale si gestiscono nel <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. Lì inserisci ogni congregazione con il numero di gruppi e il coordinatore delle pulizie, definisci i compiti (per esempio la pulizia delle finestre con le date alternative) e generi il piano annuale.</p>
-<p>Poi scegli <b>Esporta dati</b> e carica il file JSON qui sotto <b>Dati &rarr; Importa JSON del pianificatore</b>. Questo generatore non pianifica nulla: trasforma il piano nell'avviso pronto da appendere.</p>
+<p>La pianificazione è centrale, non la fa ciascuno per conto proprio. Un coordinatore delle pulizie prepara una volta il piano annuale per l'intero complesso nel <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> e lo pubblica.</p>
+<p>Per tutti gli altri basta inserire il PIN. I dati ci sono già e resta solo da scegliere l'avviso giusto e stamparlo.</p>
+<p>Solo se un complesso parte da zero e non è stato pubblicato ancora nulla si passa prima dal pianificatore. Lì si creano le congregazioni con i loro gruppi e il coordinatore delle pulizie, si definiscono i compiti (per esempio la pulizia delle finestre con le date alternative) e si genera il piano annuale. Con <b>Esporta dati</b> si ottiene il file JSON, da caricare qui sotto <b>Dati &rarr; Importa JSON del pianificatore</b>.</p>
+<p>Questo generatore non pianifica nulla: trasforma il piano già pronto nell'avviso.</p>
 <h4>Che cosa viene importato</h4>
 <ul>
-<li>Congregazioni con nome, numero di gruppi, contatto ed e-mail</li>
+<li>Congregazioni con nome, numero di gruppi e il rispettivo coordinatore delle pulizie</li>
 <li>Il piano per ogni anno (formati <code>cleaningSchedule</code> e <code>schedulesByYear</code>)</li>
 <li>L'elenco dei compiti, proposto nei campi delle note</li>
 <li>La prima data di pulizia dell'anno, che definisce la griglia settimanale</li>
@@ -576,11 +582,13 @@ ru:{
   noteLangInfo:l=>`Редактируется текст для: ${l}`,
   helpTitle:'Справка', sourceLead:'Данные поступают из планировщика', sourceSub:'Там создаются собрания, группы и задачи, затем экспорт.',
   help:`<h4>Откуда берутся данные</h4>
-<p>Собрания, группы, контакты, задачи и годовой план ведутся в <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. Там вы добавляете каждое собрание с числом групп и координатором уборки, задаёте задачи (например, мойку окон с резервными датами) и формируете годовой план.</p>
-<p>Затем выберите там <b>Экспорт данных</b> и загрузите файл JSON здесь в разделе <b>Данные &rarr; Импорт JSON планировщика</b>. Этот генератор ничего не планирует сам, он превращает план в готовое объявление.</p>
+<p>Планирование ведётся централизованно, а не каждым по отдельности. Координатор уборки один раз составляет годовой план для всего комплекса в <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> и публикует его.</p>
+<p>Для всех остальных достаточно ввести PIN. Данные уже есть, остаётся выбрать нужное объявление и распечатать его.</p>
+<p>Только если комплекс начинает с нуля и ничего ещё не опубликовано, путь ведёт сначала в планировщик. Там создаются собрания с их группами и координатором уборки, задаются задачи (например, мойка окон с резервными датами) и формируется годовой план. Командой <b>Экспорт данных</b> создаётся файл JSON, который загружается здесь в разделе <b>Данные &rarr; Импорт JSON планировщика</b>.</p>
+<p>Этот генератор ничего не планирует сам, он превращает готовый план в объявление.</p>
 <h4>Что переносится при импорте</h4>
 <ul>
-<li>Собрания с названием, числом групп, контактом и эл. почтой</li>
+<li>Собрания с названием, числом групп и ответственным координатором уборки</li>
 <li>График по годам (форматы <code>cleaningSchedule</code> и <code>schedulesByYear</code>)</li>
 <li>Список задач, он предлагается в полях заметок</li>
 <li>Первая дата уборки в году, по ней строится недельная сетка</li>
@@ -643,11 +651,13 @@ sh:{
   noteLangInfo:l=>`Uređuje se tekst za: ${l}`,
   helpTitle:'Pomoć', sourceLead:'Podaci dolaze iz planera', sourceSub:'Ondje se stvaraju skupštine, grupe i zadaci, zatim slijedi izvoz.',
   help:`<h4>Odakle dolaze podaci</h4>
-<p>Skupštine, grupe, kontakti, zadaci i godišnji plan vode se u <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a>. Ondje unosiš svaku skupštinu s brojem grupa i koordinatorom čišćenja, određuješ zadatke (na primjer čišćenje prozora s rezervnim terminima) i izrađuješ godišnji plan.</p>
-<p>Zatim ondje odaberi <b>Izvoz podataka</b> i učitaj JSON datoteku ovdje pod <b>Podaci &rarr; Uvezi JSON planera</b>. Ovaj generator ne planira ništa sam, on od plana radi gotovu obavijest.</p>
+<p>Planira se središnje, a ne svatko za sebe. Koordinator čišćenja jednom izradi godišnji plan za cijeli kompleks u <a href="https://kaffeetrinker80.github.io/theocratic/kh-cleaning-planner/" target="_blank" rel="noopener">Kingdom Hall Cleaning Planner</a> i objavi ga.</p>
+<p>Za sve ostale to znači: unesi PIN i gotovo. Podaci su tu, preostaje samo odabrati pravu obavijest i ispisati je.</p>
+<p>Samo ako kompleks kreće ispočetka i još ništa nije objavljeno, put vodi najprije u planer. Ondje se stvaraju skupštine sa svojim grupama i koordinatorom čišćenja, određuju se zadaci (primjerice čišćenje prozora s rezervnim terminima) i izrađuje godišnji plan. Naredbom <b>Izvoz podataka</b> nastaje JSON datoteka koja se ovdje učitava pod <b>Podaci &rarr; Uvezi JSON planera</b>.</p>
+<p>Ovaj generator ne planira ništa sam, od gotovog plana radi obavijest.</p>
 <h4>Što se uvozi</h4>
 <ul>
-<li>Skupštine s nazivom, brojem grupa, kontaktom i e-poštom</li>
+<li>Skupštine s nazivom, brojem grupa i pripadajućim koordinatorom čišćenja</li>
 <li>Raspored po godinama (formati <code>cleaningSchedule</code> i <code>schedulesByYear</code>)</li>
 <li>Popis zadataka, nudi se u poljima za napomene</li>
 <li>Prvi datum čišćenja u godini, iz njega nastaje tjedna mreža</li>
