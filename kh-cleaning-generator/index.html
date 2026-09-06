@@ -300,7 +300,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
   <div class="hpanel" role="dialog" aria-modal="true">
     <div class="hhead"><b id="wTitle" data-i="welcomeTitle">Reinigungsplan öffnen</b></div>
     <div class="hbody">
-      <p id="wText" data-i="welcomeText"></p>
+      <p id="wText"></p>
       <div class="wrow">
         <input id="pinInput" inputmode="numeric" autocomplete="off" spellcheck="false" />
         <button class="btn primary" id="pinGo" data-i="pinGo">Plan laden</button>
@@ -351,7 +351,10 @@ de:{
   congPickHint:'Hier die Versammlung umstellen. Sprache und Farbe wechseln automatisch mit.',
   congregation:'Versammlung', year:'Jahr', lang:'Sprache', addYear:'+ Jahr anlegen', showMonths:'Monatstrenner anzeigen',
   import:'Plantool-JSON importieren', export:'Export', reset:'Zurücksetzen',
-  welcomeTitle:'Reinigungsplan öffnen', welcomeText:'Für diesen Saal ist ein Plan hinterlegt. Gib die PIN ein, um ihn zu laden – oder starte mit einer eigenen Datei.',
+  welcomeTitle:'Reinigungsplan öffnen',
+  welcomeText:h=>`Hinterlegt ist der Plan für den Königreichssaal ${h}. Gib die PIN ein, um ihn zu laden – oder starte mit einer eigenen Datei.`,
+  remoteTitle:h=>`Lädt den veröffentlichten Plan für ${h}. Andere Säle sind hier nicht hinterlegt. PIN erforderlich.`,
+  pinAsk:h=>`PIN für den Plan ${h}:`,
   pinGo:'Plan laden', pinPlaceholder:'PIN', welcomeFile:'Eigene JSON', welcomeFresh:'Ohne Daten starten',
   remoteLoaded:y=>`Veröffentlichter Plan geladen: ${y}.`, remoteLoadedSingle:'Veröffentlichter Plan geladen.',
   remoteMissing:y=>`Für ${y} ist kein veröffentlichter Plan hinterlegt.`,
@@ -420,7 +423,10 @@ en:{
   congPickHint:'Switch congregation here. Language and colour change with it.',
   congregation:'Congregation', year:'Year', lang:'Language', addYear:'+ Add year', showMonths:'Show month dividers',
   import:'Import planner JSON', export:'Export', reset:'Reset',
-  welcomeTitle:'Open cleaning schedule', welcomeText:'A schedule is published for this hall. Enter the PIN to load it – or start with your own file.',
+  welcomeTitle:'Open cleaning schedule',
+  welcomeText:h=>`The published schedule is the one for the Kingdom Hall ${h}. Enter the PIN to load it – or start with your own file.`,
+  remoteTitle:h=>`Loads the published schedule for ${h}. No other halls are stored here. PIN required.`,
+  pinAsk:h=>`PIN for the ${h} schedule:`,
   pinGo:'Load schedule', pinPlaceholder:'PIN', welcomeFile:'Own JSON', welcomeFresh:'Start empty',
   remoteLoaded:y=>`Published schedule loaded: ${y}.`, remoteLoadedSingle:'Published schedule loaded.',
   remoteMissing:y=>`No published schedule available for ${y}.`,
@@ -489,7 +495,10 @@ it:{
   congPickHint:'Cambia qui la congregazione. Lingua e colore si adattano da soli.',
   congregation:'Congregazione', year:'Anno', lang:'Lingua', addYear:'+ Aggiungi anno', showMonths:'Mostra separatori dei mesi',
   import:'Importa JSON del pianificatore', export:'Esporta', reset:'Reimposta',
-  welcomeTitle:'Apri il piano di pulizia', welcomeText:'Per questa sala è pubblicato un piano. Inserisci il PIN per caricarlo, oppure parti da un file tuo.',
+  welcomeTitle:'Apri il piano di pulizia',
+  welcomeText:h=>`Il piano pubblicato è quello della Sala del Regno ${h}. Inserisci il PIN per caricarlo, oppure parti da un file tuo.`,
+  remoteTitle:h=>`Carica il piano pubblicato di ${h}. Qui non sono presenti altre sale. Serve il PIN.`,
+  pinAsk:h=>`PIN per il piano di ${h}:`,
   pinGo:'Carica il piano', pinPlaceholder:'PIN', welcomeFile:'File JSON', welcomeFresh:'Inizia vuoto',
   remoteLoaded:y=>`Piano pubblicato caricato: ${y}.`, remoteLoadedSingle:'Piano pubblicato caricato.',
   remoteMissing:y=>`Per il ${y} non è disponibile alcun piano pubblicato.`,
@@ -558,7 +567,10 @@ ru:{
   congPickHint:'Здесь переключается собрание. Язык и цвет меняются автоматически.',
   congregation:'Собрание', year:'Год', lang:'Язык', addYear:'+ Добавить год', showMonths:'Показывать разделители месяцев',
   import:'Импорт JSON планировщика', export:'Экспорт', reset:'Сброс',
-  welcomeTitle:'Открыть график уборки', welcomeText:'Для этого зала опубликован график. Введите PIN, чтобы загрузить его, или начните со своего файла.',
+  welcomeTitle:'Открыть график уборки',
+  welcomeText:h=>`Опубликован график для Зала Царства ${h}. Введите PIN, чтобы загрузить его, или начните со своего файла.`,
+  remoteTitle:h=>`Загружает опубликованный график для ${h}. Другие залы здесь не хранятся. Нужен PIN.`,
+  pinAsk:h=>`PIN для графика ${h}:`,
   pinGo:'Загрузить график', pinPlaceholder:'PIN', welcomeFile:'Свой JSON', welcomeFresh:'Начать без данных',
   remoteLoaded:y=>`Опубликованный график загружен: ${y}.`, remoteLoadedSingle:'Опубликованный график загружен.',
   remoteMissing:y=>`Для ${y} опубликованного графика нет.`,
@@ -627,7 +639,10 @@ sh:{
   congPickHint:'Ovdje se mijenja skupština. Jezik i boja mijenjaju se automatski.',
   congregation:'Skupština', year:'Godina', lang:'Jezik', addYear:'+ Dodaj godinu', showMonths:'Prikaži razdjelnike mjeseci',
   import:'Uvezi JSON planera', export:'Izvoz', reset:'Poništi',
-  welcomeTitle:'Otvori raspored čišćenja', welcomeText:'Za ovu dvoranu objavljen je raspored. Unesi PIN da ga učitaš ili počni s vlastitom datotekom.',
+  welcomeTitle:'Otvori raspored čišćenja',
+  welcomeText:h=>`Objavljen je raspored za Dvoranu Kraljevstva ${h}. Unesi PIN da ga učitaš ili počni s vlastitom datotekom.`,
+  remoteTitle:h=>`Učitava objavljeni raspored za ${h}. Druge dvorane ovdje nisu pohranjene. Potreban je PIN.`,
+  pinAsk:h=>`PIN za raspored ${h}:`,
   pinGo:'Učitaj raspored', pinPlaceholder:'PIN', welcomeFile:'Vlastiti JSON', welcomeFresh:'Počni prazno',
   remoteLoaded:y=>`Objavljeni raspored učitan: ${y}.`, remoteLoadedSingle:'Objavljeni raspored učitan.',
   remoteMissing:y=>`Za ${y} nema objavljenog rasporeda.`,
@@ -706,6 +721,7 @@ const PALETTE = ['#0d9488','#2563eb','#c2410c','#7c3aed','#be123c','#15803d','#a
 const PLAN_FILE     = y => `plan${y}.json`;   // z. B. plan2026.json, plan2027.json
 const PLAN_FALLBACK = 'plan.json';            // genutzt, wenn keine Jahresdatei existiert
 const PLAN_PIN      = '86156';
+const PLAN_HALL     = 'Augsburg-Oberhausen';   // erscheint im PIN-Dialog und im Tooltip
 const PLAN_SCAN     = 2;                      // wie viele Jahre über das aktuelle hinaus gesucht wird
 
 /* ==================== State ==================== */
@@ -1104,6 +1120,8 @@ function applyTexts(){
   $('helpBody').innerHTML=x.help;
   $('helpTitle').textContent=x.helpTitle;
   $('pinInput').placeholder=x.pinPlaceholder;
+  $('wText').textContent=x.welcomeText(PLAN_HALL);
+  $('remoteBtn').title=x.remoteTitle(PLAN_HALL);
   $('noteLangInfo').textContent=x.noteLangInfo(langLabel(state.lang));
 }
 function fillSelectors(){
@@ -1266,7 +1284,7 @@ $('pinInput').addEventListener('keydown',e=>{ if(e.key==='Enter') tryPin(); });
 $('wFile').addEventListener('click',()=>{ openWelcome(false); $('import').click(); });
 $('wFresh').addEventListener('click',()=>openWelcome(false));
 $('remoteBtn').addEventListener('click',async ()=>{
-  const v=prompt(t().pinPlaceholder,'');
+  const v=prompt(t().pinAsk(PLAN_HALL),'');
   if(v===null) return;
   if(v.trim()!==PLAN_PIN){ setStatus(t().pinWrong,'warn'); return; }
   setStatus(t().remoteLoading);
