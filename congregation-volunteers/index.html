@@ -1022,6 +1022,43 @@
     .nwsMissing summary:hover{ color:var(--text); }
     .nwsMissing .body{ padding:0 12px 11px; font-size:12.5px; color:var(--muted); }
     .nwsMissing .names{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:7px; }
+
+    /* ===== First-start / welcome modal ===== */
+    .wlcBox{ max-width: 660px; }
+    .wlcBody{ padding:16px 18px; overflow:auto; display:flex; flex-direction:column; gap:10px; }
+    .wlcCard{
+      display:flex; gap:12px; align-items:flex-start; text-align:left; width:100%;
+      border:1px solid var(--stroke); background:var(--bg2); border-radius:14px;
+      padding:13px 14px; font:inherit; color:var(--text); cursor:pointer;
+      transition: background .12s ease, border-color .12s ease, transform .12s ease;
+    }
+    .wlcCard:hover{ border-color:var(--accent); background:var(--panel); transform: translateY(-1px); }
+    .wlcCard .ic{ font-size:20px; line-height:1.1; flex:0 0 auto; }
+    .wlcCard .txt{ display:block; min-width:0; }
+    .wlcCard .ttl{ display:block; font-weight:800; font-size:15px; }
+    .wlcCard .dsc{ display:block; margin-top:4px; font-size:13px; color:var(--muted); line-height:1.45; }
+    .wlcCard.rec{ border-color:var(--accentLine); background:var(--accentSoft); }
+    .wlcCard.rec .ttl{ color:var(--accentDark); }
+    .wlcCard.rec:hover{ background:var(--accentSoft); border-color:var(--accent); }
+    .wlcBadge{
+      margin-left:auto; flex:0 0 auto; align-self:flex-start;
+      font-size:10.5px; font-weight:800; letter-spacing:.02em; white-space:nowrap;
+      border-radius:999px; padding:3px 8px;
+      background:var(--panel); border:1px solid var(--accentLine); color:var(--accentDark);
+    }
+    .wlcSubRow{ display:flex; justify-content:flex-end; margin-top:-4px; }
+    .wlcNote{
+      margin-top:4px; font-size:12.5px; color:var(--muted); line-height:1.5;
+      background:var(--bg2); border:1px solid var(--stroke); border-radius:12px; padding:10px 12px;
+    }
+    .wlcLang{
+      border:1px solid var(--stroke); background:var(--btn); color:var(--text);
+      border-radius:999px; padding:5px 10px; font:inherit; font-size:12.5px; cursor:pointer;
+    }
+    @media (max-width: 560px){
+      .wlcCard{ flex-wrap:wrap; }
+      .wlcBadge{ margin-left:0; }
+    }
     @media print{ .nwsBack{ display:none !important; } }
   </style>
 </head>
@@ -1114,9 +1151,43 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.5.3</div>
+<div>Made with Love © – Volunteers list v 2.5.4</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
+<div class="nwsBack" id="wlcBack" role="dialog" aria-modal="true" aria-labelledby="wlcTitle">
+<div class="nwsModal wlcBox">
+<div class="nwsHead">
+<div>
+<h2 id="wlcTitle">Welcome</h2>
+<div class="sub" id="wlcSub">&#8212;</div>
+</div>
+<span class="nwsHeadBtns">
+<select class="wlcLang" id="wlcLangSwitch" title="Language / Sprache">
+<option value="en">EN</option>
+<option value="de">DE</option>
+</select>
+<button class="nwsX" id="wlcClose" type="button" title="Close">&#10005;</button>
+</span>
+</div>
+<div class="wlcBody">
+<button class="wlcCard rec" id="wlcNws" type="button">
+<span class="ic">&#128229;</span>
+<span class="txt"><span class="ttl" id="wlcNwsTtl"></span><span class="dsc" id="wlcNwsDsc"></span></span>
+<span class="wlcBadge" id="wlcNwsBadge"></span>
+</button>
+<div class="wlcSubRow"><button class="nwsHelpLink" id="wlcNwsHelp" type="button">&#10067; <span id="wlcNwsHelpLbl"></span></button></div>
+<button class="wlcCard" id="wlcJson" type="button">
+<span class="ic">&#11014;&#65039;</span>
+<span class="txt"><span class="ttl" id="wlcJsonTtl"></span><span class="dsc" id="wlcJsonDsc"></span></span>
+</button>
+<button class="wlcCard" id="wlcFresh" type="button">
+<span class="ic">&#10024;</span>
+<span class="txt"><span class="ttl" id="wlcFreshTtl"></span><span class="dsc" id="wlcFreshDsc"></span></span>
+</button>
+<div class="wlcNote" id="wlcNote"></div>
+</div>
+</div>
+</div>
 <div class="nwsBack" id="nwsHelpBack" role="dialog" aria-modal="true" aria-labelledby="nwsHelpTitle">
 <div class="nwsModal nwsHelpBox">
 <div class="nwsHead">
@@ -2707,11 +2778,112 @@
   });
 
 
+  /* ================= First start / empty state welcome (v2.5.4) ================= */
+  const KEY_WLC = "volunteers_list_universal_v1_welcome";
+
+  Object.assign(LANG.en, {
+    wlcTitle: "Welcome \u2013 let\u2019s fill the list",
+    wlcSub: "No data on this device yet. How would you like to start?",
+    wlcNwsTtl: "Import from New World Scheduler",
+    wlcNwsDsc: "Read the persons export (CSV) from NWS. Brothers and sisters are split automatically, minors under 16 are held back \u2013 you only tick who should end up on the list.",
+    wlcNwsBadge: "Recommended",
+    wlcNwsHelp: "How do I get this file?",
+    wlcJsonTtl: "Load your own export file",
+    wlcJsonDsc: "Already have a JSON file from this tool (backup or another device)? Load it here \u2013 title, language and all entries come back.",
+    wlcFreshTtl: "Start empty",
+    wlcFreshDsc: "Begin with a blank list and add volunteers one by one with \u201cAdd\u201d.",
+    wlcNote: "Everything stays on this device (LocalStorage) \u2013 nothing is uploaded. This window only shows up while the list is empty.",
+    wlcFreshToast: "Blank list \u2013 add your first volunteer \u2795"
+  });
+  Object.assign(LANG.de, {
+    wlcTitle: "Willkommen \u2013 auf zur Liste",
+    wlcSub: "Auf diesem Ger\u00e4t sind noch keine Daten. Wie m\u00f6chtest du starten?",
+    wlcNwsTtl: "Aus New World Scheduler importieren",
+    wlcNwsDsc: "Den Personenexport (CSV) aus NWS einlesen. Br\u00fcder und Schwestern werden automatisch getrennt, Minderj\u00e4hrige unter 16 zur\u00fcckgehalten \u2013 du hakst nur noch ab, wer in die Liste soll.",
+    wlcNwsBadge: "Empfohlen",
+    wlcNwsHelp: "Woher bekomme ich die Datei?",
+    wlcJsonTtl: "Eigene Export-Datei laden",
+    wlcJsonDsc: "Du hast schon eine JSON-Datei aus diesem Tool (Sicherung oder anderes Ger\u00e4t)? Hier einlesen \u2013 Titel, Sprache und alle Eintr\u00e4ge kommen zur\u00fcck.",
+    wlcFreshTtl: "Leer starten",
+    wlcFreshDsc: "Mit leerer Liste beginnen und Freiwillige einzeln \u00fcber \u201eHinzuf\u00fcgen\u201c erfassen.",
+    wlcNote: "Alles bleibt lokal auf diesem Ger\u00e4t (LocalStorage) \u2013 es wird nichts hochgeladen. Dieses Fenster erscheint nur, solange die Liste leer ist.",
+    wlcFreshToast: "Leere Liste \u2013 leg los mit \u2795"
+  });
+
+  function wlcLang(){
+    const set = (id, txt) => { const el = $(id); if(el) el.textContent = txt; };
+    set("wlcTitle", t("wlcTitle"));
+    set("wlcSub", t("wlcSub"));
+    set("wlcNwsTtl", t("wlcNwsTtl"));
+    set("wlcNwsDsc", t("wlcNwsDsc"));
+    set("wlcNwsBadge", t("wlcNwsBadge"));
+    set("wlcNwsHelpLbl", t("wlcNwsHelp"));
+    set("wlcJsonTtl", t("wlcJsonTtl"));
+    set("wlcJsonDsc", t("wlcJsonDsc"));
+    set("wlcFreshTtl", t("wlcFreshTtl"));
+    set("wlcFreshDsc", t("wlcFreshDsc"));
+    set("wlcNote", t("wlcNote"));
+    const ls = $("wlcLangSwitch");
+    if(ls) ls.value = currentLang;
+  }
+
+  // hook into the existing applyLang() -> window.__csvLang() bridge
+  const __wlcPrevLangHook = window.__csvLang;
+  window.__csvLang = function(){
+    try{ if(__wlcPrevLangHook) __wlcPrevLangHook(); }catch(e){}
+    try{ wlcLang(); }catch(e){}
+  };
+
+  function wlcOpen(){
+    wlcLang();
+    $("wlcBack").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function wlcClose(remember){
+    $("wlcBack").classList.remove("open");
+    if(remember){ try{ localStorage.setItem(KEY_WLC, "1"); }catch(e){} }
+    if(!$("nwsBack").classList.contains("open") && !$("nwsHelpBack").classList.contains("open")){
+      document.body.style.overflow = "";
+    }
+  }
+
+  $("wlcLangSwitch").addEventListener("change", (e) => {
+    const ls = $("langSwitch");
+    if(ls) ls.value = e.target.value;
+    applyLang(e.target.value);
+  });
+  $("wlcNws").addEventListener("click", () => { wlcClose(true); $("importCsvBtn").click(); });
+  $("wlcNwsHelp").addEventListener("click", (e) => { e.stopPropagation(); nwsHelpOpen(); });
+  $("wlcJson").addEventListener("click", () => { wlcClose(true); $("importBtn").click(); });
+  $("wlcFresh").addEventListener("click", () => { wlcClose(true); toast(t("wlcFreshToast")); });
+  $("wlcClose").addEventListener("click", () => wlcClose(true));
+  $("wlcBack").addEventListener("click", (e) => { if(e.target === $("wlcBack")) wlcClose(true); });
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && $("wlcBack").classList.contains("open")) wlcClose(true);
+  });
+
+  // after a full clear the list is empty again -> offer the same choices
+  $("clearBtn").addEventListener("click", () => {
+    setTimeout(() => {
+      if(!data.length){
+        try{ localStorage.removeItem(KEY_WLC); }catch(e){}
+        wlcOpen();
+      }
+    }, 60);
+  });
+
+  function wlcMaybeShow(){
+    let done = null;
+    try{ done = localStorage.getItem(KEY_WLC); }catch(e){}
+    if(!done && !data.length) wlcOpen();
+  }
+
   initLang();
   initTheme();
   load();
   groupFilter.value = "Brothers";
   render();
+  wlcMaybeShow();
 
   }catch(err){
     console.error(err);
