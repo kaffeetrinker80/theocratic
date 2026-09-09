@@ -727,7 +727,12 @@
       .groupHeadRow.breakBefore td{ padding-top: 4mm !important; }
       .groupHeadRow.breakBefore{ break-before: page !important; page-break-before: always !important; }
 
-      .rowTop{ grid-template-columns: 2.3fr 0.95fr 1.45fr 2.3fr; gap:6px !important; }
+      .rowTop{ grid-template-columns: 1.95fr 1.3fr 1.4fr 2.25fr; gap:9px !important; }
+      /* privilege column: never collide with the phone number */
+      .rowTop select[data-field="privilege"]{
+        white-space:nowrap !important;
+        padding-right:6px !important;
+      }
       .rowTop.sisters{ grid-template-columns: 2.5fr 1.7fr 2.8fr; gap:6px !important; }
       .rowBottom{
         grid-template-columns: 1fr auto;
@@ -1194,7 +1199,7 @@
 </div>
 </main>
 <footer>
-<div>Made with Love © – Volunteers list v 2.5.4</div>
+<div>Made with Love © – Volunteers list v 2.5.5</div>
 <div class="footerStorage">Storage: LocalStorage</div>
 </footer>
 <div class="nwsBack" id="nwsHelpBack" role="dialog" aria-modal="true" aria-labelledby="nwsHelpTitle">
