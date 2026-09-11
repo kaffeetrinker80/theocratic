@@ -380,7 +380,7 @@ Warm Christian greetings,
 
   <div class="dept-popover" id="deptPopover"><div class="dept-popover-head"><div class="dept-popover-title">Departments</div><button type="button" class="dept-popover-close" id="deptPopoverClose">×</button></div><div class="dept-check-grid" id="deptPopoverOptions"></div></div>
   <div class="toast" id="toast"></div>
-  <div class="footer-note" style="text-align:center;margin-bottom:24px">Made with love · RC Volunteers Management Tool v2.8.2</div>
+  <div class="footer-note" style="text-align:center;margin-bottom:24px">Made with love · RC Volunteers Management Tool v2.8.3</div>
 </div>
 
 <script>
@@ -433,13 +433,28 @@ function normalizeStanding(v){ const x=lower(v); if(x==='good') return 'good'; i
 function normalizeGroup(v){ return lower(v)==='sisters' ? 'Sisters' : 'Brothers'; }
 function inferCongregationFromTitle(title){ const raw = normalize(title).replace(/^volunteers\s*/i,'').replace(/^rc\s*volunteers\s*[-–—:]?\s*/i,'').trim(); return raw.replace(/[·|].*$/,'').trim(); }
 function normalizeContact(row){ return { congregation: normalize(row.congregation), city: normalize(row.city), country: normalize(row.country), email: normalize(row.email), note: normalize(row.note), contacted: !!row.contacted, contacted_timestamp: normalize(row.contacted_timestamp || '–'), replied: !!row.replied, replied_timestamp: normalize(row.replied_timestamp || '–') }; }
-function normalizeVolunteer(row, fallbackCong=''){ const departments = Array.isArray(row.departments) ? row.departments.map(normalize).filter(Boolean) : normalize(row.department || row.dept) ? [normalize(row.department || row.dept)] : []; return { id: String(row.id || uid()), name: normalize(row.name || row.fullName), group: normalizeGroup(row.group), congregation: normalize(row.congregation || row.congregationName || fallbackCong), sourceCongregation: normalize(row.sourceCongregation || row.originalCongregation || ''), standing: normalizeStanding(row.standing), departments: uniq(departments), active: row.active === false ? false : true, updatedAt: Number(row.updatedAt || Date.now()) }; }
+function normalizeVolunteer(row, fallbackCong=''){ const departments = Array.isArray(row.departments) ? row.departments.map(normalize).filter(Boolean) : normalize(row.department || row.dept) ? [normalize(row.department || row.dept)] : []; return { id: String(row.id || uid()), name: normalize(row.name || row.fullName), group: normalizeGroup(row.group), congregation: normalize(row.congregation || row.congregationName || fallbackCong), sourceCongregation: normalize(row.sourceCongregation || row.originalCongregation || ''), standing: normalizeStanding(row.standing), departments: uniq(departments), active: row.active === false ? false : true, updatedAt: Number(row.updatedAt || Date.now()),
+  // v2.8.3: Zusatzfelder aus "Congregation Volunteers" mitnehmen, damit beim Import
+  // und beim Re-Export nichts verloren geht (UI-Anzeige optional nachruesten).
+  phone: normalize(row.phone), email: normalize(row.email), notes: normalize(row.notes),
+  privilege: (row.privilege === 'Elder' || row.privilege === 'MS') ? row.privilege : (normalize(row.privilege) ? 'Publisher' : ''),
+  single: !!row.single, familyHead: !!row.familyHead, smallChildren: !!row.smallChildren,
+  medicalExperience: !!row.medicalExperience }; }
 function defaultState(){ return { meta: {...DEFAULT_META}, volunteers: [], departments: [...DEFAULT_DEPARTMENTS], contacts: DEFAULT_CONTACTS.map(normalizeContact) }; }
 function loadState(){ try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw){ const parsed=JSON.parse(raw); return { meta: {...DEFAULT_META, ...(parsed.meta||{})}, volunteers: Array.isArray(parsed.volunteers)? parsed.volunteers.map(v=>normalizeVolunteer(v)):[], departments: Array.isArray(parsed.departments)&&parsed.departments.length ? parsed.departments.map(normalize).filter(Boolean) : [...DEFAULT_DEPARTMENTS], contacts: Array.isArray(parsed.contacts)&&parsed.contacts.length ? parsed.contacts.map(normalizeContact) : DEFAULT_CONTACTS.map(normalizeContact) }; } }catch(e){} return defaultState(); }
 function uniq(list){ return [...new Set((list||[]).map(normalize).filter(Boolean))].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'})); }
 function officialCongregations(){ return uniq((state.contacts||[]).map(c=>c.congregation)); }
 function extraVolunteerCongregations(){ return uniq((state.volunteers||[]).map(v=>v.congregation).filter(Boolean).filter(name => name!==POOL_CONGREGATION && !officialCongregations().includes(name))); }
-function allCongregations(){ return uniq([POOL_CONGREGATION, ...officialCongregations(), ...extraVolunteerCongregations(), ...(state.volunteers||[]).map(v=>v.congregation)]); }
+// PERF v2.8.3: allCongregations() sortiert per localeCompare ueber alle Volunteers.
+// Es wurde pro Tabellenzeile aufgerufen -> O(n^2 log n). Memo gilt nur fuer den
+// aktuellen synchronen Task und wird danach automatisch verworfen (immer frisch).
+let _allCongMemo = null;
+function allCongregations(){
+  if(_allCongMemo) return _allCongMemo;
+  _allCongMemo = uniq([POOL_CONGREGATION, ...officialCongregations(), ...extraVolunteerCongregations(), ...(state.volunteers||[]).map(v=>v.congregation)]);
+  queueMicrotask(()=>{ _allCongMemo = null; });
+  return _allCongMemo;
+}
 function allCountries(){ return uniq((state.contacts||[]).map(c=>c.country)); }
 function isOfficialCongregation(name){ return officialCongregations().includes(normalize(name)); }
 function mapImportedCongregation(name){ const clean = normalize(name); if(!clean) return { congregation: POOL_CONGREGATION, sourceCongregation: '' }; if(isOfficialCongregation(clean) || clean===POOL_CONGREGATION) return { congregation: clean, sourceCongregation: '' }; return { congregation: POOL_CONGREGATION, sourceCongregation: clean }; }
@@ -543,16 +558,33 @@ $('deptPopoverClose').addEventListener('click', closeDeptPopover);
 function formatDepartments(v){ const list = uniq(Array.isArray(v.departments)? v.departments : []); if(!list.length) return '<span class="small-muted">—</span>'; return `<div class="dept-summary">${esc(list.join(', '))}</div>`; }
 function departmentKey(v){ const list = uniq(Array.isArray(v.departments)? v.departments : []); return list.length ? list.join(' | ') : 'Without department'; }
 function renderDepartmentChecks(v){ return `<button type="button" class="dept-toggle" data-dept-toggle="${esc(v.id)}" title="Select departments">▼</button>`; }
+
+// PERF v2.8.3: Jede Zeile hatte vorher die komplette Versammlungsliste als <option>.
+// Bei 200 Volunteers x ~50 Versammlungen = ~10.000 DOM-Knoten pro Render.
+// Jetzt: nur die aktuelle Option; die volle Liste wird erst beim Anfassen nachgeladen.
+function lazyCongregationOption(value){
+  const v = value || '';
+  return v
+    ? `<option value="${esc(v)}" selected>${esc(v)}</option>`
+    : `<option value="" selected>Select congregation</option>`;
+}
+function hydrateCongregationSelect(sel){
+  if(!sel || sel.dataset.lazy !== '1') return;
+  const cur = sel.value;
+  sel.innerHTML = getCongregationOptionsHtml(cur);
+  sel.value = cur;
+  sel.dataset.lazy = '0';
+}
 function volunteerMatches(v, filters){ const q = filters?.q ?? lower($('globalSearch').value); if(q && !getVolunteerSearchHaystack(v).includes(q)) return false; const group = filters?.group ?? $('filterGroup').value; if(group !== 'all' && v.group !== group) return false; const congregation = filters?.congregation ?? $('filterCong').value; if(congregation !== 'all' && v.congregation !== congregation) return false; const department = filters?.department ?? $('filterDept').value; if(department !== 'all' && !(Array.isArray(v.departments) && v.departments.includes(department))) return false; const standing = filters?.standing ?? $('filterStanding').value; if(standing !== 'all' && v.standing !== standing) return false; const active = filters?.active ?? $('filterActive').value; if(active === 'active' && v.active === false) return false; if(active === 'inactive' && v.active !== false) return false; return true; }
 function volunteerSortKey(v){ return (($('filterDept').value !== 'all' ? '' : (v.congregation||'')) + '|' + (v.name||'')).toLowerCase(); }
 function volunteerRow(v, congOptions){ const sourceHint = v.congregation===POOL_CONGREGATION && v.sourceCongregation ? `<div class="small-muted">Imported as: ${esc(v.sourceCongregation)}</div>` : ''; return `
-<tr data-id="${esc(v.id)}" data-active="${v.active===false?'false':'true'}"><td><input data-field="name" value="${esc(v.name)}" placeholder="Name"></td><td><span class="pill ${v.group==='Sisters'?'sisters':'brothers'}">${esc(v.group==='Sisters'?'Sisters':'Brothers')}</span></td><td><div class="stack"><select data-field="congregation">${congOptions}</select>${sourceHint}</div></td><td><select data-field="standing"><option value="good" ${v.standing==='good'?'selected':''}>Good</option><option value="exemplary" ${v.standing==='exemplary'?'selected':''}>Exemplary</option><option value="unknown" ${v.standing==='unknown'?'selected':''}>Unknown</option></select></td><td><div class="dept-inline"><div class="dept-text">${formatDepartments(v)}</div><div class="no-print">${renderDepartmentChecks(v)}</div></div></td><td class="active-col"><div class="check-row" style="justify-content:center"><label title="Active volunteer"><input type="checkbox" data-field="active" ${v.active===false?'':'checked'}></label></div></td><td class="no-print"><div class="row-actions"><button class="danger small-btn" data-del="1">🗑️</button></div></td></tr>`; }
+<tr data-id="${esc(v.id)}" data-active="${v.active===false?'false':'true'}"><td><input data-field="name" value="${esc(v.name)}" placeholder="Name"></td><td><span class="pill ${v.group==='Sisters'?'sisters':'brothers'}">${esc(v.group==='Sisters'?'Sisters':'Brothers')}</span></td><td><div class="stack"><select data-field="congregation" data-lazy="1">${lazyCongregationOption(v.congregation)}</select>${sourceHint}</div></td><td><select data-field="standing"><option value="good" ${v.standing==='good'?'selected':''}>Good</option><option value="exemplary" ${v.standing==='exemplary'?'selected':''}>Exemplary</option><option value="unknown" ${v.standing==='unknown'?'selected':''}>Unknown</option></select></td><td><div class="dept-inline"><div class="dept-text">${formatDepartments(v)}</div><div class="no-print">${renderDepartmentChecks(v)}</div></div></td><td class="active-col"><div class="check-row" style="justify-content:center"><label title="Active volunteer"><input type="checkbox" data-field="active" ${v.active===false?'':'checked'}></label></div></td><td class="no-print"><div class="row-actions"><button class="danger small-btn" data-del="1">🗑️</button></div></td></tr>`; }
 
 // --- DEBOUNCED RENDERERS ---
 const debouncedRenderVolunteers = debounce(renderVolunteers, 300);
 const debouncedRenderCongregations = debounce(renderCongregations, 300);
 
-function renderVolunteers(){ const body = $('volunteerBody'); const filters = { q: lower($('globalSearch').value), group: $('filterGroup').value, congregation: $('filterCong').value, department: $('filterDept').value, standing: $('filterStanding').value, active: $('filterActive').value }; const filtered = state.volunteers.filter(v => volunteerMatches(v, filters)).sort((a,b) => { const c=(a.congregation||'').localeCompare(b.congregation||'',undefined,{sensitivity:'base'}); if(c) return c; return (a.name||'').localeCompare(b.name||'',undefined,{sensitivity:'base'}); }); body.innerHTML = filtered.map(v => volunteerRow(v, getCongregationOptionsHtml(v.congregation))).join(''); $('emptyVolunteers').style.display = filtered.length ? 'none':'block'; if(editingVolunteerId && pendingVolunteerNameFocus){
+function renderVolunteers(){ const body = $('volunteerBody'); const filters = { q: lower($('globalSearch').value), group: $('filterGroup').value, congregation: $('filterCong').value, department: $('filterDept').value, standing: $('filterStanding').value, active: $('filterActive').value }; const filtered = state.volunteers.filter(v => volunteerMatches(v, filters)).sort((a,b) => { const c=(a.congregation||'').localeCompare(b.congregation||'',undefined,{sensitivity:'base'}); if(c) return c; return (a.name||'').localeCompare(b.name||'',undefined,{sensitivity:'base'}); }); body.innerHTML = filtered.map(v => volunteerRow(v)).join(''); $('emptyVolunteers').style.display = filtered.length ? 'none':'block'; if(editingVolunteerId && pendingVolunteerNameFocus){
     setTimeout(()=>{
       const input = body.querySelector(`tr[data-id="${CSS.escape(editingVolunteerId)}"] [data-field="name"]`);
       if(input){
@@ -585,9 +617,12 @@ function addVolunteer(group){ const selectedDept = $('filterDept')?.value; const
 function getVolunteer(id){ return state.volunteers.find(v=>v.id===id); }
 function updateContact(index, key, value){ const c=state.contacts[index]; if(!c) return; if(key==='contacted'){ c.contacted=!!value; c.contacted_timestamp = value ? nowIso() : '–'; if(!value){ c.replied=false; c.replied_timestamp='–'; } } else if(key==='replied'){ c.replied=!!value; c.replied_timestamp = value ? nowIso() : '–'; if(value && !c.contacted){ c.contacted=true; c.contacted_timestamp=nowIso(); } } else c[key]=value; persist(); }
 window.updateContact = updateContact;
-function mergeMeaningful(existing, incoming){ const merged={...existing}; ['name','group','congregation','standing','department'].forEach(k=>{ const val=incoming[k]; if(typeof val==='string'){ if(normalize(val)!=='') merged[k]=normalize(val); } else if(val!==undefined && val!==null) merged[k]=val; }); merged.updatedAt = Math.max(Number(existing.updatedAt||0), Number(incoming.updatedAt||0), Date.now()); return merged; }
+function mergeMeaningful(existing, incoming){ const merged={...existing}; ['name','group','congregation','standing','department','phone','email','notes','privilege','single','familyHead','smallChildren','medicalExperience'].forEach(k=>{ const val=incoming[k]; if(typeof val==='string'){ if(normalize(val)!=='') merged[k]=normalize(val); } else if(val!==undefined && val!==null) merged[k]=val; }); merged.updatedAt = Math.max(Number(existing.updatedAt||0), Number(incoming.updatedAt||0), Date.now()); return merged; }
 function volunteerKey(v){ return lower([v.name,v.group,v.congregation].join('|')); }
-function mergeVolunteers(rows){ const byId = new Map(state.volunteers.map(v=>[String(v.id), v])); const byNatural = new Map(state.volunteers.map(v=>[volunteerKey(v), v])); let added=0, merged=0; rows.forEach(r=>{ if(!r.name && !r.id) return; (Array.isArray(r.departments)? r.departments : (r.department ? [r.department] : [])).forEach(d=>{ if(d) state.departments.push(d); }); const id = String(r.id||''); if(id && byId.has(id)){ const existing=byId.get(id); const newRow=mergeMeaningful(existing, r); byId.set(id, newRow); byNatural.set(volunteerKey(newRow), newRow); merged++; return; } const nat = volunteerKey(r); if(nat && nat !== '||' && byNatural.has(nat)){ const existing=byNatural.get(nat); const newRow=mergeMeaningful(existing, r); byId.set(existing.id, newRow); byNatural.set(nat, newRow); merged++; return; } const newRow = normalizeVolunteer(r); byId.set(newRow.id, newRow); byNatural.set(volunteerKey(newRow), newRow); added++; }); state.volunteers = Array.from(byId.values()); return {added, merged}; }
+function mergeVolunteers(rows){ const byId = new Map(state.volunteers.map(v=>[String(v.id), v])); const byNatural = new Map(state.volunteers.map(v=>[volunteerKey(v), v])); let added=0, merged=0; rows.forEach(r=>{ if(!r.name && !r.id) return; (Array.isArray(r.departments)? r.departments : (r.department ? [r.department] : [])).forEach(d=>{ if(d && !state.departments.includes(d)) state.departments.push(d); }); const id = String(r.id||''); if(id && byId.has(id)){ const existing=byId.get(id); const newRow=mergeMeaningful(existing, r); byId.set(id, newRow); byNatural.set(volunteerKey(newRow), newRow); merged++; return; } // v2.8.3 FIX: Namens-Abgleich nur noch als Notloesung fuer Datensaetze OHNE id.
+// Vorher wurden zwei verschiedene Personen mit gleichem Namen in derselben
+// Versammlung beim Import zu einem Datensatz verschmolzen (stiller Datenverlust).
+const nat = id ? '' : volunteerKey(r); if(nat && nat !== '||' && byNatural.has(nat)){ const existing=byNatural.get(nat); const newRow=mergeMeaningful(existing, r); byId.set(existing.id, newRow); byNatural.set(nat, newRow); merged++; return; } const newRow = normalizeVolunteer(r); byId.set(newRow.id, newRow); byNatural.set(volunteerKey(newRow), newRow); added++; }); state.volunteers = Array.from(byId.values()); return {added, merged}; }
 function mergeContacts(rows){ const map = new Map(state.contacts.map(c=>[lower(c.congregation), c])); let added=0, updated=0; rows.forEach(raw=>{ const c=normalizeContact(raw); if(!c.congregation) return; const key=lower(c.congregation); if(map.has(key)){ const ex=map.get(key); ['city','country','email','note'].forEach(k=>{ if(normalize(c[k])) ex[k]=c[k]; }); if(raw.contacted!==undefined) ex.contacted=!!raw.contacted; if(raw.replied!==undefined) ex.replied=!!raw.replied; if(normalize(raw.contacted_timestamp)) ex.contacted_timestamp=normalize(raw.contacted_timestamp); if(normalize(raw.replied_timestamp)) ex.replied_timestamp=normalize(raw.replied_timestamp); updated++; } else { state.contacts.push(c); added++; } }); return {added, updated}; }
 function importPayload(parsed){
   const messages=[];
@@ -647,7 +682,7 @@ async function handleImport(files){
   persist();
   toast('Import finished ✔');
 }
-function exportJson(){ syncMetaFromInputs(); const payload = { app:'RC Volunteers Management Tool', version:'2.8.2', exportedAt: nowIso(), meta: state.meta, departments: uniq(state.departments), contacts: state.contacts, volunteers: state.volunteers }; const stamp = new Date(); const pad = n => String(n).padStart(2,'0'); const fileStamp = `${stamp.getFullYear()}-${pad(stamp.getMonth()+1)}-${pad(stamp.getDate())}_${pad(stamp.getHours())}:${pad(stamp.getMinutes())}:${pad(stamp.getSeconds())}`; const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `RC_Volunteers_Backup_${fileStamp}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Full backup exported ✔'); }
+function exportJson(){ syncMetaFromInputs(); const payload = { app:'RC Volunteers Management Tool', version:'2.8.3', exportedAt: nowIso(), meta: state.meta, departments: uniq(state.departments), contacts: state.contacts, volunteers: state.volunteers }; const stamp = new Date(); const pad = n => String(n).padStart(2,'0'); const fileStamp = `${stamp.getFullYear()}-${pad(stamp.getMonth()+1)}-${pad(stamp.getDate())}_${pad(stamp.getHours())}:${pad(stamp.getMinutes())}:${pad(stamp.getSeconds())}`; const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `RC_Volunteers_Backup_${fileStamp}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Full backup exported ✔'); }
 function bulkRenameCongregation(){ const from=normalize($('bulkCongFrom').value); const to=normalize($('bulkCongTo').value); if(!from) return alert('Please choose the congregation you want to change.'); if(!to) return alert('Please enter the new congregation name.'); const hits=state.volunteers.filter(v=>v.congregation===from); if(!hits.length) return alert('No volunteers found for the selected congregation.'); if(!confirm(`Change congregation "${from}" to "${to}" for ${hits.length} volunteer(s)?`)) return; hits.forEach(v=>{ v.congregation=to; if(to!==POOL_CONGREGATION) v.sourceCongregation=''; v.updatedAt=Date.now(); }); const contact = state.contacts.find(c=>c.congregation===from); if(contact) contact.congregation=to; persist(); $('bulkCongFrom').value=''; $('bulkCongTo').value=''; toast(`Congregation updated for ${hits.length} volunteer(s) ✔`); }
 function editDepartment(name){ const next = normalize(prompt(`Edit department name:`, name) || ''); if(!next || next===name) return; state.departments = uniq(state.departments.map(d=>d===name ? next : d)); state.volunteers.forEach(v=>{ if(Array.isArray(v.departments) && v.departments.includes(name)){ v.departments = uniq(v.departments.map(dep=>dep===name ? next : dep)); v.updatedAt=Date.now(); } }); persist(); toast('Department updated ✔'); }
 function removeDepartment(name){ if(!confirm(`Remove department "${name}" from the list? Existing rows keep their text until changed manually.`)) return; state.departments = state.departments.filter(d=>d!==name); persist(); }
@@ -704,6 +739,17 @@ $('congSearch').addEventListener('input', ()=>{ debouncedRenderCongregations(); 
 
 $('clearFiltersBtn').addEventListener('click', ()=>{ $('globalSearch').value=''; $('filterGroup').value='all'; $('filterCong').value='all'; $('filterDept').value='all'; $('filterStanding').value='all'; $('filterActive').value='all'; renderVolunteers(); });
 $('clearCongFiltersBtn').addEventListener('click', ()=>{ $('congSearch').value=''; $('msgFilterCountry').value='all'; $('msgFilterStatus').value='all'; $('msgFilterDept').value='all'; $('msgFilterStanding').value='all'; renderCongregations(); if(selectedCongregation) previewCongregation(selectedCongregation); });
+
+// PERF v2.8.3: Volle Versammlungsliste erst beim Anfassen des Dropdowns nachladen
+// (pointerdown deckt Maus/Touch ab, focusin deckt Tastatur/Tab ab).
+$('volunteerBody').addEventListener('pointerdown', e=>{
+  const sel = e.target.closest('select[data-field="congregation"]');
+  if(sel) hydrateCongregationSelect(sel);
+}, true);
+$('volunteerBody').addEventListener('focusin', e=>{
+  const sel = e.target.closest('select[data-field="congregation"]');
+  if(sel) hydrateCongregationSelect(sel);
+});
 
 // --- DIE WICHTIGSTEN FIXES FÜR DIE TABELLE ---
 // Input = Jemand tippt Buchstaben ein
