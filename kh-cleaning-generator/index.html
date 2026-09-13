@@ -172,7 +172,9 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 
 .sheet footer{ border-top:1px solid var(--line); padding-top:1.8mm; font-size:7.6pt; color:var(--muted); display:grid; grid-template-columns:1fr auto; gap:4mm; align-items:end; }
 .sheet footer b{ color:#374151; }
-.sheet .coord-in{ font:inherit; font-size:7.6pt; border:0; border-bottom:1px solid var(--line); background:transparent; min-width:38mm; }
+.sheet footer .footleft{ display:flex; align-items:baseline; gap:1.2mm; min-width:0; }
+.sheet footer .footleft b{ flex:0 0 auto; white-space:nowrap; }
+.sheet .coord-in{ font:inherit; font-size:7.6pt; border:0; border-bottom:1px solid var(--line); background:transparent; flex:1 1 auto; width:100%; min-width:0; }
 
 .printstack{ position:absolute; left:-100000px; top:0; }
 .mobilebar{ display:none; }
@@ -1089,7 +1091,7 @@ function buildSheet(cfg){
   sheet.appendChild(sched);
 
   const foot=document.createElement('footer');
-  const left=document.createElement('div');
+  const left=document.createElement('div'); left.className='footleft';
   const coordName = poster ? (state.coordinatorByCong.__global||'')
                            : (state.coordinatorByCong[cfg.congId] || (congById(cfg.congId)||{}).contact || '');
   const coordLabel = poster ? x.maintenance : x.coord;
