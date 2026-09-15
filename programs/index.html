@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>Convention & Assembly Notes | Theocratic Tools</title>
+
+  <meta name="description" content="Convention and circuit assembly note tools by kaffeetrinker80.">
+  <meta name="theme-color" content="#12151a">
+
+  <!-- General favicon for /programs/ -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #12151a;
+      --bg-soft: #1a1e24;
+      --surface: #1e232b;
+      --surface-hover: #252b33;
+      --text: #eef2f7;
+      --muted: #94a3b8;
+      --border: rgba(255,255,255,.10);
+      --primary: #8fd39a;
+      --rc: #ff8c8c;
+      --assembly: #8dc2ff;
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --transition: .4s cubic-bezier(.16,1,.3,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(85px);
+      z-index: -1;
+      opacity: .12;
+      pointer-events: none;
+    }
+
+    body::before {
+      background: var(--primary);
+      top: -120px;
+      left: -130px;
+    }
+
+    body::after {
+      background: #8dc2ff;
+      bottom: 8%;
+      right: -170px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shine {
+      to { background-position: 200% center; }
+    }
+
+    .animate {
+      opacity: 0;
+      animation: fadeInUp .6s var(--transition) forwards;
+    }
+
+    .delay-1 { animation-delay: .08s; }
+    .delay-2 { animation-delay: .16s; }
+    .delay-3 { animation-delay: .24s; }
+    .delay-4 { animation-delay: .32s; }
+
+    .container {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      padding:
+        max(18px, env(safe-area-inset-top))
+        max(18px, env(safe-area-inset-right))
+        max(34px, env(safe-area-inset-bottom))
+        max(18px, env(safe-area-inset-left));
+    }
+
+    /* Topbar mirrors the main Theocratic page */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 24px;
+    }
+
+    .nav-back {
+      text-decoration: none;
+      color: var(--text);
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: .95rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .nav-back:hover {
+      transform: translateY(-2px);
+      background: var(--surface-hover);
+    }
+
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 46px 24px 40px;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2.25rem, 7vw, 4rem);
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -.03em;
+      background: linear-gradient(
+        90deg,
+        #fff 0%,
+        var(--primary) 25%,
+        #fff 50%,
+        var(--primary) 75%,
+        #fff 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 6s linear infinite;
+    }
+
+    .hero-byline {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-top: 8px;
+      font-weight: 400;
+    }
+
+    .hero p {
+      margin: 20px auto 0;
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 8px 0 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 8px;
+      height: 24px;
+      border-radius: 4px;
+      margin-right: 12px;
+      background: var(--primary);
+      flex: 0 0 auto;
+    }
+
+    .program-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .program-card {
+      --theme: var(--primary);
+      --soft: rgba(143, 211, 154, .10);
+
+      position: relative;
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      min-height: 190px;
+      overflow: hidden;
+
+      text-decoration: none;
+      color: inherit;
+
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      transition: var(--transition);
+      isolation: isolate;
+    }
+
+    .program-card.rc {
+      --theme: var(--rc);
+      --soft: rgba(255,140,140,.10);
+    }
+
+    .program-card.assembly {
+      --theme: var(--assembly);
+      --soft: rgba(141,194,255,.10);
+    }
+
+    .program-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--theme);
+    }
+
+    .cover-wrap {
+      position: relative;
+      min-width: 0;
+      background: var(--soft);
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .cover {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .cover-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      color: var(--theme);
+      background: var(--soft);
+      font-size: .82rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .card-body {
+      min-width: 0;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .meta,
+    .language {
+      font-size: .75rem;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+
+    .meta {
+      color: var(--theme);
+      background: var(--soft);
+    }
+
+    .language {
+      color: var(--text);
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--border);
+    }
+
+    .program-card h2 {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: 1.35rem;
+      line-height: 1.2;
+    }
+
+    .program-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .93rem;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .open-row {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 13px;
+      border-radius: 12px;
+      color: var(--theme);
+      background: var(--soft);
+      font-size: .9rem;
+      font-weight: 600;
+      transition: .3s ease;
+    }
+
+    .program-card:hover .open-row {
+      background: var(--theme);
+      color: #102036;
+    }
+
+    .arrow {
+      font-size: 1.4rem;
+      line-height: 1;
+      transition: transform .25s ease;
+    }
+
+    .program-card:hover .arrow {
+      transform: translateX(3px);
+    }
+
+    .footer {
+      margin-top: 42px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+      padding-bottom: 10px;
+    }
+
+    /* Tablet: keep two cards only when there is enough real room */
+    @media (max-width: 900px) {
+      .program-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .program-card {
+        grid-template-columns: 180px minmax(0, 1fr);
+      }
+    }
+
+    /* Smartphone / portrait tablet */
+    @media (max-width: 600px) {
+      .container {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .topbar {
+        margin-bottom: 14px;
+      }
+
+      .nav-back {
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: .87rem;
+      }
+
+      .hero {
+        padding: 30px 18px 27px;
+        border-radius: 22px;
+        margin-bottom: 22px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 11vw, 2.75rem);
+      }
+
+      .hero-byline {
+        font-size: 1rem;
+      }
+
+      .hero p {
+        font-size: .92rem;
+        margin-top: 15px;
+      }
+
+      .section-title {
+        font-size: 1.15rem;
+        margin-bottom: 14px;
+      }
+
+      /* Entire card becomes a large thumb target, with square art at left. */
+      .program-card {
+        grid-template-columns: 116px minmax(0, 1fr);
+        min-height: 150px;
+        border-radius: 18px;
+      }
+
+      .cover-wrap {
+        aspect-ratio: 1;
+        min-height: 116px;
+        align-self: stretch;
+      }
+
+      .card-body {
+        padding: 14px 14px 13px;
+      }
+
+      .meta-row {
+        gap: 5px;
+        margin-bottom: 9px;
+      }
+
+      .meta,
+      .language {
+        padding: 4px 8px;
+        font-size: .66rem;
+      }
+
+      .program-card h2 {
+        font-size: 1.07rem;
+        margin-bottom: 5px;
+      }
+
+      .program-card p {
+        font-size: .80rem;
+        line-height: 1.38;
+      }
+
+      .open-row {
+        margin-top: 10px;
+        padding: 7px 9px;
+        font-size: .78rem;
+        border-radius: 10px;
+      }
+    }
+
+    /* Very narrow phones */
+    @media (max-width: 390px) {
+      .program-card {
+        grid-template-columns: 102px minmax(0, 1fr);
+        min-height: 136px;
+      }
+
+      .card-body {
+        padding: 12px 11px;
+      }
+
+      .program-card h2 {
+        font-size: 1rem;
+      }
+
+      .program-card p {
+        font-size: .75rem;
+      }
+
+      .open-row {
+        margin-top: 8px;
+      }
+    }
+
+    /* Landscape phone: compact hero so the programs are immediately visible */
+    @media (max-height: 520px) and (orientation: landscape) {
+      .hero {
+        padding: 24px 20px;
+      }
+
+      .hero p {
+        margin-top: 10px;
+      }
+
+      .program-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .program-card {
+        grid-template-columns: 125px minmax(0, 1fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header class="topbar animate">
+      <a class="nav-back" href="../">← Back to Theocratic Tools</a>
+    </header>
+
+    <section class="hero animate delay-1">
+      <h1>Programs</h1>
+      <div class="hero-byline">Convention &amp; Assembly Notes</div>
+      <p>
+        Select the program you are attending. Your notes stay locally in your browser
+        and can be exported from the individual program tool.
+      </p>
+    </section>
+
+    <h2 class="section-title animate delay-2">Current Programs</h2>
+
+    <section class="program-grid">
+
+      <a class="program-card rc animate delay-3"
+         href="rc26.html"
+         aria-label="Open Regional Convention 2026 notes">
+        <div class="cover-wrap">
+          <img class="cover"
+               src="rc26.png"
+               alt="Regional Convention 2026"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+          <div class="cover-fallback">rc26.png</div>
+        </div>
+
+        <div class="card-body">
+          <div class="meta-row">
+            <span class="meta">Regional Convention</span>
+            <span class="language">DE / EN</span>
+          </div>
+
+          <h2>Eternal Happiness</h2>
+          <p>2026 Regional Convention program and personal notes.</p>
+
+          <div class="open-row">
+            <span>Open Program</span>
+            <span class="arrow" aria-hidden="true">›</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="program-card assembly animate delay-4"
+         href="ca-26-2.html"
+         aria-label="Open 2026–2027 Circuit Assembly notes">
+        <div class="cover-wrap">
+          <img class="cover"
+               src="ca-26-2.png"
+               alt="Circuit Assembly 2026–2027"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+          <div class="cover-fallback">ca-26-2.png</div>
+        </div>
+
+        <div class="card-body">
+          <div class="meta-row">
+            <span class="meta">Circuit Assembly</span>
+            <span class="language">DE / EN</span>
+          </div>
+
+          <h2>“Happy Is the One Trusting In Jehovah”</h2>
+          <p>2026–2027 circuit assembly with the circuit overseer.</p>
+
+          <div class="open-row">
+            <span>Open Program</span>
+            <span class="arrow" aria-hidden="true">›</span>
+          </div>
+        </div>
+      </a>
+
+    </section>
+
+    <footer class="footer animate delay-4">
+      <p>Made with Love © · kaffeetrinker80</p>
+    </footer>
+
+  </div>
+</body>
+</html>
