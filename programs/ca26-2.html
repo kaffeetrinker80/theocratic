@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Icons -->
+<link rel="icon" type="image/png" sizes="any" href="favicon.png">
+<link rel="apple-touch-icon" href="ca26-2.png">
+<meta name="theme-color" content="#f5f1f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#f5f1f6" media="(prefers-color-scheme: dark)">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CA/KK 2026–2027 – Find Exquisite Delight in Jehovah / Hab größte Freude an Jehova – Notes</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* CA 2026/27 palette – gold (cover bar) + plum + slate indigo,
+     deliberately different from the RC 2026 orange/green/blue. */
+  --bg:         #f5f1f6;
+  --card:       #ffffff;
+  --border:     #e3dbe4;
+  --text:       #1e1a22;
+  --text-sub:   #685e6c;
+  --text-ref:   #9a8f9d;
+
+  --gold-bar:   #df9a00;
+  --mor:        #a86a00;
+  --aft:        #7b3f72;
+  --qst:        #3f4f8f;
+
+  --badge-address:   #a86a00;
+  --badge-drama:     #7b3f72;
+  --badge-symposium: #7b3f72;
+  --badge-baptism:   #2f6d93;
+  --badge-public:    #2f6d93;
+  --badge-wt:        #75697a;
+  --badge-talk:      #5a5060;
+
+  --notes-bg:     #fffdf8;
+  --notes-border: #ecdfc2;
+
+  --chip-bg:      #fdf3dc;
+  --chip-text:    #6e4a00;
+  --chip-border:  #ebcf8f;
+
+  --radius: 10px;
+  --shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ─────────────────────────────── */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: #fff;
+  border-top: 4px solid var(--gold-bar);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 10px rgba(0,0,0,.09);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px 5px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.app-branding {}
+
+.app-title {
+  font-size: 15px; font-weight: 800;
+  color: var(--text); letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+.app-subtitle {
+  font-size: 10.5px; color: var(--text-sub);
+  margin-top: 1px; font-weight: 400;
+}
+
+.header-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+.btn-hdr {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer; color: var(--text-sub);
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-hdr:active { background: var(--border); color: var(--text); }
+
+/* ── DAY TABS ────────────────────────────── */
+.day-tabs {
+  display: flex; gap: 7px;
+  padding: 5px 14px 9px;
+  max-width: 700px; margin: 0 auto;
+}
+
+.tab-btn {
+  flex: 1; padding: 7px 4px;
+  border: 2px solid var(--border);
+  border-radius: 22px;
+  font-size: 12.5px; font-weight: 700;
+  background: var(--bg); color: var(--text-sub);
+  cursor: pointer; text-align: center;
+  transition: all .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.t-mor { border-color: var(--mor); color: var(--mor); }
+.tab-btn.t-aft { border-color: var(--aft); color: var(--aft); }
+.tab-btn.t-qst { border-color: var(--qst); color: var(--qst); }
+.tab-btn.t-mor.active { background: var(--mor); color: #fff; }
+.tab-btn.t-aft.active { background: var(--aft); color: #fff; }
+.tab-btn.t-qst.active { background: var(--qst); color: #fff; }
+
+/* ── PANELS ──────────────────────────────── */
+.day-panel {
+  display: none;
+  padding: 14px 12px 20px;
+  max-width: 700px; margin: 0 auto;
+}
+.day-panel.active { display: block; }
+
+/* ── DAY THEME BANNER ────────────────────── */
+.day-theme {
+  border-radius: var(--radius);
+  padding: 11px 15px 10px;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--day-color, var(--mor));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold-bar) 8%, white), var(--card) 55%);
+  box-shadow: var(--shadow);
+  font-style: italic;
+  font-size: 13.5px; color: var(--text-sub);
+  line-height: 1.4;
+}
+.day-theme strong {
+  display: block; font-size: 10px; font-style: normal;
+  font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-ref); margin-top: 3px;
+}
+
+/* ── SESSION HEADER ──────────────────────── */
+.session-hdr {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 18px 0 8px;
+  font-size: 10.5px; font-weight: 800;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: #fff;
+  background: var(--day-color, var(--mor));
+  padding: 4px 12px; border-radius: 6px;
+}
+
+/* ── ITEM CARD ───────────────────────────── */
+.item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 7px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* Simple (song / music) */
+.item-simple {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 13px;
+  opacity: .55;
+}
+.item-simple .item-time { font-size: 11px; font-weight: 700; color: var(--text-ref); min-width: 32px; }
+.item-simple .item-title { font-size: 12.5px; color: var(--text-sub); }
+
+/* Noteworthy header row */
+.item-hdr {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 11px 13px 7px;
+}
+
+.item-time {
+  font-size: 11.5px; font-weight: 800;
+  color: var(--day-color, var(--mor));
+  min-width: 34px; padding-top: 2px;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.item-body { flex: 1; min-width: 0; }
+
+.badge {
+  display: inline-block;
+  font-size: 9.5px; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+  color: #fff; margin-bottom: 3px;
+}
+.badge-address   { background: var(--badge-address); }
+.badge-drama     { background: var(--badge-drama); }
+.badge-symposium { background: var(--badge-symposium); }
+.badge-baptism   { background: var(--badge-baptism); }
+.badge-public    { background: var(--badge-public); }
+.badge-wt        { background: var(--badge-wt); }
+.badge-talk      { background: var(--badge-talk); }
+
+.item-title {
+  display: block;
+  font-size: 14px; font-weight: 700;
+  color: var(--text); line-height: 1.35;
+}
+
+.prog-refs {
+  font-size: 11px; color: var(--text-ref);
+  font-style: italic; margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* ── NOTES AREA ──────────────────────────── */
+.notes-area {
+  padding: 6px 12px 9px;
+  background: var(--notes-bg);
+  border-top: 1px solid var(--notes-border);
+}
+
+.notes-ta {
+  width: 100%;
+  border: 1px solid var(--notes-border);
+  border-radius: 7px;
+  padding: 8px 32px 8px 10px;
+  font-size: 13.5px; font-family: inherit;
+  background: #fff; color: var(--text);
+  resize: none; min-height: 56px;
+  outline: none; line-height: 1.55;
+  transition: border-color .15s, box-shadow .15s;
+  field-sizing: content;
+}
+.notes-ta:focus {
+  border-color: var(--day-color, var(--mor));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--day-color, var(--mor)) 12%, transparent);
+}
+.notes-ta::placeholder { color: #bdb3bf; }
+
+.notes-wrap { position: relative; }
+
+.btn-clear-ta {
+  position: absolute;
+  top: 7px; right: 7px;
+  width: 18px; height: 18px;
+  border: none;
+  background: var(--text-ref);
+  border-radius: 50%;
+  font-size: 10px; font-weight: 700;
+  line-height: 1; cursor: pointer;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s, background .15s;
+}
+.btn-clear-ta.vis { opacity: 1; pointer-events: auto; }
+.btn-clear-ta:hover { background: var(--text-sub); }
+
+/* ── BIBLE REFS ───────────────────────────── */
+.refs-row {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 6px;
+}
+
+.ref-chip {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  border-radius: 14px;
+  padding: 2px 3px 2px 9px;
+  font-size: 11.5px;
+}
+.ref-link {
+  color: var(--chip-text); text-decoration: none;
+  font-weight: 700; line-height: 1.3;
+}
+.ref-link:hover { text-decoration: underline; }
+.ref-del {
+  border: none; background: none;
+  color: var(--chip-text); opacity: .5;
+  cursor: pointer; font-size: 15px;
+  padding: 0 4px; line-height: 1;
+}
+.ref-del:hover { opacity: 1; }
+
+/* ── NOTES ACTIONS ────────────────────────── */
+.notes-actions {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-add-ref,
+.btn-add-note {
+  background: none;
+  border: 1.5px dashed var(--chip-border);
+  border-radius: 14px;
+  padding: 3px 11px;
+  font-size: 12px; font-weight: 600;
+  color: var(--chip-text);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-add-ref:hover, .btn-add-ref:active { background: var(--chip-bg); }
+.btn-add-note {
+  border-color: var(--notes-border);
+  color: var(--text-sub);
+}
+.btn-add-note:hover, .btn-add-note:active { background: #fff; }
+
+/* A continued note field can sit after one or more Bible-text chips.
+   This makes the natural flow “note → scriptures → more notes” possible. */
+.note-block {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--notes-border);
+}
+.block-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.block-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-ref);
+}
+.btn-remove-block {
+  border: none;
+  background: transparent;
+  color: var(--text-ref);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 5px;
+}
+.btn-remove-block:hover,
+.btn-remove-block:active {
+  color: var(--text-sub);
+  background: rgba(0,0,0,.04);
+}
+
+/* ── SYMPOSIUM PARTS ─────────────────────── */
+.symp-parts {
+  border-top: 1px solid var(--notes-border);
+}
+
+.symp-part {
+  border-bottom: 1px solid var(--notes-border);
+}
+.symp-part:last-child { border-bottom: none; }
+
+.part-hdr {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 9px 13px 4px 22px;
+}
+
+.part-bullet {
+  color: var(--day-color, var(--mor));
+  font-size: 11px; padding-top: 3px; flex-shrink: 0;
+}
+
+.part-body { flex: 1; min-width: 0; }
+
+.part-title {
+  font-size: 13.5px; font-weight: 700;
+  color: var(--text); line-height: 1.3; display: block;
+}
+
+
+/* ── INTERACTIVE PROGRAM ROWS ─────────────── */
+.item-simple {
+  opacity: 1;
+  border-left: 4px solid color-mix(in srgb, var(--day-color, var(--mor)) 70%, white);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--day-color, var(--mor)) 9%, white),
+    var(--card) 42%);
+}
+.item-simple.item-song { font-weight: 750; }
+.item-simple.item-music {
+  border-style: solid;
+  background: linear-gradient(90deg, #f6ecf3, var(--card) 45%);
+  border-left-color: var(--aft);
+}
+.item-simple .item-title { color: var(--text); font-size: 13.5px; font-weight: 700; }
+.program-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.program-link:hover { text-decoration: underline; }
+.program-link::after { content: '↗'; font-size: 10px; opacity: .55; }
+
+.prog-ref-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.prog-ref-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid #d8d0c5;
+  background: #f8f6f1;
+  border-radius: 12px;
+  padding: 2px 7px;
+  color: #625a51;
+  text-decoration: none;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 650;
+}
+.prog-ref-link:hover, .prog-ref-link:active {
+  border-color: var(--day-color, var(--mor));
+  color: var(--day-color, var(--mor));
+  background: #fff;
+}
+
+.speaker-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 7px;
+}
+.speaker-icon { font-size: 13px; opacity: .65; }
+.speaker-input {
+  width: min(100%, 290px);
+  border: 1px solid #ddd5ca;
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: #fbfaf7;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+}
+.speaker-input:focus {
+  border-color: var(--day-color, var(--mor));
+  background: #fff;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--day-color, var(--mor)) 10%, transparent);
+}
+.speaker-input::placeholder { color: #aaa197; }
+
+/* ── LANGUAGE + MOBILE HEADER ─────────────── */
+.lang-toggle {
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 11px;
+  font-weight: 800;
+  user-select: none;
+}
+.lang-toggle button {
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font: inherit;
+  padding: 5px 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang-toggle button.active {
+  background: var(--text);
+  color: #fff;
+}
+.btn-print { display: inline-flex; align-items: center; gap: 3px; }
+
+@media (max-width: 520px) {
+  .header-top {
+    display: block;
+    padding: max(9px, env(safe-area-inset-top)) 12px 7px;
+  }
+  .app-branding {
+    min-width: 0;
+    margin-bottom: 8px;
+  }
+  .app-title { font-size: 14px; }
+  .header-actions {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: stretch;
+    width: 100%;
+    gap: 5px;
+  }
+  .btn-hdr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 6px 7px;
+  }
+  .day-tabs { padding: 5px 12px 9px; }
+  .item-hdr { padding-right: 10px; }
+}
+@media (max-width: 340px) {
+  .btn-hdr { font-size: 10.5px; padding: 6px 5px; }
+  .lang-toggle button { padding-inline: 7px; }
+}
+@media print {
+  .lang-toggle { display: none !important; }
+}
+
+/* ── MODAL OVERLAY ───────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.48);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+@media (min-width: 520px) { .modal-bg { align-items: center; } }
+
+.modal-box {
+  background: var(--card);
+  border-radius: 18px 18px 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 20px 18px 28px;
+  animation: slUp .22s ease;
+}
+@media (min-width: 520px) {
+  .modal-box { border-radius: 16px; margin: 16px; }
+}
+
+@keyframes slUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-top {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 16px;
+}
+.modal-top h3 { font-size: 17px; font-weight: 800; }
+.modal-x {
+  border: none; background: var(--bg);
+  border-radius: 50%; width: 32px; height: 32px;
+  font-size: 16px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  color: var(--text-sub);
+}
+
+.form-row { margin-bottom: 11px; }
+.form-row label {
+  display: block; font-size: 11px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: var(--text-sub); margin-bottom: 4px;
+}
+.form-row select, .form-row input {
+  width: 100%; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 9px;
+  font-size: 15px; font-family: inherit;
+  background: var(--bg); color: var(--text);
+  outline: none; appearance: auto;
+}
+.form-row select:focus, .form-row input:focus {
+  border-color: var(--day-color, var(--mor));
+}
+.form-inline { display: flex; gap: 9px; }
+.form-inline .form-row { flex: 1; }
+
+.ref-preview {
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  border-radius: 9px;
+  padding: 10px 13px; font-size: 13px;
+  font-weight: 700; color: var(--chip-text);
+  min-height: 40px; line-height: 1.45;
+}
+.ref-preview a { color: var(--chip-text); }
+
+.modal-btns { display: flex; gap: 9px; margin-top: 16px; }
+
+.btn-cancel {
+  padding: 12px 16px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; color: var(--text-sub);
+}
+
+.btn-insert {
+  flex: 1; padding: 12px;
+  background: var(--day-color, var(--mor));
+  color: #fff; border: none;
+  border-radius: 10px; font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-insert:active { opacity: .85; }
+
+/* ── TOAST ───────────────────────────────── */
+.toast {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #1d1a15; color: #fff;
+  padding: 8px 18px; border-radius: 22px;
+  font-size: 13px; z-index: 400;
+  transition: transform .28s ease;
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── FOOTER ──────────────────────────────── */
+.app-footer {
+  text-align: center;
+  padding: 18px 16px 44px;
+  font-size: 11px; color: var(--text-ref);
+}
+
+/* ── PRINT ───────────────────────────────── */
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  html, body {
+    width: 100%;
+    background: #fff !important;
+  }
+
+  .app-header, .notes-actions, .ref-del, .btn-add-ref, .btn-add-note,
+  .btn-remove-block, .toast, .modal-bg, .app-footer, .btn-clear-ta { display: none !important; }
+
+  body {
+    color: #111;
+    font-size: 10.8px;
+    line-height: 1.35;
+    overflow: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .day-panel {
+    display: block !important;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  .day-panel + .day-panel {
+    break-before: page;
+    page-break-before: always;
+    margin-top: 0;
+  }
+
+  .print-day-title {
+    display: block !important;
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.2;
+    padding: 0 0 3mm;
+    border-bottom: 1.5pt solid #111;
+    margin: 0 0 3mm;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  .day-theme {
+    padding: 2.2mm 3mm;
+    margin-bottom: 2.5mm;
+    border-radius: 5px;
+    box-shadow: none;
+    font-size: 10.5px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .day-theme strong { font-size: 8px; margin-top: 1mm; }
+
+  .session-hdr {
+    margin: 3.2mm 0 1.8mm;
+    padding: 1mm 3mm;
+    font-size: 8.5px;
+    border-radius: 4px;
+    color: #fff !important;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  .item {
+    box-shadow: none;
+    border: .7pt solid #c8c8c8;
+    border-radius: 5px;
+    margin-bottom: 1.7mm;
+    overflow: visible;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Large symposium cards may continue on the next page,
+     but each individual symposium part stays together. */
+  .item.print-symposium,
+  .item.has-extra-notes,
+  .symp-part.has-extra-notes {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .item.print-symposium > .item-hdr,
+  .item.has-extra-notes > .item-hdr {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  .symp-part {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .symp-part.has-extra-notes {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .item-hdr { padding: 2.2mm 3mm 1.5mm; gap: 2.2mm; }
+  .item-time { min-width: 8mm; font-size: 9px; padding-top: .4mm; }
+  .item-title { font-size: 10.8px; line-height: 1.25; }
+  .badge { font-size: 7.5px; padding: .4mm 1.8mm; margin-bottom: .7mm; }
+  .prog-ref-links { gap: 1mm; margin-top: 1mm; }
+  .prog-ref-link { font-size: 8px; padding: .4mm 1.6mm; border-radius: 8px; }
+
+  .item-simple {
+    opacity: 1;
+    padding: 1.6mm 3mm;
+    min-height: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .item-simple .item-time { font-size: 8.5px; }
+  .item-simple .item-title { font-size: 10px; }
+  .program-link::after { display: none; }
+
+  .part-hdr { padding: 1.8mm 3mm 1mm 5mm; }
+  .part-title { font-size: 10.2px; }
+  .part-bullet { font-size: 8px; }
+
+  .speaker-row { margin-top: 1mm; gap: 1.5mm; }
+  .speaker-row.print-empty { display: none !important; }
+  .speaker-icon { font-size: 9px; }
+  .speaker-input {
+    width: auto;
+    max-width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 9px;
+    color: #333;
+    box-shadow: none;
+  }
+
+  .notes-area {
+    padding: 1.2mm 3mm 1.8mm;
+    background: #fff;
+  }
+  .notes-area.print-empty,
+  .note-block.print-empty { display: none !important; }
+  .note-block {
+    margin-top: 1.2mm;
+    padding-top: 1.2mm;
+    border-top: .5pt dashed #ddd;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .block-top { margin-bottom: .8mm; }
+  .block-label { font-size: 7.5px; }
+  .notes-wrap { position: static; }
+  .notes-ta {
+    display: block;
+    width: 100%;
+    height: auto !important;
+    min-height: 0;
+    overflow: visible;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 9.5px;
+    line-height: 1.35;
+    resize: none;
+    white-space: pre-wrap;
+  }
+  .refs-row { gap: 1mm; margin-top: 1mm; }
+  .ref-chip {
+    padding: .4mm 1.8mm;
+    border-radius: 8px;
+    font-size: 8.5px;
+  }
+
+  .session-hdr, .badge, .day-theme, .item-simple, .ref-chip {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+.print-day-title { display: none; }
+
+/* ── CA HEADER BRAND ─────────────────────── */
+.app-kicker {
+  display: inline-block;
+  font-size: 9.5px; font-weight: 800;
+  letter-spacing: .07em; text-transform: uppercase;
+  color: #fff; background: var(--mor);
+  padding: 1px 6px; border-radius: 4px;
+  margin-right: 5px; vertical-align: 1px;
+}
+
+/* ── REVIEW QUESTIONS ────────────────────── */
+.q-intro {
+  font-size: 13px; color: var(--text-sub);
+  margin: 2px 2px 10px;
+}
+.q-hdr { align-items: flex-start; }
+.q-num {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--qst); color: #fff;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.q-title { font-size: 14.5px; }
+
+.app-footer a { color: var(--text-sub); text-decoration: none; }
+.app-footer a:hover { text-decoration: underline; }
+
+@media print {
+  .day-panel + .day-panel { break-before: auto !important; page-break-before: auto !important; margin-top: 4mm !important; }
+  #panel-questions { break-before: page !important; page-break-before: always !important; margin-top: 0 !important; }
+  .app-header { border-top: none; }
+  .q-num { width: 6mm; height: 6mm; font-size: 9px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .q-intro { font-size: 9.5px; margin-bottom: 2mm; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ── APP HEADER ── -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="app-branding">
+      <div class="app-title"><span class="app-kicker">CA</span><span id="app-title">Circuit Assembly 2026–2027 · With Branch Representative</span></div>
+      <div class="app-subtitle" id="app-subtitle">“Find Exquisite Delight in Jehovah” · Assembly Notes</div>
+    </div>
+    <div class="header-actions">
+      <span class="lang-toggle" aria-label="Language / Sprache">
+        <button type="button" id="lang-de" onclick="toggleLang('de')" aria-label="Deutsch">DE</button>
+        <button type="button" id="lang-en" onclick="toggleLang('en')" aria-label="English">EN</button>
+      </span>
+      <button class="btn-hdr" id="btn-export" onclick="exportJSON()" title="Export notes as JSON" aria-label="Export notes as JSON">💾 <span class="hdr-label">Export</span></button>
+      <button class="btn-hdr" id="btn-import" onclick="triggerImport()" title="Import notes from JSON" aria-label="Import notes from JSON">📂 <span class="hdr-label">Import</span></button>
+      <button class="btn-hdr btn-print" id="btn-print" onclick="window.print()" title="Print notes" aria-label="Print notes">🖨️ <span class="hdr-label">Print</span></button>
+    </div>
+  </div>
+  <div class="day-tabs">
+    <button class="tab-btn t-mor" id="tab-morning"   onclick="switchDay('morning')">Morning</button>
+    <button class="tab-btn t-aft" id="tab-afternoon" onclick="switchDay('afternoon')">Afternoon</button>
+    <button class="tab-btn t-qst" id="tab-questions" onclick="switchDay('questions')">Questions</button>
+  </div>
+</header>
+
+<!-- ── PANELS ── -->
+<div id="panel-morning"   class="day-panel" style="--day-color:var(--mor)"></div>
+<div id="panel-afternoon" class="day-panel" style="--day-color:var(--aft)"></div>
+<div id="panel-questions" class="day-panel" style="--day-color:var(--qst)"></div>
+
+<!-- ── FOOTER ── -->
+<footer class="app-footer" id="app-footer">
+  <span id="footer-text">CA 2026–2027 Assembly Notes · V1.0.0 · Made with Love ©</span><br>
+  <a id="footer-mail" href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20CA%202026-2027%20Assembly%20Notes%20V1.0.0">✉ Feedback</a>
+</footer>
+
+<!-- ── BIBLE PICKER MODAL ── -->
+<div class="modal-bg" id="modal-bible" style="display:none" onclick="modalBgClick(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-top">
+      <h3 id="modal-title">📖 Add Bible Reference</h3>
+      <button class="modal-x" onclick="closeBiblePicker()">✕</button>
+    </div>
+
+    <div class="form-row">
+      <label id="lbl-book">Book</label>
+      <select id="bp-book" onchange="previewRef()"></select>
+    </div>
+
+    <div class="form-inline">
+      <div class="form-row">
+        <label id="lbl-chapter">Chapter</label>
+        <input type="number" id="bp-chapter" min="1" placeholder="e.g. 5" oninput="previewRef()">
+      </div>
+      <div class="form-row">
+        <label id="lbl-verse">Verse</label>
+        <input type="number" id="bp-verse" min="1" placeholder="e.g. 3" oninput="previewRef()">
+      </div>
+      <div class="form-row">
+        <label id="lbl-vend">To verse</label>
+        <input type="number" id="bp-vend" min="1" placeholder="e.g. 5" oninput="previewRef()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label id="lbl-preview">Preview</label>
+      <div class="ref-preview" id="bp-preview">Choose a book and chapter…</div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" id="btn-cancel" onclick="closeBiblePicker()">Cancel</button>
+      <button class="btn-insert" id="btn-insert" onclick="insertRef()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FILE INPUT FOR IMPORT ── -->
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="doImport(event)">
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════
+//  PROGRAM DATA
+// ═══════════════════════════════════════════
+
+const PROG_EN = {
+ "morning": {
+  "label": "Morning",
+  "sessionName": "Morning",
+  "theme": "“Find Exquisite Delight in Jehovah”",
+  "themeRef": "Psalm 37:4",
+  "items": [
+   {
+    "id": "m-01",
+    "t": "9:40",
+    "type": "music",
+    "title": "Music"
+   },
+   {
+    "id": "m-02",
+    "t": "9:50",
+    "type": "song",
+    "title": "Song No. 7 and Prayer"
+   },
+   {
+    "id": "m-03",
+    "t": "10:00",
+    "type": "talk",
+    "title": "“Find Exquisite Delight in Jehovah”—How?"
+   },
+   {
+    "id": "m-04",
+    "t": "10:15",
+    "type": "talk",
+    "title": "“Happy Is the One . . . Whose Sin Is Forgiven”"
+   },
+   {
+    "id": "m-05",
+    "t": "10:30",
+    "type": "talk",
+    "title": "“Happy Are Those Dwelling in Your House!”"
+   },
+   {
+    "id": "m-06",
+    "t": "10:55",
+    "type": "song",
+    "title": "Song No. 37 and Announcements"
+   },
+   {
+    "id": "m-07",
+    "t": "11:05",
+    "type": "talk",
+    "title": "‘Happy Is the Man Who Takes Refuge in Jehovah’"
+   },
+   {
+    "id": "m-08",
+    "t": "11:35",
+    "type": "baptism",
+    "lbl": "BAPTISM",
+    "title": "“Your Father Who Looks On in Secret Will Repay You”"
+   },
+   {
+    "id": "m-09",
+    "t": "12:05",
+    "type": "song",
+    "title": "Song No. 38"
+   }
+  ]
+ },
+ "afternoon": {
+  "label": "Afternoon",
+  "sessionName": "Afternoon",
+  "theme": "“Find Exquisite Delight in Jehovah”",
+  "themeRef": "Psalm 37:4",
+  "items": [
+   {
+    "id": "a-01",
+    "t": "1:20",
+    "type": "music",
+    "title": "Music"
+   },
+   {
+    "id": "a-02",
+    "t": "1:30",
+    "type": "song",
+    "title": "Song No. 111"
+   },
+   {
+    "id": "a-03",
+    "t": "1:35",
+    "type": "talk",
+    "title": "Experiences"
+   },
+   {
+    "id": "a-04",
+    "t": "1:45",
+    "type": "wt",
+    "title": "Summary of The Watchtower"
+   },
+   {
+    "id": "a-05",
+    "t": "2:15",
+    "type": "symposium",
+    "lbl": "SYMPOSIUM",
+    "title": "Cultivate What Brings True Happiness",
+    "parts": [
+     {
+      "id": "a-05a",
+      "title": "A Simple Lifestyle"
+     },
+     {
+      "id": "a-05b",
+      "title": "Good Friends"
+     },
+     {
+      "id": "a-05c",
+      "title": "Family Unity"
+     }
+    ]
+   },
+   {
+    "id": "a-06",
+    "t": "3:00",
+    "type": "song",
+    "title": "Song No. 88 and Announcements"
+   },
+   {
+    "id": "a-07",
+    "t": "3:10",
+    "type": "talk",
+    "title": "“Happy Is the People Whose God Is Jehovah!”"
+   },
+   {
+    "id": "a-08",
+    "t": "3:55",
+    "type": "song",
+    "title": "Song No. 161 and Prayer"
+   }
+  ]
+ },
+ "questions": {
+  "label": "Questions",
+  "intro": "Find Answers to These Questions:",
+  "items": [
+   {
+    "id": "q-1",
+    "n": 1,
+    "title": "How can we “find exquisite delight in Jehovah”?",
+    "refs": "Ps. 37:4"
+   },
+   {
+    "id": "q-2",
+    "n": 2,
+    "title": "How can we find happiness despite our sins?",
+    "refs": "Ps. 32:1, 2"
+   },
+   {
+    "id": "q-3",
+    "n": 3,
+    "title": "Why put Jehovah’s worship first in your life?",
+    "refs": "Ps. 84:4, 10"
+   },
+   {
+    "id": "q-4",
+    "n": 4,
+    "title": "How can we be happy despite challenges in life?",
+    "refs": "Ps. 34:8; 18:25"
+   },
+   {
+    "id": "q-5",
+    "n": 5,
+    "title": "How can we avoid counterfeit happiness?",
+    "refs": "1 Tim. 6:7, 8; Prov. 18:24; Ps. 127:1, 2"
+   },
+   {
+    "id": "q-6",
+    "n": 6,
+    "title": "How does Jehovah help his servants to be truly happy?",
+    "refs": "Mic. 2:12; Jas. 3:17; 1 Pet. 5:8"
+   }
+  ]
+ }
+};
+
+const PROG_DE = {
+ "morning": {
+  "label": "Vormittag",
+  "sessionName": "Vormittag",
+  "theme": "„Hab größte Freude an Jehova“",
+  "themeRef": "Psalm 37:4",
+  "items": [
+   {
+    "id": "m-01",
+    "t": "9:40",
+    "type": "music",
+    "title": "Musik"
+   },
+   {
+    "id": "m-02",
+    "t": "9:50",
+    "type": "song",
+    "title": "Lied 7 und Gebet"
+   },
+   {
+    "id": "m-03",
+    "t": "10:00",
+    "type": "talk",
+    "title": "„Hab größte Freude an Jehova“ – wie?"
+   },
+   {
+    "id": "m-04",
+    "t": "10:15",
+    "type": "talk",
+    "title": "„Glücklich ist der, … dessen Sünde vergeben ist“"
+   },
+   {
+    "id": "m-05",
+    "t": "10:30",
+    "type": "talk",
+    "title": "„Glücklich sind die, die in deinem Haus wohnen!“"
+   },
+   {
+    "id": "m-06",
+    "t": "10:55",
+    "type": "song",
+    "title": "Lied 37 und Bekanntmachungen"
+   },
+   {
+    "id": "m-07",
+    "t": "11:05",
+    "type": "talk",
+    "title": "Glücklich ist, wer Schutz bei Jehova sucht"
+   },
+   {
+    "id": "m-08",
+    "t": "11:35",
+    "type": "baptism",
+    "lbl": "TAUFE",
+    "title": "„Dann wird dich dein Vater, der im Verborgenen zusieht, belohnen“"
+   },
+   {
+    "id": "m-09",
+    "t": "12:05",
+    "type": "song",
+    "title": "Lied 38"
+   }
+  ]
+ },
+ "afternoon": {
+  "label": "Nachmittag",
+  "sessionName": "Nachmittag",
+  "theme": "„Hab größte Freude an Jehova“",
+  "themeRef": "Psalm 37:4",
+  "items": [
+   {
+    "id": "a-01",
+    "t": "13:20",
+    "type": "music",
+    "title": "Musik"
+   },
+   {
+    "id": "a-02",
+    "t": "13:30",
+    "type": "song",
+    "title": "Lied 111"
+   },
+   {
+    "id": "a-03",
+    "t": "13:35",
+    "type": "talk",
+    "title": "Erfahrungsberichte"
+   },
+   {
+    "id": "a-04",
+    "t": "13:45",
+    "type": "wt",
+    "title": "Wachtturm-Zusammenfassung"
+   },
+   {
+    "id": "a-05",
+    "t": "14:15",
+    "type": "symposium",
+    "lbl": "VORTRAGSREIHE",
+    "title": "Was wirklich glücklich macht",
+    "parts": [
+     {
+      "id": "a-05a",
+      "title": "Ein einfaches Leben"
+     },
+     {
+      "id": "a-05b",
+      "title": "Gute Freunde"
+     },
+     {
+      "id": "a-05c",
+      "title": "Einheit in der Familie"
+     }
+    ]
+   },
+   {
+    "id": "a-06",
+    "t": "15:00",
+    "type": "song",
+    "title": "Lied 88 und Bekanntmachungen"
+   },
+   {
+    "id": "a-07",
+    "t": "15:10",
+    "type": "talk",
+    "title": "„Glücklich ist das Volk, dessen Gott Jehova ist!“"
+   },
+   {
+    "id": "a-08",
+    "t": "15:55",
+    "type": "song",
+    "title": "Lied 161 und Gebet"
+   }
+  ]
+ },
+ "questions": {
+  "label": "Fragen",
+  "intro": "Beantworte die folgenden Fragen:",
+  "items": [
+   {
+    "id": "q-1",
+    "n": 1,
+    "title": "Wie können wir „größte Freude an Jehova“ haben?",
+    "refs": "Ps. 37:4"
+   },
+   {
+    "id": "q-2",
+    "n": 2,
+    "title": "Wie können wir trotz vergangener Fehler glücklich sein?",
+    "refs": "Ps. 32:1, 2"
+   },
+   {
+    "id": "q-3",
+    "n": 3,
+    "title": "Warum sollten wir die Anbetung Jehovas an die erste Stelle setzen?",
+    "refs": "Ps. 84:4, 10"
+   },
+   {
+    "id": "q-4",
+    "n": 4,
+    "title": "Wie können wir trotz Schwierigkeiten glücklich sein?",
+    "refs": "Ps. 34:8; 18:25"
+   },
+   {
+    "id": "q-5",
+    "n": 5,
+    "title": "Wie können wir dem Reiz des scheinbaren Glücks widerstehen?",
+    "refs": "1. Tim. 6:7, 8; Spr. 18:24; Ps. 127:1, 2"
+   },
+   {
+    "id": "q-6",
+    "n": 6,
+    "title": "Wie hilft Jehova seinen Dienern, wirklich glücklich zu sein?",
+    "refs": "Mi. 2:12; Jak. 3:17; 1. Pet. 5:8"
+   }
+  ]
+ }
+};
+
+const DAYS = ['morning','afternoon','questions'];
+
+// ═══════════════════════════════════════════
+//  BIBLE BOOKS
+// ═══════════════════════════════════════════
+
+const BOOKS_EN = [
+  {n:1,name:'Genesis',slug:'genesis'},{n:2,name:'Exodus',slug:'exodus'},{n:3,name:'Leviticus',slug:'leviticus'},
+  {n:4,name:'Numbers',slug:'numbers'},{n:5,name:'Deuteronomy',slug:'deuteronomy'},{n:6,name:'Joshua',slug:'joshua'},
+  {n:7,name:'Judges',slug:'judges'},{n:8,name:'Ruth',slug:'ruth'},{n:9,name:'1 Samuel',slug:'1-samuel'},
+  {n:10,name:'2 Samuel',slug:'2-samuel'},{n:11,name:'1 Kings',slug:'1-kings'},{n:12,name:'2 Kings',slug:'2-kings'},
+  {n:13,name:'1 Chronicles',slug:'1-chronicles'},{n:14,name:'2 Chronicles',slug:'2-chronicles'},
+  {n:15,name:'Ezra',slug:'ezra'},{n:16,name:'Nehemiah',slug:'nehemiah'},{n:17,name:'Esther',slug:'esther'},
+  {n:18,name:'Job',slug:'job'},{n:19,name:'Psalms',slug:'psalms'},{n:20,name:'Proverbs',slug:'proverbs'},
+  {n:21,name:'Ecclesiastes',slug:'ecclesiastes'},{n:22,name:'Song of Solomon',slug:'song-of-solomon'},
+  {n:23,name:'Isaiah',slug:'isaiah'},{n:24,name:'Jeremiah',slug:'jeremiah'},{n:25,name:'Lamentations',slug:'lamentations'},
+  {n:26,name:'Ezekiel',slug:'ezekiel'},{n:27,name:'Daniel',slug:'daniel'},{n:28,name:'Hosea',slug:'hosea'},
+  {n:29,name:'Joel',slug:'joel'},{n:30,name:'Amos',slug:'amos'},{n:31,name:'Obadiah',slug:'obadiah'},
+  {n:32,name:'Jonah',slug:'jonah'},{n:33,name:'Micah',slug:'micah'},{n:34,name:'Nahum',slug:'nahum'},
+  {n:35,name:'Habakkuk',slug:'habakkuk'},{n:36,name:'Zephaniah',slug:'zephaniah'},{n:37,name:'Haggai',slug:'haggai'},
+  {n:38,name:'Zechariah',slug:'zechariah'},{n:39,name:'Malachi',slug:'malachi'},
+  {n:40,name:'Matthew',slug:'matthew'},{n:41,name:'Mark',slug:'mark'},{n:42,name:'Luke',slug:'luke'},
+  {n:43,name:'John',slug:'john'},{n:44,name:'Acts',slug:'acts'},{n:45,name:'Romans',slug:'romans'},
+  {n:46,name:'1 Corinthians',slug:'1-corinthians'},{n:47,name:'2 Corinthians',slug:'2-corinthians'},
+  {n:48,name:'Galatians',slug:'galatians'},{n:49,name:'Ephesians',slug:'ephesians'},{n:50,name:'Philippians',slug:'philippians'},
+  {n:51,name:'Colossians',slug:'colossians'},{n:52,name:'1 Thessalonians',slug:'1-thessalonians'},
+  {n:53,name:'2 Thessalonians',slug:'2-thessalonians'},{n:54,name:'1 Timothy',slug:'1-timothy'},
+  {n:55,name:'2 Timothy',slug:'2-timothy'},{n:56,name:'Titus',slug:'titus'},{n:57,name:'Philemon',slug:'philemon'},
+  {n:58,name:'Hebrews',slug:'hebrews'},{n:59,name:'James',slug:'james'},{n:60,name:'1 Peter',slug:'1-peter'},
+  {n:61,name:'2 Peter',slug:'2-peter'},{n:62,name:'1 John',slug:'1-john'},{n:63,name:'2 John',slug:'2-john'},
+  {n:64,name:'3 John',slug:'3-john'},{n:65,name:'Jude',slug:'jude'},{n:66,name:'Revelation',slug:'revelation'},
+];
+
+const BOOKS_DE=[{"n": 1, "name": "1. Mose"}, {"n": 2, "name": "2. Mose"}, {"n": 3, "name": "3. Mose"}, {"n": 4, "name": "4. Mose"}, {"n": 5, "name": "5. Mose"}, {"n": 6, "name": "Josua"}, {"n": 7, "name": "Richter"}, {"n": 8, "name": "Ruth"}, {"n": 9, "name": "1. Samuel"}, {"n": 10, "name": "2. Samuel"}, {"n": 11, "name": "1. Könige"}, {"n": 12, "name": "2. Könige"}, {"n": 13, "name": "1. Chronika"}, {"n": 14, "name": "2. Chronika"}, {"n": 15, "name": "Esra"}, {"n": 16, "name": "Nehemia"}, {"n": 17, "name": "Ester"}, {"n": 18, "name": "Hiob"}, {"n": 19, "name": "Psalm"}, {"n": 20, "name": "Sprüche"}, {"n": 21, "name": "Prediger"}, {"n": 22, "name": "Hohelied"}, {"n": 23, "name": "Jesaja"}, {"n": 24, "name": "Jeremia"}, {"n": 25, "name": "Klagelieder"}, {"n": 26, "name": "Hesekiel"}, {"n": 27, "name": "Daniel"}, {"n": 28, "name": "Hosea"}, {"n": 29, "name": "Joel"}, {"n": 30, "name": "Amos"}, {"n": 31, "name": "Obadja"}, {"n": 32, "name": "Jona"}, {"n": 33, "name": "Micha"}, {"n": 34, "name": "Nahum"}, {"n": 35, "name": "Habakuk"}, {"n": 36, "name": "Zephanja"}, {"n": 37, "name": "Haggai"}, {"n": 38, "name": "Sacharja"}, {"n": 39, "name": "Maleachi"}, {"n": 40, "name": "Matthäus"}, {"n": 41, "name": "Markus"}, {"n": 42, "name": "Lukas"}, {"n": 43, "name": "Johannes"}, {"n": 44, "name": "Apostelgeschichte"}, {"n": 45, "name": "Römer"}, {"n": 46, "name": "1. Korinther"}, {"n": 47, "name": "2. Korinther"}, {"n": 48, "name": "Galater"}, {"n": 49, "name": "Epheser"}, {"n": 50, "name": "Philipper"}, {"n": 51, "name": "Kolosser"}, {"n": 52, "name": "1. Thessalonicher"}, {"n": 53, "name": "2. Thessalonicher"}, {"n": 54, "name": "1. Timotheus"}, {"n": 55, "name": "2. Timotheus"}, {"n": 56, "name": "Titus"}, {"n": 57, "name": "Philemon"}, {"n": 58, "name": "Hebräer"}, {"n": 59, "name": "Jakobus"}, {"n": 60, "name": "1. Petrus"}, {"n": 61, "name": "2. Petrus"}, {"n": 62, "name": "1. Johannes"}, {"n": 63, "name": "2. Johannes"}, {"n": 64, "name": "3. Johannes"}, {"n": 65, "name": "Judas"}, {"n": 66, "name": "Offenbarung"}];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+
+const APP_VERSION = '1.0.0';
+const SK = 'ca2627-br-exquisiteDelight-notes-v1';
+const LANGKEY = 'ca2627-br-exquisiteDelight-lang-v1';
+
+let curLang = localStorage.getItem(LANGKEY) || ((navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en');
+let PROG = PROG_EN;
+let BOOKS = BOOKS_EN;
+let notes = {};
+let bRefs = {};
+let blocks = {};
+let speakers = {};
+let curDay = 'morning';
+let bpTarget = null;
+
+const UI_LANG = {
+  "de": {
+    "title": "Kreiskongress 2026/2027 · mit dem Vertreter des Zweigbüros",
+    "subtitle": "„Hab größte Freude an Jehova“ · Kongressnotizen",
+    "footer": "KK 2026/2027 Kongressnotizen · V1.0.0 · Made with Love ©",
+    "printTitle": "Kreiskongress 2026/2027 · „Hab größte Freude an Jehova“",
+    "question": "Frage",
+    "export": "Export",
+    "import": "Import",
+    "print": "Drucken",
+    "exportTitle": "Notizen als JSON exportieren",
+    "importTitle": "Notizen aus JSON importieren",
+    "printTitleButton": "Notizen drucken",
+    "modalTitle": "📖 Bibelstelle hinzufügen",
+    "book": "Buch",
+    "chapter": "Kapitel",
+    "verse": "Vers",
+    "vend": "Bis Vers",
+    "preview": "Vorschau",
+    "cancel": "Abbrechen",
+    "insert": "Einfügen",
+    "placeholderPreview": "Buch und Kapitel auswählen…",
+    "phCh": "z. B. 5",
+    "phV": "z. B. 3",
+    "phVe": "z. B. 5",
+    "notes": "Notizen…",
+    "clearNotes": "Notizen löschen",
+    "addRef": "+ Bibelstelle",
+    "addNote": "+ Notizfeld",
+    "continuedNotes": "Weitere Notizen",
+    "moreNotes": "Weitere Notizen…",
+    "removeNoteField": "Notizfeld entfernen",
+    "clearMoreNotes": "Weitere Notizen löschen",
+    "remove": "Entfernen",
+    "speaker": "Redner…",
+    "speakerAria": "Redner",
+    "wtSpeaker": "Wachtturm-Leser / -Leiter…",
+    "answer": "Antwort…",
+    "symposium": "VORTRAGSREIHE",
+    "song": "Lied",
+    "openScripture": "In JW Library / Online Library öffnen",
+    "selectBookChapter": "Bitte Buch und Kapitel auswählen",
+    "referenceAdded": "hinzugefügt",
+    "exported": "Exportiert ✓",
+    "overwriteConfirm": "Der Import überschreibt vorhandene Notizen. Fortfahren?",
+    "imported": "Importiert ✓",
+    "importFailed": "Import fehlgeschlagen: Die JSON-Datei ist ungültig oder beschädigt."
+  },
+  "en": {
+    "title": "Circuit Assembly 2026–2027 · With Branch Representative",
+    "subtitle": "“Find Exquisite Delight in Jehovah” · Assembly Notes",
+    "footer": "CA 2026–2027 Assembly Notes · V1.0.0 · Made with Love ©",
+    "printTitle": "Circuit Assembly 2026–2027 · “Find Exquisite Delight in Jehovah”",
+    "question": "Question",
+    "export": "Export",
+    "import": "Import",
+    "print": "Print",
+    "exportTitle": "Export notes as JSON",
+    "importTitle": "Import notes from JSON",
+    "printTitleButton": "Print notes",
+    "modalTitle": "📖 Add Bible Reference",
+    "book": "Book",
+    "chapter": "Chapter",
+    "verse": "Verse",
+    "vend": "To verse",
+    "preview": "Preview",
+    "cancel": "Cancel",
+    "insert": "Insert",
+    "placeholderPreview": "Choose a book and chapter…",
+    "phCh": "e.g. 5",
+    "phV": "e.g. 3",
+    "phVe": "e.g. 5",
+    "notes": "Notes…",
+    "clearNotes": "Clear notes",
+    "addRef": "+ Bible text",
+    "addNote": "+ Note field",
+    "continuedNotes": "Continued notes",
+    "moreNotes": "Continue notes…",
+    "removeNoteField": "Remove note field",
+    "clearMoreNotes": "Clear continued notes",
+    "remove": "Remove",
+    "speaker": "Speaker name…",
+    "speakerAria": "Speaker name",
+    "wtSpeaker": "Watchtower conductor / reader…",
+    "answer": "Answer…",
+    "symposium": "SYMPOSIUM",
+    "song": "Song",
+    "openScripture": "Open in JW Library / Online Library",
+    "selectBookChapter": "Please select a book and chapter",
+    "referenceAdded": "added",
+    "exported": "Exported ✓",
+    "overwriteConfirm": "Import will overwrite existing notes. Continue?",
+    "imported": "Imported ✓",
+    "importFailed": "Import failed: invalid or corrupted JSON file."
+  }
+};
+
+// ═══════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SK);
+    if (raw) {
+      const data = JSON.parse(raw);
+      notes = data.notes || {};
+      bRefs = data.bRefs || {};
+      blocks = data.blocks || {};
+      speakers = data.speakers || {};
+    }
+  } catch(e) {}
+}
+
+function save() {
+  try { localStorage.setItem(SK, JSON.stringify({notes, bRefs, blocks, speakers})); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function buildUrl(book, ch, v, ve) {
+  // JW Finder links can hand off to JW Library where supported;
+  // otherwise they open the Online Library in the browser.
+  const first = `${String(book.n).padStart(2,'0')}${String(ch).padStart(3,'0')}${String(v || 1).padStart(3,'0')}`;
+  const lastVerse = ve || v;
+  const range = lastVerse
+    ? `${first}-${String(book.n).padStart(2,'0')}${String(ch).padStart(3,'0')}${String(lastVerse).padStart(3,'0')}`
+    : first;
+  const locale = curLang === 'de' ? 'X' : 'E';
+  return `https://www.jw.org/finder?wtlocale=${locale}&pub=nwtsty&bible=${range}`;
+}
+
+function buildLabel(bookName, ch, v, ve) {
+  if (!ch) return bookName;
+  if (!v)  return `${bookName} ${ch}`;
+  if (!ve) return `${bookName} ${ch}:${v}`;
+  return `${bookName} ${ch}:${v}–${ve}`;
+}
+
+
+const SONG_DATA={"7": {"de": {"title": "Jehova, unsere Stärke und Macht", "slug": "7-jehova-unsere-staerke-und-macht"}, "en": {"title": "Jehovah, Our Strength", "slug": "7-jehovah-our-strength"}}, "37": {"de": {"title": "Jehova mit ganzem Herzen dienen", "slug": "37-jehova-mit-ganzem-herzen-dienen"}, "en": {"title": "Serving Jehovah Whole-Souled", "slug": "37-serving-jehovah-whole-souled"}}, "38": {"de": {"title": "Er wird dich stärken", "slug": "38-er-wird-dich-staerken"}, "en": {"title": "He Will Make You Strong", "slug": "38-he-will-make-you-strong"}}, "88": {"de": {"title": "Lass mich deine Wege erkennen", "slug": "88-lass-mich-deine-wege-erkennen"}, "en": {"title": "Make Me Know Your Ways", "slug": "88-make-me-know-your-ways"}}, "111": {"de": {"title": "Unsere Gründe zur Freude", "slug": "111-unsere-gruende-zur-freude"}, "en": {"title": "Our Reasons for Joy", "slug": "111-our-reasons-for-joy"}}, "161": {"de": {"title": "Ich lebe nur für dich!", "slug": "161-ich-lebe-nur-f%C3%BCr-dich"}, "en": {"title": "To Do Your Will Is My Delight", "slug": "161-to-do-your-will-is-my-delight"}}};
+function songInfo(programTitle) {
+  const match = String(programTitle).match(/(?:Lied|Song\s*(?:No\.)?)\s*(\d+)([\s\S]*)$/i);
+  if (!match) return null;
+
+  const n = Number(match[1]);
+  const data = SONG_DATA[n] && SONG_DATA[n][curLang];
+  if (!data) return null;
+
+  const base = curLang === 'de'
+    ? 'https://www.jw.org/de/bibliothek/musik-lieder/singt-voller-freude/'
+    : 'https://www.jw.org/en/library/music-songs/sing-out-joyfully/';
+  const slug = (curLang === 'de' || String(data.slug).startsWith(`${n}-`))
+    ? data.slug
+    : `${n}-${data.slug}`;
+
+  return { n, title: data.title, tail: match[2] || '', url: `${base}${slug}/` };
+}
+
+function scriptureLinkData(segment, inheritedBook) {
+  let txt = segment.trim().replace(/[–—]/g, '-');
+  let book = inheritedBook;
+  let matchedName = '';
+
+  // The English program uses “Psalm”, while the Bible picker uses “Psalms”.
+  // Printed program uses abbreviations (Ps., Prov., 1 Tim. / Spr., 1. Tim. …).
+  const aliases = curLang === 'en'
+    ? [
+        { alias: 'Psalm', bookName: 'Psalms' },
+        { alias: 'Ps.', bookName: 'Psalms' },
+        { alias: 'Prov.', bookName: 'Proverbs' },
+        { alias: '1 Tim.', bookName: '1 Timothy' },
+        { alias: 'Mic.', bookName: 'Micah' },
+        { alias: 'Jas.', bookName: 'James' },
+        { alias: '1 Pet.', bookName: '1 Peter' },
+        { alias: 'Song of Songs', bookName: 'Song of Solomon' }
+      ]
+    : [
+        { alias: 'Ps.', bookName: 'Psalm' },
+        { alias: 'Spr.', bookName: 'Sprüche' },
+        { alias: '1. Tim.', bookName: '1. Timotheus' },
+        { alias: 'Mi.', bookName: 'Micha' },
+        { alias: 'Jak.', bookName: 'Jakobus' },
+        { alias: '1. Pet.', bookName: '1. Petrus' }
+      ];
+
+  const named = BOOKS.find(b => txt.toLowerCase().startsWith(b.name.toLowerCase() + ' '));
+  if (named) {
+    book = named;
+    matchedName = named.name;
+  } else {
+    const aliasMatch = aliases.find(a => txt.toLowerCase().startsWith(a.alias.toLowerCase() + ' '));
+    if (aliasMatch) {
+      book = BOOKS.find(b => b.name === aliasMatch.bookName) || null;
+      matchedName = aliasMatch.alias;
+    }
+  }
+
+  if (matchedName) txt = txt.slice(matchedName.length).trim();
+  if (!book) return null;
+
+  const match = txt.match(/^(\d+)(?::(\d+))?(?:\s*-\s*(\d+))?((?:\s*,\s*\d+)*)/);
+  if (!match) return null;
+
+  const ch = Number(match[1]);
+  const v = match[2] ? Number(match[2]) : null;
+  let ve = match[3] ? Number(match[3]) : null;
+  // "6:7, 8" → link 6:7-8 (only while the listed verses are consecutive)
+  if (v && !ve && match[4]) {
+    let last = v;
+    for (const n of match[4].split(',').map(x => Number(x.trim())).filter(Boolean)) {
+      if (n === last + 1) last = n; else break;
+    }
+    if (last > v) ve = last;
+  }
+  return {
+    book,
+    label: segment.trim().replace(/[–—]/g, '–'),
+    url: buildUrl(book, ch, v, ve)
+  };
+}
+
+function renderProgramRefs(refs) {
+  if (!refs) return '';
+  let inheritedBook = null;
+  const links = refs.split(';').map(seg => {
+    const data = scriptureLinkData(seg, inheritedBook);
+    if (!data) return `<span class="prog-ref-link">${esc(seg.trim())}</span>`;
+    inheritedBook = data.book;
+    return `<a class="prog-ref-link" href="${esc(data.url)}" onclick="openScripture('${esc(data.url)}',event)" title="${esc(UI_LANG[curLang].openScripture)}">📖 ${esc(data.label)}</a>`;
+  }).join('');
+  return `<div class="prog-ref-links">${links}</div>`;
+}
+
+function speakerField(id, placeholder) {
+  const ui = UI_LANG[curLang];
+  const resolvedPlaceholder = placeholder || ui.speaker;
+  return `<div class="speaker-row">
+    <span class="speaker-icon" aria-hidden="true">👤</span>
+    <input class="speaker-input" value="${esc(speakers[id] || '')}" placeholder="${esc(resolvedPlaceholder)}"
+      oninput="onSpeaker(this,'${esc(id)}')" autocomplete="off" aria-label="${esc(ui.speakerAria)}">
+  </div>`;
+}
+
+let _toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+const NON_NOTE = new Set(['music', 'song']);
+
+function applyLang(lang) {
+  curLang = lang === 'de' ? 'de' : 'en';
+  localStorage.setItem(LANGKEY, curLang);
+  PROG = curLang === 'de' ? PROG_DE : PROG_EN;
+  BOOKS = curLang === 'de' ? BOOKS_DE : BOOKS_EN;
+
+  const ui = UI_LANG[curLang];
+  document.documentElement.lang = curLang;
+  document.getElementById('app-title').textContent = ui.title;
+  document.getElementById('app-subtitle').textContent = ui.subtitle;
+  document.getElementById('footer-text').textContent = ui.footer;
+  document.title = curLang === 'de'
+    ? 'KK 2026/2027 – Hab größte Freude an Jehova – Notizen'
+    : 'CA 2026–2027 – Find Exquisite Delight in Jehovah – Notes';
+
+  document.getElementById('lang-de').classList.toggle('active', curLang === 'de');
+  document.getElementById('lang-en').classList.toggle('active', curLang === 'en');
+
+  [
+    ['btn-export', 'export', 'exportTitle'],
+    ['btn-import', 'import', 'importTitle'],
+    ['btn-print', 'print', 'printTitleButton']
+  ].forEach(([id, labelKey, titleKey]) => {
+    const button = document.getElementById(id);
+    button.querySelector('.hdr-label').textContent = ui[labelKey];
+    button.title = ui[titleKey];
+    button.setAttribute('aria-label', ui[titleKey]);
+  });
+
+  DAYS.forEach(dayKey => {
+    document.getElementById(`tab-${dayKey}`).textContent = PROG[dayKey].label;
+  });
+
+  document.getElementById('modal-title').textContent = ui.modalTitle;
+  document.getElementById('lbl-book').textContent = ui.book;
+  document.getElementById('lbl-chapter').textContent = ui.chapter;
+  document.getElementById('lbl-verse').textContent = ui.verse;
+  document.getElementById('lbl-vend').textContent = ui.vend;
+  document.getElementById('lbl-preview').textContent = ui.preview;
+  document.getElementById('btn-cancel').textContent = ui.cancel;
+  document.getElementById('btn-insert').textContent = ui.insert;
+  document.getElementById('bp-preview').textContent = ui.placeholderPreview;
+  document.getElementById('bp-chapter').placeholder = ui.phCh;
+  document.getElementById('bp-verse').placeholder = ui.phV;
+  document.getElementById('bp-vend').placeholder = ui.phVe;
+
+  renderAll();
+  switchDay(curDay);
+}
+
+function toggleLang(lang) {
+  applyLang(lang);
+}
+
+// ═══════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════
+
+function renderAll() {
+  fillBookSelect();
+  DAYS.forEach(d => renderDay(d));
+}
+
+function renderDay(dk) {
+  const day = PROG[dk];
+  const ui  = UI_LANG[curLang];
+  const el  = document.getElementById(`panel-${dk}`);
+  let html  = '';
+
+  if (dk === 'questions') {
+    html += `<div class="print-day-title">${esc(day.label)} — ${esc(ui.printTitle)}</div>`;
+    html += `<div class="q-intro">${esc(day.intro)}</div>`;
+    day.items.forEach(q => { html += renderQuestion(q); });
+  } else {
+    html += `<div class="print-day-title">${esc(ui.printTitle)}</div>`;
+    if (dk === 'morning') {
+      html += `<div class="day-theme">
+        ${esc(day.theme)}
+        <strong>${esc(day.themeRef)}</strong>
+      </div>`;
+    }
+    html += `<div class="session-hdr">${esc(day.sessionName)}</div>`;
+    day.items.forEach(item => {
+      html += item.type === 'symposium' ? renderSymp(item) : renderItem(item);
+    });
+  }
+
+  el.innerHTML = html;
+  el.querySelectorAll('textarea.notes-ta').forEach(ta => resize(ta));
+}
+
+function renderQuestion(q) {
+  const ui = UI_LANG[curLang];
+  return `<div class="item${hasBlocks(q.id) ? ' has-extra-notes' : ''}">
+    <div class="item-hdr q-hdr">
+      <span class="q-num" aria-label="${esc(ui.question)} ${q.n}">${q.n}</span>
+      <div class="item-body">
+        <span class="item-title q-title">${esc(q.title)}</span>
+        ${renderProgramRefs(q.refs)}
+      </div>
+    </div>
+    ${notesArea(q.id, ui.answer)}
+  </div>`;
+}
+
+function renderItem(item) {
+  const ui = UI_LANG[curLang];
+
+  if (NON_NOTE.has(item.type)) {
+    const song = item.type === 'song' ? songInfo(item.title) : null;
+    const title = song ? `${ui.song} ${song.n} · ${song.title}` : item.title;
+    const content = song
+      ? `<a class="program-link" href="${esc(song.url)}" target="_blank" rel="noopener">🎵 ${esc(title)}</a><span class="song-suffix">${esc(song.tail)}</span>`
+      : `<span class="program-label">▶️ ${esc(title)}</span>`;
+
+    return `<div class="item item-simple item-${esc(item.type)}">
+      <span class="item-time">${esc(item.t||'')}</span>
+      <span class="item-title">${content}</span>
+    </div>`;
+  }
+
+  const badgeClass = `badge-${item.type}`;
+  const showSpeaker = item.type !== 'drama';
+  const speakerPlaceholder = item.type === 'wt' ? ui.wtSpeaker : ui.speaker;
+
+  const hasExtraNotes = hasBlocks(item.id);
+
+  return `<div class="item${hasExtraNotes ? ' has-extra-notes' : ''}">
+    <div class="item-hdr">
+      <span class="item-time">${esc(item.t||'')}</span>
+      <div class="item-body">
+        ${item.lbl ? `<span class="badge ${badgeClass}">${esc(item.lbl)}</span>` : ''}
+        <span class="item-title">${esc(item.title)}</span>
+        ${renderProgramRefs(item.refs)}
+        ${showSpeaker ? speakerField(item.id, speakerPlaceholder) : ''}
+      </div>
+    </div>
+    ${notesArea(item.id)}
+  </div>`;
+}
+
+function renderSymp(item) {
+  const partsHtml = item.parts.map(p => `
+    <div class="symp-part${hasBlocks(p.id) ? ' has-extra-notes' : ''}">
+      <div class="part-hdr">
+        <span class="part-bullet">▸</span>
+        <div class="part-body">
+          <span class="part-title">${esc(p.title)}</span>
+          ${renderProgramRefs(p.refs)}
+          ${speakerField(p.id)}
+        </div>
+      </div>
+      ${notesArea(p.id)}
+    </div>
+  `).join('');
+
+  return `<div class="item print-symposium">
+    <div class="item-hdr">
+      <span class="item-time">${esc(item.t||'')}</span>
+      <div class="item-body">
+        <span class="badge badge-symposium">${esc(item.lbl || UI_LANG[curLang].symposium)}</span>
+        <span class="item-title">${esc(item.title)}</span>
+      </div>
+    </div>
+    <div class="symp-parts">${partsHtml}</div>
+  </div>`;
+}
+
+function refChipHtml(reference, id, index) {
+  const remove = UI_LANG[curLang].remove;
+  return `<span class="ref-chip">
+    <a href="${esc(reference.url)}" class="ref-link" onclick="openScripture('${esc(reference.url)}',event)">📖 ${esc(reference.label)}</a>
+    <button class="ref-del" onclick="delRef('${esc(id)}',${index})" aria-label="${esc(remove)}" title="${esc(remove)}">×</button>
+  </span>`;
+}
+
+function hasBlocks(id) {
+  return Array.isArray(blocks[id]) && blocks[id].length > 0;
+}
+
+function notesArea(id, placeholder) {
+  const ui = UI_LANG[curLang];
+  const txt = notes[id] || '';
+  const refs = bRefs[id] || [];
+  const chips = refs.map((r, i) => refChipHtml(r, id, i)).join('');
+
+  return `<div class="notes-area">
+    <div class="notes-wrap">
+      <textarea class="notes-ta" id="ta-${esc(id)}"
+        placeholder="${esc(placeholder || ui.notes)}"
+        oninput="onNote(this,'${esc(id)}')"
+      >${esc(txt)}</textarea>
+      <button class="btn-clear-ta${txt ? ' vis' : ''}" id="clr-${esc(id)}"
+        onclick="clearNote('${esc(id)}')" aria-label="${esc(ui.clearNotes)}" title="${esc(ui.clearNotes)}">✕</button>
+    </div>
+    <div class="refs-row" id="rr-${esc(id)}">${chips}</div>
+    ${renderExtraBlocks(id)}
+    <div class="notes-actions">
+      <button class="btn-add-ref" onclick="openBP('${esc(id)}')">${esc(ui.addRef)}</button>
+      <button class="btn-add-note" onclick="addNoteBlock('${esc(id)}')">${esc(ui.addNote)}</button>
+    </div>
+  </div>`;
+}
+
+function renderExtraBlocks(id) {
+  const ui = UI_LANG[curLang];
+  const arr = Array.isArray(blocks[id]) ? blocks[id] : [];
+
+  return arr.map((block, idx) => {
+    if (!block || block.type !== 'note') return '';
+    const text = block.text || '';
+    const blockId = `${id}-b-${idx}`;
+    return `<div class="note-block">
+      <div class="block-top">
+        <span class="block-label">${esc(ui.continuedNotes)}</span>
+        <button class="btn-remove-block" onclick="deleteBlock('${esc(id)}',${idx})"
+          aria-label="${esc(ui.removeNoteField)}" title="${esc(ui.removeNoteField)}">✕</button>
+      </div>
+      <div class="notes-wrap">
+        <textarea class="notes-ta" id="ta-${esc(blockId)}"
+          placeholder="${esc(ui.moreNotes)}"
+          oninput="onBlockNote(this,'${esc(id)}',${idx})"
+        >${esc(text)}</textarea>
+        <button class="btn-clear-ta${text ? ' vis' : ''}" id="clr-${esc(blockId)}"
+          onclick="clearBlockNote('${esc(id)}',${idx})" aria-label="${esc(ui.clearMoreNotes)}" title="${esc(ui.clearMoreNotes)}">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+//  NOTE INPUT
+// ═══════════════════════════════════════════
+
+function onNote(ta, id) {
+  resize(ta);
+  notes[id] = ta.value;
+  save();
+  const clr = document.getElementById(`clr-${id}`);
+  if (clr) clr.classList.toggle('vis', ta.value.length > 0);
+}
+
+function onSpeaker(input, id) {
+  speakers[id] = input.value;
+  save();
+}
+
+function clearNote(id) {
+  const ta = document.getElementById(`ta-${id}`);
+  if (!ta) return;
+  ta.value = '';
+  notes[id] = '';
+  save();
+  resize(ta);
+  const clr = document.getElementById(`clr-${id}`);
+  if (clr) clr.classList.remove('vis');
+  ta.focus();
+}
+
+function ensureBlocks(id) {
+  if (!Array.isArray(blocks[id])) blocks[id] = [];
+  return blocks[id];
+}
+
+function addNoteBlock(id) {
+  const arr = ensureBlocks(id);
+  const idx = arr.push({type:'note', text:''}) - 1;
+  save();
+  renderAll();
+  switchDay(curDay);
+  requestAnimationFrame(() => {
+    const ta = document.getElementById(`ta-${id}-b-${idx}`);
+    if (ta) {
+      resize(ta);
+      ta.focus();
+    }
+  });
+}
+
+function deleteBlock(id, idx) {
+  if (!Array.isArray(blocks[id])) return;
+  blocks[id].splice(idx, 1);
+  if (!blocks[id].length) delete blocks[id];
+  save();
+  renderAll();
+  switchDay(curDay);
+}
+
+function onBlockNote(ta, id, idx) {
+  resize(ta);
+  const arr = ensureBlocks(id);
+  if (!arr[idx]) return;
+  arr[idx].text = ta.value;
+  save();
+  const clr = document.getElementById(`clr-${id}-b-${idx}`);
+  if (clr) clr.classList.toggle('vis', ta.value.length > 0);
+}
+
+function clearBlockNote(id, idx) {
+  const ta = document.getElementById(`ta-${id}-b-${idx}`);
+  if (!ta || !Array.isArray(blocks[id]) || !blocks[id][idx]) return;
+  ta.value = '';
+  blocks[id][idx].text = '';
+  save();
+  resize(ta);
+  const clr = document.getElementById(`clr-${id}-b-${idx}`);
+  if (clr) clr.classList.remove('vis');
+  ta.focus();
+}
+
+function resize(ta) {
+  if (!ta.offsetParent) return; // hidden panel – resized on tab switch
+  ta.style.height = 'auto';
+  ta.style.height = Math.max(56, ta.scrollHeight) + 'px';
+}
+
+// ═══════════════════════════════════════════
+//  DAY SWITCHING
+// ═══════════════════════════════════════════
+
+function switchDay(dk) {
+  curDay = dk;
+  DAYS.forEach(d => {
+    const panel = document.getElementById(`panel-${d}`);
+    const tab   = document.getElementById(`tab-${d}`);
+    const isActive = d === dk;
+    panel.classList.toggle('active', isActive);
+    tab.classList.toggle('active', isActive);
+    if (isActive) {
+      // Resize after paint (handles textareas in previously hidden panels)
+      requestAnimationFrame(() => {
+        panel.querySelectorAll('textarea.notes-ta').forEach(ta => resize(ta));
+      });
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+//  BIBLE PICKER
+// ═══════════════════════════════════════════
+
+function fillBookSelect() {
+  const sel = document.getElementById('bp-book');
+  sel.innerHTML = BOOKS.map(b => `<option value="${b.n}">${b.name}</option>`).join('');
+}
+
+const DAY_COLORS = { morning:'#a86a00', afternoon:'#7b3f72', questions:'#3f4f8f' };
+
+function openBP(id) {
+  bpTarget = id;
+  ['bp-chapter','bp-verse','bp-vend'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('bp-preview').textContent = UI_LANG[curLang].placeholderPreview;
+  document.getElementById('modal-bible').style.setProperty('--day-color', DAY_COLORS[curDay] || '#a86a00');
+  document.getElementById('modal-bible').style.display = 'flex';
+  setTimeout(() => document.getElementById('bp-chapter').focus(), 250);
+}
+
+function closeBiblePicker() {
+  document.getElementById('modal-bible').style.display = 'none';
+  bpTarget = null;
+}
+
+function modalBgClick(e) {
+  if (e.target.id === 'modal-bible') closeBiblePicker();
+}
+
+function previewRef() {
+  const bIdx = parseInt(document.getElementById('bp-book').value) - 1;
+  const book = BOOKS[bIdx];
+  const ch = document.getElementById('bp-chapter').value;
+  const v = document.getElementById('bp-verse').value;
+  const ve = document.getElementById('bp-vend').value;
+  const preview = document.getElementById('bp-preview');
+
+  if (!book || !ch) {
+    preview.textContent = UI_LANG[curLang].placeholderPreview;
+    return;
+  }
+
+  const label = buildLabel(book.name, ch, v || null, ve || null);
+  const url = buildUrl(book, parseInt(ch), v ? parseInt(v) : null, ve ? parseInt(ve) : null);
+  preview.innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a> ↗`;
+}
+
+function insertRef() {
+  if (!bpTarget) return;
+
+  const bIdx = parseInt(document.getElementById('bp-book').value) - 1;
+  const book = BOOKS[bIdx];
+  const ch = document.getElementById('bp-chapter').value;
+  const v = document.getElementById('bp-verse').value;
+  const ve = document.getElementById('bp-vend').value;
+
+  if (!book || !ch) {
+    toast(UI_LANG[curLang].selectBookChapter);
+    return;
+  }
+
+  const label = buildLabel(book.name, ch, v || null, ve || null);
+  const url = buildUrl(book, parseInt(ch), v ? parseInt(v) : null, ve ? parseInt(ve) : null);
+
+  if (!bRefs[bpTarget]) bRefs[bpTarget] = [];
+  bRefs[bpTarget].push({ label, url });
+  save();
+
+  const row = document.getElementById(`rr-${bpTarget}`);
+  if (row) row.innerHTML = (bRefs[bpTarget] || []).map((r, i) => refChipHtml(r, bpTarget, i)).join('');
+
+  toast(`✓ ${label} ${UI_LANG[curLang].referenceAdded}`);
+  closeBiblePicker();
+}
+
+function delRef(id, index) {
+  if (!bRefs[id]) return;
+  bRefs[id].splice(index, 1);
+  save();
+
+  const row = document.getElementById(`rr-${id}`);
+  if (row) row.innerHTML = (bRefs[id] || []).map((r, i) => refChipHtml(r, id, i)).join('');
+}
+
+// ═══════════════════════════════════════════
+//  SCRIPTURE POPUP
+// ═══════════════════════════════════════════
+
+function openScripture(url, e) {
+  e.preventDefault();
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 640;
+  if (isMobile) {
+    window.open(url, '_blank');
+  } else {
+    const w = 440, h = 640;
+    const left = Math.round((screen.width  - w) / 2);
+    const top  = Math.round((screen.height - h) / 2);
+    window.open(url, 'scripture_popup',
+      `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=yes`);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  EXPORT / IMPORT
+// ═══════════════════════════════════════════
+
+function exportJSON() {
+  const payload = {
+    _tool: 'CA 2026-2027 BR Find Exquisite Delight Notes',
+    _version: APP_VERSION,
+    _language: curLang,
+    _exported: new Date().toISOString(),
+    notes,
+    bRefs,
+    blocks,
+    speakers
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,16);
+  a.download = `ca26-2-notes-${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(UI_LANG[curLang].exported);
+}
+
+function triggerImport() {
+  document.getElementById('import-file').value = '';
+  document.getElementById('import-file').click();
+}
+
+function doImport(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      const hasData = Object.values(notes).some(v => v)
+        || Object.values(bRefs).some(v => v && v.length)
+        || Object.values(blocks).some(v => v && v.length)
+        || Object.values(speakers).some(v => v);
+
+      if (hasData && !confirm(UI_LANG[curLang].overwriteConfirm)) return;
+
+      notes = data.notes || {};
+      bRefs = data.bRefs || {};
+      blocks = data.blocks || {};
+      speakers = data.speakers || {};
+      save();
+      renderAll();
+      switchDay(curDay);
+      toast(UI_LANG[curLang].imported);
+    } catch(err) {
+      alert(UI_LANG[curLang].importFailed);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════
+//  PRINT PREPARATION
+// ═══════════════════════════════════════════
+
+function preparePrintLayout() {
+  document.querySelectorAll('.note-block').forEach(block => {
+    const ta = block.querySelector('.notes-ta');
+    block.classList.toggle('print-empty', !(ta && ta.value.trim()));
+  });
+
+  document.querySelectorAll('.notes-area').forEach(area => {
+    const mainTa = area.querySelector(':scope > .notes-wrap .notes-ta');
+    const refs = area.querySelector(':scope > .refs-row');
+    const hasText = !!(mainTa && mainTa.value.trim());
+    const hasRefs = !!(refs && refs.children.length);
+    const hasExtraNotes = [...area.querySelectorAll('.note-block .notes-ta')]
+      .some(ta => ta.value.trim());
+    area.classList.toggle('print-empty', !hasText && !hasRefs && !hasExtraNotes);
+  });
+
+  document.querySelectorAll('.speaker-row').forEach(row => {
+    const input = row.querySelector('.speaker-input');
+    row.classList.toggle('print-empty', !(input && input.value.trim()));
+  });
+}
+
+function cleanupPrintLayout() {
+  document.querySelectorAll('.print-empty').forEach(el => el.classList.remove('print-empty'));
+}
+
+window.addEventListener('beforeprint', preparePrintLayout);
+window.addEventListener('afterprint', cleanupPrintLayout);
+
+// ═══════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('modal-bible').style.display !== 'none') closeBiblePicker();
+  }
+});
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', function() {
+  load();
+  applyLang(curLang);
+  switchDay('morning');
+});
+</script>
+</body>
+</html>
