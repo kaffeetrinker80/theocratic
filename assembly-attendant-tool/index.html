@@ -75,6 +75,58 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .import-radio-opt input[type=radio]{width:18px;height:18px;margin:0;cursor:pointer}
 .import-radio-opt label{font-size:14px;font-weight:700;color:#1f2937;cursor:pointer;flex:1}
 
+/* ── needs attention ── */
+.miss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.miss-tile{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;border:1px solid var(--line);
+  background:var(--surface-2);cursor:pointer;text-align:left;transition:background .12s,border-color .12s}
+.miss-tile:hover{background:#f0f6ff;border-color:#90caf9}
+.miss-tile .n{font-size:22px;font-weight:800;min-width:30px;color:#ef6c00}
+.miss-tile.clear{cursor:default;opacity:.6}
+.miss-tile.clear:hover{background:var(--surface-2);border-color:var(--line)}
+.miss-tile.clear .n{color:#2e7d32;font-size:18px}
+.miss-tile .t{font-size:11px;font-weight:700;color:#35506f;line-height:1.3}
+.miss-tile .t span{display:block;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.miss-list{display:grid;gap:6px}
+.miss-row{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px}
+.miss-row .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.miss-row .sub{font-size:11px;color:var(--muted)}
+tr.row-flash>td{animation:rowflash 1.8s ease-out}
+@keyframes rowflash{0%{background:#fff3c4}100%{background:transparent}}
+
+/* ── generic modal (mail preview + attendant editor) ── */
+.modal-ov{position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.55);display:flex;
+  align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto}
+.modal-card{background:#fff;border-radius:18px;box-shadow:0 26px 60px rgba(0,0,0,.35);width:100%;
+  max-width:720px;margin:auto;max-height:94vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-card.wide{max-width:980px}
+.modal-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,#f8fafc 0%,#eef3f8 100%)}
+.modal-head h3{margin:0;font-size:16px;font-weight:800;color:#1f2937;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.modal-head .sub{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.modal-nav{display:flex;gap:5px;flex:0 0 auto}
+.modal-x{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;color:#455a64;
+  cursor:pointer;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.modal-x:hover{background:#eef3f8}
+.modal-body{padding:15px 16px;overflow-y:auto;display:grid;gap:13px}
+.modal-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  padding:11px 16px;border-top:1px solid var(--line);background:#f8fafc}
+.modal-foot .left{margin-right:auto;display:flex;gap:11px;align-items:center;flex-wrap:wrap}
+.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.modal-field label{margin-bottom:4px}
+.modal-field input,.modal-field select,.modal-field textarea{font-size:13px}
+.modal-field textarea{min-height:58px}
+.modal-sub{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#35506f;margin-bottom:6px}
+.modal-msg{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  font-size:13px;line-height:1.5;max-height:40vh;overflow-y:auto}
+.modal-line{display:grid;grid-template-columns:92px minmax(0,1fr) 30px;gap:8px;align-items:center}
+.modal-line .lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.modal-line .val{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kbd{display:inline-block;padding:1px 5px;border-radius:5px;border:1px solid #cfd6dc;background:#f7f9fc;
+  font-size:10px;font-weight:700;color:#455a64}
+@media(max-width:700px){.modal-line{grid-template-columns:minmax(0,1fr) 30px}.modal-line .lbl{display:none}}
+
 /* mini stats bar */
 .mini-stats{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 14px;
   background:linear-gradient(135deg,#f8fafc 0%,#f3f6fb 100%);border:1px solid #e3e8f0;
@@ -107,7 +159,7 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .att-table col.c-shift{width:190px}
 .att-table col.c-mob  {width:160px}
 .att-table col.c-rem  {width:auto}
-.att-table col.c-act2 {width:54px}  /* copy+exp */
+.att-table col.c-act2 {width:60px}  /* copy+exp */
 .att-table col.c-del  {width:32px}
 
 .att-table thead th{
@@ -344,7 +396,7 @@ table.dash-table tbody tr:hover td{background:#fafcff}
   </div>
   <div class="toolbar no-print">
     <button class="primary" onclick="addCongregationRow()">+ Congregation / Group</button>
-    <button class="primary" onclick="addAttendantRow()">+ Attendant</button>
+    <button class="primary" onclick="openAttendantModal()">+ Attendant</button>
     <button class="success" onclick="copyActiveAttendantsSummary(this)" style="display:inline-flex;align-items:center;gap:7px">
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;flex:0 0 auto">
         <path fill="currentColor" d="M6 2h8l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" opacity=".95"/>
@@ -356,6 +408,7 @@ table.dash-table tbody tr:hover td{background:#fafcff}
     <button class="warn-btn" onclick="resetStatuses()">Reset contacted / replied</button>
 
     <button class="danger" onclick="resetAttendants()">Reset attendants</button>
+    <button class="secondary" id="undoBtn" onclick="undoDelete()" style="display:none">↩ Undo delete</button>
   </div>
 </section>
 
@@ -380,6 +433,11 @@ table.dash-table tbody tr:hover td{background:#fafcff}
       <div class="metric"><div class="k">Other dept.</div><div class="v" id="mOther">0</div></div>
       <div class="metric"><div class="k">Shifts set</div><div class="v" id="mShifts">0</div></div>
     </div>
+  </section>
+
+  <section class="card section no-print" id="missingCard">
+    <h2>Needs attention</h2>
+    <div class="miss-grid" id="missGrid"></div>
   </section>
 
   <section class="card section">
@@ -443,14 +501,18 @@ Loving greetings,
         </div>
       </div>
       <div>
-        <label>Preview &amp; copy</label>
-        <div class="preview-copy-stack" id="previewBox">
-          <div class="muted">Select a congregation → Preview or Copy.</div>
-        </div>
+        <label>Preview &amp; send</label>
         <div class="preview-contact-card">
-          <div class="preview-contact-title">Contact shortcuts</div>
-          <div class="preview-contact-grid" id="previewContactActions"><div class="muted">Preview a congregation first.</div></div>
+          <div class="preview-contact-title" id="previewSideTitle">No congregation selected</div>
+          <div class="mini" id="previewSideInfo">Click <b>Preview</b> in the congregation table – the mail window opens right there.</div>
+          <div class="toolbar no-print">
+            <button class="primary" onclick="openPreviewModal()">🔍 Open mail window</button>
+            <button class="secondary" onclick="openPreviewModal(firstOpenCongIndex())">▶ Next open one</button>
+          </div>
+          <div class="footer-note" style="margin-top:6px">Shortcuts: <span class="kbd">P</span> mail window · <span class="kbd">N</span> new attendant · <span class="kbd">/</span> search · <span class="kbd">Ctrl</span>+<span class="kbd">Z</span> undo delete · <span class="kbd">Esc</span> close</div>
         </div>
+        <div id="previewBox" style="display:none"></div>
+        <div id="previewContactActions" style="display:none"></div>
       </div>
     </div>
   </section>
@@ -589,7 +651,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.4.5</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.1</div>
 </div>
 
 <script>
@@ -808,6 +870,7 @@ function refreshHeader(){
   const ii=el('notesImportInfo');if(ii)ii.textContent=imp;
 }
 function updateMetrics(){
+  renderMissingCard();
   el('mCongs').textContent=state.congregations.length;
   el('mAtt').textContent=state.attendants.length;
   el('mActive').textContent=state.attendants.filter(a=>a.active!==false).length;
@@ -826,17 +889,31 @@ function attsForCong(row){
 }
 
 /* ── congregation table ── */
-function renderCongTable(){
+function congMatchesFilters(row){
   const q=String(el('congSearch')?.value||'').trim().toLowerCase();
   const type=el('filterType').value,follow=el('filterFollowup').value;
+  const names=attsForCong(row);
+  const hay=[row.congregation,shortCong(row.congregation),row.type,row.coordinator,row.congJwpub,row.jwpub,row.mobile,row.remarks,
+    names.map(a=>`${dispName(a)} ${a.privilege||''}`).join(' | ')].join(' ').toLowerCase();
+  if(q&&!hay.includes(q))return false;
+  if(!matchTerms(hay))return false;
+  if(type!=='all'&&row.type!==type)return false;
+  if(follow!=='all'&&followState(row)!==follow)return false;
+  return true;
+}
+function visibleCongIndices(){return state.congregations.map((r,i)=>i).filter(i=>congMatchesFilters(state.congregations[i]));}
+function firstOpenCongIndex(){
+  const vis=visibleCongIndices();
+  const open=vis.find(i=>followState(state.congregations[i])==='open');
+  return open!==undefined?open:(vis.length?vis[0]:null);
+}
+function renderCongTable(){
   const body=el('congBody');body.innerHTML='';
   state.congregations.forEach((row,index)=>{
     const names=attsForCong(row);
-    const hay=[row.congregation,shortCong(row.congregation),row.type,row.coordinator,row.congJwpub,row.jwpub,row.mobile,row.remarks,
-      names.map(a=>`${dispName(a)} ${a.privilege||''}`).join(' | ')].join(' ').toLowerCase();
-    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
-    if(type!=='all'&&row.type!==type)return;if(follow!=='all'&&followState(row)!==follow)return;
+    if(!congMatchesFilters(row))return;
     const tr=document.createElement('tr');
+    tr.id='congRow-'+index;
     tr.innerHTML=`
       <td><div class="compact-stack">
         <input value="${esc(row.congregation)}" oninput="updCong(${index},'congregation',this.value)" placeholder="Congregation / Group">
@@ -863,13 +940,13 @@ function renderCongTable(){
         </div></div></td>
       <td><textarea oninput="updCong(${index},'remarks',this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea></td>
       <td class="no-print right"><div class="stack">
-        <button class="secondary small-btn" onclick="previewCong(${index})">Preview</button>
+        <button class="secondary small-btn" onclick="openPreviewModal(${index})">Preview</button>
         <button class="secondary small-btn" onclick="copyCongMessage(${index})">Copy</button>
         <button class="danger small-btn" onclick="deleteCongRow(${index})">Delete</button>
       </div></td>`;
     body.appendChild(tr);
   });
-  if(!body.children.length&&state.congregations.length===0){
+  if(!body.children.length&&state.congregations.length===0&&!(undoItem&&undoItem.kind==='cong')){
     state.congregations=structuredClone(initialCongregations).map(normalizeCongregation);
     saveState();return renderCongTable();
   }
@@ -995,6 +1072,7 @@ function renderAttendantTable(){
       <td><textarea class="wrap-field" oninput="updAttDirect(${index},'remarks',this.value)" placeholder="Remarks / flags (free text)">${esc(row.remarks)}</textarea></td>
       <td style="text-align:center">
         <div class="cell-actions">
+          <span class="icon-btn" onclick="openAttendantModal(${index})" title="Open in window (edit all fields)">✎</span>
           <span class="icon-btn exp" onclick="toggleRow(${index})" title="${isExp?'Collapse':'Expand'}">${isExp?'▲':'▼'}</span>
         </div>
       </td>
@@ -1209,6 +1287,8 @@ function addCongregationRow(){
 }
 function deleteCongRow(index){
   if(!confirm(`Delete ${state.congregations[index]?.congregation||'this row'}?`))return;
+  pushUndo({kind:'cong',index,row:structuredClone(state.congregations[index]),
+    label:state.congregations[index]?.congregation||'congregation'});
   state.congregations.splice(index,1);saveState();renderCongTable();renderAttendantTable();updateDatalist();
 }
 function addAttendantRow(){
@@ -1218,6 +1298,7 @@ function addAttendantRow(){
 }
 function deleteAttRow(index){
   if(!confirm(`Delete ${dispName(state.attendants[index])}?`))return;
+  pushUndo({kind:'att',index,row:structuredClone(state.attendants[index]),label:dispName(state.attendants[index])});
   state.attendants.splice(index,1);saveState();renderAttendantTable();renderCongTable();
 }
 function nextId(){
@@ -1267,6 +1348,7 @@ function resetStatuses(){
 }
 function resetAttendants(){
   if(!confirm('Delete entire attendant list?'))return;
+  pushUndo({kind:'attAll',rows:structuredClone(state.attendants),label:`${state.attendants.length} attendants`});
   state.attendants=[];state.congregations=state.congregations.map(r=>({...r,linkedAttendantIds:''}));
   saveState();renderAttendantTable();renderCongTable();
 }
@@ -1425,6 +1507,9 @@ function previewCong(index){
       <div class="preview-copy-value message">${messageToHtml(message)}</div>
       <button class="preview-copy-btn" onclick="copyRichText(buildCongMessage(${index}),false,this)" title="Copy message">⧉</button>
     </div>`;
+  const st=el('previewSideTitle');if(st)st.textContent=row.congregation||'(no name)';
+  const si=el('previewSideInfo');
+  if(si)si.innerHTML=`${esc(row.type)} · ${followState(row)} · ${esc(row.coordinator||'no coordinator')}`;
   const wrap=el('previewContactActions');
   wrap.innerHTML=[['Cong. email',row?.congJwpub||'—'],['Coordinator',row?.jwpub||'—']].map(([label,value])=>`
     <div class="preview-contact-row">
@@ -1607,7 +1692,7 @@ function loadCsvFile(event){
       });
       state.meta.lastImportText=`CSV · ${file.name} · ${imported.length} rows`;
       saveState();updateDatalist();renderCongTable();renderAttendantTable();
-      el('previewBox').textContent=`CSV: ${imported.length} processed · ${added} added · ${updated} updated.`;
+      flash(`CSV: ${imported.length} rows · ${added} new · ${updated} updated`);
     }catch(err){alert('CSV import failed. Check header row.');console.error(err);}
     finally{event.target.value='';}
   };
@@ -1680,10 +1765,350 @@ function executeImport(filename){
   ensureValidState();state.meta.lastImportText=`JSON · ${filename}`;
   writeMetaToInputs();saveState();updateDatalist();renderCongTable();renderAttendantTable();renderMiniStats();
   closeImportModal();
-  el('previewBox').textContent=`JSON loaded successfully into ${target}.`;
   flash(`Imported into ${target}`);
 }
 
+
+/* ══════════ MODAL INFRASTRUCTURE ══════════ */
+function closeOverlay(id){const m=el(id);if(m)m.remove();}
+function anyOverlay(){return document.querySelector('.modal-ov,.import-modal');}
+function openOverlay(id,inner,cls){
+  closeOverlay(id);
+  const ov=document.createElement('div');ov.className='modal-ov';ov.id=id;
+  ov.innerHTML=`<div class="modal-card ${cls||''}">${inner}</div>`;
+  ov.addEventListener('mousedown',e=>{if(e.target===ov)closeOverlay(id);});
+  document.body.appendChild(ov);
+  return ov;
+}
+
+/* ══════════ MAIL PREVIEW MODAL ══════════ */
+function openPreviewModal(index){
+  if(index===null||index===undefined)index=(selectedCongIndex!==null?selectedCongIndex:firstOpenCongIndex());
+  if(index===null||index===undefined||!state.congregations[index]){
+    alert('No congregation to preview. Add or select one first.');return;
+  }
+  selectedCongIndex=index;
+  previewCong(index);
+  const row=state.congregations[index];
+  const subject=buildCongSubject();
+  const message=buildCongMessage(index);
+  const atts=attsForCong(row);
+  const vis=visibleCongIndices();
+  const pos=vis.indexOf(index);
+  const prev=pos>0?vis[pos-1]:null;
+  const next=(pos>=0&&pos<vis.length-1)?vis[pos+1]:null;
+  const recipient=row.jwpub||row.congJwpub||'';
+  openOverlay('previewModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0">
+        <h3>${esc(row.congregation||'(no name)')}</h3>
+        <div class="sub">${esc(row.type)} · ${atts.filter(a=>a.active!==false).length}/${atts.length} active · ${pos>=0?`${pos+1} / ${vis.length} in current filter`:'outside current filter'}</div>
+      </div>
+      ${followLabel(row)}
+      <div class="modal-nav">
+        <button class="secondary small-btn" ${prev===null?'disabled style="opacity:.35"':`onclick="openPreviewModal(${prev})" title="Previous congregation"`}>◀</button>
+        <button class="secondary small-btn" ${next===null?'disabled style="opacity:.35"':`onclick="openPreviewModal(${next})" title="Next congregation"`}>▶</button>
+      </div>
+      <button class="modal-x" onclick="closeOverlay('previewModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;gap:7px">
+        <div class="modal-line"><div class="lbl">To</div>
+          <div class="val">${esc(row.coordinator||'Coordinator')}${recipient?` · ${esc(recipient)}`:' · <span class="muted">no address</span>'}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(recipient)}',false,this)" title="Copy recipient address">⧉</button></div>
+        <div class="modal-line"><div class="lbl">Cong. mail</div>
+          <div class="val">${esc(row.congJwpub||'—')}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(row.congJwpub||'')}',false,this)" title="Copy congregation address">⧉</button></div>
+        <div class="modal-line"><div class="lbl">Mobile</div>
+          <div class="val">${esc(row.mobile||'—')}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(row.mobile||'')}',false,this)" title="Copy mobile">⧉</button></div>
+        <div class="modal-line"><div class="lbl">Subject</div>
+          <div class="val">${esc(subject)}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(subject)}',false,this)" title="Copy subject">⧉</button></div>
+      </div>
+      <div>
+        <div class="modal-sub" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span>Message</span>
+          <button class="secondary small-btn" onclick="togglePmTemplate()">${pmTemplateOpen?'▲ Hide template':'✎ Edit template'}</button>
+        </div>
+        <div id="pmTemplateWrap" style="display:${pmTemplateOpen?'block':'none'};margin-bottom:9px">
+          <textarea id="pmTemplate" style="min-height:160px;font-size:12px;line-height:1.45" oninput="onPmTemplateInput(${index})">${esc(state.meta.messageTemplate||'')}</textarea>
+          <div class="footer-note">Placeholders: [EVENT_DATE] · [ATTENDANT_LIST] · [SENDER_NAME] · [SENDER_ROLE] · [SENDER_SIGNATURE] · <b>**bold**</b>. Changes are saved to the template right away.</div>
+        </div>
+        <div class="modal-msg" id="pmMessage">${messageToHtml(message)}</div>
+      </div>
+      ${row.remarks?`<div><div class="modal-sub">Remarks</div><div class="mini">${esc(row.remarks)}</div></div>`:''}
+    </div>
+    <div class="modal-foot">
+      <div class="left check-row">
+        <label><input type="checkbox" ${row.contacted?'checked':''} onchange="updCongFromModal(${index},'contacted',this.checked)"> contacted</label>
+        <label><input type="checkbox" ${row.replied?'checked':''} onchange="updCongFromModal(${index},'replied',this.checked)"> replied</label>
+      </div>
+      <button class="secondary" onclick="copyRichText(buildCongMessage(${index}),false,this)">⧉ Copy message</button>
+      <button class="primary" onclick="copyAndMail(${index})" title="Copies the message and opens a new mail with recipient + subject">✉ Copy + open mail</button>
+      <button class="secondary" onclick="closeOverlay('previewModal')">Close</button>
+    </div>`,'wide');
+}
+function updCongFromModal(index,key,value){updCong(index,key,value);renderCongTable();openPreviewModal(index);}
+async function copyAndMail(index){
+  const row=state.congregations[index];
+  await copyRichText(buildCongMessage(index),true);
+  const to=row.jwpub||row.congJwpub||'';
+  if(!row.contacted){updCong(index,'contacted',true);renderCongTable();}
+  window.location.href=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(buildCongSubject())}`;
+  flash('Copied – paste into the mail');
+  openPreviewModal(index);
+}
+
+/* ══════════ ATTENDANT MODAL (add / edit) ══════════ */
+let attModalIndex=null,lastModalCong='';
+function chipBox(group,key,label,cls,on){
+  return`<label class="tch ${cls}${on?'':' off'}"><input type="checkbox" data-group="${group}" value="${esc(key)}" ${on?'checked':''} onchange="this.closest('label').classList.toggle('off',!this.checked)">${esc(label)}</label>`;
+}
+function openAttendantModal(index){
+  const isNew=(index===null||index===undefined);
+  attModalIndex=isNew?null:index;
+  const filterCong=el('filterCongregation')?.value;
+  const row=isNew
+    ? normalizeAttendant({id:nextId(),congregation:lastModalCong||(filterCong&&filterCong!=='all'?filterCong:''),
+        privilege:'Publisher',active:true})
+    : state.attendants[index];
+  if(!row){alert('Attendant not found.');return;}
+  const teamChips=[...MAIN_TEAMS,...EXTRA_TEAMS].map(t=>chipBox('teams',t.key,t.label,t.cls,(row.teams||[]).includes(t.key))).join('')
+    +(state.meta.customTeams||[]).map(ct=>chipBox('custom','team:'+ct,ct,'custom',(row.customTags||[]).includes('team:'+ct))).join('');
+  const shiftChips=SHIFTS.map(s=>chipBox('shifts',s.key,s.label,s.cls,(row.shifts||[]).includes(s.key))).join('');
+  const roleChips=ROLES.map(r=>chipBox('roles',r.key,r.label,r.cls,(row.roles||[]).includes(r.key))).join('')
+    +(state.meta.customRoles||[]).map(cr=>chipBox('custom','role:'+cr,cr,'custom',(row.customTags||[]).includes('role:'+cr))).join('');
+  openOverlay('attModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0">
+        <h3>${isNew?'New attendant':'Edit: '+esc(dispName(row))}</h3>
+        <div class="sub">${esc(state.meta.eventType)}${isNew?'':' · ID '+esc(row.id||'–')}</div>
+      </div>
+      <button class="modal-x" onclick="closeOverlay('attModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field" style="max-width:110px"><label for="amId">ID</label><input id="amId" value="${esc(row.id||'')}"></div>
+        <div class="modal-field"><label for="amName">Name *</label><input id="amName" value="${esc(row.name||'')}" placeholder="Last name"></div>
+        <div class="modal-field"><label for="amFirst">First name</label><input id="amFirst" value="${esc(row.firstName||'')}"></div>
+        <div class="modal-field"><label for="amCong">Congregation / Group</label><input id="amCong" list="congregationOptions" value="${esc(row.congregation||'')}" placeholder="Type or pick"></div>
+        <div class="modal-field"><label for="amPriv">Privilege</label><select id="amPriv">
+          ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
+        </select></div>
+        <div class="modal-field"><label for="amMobile">Mobile</label><input id="amMobile" value="${esc(row.mobile||'')}"></div>
+        <div class="modal-field"><label for="amEmail">Email</label><input id="amEmail" value="${esc(row.email||'')}"></div>
+        <div class="modal-field"><label for="amJwpub">JWPub mail</label><input id="amJwpub" value="${esc(row.jwpub||'')}"></div>
+      </div>
+      <div><div class="modal-sub">Teams (main + extra)</div><div class="cb-grid">${teamChips}</div></div>
+      <div><div class="modal-sub">Possible shifts</div><div class="cb-grid">${shiftChips}</div></div>
+      <div><div class="modal-sub">Role / function</div><div class="cb-grid">${roleChips}</div></div>
+      <div class="modal-grid">
+        <div class="modal-field"><label for="amFlags">Flags / notes (searchable)</label><textarea id="amFlags" placeholder="e.g. no WhatsApp, has children, parking...">${esc(row.flags||'')}</textarea></div>
+        <div class="modal-field"><label for="amRemarks">Remarks</label><textarea id="amRemarks">${esc(row.remarks||'')}</textarea></div>
+      </div>
+      <div id="amDupHint" class="mini"></div>
+    </div>
+    <div class="modal-foot">
+      <div class="left check-row">
+        <label><input type="checkbox" id="amActive" ${row.active!==false?'checked':''}> active</label>
+        <span class="mini"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> save</span>
+      </div>
+      ${isNew?'':`<button class="danger small-btn" onclick="deleteFromModal(${index})">Delete</button>`}
+      <button class="secondary" onclick="closeOverlay('attModal')">Cancel</button>
+      ${isNew?'<button class="success" onclick="saveAttendantModal(true)">Save &amp; add next</button>':''}
+      <button class="primary" onclick="saveAttendantModal(false)">${isNew?'Save':'Save changes'}</button>
+    </div>`,'wide');
+  setTimeout(()=>{const n=el('amName');if(n){n.focus();n.select();}},40);
+  const nameEl=el('amName'),congEl=el('amCong');
+  if(nameEl)nameEl.addEventListener('input',checkAttModalDuplicate);
+  if(congEl)congEl.addEventListener('input',checkAttModalDuplicate);
+}
+function checkAttModalDuplicate(){
+  const hint=el('amDupHint');if(!hint)return;
+  const name=String(el('amName')?.value||'').trim().toLowerCase();
+  const first=String(el('amFirst')?.value||'').trim().toLowerCase();
+  if(!name){hint.innerHTML='';return;}
+  const hits=state.attendants.filter((a,i)=>i!==attModalIndex
+    &&String(a.name||'').trim().toLowerCase()===name
+    &&(!first||String(a.firstName||'').trim().toLowerCase()===first));
+  hint.innerHTML=hits.length
+    ? `⚠ Already in the list: ${hits.map(a=>esc(dispName(a))+' ('+esc(shortCong(a.congregation)||'no congregation')+')').join(', ')}`
+    : '';
+  hint.style.color=hits.length?'#ef6c00':'';
+}
+function saveAttendantModal(addAnother){
+  const ov=el('attModal');if(!ov)return;
+  const v=id=>String(el(id)?.value||'').trim();
+  const picks=g=>[...ov.querySelectorAll(`input[data-group="${g}"]:checked`)].map(i=>i.value);
+  const name=v('amName'),first=v('amFirst');
+  if(!name&&!first){alert('Please enter at least a name.');el('amName')?.focus();return;}
+  const custom=picks('custom');
+  const obj={id:v('amId'),name,firstName:first,congregation:v('amCong'),privilege:el('amPriv').value,
+    mobile:v('amMobile'),email:v('amEmail'),jwpub:v('amJwpub'),active:!!el('amActive').checked,
+    teams:picks('teams'),roles:picks('roles'),shifts:picks('shifts'),customTags:custom,
+    flags:v('amFlags'),remarks:v('amRemarks')};
+  if(attModalIndex===null){
+    const clash=state.attendants.some(a=>String(a.id)===String(obj.id));
+    if(!obj.id||clash)obj.id=nextId();
+    const dup=state.attendants.find(a=>
+      String(a.name||'').trim().toLowerCase()===name.toLowerCase()&&
+      String(a.firstName||'').trim().toLowerCase()===first.toLowerCase()&&
+      String(a.congregation||'').trim().toLowerCase()===obj.congregation.toLowerCase());
+    if(dup&&!confirm(`"${dispName(dup)}" already exists in this congregation.\n\nAdd anyway?`))return;
+    state.attendants.push(normalizeAttendant(obj));
+    lastModalCong=obj.congregation;
+  }else{
+    state.attendants[attModalIndex]=normalizeAttendant({...state.attendants[attModalIndex],...obj});
+  }
+  saveState();updateDatalist();renderAttendantTable();renderCongTable();
+  closeOverlay('attModal');
+  flash(attModalIndex===null?'Attendant added':'Attendant saved');
+  if(addAnother&&attModalIndex===null)openAttendantModal();
+}
+function deleteFromModal(index){
+  if(!confirm(`Delete ${dispName(state.attendants[index])}?`))return;
+  pushUndo({kind:'att',index,row:structuredClone(state.attendants[index]),label:dispName(state.attendants[index])});
+  state.attendants.splice(index,1);
+  saveState();renderAttendantTable();renderCongTable();
+  closeOverlay('attModal');flash('Attendant deleted');
+}
+
+/* ══════════ TEMPLATE EDITING INSIDE THE MAIL WINDOW ══════════ */
+let pmTemplateOpen=false;
+function togglePmTemplate(){
+  pmTemplateOpen=!pmTemplateOpen;
+  if(selectedCongIndex!==null)openPreviewModal(selectedCongIndex);
+  if(pmTemplateOpen)setTimeout(()=>el('pmTemplate')?.focus(),40);
+}
+function onPmTemplateInput(index){
+  const t=el('pmTemplate');if(!t)return;
+  state.meta.messageTemplate=t.value;
+  const mt=el('messageTemplate');if(mt)mt.value=t.value;
+  saveState();
+  const box=el('pmMessage');if(box)box.innerHTML=messageToHtml(buildCongMessage(index));
+}
+
+/* ══════════ UNDO DELETE ══════════ */
+let undoItem=null;
+function pushUndo(item){undoItem=item;updateUndoBtn();}
+function updateUndoBtn(){
+  const b=el('undoBtn');if(!b)return;
+  if(undoItem){b.style.display='';b.textContent=`↩ Undo delete: ${undoItem.label||''}`.trim();}
+  else b.style.display='none';
+}
+function undoDelete(){
+  if(!undoItem){flash('Nothing to undo');return;}
+  const it=undoItem;
+  if(it.kind==='att'){
+    const at=Math.min(it.index,state.attendants.length);
+    state.attendants.splice(at,0,normalizeAttendant(it.row));
+  }else if(it.kind==='attAll'){
+    state.attendants=(it.rows||[]).map(normalizeAttendant);
+  }else if(it.kind==='cong'){
+    const at=Math.min(it.index,state.congregations.length);
+    state.congregations.splice(at,0,normalizeCongregation(it.row));
+  }
+  undoItem=null;updateUndoBtn();
+  saveState();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+  flash(`Restored: ${it.label||''}`.trim());
+}
+
+/* ══════════ NEEDS ATTENTION ══════════ */
+function missingSets(){
+  const noTeam=[],noShift=[],noId=[],noMail=[];
+  state.attendants.forEach((a,i)=>{
+    if(!String(a.id||'').trim())noId.push(i);
+    if(a.active===false)return;
+    if(!(a.teams||[]).length)noTeam.push(i);
+    if(!(a.shifts||[]).length)noShift.push(i);
+  });
+  state.congregations.forEach((c,i)=>{if(!String(c.jwpub||'').trim())noMail.push(i);});
+  return{noTeam,noShift,noId,noMail};
+}
+const MISS_DEFS={
+  noTeam :{title:'No team assigned',   sub:'active attendants',        clear:'All active attendants have a team'},
+  noShift:{title:'No shift set',       sub:'active attendants',        clear:'All active attendants have a shift'},
+  noId   :{title:'No ID',              sub:'attendants',               clear:'Every attendant has an ID'},
+  noMail :{title:'No coordinator mail',sub:'congregations / groups',   clear:'Every congregation has a coordinator mail'}
+};
+function renderMissingCard(){
+  const grid=el('missGrid');if(!grid)return;
+  const sets=missingSets();
+  grid.innerHTML=Object.keys(MISS_DEFS).map(key=>{
+    const n=sets[key].length,d=MISS_DEFS[key];
+    return n===0
+      ?`<div class="miss-tile clear"><div class="n">✓</div><div class="t">${esc(d.clear)}</div></div>`
+      :`<div class="miss-tile" onclick="openMissingModal('${key}')" title="Show list"><div class="n">${n}</div>
+          <div class="t">${esc(d.title)}<span>${esc(d.sub)}</span></div></div>`;
+  }).join('');
+}
+function openMissingModal(key){
+  const sets=missingSets(),list=sets[key]||[],d=MISS_DEFS[key];
+  const rows=list.map(i=>{
+    if(key==='noMail'){
+      const c=state.congregations[i];
+      return`<div class="miss-row"><div class="grow"><b>${esc(c.congregation||'(no name)')}</b>
+        <div class="sub">${esc(c.coordinator||'no coordinator')}${c.congJwpub?' · cong. mail: '+esc(c.congJwpub):' · no address at all'}</div></div>
+        <button class="secondary small-btn" onclick="focusCongRow(${i})">Go to row</button></div>`;
+    }
+    const a=state.attendants[i];
+    return`<div class="miss-row"><div class="grow"><b>${esc(dispName(a))}</b>
+      <div class="sub">${esc(shortCong(a.congregation)||'no congregation')} · ${esc(a.privilege||'')}${a.active===false?' · inactive':''}</div></div>
+      <button class="secondary small-btn" onclick="closeOverlay('missModal');openAttendantModal(${i})">✎ Fix</button></div>`;
+  }).join('');
+  openOverlay('missModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>${esc(d.title)}</h3><div class="sub">${list.length} ${esc(d.sub)}</div></div>
+      <button class="modal-x" onclick="closeOverlay('missModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body"><div class="miss-list">${rows||'<div class="muted">Nothing to show.</div>'}</div></div>
+    <div class="modal-foot"><button class="secondary" onclick="closeOverlay('missModal')">Close</button></div>`);
+}
+function focusCongRow(index){
+  closeOverlay('missModal');
+  showTab('dashboard');
+  let tr=el('congRow-'+index);
+  if(!tr){
+    if(el('filterType'))el('filterType').value='all';
+    if(el('filterFollowup'))el('filterFollowup').value='all';
+    clearGlobalSearch();
+    renderCongTable();
+    tr=el('congRow-'+index);
+  }
+  if(!tr)return;
+  tr.scrollIntoView({behavior:'smooth',block:'center'});
+  tr.classList.remove('row-flash');void tr.offsetWidth;tr.classList.add('row-flash');
+  setTimeout(()=>tr.classList.remove('row-flash'),2000);
+}
+
+/* ══════════ KEYBOARD SHORTCUTS ══════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    const ov=document.querySelector('.modal-ov')||document.querySelector('.import-modal');
+    if(ov){ov.remove();e.preventDefault();}
+    return;
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&el('attModal')){e.preventDefault();saveAttendantModal(false);return;}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')&&!anyOverlay()){
+    const t0=e.target;
+    if(!(t0&&(t0.tagName==='INPUT'||t0.tagName==='TEXTAREA'||t0.isContentEditable))&&undoItem){e.preventDefault();undoDelete();return;}
+  }
+  const t=e.target;
+  const typing=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable);
+  if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(anyOverlay()){
+    if(el('previewModal')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){
+      const vis=visibleCongIndices(),pos=vis.indexOf(selectedCongIndex);
+      const to=e.key==='ArrowRight'?vis[pos+1]:vis[pos-1];
+      if(to!==undefined){e.preventDefault();openPreviewModal(to);}
+    }
+    return;
+  }
+  if(e.key==='n'||e.key==='N'){e.preventDefault();openAttendantModal();}
+  else if(e.key==='p'||e.key==='P'){e.preventDefault();openPreviewModal();}
+  else if(e.key==='/'){e.preventDefault();el('globalSearch')?.focus();}
+});
 
 /* ── tabs ── */
 function showTab(tab){
@@ -1703,6 +2128,7 @@ writeMetaToInputs();
 refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
 el('previewContactActions').innerHTML='<div class="muted">Preview a congregation first.</div>';
 renderCustomLists();
+renderMissingCard();updateUndoBtn();
 showTab('dashboard');
 </script>
 </body>
