@@ -1346,10 +1346,13 @@ const BOOKS_DE=[{"n": 1, "name": "1. Mose"}, {"n": 2, "name": "2. Mose"}, {"n": 
 // ═══════════════════════════════════════════
 
 const APP_VERSION = '1.0.0';
-const SK = 'ca2627-br-exquisiteDelight-notes-v1';
-const LANGKEY = 'ca2627-br-exquisiteDelight-lang-v1';
+// Storage keys follow the tool/file name (ca26-2).
+const SK = 'ca26-2-notes-v1';
+const LANGKEY = 'ca26-2-lang-v1';
+const LEGACY_SK = 'ca2627-br-exquisiteDelight-notes-v1';
+const LEGACY_LANGKEY = 'ca2627-br-exquisiteDelight-lang-v1';
 
-let curLang = localStorage.getItem(LANGKEY) || ((navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en');
+let curLang = localStorage.getItem(LANGKEY) || localStorage.getItem(LEGACY_LANGKEY) || ((navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en');
 let PROG = PROG_EN;
 let BOOKS = BOOKS_EN;
 let notes = {};
@@ -1358,6 +1361,7 @@ let blocks = {};
 let speakers = {};
 let curDay = 'morning';
 let bpTarget = null;
+let activeField = {};   // item id → key of the note field last focused
 
 const UI_LANG = {
   "de": {
@@ -1462,7 +1466,7 @@ const UI_LANG = {
 
 function load() {
   try {
-    const raw = localStorage.getItem(SK);
+    const raw = localStorage.getItem(SK) || localStorage.getItem(LEGACY_SK); // fallback for early test data
     if (raw) {
       const data = JSON.parse(raw);
       notes = data.notes || {};
@@ -1813,6 +1817,7 @@ function notesArea(id, placeholder) {
       <textarea class="notes-ta" id="ta-${esc(id)}"
         placeholder="${esc(placeholder || ui.notes)}"
         oninput="onNote(this,'${esc(id)}')"
+        onfocus="setActiveField('${esc(id)}','${esc(id)}')"
       >${esc(txt)}</textarea>
       <button class="btn-clear-ta${txt ? ' vis' : ''}" id="clr-${esc(id)}"
         onclick="clearNote('${esc(id)}')" aria-label="${esc(ui.clearNotes)}" title="${esc(ui.clearNotes)}">✕</button>
@@ -1844,10 +1849,12 @@ function renderExtraBlocks(id) {
         <textarea class="notes-ta" id="ta-${esc(blockId)}"
           placeholder="${esc(ui.moreNotes)}"
           oninput="onBlockNote(this,'${esc(id)}',${idx})"
+          onfocus="setActiveField('${esc(id)}','${esc(blockId)}')"
         >${esc(text)}</textarea>
         <button class="btn-clear-ta${text ? ' vis' : ''}" id="clr-${esc(blockId)}"
           onclick="clearBlockNote('${esc(id)}',${idx})" aria-label="${esc(ui.clearMoreNotes)}" title="${esc(ui.clearMoreNotes)}">✕</button>
       </div>
+      <div class="refs-row" id="rr-${esc(blockId)}">${(bRefs[blockId] || []).map((r, i) => refChipHtml(r, blockId, i)).join('')}</div>
     </div>`;
   }).join('');
 }
@@ -1903,8 +1910,18 @@ function addNoteBlock(id) {
 
 function deleteBlock(id, idx) {
   if (!Array.isArray(blocks[id])) return;
+  const count = blocks[id].length;
   blocks[id].splice(idx, 1);
   if (!blocks[id].length) delete blocks[id];
+
+  // block keys are positional, so shift the Bible refs of the following fields down
+  delete bRefs[`${id}-b-${idx}`];
+  for (let i = idx + 1; i < count; i++) {
+    const from = `${id}-b-${i}`, to = `${id}-b-${i - 1}`;
+    if (bRefs[from]) { bRefs[to] = bRefs[from]; delete bRefs[from]; }
+    else delete bRefs[to];
+  }
+  activeField[id] = id;
   save();
   renderAll();
   switchDay(curDay);
@@ -1970,8 +1987,13 @@ function fillBookSelect() {
 
 const DAY_COLORS = { morning:'#a86a00', afternoon:'#7b3f72', questions:'#3f4f8f' };
 
+function setActiveField(itemId, fieldKey) {
+  activeField[itemId] = fieldKey;
+}
+
 function openBP(id) {
-  bpTarget = id;
+  // Bible text goes into the note field the user is working in, not always the first one
+  bpTarget = activeField[id] || id;
   ['bp-chapter','bp-verse','bp-vend'].forEach(i => document.getElementById(i).value = '');
   document.getElementById('bp-preview').textContent = UI_LANG[curLang].placeholderPreview;
   document.getElementById('modal-bible').style.setProperty('--day-color', DAY_COLORS[curDay] || '#a86a00');
@@ -2030,8 +2052,10 @@ function insertRef() {
   const row = document.getElementById(`rr-${bpTarget}`);
   if (row) row.innerHTML = (bRefs[bpTarget] || []).map((r, i) => refChipHtml(r, bpTarget, i)).join('');
 
+  const back = document.getElementById(`ta-${bpTarget}`);
   toast(`✓ ${label} ${UI_LANG[curLang].referenceAdded}`);
   closeBiblePicker();
+  if (back) requestAnimationFrame(() => back.focus());
 }
 
 function delRef(id, index) {
@@ -2128,7 +2152,9 @@ function doImport(ev) {
 function preparePrintLayout() {
   document.querySelectorAll('.note-block').forEach(block => {
     const ta = block.querySelector('.notes-ta');
-    block.classList.toggle('print-empty', !(ta && ta.value.trim()));
+    const refs = block.querySelector('.refs-row');
+    const keep = (ta && ta.value.trim()) || (refs && refs.children.length);
+    block.classList.toggle('print-empty', !keep);
   });
 
   document.querySelectorAll('.notes-area').forEach(area => {
@@ -2136,8 +2162,12 @@ function preparePrintLayout() {
     const refs = area.querySelector(':scope > .refs-row');
     const hasText = !!(mainTa && mainTa.value.trim());
     const hasRefs = !!(refs && refs.children.length);
-    const hasExtraNotes = [...area.querySelectorAll('.note-block .notes-ta')]
-      .some(ta => ta.value.trim());
+    const hasExtraNotes = [...area.querySelectorAll('.note-block')]
+      .some(b => {
+        const ta = b.querySelector('.notes-ta');
+        const rr = b.querySelector('.refs-row');
+        return (ta && ta.value.trim()) || (rr && rr.children.length);
+      });
     area.classList.toggle('print-empty', !hasText && !hasRefs && !hasExtraNotes);
   });
 
