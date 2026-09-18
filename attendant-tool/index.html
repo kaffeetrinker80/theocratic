@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#172f4d">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Attendant Department Planner</title>
+<style>
+:root{
+  --bg:#f3f5f7;--surface:#fff;--surface-2:#f8fafc;--text:#1f2937;--muted:#6b7280;
+  --line:#d8dee4;--primary:#34495e;--accent:#2e7d32;--warn:#ef6c00;--danger:#c62828;
+  --shadow:0 10px 28px rgba(15,23,42,.08);--radius:18px;
+  --lobby-bg:#fff3e0;--lobby-t:#7a3900;--lobby-b:#ffb74d;
+  --caf-bg:#e8f5e9;  --caf-t:#1b5e20;  --caf-b:#a5d6a7;
+  --aud-bg:#fffde7;  --aud-t:#5d4300;  --aud-b:#ffe082;
+  --wel-bg:#f3e5f5;  --wel-t:#5e0072;  --wel-b:#ce93d8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{padding:12px}
+.app{width:min(100%,1980px);max-width:1980px;margin:0 auto}
+.card{background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.hero{padding:11px 15px;margin-bottom:10px;background:linear-gradient(135deg,#ffffff 0%,#f7f5f1 58%,#eef1f2 100%);border-color:#d7dde1}
+.hero-top{display:block}
+h2{margin:0 0 12px;font-size:17px;font-weight:800}
+.badge{display:grid;gap:4px;padding:10px 12px;border-radius:12px;border:1px solid #d8dee4;background:#f7f8f8;color:var(--primary);font-size:12px;font-weight:700}
+.badge .big{font-size:13px;font-weight:800}.badge .small{font-size:11px;color:#35506f;font-weight:600}
+.section{padding:14px 16px;margin-bottom:12px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:14px}
+label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;background:#fff;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.1)}
+textarea{min-height:100px;resize:vertical}
+button,.file-label{border:0;border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .07s}
+button:hover,.file-label:hover{transform:translateY(-1px)}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.primary{background:var(--primary);color:#fff}
+.secondary{background:#eef3f8;color:var(--text)}
+.success{background:#e8f5e9;color:var(--accent)}
+.warn-btn{background:#fff3e0;color:var(--warn)}
+.danger{background:#ffebee;color:var(--danger)}
+.danger-mid{background:#fff0f0;color:#b71c1c;border:1px solid #ef9a9a}
+.file-label input{display:none}
+.summary{display:grid;grid-template-columns:repeat(8,minmax(95px,1fr));gap:8px}
+.metric{padding:10px 11px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2)}
+.metric .k{color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:700}
+.metric .v{font-size:22px;font-weight:800;margin-top:3px}
+
+
+
+/* import target modal */
+.import-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;padding:20px}
+.import-modal-card{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:100%;
+  box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.import-modal-card h3{margin:0 0 16px;font-size:18px;color:#1f2937}
+.import-modal-card p{margin:0 0 20px;font-size:13px;color:#6b7280;line-height:1.5}
+.import-modal-buttons{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.import-modal-buttons button{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;
+  border:0;cursor:pointer;transition:transform .08s}
+.import-modal-buttons button:hover{transform:translateY(-1px)}
+.import-modal-buttons .btn-rc{background:#1565c0;color:#fff}
+.import-modal-buttons .btn-assembly{background:#2e7d32;color:#fff}
+.import-modal-buttons .btn-cancel{background:#eceff1;color:#455a64}
+.import-radio-group{display:grid;gap:12px;margin:16px 0}
+.import-radio-opt{display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid #e3e8f0;
+  border-radius:12px;cursor:pointer;transition:all .12s}
+.import-radio-opt:hover{border-color:#90caf9;background:#f5f9ff}
+.import-radio-opt.selected{border-color:#1565c0;background:#eaf2fd}
+.import-radio-opt input[type=radio]{width:18px;height:18px;margin:0;cursor:pointer}
+.import-radio-opt label{font-size:14px;font-weight:700;color:#1f2937;cursor:pointer;flex:1}
+
+/* ── needs attention ── */
+.miss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.miss-tile{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;border:1px solid var(--line);
+  background:var(--surface-2);cursor:pointer;text-align:left;transition:background .12s,border-color .12s}
+.miss-tile:hover{background:#f0f6ff;border-color:#90caf9}
+.miss-tile .n{font-size:22px;font-weight:800;min-width:30px;color:#ef6c00}
+.miss-tile.clear{cursor:default;opacity:.6}
+.miss-tile.clear:hover{background:var(--surface-2);border-color:var(--line)}
+.miss-tile.clear .n{color:#2e7d32;font-size:18px}
+.miss-tile .t{font-size:11px;font-weight:700;color:#35506f;line-height:1.3}
+.miss-tile .t span{display:block;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.miss-list{display:grid;gap:6px}
+.miss-row{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px}
+.miss-row .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.miss-row .sub{font-size:11px;color:var(--muted)}
+tr.row-flash>td{animation:rowflash 1.8s ease-out}
+@keyframes rowflash{0%{background:#fff3c4}100%{background:transparent}}
+
+/* ── generic modal (mail preview + attendant editor) ── */
+.modal-ov{position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.55);display:flex;
+  align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto}
+.modal-card{background:#fff;border-radius:18px;box-shadow:0 26px 60px rgba(0,0,0,.35);width:100%;
+  max-width:720px;margin:auto;max-height:94vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-card.wide{max-width:980px}
+.modal-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,#f8fafc 0%,#eef3f8 100%)}
+.modal-head h3{margin:0;font-size:16px;font-weight:800;color:#1f2937;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.modal-head .sub{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.modal-nav{display:flex;gap:5px;flex:0 0 auto}
+.modal-x{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;color:#455a64;
+  cursor:pointer;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.modal-x:hover{background:#eef3f8}
+.modal-body{padding:15px 16px;overflow-y:auto;display:grid;gap:13px}
+.modal-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+  padding:11px 16px;border-top:1px solid var(--line);background:#f8fafc}
+.modal-foot .left{margin-right:auto;display:flex;gap:11px;align-items:center;flex-wrap:wrap}
+.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.modal-field label{margin-bottom:4px}
+.modal-field input,.modal-field select,.modal-field textarea{font-size:13px}
+.modal-field textarea{min-height:58px}
+.modal-sub{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#35506f;margin-bottom:6px}
+.modal-msg{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  font-size:13px;line-height:1.5;max-height:40vh;overflow-y:auto}
+.modal-line{display:grid;grid-template-columns:92px minmax(0,1fr) 30px;gap:8px;align-items:center}
+.modal-line .lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.modal-line .val{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kbd{display:inline-block;padding:1px 5px;border-radius:5px;border:1px solid #cfd6dc;background:#f7f9fc;
+  font-size:10px;font-weight:700;color:#455a64}
+@media(max-width:700px){.modal-line{grid-template-columns:minmax(0,1fr) 30px}.modal-line .lbl{display:none}}
+
+/* mini stats bar */
+.mini-stats{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 14px;
+  background:linear-gradient(135deg,#f8fafc 0%,#f3f6fb 100%);border:1px solid #e3e8f0;
+  border-radius:12px;margin-bottom:12px;font-size:11px;color:#5c6c7d}
+.mini-stats .stat{display:flex;align-items:center;gap:5px}
+.mini-stats .stat .label{font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#6b7888}
+.mini-stats .stat .val{font-weight:800;font-size:13px;color:#1f2937}
+.mini-stats .divider{width:1px;height:18px;background:#d0d9e3}
+
+/* filter row */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;margin-bottom:9px}
+.filter-row .sf{display:grid;gap:3px}
+.filter-row .sf.wide{min-width:190px;flex:2}
+.filter-row .sf.mid{min-width:120px;flex:1}
+.filter-row .sf.narrow{min-width:88px;flex:0 1 105px}
+.filter-row .sf.btn{min-width:auto;flex:0 0 auto;align-self:flex-end;display:flex;gap:5px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff;width:100%}
+.att-table{width:100%;border-collapse:collapse;table-layout:fixed}
+
+/* col widths — generous, real-estate focused */
+.att-table col.c-act  {width:36px}
+.att-table col.c-id   {width:52px}
+.att-table col.c-name {width:130px}
+.att-table col.c-first{width:110px}
+.att-table col.c-cong {width:190px}
+.att-table col.c-priv {width:140px}
+.att-table col.c-teams{width:220px}
+.att-table col.c-shift{width:190px}
+.att-table col.c-mob  {width:160px}
+.att-table col.c-rem  {width:auto}
+.att-table col.c-act2 {width:60px}  /* copy+exp */
+.att-table col.c-del  {width:32px}
+
+.att-table thead th{
+  position:sticky;top:0;z-index:3;background:#eef0f1;color:#34495e;
+  font-size:10px;text-transform:uppercase;letter-spacing:.04em;
+  padding:7px 6px;border-bottom:2px solid #c4d8ed;border-right:1px solid #d0dcea;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
+}
+.att-table thead th.left{text-align:left}
+.att-table tbody td{
+  border-bottom:1px solid #edf1f4;border-right:1px solid #edf1f4;
+  padding:3px 5px;vertical-align:middle;font-size:12px;
+}
+.att-table tbody tr.main-row:hover td{background:#f5f9ff}
+.att-table tbody tr.main-row.inactive td{background:#fafafa;opacity:.75}
+.att-table tbody tr.main-row.no-id td:nth-child(2){border-left:3px solid #ef6c00}
+.att-table tbody tr.exp-row>td{padding:10px 12px;border-bottom:2px solid #c4d8ed;background:#f7fbff}
+
+/* inline inputs */
+.att-table input[type=text]{
+  border:1px solid transparent;border-radius:5px;padding:3px 5px;
+  font-size:12px;background:transparent;color:inherit;width:100%;min-width:0
+}
+.att-table input[type=text]:focus{border-color:#90caf9;background:#fff;box-shadow:0 0 0 2px rgba(21,101,192,.1)}
+.att-table textarea.wrap-field{
+  min-height:34px;max-height:92px;resize:vertical;line-height:1.25;white-space:pre-wrap;
+  border:1px solid transparent;border-radius:5px;padding:4px 6px;font-size:12px;background:transparent;color:inherit;width:100%
+}
+.att-table textarea.wrap-field:focus{border-color:#90caf9;background:#fff;box-shadow:0 0 0 2px rgba(21,101,192,.1)}
+textarea.flags-wrap{min-height:76px;line-height:1.35;white-space:pre-wrap}
+.att-table select{border:1px solid transparent;border-radius:5px;padding:3px 5px;font-size:12px;background:transparent;color:inherit;width:100%;appearance:none;-webkit-appearance:none;cursor:pointer}
+.att-table select:focus{border-color:#90caf9;background:#fff}
+
+/* active dot */
+.act-dot{width:26px;height:26px;border-radius:999px;border:2px solid transparent;font-size:11px;
+  font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:all .12s}
+.act-dot.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
+.act-dot.off{background:#ffebee;border-color:#ef9a9a;color:#c62828}
+
+/* chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 0}
+.tch{display:inline-flex;align-items:center;gap:2px;padding:3px 6px;border-radius:999px;
+  font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid transparent;
+  user-select:none;transition:opacity .12s,filter .12s}
+.tch input[type=checkbox]{width:11px;height:11px;margin:0;cursor:pointer;flex-shrink:0}
+.tch.off{opacity:.32;filter:grayscale(.5)}
+.tch.lobby{background:var(--lobby-bg);color:var(--lobby-t);border-color:var(--lobby-b)}
+.tch.caf  {background:var(--caf-bg);  color:var(--caf-t);  border-color:var(--caf-b)}
+.tch.aud  {background:#fffde7;color:#5d4300;border-color:#ffe082}
+.tch.wel  {background:var(--wel-bg);  color:var(--wel-t);  border-color:var(--wel-b)}
+.tch.early,.tch.morn,.tch.aft,.tch.late{background:#f4f6f8;color:#4b5563;border-color:#d8e1ea}
+/* extra teams – intentionally neutral, so main assignment colors stay meaningful */
+.tch.av,.tch.stage,.tch.bap,.tch.park,.tch.clean,.tch.safe{
+  background:#f4f6f8;color:#4b5563;border-color:#d8e1ea
+}
+/* Block Att. is a shift-style flag from feedback forms */
+.tch.block{background:#fffde7;color:#5d4300;border-color:#ffe082}
+/* roles – neutral, because these are functions, not main team colors */
+.tch.ovr,.tch.asst,.tch.tc{
+  background:#f4f6f8;color:#4b5563;border-color:#d8e1ea
+}
+/* custom tag */
+.tch.custom{background:#f0f4ff;color:#3730a3;border-color:#a5b4fc}
+
+/* icon buttons */
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:7px;border:1px solid var(--line);
+  background:#f7f9fc;color:#35506f;cursor:pointer;font-size:12px;flex-shrink:0}
+.icon-btn:hover{background:#edf4fb}
+.icon-btn.danger{border-color:#ef9a9a;background:#fff0f0;color:#c62828}
+.icon-btn.danger:hover{background:#ffcdd2}
+.icon-btn.exp{font-size:10px;font-weight:900}
+
+.del-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:7px;border:1px solid #ef9a9a;
+  background:#fff0f0;color:#c62828;cursor:pointer;font-size:14px}
+.del-btn:hover{background:#ffcdd2}
+
+/* cell action cluster */
+.cell-actions{display:flex;gap:3px;justify-content:center;align-items:center}
+
+/* expanded panel */
+.exp-panel{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.exp-group{display:grid;gap:5px}
+.exp-subhead{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#35506f;margin-bottom:3px}
+.cb-grid{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+/* add-custom inline */
+.add-custom-wrap{display:flex;gap:4px;margin-top:4px}
+.add-custom-wrap input{flex:1;border:1px solid var(--line);border-radius:6px;padding:3px 7px;font-size:11px;min-width:80px}
+.add-custom-wrap button{padding:3px 8px;font-size:11px;border-radius:6px;background:var(--primary);color:#fff;border:0;cursor:pointer;white-space:nowrap}
+
+/* contact vcf row */
+.contact-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.vcf-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
+  border:1px solid #90caf9;background:#e3f2fd;color:#0d47a1;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.vcf-btn:hover{background:#bbdefb}
+.mailto-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;
+  border:1px solid #a5d6a7;background:#e8f5e9;color:#1b5e20;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap}
+.mailto-btn:hover{background:#c8e6c9}
+
+/* no-id warning */
+.no-id-warn{display:inline-block;padding:2px 5px;border-radius:999px;background:#fff3e0;
+  color:#8d4000;font-size:9px;font-weight:800;border:1px solid #ffb74d}
+
+/* copy toast */
+.copy-toast{position:fixed;z-index:3000;padding:5px 10px;border-radius:9px;background:#1f2937;color:#fff;
+  font-size:12px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.2);pointer-events:none;
+  opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+.copy-toast.show{opacity:.97;transform:translateY(0)}
+
+/* dashboard table */
+.table-wrap-dash{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+table.dash-table{width:100%;border-collapse:collapse;min-width:850px}
+table.dash-table thead th{position:sticky;top:0;z-index:2;background:#eef0f1;color:#34495e;
+  font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:9px 9px;border-bottom:1px solid var(--line)}
+table.dash-table tbody td{border-bottom:1px solid #edf1f4;padding:7px;vertical-align:top;font-size:13px}
+table.dash-table tbody tr:hover td{background:#fafcff}
+
+.compact-stack{display:grid;gap:5px}
+.stack{display:grid;gap:7px}
+.mini{font-size:11px;color:var(--muted)}
+.pill{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.pill.open{background:#eceff1;color:#455a64}.pill.contacted{background:#e8f5e9;color:#2e7d32}.pill.replied{background:#fff3e0;color:#ef6c00}
+.pill.cong{background:#e3f2fd;color:#1565c0}.pill.group{background:#fff8e1;color:#8d6e00}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{border:1px solid var(--line);background:#eef3f8;padding:11px;border-radius:13px;min-width:190px;display:grid;gap:4px}
+.chip b{font-size:13px}.chip span{color:var(--muted);font-size:11px}
+.chips-inline{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.mini-chip{padding:4px 8px;border-radius:999px;background:#eef3f8;font-size:11px;border:1px solid var(--line)}
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+.muted{color:var(--muted)}
+.hero-grid{display:grid;grid-template-columns:minmax(460px,1.25fr) minmax(390px,.9fr);gap:11px;margin-top:8px}
+.hero-simple{display:grid;gap:10px}
+.hero-title-input{width:100%;border:0;border-bottom:1px solid #d9dddf;border-radius:0;padding:0 0 3px;
+  background:transparent;font-size:22px;font-weight:800;color:var(--text)}
+.hero-title-input:focus{box-shadow:none;border-color:#90caf9}
+.event-stack{display:grid;grid-template-columns:1.2fr .9fr;gap:9px}
+.event-stack input{font-size:14px;font-weight:700;padding:9px 11px}
+.global-search-wrap{position:relative;padding:7px 9px;border:1px solid #d9dee2;border-radius:11px;background:rgba(255,255,255,.72)}
+.global-search-wrap input{padding-right:36px;font-size:13px;background:#fff;border-color:#cfd6dc}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.contact-grid .span-2{grid-column:span 2}
+.contact-card{padding:11px;border:1px solid var(--line);border-radius:14px;background:rgba(248,250,252,.9)}
+.contact-card h3{margin:0 0 8px;font-size:13px;color:#26415f}
+.contact-box-preview{margin-top:8px;padding:7px 9px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:11px;color:var(--muted);white-space:pre-line}
+.field-with-actions{position:relative}
+.field-with-actions input{padding-right:30px}
+.field-actions{position:absolute;right:6px;top:50%;transform:translateY(-50%)}
+.mini-copy{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:6px;
+  border:1px solid #d4dde7;background:#f7f9fc;color:#35506f;cursor:pointer;font-size:11px}
+.mini-copy:hover{background:#edf4fb}
+.preview-contact-card{margin-top:11px;padding:11px 13px;border-radius:13px;border:1px solid var(--line);background:#f8fafc}
+.preview-contact-title{font-size:12px;font-weight:800;color:#35506f;margin-bottom:9px}
+.preview-contact-grid{display:grid;gap:7px}
+.preview-contact-row{display:grid;grid-template-columns:110px 1fr 26px;gap:7px;align-items:center}
+.preview-contact-row .label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.preview-contact-value{min-height:34px;display:flex;align-items:center;padding:7px 11px;border:1px solid var(--line);
+  border-radius:10px;background:#fff;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.type-select{font-weight:700;border-radius:999px;padding:7px 11px;border:1px solid var(--line);appearance:none;-webkit-appearance:none}
+.type-select.cong{background:#e3f2fd;color:#1565c0}.type-select.group{background:#fff8e1;color:#8d6e00}
+.message-box{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:12px;font-size:13px;line-height:1.5;min-height:180px}
+.preview-copy-stack{display:grid;gap:8px}
+.preview-copy-row{display:grid;grid-template-columns:92px minmax(0,1fr) 30px;gap:7px;align-items:start}
+.preview-copy-label{padding-top:9px;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.preview-copy-value{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.45;white-space:pre-wrap;min-height:36px}
+.preview-copy-value.message{min-height:180px;font-size:13px}
+.preview-copy-btn{width:28px;height:28px;margin-top:3px;border:1px solid #cfd6dc;background:#f7f8f8;color:#34495e;border-radius:8px;padding:0;display:flex;align-items:center;justify-content:center}
+.scroll-top-btn{position:fixed;right:20px;bottom:20px;z-index:40;width:44px;height:44px;border-radius:999px;
+  border:1px solid #cfe1f7;background:var(--primary);color:#fff;box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.footer-note{color:var(--muted);font-size:11px;margin-top:10px}
+.footer-bar{padding:12px 18px;text-align:center;color:var(--muted);font-size:11px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab-btn{background:#eef3f8;color:var(--text)}
+.tab-btn.active{background:var(--primary);color:#fff}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.check-row{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:3px}
+.check-row label{display:flex;align-items:center;gap:5px;margin:0;font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--text)}
+.check-row input[type=checkbox]{width:auto;margin:0}
+.mono{font-family:Consolas,Monaco,monospace}
+.right{text-align:right}
+.small-btn{padding:6px 9px;font-size:11px}
+
+@media(max-width:1100px){
+  .hero-top,.hero-grid,.event-stack,.contact-grid,.split,.grid-2,.summary{grid-template-columns:1fr}
+  body{padding:8px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  .card{box-shadow:none}.toolbar,.no-print,.footer-note,.footer-bar{display:none!important}
+  .att-table{font-size:10px}.att-table thead th{position:static}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HERO -->
+<section class="card hero">
+  <div class="hero-top">
+    <div><input id="plannerTitle" class="hero-title-input" value="Attendant Department Planner"></div>
+  </div>
+  <div class="hero-grid">
+    <div class="hero-simple">
+      <div style="display:grid;gap:9px">
+        <div>
+          <label for="eventType">Event Type</label>
+          <select id="eventType" onchange="switchEventType(this.value)" style="font-weight:700;padding:9px 11px;font-size:14px">
+            <option value="Regional Convention">Regional Convention</option>
+            <option value="Assembly">Assembly</option>
+          </select>
+        </div>
+        <div class="event-stack">
+          <div><label for="eventName">Event / Assembly</label><input id="eventName" value="Sample Assembly"></div>
+          <div><label for="eventDate">Date</label><input id="eventDate" value="Sample date / location"></div>
+        </div>
+      </div>
+      <div class="global-search-wrap no-print">
+        <label for="globalSearch">Global search</label>
+        <input id="globalSearch" placeholder="Name, congregation, team, shift, flags, remarks..." oninput="applyGlobalSearch()">
+      </div>
+    </div>
+    <div class="contact-card">
+      <h3>Attendant Overseer contact</h3>
+      <div class="contact-grid">
+        <div><label for="senderName">Name</label><input id="senderName" value="Sample Overseer"></div>
+        <div><label for="senderRole">Role</label><input id="senderRole" value="Attendant Overseer"></div>
+        <div class="span-2"><label for="senderCong">Congregation</label><input id="senderCong" value="Sample Congregation"></div>
+        <div><label for="senderPhone">Phone</label><input id="senderPhone" value="+49 000 000000"></div>
+        <div><label for="senderMail">JWPub / Email</label><input id="senderMail" value="sample.overseer@example.org"></div>
+      </div>
+      <div class="contact-box-preview" id="contactPreviewBox"></div>
+    </div>
+  </div>
+  <div class="toolbar no-print">
+    <button class="primary" onclick="addCongregationRow()">+ Congregation / Group</button>
+    <button class="primary" onclick="openAttendantModal()">+ Attendant</button>
+    <button class="success" onclick="copyActiveAttendantsSummary(this)" style="display:inline-flex;align-items:center;gap:7px">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;flex:0 0 auto">
+        <path fill="currentColor" d="M6 2h8l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" opacity=".95"/>
+        <path fill="#fff" d="M14 2v5h5v1h-6V2h1Z" opacity=".9"/>
+        <path fill="#fff" d="M7 10h8v8H7v-8Zm1.2 1.2v1.6h2.4v-1.6H8.2Zm3.6 0v1.6h2v-1.6h-2Zm-3.6 2.8v1.6h2.4V14H8.2Zm3.6 0v1.6h2V14h-2Z"/>
+      </svg>
+      <span>Copy active A–Z</span>
+    </button>
+    <button class="warn-btn" onclick="resetStatuses()">Reset contacted / replied</button>
+
+    <button class="danger" onclick="resetAttendants()">Reset attendants</button>
+    <button class="secondary" id="undoBtn" onclick="undoDelete()" style="display:none">↩ Undo delete</button>
+  </div>
+</section>
+
+<!-- TABS -->
+<div class="tabs no-print">
+  <button class="tab-btn active" id="tabBtn-dashboard" onclick="showTab('dashboard')">Dashboard &amp; Templates</button>
+  <button class="tab-btn" id="tabBtn-attendants" onclick="showTab('attendants')">Attendant Master List</button>
+  <button class="tab-btn" id="tabBtn-notes" onclick="showTab('notes')">Backup &amp; Tools</button>
+  <button class="tab-btn" id="tabBtn-settings" onclick="showTab('settings')">⚙ Settings</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="tab-panel active" id="tab-dashboard">
+  <section class="card section">
+    <h2>Quick overview</h2>
+    <div class="summary">
+      <div class="metric"><div class="k">Cong./Groups</div><div class="v" id="mCongs">0</div></div>
+      <div class="metric"><div class="k">Attendants</div><div class="v" id="mAtt">0</div></div>
+      <div class="metric"><div class="k">Active</div><div class="v" id="mActive">0</div></div>
+      <div class="metric"><div class="k">Contacted</div><div class="v" id="mContacted">0</div></div>
+      <div class="metric"><div class="k">Replied</div><div class="v" id="mReplied">0</div></div>
+      <div class="metric"><div class="k">Other dept.</div><div class="v" id="mOther">0</div></div>
+      <div class="metric"><div class="k">Shifts set</div><div class="v" id="mShifts">0</div></div>
+    </div>
+  </section>
+
+  <section class="card section no-print" id="missingCard">
+    <h2>Needs attention</h2>
+    <div class="miss-grid" id="missGrid"></div>
+  </section>
+
+  <section class="card section">
+    <h2>Congregation / Group Planner</h2>
+    <div class="filter-row no-print">
+      <div class="sf narrow"><label for="filterType">Type</label>
+        <select id="filterType" onchange="renderCongTable()"><option value="all">All</option><option value="Congregation">Congregation</option><option value="Group">Group</option></select></div>
+      <div class="sf narrow"><label for="filterFollowup">Follow-up</label>
+        <select id="filterFollowup" onchange="renderCongTable()"><option value="all">All</option><option value="open">Open</option><option value="contacted">Contacted</option><option value="replied">Replied</option></select></div>
+      <div class="sf narrow"><label for="bulkStatus">Bulk</label>
+        <select id="bulkStatus"><option value="contacted">Mark visible contacted</option><option value="replied">Mark visible replied</option><option value="open">Clear visible</option></select></div>
+      <div class="sf btn"><button class="secondary" onclick="applyBulkFollowup()">Apply</button></div>
+    </div>
+    <div class="table-wrap-dash">
+      <table class="dash-table">
+        <thead><tr>
+          <th style="width:220px">Congregation / Group</th><th style="width:90px">Type</th>
+          <th style="width:220px">Coordinator / Contacts</th><th style="width:240px">Attendants</th>
+          <th style="width:115px">Follow-up</th><th style="width:180px">Remarks</th>
+          <th style="width:140px" class="no-print">Actions</th>
+        </tr></thead>
+        <tbody id="congBody"></tbody>
+      </table>
+    </div>
+    <div class="footer-note">GitHub-clean. Import your JSON backup to restore real data.</div>
+  </section>
+
+  <section class="card section">
+    <h2>Congregation snapshot</h2>
+    <div class="chips" id="congSummary"></div>
+  </section>
+
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <section class="card section">
+    <h2>Email template</h2>
+    <div class="split">
+      <div>
+        <label for="messageTemplate">Template</label>
+        <textarea id="messageTemplate">Dear brothers,
+
+our next Circuit Assembly is coming up soon ([EVENT_DATE]).
+
+Since the last assembly was only recently, we would like to ask briefly:
+Can we work with the same brothers as last time, or are there any changes or additions?
+
+Here is the list of brothers we currently have from your congregation/group:
+[ATTENDANT_LIST]
+
+If everything is fine, a short reply such as "We confirm" is sufficient.
+If there are changes or additions, please let us know briefly.
+
+Thank you very much for your support.
+Loving greetings,
+
+[SENDER_SIGNATURE]</textarea>
+        <div class="footer-note" style="margin-top:8px">Formatting: Write <b>**text**</b> to make it bold in the preview and when copied into an email.</div>
+        <div class="toolbar no-print">
+          <button class="primary" onclick="copySelectedMessage()">Copy selected message</button>
+          <button class="secondary" onclick="copyTemplateOnly()">Copy template only</button>
+        </div>
+      </div>
+      <div>
+        <label>Preview &amp; send</label>
+        <div class="preview-contact-card">
+          <div class="preview-contact-title" id="previewSideTitle">No congregation selected</div>
+          <div class="mini" id="previewSideInfo">Click <b>Preview</b> in the congregation table – the mail window opens right there.</div>
+          <div class="toolbar no-print">
+            <button class="primary" onclick="openPreviewModal()">🔍 Open mail window</button>
+            <button class="secondary" onclick="openPreviewModal(firstOpenCongIndex())">▶ Next open one</button>
+          </div>
+          <div class="footer-note" style="margin-top:6px">Shortcuts: <span class="kbd">P</span> mail window · <span class="kbd">N</span> new attendant · <span class="kbd">/</span> search · <span class="kbd">Ctrl</span>+<span class="kbd">Z</span> undo delete · <span class="kbd">Esc</span> close</div>
+        </div>
+        <div id="previewBox" style="display:none"></div>
+        <div id="previewContactActions" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ATTENDANT MASTER LIST -->
+<div class="tab-panel" id="tab-attendants">
+  <section class="card section">
+    <h2>Attendant Master List</h2>
+    <div class="mini-stats no-print" id="miniStats"></div>
+    <div class="filter-row no-print">
+      <div class="sf mid"><label for="filterCongregation">Congregation</label><select id="filterCongregation" onchange="renderAttendantTable()"></select></div>
+      <div class="sf narrow"><label for="filterPrivilege">Privilege</label>
+        <select id="filterPrivilege" onchange="renderAttendantTable()">
+          <option value="all">All</option><option value="Publisher">Publisher</option>
+          <option value="Ministerial Servant">Ministerial Servant</option><option value="Elder">Elder</option>
+        </select></div>
+      <div class="sf narrow"><label for="filterTeam">Team</label>
+        <select id="filterTeam" onchange="renderAttendantTable()">
+          <option value="all">All teams</option>
+          <option value="auditorium">Auditorium</option><option value="cafeteria">Cafeteria</option>
+          <option value="lobby">Lobby</option><option value="welcome">Welcome</option>
+          <option value="av">A/V</option><option value="baptism">Baptism</option>
+          <option value="cleaning">Cleaning</option><option value="parking">Parking</option>
+          <option value="safety">Safety</option><option value="stage">Stage</option>
+        </select></div>
+      <div class="sf narrow"><label for="filterShift">Shift</label>
+        <select id="filterShift" onchange="renderAttendantTable()">
+          <option value="all">All shifts</option>
+          <option value="blockatt">Block Att.</option>
+          <option value="early">Early</option><option value="morning">Morning</option>
+          <option value="afternoon">Afternoon</option><option value="late">Late</option>
+        </select></div>
+      <div class="sf narrow"><label for="filterActive">Status</label>
+        <select id="filterActive" onchange="renderAttendantTable()">
+          <option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option>
+        </select></div>
+      <div class="sf btn">
+        <button class="secondary small-btn" onclick="fillAndRenumberIds()" title="Sort A–Z, renumber IDs 1,2,3... (active first)">Fill IDs</button>
+        <button class="secondary small-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
+        <button class="warn-btn small-btn" onclick="resetMainTeamsAndShifts()" title="Reset Block Att./Auditorium/Cafeteria/Lobby/Welcome + Shifts for all attendants. Roles/extra teams stay.">Reset Teams &amp; Shifts</button>
+      </div>
+    </div>
+    <div class="toolbar no-print" style="margin-bottom:10px">
+      <button class="success small-btn" onclick="exportFilteredJson()" title="Export currently visible attendants as JSON">📥 Export filtered (JSON)</button>
+      <button class="success small-btn" onclick="exportFilteredCsv()" title="Export currently visible attendants as CSV">📥 Export filtered (CSV)</button>
+      <span style="font-size:11px;color:var(--muted);margin-left:4px" id="filteredExportHint"></span>
+    </div>
+
+    <div class="table-wrap" style="max-height:80vh;overflow-y:auto">
+      <table class="att-table" id="attTable">
+        <col class="c-act"><col class="c-id"><col class="c-name"><col class="c-first">
+        <col class="c-cong"><col class="c-priv"><col class="c-teams"><col class="c-shift">
+        <col class="c-mob"><col class="c-rem"><col class="c-act2"><col class="c-del">
+        <thead><tr>
+          <th title="Active / Inactive">●</th>
+          <th>ID</th>
+          <th class="left">Name</th>
+          <th class="left">First name</th>
+          <th class="left">Congregation</th>
+          <th class="left">Privilege</th>
+          <th>Main Teams</th>
+          <th>Possible Shifts</th>
+          <th class="left">Mobile</th>
+          <th class="left">Remarks / Flags</th>
+          <th></th>
+          <th></th>
+        </tr></thead>
+        <tbody id="attBody"></tbody>
+      </table>
+    </div>
+    <div class="footer-note" id="attCountNote"></div>
+  </section>
+  <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+</div>
+
+<!-- BACKUP -->
+<div class="tab-panel" id="tab-notes">
+  <section class="card section">
+    <h2>Backup &amp; Tools</h2>
+    <div class="grid-2">
+      <div>
+        <label>Local data status</label>
+        <div class="badge" id="badgePreview" style="margin-bottom:12px">
+          <div class="big">Local data active</div>
+          <div class="small" id="badgeLine1">No import yet</div>
+          <div class="small" id="badgeLine2">Last save: not yet</div>
+        </div>
+        <label>Backup / import</label>
+        <div class="chips-inline">
+          <span class="mini-chip" id="notesImportInfo">Last import: none</span>
+          <span class="mini-chip" id="notesSaveInfo">Last local save: not yet</span>
+          <span class="mini-chip">JSON = full backup</span><span class="mini-chip">CSV = attendants only</span>
+        </div>
+        <div class="toolbar no-print" style="margin-top:10px">
+          <button class="primary" onclick="saveJson()">JSON export</button>
+          <label class="file-label secondary">JSON import<input type="file" accept="application/json" onchange="loadJsonFile(event)"></label>
+          <label class="file-label success">CSV import<input type="file" accept=".csv,text/csv" onchange="loadCsvFile(event)"></label>
+        </div>
+        <div class="footer-note">All data stored locally in your browser. Export JSON regularly.</div>
+      </div>
+      <div>
+        <label for="generalNotes">Notes</label>
+        <textarea id="generalNotes" placeholder="Internal notes, reminders, follow-up..."></textarea>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+<!-- SETTINGS -->
+<div class="tab-panel" id="tab-settings">
+  <section class="card section">
+    <h2>⚙ Settings – Custom Teams &amp; Roles</h2>
+    <p style="font-size:13px;color:var(--muted);margin:0 0 16px">Add your own team or role labels here. They appear as checkboxes in every attendant's expanded view and are fully searchable.</p>
+    <div class="grid-2">
+      <div>
+        <label>Custom Teams</label>
+        <div id="customTeamsList" class="cb-grid" style="margin-bottom:10px;min-height:32px"></div>
+        <div class="add-custom-wrap">
+          <input type="text" id="newCustomTeamInput" placeholder="e.g. Information, Rooming, First Aid..." onkeydown="if(event.key==='Enter')addCustomGlobal('team')">
+          <button onclick="addCustomGlobal('team')">+ Add team</button>
+        </div>
+      </div>
+      <div>
+        <label>Custom Roles</label>
+        <div id="customRolesList" class="cb-grid" style="margin-bottom:10px;min-height:32px"></div>
+        <div class="add-custom-wrap">
+          <input type="text" id="newCustomRoleInput" placeholder="e.g. Evacuation Helper, Counting..." onkeydown="if(event.key==='Enter')addCustomGlobal('role')">
+          <button onclick="addCustomGlobal('role')">+ Add role</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note" style="margin-top:16px">Custom labels are saved in your JSON backup and restored on import. Deleting a label removes it from all attendants automatically.</div>
+  </section>
+</div>
+
+<datalist id="congregationOptions"></datalist>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.1</div>
+</div>
+
+<script>
+const LAST_EVENT_TYPE_KEY = 'attendantPlanner_v2_4_lastEventType';
+function storageKeyForType(type){ return type==='Assembly'?'attendantPlanner_v2_4_Assembly':'attendantPlanner_v2_4_RC'; }
+function getStorageKey(){ return storageKeyForType(state?.meta?.eventType); }
+const DEFAULT_PRIVILEGES = ['Publisher','Ministerial Servant','Elder'];
+
+const MAIN_TEAMS = [
+  {key:'auditorium',label:'Auditorium',  cls:'aud'},
+  {key:'cafeteria', label:'Cafeteria',   cls:'caf'},
+  {key:'lobby',     label:'Lobby',       cls:'lobby'},
+  {key:'welcome',   label:'Welcome',     cls:'wel'},
+];
+const EXTRA_TEAMS = [
+  {key:'av',      label:'A/V',      cls:'av'},
+  {key:'baptism', label:'Baptism',  cls:'bap'},
+  {key:'cleaning',label:'Cleaning', cls:'clean'},
+  {key:'parking', label:'Parking',  cls:'park'},
+  {key:'safety',  label:'Safety',   cls:'safe'},
+  {key:'stage',   label:'Stage',    cls:'stage'},
+];
+const ALL_TEAMS = [...MAIN_TEAMS, ...EXTRA_TEAMS];
+
+const ROLES = [
+  {key:'assistant',  label:'Assistant',   cls:'asst'},
+  {key:'overseer',   label:'Overseer',    cls:'ovr'},
+  {key:'teamcaptain',label:'Team Captain',cls:'tc'},
+];
+
+const SHIFTS = [
+  {key:'blockatt', label:'Block Att.', cls:'block'},
+  {key:'early',    label:'Early',      cls:'early'},
+  {key:'morning',  label:'Morning',    cls:'morn'},
+  {key:'afternoon',label:'Afternoon',  cls:'aft'},
+  {key:'late',     label:'Late',       cls:'late'},
+];
+
+const RESET_TEAM_KEYS = MAIN_TEAMS.map(t=>t.key); // auditorium,cafeteria,lobby,welcome only
+const RESET_SHIFT_KEYS = SHIFTS.map(s=>s.key);
+
+const initialCongregations = [
+  {congregation:'Sample Congregation',type:'Congregation',congJwpub:'sample-cong@example.org',
+   coordinator:'Sample Coordinator',jwpub:'coordinator@example.org',mobile:'+49 000 000000',
+   contacted:false,replied:false,remarks:'Sample – import your JSON backup.',linkedAttendantIds:''}
+];
+
+/* ── state ── */
+let state, selectedCongIndex=null, globalSearchTerm='', expandedRows=new Set(), allExpanded=false;
+
+function defaultState(){
+  return {
+    meta:{plannerTitle:'Attendant Department Planner',eventType:'Regional Convention',eventName:'Sample Assembly',
+      eventDate:'Sample date / location',senderName:'Sample Overseer',
+      senderRole:'Attendant Overseer',senderCong:'Sample Congregation',
+      senderPhone:'+49 000 000000',senderMail:'sample.overseer@example.org',
+      messageTemplate:el('messageTemplate')?.value||'',generalNotes:'',
+      lastImportText:'No import yet',lastSavedAt:'',
+      customTeams:[],customRoles:[]},
+    congregations:structuredClone(initialCongregations),
+    attendants:[normalizeAttendant({id:'001',name:'Sample',firstName:'Brother',
+      congregation:'Sample Congregation',email:'brother.sample@example.org',
+      jwpub:'brother.jwpub@example.org',mobile:'+49 000 000001',privilege:'Ministerial Servant',
+      active:true,children:false,otherDepartment:false,
+      teams:['lobby'],roles:[],shifts:['blockatt','morning','afternoon'],
+      customTags:[],flags:'',remarks:'Example data only'})]
+  };
+}
+
+function loadState(){
+  // Open the same event type that was used last (RC or Assembly).
+  // Older versions always checked RC first, which made the tool jump back to RC after reopening.
+  const lastType=localStorage.getItem(LAST_EVENT_TYPE_KEY);
+  const preferredKeys=lastType==='Assembly'
+    ?['attendantPlanner_v2_4_Assembly','attendantPlanner_v2_4_RC']
+    :['attendantPlanner_v2_4_RC','attendantPlanner_v2_4_Assembly'];
+  const keys=[...preferredKeys,'attendantPlanner_v2_3_RC','attendantPlanner_v2_3_Assembly','attendantPlanner_v2_1','attendantPlanner_v2_0','attendantPlanner_v1_22_github_clean'];
+  for(const key of [...new Set(keys)]){
+    const raw=localStorage.getItem(key);
+    if(!raw) continue;
+    try{
+      const data=JSON.parse(raw);
+      const inferredType=key.includes('_Assembly')?'Assembly':key.includes('_RC')?'Regional Convention':(data.meta?.eventType||'Regional Convention');
+      localStorage.setItem(LAST_EVENT_TYPE_KEY, data.meta?.eventType||inferredType);
+      return {
+        meta:{...defaultState().meta,...(data.meta||{}),eventType:data.meta?.eventType||inferredType},
+        congregations:Array.isArray(data.congregations)&&data.congregations.length
+          ?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+        attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]
+      };
+    }catch{}
+  }
+  return defaultState();
+}
+
+function normalizeCongregation(r){
+  return {congregation:r.congregation||'',type:r.type==='Group'?'Group':'Congregation',
+    congJwpub:r.congJwpub||'',coordinator:r.coordinator||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
+    contacted:!!r.contacted,replied:!!r.replied,remarks:r.remarks||'',
+    linkedAttendantIds:r.linkedAttendantIds||'',contactedAt:r.contactedAt||'',repliedAt:r.repliedAt||''};
+}
+
+function normalizeAttendant(r){
+  let teams=Array.isArray(r.teams)?[...r.teams]:[];
+  if(!teams.length&&r.lastTeam){
+    const lt=String(r.lastTeam).toLowerCase();
+    ALL_TEAMS.forEach(t=>{if(lt.includes(t.key)||lt.includes(t.label.toLowerCase()))teams.push(t.key);});
+  }
+  let roles=Array.isArray(r.roles)?[...r.roles]:[];
+  let shifts=Array.isArray(r.shifts)?[...r.shifts]:[];
+  // v2.4: Block Att. belongs to Possible Shifts (feedback-form availability), not Main Teams/Roles.
+  if((roles.includes('blockatt')||teams.includes('blockatt'))&&!shifts.includes('blockatt')) shifts.unshift('blockatt');
+  roles=roles.filter(role=>role!=='blockatt');
+  teams=teams.filter(team=>team!=='blockatt');
+  const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
+  let flags = r.flags||'';
+  let remarks = r.remarks||'';
+  if(r.children && !/children|child|family|kids|kinder/i.test(`${flags} ${remarks}`)){
+    flags = [flags, 'has children'].filter(Boolean).join(' | ');
+  }
+  return {
+    id:String(r.id||''),name:r.name||'',firstName:r.firstName||'',
+    congregation:r.congregation||'',email:r.email||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
+    privilege:DEFAULT_PRIVILEGES.includes(r.privilege)?r.privilege:'Publisher',
+    active:r.active===undefined?true:!!r.active,children:!!r.children,
+    otherDepartment:r.otherDepartment!==undefined?!!r.otherDepartment:teams.some(t=>otherKeys.includes(t)),
+    teams,roles,shifts,
+    customTags:Array.isArray(r.customTags)?r.customTags:[],
+    flags,remarks
+  };
+}
+
+function ensureValidState(){
+  if(!state) state=loadState();
+  if(!Array.isArray(state.meta.customTeams)) state.meta.customTeams=[];
+  if(!Array.isArray(state.meta.customRoles)) state.meta.customRoles=[];
+  if(!Array.isArray(state.congregations)||!state.congregations.some(r=>String(r?.congregation||'').trim()))
+    state.congregations=structuredClone(initialCongregations).map(normalizeCongregation);
+  else state.congregations=state.congregations.map(normalizeCongregation);
+  state.attendants=Array.isArray(state.attendants)?state.attendants.map(normalizeAttendant):[];
+}
+
+/* ── helpers ── */
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function js(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+function byId(id){return state.attendants.find(a=>String(a.id)===String(id));}
+function matchCong(a,b){return String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();}
+function dispName(a){return[a.name,a.firstName].filter(Boolean).join(', ')||'(no name)';}
+function sortKey(a){return`${String(a?.name||'').trim().toLocaleLowerCase('de')}\0${String(a?.firstName||'').trim().toLocaleLowerCase('de')}\0${String(a?.id||'')}`;};
+function sortByName(list){return[...(list||[])].sort((a,b)=>sortKey(a).localeCompare(sortKey(b),'de'));}
+function shortCong(name){
+  return String(name||'').trim()
+    .replace(/-?\s*english\s*(group|congregation)?/ig,'').replace(/\s+(group|congregation)$/ig,'')
+    .replace(/-(north|south|east|west)$/ig,'').replace(/\s{2,}/g,' ').replace(/[-–—]\s*$/,'').trim();
+}
+function followState(r){return r.replied?'replied':r.contacted?'contacted':'open';}
+function followLabel(r){
+  const s=followState(r);
+  return s==='replied'?'<span class="pill replied">Replied</span>':s==='contacted'?'<span class="pill contacted">Contacted</span>':'<span class="pill open">Open</span>';
+}
+function matchTerms(text){
+  const q=String(globalSearchTerm||'').trim().toLowerCase();
+  if(!q)return true;
+  const hay=String(text||'').toLowerCase();
+  return q.split(/\s+/).every(t=>hay.includes(t));
+}
+function attHay(row){
+  return[row.id,row.name,row.firstName,row.congregation,shortCong(row.congregation),
+    row.email,row.jwpub,row.mobile,row.privilege,row.flags,row.remarks,
+    (row.teams||[]).join(' '),(row.roles||[]).join(' '),(row.shifts||[]).join(' '),(row.customTags||[]).join(' ')].join(' ');
+}
+
+/* ── save / meta ── */
+/* ── Event Type Switching ── */
+function switchEventType(newType){
+  if(state.meta.eventType===newType)return;
+  const hasChanges=localStorage.getItem(getStorageKey())!==JSON.stringify(state,null,2);
+  if(hasChanges&&!confirm(`You have unsaved changes in ${state.meta.eventType}. Switch to ${newType}? (Save first if needed)`))return;
+  state.meta.eventType=newType;
+  localStorage.setItem(LAST_EVENT_TYPE_KEY,newType);
+  const existingData=localStorage.getItem(getStorageKey());
+  if(existingData){
+    try{
+      const loaded=JSON.parse(existingData);
+      state={meta:{...defaultState().meta,...(loaded.meta||{})},
+        congregations:Array.isArray(loaded.congregations)&&loaded.congregations.length?loaded.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+        attendants:Array.isArray(loaded.attendants)?loaded.attendants.map(normalizeAttendant):[]};
+      ensureValidState();
+    }catch{state=defaultState();state.meta.eventType=newType;}
+  }else{state=defaultState();state.meta.eventType=newType;}
+  writeMetaToInputs();refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();renderMiniStats();renderCustomLists();
+  flash(`Switched to ${newType}`);
+}
+
+function syncMeta(){
+  ['plannerTitle','eventType','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes']
+    .forEach(id=>{const e=el(id);if(e)state.meta[id]=e.tagName==='SELECT'?e.value:e.value;});
+}
+function writeMetaToInputs(){Object.entries(state.meta).forEach(([k,v])=>{if(el(k))el(k).value=v??'';});}
+function saveState(){
+  syncMeta();state.meta.lastSavedAt=new Date().toISOString();
+  localStorage.setItem(LAST_EVENT_TYPE_KEY,state.meta.eventType);
+  localStorage.setItem(getStorageKey(),JSON.stringify(state,null,2));
+  refreshHeader();updateMetrics();refreshCongFilter();renderCongSummary();
+}
+function formatStamp(iso){if(!iso)return'not yet';try{return new Date(iso).toLocaleString('de-DE');}catch{return iso;}}
+function formatShortStamp(iso){if(!iso)return'';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return'';}}
+function refreshHeader(){
+  const imp=state.meta.lastImportText||'No import yet';
+  const saved=state.meta.lastSavedAt?'Last save: '+formatStamp(state.meta.lastSavedAt):'Last save: not yet';
+  el('badgeLine1').textContent=imp;el('badgeLine2').textContent=saved;
+  if(el('plannerTitle'))el('plannerTitle').value=state.meta.plannerTitle||'';
+  const p=el('contactPreviewBox');if(p)p.textContent=buildSignature();
+  const si=el('notesSaveInfo');if(si)si.textContent=saved;
+  const ii=el('notesImportInfo');if(ii)ii.textContent=imp;
+}
+function updateMetrics(){
+  renderMissingCard();
+  el('mCongs').textContent=state.congregations.length;
+  el('mAtt').textContent=state.attendants.length;
+  el('mActive').textContent=state.attendants.filter(a=>a.active!==false).length;
+  el('mContacted').textContent=state.congregations.filter(r=>r.contacted).length;
+  el('mReplied').textContent=state.congregations.filter(r=>r.replied).length;
+  el('mOther').textContent=state.attendants.filter(a=>a.otherDepartment).length;
+  el('mShifts').textContent=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
+}
+
+/* ── congregation helpers ── */
+function attsForCong(row){
+  const direct=state.attendants.filter(a=>matchCong(a.congregation,row.congregation));
+  const extras=String(row.linkedAttendantIds||'').split(/[;,\n]+/).map(v=>v.trim()).filter(Boolean).map(id=>byId(id)).filter(Boolean);
+  const map=new Map();[...direct,...extras].forEach(a=>map.set(String(a.id||a.name+a.firstName),a));
+  return sortByName([...map.values()]);
+}
+
+/* ── congregation table ── */
+function congMatchesFilters(row){
+  const q=String(el('congSearch')?.value||'').trim().toLowerCase();
+  const type=el('filterType').value,follow=el('filterFollowup').value;
+  const names=attsForCong(row);
+  const hay=[row.congregation,shortCong(row.congregation),row.type,row.coordinator,row.congJwpub,row.jwpub,row.mobile,row.remarks,
+    names.map(a=>`${dispName(a)} ${a.privilege||''}`).join(' | ')].join(' ').toLowerCase();
+  if(q&&!hay.includes(q))return false;
+  if(!matchTerms(hay))return false;
+  if(type!=='all'&&row.type!==type)return false;
+  if(follow!=='all'&&followState(row)!==follow)return false;
+  return true;
+}
+function visibleCongIndices(){return state.congregations.map((r,i)=>i).filter(i=>congMatchesFilters(state.congregations[i]));}
+function firstOpenCongIndex(){
+  const vis=visibleCongIndices();
+  const open=vis.find(i=>followState(state.congregations[i])==='open');
+  return open!==undefined?open:(vis.length?vis[0]:null);
+}
+function renderCongTable(){
+  const body=el('congBody');body.innerHTML='';
+  state.congregations.forEach((row,index)=>{
+    const names=attsForCong(row);
+    if(!congMatchesFilters(row))return;
+    const tr=document.createElement('tr');
+    tr.id='congRow-'+index;
+    tr.innerHTML=`
+      <td><div class="compact-stack">
+        <input value="${esc(row.congregation)}" oninput="updCong(${index},'congregation',this.value)" placeholder="Congregation / Group">
+        <div class="mini mono">${esc(row.congJwpub||'')}</div>
+      </div></td>
+      <td><select class="type-select ${row.type==='Group'?'group':'cong'}" onchange="updCong(${index},'type',this.value)">
+        <option value="Congregation" ${row.type==='Congregation'?'selected':''}>Congregation</option>
+        <option value="Group" ${row.type==='Group'?'selected':''}>Group</option>
+      </select></td>
+      <td><div class="compact-stack">
+        <input value="${esc(row.coordinator)}" oninput="updCong(${index},'coordinator',this.value)" placeholder="Coordinator">
+        <div class="field-with-actions"><input value="${esc(row.jwpub)}" oninput="updCong(${index},'jwpub',this.value)" placeholder="Personal JWPub / Email">
+          <div class="field-actions">${row.jwpub?`<span class="mini-copy" onclick="copyText('${js(row.jwpub)}',false,this)">⧉</span>`:''}</div></div>
+        <div class="field-with-actions"><input value="${esc(row.mobile)}" oninput="updCong(${index},'mobile',this.value)" placeholder="Mobile">
+          <div class="field-actions">${row.mobile?`<span class="mini-copy" onclick="copyText('${js(row.mobile)}',false,this)">⧉</span>`:''}</div></div>
+        <div class="field-with-actions"><input value="${esc(row.congJwpub)}" oninput="updCong(${index},'congJwpub',this.value)" placeholder="Congregation JWPub / Email">
+          <div class="field-actions">${row.congJwpub?`<span class="mini-copy" onclick="copyText('${js(row.congJwpub)}',false,this)">⧉</span>`:''}</div></div>
+      </div></td>
+      <td><div class="mini">${names.length?names.map(a=>esc(dispName(a))+(a.active===false?' <span class="muted">(inactive)</span>':'')).join('<br>'):'<span class="muted">–</span>'}</div></td>
+      <td><div class="compact-stack">${followLabel(row)}
+        <div class="check-row no-print">
+          <label><input type="checkbox" ${row.contacted?'checked':''} onchange="updCong(${index},'contacted',this.checked)"> contacted</label>
+          <label><input type="checkbox" ${row.replied?'checked':''} onchange="updCong(${index},'replied',this.checked)"> replied</label>
+        </div></div></td>
+      <td><textarea oninput="updCong(${index},'remarks',this.value)" placeholder="Remarks">${esc(row.remarks)}</textarea></td>
+      <td class="no-print right"><div class="stack">
+        <button class="secondary small-btn" onclick="openPreviewModal(${index})">Preview</button>
+        <button class="secondary small-btn" onclick="copyCongMessage(${index})">Copy</button>
+        <button class="danger small-btn" onclick="deleteCongRow(${index})">Delete</button>
+      </div></td>`;
+    body.appendChild(tr);
+  });
+  if(!body.children.length&&state.congregations.length===0&&!(undoItem&&undoItem.kind==='cong')){
+    state.congregations=structuredClone(initialCongregations).map(normalizeCongregation);
+    saveState();return renderCongTable();
+  }
+  renderCongSummary();updateMetrics();
+}
+function renderCongSummary(){
+  el('congSummary').innerHTML=state.congregations.map(row=>{
+    const atts=attsForCong(row),active=atts.filter(a=>a.active!==false).length;
+    const st=followState(row),when=row.repliedAt?` · replied ${formatShortStamp(row.repliedAt)}`:row.contactedAt?` · contacted ${formatShortStamp(row.contactedAt)}`:'';
+    return`<div class="chip"><b>${esc(row.congregation||'(blank)')}</b><span>${esc(row.type)} · ${active}/${atts.length} active · ${st}${esc(when)}</span></div>`;
+  }).join('');
+}
+function refreshCongFilter(){
+  const sel=el('filterCongregation');const prev=sel.value;
+  const names=[...new Set(state.congregations.map(r=>r.congregation).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML=`<option value="all">All</option>`+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if(names.includes(prev))sel.value=prev;else sel.value='all';
+}
+function buildCongOptions(sel){
+  const names=[...new Set(state.congregations.map(r=>String(r.congregation||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if(sel&&!names.includes(sel))names.unshift(sel);
+  return`<option value="">– select –</option>`+names.map(n=>`<option value="${esc(n)}" ${n===sel?'selected':''}>${esc(n)}</option>`).join('');
+}
+
+/* ── ATTENDANT TABLE ── */
+/* ── mini stats ── */
+function renderMiniStats(){
+  const total=state.attendants.length;
+  const active=state.attendants.filter(a=>a.active!==false).length;
+  const inactive=total-active;
+  const block=state.attendants.filter(a=>(a.teams||[]).includes('blockatt')).length;
+  const aud=state.attendants.filter(a=>(a.teams||[]).includes('auditorium')).length;
+  const caf=state.attendants.filter(a=>(a.teams||[]).includes('cafeteria')).length;
+  const lobby=state.attendants.filter(a=>(a.teams||[]).includes('lobby')).length;
+  const wel=state.attendants.filter(a=>(a.teams||[]).includes('welcome')).length;
+  const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
+  const ms=el('miniStats');
+  if(!ms)return;
+  ms.innerHTML=`
+    <div class="stat"><span class="label">Total</span><span class="val">${total}</span></div>
+    <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
+    <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
+    <div class="divider"></div>
+    <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
+    <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
+    <div class="stat"><span class="label">Cafeteria</span><span class="val">${caf}</span></div>
+    <div class="stat"><span class="label">Lobby</span><span class="val">${lobby}</span></div>
+    <div class="stat"><span class="label">Welcome</span><span class="val">${wel}</span></div>
+    <div class="divider"></div>
+    <div class="stat"><span class="label">Shifts set</span><span class="val">${shiftsSet}</span></div>
+  `;
+}
+
+function renderAttendantTable(){
+  refreshCongFilter();
+  const q=String(el('attSearch')?.value||'').trim().toLowerCase();
+  const cong=el('filterCongregation').value,priv=el('filterPrivilege').value;
+  const actFil=el('filterActive').value,teamFil=el('filterTeam').value,shiftFil=el('filterShift').value;
+  const body=el('attBody');body.innerHTML='';let shown=0;
+
+  sortByName(state.attendants).forEach(row=>{
+    const index=state.attendants.indexOf(row);
+    const hay=attHay(row).toLowerCase();
+    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
+    if(cong!=='all'&&!matchCong(row.congregation,cong))return;
+    if(priv!=='all'&&row.privilege!==priv)return;
+    if(actFil==='active'&&row.active===false)return;
+    if(actFil==='inactive'&&row.active!==false)return;
+    if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return;
+    if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return;
+    shown++;
+
+    const hasNoId=!String(row.id||'').trim();
+    const isExp=allExpanded||expandedRows.has(index);
+
+    /* active dot */
+    const dotHtml=`<div class="act-dot ${row.active!==false?'on':'off'}" onclick="toggleActive(${index})" title="${row.active!==false?'Active – click to deactivate':'Inactive – click to activate'}">${row.active!==false?'✔':'✕'}</div>`;
+
+    /* id cell */
+    const idHtml=`<div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+      <input type="text" value="${esc(row.id)}" oninput="updAttDirect(${index},'id',this.value)" style="text-align:center;font-weight:800;width:42px">
+      ${hasNoId?'<span class="no-id-warn">no ID</span>':''}
+    </div>`;
+
+    /* main team chips */
+    const teamChips=MAIN_TEAMS.map(t=>{
+      const on=(row.teams||[]).includes(t.key);
+      return`<label class="tch ${t.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'teams','${t.key}',this)">${t.label}</label>`;
+    }).join('');
+
+    /* shift chips */
+    const shiftChips=SHIFTS.map(s=>{
+      const on=(row.shifts||[]).includes(s.key);
+      return`<label class="tch ${s.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'shifts','${s.key}',this)">${s.label}</label>`;
+    }).join('');
+
+    /* copy icons for mobile */
+    const mobCopy=row.mobile?`<span class="icon-btn" onclick="copyText('${js(row.mobile)}',false,this)" title="Copy mobile">⧉</span>`:'';
+
+    /* main row */
+    const tr=document.createElement('tr');
+    tr.className=`main-row${row.active===false?' inactive':''}${hasNoId?' no-id':''}`;
+    tr.dataset.idx=index;
+    tr.innerHTML=`
+      <td style="text-align:center">${dotHtml}</td>
+      <td style="text-align:center">${idHtml}</td>
+      <td><input type="text" value="${esc(row.name)}" oninput="updAttDirect(${index},'name',this.value)" placeholder="Name"></td>
+      <td><input type="text" value="${esc(row.firstName)}" oninput="updAttDirect(${index},'firstName',this.value)" placeholder="First name"></td>
+      <td><select onchange="updAttField(${index},'congregation',this.value)">${buildCongOptions(row.congregation)}</select></td>
+      <td>
+        <select onchange="updAttField(${index},'privilege',this.value)">
+          ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
+        </select>
+      </td>
+      <td><div class="chip-row">${teamChips}</div></td>
+      <td><div class="chip-row">${shiftChips}</div></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:3px">
+          <input type="text" value="${esc(row.mobile)}" oninput="updAttDirect(${index},'mobile',this.value)" placeholder="Mobile" style="flex:1;min-width:0">
+          ${mobCopy}
+        </div>
+      </td>
+      <td><textarea class="wrap-field" oninput="updAttDirect(${index},'remarks',this.value)" placeholder="Remarks / flags (free text)">${esc(row.remarks)}</textarea></td>
+      <td style="text-align:center">
+        <div class="cell-actions">
+          <span class="icon-btn" onclick="openAttendantModal(${index})" title="Open in window (edit all fields)">✎</span>
+          <span class="icon-btn exp" onclick="toggleRow(${index})" title="${isExp?'Collapse':'Expand'}">${isExp?'▲':'▼'}</span>
+        </div>
+      </td>
+      <td style="text-align:center"><span class="del-btn" onclick="deleteAttRow(${index})">✕</span></td>`;
+    body.appendChild(tr);
+
+    /* expanded row */
+    if(isExp) body.appendChild(buildExpandedRow(index, row));
+  });
+
+  renderMiniStats();
+  const note=el('attCountNote');
+  if(note) note.textContent=`Showing ${shown} of ${state.attendants.length} attendants`;
+  const hint=el('filteredExportHint');
+  if(hint) hint.textContent=shown<state.attendants.length?`(export will include ${shown} attendants)`:'';
+  updateMetrics();
+}
+
+function buildExpandedRow(index, row){
+  const expTr=document.createElement('tr');
+  expTr.className='exp-row';
+
+  const extraTeamChips=EXTRA_TEAMS.map(t=>{
+    const on=(row.teams||[]).includes(t.key);
+    return`<label class="tch ${t.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'teams','${t.key}',this)">${t.label}</label>`;
+  }).join('');
+
+  const customTeamChips=(state.meta.customTeams||[]).map((ct,ci)=>{
+    const on=(row.customTags||[]).includes('team:'+ct);
+    return`<label class="tch custom${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleCustomTag(${index},'team:${js(ct)}',this)">${esc(ct)}</label>`;
+  }).join('');
+
+  const roleChips=ROLES.map(r=>{
+    const on=(row.roles||[]).includes(r.key);
+    return`<label class="tch ${r.cls}${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleArrLive(${index},'roles','${r.key}',this)">${r.label}</label>`;
+  }).join('');
+
+  const customRoleChips=(state.meta.customRoles||[]).map((cr,ci)=>{
+    const on=(row.customTags||[]).includes('role:'+cr);
+    return`<label class="tch custom${on?'':' off'}"><input type="checkbox" ${on?'checked':''} onchange="toggleCustomTag(${index},'role:${js(cr)}',this)">${esc(cr)}</label>`;
+  }).join('');
+
+
+  const emailCopy=row.email?`<span class="icon-btn" onclick="copyText('${js(row.email)}',false,this)" title="Copy email">⧉</span>`:'';
+  const jwpubCopy=row.jwpub?`<span class="icon-btn" onclick="copyText('${js(row.jwpub)}',false,this)" title="Copy JWPub">⧉</span>`:'';
+
+  const mailtoHref=`mailto:${encodeURIComponent(row.email||row.jwpub||'')}?subject=${encodeURIComponent(`RC Attendant – ${dispName(row)}`)}`;
+
+  expTr.innerHTML=`<td colspan="12">
+    <div class="exp-panel">
+
+      <div class="exp-group">
+        <div class="exp-subhead">Extra teams</div>
+        <div class="cb-grid">
+          ${extraTeamChips}
+          ${customTeamChips}
+        </div>
+
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">Role / Function</div>
+        <div class="cb-grid">
+          ${roleChips}
+          ${customRoleChips}
+        </div>
+
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">Email</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input type="text" class="flags-input" value="${esc(row.email)}" oninput="updAttDirect(${index},'email',this.value)" placeholder="Email" style="flex:1;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:5px 8px">
+          ${emailCopy}
+        </div>
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">JWPub-Mail</div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input type="text" class="flags-input" value="${esc(row.jwpub)}" oninput="updAttDirect(${index},'jwpub',this.value)" placeholder="JWPub-Mail" style="flex:1;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:5px 8px">
+          ${jwpubCopy}
+        </div>
+      </div>
+
+      <div class="exp-group">
+        <div class="exp-subhead">Flags / Notes (free text, searchable)</div>
+        <textarea class="flags-wrap" oninput="updAttDirect(${index},'flags',this.value)"
+          placeholder="e.g. no WhatsApp, parking, family note..." style="width:100%;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:6px 8px">${esc(row.flags||'')}</textarea>
+      </div>
+
+      <div class="exp-group" style="align-self:center">
+        <div class="exp-subhead">Contact / Export</div>
+        <div class="contact-row">
+          <span class="vcf-btn" onclick="exportVcf(${index})">📇 vCard (.vcf)</span>
+          ${(row.email||row.jwpub)?`<a class="mailto-btn" href="${mailtoHref}">✉ New email</a>`:''}
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px">vCard: double-click file → opens in Outlook · Firm = Congregation</div>
+      </div>
+
+      <div class="exp-group" style="align-self:center">
+        <div class="exp-subhead">Cross-Event</div>
+        <button class="secondary small-btn" onclick="copyToOtherEvent(${index})" style="width:100%;white-space:normal;text-align:center;padding:8px 10px">
+          ➕ Also add to ${state.meta.eventType==='Regional Convention'?'Assembly':'Regional Convention'}
+        </button>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px">Copy this attendant to the other event dataset</div>
+      </div>
+
+    </div>
+  </td>`;
+  return expTr;
+}
+
+/* ── update helpers ── */
+function toggleActive(index){
+  state.attendants[index].active=!(state.attendants[index].active!==false);
+  saveState();renderAttendantTable();
+}
+function updAttDirect(index,key,value){
+  state.attendants[index][key]=value;saveState();updateMetrics();renderCongSummary();
+}
+function updAttField(index,key,value){
+  if(key==='active'||key==='children')value=!!value;
+  state.attendants[index][key]=value;saveState();renderAttendantTable();renderCongSummary();
+}
+function toggleArrLive(index,field,key,cbEl){
+  const checked=cbEl.checked;
+  let arr=Array.isArray(state.attendants[index][field])?[...state.attendants[index][field]]:[];
+  if(checked){if(!arr.includes(key))arr.push(key);}else{arr=arr.filter(k=>k!==key);}
+  state.attendants[index][field]=arr;
+  if(field==='teams'){
+    const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
+    state.attendants[index].otherDepartment=arr.some(t=>otherKeys.includes(t));
+  }
+  saveState();updateMetrics();renderCongSummary();
+  const label=cbEl.closest('label');if(label)label.classList.toggle('off',!checked);
+}
+function toggleCustomTag(index,tag,cbEl){
+  const checked=cbEl.checked;
+  let tags=Array.isArray(state.attendants[index].customTags)?[...state.attendants[index].customTags]:[];
+  if(checked){if(!tags.includes(tag))tags.push(tag);}else{tags=tags.filter(t=>t!==tag);}
+  state.attendants[index].customTags=tags;
+  saveState();updateMetrics();
+  const label=cbEl.closest('label');if(label)label.classList.toggle('off',!checked);
+}
+
+/* ── Settings: global custom teams/roles ── */
+function addCustomGlobal(type){
+  const inputEl=el(type==='team'?'newCustomTeamInput':'newCustomRoleInput');
+  if(!inputEl)return;
+  const val=inputEl.value.trim();
+  if(!val)return;
+  const arr=type==='team'?state.meta.customTeams:state.meta.customRoles;
+  if(!arr.includes(val))arr.push(val);
+  inputEl.value='';
+  saveState();renderCustomLists();
+renderMiniStats();renderAttendantTable();
+}
+function removeCustomGlobal(type,val){
+  if(!confirm(`Remove "${val}" from all attendants?`))return;
+  if(type==='team'){
+    state.meta.customTeams=state.meta.customTeams.filter(v=>v!==val);
+    const tag='team:'+val;
+    state.attendants.forEach(a=>{a.customTags=(a.customTags||[]).filter(t=>t!==tag);});
+  }else{
+    state.meta.customRoles=state.meta.customRoles.filter(v=>v!==val);
+    const tag='role:'+val;
+    state.attendants.forEach(a=>{a.customTags=(a.customTags||[]).filter(t=>t!==tag);});
+  }
+  saveState();renderCustomLists();renderAttendantTable();
+}
+function renderCustomLists(){
+  const tl=el('customTeamsList');
+  const rl=el('customRolesList');
+  if(!tl||!rl)return;
+  tl.innerHTML=(state.meta.customTeams||[]).map(v=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#f0f4ff;border:1.5px solid #a5b4fc;color:#3730a3;font-size:12px;font-weight:700">
+      ${esc(v)}
+      <span onclick="removeCustomGlobal('team','${js(v)}')" style="cursor:pointer;color:#888;font-size:13px;line-height:1;padding:0 2px" title="Remove">✕</span>
+    </span>`).join('')||'<span style="color:var(--muted);font-size:12px">No custom teams yet</span>';
+  rl.innerHTML=(state.meta.customRoles||[]).map(v=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#f0f4ff;border:1.5px solid #a5b4fc;color:#3730a3;font-size:12px;font-weight:700">
+      ${esc(v)}
+      <span onclick="removeCustomGlobal('role','${js(v)}')" style="cursor:pointer;color:#888;font-size:13px;line-height:1;padding:0 2px" title="Remove">✕</span>
+    </span>`).join('')||'<span style="color:var(--muted);font-size:12px">No custom roles yet</span>';
+}
+
+function toggleRow(index){
+  if(expandedRows.has(index))expandedRows.delete(index);else expandedRows.add(index);
+  renderAttendantTable();
+}
+function toggleExpandAll(){
+  allExpanded=!allExpanded;if(!allExpanded)expandedRows.clear();
+  el('expandAllBtn').textContent=allExpanded?'Collapse all':'Expand all';
+  renderAttendantTable();
+}
+
+/* ── congregation updates ── */
+function updCong(index,key,value){
+  const row=state.congregations[index];const now=new Date().toISOString();
+  if(key==='contacted'){row.contacted=!!value;if(value)row.contactedAt=now;else{row.replied=false;row.contactedAt='';row.repliedAt='';}}
+  else if(key==='replied'){row.replied=!!value;if(value){row.contacted=true;row.contactedAt=row.contactedAt||now;row.repliedAt=now;}else row.repliedAt='';}
+  else row[key]=value;
+  saveState();
+  if(['type','contacted','replied'].includes(key))renderCongTable();
+  if(key==='congregation'){updateDatalist();refreshCongFilter();}
+  if(selectedCongIndex===index)previewCong(index);
+}
+function addCongregationRow(){
+  state.congregations.push(normalizeCongregation({congregation:'',type:'Congregation',congJwpub:'',coordinator:'',jwpub:'',mobile:'',contacted:false,replied:false,remarks:'',linkedAttendantIds:''}));
+  saveState();renderCongTable();updateDatalist();
+}
+function deleteCongRow(index){
+  if(!confirm(`Delete ${state.congregations[index]?.congregation||'this row'}?`))return;
+  pushUndo({kind:'cong',index,row:structuredClone(state.congregations[index]),
+    label:state.congregations[index]?.congregation||'congregation'});
+  state.congregations.splice(index,1);saveState();renderCongTable();renderAttendantTable();updateDatalist();
+}
+function addAttendantRow(){
+  state.attendants.push(normalizeAttendant({id:nextId(),name:'',firstName:'',congregation:'',email:'',jwpub:'',mobile:'',
+    privilege:'Publisher',active:true,children:false,otherDepartment:false,teams:[],roles:[],shifts:[],customTags:[],flags:'',remarks:''}));
+  saveState();renderAttendantTable();renderCongTable();
+}
+function deleteAttRow(index){
+  if(!confirm(`Delete ${dispName(state.attendants[index])}?`))return;
+  pushUndo({kind:'att',index,row:structuredClone(state.attendants[index]),label:dispName(state.attendants[index])});
+  state.attendants.splice(index,1);saveState();renderAttendantTable();renderCongTable();
+}
+function nextId(){
+  const nums=state.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n)&&n>0);
+  return String(nums.length?Math.max(...nums)+1:1).padStart(3,'0');
+}
+
+/* ── Fill IDs: sort A-Z, renumber all (active first, then inactive) ── */
+function fillAndRenumberIds(){
+  if(!confirm('This will renumber ALL attendant IDs (active A–Z first, then inactive A–Z). Old IDs will be replaced. Continue?'))return;
+  const active=sortByName(state.attendants.filter(a=>a.active!==false));
+  const inactive=sortByName(state.attendants.filter(a=>a.active===false));
+  const sorted=[...active,...inactive];
+  sorted.forEach((a,i)=>{a.id=String(i+1).padStart(3,'0');});
+  // reorder attendants array to match sorted
+  state.attendants=sorted;
+  saveState();renderAttendantTable();renderCongTable();
+}
+
+/* ── Reset main teams + shifts after congress ── */
+function resetMainTeamsAndShifts(){
+  if(!confirm('Reset Lobby / Cafeteria / Auditorium / Welcome teams AND all Possible Shifts for every attendant?\n\nExtra teams (A/V, Stage etc.), roles, and all other data stay unchanged.'))return;
+  state.attendants.forEach(a=>{
+    a.teams=(a.teams||[]).filter(t=>!RESET_TEAM_KEYS.includes(t));
+    a.shifts=[];
+  });
+  saveState();renderAttendantTable();
+}
+
+function applyBulkFollowup(){
+  const q=String(el('congSearch')?.value||'').trim().toLowerCase(),type=el('filterType').value,follow=el('filterFollowup').value;
+  const mode=el('bulkStatus').value,now=new Date().toISOString();
+  state.congregations.forEach(row=>{
+    const hay=[row.congregation,row.type,row.coordinator,row.congJwpub,row.jwpub,row.mobile,row.remarks].join(' ').toLowerCase();
+    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
+    if(type!=='all'&&row.type!==type)return;if(follow!=='all'&&followState(row)!==follow)return;
+    if(mode==='contacted'){row.contacted=true;row.contactedAt=now;row.replied=false;row.repliedAt='';}
+    if(mode==='replied'){row.contacted=true;row.replied=true;row.contactedAt=row.contactedAt||now;row.repliedAt=now;}
+    if(mode==='open'){row.contacted=false;row.replied=false;row.contactedAt='';row.repliedAt='';}
+  });
+  saveState();renderCongTable();
+}
+function resetStatuses(){
+  if(!confirm('Reset all contacted / replied?'))return;
+  state.congregations=state.congregations.map(r=>({...r,contacted:false,replied:false,contactedAt:'',repliedAt:''}));
+  saveState();renderCongTable();
+}
+function resetAttendants(){
+  if(!confirm('Delete entire attendant list?'))return;
+  pushUndo({kind:'attAll',rows:structuredClone(state.attendants),label:`${state.attendants.length} attendants`});
+  state.attendants=[];state.congregations=state.congregations.map(r=>({...r,linkedAttendantIds:''}));
+  saveState();renderAttendantTable();renderCongTable();
+}
+
+function updateDatalist(){
+  el('congregationOptions').innerHTML=[...new Set(state.congregations.map(r=>r.congregation).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${esc(n)}"></option>`).join('');
+}
+
+/* ── global search ── */
+function applyGlobalSearch(){
+  globalSearchTerm=String(el('globalSearch')?.value||'').trim().toLowerCase();
+  renderCongTable();renderAttendantTable();
+}
+function clearGlobalSearch(){
+  if(el('globalSearch'))el('globalSearch').value='';
+  globalSearchTerm='';renderCongTable();renderAttendantTable();
+}
+
+/* ── Copy attendant to other event ── */
+function copyToOtherEvent(index){
+  const att=state.attendants[index];
+  const currentType=state.meta.eventType;
+  const targetType=currentType==='Regional Convention'?'Assembly':'Regional Convention';
+  
+  if(!confirm(`Copy "${dispName(att)}" to ${targetType}?\n\nThis will switch to ${targetType} view and add the attendant there.`))return;
+  
+  // Save current state first
+  saveState();
+  
+  // Load target event data
+  const targetKey=storageKeyForType(targetType);
+  let targetState;
+  const targetRaw=localStorage.getItem(targetKey);
+  
+  if(targetRaw){
+    try{
+      const data=JSON.parse(targetRaw);
+      targetState={
+        meta:{...defaultState().meta,...(data.meta||{}),eventType:targetType},
+        congregations:Array.isArray(data.congregations)&&data.congregations.length?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+        attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]
+      };
+    }catch{
+      targetState=defaultState();
+      targetState.meta.eventType=targetType;
+    }
+  }else{
+    targetState=defaultState();
+    targetState.meta.eventType=targetType;
+  }
+  
+  // Check if attendant already exists in target (by name+firstName+congregation)
+  const exists=targetState.attendants.find(a=>
+    a.name.trim().toLowerCase()===att.name.trim().toLowerCase()&&
+    a.firstName.trim().toLowerCase()===att.firstName.trim().toLowerCase()&&
+    a.congregation.trim().toLowerCase()===att.congregation.trim().toLowerCase()
+  );
+  
+  if(exists){
+    if(!confirm(`"${dispName(att)}" already exists in ${targetType}.\n\nOverwrite with current data?`))return;
+    const idx=targetState.attendants.indexOf(exists);
+    targetState.attendants[idx]=normalizeAttendant({...att,id:exists.id}); // keep existing ID
+  }else{
+    // Add as new attendant (assign new ID in target context)
+    const targetIds=targetState.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n)&&n>0);
+    const newId=String(targetIds.length?Math.max(...targetIds)+1:1).padStart(3,'0');
+    targetState.attendants.push(normalizeAttendant({...att,id:newId}));
+  }
+  
+  // Save target state
+  localStorage.setItem(targetKey,JSON.stringify(targetState,null,2));
+  localStorage.setItem(LAST_EVENT_TYPE_KEY,targetType);
+  
+  // Switch to target event
+  state=targetState;
+  writeMetaToInputs();refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();
+  renderCongTable();renderAttendantTable();renderMiniStats();renderCustomLists();
+  
+  flash(`Copied to ${targetType}`);
+  
+  // Scroll to attendants tab
+  showTab('attendants');
+}
+
+/* ── vCard export ── */
+function exportVcf(index){
+  const a=state.attendants[index];
+  const name=String(a.name||'').trim(),first=String(a.firstName||'').trim(),cong=String(a.congregation||'').trim();
+  const teams=(a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join(', ');
+  const roles=(a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join(', ');
+  const note=[teams&&`Teams: ${teams}`,roles&&`Roles: ${roles}`,a.flags&&`Flags: ${a.flags}`,a.remarks&&`Remarks: ${a.remarks}`].filter(Boolean).join('\n');
+  const lines=[
+    'BEGIN:VCARD','VERSION:3.0',
+    `N:${name};${first};;;`,
+    `FN:${[first,name].filter(Boolean).join(' ')}`,
+    cong?`ORG:${cong}`:'',
+    a.mobile?`TEL;TYPE=CELL:${a.mobile}`:'',
+    a.email?`EMAIL;TYPE=INTERNET:${a.email}`:'',
+    a.jwpub?`EMAIL;TYPE=WORK:${a.jwpub}`:'',
+    `TITLE:${a.privilege||''}`,
+    note?`NOTE:${note.replace(/\n/g,'\\n')}`:'',
+    'CATEGORIES:RC Attendant',
+    'END:VCARD'
+  ].filter(Boolean).join('\r\n');
+  const blob=new Blob([lines],{type:'text/vcard;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');link.href=url;link.download=`${name}_${first}_Attendant.vcf`;link.click();URL.revokeObjectURL(url);
+}
+
+/* ── email / message ── */
+function buildSignature(){
+  return`${state.meta.senderName||''}\n${state.meta.senderRole||''}\n\n${state.meta.senderName||''} | ${state.meta.senderCong||''} | phone ${state.meta.senderPhone||''} | ${state.meta.senderMail||''}`.trim();
+}
+function buildCongSubject(){
+  const event=[state.meta.eventName,state.meta.eventDate].filter(Boolean).join(' – ');
+  return `${event || state.meta.eventType} | Attendant Department Request Form`;
+}
+function buildCongMessage(index){
+  const row=state.congregations[index];
+  const inactiveEvent=state.meta.eventType==='Regional Convention'?'Convention':'Assembly';
+  const atts=attsForCong(row);
+  const list=atts.length?atts.map(a=>
+    `${dispName(a)}${a.active===false?` (last ${inactiveEvent}: inactive)`:''}`
+  ).join('\n'):'[no attendants yet]';
+  return(state.meta.messageTemplate||'')
+    .replaceAll('[EVENT_DATE]',state.meta.eventDate||'').replaceAll('[ATTENDANT_LIST]',list)
+    .replaceAll('[SENDER_NAME]',state.meta.senderName||'').replaceAll('[SENDER_ROLE]',state.meta.senderRole||'')
+    .replaceAll('[SENDER_SIGNATURE]',buildSignature());
+}
+function messageToPlain(text){
+  return String(text??'').replace(/\*\*([\s\S]+?)\*\*/g,'$1');
+}
+function messageToHtml(text){
+  return esc(String(text??''))
+    .replace(/\*\*([\s\S]+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\r?\n/g,'<br>');
+}
+function previewCong(index){
+  selectedCongIndex=index;const row=state.congregations[index];
+  const subject=buildCongSubject();
+  const message=buildCongMessage(index);
+  el('previewBox').innerHTML=`
+    <div class="preview-copy-row">
+      <div class="preview-copy-label">To</div>
+      <div class="preview-copy-value">${esc(row.coordinator||'Coordinator')} · ${esc(row.congregation||'Congregation')}</div>
+      <button class="preview-copy-btn" onclick="copyText('${js(row.jwpub||row.congJwpub||'')}',false,this)" title="Copy recipient">⧉</button>
+    </div>
+    <div class="preview-copy-row">
+      <div class="preview-copy-label">Subject</div>
+      <div class="preview-copy-value">${esc(subject)}</div>
+      <button class="preview-copy-btn" onclick="copyText('${js(subject)}',false,this)" title="Copy subject">⧉</button>
+    </div>
+    <div class="preview-copy-row">
+      <div class="preview-copy-label">Message</div>
+      <div class="preview-copy-value message">${messageToHtml(message)}</div>
+      <button class="preview-copy-btn" onclick="copyRichText(buildCongMessage(${index}),false,this)" title="Copy message">⧉</button>
+    </div>`;
+  const st=el('previewSideTitle');if(st)st.textContent=row.congregation||'(no name)';
+  const si=el('previewSideInfo');
+  if(si)si.innerHTML=`${esc(row.type)} · ${followState(row)} · ${esc(row.coordinator||'no coordinator')}`;
+  const wrap=el('previewContactActions');
+  wrap.innerHTML=[['Cong. email',row?.congJwpub||'—'],['Coordinator',row?.jwpub||'—']].map(([label,value])=>`
+    <div class="preview-contact-row">
+      <div class="label">${esc(label)}</div>
+      <div class="preview-contact-value">${esc(value)}</div>
+      <div>${value&&value!=='—'?`<span class="mini-copy" onclick="copyText('${js(value)}',false,this)">⧉</span>`:''}</div>
+    </div>`).join('');
+}
+async function copyCongMessage(index){selectedCongIndex=index;await copyRichText(buildCongMessage(index),true);previewCong(index);}
+async function copySelectedMessage(){if(selectedCongIndex===null){alert('Preview a congregation first.');return;}await copyRichText(buildCongMessage(selectedCongIndex),true);}
+async function copyTemplateOnly(){await copyRichText(state.meta.messageTemplate||'',true);}
+async function copyActiveAttendantsSummary(triggerEl){
+  const lines=sortByName(state.attendants).filter(a=>a.active!==false)
+    .map(a=>[String(a?.name||'').trim(),String(a?.firstName||'').trim()].filter(Boolean).join(' ')+', '+shortCong(a?.congregation||''))
+    .filter(Boolean);
+  if(!lines.length){alert('No active attendants.');return;}
+  copyText(lines.join('\n'),true,triggerEl);
+}
+async function copyRichText(text,silent,triggerEl){
+  const plain=messageToPlain(text);
+  const html=`<div>${messageToHtml(text)}</div>`;
+  try{
+    if(navigator.clipboard&&window.ClipboardItem){
+      const item=new ClipboardItem({
+        'text/plain':new Blob([plain],{type:'text/plain'}),
+        'text/html':new Blob([html],{type:'text/html'})
+      });
+      await navigator.clipboard.write([item]);
+    }else{
+      const holder=document.createElement('div');
+      holder.contentEditable='true';holder.style.position='fixed';holder.style.left='-9999px';holder.innerHTML=html;
+      document.body.appendChild(holder);
+      const range=document.createRange();range.selectNodeContents(holder);
+      const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+      const ok=document.execCommand('copy');selection.removeAllRanges();holder.remove();
+      if(!ok)throw new Error('Rich copy failed');
+    }
+    if(triggerEl)showToast(triggerEl,'Copied ✓');if(!silent)flash('Copied with formatting');
+  }catch{
+    try{
+      await navigator.clipboard.writeText(plain);
+      if(triggerEl)showToast(triggerEl,'Copied ✓');if(!silent)flash('Copied as plain text');
+    }catch{alert('Copy failed.');}
+  }
+}
+async function copyText(text,silent,triggerEl){
+  try{
+    await navigator.clipboard.writeText(text);
+    if(triggerEl)showToast(triggerEl,'Copied ✓');if(!silent)flash('Copied');
+  }catch{alert('Copy failed.');}
+}
+function showToast(triggerEl,msg){
+  const old=document.querySelector('.copy-toast');if(old)old.remove();
+  const t=document.createElement('div');t.className='copy-toast';t.textContent=msg||'Copied';
+  document.body.appendChild(t);
+  const r=triggerEl.getBoundingClientRect();
+  t.style.left=`${Math.max(10,Math.min(window.innerWidth-100,r.left+r.width/2-40))}px`;
+  t.style.top=`${Math.max(10,r.top-38)}px`;
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),180);},900);
+}
+function flash(msg){
+  const l=el('badgeLine1');if(!l)return;const old=l.textContent;
+  l.textContent=msg;setTimeout(()=>l.textContent=state.meta.lastImportText||old,900);
+}
+
+/* ── Filtered Export ── */
+function getFilteredAttendants(){
+  const q=String(el('attSearch')?.value||'').trim().toLowerCase();
+  const cong=el('filterCongregation').value,priv=el('filterPrivilege').value;
+  const actFil=el('filterActive').value,teamFil=el('filterTeam').value,shiftFil=el('filterShift').value;
+  return sortByName(state.attendants).filter(row=>{
+    const hay=attHay(row).toLowerCase();
+    if(q&&!hay.includes(q))return false;
+    if(!matchTerms(hay))return false;
+    if(cong!=='all'&&!matchCong(row.congregation,cong))return false;
+    if(priv!=='all'&&row.privilege!==priv)return false;
+    if(actFil==='active'&&row.active===false)return false;
+    if(actFil==='inactive'&&row.active!==false)return false;
+    if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
+    if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return false;
+    return true;
+  });
+}
+function exportFilteredJson(){
+  const filtered=getFilteredAttendants();
+  if(!filtered.length){alert('No attendants match current filters.');return;}
+  const now=new Date();
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
+  const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
+  const payload={exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.3',
+    meta:state.meta,congregations:state.congregations,attendants:filtered,
+    exportNote:`Filtered export: ${filtered.length} attendants`};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${typePrefix}${teamFilter}-filtered-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
+  flash(`Exported ${filtered.length} attendants`);
+}
+function exportFilteredCsv(){
+  const filtered=getFilteredAttendants();
+  if(!filtered.length){alert('No attendants match current filters.');return;}
+  const header=['ID','Name','First name','Congregation','Privilege','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
+  const rows=[header,...filtered.map(a=>[
+    a.id,a.name,a.firstName,a.congregation,a.privilege,
+    (a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/'),
+    (a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join('/'),
+    (a.shifts||[]).map(k=>SHIFTS.find(s=>s.key===k)?.label||k).join('/'),
+    a.mobile,a.email,a.jwpub,a.flags,a.remarks,
+    a.active!==false?'Yes':'No',a.otherDepartment?'Yes':'No'
+  ])];
+  const csv=rows.map(r=>r.map(v=>{const s=String(v??'');return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;}).join(';')).join('\r\n');
+  const now=new Date();
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
+  const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`${typePrefix}${teamFilter}-filtered-${localStamp}.csv`;a.click();URL.revokeObjectURL(a.href);
+  flash(`Exported ${filtered.length} attendants`);
+}
+
+/* ── CSV / JSON ── */
+function parseCsv(text){
+  const src=String(text||'').replace(/^\uFEFF/,'');
+  const sample=src.split(/\r?\n/).slice(0,5).join('\n');
+  const delim=(sample.match(/;/g)||[]).length>(sample.match(/,/g)||[]).length?';':',';
+  const rows=[];let row=[],cell='',inQ=false;
+  for(let i=0;i<src.length;i++){
+    const ch=src[i],nx=src[i+1];
+    if(ch==='"'){if(inQ&&nx==='"'){cell+='"';i++;}else inQ=!inQ;}
+    else if(ch===delim&&!inQ){row.push(cell);cell='';}
+    else if((ch==='\n'||ch==='\r')&&!inQ){
+      if(ch==='\r'&&nx==='\n')i++;
+      row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell='';
+    }else cell+=ch;
+  }
+  row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows;
+}
+function loadCsvFile(event){
+  const file=event.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const rows=parseCsv(String(e.target.result||''));
+      if(!rows.length)throw new Error('empty');
+      const norm=rows.map(r=>r.map(v=>String(v??'').replace(/^\uFEFF/,'').trim()));
+      const hi=norm.findIndex(r=>{const l=r.map(v=>v.toLowerCase());return l.includes('name')&&(l.includes('first name')||l.includes('firstname'))&&(l.includes('congregation')||l.includes('group'));});
+      if(hi===-1)throw new Error('header not found');
+      const hdr=norm[hi].map(v=>v.toLowerCase());
+      const gi=(...ns)=>{for(const n of ns){const i=hdr.indexOf(n.toLowerCase());if(i!==-1)return i;}return -1;};
+      const idxId=gi('id'),idxName=gi('name','last name','surname'),idxFirst=gi('first name','firstname','given name');
+      const idxCong=gi('congregation','group'),idxEmail=gi('email','e-mail'),idxJwpub=gi('jwpub-mail','jwpub mail','jwpub');
+      const idxMob=gi('mobile','phone','cell'),idxPriv=gi('privelege','privilege'),idxTeam=gi('team','last team');
+      const idxRem=gi('remarks','notes'),idxStat=gi('available / unavailable / no response','status');
+      if(idxName===-1||idxFirst===-1||idxCong===-1)throw new Error('required columns missing');
+      const data=norm.slice(hi+1).filter(r=>r.some(v=>v!==''));
+      const imported=data.map(r=>{
+        const team=idxTeam!==-1?r[idxTeam]:'',remarks=idxRem!==-1?r[idxRem]:'',status=idxStat!==-1?r[idxStat]:'';
+        const allT=`${team} ${remarks} ${status}`.toLowerCase();
+        const inactive=team.toLowerCase().includes('not available')||status.toLowerCase().includes('unavailable');
+        const familyNote=(['small child','small children','small baby','with family','family with']).some(n=>allT.includes(n))?'has children':'';
+        const teams=[];ALL_TEAMS.forEach(t=>{if(allT.includes(t.key)||allT.includes(t.label.toLowerCase()))teams.push(t.key);});
+        let id=idxId!==-1?r[idxId]:'';if(id==='-'||!id)id=nextId();
+        const rawCong=idxCong!==-1?r[idxCong]:'';
+        const cong=(()=>{const low=rawCong.toLowerCase();const m=state.congregations.find(c=>{const cn=String(c.congregation||'').trim().toLowerCase();return cn===low||cn.includes(low)||low.includes(cn);});return m?m.congregation:rawCong;})();
+        return normalizeAttendant({id,name:idxName!==-1?r[idxName]:'',firstName:idxFirst!==-1?r[idxFirst]:'',
+          congregation:cong,email:idxEmail!==-1?r[idxEmail]:'',jwpub:idxJwpub!==-1?r[idxJwpub]:'',
+          mobile:idxMob!==-1?r[idxMob]:'',privilege:idxPriv!==-1?r[idxPriv]:'',
+          active:!inactive,children:false,teams,roles:[],shifts:[],customTags:[],flags:familyNote,
+          remarks:[remarks,status&&!/^\d+$/.test(status)?`CSV: ${status}`:''].filter(Boolean).join(' | ')});
+      }).filter(a=>a.name||a.firstName||a.email||a.mobile);
+      let added=0,updated=0;
+      imported.forEach(imp=>{
+        const si=state.attendants.findIndex(a=>String(a.id)===String(imp.id));
+        const sp=si===-1?state.attendants.findIndex(a=>a.name.trim().toLowerCase()===imp.name.trim().toLowerCase()&&a.firstName.trim().toLowerCase()===imp.firstName.trim().toLowerCase()&&a.congregation.trim().toLowerCase()===imp.congregation.trim().toLowerCase()):-1;
+        const idx=si!==-1?si:sp;
+        if(idx!==-1){state.attendants[idx]=normalizeAttendant({...state.attendants[idx],...imp});updated++;}
+        else{state.attendants.push(imp);added++;}
+      });
+      state.meta.lastImportText=`CSV · ${file.name} · ${imported.length} rows`;
+      saveState();updateDatalist();renderCongTable();renderAttendantTable();
+      flash(`CSV: ${imported.length} rows · ${added} new · ${updated} updated`);
+    }catch(err){alert('CSV import failed. Check header row.');console.error(err);}
+    finally{event.target.value='';}
+  };
+  reader.readAsText(file);
+}
+function saveJson(){
+  syncMeta();
+  const now=new Date();
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const blob=new Blob([JSON.stringify({exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.3',...state},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
+  a.download=`${typePrefix}-attendant-planner-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
+}
+function loadJsonFile(event){
+  const file=event.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(String(e.target.result));
+      showImportTargetModal(data,file.name);
+    }catch{alert('Invalid JSON file.');}finally{event.target.value='';}
+  };
+  reader.readAsText(file);
+}
+function showImportTargetModal(data,filename){
+  const modal=document.createElement('div');
+  modal.className='import-modal';
+  modal.innerHTML=`
+    <div class="import-modal-card">
+      <h3>Import as…</h3>
+      <p>Choose which event type this data should be restored as. This will overwrite the current data in that slot.</p>
+      <div class="import-radio-group">
+        <div class="import-radio-opt selected" onclick="selectImportTarget(this,'Regional Convention')">
+          <input type="radio" name="importTarget" value="Regional Convention" checked>
+          <label>Regional Convention</label>
+        </div>
+        <div class="import-radio-opt" onclick="selectImportTarget(this,'Assembly')">
+          <input type="radio" name="importTarget" value="Assembly">
+          <label>Assembly</label>
+        </div>
+      </div>
+      <div class="import-modal-buttons">
+        <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+        <button class="btn-rc" onclick="executeImport('${js(filename)}')">Import</button>
+      </div>
+    </div>
+  `;
+  modal.dataset.importData=JSON.stringify(data);
+  document.body.appendChild(modal);
+}
+function selectImportTarget(el,target){
+  el.closest('.import-radio-group').querySelectorAll('.import-radio-opt').forEach(opt=>opt.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input[type=radio]').checked=true;
+}
+function closeImportModal(){
+  const modal=document.querySelector('.import-modal');
+  if(modal)modal.remove();
+}
+function executeImport(filename){
+  const modal=document.querySelector('.import-modal');
+  if(!modal)return;
+  const target=modal.querySelector('input[name=importTarget]:checked')?.value;
+  if(!target)return;
+  const data=JSON.parse(modal.dataset.importData);
+  state={meta:{...defaultState().meta,...(data.meta||{}),eventType:target},
+    congregations:Array.isArray(data.congregations)&&data.congregations.length?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
+    attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]};
+  ensureValidState();state.meta.lastImportText=`JSON · ${filename}`;
+  writeMetaToInputs();saveState();updateDatalist();renderCongTable();renderAttendantTable();renderMiniStats();
+  closeImportModal();
+  flash(`Imported into ${target}`);
+}
+
+
+/* ══════════ MODAL INFRASTRUCTURE ══════════ */
+function closeOverlay(id){const m=el(id);if(m)m.remove();}
+function anyOverlay(){return document.querySelector('.modal-ov,.import-modal');}
+function openOverlay(id,inner,cls){
+  closeOverlay(id);
+  const ov=document.createElement('div');ov.className='modal-ov';ov.id=id;
+  ov.innerHTML=`<div class="modal-card ${cls||''}">${inner}</div>`;
+  ov.addEventListener('mousedown',e=>{if(e.target===ov)closeOverlay(id);});
+  document.body.appendChild(ov);
+  return ov;
+}
+
+/* ══════════ MAIL PREVIEW MODAL ══════════ */
+function openPreviewModal(index){
+  if(index===null||index===undefined)index=(selectedCongIndex!==null?selectedCongIndex:firstOpenCongIndex());
+  if(index===null||index===undefined||!state.congregations[index]){
+    alert('No congregation to preview. Add or select one first.');return;
+  }
+  selectedCongIndex=index;
+  previewCong(index);
+  const row=state.congregations[index];
+  const subject=buildCongSubject();
+  const message=buildCongMessage(index);
+  const atts=attsForCong(row);
+  const vis=visibleCongIndices();
+  const pos=vis.indexOf(index);
+  const prev=pos>0?vis[pos-1]:null;
+  const next=(pos>=0&&pos<vis.length-1)?vis[pos+1]:null;
+  const recipient=row.jwpub||row.congJwpub||'';
+  openOverlay('previewModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0">
+        <h3>${esc(row.congregation||'(no name)')}</h3>
+        <div class="sub">${esc(row.type)} · ${atts.filter(a=>a.active!==false).length}/${atts.length} active · ${pos>=0?`${pos+1} / ${vis.length} in current filter`:'outside current filter'}</div>
+      </div>
+      ${followLabel(row)}
+      <div class="modal-nav">
+        <button class="secondary small-btn" ${prev===null?'disabled style="opacity:.35"':`onclick="openPreviewModal(${prev})" title="Previous congregation"`}>◀</button>
+        <button class="secondary small-btn" ${next===null?'disabled style="opacity:.35"':`onclick="openPreviewModal(${next})" title="Next congregation"`}>▶</button>
+      </div>
+      <button class="modal-x" onclick="closeOverlay('previewModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;gap:7px">
+        <div class="modal-line"><div class="lbl">To</div>
+          <div class="val">${esc(row.coordinator||'Coordinator')}${recipient?` · ${esc(recipient)}`:' · <span class="muted">no address</span>'}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(recipient)}',false,this)" title="Copy recipient address">⧉</button></div>
+        <div class="modal-line"><div class="lbl">Cong. mail</div>
+          <div class="val">${esc(row.congJwpub||'—')}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(row.congJwpub||'')}',false,this)" title="Copy congregation address">⧉</button></div>
+        <div class="modal-line"><div class="lbl">Mobile</div>
+          <div class="val">${esc(row.mobile||'—')}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(row.mobile||'')}',false,this)" title="Copy mobile">⧉</button></div>
+        <div class="modal-line"><div class="lbl">Subject</div>
+          <div class="val">${esc(subject)}</div>
+          <button class="preview-copy-btn" onclick="copyText('${js(subject)}',false,this)" title="Copy subject">⧉</button></div>
+      </div>
+      <div>
+        <div class="modal-sub" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span>Message</span>
+          <button class="secondary small-btn" onclick="togglePmTemplate()">${pmTemplateOpen?'▲ Hide template':'✎ Edit template'}</button>
+        </div>
+        <div id="pmTemplateWrap" style="display:${pmTemplateOpen?'block':'none'};margin-bottom:9px">
+          <textarea id="pmTemplate" style="min-height:160px;font-size:12px;line-height:1.45" oninput="onPmTemplateInput(${index})">${esc(state.meta.messageTemplate||'')}</textarea>
+          <div class="footer-note">Placeholders: [EVENT_DATE] · [ATTENDANT_LIST] · [SENDER_NAME] · [SENDER_ROLE] · [SENDER_SIGNATURE] · <b>**bold**</b>. Changes are saved to the template right away.</div>
+        </div>
+        <div class="modal-msg" id="pmMessage">${messageToHtml(message)}</div>
+      </div>
+      ${row.remarks?`<div><div class="modal-sub">Remarks</div><div class="mini">${esc(row.remarks)}</div></div>`:''}
+    </div>
+    <div class="modal-foot">
+      <div class="left check-row">
+        <label><input type="checkbox" ${row.contacted?'checked':''} onchange="updCongFromModal(${index},'contacted',this.checked)"> contacted</label>
+        <label><input type="checkbox" ${row.replied?'checked':''} onchange="updCongFromModal(${index},'replied',this.checked)"> replied</label>
+      </div>
+      <button class="secondary" onclick="copyRichText(buildCongMessage(${index}),false,this)">⧉ Copy message</button>
+      <button class="primary" onclick="copyAndMail(${index})" title="Copies the message and opens a new mail with recipient + subject">✉ Copy + open mail</button>
+      <button class="secondary" onclick="closeOverlay('previewModal')">Close</button>
+    </div>`,'wide');
+}
+function updCongFromModal(index,key,value){updCong(index,key,value);renderCongTable();openPreviewModal(index);}
+async function copyAndMail(index){
+  const row=state.congregations[index];
+  await copyRichText(buildCongMessage(index),true);
+  const to=row.jwpub||row.congJwpub||'';
+  if(!row.contacted){updCong(index,'contacted',true);renderCongTable();}
+  window.location.href=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(buildCongSubject())}`;
+  flash('Copied – paste into the mail');
+  openPreviewModal(index);
+}
+
+/* ══════════ ATTENDANT MODAL (add / edit) ══════════ */
+let attModalIndex=null,lastModalCong='';
+function chipBox(group,key,label,cls,on){
+  return`<label class="tch ${cls}${on?'':' off'}"><input type="checkbox" data-group="${group}" value="${esc(key)}" ${on?'checked':''} onchange="this.closest('label').classList.toggle('off',!this.checked)">${esc(label)}</label>`;
+}
+function openAttendantModal(index){
+  const isNew=(index===null||index===undefined);
+  attModalIndex=isNew?null:index;
+  const filterCong=el('filterCongregation')?.value;
+  const row=isNew
+    ? normalizeAttendant({id:nextId(),congregation:lastModalCong||(filterCong&&filterCong!=='all'?filterCong:''),
+        privilege:'Publisher',active:true})
+    : state.attendants[index];
+  if(!row){alert('Attendant not found.');return;}
+  const teamChips=[...MAIN_TEAMS,...EXTRA_TEAMS].map(t=>chipBox('teams',t.key,t.label,t.cls,(row.teams||[]).includes(t.key))).join('')
+    +(state.meta.customTeams||[]).map(ct=>chipBox('custom','team:'+ct,ct,'custom',(row.customTags||[]).includes('team:'+ct))).join('');
+  const shiftChips=SHIFTS.map(s=>chipBox('shifts',s.key,s.label,s.cls,(row.shifts||[]).includes(s.key))).join('');
+  const roleChips=ROLES.map(r=>chipBox('roles',r.key,r.label,r.cls,(row.roles||[]).includes(r.key))).join('')
+    +(state.meta.customRoles||[]).map(cr=>chipBox('custom','role:'+cr,cr,'custom',(row.customTags||[]).includes('role:'+cr))).join('');
+  openOverlay('attModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0">
+        <h3>${isNew?'New attendant':'Edit: '+esc(dispName(row))}</h3>
+        <div class="sub">${esc(state.meta.eventType)}${isNew?'':' · ID '+esc(row.id||'–')}</div>
+      </div>
+      <button class="modal-x" onclick="closeOverlay('attModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field" style="max-width:110px"><label for="amId">ID</label><input id="amId" value="${esc(row.id||'')}"></div>
+        <div class="modal-field"><label for="amName">Name *</label><input id="amName" value="${esc(row.name||'')}" placeholder="Last name"></div>
+        <div class="modal-field"><label for="amFirst">First name</label><input id="amFirst" value="${esc(row.firstName||'')}"></div>
+        <div class="modal-field"><label for="amCong">Congregation / Group</label><input id="amCong" list="congregationOptions" value="${esc(row.congregation||'')}" placeholder="Type or pick"></div>
+        <div class="modal-field"><label for="amPriv">Privilege</label><select id="amPriv">
+          ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
+        </select></div>
+        <div class="modal-field"><label for="amMobile">Mobile</label><input id="amMobile" value="${esc(row.mobile||'')}"></div>
+        <div class="modal-field"><label for="amEmail">Email</label><input id="amEmail" value="${esc(row.email||'')}"></div>
+        <div class="modal-field"><label for="amJwpub">JWPub mail</label><input id="amJwpub" value="${esc(row.jwpub||'')}"></div>
+      </div>
+      <div><div class="modal-sub">Teams (main + extra)</div><div class="cb-grid">${teamChips}</div></div>
+      <div><div class="modal-sub">Possible shifts</div><div class="cb-grid">${shiftChips}</div></div>
+      <div><div class="modal-sub">Role / function</div><div class="cb-grid">${roleChips}</div></div>
+      <div class="modal-grid">
+        <div class="modal-field"><label for="amFlags">Flags / notes (searchable)</label><textarea id="amFlags" placeholder="e.g. no WhatsApp, has children, parking...">${esc(row.flags||'')}</textarea></div>
+        <div class="modal-field"><label for="amRemarks">Remarks</label><textarea id="amRemarks">${esc(row.remarks||'')}</textarea></div>
+      </div>
+      <div id="amDupHint" class="mini"></div>
+    </div>
+    <div class="modal-foot">
+      <div class="left check-row">
+        <label><input type="checkbox" id="amActive" ${row.active!==false?'checked':''}> active</label>
+        <span class="mini"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> save</span>
+      </div>
+      ${isNew?'':`<button class="danger small-btn" onclick="deleteFromModal(${index})">Delete</button>`}
+      <button class="secondary" onclick="closeOverlay('attModal')">Cancel</button>
+      ${isNew?'<button class="success" onclick="saveAttendantModal(true)">Save &amp; add next</button>':''}
+      <button class="primary" onclick="saveAttendantModal(false)">${isNew?'Save':'Save changes'}</button>
+    </div>`,'wide');
+  setTimeout(()=>{const n=el('amName');if(n){n.focus();n.select();}},40);
+  const nameEl=el('amName'),congEl=el('amCong');
+  if(nameEl)nameEl.addEventListener('input',checkAttModalDuplicate);
+  if(congEl)congEl.addEventListener('input',checkAttModalDuplicate);
+}
+function checkAttModalDuplicate(){
+  const hint=el('amDupHint');if(!hint)return;
+  const name=String(el('amName')?.value||'').trim().toLowerCase();
+  const first=String(el('amFirst')?.value||'').trim().toLowerCase();
+  if(!name){hint.innerHTML='';return;}
+  const hits=state.attendants.filter((a,i)=>i!==attModalIndex
+    &&String(a.name||'').trim().toLowerCase()===name
+    &&(!first||String(a.firstName||'').trim().toLowerCase()===first));
+  hint.innerHTML=hits.length
+    ? `⚠ Already in the list: ${hits.map(a=>esc(dispName(a))+' ('+esc(shortCong(a.congregation)||'no congregation')+')').join(', ')}`
+    : '';
+  hint.style.color=hits.length?'#ef6c00':'';
+}
+function saveAttendantModal(addAnother){
+  const ov=el('attModal');if(!ov)return;
+  const v=id=>String(el(id)?.value||'').trim();
+  const picks=g=>[...ov.querySelectorAll(`input[data-group="${g}"]:checked`)].map(i=>i.value);
+  const name=v('amName'),first=v('amFirst');
+  if(!name&&!first){alert('Please enter at least a name.');el('amName')?.focus();return;}
+  const custom=picks('custom');
+  const obj={id:v('amId'),name,firstName:first,congregation:v('amCong'),privilege:el('amPriv').value,
+    mobile:v('amMobile'),email:v('amEmail'),jwpub:v('amJwpub'),active:!!el('amActive').checked,
+    teams:picks('teams'),roles:picks('roles'),shifts:picks('shifts'),customTags:custom,
+    flags:v('amFlags'),remarks:v('amRemarks')};
+  if(attModalIndex===null){
+    const clash=state.attendants.some(a=>String(a.id)===String(obj.id));
+    if(!obj.id||clash)obj.id=nextId();
+    const dup=state.attendants.find(a=>
+      String(a.name||'').trim().toLowerCase()===name.toLowerCase()&&
+      String(a.firstName||'').trim().toLowerCase()===first.toLowerCase()&&
+      String(a.congregation||'').trim().toLowerCase()===obj.congregation.toLowerCase());
+    if(dup&&!confirm(`"${dispName(dup)}" already exists in this congregation.\n\nAdd anyway?`))return;
+    state.attendants.push(normalizeAttendant(obj));
+    lastModalCong=obj.congregation;
+  }else{
+    state.attendants[attModalIndex]=normalizeAttendant({...state.attendants[attModalIndex],...obj});
+  }
+  saveState();updateDatalist();renderAttendantTable();renderCongTable();
+  closeOverlay('attModal');
+  flash(attModalIndex===null?'Attendant added':'Attendant saved');
+  if(addAnother&&attModalIndex===null)openAttendantModal();
+}
+function deleteFromModal(index){
+  if(!confirm(`Delete ${dispName(state.attendants[index])}?`))return;
+  pushUndo({kind:'att',index,row:structuredClone(state.attendants[index]),label:dispName(state.attendants[index])});
+  state.attendants.splice(index,1);
+  saveState();renderAttendantTable();renderCongTable();
+  closeOverlay('attModal');flash('Attendant deleted');
+}
+
+/* ══════════ TEMPLATE EDITING INSIDE THE MAIL WINDOW ══════════ */
+let pmTemplateOpen=false;
+function togglePmTemplate(){
+  pmTemplateOpen=!pmTemplateOpen;
+  if(selectedCongIndex!==null)openPreviewModal(selectedCongIndex);
+  if(pmTemplateOpen)setTimeout(()=>el('pmTemplate')?.focus(),40);
+}
+function onPmTemplateInput(index){
+  const t=el('pmTemplate');if(!t)return;
+  state.meta.messageTemplate=t.value;
+  const mt=el('messageTemplate');if(mt)mt.value=t.value;
+  saveState();
+  const box=el('pmMessage');if(box)box.innerHTML=messageToHtml(buildCongMessage(index));
+}
+
+/* ══════════ UNDO DELETE ══════════ */
+let undoItem=null;
+function pushUndo(item){undoItem=item;updateUndoBtn();}
+function updateUndoBtn(){
+  const b=el('undoBtn');if(!b)return;
+  if(undoItem){b.style.display='';b.textContent=`↩ Undo delete: ${undoItem.label||''}`.trim();}
+  else b.style.display='none';
+}
+function undoDelete(){
+  if(!undoItem){flash('Nothing to undo');return;}
+  const it=undoItem;
+  if(it.kind==='att'){
+    const at=Math.min(it.index,state.attendants.length);
+    state.attendants.splice(at,0,normalizeAttendant(it.row));
+  }else if(it.kind==='attAll'){
+    state.attendants=(it.rows||[]).map(normalizeAttendant);
+  }else if(it.kind==='cong'){
+    const at=Math.min(it.index,state.congregations.length);
+    state.congregations.splice(at,0,normalizeCongregation(it.row));
+  }
+  undoItem=null;updateUndoBtn();
+  saveState();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+  flash(`Restored: ${it.label||''}`.trim());
+}
+
+/* ══════════ NEEDS ATTENTION ══════════ */
+function missingSets(){
+  const noTeam=[],noShift=[],noId=[],noMail=[];
+  state.attendants.forEach((a,i)=>{
+    if(!String(a.id||'').trim())noId.push(i);
+    if(a.active===false)return;
+    if(!(a.teams||[]).length)noTeam.push(i);
+    if(!(a.shifts||[]).length)noShift.push(i);
+  });
+  state.congregations.forEach((c,i)=>{if(!String(c.jwpub||'').trim())noMail.push(i);});
+  return{noTeam,noShift,noId,noMail};
+}
+const MISS_DEFS={
+  noTeam :{title:'No team assigned',   sub:'active attendants',        clear:'All active attendants have a team'},
+  noShift:{title:'No shift set',       sub:'active attendants',        clear:'All active attendants have a shift'},
+  noId   :{title:'No ID',              sub:'attendants',               clear:'Every attendant has an ID'},
+  noMail :{title:'No coordinator mail',sub:'congregations / groups',   clear:'Every congregation has a coordinator mail'}
+};
+function renderMissingCard(){
+  const grid=el('missGrid');if(!grid)return;
+  const sets=missingSets();
+  grid.innerHTML=Object.keys(MISS_DEFS).map(key=>{
+    const n=sets[key].length,d=MISS_DEFS[key];
+    return n===0
+      ?`<div class="miss-tile clear"><div class="n">✓</div><div class="t">${esc(d.clear)}</div></div>`
+      :`<div class="miss-tile" onclick="openMissingModal('${key}')" title="Show list"><div class="n">${n}</div>
+          <div class="t">${esc(d.title)}<span>${esc(d.sub)}</span></div></div>`;
+  }).join('');
+}
+function openMissingModal(key){
+  const sets=missingSets(),list=sets[key]||[],d=MISS_DEFS[key];
+  const rows=list.map(i=>{
+    if(key==='noMail'){
+      const c=state.congregations[i];
+      return`<div class="miss-row"><div class="grow"><b>${esc(c.congregation||'(no name)')}</b>
+        <div class="sub">${esc(c.coordinator||'no coordinator')}${c.congJwpub?' · cong. mail: '+esc(c.congJwpub):' · no address at all'}</div></div>
+        <button class="secondary small-btn" onclick="focusCongRow(${i})">Go to row</button></div>`;
+    }
+    const a=state.attendants[i];
+    return`<div class="miss-row"><div class="grow"><b>${esc(dispName(a))}</b>
+      <div class="sub">${esc(shortCong(a.congregation)||'no congregation')} · ${esc(a.privilege||'')}${a.active===false?' · inactive':''}</div></div>
+      <button class="secondary small-btn" onclick="closeOverlay('missModal');openAttendantModal(${i})">✎ Fix</button></div>`;
+  }).join('');
+  openOverlay('missModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>${esc(d.title)}</h3><div class="sub">${list.length} ${esc(d.sub)}</div></div>
+      <button class="modal-x" onclick="closeOverlay('missModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body"><div class="miss-list">${rows||'<div class="muted">Nothing to show.</div>'}</div></div>
+    <div class="modal-foot"><button class="secondary" onclick="closeOverlay('missModal')">Close</button></div>`);
+}
+function focusCongRow(index){
+  closeOverlay('missModal');
+  showTab('dashboard');
+  let tr=el('congRow-'+index);
+  if(!tr){
+    if(el('filterType'))el('filterType').value='all';
+    if(el('filterFollowup'))el('filterFollowup').value='all';
+    clearGlobalSearch();
+    renderCongTable();
+    tr=el('congRow-'+index);
+  }
+  if(!tr)return;
+  tr.scrollIntoView({behavior:'smooth',block:'center'});
+  tr.classList.remove('row-flash');void tr.offsetWidth;tr.classList.add('row-flash');
+  setTimeout(()=>tr.classList.remove('row-flash'),2000);
+}
+
+/* ══════════ KEYBOARD SHORTCUTS ══════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    const ov=document.querySelector('.modal-ov')||document.querySelector('.import-modal');
+    if(ov){ov.remove();e.preventDefault();}
+    return;
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&el('attModal')){e.preventDefault();saveAttendantModal(false);return;}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')&&!anyOverlay()){
+    const t0=e.target;
+    if(!(t0&&(t0.tagName==='INPUT'||t0.tagName==='TEXTAREA'||t0.isContentEditable))&&undoItem){e.preventDefault();undoDelete();return;}
+  }
+  const t=e.target;
+  const typing=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable);
+  if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(anyOverlay()){
+    if(el('previewModal')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){
+      const vis=visibleCongIndices(),pos=vis.indexOf(selectedCongIndex);
+      const to=e.key==='ArrowRight'?vis[pos+1]:vis[pos-1];
+      if(to!==undefined){e.preventDefault();openPreviewModal(to);}
+    }
+    return;
+  }
+  if(e.key==='n'||e.key==='N'){e.preventDefault();openAttendantModal();}
+  else if(e.key==='p'||e.key==='P'){e.preventDefault();openPreviewModal();}
+  else if(e.key==='/'){e.preventDefault();el('globalSearch')?.focus();}
+});
+
+/* ── tabs ── */
+function showTab(tab){
+  if(tab==='settings')renderCustomLists();
+  ['dashboard','attendants','notes','settings'].forEach(n=>{
+    const p=el('tab-'+n),b=el('tabBtn-'+n);
+    if(p)p.classList.toggle('active',n===tab);if(b)b.classList.toggle('active',n===tab);
+  });
+}
+
+/* ── init ── */
+state=loadState();
+ensureValidState();
+writeMetaToInputs();
+['plannerTitle','eventName','eventDate','senderName','senderRole','senderCong','senderPhone','senderMail','messageTemplate','generalNotes']
+  .forEach(id=>{if(el(id))el(id).addEventListener('input',()=>{saveState();renderCongTable();});});
+refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+el('previewContactActions').innerHTML='<div class="muted">Preview a congregation first.</div>';
+renderCustomLists();
+renderMissingCard();updateUndoBtn();
+showTab('dashboard');
+</script>
+</body>
+</html>
