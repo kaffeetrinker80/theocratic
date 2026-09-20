@@ -694,7 +694,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.1</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.2</div>
 </div>
 
 <script>
@@ -1969,10 +1969,11 @@ function openAttendantModal(index,prefillCong){
           <select id="amCong" onchange="amCongChanged(this)">${buildCongOptions(row.congregation||'')}<option value="__new__">＋ New congregation / group…</option></select></div>
         <div class="modal-field"><label for="amPriv">Privilege</label><select id="amPriv" ${row.sister?'disabled':''}>
           ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
-        </select>
-        <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;font-weight:700;color:#6a1b9a">
-          <input type="checkbox" id="amSister" ${row.sister?'checked':''} onchange="amSisterChanged(this.checked)"> Sister
-        </label></div>
+        </select></div>
+        <div class="modal-field"><label for="amSister">Status</label>
+          <label class="tch sis${row.sister?'':' off'}" id="amSisterChip" style="text-transform:none;letter-spacing:0;padding:6px 11px;font-size:12px;gap:6px;margin-top:2px">
+            <input type="checkbox" id="amSister" ${row.sister?'checked':''} onchange="amSisterChanged(this.checked)"> Sister
+          </label></div>
         <div class="modal-field"><label for="amMobile">Mobile</label><input id="amMobile" value="${esc(row.mobile||'')}"></div>
         <div class="modal-field"><label for="amEmail">Email</label><input id="amEmail" value="${esc(row.email||'')}"></div>
         <div class="modal-field"><label for="amJwpub">JWPub mail</label><input id="amJwpub" value="${esc(row.jwpub||'')}"></div>
@@ -2014,6 +2015,7 @@ function amCongChanged(sel){
   flash(`Added "${name}"`);
 }
 function amSisterChanged(on){
+  const chip=el('amSisterChip');if(chip)chip.classList.toggle('off',!on);
   const priv=el('amPriv');if(!priv)return;
   if(on){priv.value='Publisher';priv.disabled=true;}else priv.disabled=false;
 }
