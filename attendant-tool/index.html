@@ -663,7 +663,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.3</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.4</div>
 </div>
 
 <script>
@@ -1642,7 +1642,8 @@ function exportFilteredCsv(){
   const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
   const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
   const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  /* BOM so Excel opens the file as UTF-8 (otherwise ä/ö/ü/ß break) */
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=`${typePrefix}${teamFilter}-filtered-${localStamp}.csv`;a.click();URL.revokeObjectURL(a.href);
   flash(`Exported ${filtered.length} attendants`);
