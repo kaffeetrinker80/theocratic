@@ -12,6 +12,7 @@
 <title>Attendant Department Planner</title>
 <style>
 :root{
+  color-scheme:light;
   --bg:#f3f5f7;--surface:#fff;--surface-2:#f8fafc;--text:#1f2937;--muted:#6b7280;
   --line:#d8dee4;--primary:#34495e;--accent:#2e7d32;--warn:#ef6c00;--danger:#c62828;
   --shadow:0 10px 28px rgba(15,23,42,.08);--radius:18px;
@@ -74,6 +75,10 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .import-radio-opt.selected{border-color:#1565c0;background:#eaf2fd}
 .import-radio-opt input[type=radio]{width:18px;height:18px;margin:0;cursor:pointer}
 .import-radio-opt label{font-size:14px;font-weight:700;color:#1f2937;cursor:pointer;flex:1}
+
+/* ── sister marker ── */
+.pill.sis{background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;font-size:10px;padding:2px 6px;white-space:nowrap}
+.tch.sis{background:#f3e5f5;color:#6a1b9a;border-color:#ce93d8}
 
 /* ── welcome / getting started ── */
 .wc-step{display:flex;gap:7px;align-items:center;margin-bottom:2px}
@@ -566,6 +571,7 @@ Loving greetings,
         <select id="filterPrivilege" onchange="renderAttendantTable()">
           <option value="all">All</option><option value="Publisher">Publisher</option>
           <option value="Ministerial Servant">Ministerial Servant</option><option value="Elder">Elder</option>
+          <option value="__sister__">Sisters only</option><option value="__brother__">Brothers only</option>
         </select></div>
       <div class="sf narrow"><label for="filterTeam">Team</label>
         <select id="filterTeam" onchange="renderAttendantTable()">
@@ -688,7 +694,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.0</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.1</div>
 </div>
 
 <script>
@@ -816,7 +822,7 @@ function normalizeAttendant(r){
     id:String(r.id||''),name:r.name||'',firstName:r.firstName||'',
     congregation:r.congregation||'',email:r.email||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
     privilege:DEFAULT_PRIVILEGES.includes(r.privilege)?r.privilege:'Publisher',
-    active:r.active===undefined?true:!!r.active,children:!!r.children,
+    active:r.active===undefined?true:!!r.active,children:!!r.children,sister:!!r.sister,
     otherDepartment:r.otherDepartment!==undefined?!!r.otherDepartment:teams.some(t=>otherKeys.includes(t)),
     teams,roles,shifts,
     customTags:Array.isArray(r.customTags)?r.customTags:[],
@@ -861,7 +867,7 @@ function matchTerms(text){
 }
 function attHay(row){
   return[row.id,row.name,row.firstName,row.congregation,shortCong(row.congregation),
-    row.email,row.jwpub,row.mobile,row.privilege,row.flags,row.remarks,
+    row.email,row.jwpub,row.mobile,row.privilege,row.sister?'sister schwester':'',row.flags,row.remarks,
     (row.teams||[]).join(' '),(row.roles||[]).join(' '),(row.shifts||[]).join(' '),(row.customTags||[]).join(' ')].join(' ');
 }
 
@@ -973,7 +979,7 @@ function renderCongTable(){
           <div class="field-actions">${row.congJwpub?`<span class="mini-copy" onclick="copyText('${js(row.congJwpub)}',false,this)">⧉</span>`:''}</div></div>
       </div></td>
       <td><div class="att-cell">
-        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
+        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${a.sister?'<span class="pill sis">Sr.</span> ':''}${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
         <button class="quick-add no-print" onclick="openAttendantModal(null,'${js(row.congregation||'')}')" title="Add an attendant to this congregation">+ Attendant</button>
       </div></td>
       <td><div class="compact-stack">${followLabel(row)}
@@ -1027,12 +1033,14 @@ function renderMiniStats(){
   const lobby=state.attendants.filter(a=>(a.teams||[]).includes('lobby')).length;
   const wel=state.attendants.filter(a=>(a.teams||[]).includes('welcome')).length;
   const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
+  const sisters=state.attendants.filter(a=>a.sister).length;
   const ms=el('miniStats');
   if(!ms)return;
   ms.innerHTML=`
     <div class="stat"><span class="label">Total</span><span class="val">${total}</span></div>
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
     <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
+    <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
     <div class="divider"></div>
     <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
     <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
@@ -1097,7 +1105,10 @@ function renderAttendantTable(){
     tr.innerHTML=`
       <td style="text-align:center">${dotHtml}</td>
       <td style="text-align:center">${idHtml}</td>
-      <td><input type="text" value="${esc(row.name)}" oninput="updAttDirect(${index},'name',this.value)" placeholder="Name"></td>
+      <td><div style="display:flex;align-items:center;gap:4px">
+        ${row.sister?'<span class="pill sis" title="Sister">Sr.</span>':''}
+        <input type="text" value="${esc(row.name)}" oninput="updAttDirect(${index},'name',this.value)" placeholder="Name" style="flex:1;min-width:0">
+      </div></td>
       <td><input type="text" value="${esc(row.firstName)}" oninput="updAttDirect(${index},'firstName',this.value)" placeholder="First name"></td>
       <td><select onchange="updAttField(${index},'congregation',this.value)">${buildCongOptions(row.congregation)}</select></td>
       <td>
@@ -1203,6 +1214,14 @@ function buildExpandedRow(index, row){
       </div>
 
       <div class="exp-group">
+        <div class="exp-subhead">Status</div>
+        <label class="tch sis${row.sister?'':' off'}" style="width:max-content">
+          <input type="checkbox" ${row.sister?'checked':''} onchange="setSister(${index},this.checked)">Sister
+        </label>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px">Sisters are listed as Publisher</div>
+      </div>
+
+      <div class="exp-group">
         <div class="exp-subhead">Flags / Notes (free text, searchable)</div>
         <textarea class="flags-wrap" oninput="updAttDirect(${index},'flags',this.value)"
           placeholder="e.g. no WhatsApp, parking, family note..." style="width:100%;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:6px 8px">${esc(row.flags||'')}</textarea>
@@ -1231,6 +1250,12 @@ function buildExpandedRow(index, row){
 }
 
 /* ── update helpers ── */
+function setSister(index,val){
+  const a=state.attendants[index];if(!a)return;
+  a.sister=!!val;
+  if(a.sister)a.privilege='Publisher';
+  saveState();renderAttendantTable();renderCongTable();
+}
 function toggleActive(index){
   state.attendants[index].active=!(state.attendants[index].active!==false);
   saveState();renderAttendantTable();
@@ -1516,7 +1541,7 @@ function buildCongMessage(index){
   const inactiveEvent=state.meta.eventType==='Regional Convention'?'Convention':'Assembly';
   const atts=attsForCong(row);
   const list=atts.length?atts.map(a=>
-    `${dispName(a)}${a.active===false?` (last ${inactiveEvent}: inactive)`:''}`
+    `${dispName(a)}${a.sister?' (sister)':''}${a.active===false?` (last ${inactiveEvent}: inactive)`:''}`
   ).join('\n'):'[no attendants yet]';
   return(state.meta.messageTemplate||'')
     .replaceAll('[EVENT_DATE]',state.meta.eventDate||'').replaceAll('[ATTENDANT_LIST]',list)
@@ -1630,7 +1655,9 @@ function getFilteredAttendants(){
     if(q&&!hay.includes(q))return false;
     if(!matchTerms(hay))return false;
     if(cong!=='all'&&!matchCong(row.congregation,cong))return false;
-    if(priv!=='all'&&row.privilege!==priv)return false;
+    if(priv==='__sister__'&&!row.sister)return false;
+    if(priv==='__brother__'&&row.sister)return false;
+    if(priv!=='all'&&priv!=='__sister__'&&priv!=='__brother__'&&row.privilege!==priv)return false;
     if(actFil==='active'&&row.active===false)return false;
     if(actFil==='inactive'&&row.active!==false)return false;
     if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
@@ -1656,9 +1683,9 @@ function exportFilteredJson(){
 function exportFilteredCsv(){
   const filtered=getFilteredAttendants();
   if(!filtered.length){alert('No attendants match current filters.');return;}
-  const header=['ID','Name','First name','Congregation','Privilege','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
+  const header=['ID','Name','First name','Congregation','Privilege','Sister','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
   const rows=[header,...filtered.map(a=>[
-    a.id,a.name,a.firstName,a.congregation,a.privilege,
+    a.id,a.name,a.firstName,a.congregation,a.privilege,a.sister?'Yes':'',
     (a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/'),
     (a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join('/'),
     (a.shifts||[]).map(k=>SHIFTS.find(s=>s.key===k)?.label||k).join('/'),
@@ -1938,10 +1965,14 @@ function openAttendantModal(index,prefillCong){
         <div class="modal-field" style="max-width:110px"><label for="amId">ID</label><input id="amId" value="${esc(row.id||'')}"></div>
         <div class="modal-field"><label for="amName">Name *</label><input id="amName" value="${esc(row.name||'')}" placeholder="Last name"></div>
         <div class="modal-field"><label for="amFirst">First name</label><input id="amFirst" value="${esc(row.firstName||'')}"></div>
-        <div class="modal-field"><label for="amCong">Congregation / Group</label><input id="amCong" list="congregationOptions" value="${esc(row.congregation||'')}" placeholder="Type or pick"></div>
-        <div class="modal-field"><label for="amPriv">Privilege</label><select id="amPriv">
+        <div class="modal-field"><label for="amCong">Congregation / Group</label>
+          <select id="amCong" onchange="amCongChanged(this)">${buildCongOptions(row.congregation||'')}<option value="__new__">＋ New congregation / group…</option></select></div>
+        <div class="modal-field"><label for="amPriv">Privilege</label><select id="amPriv" ${row.sister?'disabled':''}>
           ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
-        </select></div>
+        </select>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;font-weight:700;color:#6a1b9a">
+          <input type="checkbox" id="amSister" ${row.sister?'checked':''} onchange="amSisterChanged(this.checked)"> Sister
+        </label></div>
         <div class="modal-field"><label for="amMobile">Mobile</label><input id="amMobile" value="${esc(row.mobile||'')}"></div>
         <div class="modal-field"><label for="amEmail">Email</label><input id="amEmail" value="${esc(row.email||'')}"></div>
         <div class="modal-field"><label for="amJwpub">JWPub mail</label><input id="amJwpub" value="${esc(row.jwpub||'')}"></div>
@@ -1970,6 +2001,22 @@ function openAttendantModal(index,prefillCong){
   if(nameEl)nameEl.addEventListener('input',checkAttModalDuplicate);
   if(congEl)congEl.addEventListener('input',checkAttModalDuplicate);
 }
+function amCongChanged(sel){
+  if(sel.value!=='__new__')return;
+  const name=String(prompt('Name of the new congregation / group:')||'').trim();
+  if(!name){sel.value='';return;}
+  if(!state.congregations.some(c=>String(c.congregation||'').trim().toLowerCase()===name.toLowerCase())){
+    state.congregations.push(normalizeCongregation({congregation:name,type:'Congregation'}));
+    sortCongregations();saveState();updateDatalist();refreshCongFilter();renderCongTable();
+  }
+  sel.innerHTML=buildCongOptions(name)+'<option value="__new__">＋ New congregation / group…</option>';
+  sel.value=name;
+  flash(`Added "${name}"`);
+}
+function amSisterChanged(on){
+  const priv=el('amPriv');if(!priv)return;
+  if(on){priv.value='Publisher';priv.disabled=true;}else priv.disabled=false;
+}
 function checkAttModalDuplicate(){
   const hint=el('amDupHint');if(!hint)return;
   const name=String(el('amName')?.value||'').trim().toLowerCase();
@@ -1990,7 +2037,10 @@ function saveAttendantModal(addAnother){
   const name=v('amName'),first=v('amFirst');
   if(!name&&!first){alert('Please enter at least a name.');el('amName')?.focus();return;}
   const custom=picks('custom');
-  const obj={id:v('amId'),name,firstName:first,congregation:v('amCong'),privilege:el('amPriv').value,
+  const congVal=v('amCong')==='__new__'?'':v('amCong');
+  const isSister=!!el('amSister')?.checked;
+  const obj={id:v('amId'),name,firstName:first,congregation:congVal,
+    privilege:isSister?'Publisher':el('amPriv').value,sister:isSister,
     mobile:v('amMobile'),email:v('amEmail'),jwpub:v('amJwpub'),active:!!el('amActive').checked,
     teams:picks('teams'),roles:picks('roles'),shifts:picks('shifts'),customTags:custom,
     flags:v('amFlags'),remarks:v('amRemarks')};
