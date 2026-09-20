@@ -395,7 +395,7 @@ table.dash-table tbody tr:hover td{background:#fafcff}
     </div>
   </div>
   <div class="toolbar no-print">
-    <button class="primary" onclick="addCongregationRow()">+ Congregation / Group</button>
+    <button class="primary" onclick="openCongModal()">+ Congregation / Group</button>
     <button class="primary" onclick="openAttendantModal()">+ Attendant</button>
     <button class="success" onclick="copyActiveAttendantsSummary(this)" style="display:inline-flex;align-items:center;gap:7px">
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;flex:0 0 auto">
@@ -449,7 +449,10 @@ table.dash-table tbody tr:hover td{background:#fafcff}
         <select id="filterFollowup" onchange="renderCongTable()"><option value="all">All</option><option value="open">Open</option><option value="contacted">Contacted</option><option value="replied">Replied</option></select></div>
       <div class="sf narrow"><label for="bulkStatus">Bulk</label>
         <select id="bulkStatus"><option value="contacted">Mark visible contacted</option><option value="replied">Mark visible replied</option><option value="open">Clear visible</option></select></div>
-      <div class="sf btn"><button class="secondary" onclick="applyBulkFollowup()">Apply</button></div>
+      <div class="sf btn">
+        <button class="secondary" onclick="applyBulkFollowup()">Apply</button>
+        <button class="secondary" onclick="sortCongregationsManual()" title="Sort the congregation list alphabetically">Sort A–Z</button>
+      </div>
     </div>
     <div class="table-wrap-dash">
       <table class="dash-table">
@@ -509,7 +512,7 @@ Loving greetings,
             <button class="primary" onclick="openPreviewModal()">🔍 Open mail window</button>
             <button class="secondary" onclick="openPreviewModal(firstOpenCongIndex())">▶ Next open one</button>
           </div>
-          <div class="footer-note" style="margin-top:6px">Shortcuts: <span class="kbd">P</span> mail window · <span class="kbd">N</span> new attendant · <span class="kbd">/</span> search · <span class="kbd">Ctrl</span>+<span class="kbd">Z</span> undo delete · <span class="kbd">Esc</span> close</div>
+          <div class="footer-note" style="margin-top:6px">Shortcuts: <span class="kbd">P</span> mail window · <span class="kbd">N</span> new attendant · <span class="kbd">G</span> new congregation · <span class="kbd">/</span> search · <span class="kbd">Ctrl</span>+<span class="kbd">Z</span> undo delete · <span class="kbd">Esc</span> close</div>
         </div>
         <div id="previewBox" style="display:none"></div>
         <div id="previewContactActions" style="display:none"></div>
@@ -651,7 +654,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.1</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.2</div>
 </div>
 
 <script>
@@ -942,6 +945,7 @@ function renderCongTable(){
       <td class="no-print right"><div class="stack">
         <button class="secondary small-btn" onclick="openPreviewModal(${index})">Preview</button>
         <button class="secondary small-btn" onclick="copyCongMessage(${index})">Copy</button>
+        <button class="secondary small-btn" onclick="openCongModal(${index})" title="Edit all fields in a window">✎ Edit</button>
         <button class="danger small-btn" onclick="deleteCongRow(${index})">Delete</button>
       </div></td>`;
     body.appendChild(tr);
@@ -1762,7 +1766,7 @@ function executeImport(filename){
   state={meta:{...defaultState().meta,...(data.meta||{}),eventType:target},
     congregations:Array.isArray(data.congregations)&&data.congregations.length?data.congregations.map(normalizeCongregation):structuredClone(initialCongregations),
     attendants:Array.isArray(data.attendants)?data.attendants.map(normalizeAttendant):[]};
-  ensureValidState();state.meta.lastImportText=`JSON · ${filename}`;
+  ensureValidState();sortCongregations();state.meta.lastImportText=`JSON · ${filename}`;
   writeMetaToInputs();saveState();updateDatalist();renderCongTable();renderAttendantTable();renderMiniStats();
   closeImportModal();
   flash(`Imported into ${target}`);
@@ -1974,6 +1978,97 @@ function deleteFromModal(index){
   closeOverlay('attModal');flash('Attendant deleted');
 }
 
+/* ══════════ CONGREGATION SORTING ══════════ */
+function sortCongregations(){
+  const sel=(selectedCongIndex!==null&&state.congregations[selectedCongIndex])?state.congregations[selectedCongIndex]:null;
+  state.congregations.sort((a,b)=>
+    String(a.congregation||'').trim().localeCompare(String(b.congregation||'').trim(),'de',{sensitivity:'base',numeric:true}));
+  selectedCongIndex=sel?state.congregations.indexOf(sel):selectedCongIndex;
+  if(selectedCongIndex===-1)selectedCongIndex=null;
+  return selectedCongIndex;
+}
+function sortCongregationsManual(){
+  sortCongregations();
+  saveState();renderCongTable();updateDatalist();refreshCongFilter();
+  if(el('previewModal')&&selectedCongIndex!==null)openPreviewModal(selectedCongIndex);
+  flash('Congregations sorted A–Z');
+}
+
+/* ══════════ CONGREGATION MODAL (add / edit) ══════════ */
+let congModalIndex=null;
+function openCongModal(index){
+  const isNew=(index===null||index===undefined);
+  congModalIndex=isNew?null:index;
+  const row=isNew
+    ? normalizeCongregation({congregation:'',type:'Congregation'})
+    : state.congregations[index];
+  if(!row){alert('Congregation not found.');return;}
+  const atts=isNew?[]:attsForCong(row);
+  openOverlay('congModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0">
+        <h3>${isNew?'New congregation / group':'Edit: '+esc(row.congregation||'(no name)')}</h3>
+        <div class="sub">${esc(state.meta.eventType)}${isNew?'':` · ${atts.filter(a=>a.active!==false).length}/${atts.length} attendants active`}</div>
+      </div>
+      <button class="modal-x" onclick="closeOverlay('congModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-field" style="grid-column:span 2"><label for="cmName">Congregation / Group *</label>
+          <input id="cmName" value="${esc(row.congregation||'')}" placeholder="e.g. Munich-English"></div>
+        <div class="modal-field"><label for="cmType">Type</label><select id="cmType">
+          <option value="Congregation" ${row.type!=='Group'?'selected':''}>Congregation</option>
+          <option value="Group" ${row.type==='Group'?'selected':''}>Group</option>
+        </select></div>
+        <div class="modal-field"><label for="cmCoord">Coordinator</label><input id="cmCoord" value="${esc(row.coordinator||'')}"></div>
+        <div class="modal-field"><label for="cmJwpub">Coordinator JWPub / Email</label><input id="cmJwpub" value="${esc(row.jwpub||'')}"></div>
+        <div class="modal-field"><label for="cmCongMail">Congregation JWPub / Email</label><input id="cmCongMail" value="${esc(row.congJwpub||'')}"></div>
+        <div class="modal-field"><label for="cmMobile">Mobile</label><input id="cmMobile" value="${esc(row.mobile||'')}"></div>
+      </div>
+      <div class="modal-field"><label for="cmRemarks">Remarks</label><textarea id="cmRemarks">${esc(row.remarks||'')}</textarea></div>
+      <div id="cmDupHint" class="mini"></div>
+      <div class="footer-note">Saving sorts the list A–Z and jumps to the entry. Follow-up status stays untouched.</div>
+    </div>
+    <div class="modal-foot">
+      <div class="left"><span class="mini"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> save</span></div>
+      <button class="secondary" onclick="closeOverlay('congModal')">Cancel</button>
+      ${isNew?'<button class="success" onclick="saveCongModal(true)">Save &amp; add next</button>':''}
+      <button class="primary" onclick="saveCongModal(false)">${isNew?'Save':'Save changes'}</button>
+    </div>`);
+  setTimeout(()=>{const n=el('cmName');if(n){n.focus();n.select();}},40);
+  el('cmName')?.addEventListener('input',checkCongModalDuplicate);
+}
+function checkCongModalDuplicate(){
+  const hint=el('cmDupHint');if(!hint)return;
+  const name=String(el('cmName')?.value||'').trim().toLowerCase();
+  const hit=name&&state.congregations.some((c,i)=>i!==congModalIndex
+    &&String(c.congregation||'').trim().toLowerCase()===name);
+  hint.innerHTML=hit?'⚠ A congregation with this name already exists.':'';
+  hint.style.color=hit?'#ef6c00':'';
+}
+function saveCongModal(addAnother){
+  if(!el('congModal'))return;
+  const v=id=>String(el(id)?.value||'').trim();
+  const name=v('cmName');
+  if(!name){alert('Please enter a congregation / group name.');el('cmName')?.focus();return;}
+  const isNew=congModalIndex===null;
+  if(isNew&&state.congregations.some(c=>String(c.congregation||'').trim().toLowerCase()===name.toLowerCase())
+     &&!confirm(`"${name}" already exists.\n\nAdd anyway?`))return;
+  const base=isNew?{}:state.congregations[congModalIndex];
+  const row=normalizeCongregation({...base,congregation:name,type:el('cmType').value,
+    coordinator:v('cmCoord'),jwpub:v('cmJwpub'),congJwpub:v('cmCongMail'),
+    mobile:v('cmMobile'),remarks:v('cmRemarks')});
+  if(isNew)state.congregations.push(row);else state.congregations[congModalIndex]=row;
+  sortCongregations();
+  const at=state.congregations.indexOf(row);
+  saveState();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+  closeOverlay('congModal');
+  flash(isNew?'Congregation added':'Congregation saved');
+  if(el('previewModal')&&selectedCongIndex!==null)openPreviewModal(selectedCongIndex);
+  if(addAnother&&isNew)openCongModal();
+  else if(at>=0)focusCongRow(at);
+}
+
 /* ══════════ TEMPLATE EDITING INSIDE THE MAIL WINDOW ══════════ */
 let pmTemplateOpen=false;
 function togglePmTemplate(){
@@ -2006,8 +2101,9 @@ function undoDelete(){
   }else if(it.kind==='attAll'){
     state.attendants=(it.rows||[]).map(normalizeAttendant);
   }else if(it.kind==='cong'){
-    const at=Math.min(it.index,state.congregations.length);
-    state.congregations.splice(at,0,normalizeCongregation(it.row));
+    const restored=normalizeCongregation(it.row);
+    state.congregations.push(restored);
+    sortCongregations();
   }
   undoItem=null;updateUndoBtn();
   saveState();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
@@ -2077,7 +2173,7 @@ function focusCongRow(index){
     tr=el('congRow-'+index);
   }
   if(!tr)return;
-  tr.scrollIntoView({behavior:'smooth',block:'center'});
+  if(tr.scrollIntoView)tr.scrollIntoView({behavior:'smooth',block:'center'});
   tr.classList.remove('row-flash');void tr.offsetWidth;tr.classList.add('row-flash');
   setTimeout(()=>tr.classList.remove('row-flash'),2000);
 }
@@ -2090,6 +2186,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&el('attModal')){e.preventDefault();saveAttendantModal(false);return;}
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&el('congModal')){e.preventDefault();saveCongModal(false);return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')&&!anyOverlay()){
     const t0=e.target;
     if(!(t0&&(t0.tagName==='INPUT'||t0.tagName==='TEXTAREA'||t0.isContentEditable))&&undoItem){e.preventDefault();undoDelete();return;}
@@ -2106,6 +2203,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key==='n'||e.key==='N'){e.preventDefault();openAttendantModal();}
+  else if(e.key==='g'||e.key==='G'){e.preventDefault();openCongModal();}
   else if(e.key==='p'||e.key==='P'){e.preventDefault();openPreviewModal();}
   else if(e.key==='/'){e.preventDefault();el('globalSearch')?.focus();}
 });
