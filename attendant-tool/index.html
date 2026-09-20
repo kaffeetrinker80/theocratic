@@ -75,6 +75,15 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .import-radio-opt input[type=radio]{width:18px;height:18px;margin:0;cursor:pointer}
 .import-radio-opt label{font-size:14px;font-weight:700;color:#1f2937;cursor:pointer;flex:1}
 
+/* ── quick add / attendant links in the congregation table ── */
+.att-cell{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.att-link{font-size:12px;line-height:1.35;cursor:pointer;border-bottom:1px dotted transparent;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-link:hover{color:var(--accent-strong,#0b6e99);border-bottom-color:currentColor}
+.quick-add{margin-top:3px;padding:3px 9px;border-radius:999px;border:1px dashed #90a4ae;background:#fff;
+  color:#37474f;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.quick-add:hover{background:#e8f4fb;border-color:#42a5f5;border-style:solid;color:#0b6e99}
+
 /* ── needs attention ── */
 .miss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .miss-tile{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;border:1px solid var(--line);
@@ -654,7 +663,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.2</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.5.3</div>
 </div>
 
 <script>
@@ -935,7 +944,10 @@ function renderCongTable(){
         <div class="field-with-actions"><input value="${esc(row.congJwpub)}" oninput="updCong(${index},'congJwpub',this.value)" placeholder="Congregation JWPub / Email">
           <div class="field-actions">${row.congJwpub?`<span class="mini-copy" onclick="copyText('${js(row.congJwpub)}',false,this)">⧉</span>`:''}</div></div>
       </div></td>
-      <td><div class="mini">${names.length?names.map(a=>esc(dispName(a))+(a.active===false?' <span class="muted">(inactive)</span>':'')).join('<br>'):'<span class="muted">–</span>'}</div></td>
+      <td><div class="att-cell">
+        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
+        <button class="quick-add no-print" onclick="openAttendantModal(null,'${js(row.congregation||'')}')" title="Add an attendant to this congregation">+ Attendant</button>
+      </div></td>
       <td><div class="compact-stack">${followLabel(row)}
         <div class="check-row no-print">
           <label><input type="checkbox" ${row.contacted?'checked':''} onchange="updCong(${index},'contacted',this.checked)"> contacted</label>
@@ -1869,12 +1881,13 @@ let attModalIndex=null,lastModalCong='';
 function chipBox(group,key,label,cls,on){
   return`<label class="tch ${cls}${on?'':' off'}"><input type="checkbox" data-group="${group}" value="${esc(key)}" ${on?'checked':''} onchange="this.closest('label').classList.toggle('off',!this.checked)">${esc(label)}</label>`;
 }
-function openAttendantModal(index){
+function openAttendantModal(index,prefillCong){
   const isNew=(index===null||index===undefined);
   attModalIndex=isNew?null:index;
   const filterCong=el('filterCongregation')?.value;
   const row=isNew
-    ? normalizeAttendant({id:nextId(),congregation:lastModalCong||(filterCong&&filterCong!=='all'?filterCong:''),
+    ? normalizeAttendant({id:nextId(),
+        congregation:prefillCong||lastModalCong||(filterCong&&filterCong!=='all'?filterCong:''),
         privilege:'Publisher',active:true})
     : state.attendants[index];
   if(!row){alert('Attendant not found.');return;}
@@ -1968,7 +1981,7 @@ function saveAttendantModal(addAnother){
   saveState();updateDatalist();renderAttendantTable();renderCongTable();
   closeOverlay('attModal');
   flash(attModalIndex===null?'Attendant added':'Attendant saved');
-  if(addAnother&&attModalIndex===null)openAttendantModal();
+  if(addAnother&&attModalIndex===null)openAttendantModal(null,lastModalCong);
 }
 function deleteFromModal(index){
   if(!confirm(`Delete ${dispName(state.attendants[index])}?`))return;
