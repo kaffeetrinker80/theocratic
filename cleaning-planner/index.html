@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <!-- Icons + Manifest -->
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -18,8 +21,7 @@
 <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/cleaning-planner/">
 <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/cleaning-planner/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Cleaning Planner</title>
   <style>
     :root{
@@ -462,7 +464,31 @@
   <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
   <datalist id="areas"></datalist>
   <datalist id="slots"></datalist>
-  <div class="footer-bar">Made with Love © – Cleaning Planner V 2.0.0</div>
+  <div class="footer-bar">Made with Love © – Cleaning Planner V 2.1.0</div>
+</div>
+
+<div class="modal-backdrop" id="importModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:20px;font-weight:800" id="importModalTitle"></div>
+        <div class="mini" id="importModalSub"></div>
+      </div>
+      <button class="close-btn" id="importCloseBtn" onclick="closeImportModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-contact-card" style="margin-top:0;margin-bottom:14px">
+        <div class="preview-contact-grid" id="importFileInfo"></div>
+      </div>
+      <label id="importChoiceLabel"></label>
+      <div class="msg-status" id="importChoices"></div>
+      <div class="footer-note" id="importWarning"></div>
+      <div class="msg-actions">
+        <button class="primary" id="importConfirmBtn" onclick="confirmImport()"></button>
+        <button class="secondary" id="importCancelBtn" onclick="closeImportModal()"></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="msgModal">
@@ -499,7 +525,7 @@
 </div>
 
 <script>
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const MODE_STORE = 'cleaningPlannerUnified_mode';
 const MODE_DEFS = {
   assembly: { storage:'cleaningPlannerUnified_assembly_v2', days:['d1'] },
@@ -649,7 +675,12 @@ Object.assign(I18N.en, {
   msgPlaceholders: 'Placeholders: [TARGET] \u00b7 [SUGGESTED] \u00b7 [AREA_LINE] \u00b7 [RESPONSIBLE]',
   msgStatusTitle: 'Reply status', msgHint: 'Use \u25c0 \u25b6 or the arrow keys to work through the filtered list.',
   mailSubjectPrefix: 'Cleaning Department', importModeMismatch: 'This backup looks like data for the other mode. Switch mode and import it there?',
-  dayCardAssignments: 'assigned'
+  dayCardAssignments: 'assigned',
+  importTitle: 'Restore backup', importSub: 'You decide which slot the file is restored into.',
+  importChoiceLabel: 'Restore as', importConfirm: 'Restore', importCancel: 'Cancel',
+  importWarning: 'Your choice decides \u2014 whatever the file says is ignored. The selected slot is overwritten completely.',
+  importFile: 'File', importEvent: 'Event', importEntries: 'Entries', importDays: 'Planned days', importDetected: 'Looks like',
+  backupEventLabel: 'Current data'
 });
 Object.assign(I18N.de, {
   modeLabel: 'Modus', modeAssembly: 'Kongresstag \u00b7 1 Tag', modeRc: 'Kongress \u00b7 3 Tage',
@@ -667,7 +698,12 @@ Object.assign(I18N.de, {
   msgPlaceholders: 'Platzhalter: [TARGET] \u00b7 [SUGGESTED] \u00b7 [AREA_LINE] \u00b7 [RESPONSIBLE]',
   msgStatusTitle: 'R\u00fcckmeldung', msgHint: 'Mit \u25c0 \u25b6 oder den Pfeiltasten gehst du durch die gefilterte Liste.',
   mailSubjectPrefix: 'Reinigungsabteilung', importModeMismatch: 'Dieses Backup sieht nach Daten f\u00fcr den anderen Modus aus. Modus wechseln und dort importieren?',
-  dayCardAssignments: 'eingeteilt'
+  dayCardAssignments: 'eingeteilt',
+  importTitle: 'Backup wiederherstellen', importSub: 'Du legst fest, in welchen Speicher die Datei geht.',
+  importChoiceLabel: 'Wiederherstellen als', importConfirm: 'Wiederherstellen', importCancel: 'Abbrechen',
+  importWarning: 'Deine Auswahl entscheidet \u2014 was in der Datei steht, wird ignoriert. Der gew\u00e4hlte Speicher wird komplett \u00fcberschrieben.',
+  importFile: 'Datei', importEvent: 'Event', importEntries: 'Eintr\u00e4ge', importDays: 'Geplante Tage', importDetected: 'Sieht aus wie',
+  backupEventLabel: 'Aktuelle Daten'
 });
 
 const MODE_I18N = {
@@ -891,7 +927,9 @@ function saveState(){
 }
 
 function updateBackupInfo(){
-  el('backupInfo').textContent = `${t('backupInfoPrefix')} ${t('lastSave')}: ${formatStamp(state.meta.lastSavedAt)}.`;
+  const slot = MODE === 'rc' ? t('modeRc') : t('modeAssembly');
+  const event = state.meta.eventName ? ` \u00b7 ${state.meta.eventName}` : '';
+  el('backupInfo').textContent = `${t('backupInfoPrefix')} ${t('lastSave')}: ${formatStamp(state.meta.lastSavedAt)}. ${t('backupEventLabel')}: ${slot}${event}.`;
 }
 
 function applyTranslations(){
@@ -1506,6 +1544,15 @@ function clearPreviewContacts(){
 async function copyText(text, silent){ try{ await navigator.clipboard.writeText(text); if(!silent) flashBadge(t('copied')); }catch{ alert(t('copyFailed')); } }
 function flashBadge(msg){ const line = el('badgeLine1'); const old = line.textContent; line.textContent = msg; setTimeout(() => { line.textContent = state.meta.lastImportText || t('noImportYet'); }, 900); }
 
+function slugify(value){
+  return String(value || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u00df/g, 'ss')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48);
+}
+
 function saveJson(){
   syncMetaFromInputs();
   const payload = { exportedAt: new Date().toISOString(), app: 'Cleaning Planner', mode: MODE, version: APP_VERSION, ...state };
@@ -1513,9 +1560,12 @@ function saveJson(){
   const a = document.createElement('a');
   const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
   a.href = URL.createObjectURL(blob);
-  a.download = `cleaning-planner-${MODE}-${stamp}.json`;
+  a.download = `${MODE === 'rc' ? 'RC' : 'Assembly'}-${slugify(state.meta.eventName) || 'event'}-cleaning-planner-${stamp}.json`;
   a.click(); URL.revokeObjectURL(a.href);
 }
+
+let pendingImport = null;
+let importTarget = MODE;
 
 function loadJsonFile(event){
   const file = event.target.files?.[0]; if(!file) return;
@@ -1523,19 +1573,98 @@ function loadJsonFile(event){
   reader.onload = e => {
     try{
       const data = JSON.parse(String(e.target.result));
-      const keys = planKeysInData(data);
-      const looksRc = data.mode === 'rc' || keys.some(k => ['fri','sat','sun'].includes(k));
-      const looksAssembly = data.mode === 'assembly' || keys.includes('d1');
-      const wanted = looksRc && !looksAssembly ? 'rc' : (looksAssembly && !looksRc ? 'assembly' : MODE);
-      if(wanted !== MODE){
-        if(confirm(t('importModeMismatch'))){ applyMode(wanted); }
-      }
-      state = stateFromData(data);
-      state.meta.lastImportText = `${t('imported')}: ${file.name}`;
-      normalizeState(); writeMetaToInputs(); applyTranslations(); saveState(); renderTable(); renderScheduleTab();
+      pendingImport = { data, name: file.name };
+      importTarget = detectMode(data) || MODE;
+      openImportModal();
     }catch{ alert(t('invalidJson')); }
   };
   reader.readAsText(file);
+  event.target.value = '';
+}
+
+function detectMode(data){
+  if(data?.mode === 'rc' || data?.mode === 'assembly') return data.mode;
+  const keys = planKeysInData(data);
+  if(keys.some(k => ['fri','sat','sun'].includes(k))) return 'rc';
+  if(keys.includes('d1')) return 'assembly';
+  if(Array.isArray(data?.dayOverview)) return 'assembly';
+  return null;
+}
+
+function openImportModal(){ el('importModal').classList.add('show'); renderImportModal(); }
+function closeImportModal(){ el('importModal').classList.remove('show'); pendingImport = null; }
+function setImportTarget(mode){ importTarget = mode; renderImportModal(); }
+
+function renderImportModal(){
+  if(!pendingImport) return;
+  const data = pendingImport.data;
+  const detected = detectMode(data);
+  const keys = planKeysInData(data);
+  const dayNames = keys.length ? keys.map(k => t('day_' + k)).join(', ') : '\u2014';
+  el('importModalTitle').textContent = t('importTitle');
+  el('importModalSub').textContent = t('importSub');
+  el('importCloseBtn').textContent = t('close');
+  el('importChoiceLabel').textContent = t('importChoiceLabel');
+  el('importWarning').textContent = t('importWarning');
+  el('importConfirmBtn').textContent = t('importConfirm');
+  el('importCancelBtn').textContent = t('importCancel');
+
+  const info = [
+    [t('importFile'), pendingImport.name],
+    [t('importEvent'), data?.meta?.eventName || '\u2014'],
+    [t('importEntries'), String(Array.isArray(data?.rows) ? data.rows.length : 0)],
+    [t('importDays'), dayNames],
+    [t('importDetected'), detected ? (detected === 'rc' ? t('modeRc') : t('modeAssembly')) : '\u2014']
+  ];
+  el('importFileInfo').innerHTML = info.map(([label, value]) => `
+    <div class="preview-contact-row">
+      <div class="label">${esc(label)}</div>
+      <div class="preview-contact-value" title="${esc(value)}">${esc(value)}</div>
+      <div></div>
+    </div>`).join('');
+
+  el('importChoices').innerHTML = [['assembly', t('modeAssembly')], ['rc', t('modeRc')]]
+    .map(([mode, label]) => `<button class="${importTarget === mode ? 'active' : ''}" onclick="setImportTarget('${mode}')">${esc(label)}</button>`).join('');
+}
+
+/* keeps a single-day plan usable when restored into the 3-day slot and vice versa */
+function remapPlanForMode(plan){
+  const filled = k => Array.isArray(plan[k]) && plan[k].some(p => p.area || p.time1 || p.time2);
+  const out = {};
+  dayKeys().forEach(k => { if(Array.isArray(plan[k])) out[k] = plan[k]; });
+  if(MODE === 'assembly' && !filled('d1')){
+    const src = ['fri','sat','sun'].find(filled);
+    if(src) out.d1 = plan[src];
+  }
+  if(MODE === 'rc' && !filled('fri') && filled('d1')) out.fri = plan.d1;
+  return out;
+}
+
+function confirmImport(){
+  if(!pendingImport) return;
+  const { data, name } = pendingImport;
+  const target = importTarget;
+  closeImportModal();
+  if(target !== MODE) applyMode(target);
+  state = stateFromData(data);
+  state.dayPlan = remapPlanForMode(extractDayPlan(data));
+  state.meta.lastImportText = `${t('imported')}: ${name}`;
+  selectedRowIndex = null;
+  normalizeState();
+  writeMetaToInputs();
+  autoResizeTitle();
+  applyTranslations();
+  applyModeStyles();
+  refreshAreaDatalist();
+  refreshSlotDatalist();
+  renderAreaEditorPreview();
+  renderSlotEditorPreview();
+  saveState();
+  renderTable();
+  renderScheduleTab();
+  refreshHeader();
+  el('previewBox').textContent = t('previewDefault');
+  clearPreviewContacts();
 }
 
 function updateHelpModal(){
@@ -1558,7 +1687,9 @@ function helpCards(){
       'Oben sitzt der Umschalter: "Kongresstag \u00b7 1 Tag" oder "Kongress \u00b7 3 Tage".',
       'Jeder Modus hat einen eigenen Speicher: eigene Versammlungen, Bereiche, Zeitfenster, Vorlage und Planung.',
       'Das farbige Band unter dem Titel zeigt jederzeit, in welchem Modus du gerade arbeitest (blau = Kongresstag, gr\u00fcn = Regionalkongress).',
-      'Beim Wechsel geht nichts verloren \u2013 der andere Datenstand liegt einfach daneben.'
+      'Beim Wechsel geht nichts verloren \u2013 der andere Datenstand liegt einfach daneben.',
+      'JSON-Backups hei\u00dfen nach Event, z. B. "RC-Regional-Convention-2026-cleaning-planner-...json".',
+      'Beim Import fragt das Tool, in welchen Speicher die Datei soll \u2013 deine Auswahl gilt, egal was in der Datei steht.'
     ]},
     { title:'6. Zeitfenster festlegen', items:[
       'Unter "Bereiche & Einstellungen" pflegst du die Liste der Zeitfenster \u2013 eine Zeile pro Eintrag.',
@@ -1579,7 +1710,9 @@ function helpCards(){
       'The switch at the top selects "Assembly \u00b7 1 day" or "Convention \u00b7 3 days".',
       'Each mode has its own storage: its own congregations, areas, time slots, template and planning.',
       'The coloured ribbon under the title always shows which mode you are working in (blue = assembly, green = convention).',
-      'Switching never deletes anything \u2013 the other data set simply waits next to it.'
+      'Switching never deletes anything \u2013 the other data set simply waits next to it.',
+      'JSON backups are named after the event, e.g. "RC-Regional-Convention-2026-cleaning-planner-...json".',
+      'On import the tool asks which slot the file goes into \u2013 your choice wins, whatever the file says.'
     ]},
     { title:'6. Define the time slots', items:[
       'Under "Areas & settings" you maintain the list of time slots \u2013 one per line.',
@@ -1629,7 +1762,7 @@ autoResizeTitle();
 });
 
 window.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ closeHelp(); closeMsgModal(); return; }
+  if(e.key === 'Escape'){ closeHelp(); closeMsgModal(); closeImportModal(); return; }
   if(!msgOpen) return;
   const tag = (e.target && e.target.tagName || '').toLowerCase();
   if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
@@ -1638,6 +1771,7 @@ window.addEventListener('keydown', e => {
 });
 el('helpModal').addEventListener('click', e => { if(e.target === el('helpModal')) closeHelp(); });
 el('msgModal').addEventListener('click', e => { if(e.target === el('msgModal')) closeMsgModal(); });
+el('importModal').addEventListener('click', e => { if(e.target === el('importModal')) closeImportModal(); });
 
 applyModeStyles();
 applyTranslations();
