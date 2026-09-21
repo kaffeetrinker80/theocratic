@@ -25,6 +25,7 @@
   <title>Cleaning Planner</title>
   <style>
     :root{
+      color-scheme:light;
       --bg:#f3f5f7;
       --surface:#ffffff;
       --surface-2:#f8fafc;
@@ -96,6 +97,7 @@
     .day-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
     .day-total{font-size:24px;font-weight:800;margin-bottom:8px}
     label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+    option,optgroup{background:#fff;color:#1f2937}
     input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:14px;background:#fff;color:var(--text);outline:none}
     input:focus,textarea:focus,select:focus{border-color:#90caf9;box-shadow:0 0 0 3px rgba(21,101,192,.12)}
     textarea{min-height:110px;resize:vertical}
@@ -116,6 +118,25 @@
     thead th,.schedule-table thead th{position:sticky;top:0;z-index:2;background:#edf4fb;color:#26415f;font-size:12px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}
     tbody td,.schedule-table td{border-bottom:1px solid #edf1f4;padding:8px;vertical-align:top;font-size:14px}
     tbody tr:hover{background:#fafcff}
+    .planner-table{table-layout:fixed;min-width:1180px}
+    .planner-table col.c-cong{width:16%}
+    .planner-table col.c-type{width:9%}
+    .planner-table col.c-contact{width:20.5%}
+    .planner-table col.c-pub{width:8%}
+    .planner-table col.c-area{width:19%}
+    .planner-table col.c-sugg{width:6.5%}
+    .planner-table col.c-help{width:7%}
+    .planner-table col.c-status{width:8.5%}
+    .planner-table col.c-actions{width:5.5%}
+    .planner-table th{white-space:normal;line-height:1.3}
+    .planner-table input[type=number],.schedule-table input[type=number]{text-align:center;padding-left:6px;padding-right:6px}
+    .planner-table .type-select{padding-left:8px;padding-right:8px}
+    .schedule-table{table-layout:fixed}
+    .schedule-table col.s-cong{width:20%}
+    .schedule-table col.s-type{width:10%}
+    .schedule-table col.s-help{width:7%}
+    .schedule-table col.s-area{width:21%}
+    .schedule-table col.s-slot{width:21%}
     .compact-stack,.stack{display:grid;gap:8px}
     .chips{display:flex;flex-wrap:wrap;gap:10px}
     .chip{border:1px solid var(--line);background:var(--chip);padding:12px;border-radius:14px;min-width:220px;display:grid;gap:8px}
@@ -182,6 +203,7 @@
       input,textarea,select{border:none;padding:0;background:transparent}
       .table-wrap,.schedule-wrap{overflow:visible;border-radius:0;border:none}
       table,.schedule-table{min-width:0;font-size:11.5px}
+      .planner-table{table-layout:auto;min-width:0}
       thead th{position:static}
       .day-section{break-inside:avoid;page-break-inside:avoid;border:1px solid #cfd8dc;background:#fff}
     }
@@ -305,7 +327,11 @@
       </div>
 
       <div class="table-wrap">
-        <table>
+        <table class="planner-table">
+          <colgroup>
+            <col class="c-cong"><col class="c-type"><col class="c-contact"><col class="c-pub"><col class="c-area">
+            <col class="c-sugg"><col class="c-help"><col class="c-status"><col class="c-actions no-print">
+          </colgroup>
           <thead>
             <tr>
               <th id="thCong"></th>
@@ -464,7 +490,7 @@
   <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
   <datalist id="areas"></datalist>
   <datalist id="slots"></datalist>
-  <div class="footer-bar">Made with Love © – Cleaning Planner V 2.1.0</div>
+  <div class="footer-bar">Made with Love © – Cleaning Planner V 2.1.1</div>
 </div>
 
 <div class="modal-backdrop" id="importModal">
@@ -525,7 +551,7 @@
 </div>
 
 <script>
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.1.1';
 const MODE_STORE = 'cleaningPlannerUnified_mode';
 const MODE_DEFS = {
   assembly: { storage:'cleaningPlannerUnified_assembly_v2', days:['d1'] },
@@ -1188,6 +1214,7 @@ function renderScheduleTab(){
         </div>
         <div class="schedule-wrap">
           <table class="schedule-table">
+            <colgroup><col class="s-cong"><col class="s-type"><col class="s-help"><col class="s-area"><col class="s-slot"><col class="s-slot"></colgroup>
             <thead>
               <tr>
                 <th>${esc(t('thCong'))}</th>
