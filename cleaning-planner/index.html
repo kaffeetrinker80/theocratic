@@ -93,6 +93,12 @@
     .msg-status{display:flex;gap:8px;flex-wrap:wrap}
     .msg-status button{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer}
     .msg-status button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .cong-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .cong-form .full{grid-column:1/-1}
+    .cong-form label{margin-bottom:6px}
+    @media (max-width:700px){.cong-form{grid-template-columns:1fr}}
+    @keyframes rowFlash{0%{background:#fff3b0}70%{background:#fff8d6}100%{background:transparent}}
+    tr.row-flash > td{animation:rowFlash 2.2s ease-out}
     .slot-pill{padding:8px 10px;border-radius:999px;background:var(--primary-soft);border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--primary)}
     .day-card{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
     .day-total{font-size:24px;font-weight:800;margin-bottom:8px}
@@ -274,7 +280,8 @@
     </div>
 
     <div class="toolbar no-print">
-      <button class="primary" onclick="addRow()" data-i18n="addRow"></button>
+      <button class="primary" onclick="openCongModal()" data-i18n="addRow" title="N"></button>
+      <button class="secondary" onclick="sortRowsManual()" id="sortAzBtn"></button>
       <button class="secondary" onclick="printDayOverview()" data-i18n="printOverview"></button>
       <button class="warn" onclick="resetPlanning()" data-i18n="resetPlanning"></button>
       <button class="danger" onclick="clearAllRows()" data-i18n="clearAllRows"></button>
@@ -490,7 +497,37 @@
   <button class="scroll-top-btn no-print" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
   <datalist id="areas"></datalist>
   <datalist id="slots"></datalist>
-  <div class="footer-bar">Made with Love © – Cleaning Planner V 2.1.1</div>
+  <div class="footer-bar">Made with Love © – Cleaning Planner V 2.2.0</div>
+</div>
+
+<div class="modal-backdrop" id="congModal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:20px;font-weight:800" id="congModalTitle"></div>
+        <div class="mini" id="congModalSub"></div>
+      </div>
+      <button class="close-btn" id="congCloseBtn" onclick="closeCongModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="cong-form">
+        <div class="full"><label for="cfName" id="cfNameLabel"></label><input id="cfName"></div>
+        <div><label for="cfType" id="cfTypeLabel"></label><select id="cfType"></select></div>
+        <div><label for="cfPublishers" id="cfPublishersLabel"></label><input id="cfPublishers" type="number" min="0"></div>
+        <div><label for="cfCoordinator" id="cfCoordinatorLabel"></label><input id="cfCoordinator"></div>
+        <div><label for="cfMobile" id="cfMobileLabel"></label><input id="cfMobile"></div>
+        <div><label for="cfJwpub" id="cfJwpubLabel"></label><input id="cfJwpub" type="email"></div>
+        <div><label for="cfCongJwpub" id="cfCongJwpubLabel"></label><input id="cfCongJwpub" type="email"></div>
+        <div class="full"><label for="cfArea" id="cfAreaLabel"></label><input id="cfArea" list="areas"></div>
+      </div>
+      <div class="footer-note" id="congModalNote"></div>
+      <div class="msg-actions" style="margin-top:14px">
+        <button class="primary" id="congSaveBtn" onclick="saveCongModal(false)"></button>
+        <button class="secondary" id="congSaveNextBtn" onclick="saveCongModal(true)"></button>
+        <button class="secondary" id="congCancelBtn" onclick="closeCongModal()"></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="importModal">
@@ -551,7 +588,7 @@
 </div>
 
 <script>
-const APP_VERSION = '2.1.1';
+const APP_VERSION = '2.2.0';
 const MODE_STORE = 'cleaningPlannerUnified_mode';
 const MODE_DEFS = {
   assembly: { storage:'cleaningPlannerUnified_assembly_v2', days:['d1'] },
@@ -706,7 +743,13 @@ Object.assign(I18N.en, {
   importChoiceLabel: 'Restore as', importConfirm: 'Restore', importCancel: 'Cancel',
   importWarning: 'Your choice decides \u2014 whatever the file says is ignored. The selected slot is overwritten completely.',
   importFile: 'File', importEvent: 'Event', importEntries: 'Entries', importDays: 'Planned days', importDetected: 'Looks like',
-  backupEventLabel: 'Current data'
+  backupEventLabel: 'Current data',
+  congModalNew: 'New congregation / group', congModalEdit: 'Edit congregation / group',
+  congModalSub: 'Saving sorts the list A\u2013Z automatically.',
+  congNameLabel: 'Congregation / group name', congSave: 'Save', congSaveNext: 'Save & add next', congCancel: 'Cancel',
+  congNameRequired: 'Please enter a name for the congregation or group.', congSavedNote: 'Saved and sorted in:',
+  congShortcutHint: 'Enter = save \u00b7 Esc = close \u00b7 N opens this window from the dashboard.',
+  sortAz: 'Sort A\u2013Z', sortedNote: 'Sorted A\u2013Z', rowEdit: '\u270e Edit'
 });
 Object.assign(I18N.de, {
   modeLabel: 'Modus', modeAssembly: 'Kongresstag \u00b7 1 Tag', modeRc: 'Kongress \u00b7 3 Tage',
@@ -729,7 +772,13 @@ Object.assign(I18N.de, {
   importChoiceLabel: 'Wiederherstellen als', importConfirm: 'Wiederherstellen', importCancel: 'Abbrechen',
   importWarning: 'Deine Auswahl entscheidet \u2014 was in der Datei steht, wird ignoriert. Der gew\u00e4hlte Speicher wird komplett \u00fcberschrieben.',
   importFile: 'Datei', importEvent: 'Event', importEntries: 'Eintr\u00e4ge', importDays: 'Geplante Tage', importDetected: 'Sieht aus wie',
-  backupEventLabel: 'Aktuelle Daten'
+  backupEventLabel: 'Aktuelle Daten',
+  congModalNew: 'Neue Versammlung / Gruppe', congModalEdit: 'Versammlung / Gruppe bearbeiten',
+  congModalSub: 'Beim Speichern wird die Liste automatisch A\u2013Z einsortiert.',
+  congNameLabel: 'Name der Versammlung / Gruppe', congSave: 'Speichern', congSaveNext: 'Speichern & n\u00e4chste', congCancel: 'Abbrechen',
+  congNameRequired: 'Bitte einen Namen f\u00fcr die Versammlung oder Gruppe eingeben.', congSavedNote: 'Gespeichert und einsortiert:',
+  congShortcutHint: 'Enter = speichern \u00b7 Esc = schlie\u00dfen \u00b7 N \u00f6ffnet dieses Fenster vom Dashboard aus.',
+  sortAz: 'A\u2013Z sortieren', sortedNote: 'A\u2013Z sortiert', rowEdit: '\u270e Bearbeiten'
 });
 
 const MODE_I18N = {
@@ -1002,6 +1051,7 @@ function applyTranslations(){
   el('slotEditor').placeholder = t('slotPlaceholder');
   el('msgCloseBtn').textContent = t('close');
   el('openMsgWindowBtn').textContent = t('msgOpenWindow');
+  el('sortAzBtn').textContent = t('sortAz');
   el('dayOverviewFilter').placeholder = t('searchPlaceholder');
   el('dayOverviewAreaFilter').placeholder = t('bulkAreaPlaceholder');
   el('publicNotesBox').textContent = t('publicNotesBox');
@@ -1074,6 +1124,7 @@ function renderTable(){
     if(statusFilter !== 'all' && row.status !== statusFilter) return;
 
     const tr = document.createElement('tr');
+    tr.dataset.row = index;
     tr.innerHTML = `
       <td>
         <div class="compact-stack">
@@ -1117,6 +1168,7 @@ function renderTable(){
       <td class="no-print">
         <div class="stack">
           <button class="secondary small-btn" onclick="previewRow(${index})">${esc(t('rowPreview'))}</button>
+          <button class="secondary small-btn" onclick="openCongModal(${index})">${esc(t('rowEdit'))}</button>
           <button class="secondary small-btn" onclick="copyRowMessage(${index})">${esc(t('rowCopy'))}</button>
           <button class="danger small-btn" onclick="deleteRow(${index})">${esc(t('rowDelete'))}</button>
         </div>
@@ -1344,6 +1396,122 @@ function updateRow(index,key,value,sourceEl,options = {}){
 
 function addRow(){ state.rows.push({ congregation:'', type:'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', publishers:0, area:'', helpers:0, status:'No reply' }); eachDay(k => planFor(k).push(normalizePlanRow({}))); saveState(); renderTable(); }
 function deleteRow(index){ if(!confirm(t('deleteRowConfirm'))) return; state.rows.splice(index,1); eachDay(k => planFor(k).splice(index,1)); saveState(); renderTable(); selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); clearPreviewContacts(); }
+/* ===================== A-Z sorting (rows + all day plans stay in sync) ===================== */
+function sortRows(){
+  const collator = new Intl.Collator('de', { sensitivity:'base', numeric:true });
+  const order = state.rows.map((_, i) => i).sort((a, b) => {
+    const A = String(state.rows[a].congregation || '').trim();
+    const B = String(state.rows[b].congregation || '').trim();
+    if(!A && B) return 1;
+    if(A && !B) return -1;
+    return collator.compare(A, B) || a - b;
+  });
+  state.rows = order.map(i => state.rows[i]);
+  Object.keys(state.dayPlan || {}).forEach(k => {
+    const arr = state.dayPlan[k];
+    if(Array.isArray(arr)) state.dayPlan[k] = order.map(i => arr[i] || normalizePlanRow({}));
+  });
+  if(selectedRowIndex !== null){
+    const pos = order.indexOf(selectedRowIndex);
+    selectedRowIndex = pos < 0 ? null : pos;
+  }
+  return order;
+}
+function sortRowsManual(){ sortRows(); saveState(); renderTable(); flashBadge(t('sortedNote')); }
+
+function highlightRow(index){
+  requestAnimationFrame(() => {
+    const tr = document.querySelector(`#plannerBody tr[data-row="${index}"]`);
+    if(!tr) return;
+    tr.classList.remove('row-flash');
+    void tr.offsetWidth;
+    tr.classList.add('row-flash');
+    if(tr.scrollIntoView) tr.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+}
+
+/* ===================== congregation window ===================== */
+let congEditIndex = null;
+let congOpen = false;
+
+function openCongModal(index){
+  congEditIndex = (index === undefined || index === null || !state.rows[index]) ? null : index;
+  const row = congEditIndex === null ? {} : state.rows[congEditIndex];
+  el('congModalTitle').textContent = congEditIndex === null ? t('congModalNew') : t('congModalEdit');
+  el('congModalSub').textContent = t('congModalSub');
+  el('congCloseBtn').textContent = t('close');
+  el('cfNameLabel').textContent = t('congNameLabel');
+  el('cfTypeLabel').textContent = t('thType');
+  el('cfPublishersLabel').textContent = t('thPublishers');
+  el('cfCoordinatorLabel').textContent = t('coordinatorPlaceholder');
+  el('cfMobileLabel').textContent = t('mobilePlaceholder');
+  el('cfJwpubLabel').textContent = t('personalEmailPlaceholder');
+  el('cfCongJwpubLabel').textContent = t('congEmailPlaceholder');
+  el('cfAreaLabel').textContent = t('thArea');
+  el('cfArea').placeholder = t('bulkAreaPlaceholder');
+  el('cfType').innerHTML = `<option value="Congregation">${esc(t('typeCongregation'))}</option><option value="Group">${esc(t('typeGroup'))}</option>`;
+  el('congSaveBtn').textContent = t('congSave');
+  el('congSaveNextBtn').textContent = t('congSaveNext');
+  el('congSaveNextBtn').style.display = congEditIndex === null ? '' : 'none';
+  el('congCancelBtn').textContent = t('congCancel');
+  el('congModalNote').textContent = t('congShortcutHint');
+  fillCongForm(row);
+  congOpen = true;
+  el('congModal').classList.add('show');
+  setTimeout(() => el('cfName').focus(), 30);
+}
+function fillCongForm(row){
+  el('cfName').value = row.congregation || '';
+  el('cfType').value = row.type === 'Group' ? 'Group' : 'Congregation';
+  el('cfPublishers').value = Number(row.publishers || 0) || '';
+  el('cfCoordinator').value = row.coordinator || '';
+  el('cfMobile').value = row.mobile || '';
+  el('cfJwpub').value = row.jwpub || '';
+  el('cfCongJwpub').value = row.congJwpub || '';
+  el('cfArea').value = row.area || '';
+}
+function closeCongModal(){ congOpen = false; el('congModal').classList.remove('show'); congEditIndex = null; }
+
+function saveCongModal(addNext){
+  const name = el('cfName').value.trim();
+  if(!name){ alert(t('congNameRequired')); el('cfName').focus(); return; }
+  const data = {
+    congregation: name,
+    type: el('cfType').value === 'Group' ? 'Group' : 'Congregation',
+    publishers: Math.max(0, Number(el('cfPublishers').value || 0)),
+    coordinator: el('cfCoordinator').value.trim(),
+    mobile: el('cfMobile').value.trim(),
+    jwpub: el('cfJwpub').value.trim(),
+    congJwpub: el('cfCongJwpub').value.trim(),
+    area: el('cfArea').value.trim()
+  };
+  let obj;
+  if(congEditIndex === null){
+    obj = normalizeRow({ helpers:0, status:'No reply', ...data });
+    state.rows.push(obj);
+    eachDay(k => planFor(k).push(normalizePlanRow({})));
+  }else{
+    obj = state.rows[congEditIndex];
+    Object.assign(obj, data);
+  }
+  sortRows();
+  let index = state.rows.indexOf(obj);
+  if(!filteredRowIndexes().includes(index)){
+    el('searchBox').value = ''; el('filterType').value = 'all'; el('filterStatus').value = 'all';
+  }
+  saveState();
+  renderTable();
+  highlightRow(index);
+  if(addNext){
+    congEditIndex = null;
+    fillCongForm({});
+    el('congModalNote').textContent = `${t('congSavedNote')} ${name} (${index + 1} / ${state.rows.length})`;
+    el('cfName').focus();
+  }else{
+    closeCongModal();
+  }
+}
+
 function fillEmptyAreas(){ const txt = el('bulkArea').value.trim(); if(!txt){ alert(t('fillAreaAlert')); return; } state.rows.forEach(r => { if(!r.area) r.area = txt; }); saveState(); renderTable(); }
 function resetPlanning(){ if(!confirm(t('resetPlanningConfirm'))) return; state.rows = state.rows.map(r => ({ ...r, publishers:0, area:'', helpers:0, status:'No reply' })); eachDay(k => { state.dayPlan[k] = state.rows.map(() => normalizePlanRow({})); }); saveState(); renderTable(); selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); clearPreviewContacts(); }
 function clearAllRows(){ if(!confirm(t('clearAllRowsConfirm'))) return; state.rows = state.rows.map(r => ({ congregation:'', type:r.type === 'Group' ? 'Group' : 'Congregation', congJwpub:'', coordinator:'', jwpub:'', mobile:'', publishers:0, area:'', helpers:0, status:'No reply' })); eachDay(k => { state.dayPlan[k] = state.rows.map(() => normalizePlanRow({})); }); saveState(); renderTable(); selectedRowIndex = null; el('previewBox').textContent = t('previewDefault'); clearPreviewContacts(); }
@@ -1678,6 +1846,7 @@ function confirmImport(){
   state.meta.lastImportText = `${t('imported')}: ${name}`;
   selectedRowIndex = null;
   normalizeState();
+  sortRows();
   writeMetaToInputs();
   autoResizeTitle();
   applyTranslations();
@@ -1760,7 +1929,22 @@ function helpCards(){
     const items = card.items.map(i => i.replace('Friday, Saturday, and Sunday', days).replace('F\u00fcr Freitag, Samstag und Sonntag', 'F\u00fcr ' + days));
     return { title: card.title, items };
   });
-  return [extra[0], ...middle, extra[1], extra[2]];
+  const congCard = lang === 'de'
+    ? { title:'8. Versammlungen anlegen & sortieren', items:[
+        '"Versammlung / Gruppe hinzuf\u00fcgen" (oder Taste N) \u00f6ffnet ein Fenster mit allen Feldern.',
+        'Beim Speichern wird die Liste automatisch A\u2013Z einsortiert; die neue Zeile springt ins Bild und leuchtet kurz gelb.',
+        '"Speichern & n\u00e4chste" h\u00e4lt das Fenster offen, wenn du mehrere Versammlungen am St\u00fcck anlegst.',
+        '"\u270e Bearbeiten" in einer Zeile \u00f6ffnet dasselbe Fenster. Kleinigkeiten kannst du weiter direkt in der Tabelle \u00e4ndern.',
+        'Beim Tippen in der Tabelle wird nicht umsortiert \u2013 nach einer Umbenennung dort hilft "A\u2013Z sortieren". Nach einem Import wird automatisch sortiert.'
+      ]}
+    : { title:'8. Add & sort congregations', items:[
+        '"Add congregation / group" (or the N key) opens a window with all fields.',
+        'Saving sorts the list A\u2013Z automatically; the new row scrolls into view and flashes yellow.',
+        '"Save & add next" keeps the window open when you add several congregations in a row.',
+        '"\u270e Edit" in a row opens the same window. Small changes can still be made directly in the table.',
+        'Typing in the table never re-sorts \u2013 after renaming there, use "Sort A\u2013Z". Imports are sorted automatically.'
+      ]};
+  return [extra[0], ...middle, extra[1], extra[2], congCard];
 }
 function openHelp(){ el('helpModal').classList.add('show'); }
 function closeHelp(){ el('helpModal').classList.remove('show'); }
@@ -1789,7 +1973,16 @@ autoResizeTitle();
 });
 
 window.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ closeHelp(); closeMsgModal(); closeImportModal(); return; }
+  if(e.key === 'Escape'){ closeHelp(); closeMsgModal(); closeImportModal(); closeCongModal(); return; }
+  if(congOpen){
+    if(e.key === 'Enter' && (e.target.tagName || '').toLowerCase() === 'input'){ e.preventDefault(); saveCongModal(false); }
+    return;
+  }
+  const typing = ['input','textarea','select'].includes((e.target && e.target.tagName || '').toLowerCase()) || (e.target && e.target.isContentEditable);
+  const anyModal = document.querySelector('.modal-backdrop.show');
+  if(!typing && !anyModal && (e.key === 'n' || e.key === 'N') && !e.ctrlKey && !e.metaKey && !e.altKey){
+    e.preventDefault(); openCongModal(); return;
+  }
   if(!msgOpen) return;
   const tag = (e.target && e.target.tagName || '').toLowerCase();
   if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
@@ -1799,6 +1992,7 @@ window.addEventListener('keydown', e => {
 el('helpModal').addEventListener('click', e => { if(e.target === el('helpModal')) closeHelp(); });
 el('msgModal').addEventListener('click', e => { if(e.target === el('msgModal')) closeMsgModal(); });
 el('importModal').addEventListener('click', e => { if(e.target === el('importModal')) closeImportModal(); });
+el('congModal').addEventListener('click', e => { if(e.target === el('congModal')) closeCongModal(); });
 
 applyModeStyles();
 applyTranslations();
