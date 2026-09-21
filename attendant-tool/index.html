@@ -571,7 +571,7 @@ Loving greetings,
         <select id="filterPrivilege" onchange="renderAttendantTable()">
           <option value="all">All</option><option value="Publisher">Publisher</option>
           <option value="Ministerial Servant">Ministerial Servant</option><option value="Elder">Elder</option>
-          <option value="__sister__">Sisters only</option><option value="__brother__">Brothers only</option>
+          <option value="__sister__">Sisters</option>
         </select></div>
       <div class="sf narrow"><label for="filterTeam">Team</label>
         <select id="filterTeam" onchange="renderAttendantTable()">
@@ -694,7 +694,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.2</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.3</div>
 </div>
 
 <script>
@@ -1052,23 +1052,30 @@ function renderMiniStats(){
   `;
 }
 
-function renderAttendantTable(){
-  refreshCongFilter();
+/* single filter predicate — used by the table AND the filtered exports */
+function attMatchesFilters(row){
   const q=String(el('attSearch')?.value||'').trim().toLowerCase();
   const cong=el('filterCongregation').value,priv=el('filterPrivilege').value;
   const actFil=el('filterActive').value,teamFil=el('filterTeam').value,shiftFil=el('filterShift').value;
+  const hay=attHay(row).toLowerCase();
+  if(q&&!hay.includes(q))return false;
+  if(!matchTerms(hay))return false;
+  if(cong!=='all'&&!matchCong(row.congregation,cong))return false;
+  if(priv==='__sister__'){if(!row.sister)return false;}
+  else if(priv!=='all'&&row.privilege!==priv)return false;
+  if(actFil==='active'&&row.active===false)return false;
+  if(actFil==='inactive'&&row.active!==false)return false;
+  if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
+  if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return false;
+  return true;
+}
+function renderAttendantTable(){
+  refreshCongFilter();
   const body=el('attBody');body.innerHTML='';let shown=0;
 
   sortByName(state.attendants).forEach(row=>{
     const index=state.attendants.indexOf(row);
-    const hay=attHay(row).toLowerCase();
-    if(q&&!hay.includes(q))return;if(!matchTerms(hay))return;
-    if(cong!=='all'&&!matchCong(row.congregation,cong))return;
-    if(priv!=='all'&&row.privilege!==priv)return;
-    if(actFil==='active'&&row.active===false)return;
-    if(actFil==='inactive'&&row.active!==false)return;
-    if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return;
-    if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return;
+    if(!attMatchesFilters(row))return;
     shown++;
 
     const hasNoId=!String(row.id||'').trim();
@@ -1647,23 +1654,7 @@ function flash(msg){
 
 /* ── Filtered Export ── */
 function getFilteredAttendants(){
-  const q=String(el('attSearch')?.value||'').trim().toLowerCase();
-  const cong=el('filterCongregation').value,priv=el('filterPrivilege').value;
-  const actFil=el('filterActive').value,teamFil=el('filterTeam').value,shiftFil=el('filterShift').value;
-  return sortByName(state.attendants).filter(row=>{
-    const hay=attHay(row).toLowerCase();
-    if(q&&!hay.includes(q))return false;
-    if(!matchTerms(hay))return false;
-    if(cong!=='all'&&!matchCong(row.congregation,cong))return false;
-    if(priv==='__sister__'&&!row.sister)return false;
-    if(priv==='__brother__'&&row.sister)return false;
-    if(priv!=='all'&&priv!=='__sister__'&&priv!=='__brother__'&&row.privilege!==priv)return false;
-    if(actFil==='active'&&row.active===false)return false;
-    if(actFil==='inactive'&&row.active!==false)return false;
-    if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
-    if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return false;
-    return true;
-  });
+  return sortByName(state.attendants).filter(attMatchesFilters);
 }
 function exportFilteredJson(){
   const filtered=getFilteredAttendants();
