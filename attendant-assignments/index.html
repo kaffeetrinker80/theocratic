@@ -2,17 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#f4f5f7"
+  >
 
   <title>Attendant Assignments</title>
 
   <style>
+    :root {
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #6b7280;
+      --border: #e1e4e8;
+
+      --accent: #315f7d;
+      --accent-light: #edf4f8;
+
+      --success: #39734a;
+      --success-bg: #edf7ef;
+
+      --warning: #8a641d;
+      --warning-bg: #fff7e5;
+    }
+
     * {
       box-sizing: border-box;
     }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
+
+      background: var(--bg);
+      color: var(--text);
+
       font-family:
         -apple-system,
         BlinkMacSystemFont,
@@ -21,88 +55,745 @@
         Arial,
         sans-serif;
 
-      background: #f4f5f7;
-      color: #202124;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .wrap {
-      max-width: 680px;
+    a {
+      color: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+
       margin: 0 auto;
-      padding: 24px 16px 40px;
+
+      padding:
+        max(22px, env(safe-area-inset-top))
+        16px
+        max(40px, env(safe-area-inset-bottom));
     }
 
-    .card {
-      background: #ffffff;
-      border: 1px solid #e2e5e9;
-      border-radius: 18px;
-      padding: 22px;
+
+    /* =========================================
+       HERO
+       ========================================= */
+
+    .hero {
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      margin-bottom: 7px;
+
+      color: var(--accent);
+
+      font-size: 12px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+      letter-spacing: .08em;
     }
 
     h1 {
       margin: 0 0 8px;
-      font-size: 26px;
+
+      font-size: 31px;
+      line-height: 1.08;
+      letter-spacing: -.02em;
     }
 
-    p {
-      margin: 0 0 20px;
-      color: #6b7280;
+    .subtitle {
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 16px;
       line-height: 1.5;
     }
 
-    .button {
-      display: block;
-      width: 100%;
-      padding: 14px 16px;
 
-      text-align: center;
+    /* =========================================
+       LIVE DATA INFO
+       ========================================= */
+
+    .live-note {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+
+      margin: 18px 0 26px;
+
+      padding: 13px 14px;
+
+      background: var(--success-bg);
+
+      border: 1px solid #c9dfce;
+      border-radius: 14px;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+
+      flex: 0 0 auto;
+
+      margin-top: 5px;
+
+      border-radius: 50%;
+
+      background: var(--success);
+    }
+
+    .live-note strong {
+      display: block;
+
+      margin-bottom: 2px;
+
+      font-size: 14px;
+    }
+
+    .live-note span {
+      display: block;
+
+      color: #526057;
+
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+
+    /* =========================================
+       SECTION
+       ========================================= */
+
+    .section {
+      margin-top: 28px;
+    }
+
+    .section-heading {
+      margin: 0 2px 12px;
+
+      color: var(--muted);
+
+      font-size: 13px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+      letter-spacing: .065em;
+    }
+
+
+    /* =========================================
+       FEATURE CARDS
+       ========================================= */
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .feature {
+      display: block;
+
+      position: relative;
+
+      min-height: 132px;
+
+      padding: 18px;
+
+      background: var(--card);
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+
       text-decoration: none;
 
-      background: #315f7d;
-      color: white;
+      transition:
+        transform .12s ease,
+        border-color .12s ease,
+        background .12s ease;
+    }
+
+    .feature.live:active {
+      transform: scale(.985);
+
+      background: var(--accent-light);
+
+      border-color: #b8cbd7;
+    }
+
+    .feature-icon {
+      display: flex;
+
+      width: 42px;
+      height: 42px;
+
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 13px;
 
       border-radius: 12px;
+
+      background: var(--accent-light);
+
+      color: var(--accent);
+
+      font-size: 21px;
+    }
+
+    .feature-title {
+      margin-bottom: 5px;
+
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .feature-text {
+      max-width: 520px;
+
+      color: var(--muted);
+
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .status {
+      position: absolute;
+
+      top: 15px;
+      right: 15px;
+
+      padding: 4px 8px;
+
+      border-radius: 999px;
+
+      font-size: 10px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .status-live {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .status-next {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .feature.disabled {
+      opacity: .72;
+    }
+
+
+    /* =========================================
+       MAPS
+       ========================================= */
+
+    .maps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .map-card {
+      overflow: hidden;
+
+      background: white;
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .map-card img {
+      display: block;
+
+      width: 100%;
+      height: 175px;
+
+      object-fit: cover;
+
+      background: #eef0f2;
+    }
+
+    .map-info {
+      padding: 14px 16px 16px;
+    }
+
+    .map-title {
+      font-size: 17px;
+      font-weight: 750;
+    }
+
+    .map-text {
+      margin-top: 3px;
+
+      color: var(--muted);
+
+      font-size: 13px;
+    }
+
+    .map-link {
+      display: inline-block;
+
+      margin-top: 10px;
+
+      color: var(--accent);
+
+      font-size: 14px;
+      font-weight: 700;
+
+      text-decoration: none;
+    }
+
+
+    /* =========================================
+       WELCOME AREA
+       ========================================= */
+
+    .welcome {
+      padding: 18px;
+
+      background: #fff;
+
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .welcome-title {
+      margin-bottom: 5px;
+
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .welcome-text {
+      margin-bottom: 14px;
+
+      color: var(--muted);
+
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .disabled-button {
+      display: block;
+
+      width: 100%;
+
+      padding: 13px 15px;
+
+      border: 1px solid var(--border);
+      border-radius: 12px;
+
+      background: #f4f5f7;
+      color: var(--muted);
+
+      text-align: center;
+
+      font-size: 15px;
       font-weight: 700;
     }
 
-    .button:active {
-      opacity: .85;
+
+    /* =========================================
+       FOOTER
+       ========================================= */
+
+    .footer {
+      margin-top: 34px;
+
+      padding-top: 20px;
+
+      border-top: 1px solid var(--border);
+
+      color: var(--muted);
+
+      font-size: 12px;
+      line-height: 1.5;
     }
 
-    .note {
-      margin-top: 16px;
-      font-size: 13px;
-      color: #6b7280;
+
+    /* =========================================
+       TABLET
+       ========================================= */
+
+    @media (min-width: 620px) {
+
+      .app {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      h1 {
+        font-size: 37px;
+      }
+
+      .grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+
+      .maps {
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+      }
+
+      .map-card img {
+        height: 150px;
+      }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+
+      .feature.live:hover {
+        border-color: #b8cbd7;
+
+        transform: translateY(-1px);
+      }
+
+      .map-link:hover {
+        text-decoration: underline;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="wrap">
+  <main class="app">
 
-    <div class="card">
 
-      <h1>Attendant Assignments</h1>
+    <!-- =========================================
+         HERO
+         ========================================= -->
 
-      <p>
-        Search your assignments, check your next shift
-        and view position details.
+    <section class="hero">
+
+      <div class="eyebrow">
+        Attendant Service
+      </div>
+
+      <h1>
+        Attendant Assignments
+      </h1>
+
+      <p class="subtitle">
+        Find assignments, check position rotations
+        and view the venue position plans.
+        Designed for Circuit Assemblies and Regional Conventions.
       </p>
 
-      <a
-        class="button"
-        href="https://script.google.com/macros/s/AKfycbwjv-uTZOon8OiP_8NXhEz89wY_eESLNLwODDIZ5OME/dev"
-      >
-        Open Attendant Assignment Tool
-      </a>
+    </section>
 
-      <div class="note">
-        Optimized for smartphone and tablet use.
+
+    <!-- =========================================
+         LIVE NOTE
+         ========================================= -->
+
+    <div class="live-note">
+
+      <div class="live-dot"></div>
+
+      <div>
+        <strong>
+          Live assignment data
+        </strong>
+
+        <span>
+          Assignment and shift information is loaded
+          from the current event schedule.
+        </span>
       </div>
 
     </div>
 
-  </div>
+
+    <!-- =========================================
+         MAIN TOOLS
+         ========================================= -->
+
+    <section class="section">
+
+      <h2 class="section-heading">
+        Event information
+      </h2>
+
+      <div class="grid">
+
+
+        <!-- FIND ATTENDANT -->
+
+        <a
+          class="feature live"
+          href="PASTE_YOUR_EXEC_URL_HERE"
+        >
+
+          <span class="status status-live">
+            Live
+          </span>
+
+          <div class="feature-icon">
+            👤
+          </div>
+
+          <div class="feature-title">
+            Find Attendant
+          </div>
+
+          <div class="feature-text">
+            Search a brother, see his assignments,
+            current position, next shift and the
+            full rotation for his position.
+          </div>
+
+        </a>
+
+
+        <!-- POSITIONS -->
+
+        <div class="feature disabled">
+
+          <span class="status status-next">
+            Next
+          </span>
+
+          <div class="feature-icon">
+            📍
+          </div>
+
+          <div class="feature-title">
+            Positions
+          </div>
+
+          <div class="feature-text">
+            Browse all positions by area and see
+            who is assigned now, who comes next
+            and the complete daily rotation.
+          </div>
+
+        </div>
+
+
+        <!-- TEAMS -->
+
+        <div class="feature disabled">
+
+          <span class="status status-next">
+            Next
+          </span>
+
+          <div class="feature-icon">
+            👥
+          </div>
+
+          <div class="feature-title">
+            Teams
+          </div>
+
+          <div class="feature-text">
+            View attendants by team such as Auditorium,
+            Lobby, Welcome, Cafeteria, Stage and Baptism.
+          </div>
+
+        </div>
+
+
+        <!-- MAPS -->
+
+        <a
+          class="feature live"
+          href="#position-maps"
+        >
+
+          <span class="status status-live">
+            Available
+          </span>
+
+          <div class="feature-icon">
+            🗺️
+          </div>
+
+          <div class="feature-title">
+            Position Maps
+          </div>
+
+          <div class="feature-text">
+            Open the venue overview plans for
+            Auditorium, Cafeteria and Balcony.
+          </div>
+
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================================
+         POSITION MAPS
+         ========================================= -->
+
+    <section
+      class="section"
+      id="position-maps"
+    >
+
+      <h2 class="section-heading">
+        Position maps
+      </h2>
+
+      <div class="maps">
+
+
+        <!-- AUDITORIUM -->
+
+        <div class="map-card">
+
+          <img
+            src="positions-auditorium.jpg"
+            alt="Auditorium position overview"
+          >
+
+          <div class="map-info">
+
+            <div class="map-title">
+              Auditorium
+            </div>
+
+            <div class="map-text">
+              Auditorium, Lobby and Welcome positions
+            </div>
+
+            <a
+              class="map-link"
+              href="positions-auditorium.jpg"
+              target="_blank"
+            >
+              Open full map →
+            </a>
+
+          </div>
+
+        </div>
+
+
+        <!-- CAFETERIA -->
+
+        <div class="map-card">
+
+          <img
+            src="positions-cafeteria.jpg"
+            alt="Cafeteria position overview"
+          >
+
+          <div class="map-info">
+
+            <div class="map-title">
+              Cafeteria
+            </div>
+
+            <div class="map-text">
+              Cafeteria, Stage and Baptism positions
+            </div>
+
+            <a
+              class="map-link"
+              href="positions-cafeteria.jpg"
+              target="_blank"
+            >
+              Open full map →
+            </a>
+
+          </div>
+
+        </div>
+
+
+        <!-- BALCONY -->
+
+        <div class="map-card">
+
+          <img
+            src="positions-balcony.jpg"
+            alt="Balcony position overview"
+          >
+
+          <div class="map-info">
+
+            <div class="map-title">
+              Balcony
+            </div>
+
+            <div class="map-text">
+              Balcony attendant positions
+            </div>
+
+            <a
+              class="map-link"
+              href="positions-balcony.jpg"
+              target="_blank"
+            >
+              Open full map →
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================================
+         WELCOME TEAM
+         ========================================= -->
+
+    <section class="section">
+
+      <h2 class="section-heading">
+        Welcome Team
+      </h2>
+
+      <div class="welcome">
+
+        <div class="welcome-title">
+          Attendant Check-in
+        </div>
+
+        <div class="welcome-text">
+          Quick check-in interface for authorized
+          Welcome Team members.
+        </div>
+
+        <div class="disabled-button">
+          Check-in coming next
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================================
+         FOOTER
+         ========================================= -->
+
+    <footer class="footer">
+
+      Attendant Assignments<br>
+
+      Live event information is provided from the
+      current attendant shift schedule.
+
+    </footer>
+
+  </main>
 
 </body>
 </html>
