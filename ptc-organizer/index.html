@@ -113,7 +113,7 @@ select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:fo
 <div class="app">
 <aside class="side"><div class="side-sticky-top"><span class="row-label">Search</span><input id="search" placeholder="Person, congregation, city, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.8.2 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.8.3 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="overlay"></div>
 <script>
 "use strict";
@@ -529,14 +529,17 @@ function impGlue(lines){
   });
   return out.replace(/\s+/g,' ').trim();
 }
-function impPhone(txt,tag){const m=new RegExp('\\('+tag+'\\)\\s*([+0-9][0-9()\\/.\\- ]*)','i').exec(txt);return m?m[1].replace(/\s+/g,' ').replace(/[\s(]+$/,'').trim():''}
+/* v0.8.3: two PDF sources, two notations. NWS prints "(m)+49-176-…", KHS prints
+   "m: +49-176-…". Only the first was recognised, so a speaker who exists solely in a
+   KHS PDF arrived in the master without any phone number at all. */
+function impPhone(txt,tag){const m=new RegExp('(?:\\('+tag+'\\)|(?:^|[\\s;,|])'+tag+'\\s*[:.])\\s*([+0-9][0-9()\\/.\\- ]*)','i').exec(txt);return m?m[1].replace(/\s+/g,' ').replace(/[\s(]+$/,'').trim():''}
 function impContact(lines){
   const txt=impGlue(lines),out={name:'',mobile:'',home:'',email:'',jwpub_email:'',raw:txt};
   ((txt.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g))||[]).forEach(e=>{
     if(/@jwpub\.org$/i.test(e)){if(!out.jwpub_email)out.jwpub_email=e}else if(!out.email)out.email=e;
   });
   out.mobile=impPhone(txt,'m');out.home=impPhone(txt,'h');
-  out.name=txt.split(/\((?:m|h)\)|[A-Za-z0-9._%+-]+@|(?=\+\d)/)[0].replace(/[,;|]+$/,'').replace(/\s+/g,' ').trim();
+  out.name=txt.split(/\((?:m|h)\)|(?:^|[\s;,|])(?:m|h)\s*[:.]\s|[A-Za-z0-9._%+-]+@|(?=\+\d)/)[0].replace(/[,;|]+$/,'').replace(/\s+/g,' ').trim();
   return out;
 }
 function impMeetingFrom(str){
@@ -563,13 +566,20 @@ function impHeader(rows){
     if(rr)right.push(rr);
   });
   /* --- left column: congregation, address, circuit, meeting times --- */
-  const CIRCUIT_RE=/\b([A-Z]{2,3}-[A-Z0-9]{1,3}-\d{1,3}[A-Z]?)\b/;
-  const lines=left.map(x=>x.replace(/\s*\bCircuit\b\s*:?\s*$/i,'').replace(/^\s*Circuit\s*:?\s*/i,'').trim()).filter(Boolean);
+  /* v0.8.3: the old pattern demanded three parts ("EU-E-12"). Real circuit names such
+     as "EU-E12" never matched, so the line "Circuit EU-E12" fell through to the address
+     and was stored as part of the street. The printed label is the reliable signal, so
+     it is now read first and the pattern below is only the fallback. */
+  const CIRCUIT_RE=/\b([A-Z]{2,3}-[A-Z0-9]{1,4}(?:-\d{1,3}[A-Z]?)?)\b/;
+  const lines=left.map(x=>x.trim()).filter(Boolean);
   const rest=[];
   lines.forEach((l,i)=>{
-    if(i===0){h.name=l.replace(/\s*\(.*\)\s*$/,'').trim();h.type=/(?:\bGroup|\bGr\.?)$/i.test(h.name)?'group':'congregation';if(/\s+Gr\.?$/i.test(h.name))h.name=h.name.replace(/\s+Gr\.?$/i,' Group');return}
+    if(i===0){h.name=l.replace(/\s*\bCircuit\b\s*:?\s*$/i,'').replace(/\s*\(.*\)\s*$/,'').trim();h.type=/(?:\bGroup|\bGr\.?)$/i.test(h.name)?'group':'congregation';if(/\s+Gr\.?$/i.test(h.name))h.name=h.name.replace(/\s+Gr\.?$/i,' Group');return}
+    if(/^circuit\s*:?$/i.test(l))return;
+    const labelled=/^circuit\b\s*:?\s*(.+)$/i.exec(l);
+    if(labelled){if(!h.circuit)h.circuit=labelled[1].trim();return}
     const cm=CIRCUIT_RE.exec(l);
-    if(cm&&!h.circuit){h.circuit=cm[1];const left2=l.replace(cm[1],'').trim();if(left2)rest.push(left2);return}
+    if(cm&&!h.circuit&&/^[A-Z0-9-]+$/.test(l.trim())){h.circuit=cm[1];const left2=l.replace(cm[1],'').trim();if(left2)rest.push(left2);return}
     if(/^weekend meeting/i.test(l)){const tail=l.replace(/^weekend meeting\s*:?\s*/i,'').trim();if(tail)rest.push(tail);return}
     rest.push(l);
   });
@@ -720,7 +730,8 @@ function impParseKhsPages(pages,file){
     if(leftLines.length){h.name=leftLines.shift().trim();h.type=/(?:\bGroup|\bGr\.?)$/i.test(h.name)?'group':'congregation';if(/\s+Gr\.?$/i.test(h.name))h.name=h.name.replace(/\s+Gr\.?$/i,' Group')}
     const cleanLeft=leftLines.filter(x=>!/^germany$|^austria$|^switzerland$|^belgium$|^netherlands$|^france$|^italy$|^spain$|^portugal$|^united kingdom$/i.test(x));
     cleanLeft.forEach(l=>{
-      if(/^EU-[A-Z0-9-]+$/i.test(l)){h.circuit=l.trim();return}
+      if(/^circuit\b\s*:?\s*(.+)$/i.test(l)){const mm=/^circuit\b\s*:?\s*(.+)$/i.exec(l);if(!h.circuit)h.circuit=mm[1].trim();return}
+      if(/^[A-Z]{2,3}-[A-Z0-9-]+$/i.test(l)){h.circuit=l.trim();return}
       const meet=impMeetingFrom(l);if(meet.weekday&&meet.time){h.meetings.push({year:0,raw:l,...meet});return}
       if(/^\+?[\d][\d\s()\/.\-]{5,}$/.test(l)){if(!h.phone)h.phone=l.trim();return}
       const cm=/^([A-Z]{0,2}[- ]?\d{3,6})\s+(.+)$/.exec(l);if(cm){h.postal_code=cm[1].trim();h.city=cm[2].trim();return}
