@@ -631,6 +631,37 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .sp-head h2{ font-size:17px; }
 }
 
+/* v2.8: change log. Its own overlay rather than a workspace tab, because it is read
+   occasionally and then closed again. */
+#changeLogOverlay{
+  display:none; position:fixed; inset:0; z-index:9995; background:rgba(44,32,24,.55); overflow:auto;
+  padding:24px; padding-bottom:calc(24px + var(--bottom-safe));
+}
+.cl-dialog{
+  max-width:900px; margin:4vh auto 0; background:var(--card); color:var(--text);
+  border-radius:18px; box-shadow:0 24px 60px rgba(58,40,28,.32); padding:20px 24px 24px;
+}
+.cl-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:12px; }
+.cl-head h2{ margin:0 0 4px; font-family:var(--font-display); font-size:21px; font-weight:600; }
+.cl-head-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.cl-body{ margin-top:14px; display:grid; gap:12px; }
+.cl-entry{ border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.cl-entry-head{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:#faf6ef; border:0; padding:11px 14px; cursor:pointer; font-size:13px; }
+.cl-entry-head:hover{ background:#f3ebdd; }
+.cl-entry-head b{ font-weight:650; }
+.cl-entry-head .spacer{ flex:1 1 auto; }
+.cl-entry-body{ padding:14px; display:grid; gap:14px; }
+.cl-entry-actions{ display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:12px; }
+.cl-block h4{ margin:0 0 8px; font-size:13px; font-weight:700; }
+.cl-count{ font-weight:600; color:var(--muted); font-size:11.5px; }
+.cl-item{ padding:7px 0; border-top:1px dashed var(--line); font-size:13px; }
+.cl-item:first-of-type{ border-top:0; }
+.cl-field{ font-size:12.5px; margin-top:3px; }
+.cl-label{ display:inline-block; min-width:118px; color:var(--muted); font-size:11px; letter-spacing:.04em; text-transform:uppercase; }
+.cl-add{ color:#4f6d47; font-weight:600; }
+.cl-del{ color:#96442f; }
+.cl-pill{ background:var(--chip); border:1px solid var(--line); border-radius:999px; padding:2px 9px; font-size:11px; font-weight:600; }
+
 /* v2.7.5: first-run guidance. Shown only when there is no data at all, and only
    until it has been seen — after that the tool never gets in the way again. */
 #welcomeOverlay{
@@ -794,6 +825,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
           <h1>PTC Tool – English Public Speakers (EU)</h1>
           <div class="header-actions">
             <button type="button" class="ghost" id="goHomeCongBtn">Home congregation</button>
+            <button type="button" class="ghost" id="openChangeLogBtn">Changes</button>
             <button type="button" class="ghost" id="openPrintBtn">Print</button>
             <button type="button" class="ghost" id="openHelpBtn">Help</button>
           </div>
@@ -944,7 +976,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.7.5</span>
+      <span class="footer-version" id="footerVersion">v.2.8.0</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -990,7 +1022,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.7.5';
+const APP_VERSION = '2.8.0';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1105,6 +1137,8 @@ const state = {
      open in the sidebar are remembered per browser. */
   datasetVersion: '',
   setupHintDismissed: false,
+  lastChangeEntry: null,
+  changeLogOpenIds: new Set(),
   wsMode: 'list',
   detailTab: 'speakers',
   countryOpen: loadCountryOpen()
@@ -2846,6 +2880,332 @@ function congregationMatches(cong, fs) {
   return haystack.includes(fs.q);
 }
 
+/* ===== v2.8 change log ===============================================================
+   Every master import is compared against the copy the tool already held, and the result
+   is kept as a dated entry. The tool never had a "what changed this month" view — the
+   only way to notice a new outline number or a moved brother was to remember the old
+   state. Entries live in IndexedDB rather than localStorage: they grow with every import
+   and would otherwise compete with the dataset snapshot for the same small quota.
+   Nothing here writes to the dataset; it only reads two versions of it. */
+
+const CHANGELOG_DB = 'ptcToolChangeLog';
+const CHANGELOG_STORE = 'entries';
+const CHANGELOG_KEEP = 24;
+
+function changeLogOpen() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) { reject(new Error('IndexedDB is not available in this browser')); return; }
+    const req = indexedDB.open(CHANGELOG_DB, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(CHANGELOG_STORE)) {
+        db.createObjectStore(CHANGELOG_STORE, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('Could not open the change log'));
+  });
+}
+
+function changeLogTx(mode, fn) {
+  return changeLogOpen().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(CHANGELOG_STORE, mode);
+    const store = tx.objectStore(CHANGELOG_STORE);
+    let out;
+    try { out = fn(store); } catch (e) { reject(e); return; }
+    tx.oncomplete = () => { db.close(); resolve(out && out.result !== undefined ? out.result : out); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  }));
+}
+
+function changeLogAll() {
+  return changeLogTx('readonly', store => store.getAll())
+    .then(rows => (rows || []).slice().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))))
+    .catch(() => []);
+}
+
+function changeLogSave(entry) {
+  return changeLogTx('readwrite', store => { store.put(entry); })
+    .then(() => changeLogAll())
+    .then(rows => {
+      const extra = rows.slice(CHANGELOG_KEEP);
+      if (!extra.length) return;
+      return changeLogTx('readwrite', store => { extra.forEach(r => store.delete(r.id)); });
+    });
+}
+
+function changeLogDelete(id) {
+  return changeLogTx('readwrite', store => { store.delete(id); });
+}
+
+function changeLogClear() {
+  return changeLogTx('readwrite', store => { store.clear(); });
+}
+
+/* --- sorting, the way Dietmar asked for it ---------------------------------------
+   Congregations by their full name including the country prefix, so one country stays
+   together. People by surname, because a list ordered by first name is unusable when
+   you are looking someone up. */
+const SURNAME_PARTICLES = new Set(['van','von','de','del','della','da','di','du','ter','ten','zu','zur','zum','le','la','den','der']);
+
+function surnameOf(full) {
+  const parts = String(full || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+  if (parts.length < 2) return parts[0] || '';
+  for (let i = 1; i < parts.length - 1; i++) {
+    if (SURNAME_PARTICLES.has(parts[i].toLocaleLowerCase())) return parts.slice(i).join(' ');
+  }
+  return parts.at(-1);
+}
+
+function bySurname(a, b) {
+  const sa = surnameOf(a.name), sb = surnameOf(b.name);
+  const c = sa.localeCompare(sb, undefined, { sensitivity: 'base' });
+  return c !== 0 ? c : String(a.name || '').localeCompare(String(b.name || ''));
+}
+
+function byCongName(a, b) {
+  return String(a.name || '').localeCompare(String(b.name || ''), undefined, { numeric: true, sensitivity: 'base' });
+}
+
+/* --- the comparison ---------------------------------------------------------------- */
+function speakerIdentity(sp, congName) {
+  return sp.masterId ? 'id:' + sp.masterId : speakerStableKey(congName, sp.name);
+}
+
+function contactSet(list) {
+  return (Array.isArray(list) ? list : []).map(x => String(x).replace(/^([mh])\s*:\s*/i, '').trim()).filter(Boolean);
+}
+
+function listDiff(before, after) {
+  const b = new Set(before), a = new Set(after);
+  return {
+    added: [...a].filter(x => !b.has(x)),
+    removed: [...b].filter(x => !a.has(x))
+  };
+}
+
+function congFieldChanges(before, after) {
+  const fields = [
+    ['Meeting', c => c.meetingRaw || ''],
+    ['Circuit', c => c.circuit || ''],
+    ['Address', c => [c.address, [c.postalCode, c.city].filter(Boolean).join(' '), c.country].filter(Boolean).join(', ')],
+    ['Hall phone', c => c.hallPhone || ''],
+    ['PTC', c => c.ptcName || ''],
+    ['PTC phone', c => contactSet(c.ptcPhones).join(', ')],
+    ['PTC e-mail', c => (c.ptcEmails || []).join(', ')],
+    ['COBE', c => c.cobeName || ''],
+    ['COBE phone', c => String(c.cobePhone || '').replace(/^([mh])\s*:\s*/i, '')],
+    ['COBE e-mail', c => c.cobeEmail || ''],
+    ['Temporary venue', c => c.temporaryVenue
+      ? [c.temporaryVenue.address, c.temporaryVenue.validFrom, c.temporaryVenue.validTo, c.temporaryVenue.reason].filter(Boolean).join(' · ')
+      : '']
+  ];
+  const out = [];
+  fields.forEach(([label, read]) => {
+    const b = String(read(before) || '').trim();
+    const a = String(read(after) || '').trim();
+    if (b !== a) out.push({ label, before: b, after: a });
+  });
+  return out;
+}
+
+function speakerFieldChanges(before, after) {
+  const out = [];
+  const outlines = listDiff(before.outlines || [], after.outlines || []);
+  if (outlines.added.length || outlines.removed.length) {
+    out.push({ label: 'Outlines', addedList: outlines.added.slice().sort((x, y) => x - y), removedList: outlines.removed.slice().sort((x, y) => x - y) });
+  }
+  const phones = listDiff(contactSet(before.phones), contactSet(after.phones));
+  if (phones.added.length || phones.removed.length) out.push({ label: 'Phone', addedList: phones.added, removedList: phones.removed });
+  const mails = listDiff((before.emails || []).filter(Boolean), (after.emails || []).filter(Boolean));
+  if (mails.added.length || mails.removed.length) out.push({ label: 'E-mail', addedList: mails.added, removedList: mails.removed });
+  if ((before.role || '') !== (after.role || '')) out.push({ label: 'Privilege', before: before.role || '', after: after.role || '' });
+  if (participationKey(before) !== participationKey(after)) {
+    out.push({ label: 'Participation', before: participationLabel(before) || '—', after: participationLabel(after) || '—' });
+  }
+  const bd = Number.isFinite(before.maxDistanceKm) ? before.maxDistanceKm : null;
+  const ad = Number.isFinite(after.maxDistanceKm) ? after.maxDistanceKm : null;
+  if (bd !== ad) out.push({ label: 'Maximum distance', before: bd == null ? '—' : bd + ' km', after: ad == null ? '—' : ad + ' km' });
+  if ((before.importNote || '').trim() !== (after.importNote || '').trim()) {
+    out.push({ label: 'Shared note', before: (before.importNote || '').trim() || '—', after: (after.importNote || '').trim() || '—' });
+  }
+  return out;
+}
+
+function buildChangeReport(before, after) {
+  const report = {
+    congregationsAdded: [], congregationsRemoved: [], congregationsChanged: [],
+    speakersAdded: [], speakersRemoved: [], speakersMoved: [], speakersChanged: []
+  };
+  if (!before || !after) return report;
+
+  const beforeCongs = new Map((before.congregations || []).map(c => [congregationStableKey(c.name), c]));
+  const afterCongs = new Map((after.congregations || []).map(c => [congregationStableKey(c.name), c]));
+
+  afterCongs.forEach((c, key) => {
+    if (!beforeCongs.has(key)) {
+      report.congregationsAdded.push({ name: c.name, detail: [c.country, c.city, c.circuit].filter(Boolean).join(' · '), speakers: c.speakers.length });
+    } else {
+      const fields = congFieldChanges(beforeCongs.get(key), c);
+      if (fields.length) report.congregationsChanged.push({ name: c.name, fields });
+    }
+  });
+  beforeCongs.forEach((c, key) => {
+    if (!afterCongs.has(key)) report.congregationsRemoved.push({ name: c.name, detail: [c.country, c.city].filter(Boolean).join(' · '), speakers: c.speakers.length });
+  });
+
+  const indexSpeakers = ds => {
+    const map = new Map();
+    (ds.congregations || []).forEach(c => (c.speakers || []).forEach(sp => {
+      map.set(speakerIdentity(sp, c.name), { sp, congName: c.name });
+    }));
+    return map;
+  };
+  const beforeSp = indexSpeakers(before), afterSp = indexSpeakers(after);
+  /* A brand-new congregation brings all of its speakers with it. Listing each of them
+     again under "new speakers" would bury the handful of genuinely new brothers in an
+     existing congregation, which is what a PTC actually wants to see. The congregation
+     entry already carries the head count. */
+  const newCongs = new Set(report.congregationsAdded.map(c => congregationStableKey(c.name)));
+  const goneCongs = new Set(report.congregationsRemoved.map(c => congregationStableKey(c.name)));
+
+  afterSp.forEach((entry, key) => {
+    const prev = beforeSp.get(key);
+    if (!prev) {
+      if (newCongs.has(congregationStableKey(entry.congName))) return;
+      report.speakersAdded.push({
+        name: entry.sp.name, cong: entry.congName, role: entry.sp.role,
+        outlines: (entry.sp.outlines || []).slice().sort((a, b) => a - b)
+      });
+      return;
+    }
+    if (congregationStableKey(prev.congName) !== congregationStableKey(entry.congName)) {
+      report.speakersMoved.push({ name: entry.sp.name, from: prev.congName, to: entry.congName });
+    }
+    const fields = speakerFieldChanges(prev.sp, entry.sp);
+    if (fields.length) report.speakersChanged.push({ name: entry.sp.name, cong: entry.congName, fields });
+  });
+  beforeSp.forEach((entry, key) => {
+    if (afterSp.has(key)) return;
+    if (goneCongs.has(congregationStableKey(entry.congName))) return;
+    report.speakersRemoved.push({ name: entry.sp.name, cong: entry.congName, role: entry.sp.role });
+  });
+
+  report.congregationsAdded.sort(byCongName);
+  report.congregationsRemoved.sort(byCongName);
+  report.congregationsChanged.sort(byCongName);
+  report.speakersAdded.sort(bySurname);
+  report.speakersRemoved.sort(bySurname);
+  report.speakersMoved.sort(bySurname);
+  report.speakersChanged.sort(bySurname);
+  return report;
+}
+
+function changeReportCount(r) {
+  if (!r) return 0;
+  return r.congregationsAdded.length + r.congregationsRemoved.length + r.congregationsChanged.length
+    + r.speakersAdded.length + r.speakersRemoved.length + r.speakersMoved.length + r.speakersChanged.length;
+}
+
+/* --- rendering and export ----------------------------------------------------------- */
+function changeFieldLine(f) {
+  if (f.addedList || f.removedList) {
+    const bits = [];
+    if (f.addedList && f.addedList.length) bits.push(`<span class="cl-add">+ ${escapeHtml(f.addedList.join(', '))}</span>`);
+    if (f.removedList && f.removedList.length) bits.push(`<span class="cl-del">− ${escapeHtml(f.removedList.join(', '))}</span>`);
+    return `<div class="cl-field"><span class="cl-label">${escapeHtml(f.label)}</span>${bits.join(' ')}</div>`;
+  }
+  return `<div class="cl-field"><span class="cl-label">${escapeHtml(f.label)}</span><span class="cl-del">${escapeHtml(f.before || '—')}</span> → <span class="cl-add">${escapeHtml(f.after || '—')}</span></div>`;
+}
+
+function renderChangeReport(r) {
+  if (!r || !changeReportCount(r)) {
+    return '<div class="subtle">No differences — this master matches what the tool already held.</div>';
+  }
+  const block = (title, items, render) => items.length
+    ? `<div class="cl-block"><h4>${escapeHtml(title)} <span class="cl-count">${items.length}</span></h4>${items.map(render).join('')}</div>`
+    : '';
+
+  return [
+    block('New congregations', r.congregationsAdded, c =>
+      `<div class="cl-item"><b>${escapeHtml(c.name)}</b><span class="small subtle"> ${escapeHtml(c.detail)} · ${c.speakers} speaker${c.speakers === 1 ? '' : 's'}</span></div>`),
+    block('Congregations no longer in the master', r.congregationsRemoved, c =>
+      `<div class="cl-item"><b>${escapeHtml(c.name)}</b><span class="small subtle"> ${escapeHtml(c.detail)}</span></div>`),
+    block('Congregation details changed', r.congregationsChanged, c =>
+      `<div class="cl-item"><b>${escapeHtml(c.name)}</b>${c.fields.map(changeFieldLine).join('')}</div>`),
+    block('New speakers', r.speakersAdded, sp =>
+      `<div class="cl-item"><b>${escapeHtml(sp.name)}</b> <span class="small subtle">${escapeHtml(sp.role || '')} · ${escapeHtml(sp.cong)}</span>${sp.outlines.length ? `<div class="cl-field"><span class="cl-label">Outlines</span><span class="cl-add">${escapeHtml(sp.outlines.join(', '))}</span></div>` : ''}</div>`),
+    block('Speakers no longer listed', r.speakersRemoved, sp =>
+      `<div class="cl-item"><b>${escapeHtml(sp.name)}</b> <span class="small subtle">${escapeHtml(sp.role || '')} · ${escapeHtml(sp.cong)}</span></div>`),
+    block('Speakers who moved congregation', r.speakersMoved, sp =>
+      `<div class="cl-item"><b>${escapeHtml(sp.name)}</b><div class="cl-field"><span class="cl-del">${escapeHtml(sp.from)}</span> → <span class="cl-add">${escapeHtml(sp.to)}</span></div></div>`),
+    block('Speaker details changed', r.speakersChanged, sp =>
+      `<div class="cl-item"><b>${escapeHtml(sp.name)}</b> <span class="small subtle">${escapeHtml(sp.cong)}</span>${sp.fields.map(changeFieldLine).join('')}</div>`)
+  ].filter(Boolean).join('');
+}
+
+function changeReportText(entry) {
+  const r = entry.report, out = [];
+  out.push('PTC Tool — change log');
+  out.push('Imported: ' + new Date(entry.createdAt).toLocaleString());
+  if (entry.sourceFileName) out.push('Source: ' + entry.sourceFileName);
+  out.push('Compared against the data imported on ' + (entry.previousImportedAt ? new Date(entry.previousImportedAt).toLocaleString() : 'an earlier date'));
+  out.push('');
+  if (!changeReportCount(r)) { out.push('No differences.'); return out.join('\n'); }
+
+  const sec = (title, items, line) => {
+    if (!items.length) return;
+    out.push(title.toUpperCase() + ' (' + items.length + ')');
+    items.forEach(x => out.push('  ' + line(x)));
+    out.push('');
+  };
+  const fieldText = f => f.addedList || f.removedList
+    ? f.label + ': ' + [f.addedList && f.addedList.length ? '+ ' + f.addedList.join(', ') : '', f.removedList && f.removedList.length ? '- ' + f.removedList.join(', ') : ''].filter(Boolean).join('  ')
+    : f.label + ': ' + (f.before || '-') + ' -> ' + (f.after || '-');
+
+  sec('New congregations', r.congregationsAdded, c => c.name + ' (' + c.detail + ', ' + c.speakers + ' speaker' + (c.speakers === 1 ? '' : 's') + ')');
+  sec('Congregations no longer in the master', r.congregationsRemoved, c => c.name + ' (' + c.detail + ')');
+  sec('Congregation details changed', r.congregationsChanged, c => c.name + '\n      ' + c.fields.map(fieldText).join('\n      '));
+  sec('New speakers', r.speakersAdded, sp => sp.name + ' — ' + (sp.role || '') + ', ' + sp.cong + (sp.outlines.length ? ' — outlines ' + sp.outlines.join(', ') : ''));
+  sec('Speakers no longer listed', r.speakersRemoved, sp => sp.name + ' — ' + (sp.role || '') + ', ' + sp.cong);
+  sec('Speakers who moved congregation', r.speakersMoved, sp => sp.name + ': ' + sp.from + ' -> ' + sp.to);
+  sec('Speaker details changed', r.speakersChanged, sp => sp.name + ' (' + sp.cong + ')\n      ' + sp.fields.map(fieldText).join('\n      '));
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+function downloadChangeLogText(entries) {
+  const text = entries.map(changeReportText).join('\n' + '='.repeat(60) + '\n\n');
+  const blob = new Blob(['\ufeff' + text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  a.href = url;
+  a.download = `PTC change log - ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* called from the import path, with the dataset the tool held until a moment ago */
+function recordImportChanges(previous, next) {
+  if (!previous || !next) return Promise.resolve(null);
+  let report;
+  try { report = buildChangeReport(previous, next); } catch (e) { console.error('change log failed', e); return Promise.resolve(null); }
+  const entry = {
+    id: 'cl-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+    createdAt: new Date().toISOString(),
+    sourceFileName: next.sourceFileName || '',
+    previousImportedAt: previous.importedAt || '',
+    counts: {
+      total: changeReportCount(report),
+      congregations: report.congregationsAdded.length + report.congregationsRemoved.length + report.congregationsChanged.length,
+      speakers: report.speakersAdded.length + report.speakersRemoved.length + report.speakersMoved.length + report.speakersChanged.length
+    },
+    report
+  };
+  state.lastChangeEntry = entry;
+  return changeLogSave(entry).then(() => entry).catch(err => { console.error('change log not saved', err); return entry; });
+}
+
 /* ===== v2.7 NW Scheduler handover =====================================================
    One congregation, two CSV files, one ZIP. NW Scheduler imports Neighbour Congregations
    and Public Speakers in two separate steps, so the files are numbered in the order they
@@ -4193,7 +4553,7 @@ function isSpeakerModalOpen() {
 }
 
 function syncBodyScrollLock() {
-  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay']
+  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay', 'changeLogOverlay']
     .map(id => document.getElementById(id))
     .some(el => el && el.style.display === 'block');
   document.body.style.overflow = anyOpen ? 'hidden' : '';
@@ -4847,6 +5207,9 @@ function applyMasterPtcAssistants(dataset) {
 }
 
 function applyImportedDataset(dataset, previousHome, previousNotes) {
+  /* v2.8: capture what we held before it is replaced — that is the only moment at which
+     the two versions exist side by side. */
+  const previousDataset = state.dataset;
   state.dataset = dataset;
   preserveLocalCongregationNotesAfterCsvImport(previousNotes);
   // Imported/source notes live only in the dataset. Personal notes stay local and untouched.
@@ -4866,6 +5229,17 @@ function applyImportedDataset(dataset, previousHome, previousNotes) {
   renderResults();
   renderDetail();
   updateAssistantImportState();
+  if (previousDataset) {
+    recordImportChanges(previousDataset, dataset).then(entry => {
+      if (!entry) return;
+      refreshChangeLogButton();
+      if (entry.counts.total) {
+        setStatus(`Import complete · ${entry.counts.total} change${entry.counts.total === 1 ? '' : 's'} recorded — see “Changes”`);
+      }
+    });
+  } else {
+    refreshChangeLogButton();
+  }
 }
 
 function importCsvText(text, fileName) {
@@ -5026,6 +5400,99 @@ function maybeShowWelcome() {
   if (state.dataset || welcomeSeen()) { refreshSetupHint(); return; }
   openWelcome();
 }
+
+function refreshChangeLogButton() {
+  const btn = document.getElementById('openChangeLogBtn');
+  if (!btn) return;
+  changeLogAll().then(rows => {
+    btn.textContent = rows.length ? `Changes (${rows.length})` : 'Changes';
+  });
+}
+
+function changeLogEntryHtml(entry) {
+  const open = state.changeLogOpenIds.has(entry.id);
+  const when = new Date(entry.createdAt);
+  const summary = entry.counts.total
+    ? `${entry.counts.total} change${entry.counts.total === 1 ? '' : 's'} · ${entry.counts.congregations} congregation${entry.counts.congregations === 1 ? '' : 's'} · ${entry.counts.speakers} speaker${entry.counts.speakers === 1 ? '' : 's'}`
+    : 'no differences';
+  return `<div class="cl-entry">
+    <button type="button" class="cl-entry-head" data-cl-toggle="${escapeHtml(entry.id)}">
+      <span>${open ? '▾' : '▸'}</span>
+      <b>${escapeHtml(when.toLocaleDateString())} ${escapeHtml(when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</b>
+      <span class="small subtle">${escapeHtml(entry.sourceFileName || 'import')}</span>
+      <span class="spacer"></span>
+      <span class="cl-pill">${escapeHtml(summary)}</span>
+    </button>
+    ${open ? `<div class="cl-entry-body">
+      ${renderChangeReport(entry.report)}
+      <div class="cl-entry-actions">
+        <button type="button" class="ghost" data-cl-export="${escapeHtml(entry.id)}">Export this entry</button>
+        <button type="button" class="ghost" data-cl-delete="${escapeHtml(entry.id)}">Delete this entry</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function renderChangeLog() {
+  const body = document.getElementById('clBody');
+  if (!body) return Promise.resolve();
+  body.innerHTML = '<div class="subtle">Loading…</div>';
+  return changeLogAll().then(rows => {
+    if (!rows.length) {
+      body.innerHTML = `<div class="detail-section"><div class="subtle">Nothing recorded yet. The first comparison can only be made on the <b>second</b> import: the tool needs an earlier version of the data to compare against. Import the next master and this list will fill.</div></div>`;
+      return;
+    }
+    body.innerHTML = rows.map(changeLogEntryHtml).join('');
+    body.querySelectorAll('[data-cl-toggle]').forEach(btn => btn.addEventListener('click', () => {
+      const id = btn.dataset.clToggle;
+      if (state.changeLogOpenIds.has(id)) state.changeLogOpenIds.delete(id); else state.changeLogOpenIds.add(id);
+      renderChangeLog();
+    }));
+    body.querySelectorAll('[data-cl-export]').forEach(btn => btn.addEventListener('click', () => {
+      const row = rows.find(r => r.id === btn.dataset.clExport);
+      if (row) downloadChangeLogText([row]);
+    }));
+    body.querySelectorAll('[data-cl-delete]').forEach(btn => btn.addEventListener('click', () => {
+      if (!confirm('Delete this change log entry? The data itself is not affected.')) return;
+      changeLogDelete(btn.dataset.clDelete).then(() => { renderChangeLog(); refreshChangeLogButton(); });
+    }));
+  });
+}
+
+function initChangeLog() {
+  const openBtn = document.getElementById('openChangeLogBtn');
+  const closeBtn = document.getElementById('closeChangeLogBtn');
+  const overlay = document.getElementById('changeLogOverlay');
+  const exportBtn = document.getElementById('clExportBtn');
+  if (!overlay) return;
+
+  const open = () => {
+    overlay.style.display = 'block';
+    overlay.setAttribute('aria-hidden', 'false');
+    if (typeof syncBodyScrollLock === 'function') syncBodyScrollLock();
+    renderChangeLog();
+  };
+  const close = () => {
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    if (typeof syncBodyScrollLock === 'function') syncBodyScrollLock();
+  };
+
+  if (openBtn) openBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', ev => { if (ev.target === overlay) close(); });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && overlay.style.display === 'block') close(); });
+  if (exportBtn) exportBtn.addEventListener('click', () => {
+    changeLogAll().then(rows => {
+      if (!rows.length) { alert('There is nothing to export yet.'); return; }
+      downloadChangeLogText(rows);
+    });
+  });
+  refreshChangeLogButton();
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initChangeLog);
+else initChangeLog();
 
 /* the overlay markup sits further down the document than this script, so the wiring
    waits for DOMContentLoaded — otherwise every getElementById here returns null */
@@ -5296,6 +5763,22 @@ document.addEventListener('DOMContentLoaded', function () {
 </div>
 <div id="olTip" role="tooltip"></div>
 
+<div id="changeLogOverlay" aria-hidden="true">
+  <div class="cl-dialog" role="dialog" aria-modal="true" aria-labelledby="clTitle">
+    <div class="cl-head">
+      <div>
+        <h2 id="clTitle">Change log</h2>
+        <div class="small subtle">What each master import brought with it. Congregations sorted by full name including the country prefix, brothers by surname.</div>
+      </div>
+      <div class="cl-head-actions">
+        <button type="button" class="ghost" id="clExportBtn" title="Save every entry below as a text file">Export all</button>
+        <button type="button" class="ghost" id="closeChangeLogBtn">Close</button>
+      </div>
+    </div>
+    <div class="cl-body" id="clBody"></div>
+  </div>
+</div>
+
 <div id="welcomeOverlay" aria-hidden="true">
   <div class="welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
     <h2 id="welcomeTitle">Welcome — two steps and you are set up</h2>
@@ -5325,7 +5808,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.7.5</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.8.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5336,6 +5819,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <a href="#help-s0">Screen layout</a>
         <a href="#help-s1">Import and updates</a>
         <a href="#help-snws">NW Scheduler handover</a>
+        <a href="#help-scl">Change log</a>
         <a href="#help-s2">Search and filters</a>
         <a href="#help-s3">Distance tools</a>
         <a href="#help-s4">Home congregation</a>
@@ -5357,6 +5841,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </p>
         <div class="help-chips">
           <span class="chip">CSV import</span>
+          <span class="chip">Change log</span>
           <span class="chip">NW Scheduler handover</span>
           <span class="chip">Sidebar navigation</span>
           <span class="chip">Speaker + congregation view</span>
@@ -5377,6 +5862,19 @@ document.addEventListener('DOMContentLoaded', function () {
           <p>The <b>search</b> and the <b>outline filter</b> now sit directly above the list. They act on both sides at once: the congregation list and the result cards always show the same selection. The country, circuit, meeting day, role, distance and sort controls in the toolbar do exactly the same as before.</p>
           <p>When you sort by <b>distance</b> or by <b>outline</b>, the list drops the country grouping and shows one flat ranking instead — nearest, or best matching, first. Sorting by name brings the country groups back.</p>
           <p>Nothing on this screen edits the data. The list, contacts and outlines come from the imported file and stay read-only; only your personal notes, favorites and the home congregation are yours to change.</p>
+        </section>
+
+        <section class="help-section" id="help-scl">
+          <h3><span class="help-num">LOG</span> Change log</h3>
+          <p>Every time you import a master, the tool compares it with the data it already held and records the result. Open it with <b>Changes</b> in the header.</p>
+          <ul class="mini-list">
+            <li>New congregations, congregations that dropped out, and changed details: meeting time, address, circuit, hall phone, PTC, COBE and a temporary venue.</li>
+            <li>New brothers, brothers no longer listed, and brothers who moved congregation — a move is shown as a move, not as one departure plus one arrival.</li>
+            <li>Per brother: outline numbers gained or lost, phone numbers, e-mail, privilege, participation, travel limit and the shared note.</li>
+          </ul>
+          <p>Congregations are sorted by their full name including the country prefix, so one country stays together. Brothers are sorted by surname, not by first name.</p>
+          <p>The first comparison is only possible on the <b>second</b> import — the tool needs an earlier version to compare against. Entries are kept in the browser (the last two dozen) and can be saved as a text file, one entry at a time or all at once.</p>
+          <p>When a congregation is brand new, its speakers are not repeated under “new speakers”; the congregation entry already states how many it brings.</p>
         </section>
 
         <section class="help-section" id="help-snws">
