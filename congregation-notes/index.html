@@ -35,11 +35,31 @@
   --chip-bd:  #bcd0ee;
   --chip-tx:  #1f4a91;
 
+  --paper:    #fffefb;   /* note fields */
+  --field:    #fbfcfe;   /* inputs */
+  --primary:  #2c5fb3;   /* filled buttons */
+  --tile-bg:  #fffaea; --tile-bd: #f1d98a; --tile-n: #8a6100; --sun-tx: #a57400;
+  --banner-bg:#fff8e1; --mood-on: #fdeef5; --danger: #b3261e; --switch-off: #cfd8e3;
+
   --radius: 14px;
   --shadow: 0 1px 3px rgba(28,39,64,.08);
   --line: 28px;
 }
 
+/* dark = calm slate, deliberately not black */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #2b3345; --card: #353f55; --border: #4a5570;
+  --ink: #e8ecf4; --sub: #b8c1d4; --faint: #8f9ab2;
+  --talk: #8ab0f5; --wt: #6ccf9f; --sun: #f2c14e; --berry: #f08bb8;
+  --rule: #46516b; --margin: #8f5f6a;
+  --chip-bg: #3d4b6b; --chip-bd: #5a6b92; --chip-tx: #d6e4ff;
+  --paper: #313a4f; --field: #303a4e; --primary: #4a7ad4;
+  --tile-bg: #453f2e; --tile-bd: #7d6b38; --tile-n: #f2c14e; --sun-tx: #f2c14e;
+  --banner-bg: #453f2e; --mood-on: #5a3a4c; --danger: #ff8f86; --switch-off: #5b6680;
+  --shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+:root[data-theme="dark"] .rt span[style*="background"] { color: #1c2740; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -88,7 +108,7 @@ input, select { font: inherit; color: inherit; }
   display: flex; align-items: center; justify-content: center; font-size: 22px;
 }
 .app-icon.leaf-mode {
-  background: #fff; color: var(--ink); flex-direction: column; overflow: hidden; justify-content: flex-start;
+  background: #fff; color: #1c2740; flex-direction: column; overflow: hidden; justify-content: flex-start;
 }
 .app-icon .mi-m { width: 100%; background: var(--talk); color: #fff; font-size: 9.5px; font-weight: 800; text-align: center; line-height: 1.5; }
 .app-icon .mi-d { font-size: 18px; font-weight: 800; line-height: 1.45; }
@@ -103,24 +123,27 @@ input, select { font: inherit; color: inherit; }
 .btn-hdr:active, .btn-back:active { background: rgba(255,255,255,.22); }
 .btn-gloss {
   display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px 0 10px;
-  border: none; border-radius: 11px; background: #ffd25e; color: var(--ink);
+  border: none; border-radius: 11px; background: #ffd25e; color: #1c2740;
   font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(255,210,94,.28);
 }
 .btn-gloss:active { background: #ffc53a; }
-@media (max-width: 360px) { #gloss-label { display: none; } .btn-gloss { padding: 0 10px; } }
 .lang-seg { display: flex; border: 1px solid rgba(255,255,255,.18); border-radius: 11px; overflow: hidden; height: 36px; }
 .lang-seg button { border: none; background: transparent; padding: 0 9px; font-size: 11.5px; font-weight: 800; color: #c3cde2; }
-.lang-seg button.on { background: #fff; color: var(--ink); }
-@media (max-width: 380px) { .app-icon { display: none; } }
+.lang-seg button.on { background: #fff; color: #1c2740; }
+@media (max-width: 600px) {
+  .hdr-in { flex-wrap: wrap; row-gap: 8px; padding-bottom: 9px; }
+  .hdr-actions { order: 3; width: 100%; justify-content: flex-end; }
+  .hdr-actions .btn-gloss { margin-right: auto; }
+}
 
 /* ── NEXT-MEETING HERO ──────────────────── */
 .hero {
   display: flex; gap: 14px; align-items: center;
   border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow);
   padding: 16px; margin-bottom: 14px; position: relative; overflow: hidden;
-  background: #fff;
+  background: var(--card);
 }
-.hero .leaf { width: 70px; background: #fff; }
+.hero .leaf { width: 70px; background: var(--card); }
 .hero .leaf .d { font-size: 30px; }
 .hero-k { font-size: 12.5px; font-weight: 700; color: var(--sub); }
 .hero-d { font-size: 19px; font-weight: 800; line-height: 1.25; margin: 1px 0 9px; }
@@ -137,7 +160,7 @@ body.fmt-open main { padding-bottom: 90px; }
 
 /* ── HISTORY LIST ───────────────────────── */
 .search {
-  width: 100%; border: 1px solid var(--border); background: #fff; border-radius: 12px;
+  width: 100%; border: 1px solid var(--border); background-color: var(--field); border-radius: 12px;
   padding: 11px 14px 11px 38px; font-size: 15px; margin-bottom: 12px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238e9ab0' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: 12px center;
@@ -152,7 +175,7 @@ body.fmt-open main { padding-bottom: 90px; }
   flex-shrink: 0; width: 62px; border-radius: 10px; overflow: hidden;
   border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column;
 }
-.leaf .m { background: var(--talk); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 0; }
+.leaf .m { background: var(--primary); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 0; }
 .leaf .d { font-size: 25px; font-weight: 800; line-height: 1.15; padding-top: 3px; }
 .leaf .w { font-size: 10.5px; color: var(--sub); padding-bottom: 4px; }
 .h-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
@@ -165,13 +188,13 @@ body.fmt-open main { padding-bottom: 90px; }
 .empty strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 4px; }
 .banner {
   display: flex; align-items: center; gap: 10px; justify-content: space-between;
-  background: #fff8e1; border: 1px solid #f1d98a; border-radius: 12px;
+  background: var(--banner-bg); border: 1px solid var(--tile-bd); border-radius: 12px;
   padding: 10px 12px; margin-bottom: 12px; font-size: 13px;
 }
 .fab {
   position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   width: 62px; height: 62px; border-radius: 50%; border: none;
-  background: var(--talk); color: #fff; font-size: 34px; line-height: 1; font-weight: 400;
+  background: var(--primary); color: #fff; font-size: 34px; line-height: 1; font-weight: 400;
   box-shadow: 0 6px 18px rgba(44,95,179,.38); z-index: 90;
 }
 .fab:active { transform: scale(.94); }
@@ -182,11 +205,11 @@ body.fmt-open main { padding-bottom: 90px; }
 .fld.wide { grid-column: 1 / -1; }
 .fld > span { font-size: 11.5px; font-weight: 700; color: var(--sub); }
 .fld input, .fld select {
-  width: 100%; border: 1px solid var(--border); border-radius: 10px; background: #fbfcfe;
+  width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--field);
   padding: 9px 11px; font-size: 15px; min-height: 42px;
 }
 body.kid .fld input { font-size: 16.5px; }
-.fld input:focus, .fld select:focus { outline: none; border-color: var(--talk); background: #fff; }
+.fld input:focus, .fld select:focus { outline: none; border-color: var(--talk); background: var(--card); }
 
 /* ── SONG ROWS (quiet, like the programme's song lines) ── */
 .song-row {
@@ -199,7 +222,7 @@ body.kid .fld input { font-size: 16.5px; }
 }
 .song-slot { min-width: 0; flex: 1; }
 .song-link { display: inline-block; max-width: 100%; color: var(--talk); font-weight: 700; font-size: 13px; text-decoration: none; padding: 3px 10px; border-radius: 14px; background: var(--chip-bg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
-.song-row input:focus { outline: none; border-style: solid; border-color: var(--faint); background: #fff; }
+.song-row input:focus { outline: none; border-style: solid; border-color: var(--faint); background: var(--card); }
 
 /* ── SECTIONS ───────────────────────────── */
 .sec { border-left: 5px solid var(--c, var(--talk)); }
@@ -222,7 +245,7 @@ body.kid .fld input { font-size: 16.5px; }
   font-size: 16px;
   padding: 0 12px 0 38px;
   border: 1px solid var(--border); border-radius: 10px;
-  background-color: #fffefb;
+  background-color: var(--paper);
   background-image:
     linear-gradient(90deg, transparent 29px, var(--margin) 29px, var(--margin) 30px, transparent 30px),
     repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px), var(--rule) var(--line));
@@ -231,7 +254,7 @@ body.kid .fld input { font-size: 16.5px; }
   -webkit-user-select: text; user-select: text;
 }
 body.kid .rt { font-size: 17px; }
-.rt:focus { border-color: color-mix(in srgb, var(--c, var(--talk)) 60%, white); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--talk)) 14%, transparent); }
+.rt:focus { border-color: color-mix(in srgb, var(--c, var(--talk)) 60%, var(--card)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--talk)) 14%, transparent); }
 .rt:empty::before { content: attr(data-ph); color: var(--faint); pointer-events: none; }
 .rt ul, .rt ol { padding-left: 20px; }
 .rt.short { min-height: calc(var(--line) * 2); }
@@ -248,12 +271,69 @@ body.kid .rt { font-size: 17px; }
 
 .sec-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
 .btn-soft {
-  border: 1px solid color-mix(in srgb, var(--c, var(--talk)) 35%, white);
-  color: var(--c, var(--talk)); background: color-mix(in srgb, var(--c, var(--talk)) 7%, white);
+  border: 1px solid color-mix(in srgb, var(--c, var(--talk)) 35%, var(--card));
+  color: var(--c, var(--talk)); background: color-mix(in srgb, var(--c, var(--talk)) 7%, var(--card));
   border-radius: 20px; padding: 6px 13px; font-size: 13px; font-weight: 700;
 }
-.btn-soft:active { background: color-mix(in srgb, var(--c, var(--talk)) 16%, white); }
+.btn-soft:active { background: color-mix(in srgb, var(--c, var(--talk)) 16%, var(--card)); }
 .sub-label { font-size: 13px; font-weight: 800; color: var(--c, var(--talk)); margin: 16px 0 5px; }
+
+/* ── FIRST START ─────────────────────────── */
+.ob { max-width: 560px; }
+.ob h3 { font-size: 20px; margin: 4px 0 10px; }
+.ob-hero { font-size: 44px; line-height: 1; margin-top: 4px; }
+.ob-p { color: var(--sub); margin-bottom: 14px; }
+.ob-dots { display: flex; gap: 6px; margin-bottom: 10px; }
+.ob-dots span { width: 26px; height: 5px; border-radius: 5px; background: var(--border); }
+.ob-dots span.on { background: var(--primary); }
+.ob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+.ob-grid.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 460px) { .ob-grid.three { grid-template-columns: 1fr; } }
+.ob-lang { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.ob-card {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px;
+  border: 2px solid var(--border); background: var(--card); border-radius: 16px; padding: 14px 10px;
+}
+.ob-card.slim { padding: 10px; }
+.ob-card.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
+.ob-em { font-size: 34px; line-height: 1.1; }
+.ob-t { font-weight: 800; font-size: 15px; }
+.ob-x { font-size: 12.5px; color: var(--sub); line-height: 1.35; }
+.ob-btns { justify-content: space-between; margin-top: 16px; }
+.btn[disabled] { opacity: .45; }
+body.small { font-size: 17.5px; }
+body.small .tile .em { font-size: 42px; }
+body.small .tile .n { font-size: 28px; }
+
+/* ── WATCHTOWER PARAGRAPHS ─────────────── */
+.paras { margin: 2px 0 14px; padding: 12px; border: 1px dashed color-mix(in srgb, var(--wt) 45%, var(--card)); border-radius: 12px; }
+.p-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.p-count { display: flex; align-items: center; gap: 5px; }
+.p-count input { width: 62px; text-align: center; border: 1px solid var(--border); border-radius: 10px; background: var(--field); padding: 6px; font-size: 17px; font-weight: 800; }
+.p-step { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); font-size: 20px; font-weight: 700; }
+.p-progress { height: 7px; border-radius: 7px; background: var(--bg); overflow: hidden; margin-top: 4px; }
+.p-progress div { height: 100%; background: var(--wt); transition: width .25s; }
+.p-done-txt { font-size: 12px; color: var(--sub); margin-top: 3px; }
+.p-list { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
+.p-row { display: flex; align-items: center; gap: 10px; padding: 3px 4px; border-radius: 12px; }
+.para.cur .p-row { background: color-mix(in srgb, var(--wt) 13%, var(--card)); }
+.p-num {
+  position: relative; width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--wt); background: var(--card); color: var(--wt); font-weight: 800; font-size: 15px;
+}
+.para.done .p-num { background: var(--wt); color: var(--card); }
+.para.done .p-num::after {
+  content: "✓"; position: absolute; right: -5px; bottom: -5px; width: 18px; height: 18px; line-height: 16px;
+  font-size: 11px; border-radius: 50%; background: var(--card); color: var(--wt); border: 1px solid var(--wt);
+}
+.p-label { flex: 1; font-size: 14.5px; font-weight: 600; }
+.para.done .p-label { color: var(--faint); }
+.p-label em { font-style: normal; font-size: 12.5px; font-weight: 800; color: var(--wt); }
+.p-act { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); font-size: 16px; opacity: .5; flex-shrink: 0; }
+.p-act.on { opacity: 1; border-color: var(--wt); background: color-mix(in srgb, var(--wt) 13%, var(--card)); }
+.p-extra { margin: 3px 0 10px 52px; }
+.p-extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+.btn-soft.on { background: var(--c, var(--talk)); border-color: var(--c, var(--talk)); color: var(--card); }
 
 /* ── INK (pen) ──────────────────────────── */
 .ink-tools {
@@ -265,20 +345,20 @@ body.kid .rt { font-size: 17px; }
 .ink-tools .grow { flex: 1; }
 .sw {
   width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-  border: 3px solid #fff; background: var(--sw); box-shadow: 0 0 0 1px var(--border);
+  border: 3px solid var(--card); background: var(--sw); box-shadow: 0 0 0 1px var(--border);
 }
 .sw.on { box-shadow: 0 0 0 2px var(--ink); }
 .sz, .tl {
   height: 32px; min-width: 32px; border-radius: 9px; flex-shrink: 0;
-  border: 1px solid var(--border); background: #fff; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--card); display: inline-flex; align-items: center; justify-content: center;
   font-size: 15px; padding: 0 5px;
 }
 .sz i { display: block; border-radius: 50%; background: var(--ink); }
-.sz.on, .tl.on { background: var(--ink); border-color: var(--ink); color: #fff; }
-.sz.on i { background: #fff; }
+.sz.on, .tl.on { background: var(--ink); border-color: var(--ink); color: var(--card); }
+.sz.on i { background: var(--card); }
 .paper {
   position: relative; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
-  background-color: #fffefb;
+  background-color: var(--paper);
   background-image:
     linear-gradient(90deg, transparent var(--ml, 40px), var(--margin) var(--ml, 40px), var(--margin) calc(var(--ml, 40px) + 1px), transparent calc(var(--ml, 40px) + 1px)),
     repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--lh, 32px) - 1px), var(--rule) calc(var(--lh, 32px) - 1px), var(--rule) var(--lh, 32px));
@@ -291,19 +371,19 @@ body.finger .paper .c-live { touch-action: none; }
 
 /* ── WORD COUNTER ───────────────────────── */
 .counter { --c: var(--sun); border-left: 5px solid var(--sun); }
-.counter h2 { color: #a57400; }
+.counter h2 { color: var(--sun-tx); }
 .hint { font-size: 12.5px; color: var(--sub); margin: -6px 0 10px; }
 .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 9px; }
 body.kid .tiles { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
 .tile {
-  position: relative; border: 2px solid #f1d98a; background: #fffaea; border-radius: 16px;
+  position: relative; border: 2px solid var(--tile-bd); background: var(--tile-bg); border-radius: 16px;
   padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 1px;
   user-select: none; -webkit-user-select: none; touch-action: manipulation;
 }
 .tile .em { font-size: 30px; line-height: 1.15; }
 body.kid .tile .em { font-size: 36px; }
 .tile .w { font-size: 13px; font-weight: 700; color: var(--sub); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tile .n { font-size: 24px; font-weight: 800; color: #8a6100; line-height: 1.1; }
+.tile .n { font-size: 24px; font-weight: 800; color: var(--tile-n); line-height: 1.1; }
 .tile .minus {
   position: absolute; top: 3px; right: 3px; width: 26px; height: 26px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -322,33 +402,33 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 .moods { display: flex; gap: 8px; flex-wrap: wrap; }
 .mood {
   width: 50px; height: 50px; font-size: 28px; border-radius: 14px;
-  border: 2px solid var(--border); background: #fff;
+  border: 2px solid var(--border); background: var(--card);
 }
-.mood.on { border-color: var(--berry); background: #fdeef5; transform: scale(1.06); }
+.mood.on { border-color: var(--berry); background: var(--mood-on); transform: scale(1.06); }
 
 /* ── ENTRY ACTIONS ──────────────────────── */
 .entry-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px 0 6px; }
 .btn {
-  border: 1px solid var(--border); background: #fff; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--card); border-radius: 12px;
   padding: 9px 14px; font-size: 14px; font-weight: 700;
 }
-.btn.primary { background: var(--talk); border-color: var(--talk); color: #fff; }
-.btn.danger { color: #b3261e; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn.danger { color: var(--danger); }
 .saved-hint { text-align: center; font-size: 12px; color: var(--faint); }
 
 /* ── FORMAT BAR (floats above the keyboard) ── */
 .fmt-bar {
   position: fixed; left: 0; right: 0; z-index: 150;
   display: flex; gap: 5px; align-items: center; justify-content: center;
-  background: rgba(255,255,255,.97); border-top: 1px solid var(--border);
+  background: var(--card); border-top: 1px solid var(--border);
   box-shadow: 0 -3px 12px rgba(28,39,64,.08);
   padding: 7px 8px; overflow-x: auto;
 }
 .fmt-bar button {
   height: 38px; min-width: 40px; border-radius: 10px; border: 1px solid var(--border);
-  background: #fff; font-size: 16px; flex-shrink: 0; padding: 0 8px;
+  background: var(--card); font-size: 16px; flex-shrink: 0; padding: 0 8px;
 }
-.fmt-bar button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fmt-bar button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
 .fmt-bar .sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
 .fmt-bar .done { font-size: 13px; font-weight: 800; color: var(--talk); }
 
@@ -359,7 +439,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 }
 @media (min-width: 640px) { .modal-bg { align-items: center; } }
 .modal {
-  background: #fff; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
+  background: var(--card); width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
   border-radius: 20px 20px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 640px) { .modal { border-radius: 20px; } }
@@ -374,10 +454,10 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--bg); }
 .set-row .lbl { font-weight: 700; font-size: 14.5px; }
 .set-row .hint2 { font-size: 12px; color: var(--sub); }
-.set-row select { border: 1px solid var(--border); border-radius: 10px; padding: 7px 9px; background: #fbfcfe; }
+.set-row select { border: 1px solid var(--border); border-radius: 10px; padding: 7px 9px; background: var(--field); }
 .switch { position: relative; width: 50px; height: 30px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.switch span { position: absolute; inset: 0; background: #cfd8e3; border-radius: 30px; transition: .2s; }
+.switch span { position: absolute; inset: 0; background: var(--switch-off); border-radius: 30px; transition: .2s; }
 .switch span::before { content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
 .switch input:checked + span { background: var(--wt); }
 .switch input:checked + span::before { transform: translateX(20px); }
@@ -398,7 +478,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 }
 
 .w-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-.w-row input { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: #fbfcfe; min-width: 0; }
+.w-row input { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: var(--field); min-width: 0; }
 .w-row .w-em { width: 58px; text-align: center; font-size: 20px; flex-shrink: 0; }
 .w-row .w-word { flex: 1; }
 .chk { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 10px 0; }
@@ -406,7 +486,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 /* ── TOAST / FOOTER ─────────────────────── */
 .toast {
   position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px);
-  background: var(--ink); color: #fff; padding: 9px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600;
+  background: #1c2740; color: #fff; border: 1px solid rgba(255,255,255,.12); padding: 9px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600;
   opacity: 0; pointer-events: none; transition: .22s; z-index: 300; max-width: 90vw; text-align: center;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -434,6 +514,9 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
   .chip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .song-row input { border: none; }
   details.counter { display: block; }
+  .para:not(.has-extra), .p-count, .p-progress, .p-done-txt, .p-act, .p-num, .p-extra-actions, .p-label em { display: none !important; }
+  .paras { border: none; padding: 0; }
+  .p-extra { margin-left: 0; }
 }
 </style>
 </head>
@@ -453,6 +536,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
         <button data-act="setLang" data-l="en" id="lang-en">EN</button>
         <button data-act="setLang" data-l="de" id="lang-de">DE</button>
       </div>
+      <button class="btn-hdr" data-act="toggleTheme" id="btn-theme" aria-label="Theme">🌙</button>
       <button class="btn-hdr" data-act="openSettings" id="btn-settings" aria-label="Settings">⚙︎</button>
     </div>
   </div>
@@ -471,7 +555,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.1.2 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.1.5 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -520,6 +604,11 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
   <div class="modal" id="settings-body"></div>
 </div>
 
+<!-- First start / setup -->
+<div class="modal-bg" id="modal-onboard" hidden>
+  <div class="modal ob" id="onboard-body"></div>
+</div>
+
 <!-- Word editor -->
 <div class="modal-bg" id="modal-words" hidden>
   <div class="modal" id="words-body"></div>
@@ -533,7 +622,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.1.2';
+const APP_VERSION = '1.1.5';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -542,6 +631,10 @@ const RULE = 56;            // notebook line spacing (logical units)
 const MARGIN_X = 70;        // notebook margin line (logical units)
 const INK_COLORS = ['#1c2740', '#2c5fb3', '#2f8f63', '#d64545', '#7b4bb7'];
 const INK_SIZES = [3, 5, 9];
+// same strokes, lighter colours on the dark theme (stored colours never change)
+const INK_DARK = { '#1c2740': '#e8ecf4', '#2c5fb3': '#8db4ff', '#2f8f63': '#6fd3a4', '#d64545': '#ff8a8a', '#7b4bb7': '#c9a6ff' };
+const isDark = () => document.documentElement.dataset.theme === 'dark';
+const inkCol = c => (isDark() && INK_DARK[c]) || c;
 const MOODS = ['🤩', '😊', '🙂', '😐', '😴'];
 
 const DEFAULT_WORDS = [
@@ -549,8 +642,9 @@ const DEFAULT_WORDS = [
   { e: '📖', en: 'Bible', de: 'Bibel' },    { e: '🙏', en: 'Prayer', de: 'Gebet' }, { e: '❤️', en: 'Love', de: 'Liebe' }
 ];
 const DEFAULT_SETTINGS = {
-  lang: 'en', translateTo: 'de',
+  lang: 'en', translateTo: 'de', theme: 'light',
   kidMode: true, fingerDraw: false, defaultBlock: 'text',
+  showCounter: true, showKids: true, profile: null, name: '', onboarded: false,
   words: null,            // null = default words in the current language
   pen: { tool: 'pen', color: '#1c2740', size: 5 },
   lastBackup: null
@@ -677,16 +771,16 @@ const UI = {
     wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Words',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
     question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
-    print: '🖨 Print / PDF', shareEntry: '⤴ Save / share', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
+    print: '🖨 Print / PDF', shareEntry: '⤴ Share', fileEntry: '⬇ Save file', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
     autosave: 'Saved automatically on this device',
     bpTitle: '📖 Add Bible text', book: 'Book', chapter: 'Chapter', verse: 'Verse', vend: 'To verse',
     cancel: 'Cancel', insert: 'Insert', choose: 'Choose a book and chapter…', needBookCh: 'Please choose a book and chapter', added: 'added',
     glossary: '📘 Glossary', glSearch: 'Search a word…', lookUp: '📘 WOL', countIt: '+ Count', counted: 'Added to the word counter', alreadyCounted: 'Already in the word counter',
-    settings: '⚙︎ Settings', kidMode: 'Kids mode', kidModeHint: 'Bigger, simpler, word counter on top',
+    settings: '⚙︎ Settings', kidMode: 'Kids view', kidModeHint: 'Bigger buttons, fewer fields',
     fingerDraw: 'Draw with finger', fingerDrawHint: 'Off: only a pen draws, fingers scroll',
     defBlock: 'New note fields', defText: '⌨️ Text', defInk: '✏️ Pen',
     contentLang: 'Bible & WOL language', translateTo: 'Translate into',
-    backup: 'Backup', backupAll: '💾 Save backup (all notes)', importBtn: '📂 Import backup',
+    backup: 'Backup', backupAll: '⤴ Share backup (iCloud, Drive …)', backupFile: '⬇ Save backup as file', importBtn: '📂 Import backup',
     storageOk: 'Storage is protected on this device ✓', storageWeak: 'The browser may clear its storage – please make backups now and then.',
     lastBackup: 'Last backup', never: 'never', done: 'Done', entriesCount: 'notes',
     wordsTitle: '✎ Word counter words', addWord: '+ Word', asDefault: 'Use these words for new notes too', save: 'Save', emoji: 'Emoji', word: 'Word',
@@ -695,9 +789,16 @@ const UI = {
     backupDue: 'It has been a while since your last backup.', backupNow: 'Back up',
     moreSpace: 'More space', undo: 'Undo', highlighter: 'Highlighter', eraser: 'Eraser', clear: 'Clear',
     translate: 'Translate', lookUpWol: 'Look up in WOL', ok: 'OK',
-    glossShort: 'Glossary', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
+    glossShort: 'Glossary', hello: 'Hi {n} 👋', kidsCornerHint: 'Best part, question for Mum/Dad, mood', setupAgain: 'Setup again',
+    obWelcome: 'Welcome to Congregation Notes!', obIntro: 'Three quick questions so the notebook fits you.', obName: 'What’s your name? (optional)', obNamePh: 'e.g. Lea',
+    obPrivacy: 'Everything stays on this device only.', obAge: 'How old are you?',
+    ageSmall: 'Under 8', ageSmallX: 'Big buttons, count words, draw', ageKid: '8 – 12', ageKidX: 'Notes, word counter, kids’ corner',
+    ageTeen: '13 – 17', ageTeenX: 'Notes, paragraphs, glossary – no kids’ stuff', ageAdult: 'Adult', ageAdultX: 'Clean: notes, Bible texts, paragraphs',
+    obInput: 'How do you like to write?', inPen: 'Pen', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Draw and write on the screen',
+    inKeys: 'Keyboard', inKeysX: 'Type your notes', obTheme: 'Look', obLater: 'You can change all of this later in ⚙︎ Settings.',
+    obSkip: 'Skip', obBack: 'Back', obNext: 'Next', obGo: 'Let’s go!', obReady: 'All set ✓', paragraphs: 'Paragraphs today', paragraph: 'Paragraph', paraHint: 'How many paragraphs does the article have? Then you can tick them off one by one.', weAreHere: 'we are here', comment: 'Comment', phParaComment: 'My comment on this paragraph…', commented: 'I commented', themeDark: 'Dark mode', themeLight: 'Light mode', shareNoApi: 'This browser has no share sheet for files – please use “Save file”.', shareNoFiles: 'This browser cannot share files – please use “Save file”.', shareFailed: 'Sharing did not work', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
     kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', glossLink: '📖 Glossary',
-    shareOk: 'Save/share opens the system share sheet ✓', shareNoHttps: 'Share sheet only works over https (e.g. GitHub Pages) – here files are downloaded.',
+    shareOk: '“Share” opens the system share sheet ✓', shareNoHttps: 'The share sheet only works over https (e.g. GitHub Pages), not from a local file – please use “Save file”.',
     shareSaveDialog: 'Saving opens a “Save as” dialog.', shareDownload: 'Files are downloaded (no share sheet in this browser).',
     footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
   },
@@ -715,16 +816,16 @@ const UI = {
     wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
     question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
-    print: '🖨 Drucken / PDF', shareEntry: '⤴ Speichern / Teilen', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
+    print: '🖨 Drucken / PDF', shareEntry: '⤴ Teilen', fileEntry: '⬇ Als Datei', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
     autosave: 'Wird automatisch auf diesem Gerät gespeichert',
     bpTitle: '📖 Bibelstelle hinzufügen', book: 'Buch', chapter: 'Kapitel', verse: 'Vers', vend: 'Bis Vers',
     cancel: 'Abbrechen', insert: 'Einfügen', choose: 'Buch und Kapitel auswählen…', needBookCh: 'Bitte Buch und Kapitel auswählen', added: 'hinzugefügt',
     glossary: '📘 Glossar', glSearch: 'Wort suchen…', lookUp: '📘 WOL', countIt: '+ Zählen', counted: 'Zum Wörter-Zähler hinzugefügt', alreadyCounted: 'Schon im Wörter-Zähler',
-    settings: '⚙︎ Einstellungen', kidMode: 'Kindermodus', kidModeHint: 'Größer, einfacher, Wörter-Zähler oben',
+    settings: '⚙︎ Einstellungen', kidMode: 'Kinderansicht', kidModeHint: 'Größere Buttons, weniger Felder',
     fingerDraw: 'Mit Finger zeichnen', fingerDrawHint: 'Aus: nur der Stift zeichnet, Finger scrollen',
     defBlock: 'Neue Notizfelder', defText: '⌨️ Text', defInk: '✏️ Stift',
     contentLang: 'Sprache für Bibel & WOL', translateTo: 'Übersetzen in',
-    backup: 'Sicherung', backupAll: '💾 Sicherung speichern (alle Notizen)', importBtn: '📂 Sicherung importieren',
+    backup: 'Sicherung', backupAll: '⤴ Sicherung teilen (iCloud, Drive …)', backupFile: '⬇ Sicherung als Datei speichern', importBtn: '📂 Sicherung importieren',
     storageOk: 'Speicher auf diesem Gerät ist geschützt ✓', storageWeak: 'Der Browser kann den Speicher leeren – bitte ab und zu sichern.',
     lastBackup: 'Letzte Sicherung', never: 'nie', done: 'Fertig', entriesCount: 'Notizen',
     wordsTitle: '✎ Wörter für den Zähler', addWord: '+ Wort', asDefault: 'Diese Wörter auch für neue Notizen verwenden', save: 'Speichern', emoji: 'Emoji', word: 'Wort',
@@ -733,9 +834,16 @@ const UI = {
     backupDue: 'Deine letzte Sicherung ist schon eine Weile her.', backupNow: 'Sichern',
     moreSpace: 'Mehr Platz', undo: 'Rückgängig', highlighter: 'Textmarker', eraser: 'Radierer', clear: 'Löschen',
     translate: 'Übersetzen', lookUpWol: 'In WOL nachschlagen', ok: 'OK',
-    glossShort: 'Glossar', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
+    glossShort: 'Glossar', hello: 'Hallo {n} 👋', kidsCornerHint: 'Das Beste, Frage an Mama/Papa, Stimmung', setupAgain: 'Einrichtung neu',
+    obWelcome: 'Willkommen bei Congregation Notes!', obIntro: 'Drei kurze Fragen, damit das Notizbuch zu dir passt.', obName: 'Wie heißt du? (freiwillig)', obNamePh: 'z. B. Lea',
+    obPrivacy: 'Alles bleibt nur auf diesem Gerät.', obAge: 'Wie alt bist du?',
+    ageSmall: 'Unter 8', ageSmallX: 'Große Buttons, Wörter zählen, malen', ageKid: '8 – 12', ageKidX: 'Notizen, Wörter-Zähler, Kinder-Ecke',
+    ageTeen: '13 – 17', ageTeenX: 'Notizen, Absätze, Glossar – ohne Kinderkram', ageAdult: 'Erwachsen', ageAdultX: 'Schlicht: Notizen, Bibelstellen, Absätze',
+    obInput: 'Wie schreibst du am liebsten?', inPen: 'Stift', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Mit dem Finger malen und schreiben',
+    inKeys: 'Tastatur', inKeysX: 'Notizen tippen', obTheme: 'Aussehen', obLater: 'Das alles kannst du später unter ⚙︎ Einstellungen ändern.',
+    obSkip: 'Überspringen', obBack: 'Zurück', obNext: 'Weiter', obGo: 'Los geht’s!', obReady: 'Fertig eingerichtet ✓', paragraphs: 'Absätze heute', paragraph: 'Absatz', paraHint: 'Wie viele Absätze hat der Artikel? Dann kannst du sie nacheinander abhaken.', weAreHere: 'hier sind wir', comment: 'Kommentar', phParaComment: 'Mein Kommentar zu diesem Absatz…', commented: 'Ich habe kommentiert', themeDark: 'Dunkler Modus', themeLight: 'Heller Modus', shareNoApi: 'Dieser Browser hat kein Teilen-Menü für Dateien – bitte „Als Datei“ nutzen.', shareNoFiles: 'Dieser Browser kann keine Dateien teilen – bitte „Als Datei“ nutzen.', shareFailed: 'Teilen hat nicht geklappt', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
     kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Bibel-Glossar · jw.org (englisch)', bibleGlossHint: 'Erklärungen aus dem Glossar der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', glossLink: '📖 Glossar',
-    shareOk: 'Speichern/Teilen öffnet das Teilen-Menü des Systems ✓', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages) – hier wird heruntergeladen.',
+    shareOk: '„Teilen“ öffnet das Teilen-Menü des Systems ✓', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages), nicht aus einer lokalen Datei – bitte „Als Datei“ nutzen.',
     shareSaveDialog: 'Speichern öffnet einen „Speichern unter“-Dialog.', shareDownload: 'Dateien werden heruntergeladen (kein Teilen-Menü in diesem Browser).',
     footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
   }
@@ -752,7 +860,7 @@ let storagePersisted = false;
 let saveTimer = null;
 let penSeen = false;          // once a pen was used, fingers only scroll (palm rejection)
 const activeBlk = {};         // section -> index of last used block
-let bpSection = null;
+let bpTarget = null;     // { sec } or { para }
 let inkStates = [];
 
 const t = k => (UI[settings.lang] && UI[settings.lang][k]) || UI.en[k] || k;
@@ -910,7 +1018,7 @@ function newEntry() {
     speaker: '', speakerCong: '', talkTitle: '',
     songs: ['', '', ''],
     talk: { blocks: [mkBlock()] },
-    wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()] },
+    wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()], paras: { count: 0, done: [], notes: {} } },
     comment: '',
     kids: { best: '', question: '', mood: '' },
     counter: defaultWords().map(w => ({ e: w.e, w: w.w, n: 0 }))
@@ -948,6 +1056,16 @@ function normalizeEntry(r) {
   e.talk = { blocks: normBlocks(r.talk && r.talk.blocks) };
   const w = r.wt || {};
   e.wt = { title: str(w.title, 300), conductor: str(w.conductor, 200), reader: str(w.reader, 200), blocks: normBlocks(w.blocks) };
+  const pp = w.paras || {}, pnotes = {};
+  if (pp.notes && typeof pp.notes === 'object') Object.keys(pp.notes).forEach(k => {
+    const n = parseInt(k, 10), v = pp.notes[k];
+    if (n >= 1 && n <= 60 && v) pnotes[n] = { html: sanitize(str(v.html, 50000)), refs: normRefs(v.refs), commented: !!v.commented };
+  });
+  e.wt.paras = {
+    count: Math.min(60, Math.max(0, Math.round(num(pp.count)))),
+    done: [...new Set((Array.isArray(pp.done) ? pp.done : []).map(x => parseInt(x, 10)).filter(x => x >= 1 && x <= 60))],
+    notes: pnotes
+  };
   e.comment = sanitize(str(r.comment, 50000));
   const k = r.kids || {};
   e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '' };
@@ -1000,6 +1118,7 @@ function entrySearchText(e) {
   const blocks = [...e.talk.blocks, ...e.wt.blocks];
   return [e.speaker, e.speakerCong, e.talkTitle, e.wt.title, stripHtml(e.comment), stripHtml(e.kids.best), stripHtml(e.kids.question),
     ...blocks.map(b => (b.type === 'text' ? stripHtml(b.html) : '') + ' ' + b.refs.map(r => r.label).join(' ')),
+    ...Object.values((e.wt.paras && e.wt.paras.notes) || {}).map(n => stripHtml(n.html) + ' ' + n.refs.map(r => r.label).join(' ')),
     fmtDate(e.date)].join(' ').toLowerCase();
 }
 function renderList() {
@@ -1018,7 +1137,7 @@ function renderList() {
   const hero = q ? '' : `<div class="hero">
       <div class="leaf"><div class="m">${esc(nd.toLocaleDateString(locale(), { month: 'short' }))}</div><div class="d">${nd.getDate()}</div><div class="w">${esc(nd.toLocaleDateString(locale(), { weekday: 'short' }))}</div></div>
       <div>
-        <div class="hero-k">${esc(isToday ? t('today') : t('nextMeeting'))}</div>
+        <div class="hero-k">${settings.name ? esc(t('hello').replace('{n}', settings.name)) + ' · ' : ''}${esc(isToday ? t('today') : t('nextMeeting'))}</div>
         <div class="hero-d">${esc(fmtDate(nextIso, { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
         ${nextEntry
           ? `<button class="btn primary" data-act="open" data-id="${esc(nextEntry.id)}">${esc(t('continueNotes'))}</button>`
@@ -1078,7 +1197,7 @@ function renderEntry() {
   <datalist id="dl-congs">${uniq(x => x.speakerCong).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
   </section>`;
 
-  if (kid) h += renderCounter();
+  if (kid && settings.showCounter) h += renderCounter();
 
   h += songRow(0);
   h += renderSection('talk', t('publicTalk'), 'var(--talk)', '', '');
@@ -1088,13 +1207,14 @@ function renderEntry() {
       <label class="fld wide"><span>${esc(t('wtTitle'))}</span><input type="text" value="${esc(e.wt.title)}" data-f="wt.title" placeholder="${esc(t('phWt'))}" autocomplete="off"></label>
       ${kid ? '' : `<label class="fld"><span>${esc(t('conductor'))}</span><input type="text" value="${esc(e.wt.conductor)}" data-f="wt.conductor" autocomplete="off"></label>
       <label class="fld"><span>${esc(t('reader'))}</span><input type="text" value="${esc(e.wt.reader)}" data-f="wt.reader" autocomplete="off"></label>`}
-    </div>`;
+    </div>
+    <div class="paras" id="paras">${parasHtml()}</div>`;
   const wtBottom = `<div class="sub-label">${esc(t('myComment'))}</div>
     <div class="rt short" contenteditable="true" data-f="comment" data-ph="${esc(t('phComment'))}">${sanitize(e.comment)}</div>`;
   h += renderSection('wt', t('wtStudy'), 'var(--wt)', wtTop, wtBottom);
   h += songRow(2);
 
-  if (kid) {
+  if (settings.showKids) {
     h += `<section class="card sec kids">
       <div class="sec-head"><h2>${esc(t('kidsCorner'))}</h2></div>
       <div class="sub-label" style="margin-top:0">${esc(t('best'))}</div>
@@ -1104,13 +1224,13 @@ function renderEntry() {
       <div class="sub-label">${esc(t('mood'))}</div>
       <div class="moods">${MOODS.map(m => `<button class="mood${e.kids.mood === m ? ' on' : ''}" data-act="mood" data-m="${m}">${m}</button>`).join('')}</div>
     </section>`;
-  } else {
-    h += renderCounter();
   }
+  if (!kid && settings.showCounter) h += renderCounter();
 
   h += `<div class="entry-actions">
       <button class="btn" data-act="print">${esc(t('print'))}</button>
-      <button class="btn" data-act="shareEntry">${esc(t('shareEntry'))}</button>
+      <button class="btn" data-act="shareEntry" data-mode="share">${esc(t('shareEntry'))}</button>
+      <button class="btn" data-act="shareEntry" data-mode="file">${esc(t('fileEntry'))}</button>
       <button class="btn danger" data-act="deleteEntry">${esc(t('del'))}</button>
     </div>
     <div class="saved-hint">✓ ${esc(t('autosave'))}</div>`;
@@ -1158,6 +1278,59 @@ function renderBlock(key, b, i, n) {
   return `<div class="blk" data-sec="${key}" data-i="${i}">${topBar}${body}<div class="chips">${chipsHtml(key, i, b.refs)}</div></div>`;
 }
 
+function paras() {
+  if (!cur.wt.paras) cur.wt.paras = { count: 0, done: [], notes: {} };
+  return cur.wt.paras;
+}
+function paraNote(n) {
+  const P = paras();
+  if (!P.notes[n]) P.notes[n] = { html: '', refs: [], commented: false };
+  return P.notes[n];
+}
+function parasHtml() {
+  const P = paras(), n = P.count, done = new Set(P.done);
+  let current = 0;
+  for (let i = 1; i <= n; i++) if (!done.has(i)) { current = i; break; }
+  const doneCount = P.done.filter(x => x <= n).length;
+  let h = `<div class="p-head">
+      <div class="sub-label" style="margin:0">¶ ${esc(t('paragraphs'))}</div>
+      <div class="p-count">
+        <button class="p-step" data-act="paraCount" data-d="-1" aria-label="−1">−</button>
+        <input type="number" inputmode="numeric" min="0" max="60" id="p-count" value="${n || ''}" placeholder="0" aria-label="${esc(t('paragraphs'))}">
+        <button class="p-step" data-act="paraCount" data-d="1" aria-label="+1">+</button>
+      </div>
+    </div>`;
+  if (!n) return h + `<div class="p-done-txt">${esc(t('paraHint'))}</div>`;
+  h += `<div class="p-progress"><div style="width:${Math.round(doneCount / n * 100)}%"></div></div>
+    <div class="p-done-txt">${doneCount} / ${n} ✓${doneCount === n ? ' 🎉' : ''}</div><div class="p-list">`;
+  for (let i = 1; i <= n; i++) {
+    const note = P.notes[i], isDone = done.has(i);
+    h += `<div class="para${isDone ? ' done' : ''}${i === current ? ' cur' : ''}${note ? ' has-extra' : ''}">
+      <div class="p-row">
+        <button class="p-num" data-act="paraToggle" data-p="${i}" aria-pressed="${isDone}">${i}</button>
+        <span class="p-label">${esc(t('paragraph'))} ${i}${note && note.commented ? ' ✋' : ''}${i === current ? ` <em>← ${esc(t('weAreHere'))}</em>` : ''}</span>
+        <button class="p-act${note && stripHtml(note.html).trim() ? ' on' : ''}" data-act="paraComment" data-p="${i}" aria-label="${esc(t('comment'))}">💬</button>
+        <button class="p-act${note && note.refs.length ? ' on' : ''}" data-act="paraRef" data-p="${i}" aria-label="${esc(t('addRef'))}">📖</button>
+      </div>
+      ${note ? `<div class="p-extra">
+        <div class="rt short" contenteditable="true" data-para="${i}" data-ph="${esc(t('phParaComment'))}">${sanitize(note.html)}</div>
+        <div class="chips">${chipsHtml('para', i, note.refs)}</div>
+        <div class="p-extra-actions">
+          <button class="btn-soft${note.commented ? ' on' : ''}" data-act="paraCommented" data-p="${i}">✋ ${esc(t('commented'))}</button>
+          <button class="x-btn" data-act="paraClose" data-p="${i}" aria-label="✕">✕</button>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }
+  return h + '</div>';
+}
+function refreshParas(focusP) {
+  const box = $('paras');
+  if (!box) return;
+  box.innerHTML = parasHtml();
+  if (focusP) { const rt = box.querySelector(`.rt[data-para="${focusP}"]`); if (rt) rt.focus(); }
+}
+
 function chipsHtml(key, i, refs) {
   return refs.map((r, ri) => `<span class="chip"><a href="${esc(r.url)}" data-act="openRef" target="_blank" rel="noopener">📖 ${esc(r.label)}</a><button data-act="delRef" data-sec="${key}" data-i="${i}" data-r="${ri}" aria-label="✕">×</button></span>`).join('');
 }
@@ -1183,6 +1356,7 @@ document.addEventListener('input', ev => {
   if (el.matches('.rt')) {
     if (el.innerHTML === '<br>') el.innerHTML = '';
     if (el.dataset.sec) { const b = getBlock(el.dataset.sec, +el.dataset.i); if (b) b.html = el.innerHTML; }
+    else if (el.dataset.para) { paraNote(+el.dataset.para).html = el.innerHTML; }
     else if (el.dataset.f) setPath(cur, el.dataset.f, el.innerHTML);
     dirty(); return;
   }
@@ -1199,6 +1373,12 @@ document.addEventListener('input', ev => {
     dirty();
     if (el.dataset.f === 'date' || el.dataset.f === 'talkTitle') updateHeader();
   }
+});
+
+document.addEventListener('change', ev => {
+  if (!cur || ev.target.id !== 'p-count') return;
+  paras().count = Math.min(60, Math.max(0, parseInt(ev.target.value, 10) || 0));
+  dirty(); refreshParas();
 });
 
 // plain-text paste into notes
@@ -1279,8 +1459,8 @@ function buildLabel(name, ch, v, ve) {
   if (!ve || +ve <= +v) return `${name} ${ch}:${v}`;
   return `${name} ${ch}:${v}–${ve}`;
 }
-function openBP(sec) {
-  bpSection = sec;
+function openBP(target) {
+  bpTarget = target;
   const sel = $('bp-book');
   const prev = sel.value;
   sel.innerHTML = books().map(b => `<option value="${b.n}">${esc(b.name)}</option>`).join('');
@@ -1315,7 +1495,7 @@ function openScripture(url) {
 //  INK  (pen notes)
 // ═══════════════════════════════════════════
 function inkToolsHtml() {
-  return INK_COLORS.map(c => `<button class="sw" data-act="inkColor" data-c="${c}" style="--sw:${c}" aria-label="${c}"></button>`).join('')
+  return INK_COLORS.map(c => `<button class="sw" data-act="inkColor" data-c="${c}" style="--sw:${inkCol(c)}" aria-label="${c}"></button>`).join('')
     + '<span class="sep"></span>'
     + INK_SIZES.map((s, ix) => `<button class="sz" data-act="inkSize" data-s="${s}" aria-label="size ${ix + 1}"><i style="width:${4 + ix * 4}px;height:${4 + ix * 4}px"></i></button>`).join('')
     + '<span class="sep"></span>'
@@ -1406,7 +1586,7 @@ function drawStroke(ctx, s) {
     ctx.stroke(); ctx.restore();
     return;
   }
-  ctx.strokeStyle = s.c; ctx.fillStyle = s.c;
+  ctx.strokeStyle = inkCol(s.c); ctx.fillStyle = inkCol(s.c);
   if (p.length === 1) {
     ctx.beginPath(); ctx.arc(p[0][0], p[0][1], strokeW(s, p[0][2]) / 2, 0, Math.PI * 2); ctx.fill();
     return;
@@ -1515,27 +1695,69 @@ const ACTIONS = {
     location.hash = '#e=' + encodeURIComponent(e.id);
   },
 
-  addRef: el => openBP(el.dataset.sec),
+  addRef: el => openBP({ sec: el.dataset.sec }),
   bpInsert: () => {
     const r = readBP();
     if (!r) { toast(t('needBookCh')); return; }
-    const sec = cur[bpSection];
-    let i = activeBlk[bpSection];
-    if (i == null || !sec.blocks[i]) i = sec.blocks.length - 1;
-    sec.blocks[i].refs.push(r);
-    dirty();
-    const blk = document.querySelector(`.blk[data-sec="${bpSection}"][data-i="${i}"] .chips`);
-    if (blk) blk.innerHTML = chipsHtml(bpSection, i, sec.blocks[i].refs);
+    if (bpTarget.para) {
+      paraNote(bpTarget.para).refs.push(r);
+      dirty(); refreshParas();
+    } else {
+      const key = bpTarget.sec, sec = cur[key];
+      let i = activeBlk[key];
+      if (i == null || !sec.blocks[i]) i = sec.blocks.length - 1;
+      sec.blocks[i].refs.push(r);
+      dirty();
+      const blk = document.querySelector(`.blk[data-sec="${key}"][data-i="${i}"] .chips`);
+      if (blk) blk.innerHTML = chipsHtml(key, i, sec.blocks[i].refs);
+    }
     closeModal('modal-bible');
     toast(`✓ ${r.label} ${t('added')}`);
   },
   delRef: el => {
-    const b = getBlock(el.dataset.sec, +el.dataset.i);
+    const para = el.dataset.sec === 'para';
+    const b = para ? paras().notes[+el.dataset.i] : getBlock(el.dataset.sec, +el.dataset.i);
     if (!b) return;
     b.refs.splice(+el.dataset.r, 1);
     dirty();
-    el.closest('.chips').innerHTML = chipsHtml(el.dataset.sec, +el.dataset.i, b.refs);
+    if (para) refreshParas();
+    else el.closest('.chips').innerHTML = chipsHtml(el.dataset.sec, +el.dataset.i, b.refs);
   },
+
+  paraCount: el => {
+    const P = paras();
+    P.count = Math.min(60, Math.max(0, P.count + +el.dataset.d));
+    dirty(); refreshParas();
+  },
+  paraToggle: el => {
+    const P = paras(), p = +el.dataset.p;
+    P.done = P.done.includes(p) ? P.done.filter(x => x !== p) : [...P.done, p];
+    if (navigator.vibrate) navigator.vibrate(10);
+    dirty(); refreshParas();
+  },
+  paraComment: el => { const p = +el.dataset.p; paraNote(p); dirty(); refreshParas(p); },
+  paraRef: el => openBP({ para: +el.dataset.p }),
+  paraCommented: el => { const n = paraNote(+el.dataset.p); n.commented = !n.commented; dirty(); refreshParas(); },
+  paraClose: el => {
+    const p = +el.dataset.p, n = paras().notes[p];
+    if (!n) return;
+    if ((stripHtml(n.html).trim() || n.refs.length) && !confirm(t('removeConfirm'))) return;
+    delete paras().notes[p];
+    dirty(); refreshParas();
+  },
+
+  obLang: el => { obKeepName(); settings.lang = el.dataset.v; saveSettings(); applyLang(); renderOnboard(); },
+  obAge: el => { ob.age = el.dataset.v; renderOnboard(); },
+  obInput: el => { ob.input = el.dataset.v; renderOnboard(); },
+  obTheme: el => { settings.theme = el.dataset.v; saveSettings(); applyTheme(); renderOnboard(); },
+  obBack: () => { ob.step = Math.max(0, ob.step - 1); renderOnboard(); },
+  obNext: () => {
+    if (ob.step === 0) obKeepName();
+    if (ob.step < 2) { ob.step++; renderOnboard(); } else finishOnboard();
+  },
+  obSkip: () => { obKeepName(); settings.name = ob.name; settings.onboarded = true; saveSettings(); closeModal('modal-onboard'); renderList(); },
+  restartSetup: () => { closeModal('modal-settings'); openOnboard(); },
+  toggleTheme: () => { settings.theme = isDark() ? 'light' : 'dark'; saveSettings(); applyTheme(); },
   openRef: (el, ev) => { ev.preventDefault(); openScripture(el.getAttribute('href')); },
 
   addText: el => addBlock(el.dataset.sec, 'text'),
@@ -1637,10 +1859,9 @@ const ACTIONS = {
   fmtDone: () => { if (document.activeElement) document.activeElement.blur(); hideFmt(); },
 
   print: () => { flush(); window.print(); },
-  shareEntry: async () => {
+  shareEntry: async el => {
     flush();
-    const name = `congregation-notes-${cur.date}.json`;
-    const ok = await saveFile(name, JSON.stringify(exportPayload([cur]), null, 1));
+    const ok = await exportVia(el.dataset.mode || 'share', `congregation-notes-${cur.date}.json`, JSON.stringify(exportPayload([cur]), null, 1));
     if (ok) toast(t('exported'));
   },
   deleteEntry: async () => {
@@ -1665,9 +1886,9 @@ const ACTIONS = {
 
   openSettings: () => { renderSettings(); openModal('modal-settings'); },
   setLang: el => { settings.lang = el.dataset.l; saveSettings(); applyLang(); },
-  backupAll: async () => {
+  backupAll: async el => {
     flush();
-    const ok = await saveFile(`congregation-notes-backup-${isoLocal(new Date())}.json`, JSON.stringify(exportPayload(entries), null, 1));
+    const ok = await exportVia(el.dataset.mode || 'share', `congregation-notes-backup-${isoLocal(new Date())}.json`, JSON.stringify(exportPayload(entries), null, 1));
     if (ok) { settings.lastBackup = Date.now(); saveSettings(); toast(t('exported')); if (!cur) renderList(); if (!$('modal-settings').hidden) renderSettings(); }
   },
   importBackup: () => { $('import-file').value = ''; $('import-file').click(); },
@@ -1701,9 +1922,9 @@ function addBlock(sec, type) {
 // ═══════════════════════════════════════════
 function openModal(id) { hideFmt(); $(id).hidden = false; }
 function closeModal(id) { $(id).hidden = true; }
-document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', ev => { if (ev.target === bg) closeModal(bg.id); }));
+document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', ev => { if (ev.target === bg && bg.id !== 'modal-onboard') closeModal(bg.id); }));
 document.addEventListener('keydown', ev => {
-  if (ev.key === 'Escape') document.querySelectorAll('.modal-bg').forEach(bg => { if (!bg.hidden) closeModal(bg.id); });
+  if (ev.key === 'Escape') document.querySelectorAll('.modal-bg').forEach(bg => { if (!bg.hidden && bg.id !== 'modal-onboard') closeModal(bg.id); });
 });
 
 // ── glossary ──
@@ -1767,6 +1988,10 @@ function renderSettings() {
     <div class="sec-head"><h3 style="margin:0">${esc(t('settings'))}</h3><button class="x-btn" data-act="closeModal" data-m="modal-settings">✕</button></div>
     <div class="set-row"><div><div class="lbl">${esc(t('kidMode'))}</div><div class="hint2">${esc(t('kidModeHint'))}</div></div>
       <label class="switch"><input type="checkbox" data-set="kidMode"${s.kidMode ? ' checked' : ''}><span></span></label></div>
+    <div class="set-row"><div><div class="lbl">🔢 ${esc(t('wordCounter'))}</div></div>
+      <label class="switch"><input type="checkbox" data-set="showCounter"${s.showCounter ? ' checked' : ''}><span></span></label></div>
+    <div class="set-row"><div><div class="lbl">🧒 ${esc(t('kidsCorner'))}</div><div class="hint2">${esc(t('kidsCornerHint'))}</div></div>
+      <label class="switch"><input type="checkbox" data-set="showKids"${s.showKids ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div><div class="lbl">${esc(t('fingerDraw'))}</div><div class="hint2">${esc(t('fingerDrawHint'))}</div></div>
       <label class="switch"><input type="checkbox" data-set="fingerDraw"${s.fingerDraw ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
@@ -1775,13 +2000,14 @@ function renderSettings() {
       <select data-set="translateTo">${langOpt('de', 'Deutsch')}${langOpt('en', 'English')}${langOpt('es', 'Español')}${langOpt('fr', 'Français')}${langOpt('it', 'Italiano')}${langOpt('pl', 'Polski')}${langOpt('ro', 'Română')}${langOpt('ru', 'Русский')}${langOpt('tr', 'Türkçe')}${langOpt('tl', 'Tagalog')}</select></div>
     <div class="set-block">
       <div class="lbl" style="font-weight:800">${esc(t('backup'))} · ${entries.length} ${esc(t('entriesCount'))}</div>
-      <button class="btn" data-act="backupAll">${esc(t('backupAll'))}</button>
+      <button class="btn" data-act="backupAll" data-mode="share">${esc(t('backupAll'))}</button>
+      <button class="btn" data-act="backupAll" data-mode="file">${esc(t('backupFile'))}</button>
       <button class="btn" data-act="importBackup">${esc(t('importBtn'))}</button>
       <div class="set-note">${esc(t('lastBackup'))}: ${s.lastBackup ? esc(new Date(s.lastBackup).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })) : esc(t('never'))}</div>
       <div class="set-note">${esc(shareStatus())}</div>
       <div class="set-note">${storagePersisted && !useLS ? esc(t('storageOk')) : esc(t('storageWeak'))}</div>
     </div>
-    <div class="modal-btns"><button class="btn primary" data-act="closeModal" data-m="modal-settings">${esc(t('done'))}</button></div>`;
+    <div class="modal-btns"><button class="btn" data-act="restartSetup">↺ ${esc(t('setupAgain'))}</button><button class="btn primary" data-act="closeModal" data-m="modal-settings">${esc(t('done'))}</button></div>`;
 }
 $('modal-settings').addEventListener('change', ev => {
   const el = ev.target, k = el.dataset.set;
@@ -1798,26 +2024,28 @@ $('modal-settings').addEventListener('change', ev => {
 function exportPayload(list) {
   return { _tool: TOOL_ID, _version: APP_VERSION, _exported: new Date().toISOString(), entries: list };
 }
-// 1) phones/tablets: system share sheet (Files/iCloud Drive, Google Drive …)
-//    Android Chrome refuses .json in the share sheet → retry as .txt
-// 2) browsers with a save dialog (Chrome/Edge): "Save as" picker
-// 3) otherwise a normal download
-async function saveFile(name, text) {
-  const touch = matchMedia('(pointer:coarse)').matches;
-  const tryShare = async (fname, type) => {
-    const file = new File([text], fname, { type });
-    if (!navigator.canShare || !navigator.canShare({ files: [file] })) return false;
-    await navigator.share({ files: [file], title: fname });
+// System share sheet (Files/iCloud Drive, Google Drive, WhatsApp …).
+// Android Chrome refuses .json files in the share sheet → falls back to .txt (import accepts both).
+// Returns true, false (cancelled) or throws Error(reason) so the user sees why it did not work.
+async function shareFile(name, text) {
+  if (!window.isSecureContext) throw new Error(t('shareNoHttps'));
+  if (!navigator.share || !navigator.canShare) throw new Error(t('shareNoApi'));
+  const candidates = [
+    new File([text], name, { type: 'application/json' }),
+    new File([text], name.replace(/\.json$/, '.txt'), { type: 'text/plain' })
+  ];
+  const file = candidates.find(f => { try { return navigator.canShare({ files: [f] }); } catch { return false; } });
+  if (!file) throw new Error(t('shareNoFiles'));
+  try {
+    await navigator.share({ files: [file], title: file.name });
     return true;
-  };
-  if (touch && navigator.share) {
-    try {
-      if (await tryShare(name, 'application/json')) return true;
-      if (await tryShare(name.replace(/\.json$/, '.txt'), 'text/plain')) return true;
-    } catch (err) {
-      if (err && err.name === 'AbortError') return false;
-    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return false;
+    throw new Error(`${t('shareFailed')} (${err && err.name || 'Error'})`);
   }
+}
+// "Save as" dialog where available, otherwise a normal download
+async function downloadFile(name, text) {
   if (window.showSaveFilePicker) {
     try {
       const h = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Congregation Notes (JSON)', accept: { 'application/json': ['.json'] } }] });
@@ -1834,11 +2062,18 @@ async function saveFile(name, text) {
   setTimeout(() => URL.revokeObjectURL(a.href), 3000);
   return true;
 }
+async function exportVia(mode, name, text) {
+  try {
+    return mode === 'share' ? await shareFile(name, text) : await downloadFile(name, text);
+  } catch (err) {
+    alert(err.message);
+    return false;
+  }
+}
 function shareStatus() {
   if (!window.isSecureContext) return t('shareNoHttps');
-  if (navigator.canShare) {
-    try { if (navigator.canShare({ files: [new File(['x'], 'x.txt', { type: 'text/plain' })] })) return t('shareOk'); } catch {}
-  }
+  if (!navigator.share || !navigator.canShare) return t('shareNoApi');
+  try { if (navigator.canShare({ files: [new File(['x'], 'x.txt', { type: 'text/plain' })] })) return t('shareOk'); } catch {}
   return window.showSaveFilePicker ? t('shareSaveDialog') : t('shareDownload');
 }
 $('import-file').addEventListener('change', ev => {
@@ -1872,7 +2107,11 @@ $('import-file').addEventListener('change', ev => {
 });
 
 // ── print: pen notes become images, empty fields disappear ──
+let printTheme = null;
 window.addEventListener('beforeprint', () => {
+  printTheme = document.documentElement.dataset.theme;
+  document.documentElement.dataset.theme = 'light';
+  inkStates.forEach(st => redrawInk(st));
   document.querySelectorAll('#entry .ink').forEach(el => {
     const st = el._ink; if (!st) return;
     const img = document.createElement('img');
@@ -1892,6 +2131,7 @@ window.addEventListener('beforeprint', () => {
   });
 });
 window.addEventListener('afterprint', () => {
+  if (printTheme) { document.documentElement.dataset.theme = printTheme; inkStates.forEach(st => redrawInk(st)); printTheme = null; }
   document.querySelectorAll('img.print-ink').forEach(i => i.remove());
   document.querySelectorAll('.print-empty').forEach(el => el.classList.remove('print-empty'));
 });
@@ -1899,8 +2139,88 @@ window.addEventListener('afterprint', () => {
 // ═══════════════════════════════════════════
 //  LANGUAGE / BODY STATE
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  FIRST START  (who are you? how do you write?)
+// ═══════════════════════════════════════════
+const PROFILES = {
+  small: { kidMode: true,  showCounter: true,  showKids: true },
+  kid:   { kidMode: true,  showCounter: true,  showKids: true },
+  teen:  { kidMode: false, showCounter: false, showKids: false },
+  adult: { kidMode: false, showCounter: false, showKids: false }
+};
+let ob = { step: 0, name: '', age: null, input: null };
+function openOnboard() {
+  ob = { step: 0, name: settings.name || '', age: settings.profile, input: null };
+  renderOnboard();
+  openModal('modal-onboard');
+}
+function obCard(act, val, on, emoji, title, text) {
+  return `<button class="ob-card${on ? ' on' : ''}" data-act="${act}" data-v="${val}">
+    <span class="ob-em">${emoji}</span><span class="ob-t">${esc(title)}</span><span class="ob-x">${esc(text)}</span></button>`;
+}
+function renderOnboard() {
+  const steps = 3, dots = [0, 1, 2].map(i => `<span class="${i === ob.step ? 'on' : ''}"></span>`).join('');
+  let body = '';
+  if (ob.step === 0) {
+    body = `<div class="ob-hero">📓</div>
+      <h3>${esc(t('obWelcome'))}</h3>
+      <p class="ob-p">${esc(t('obIntro'))}</p>
+      <div class="ob-lang">
+        <button class="ob-card slim${settings.lang === 'en' ? ' on' : ''}" data-act="obLang" data-v="en"><span class="ob-t">English</span></button>
+        <button class="ob-card slim${settings.lang === 'de' ? ' on' : ''}" data-act="obLang" data-v="de"><span class="ob-t">Deutsch</span></button>
+      </div>
+      <label class="fld"><span>${esc(t('obName'))}</span><input type="text" id="ob-name" maxlength="30" autocomplete="off" value="${esc(ob.name)}" placeholder="${esc(t('obNamePh'))}"></label>
+      <div class="set-note">🔒 ${esc(t('obPrivacy'))}</div>`;
+  } else if (ob.step === 1) {
+    body = `<h3>${esc(t('obAge'))}</h3><div class="ob-grid">
+      ${obCard('obAge', 'small', ob.age === 'small', '🧸', t('ageSmall'), t('ageSmallX'))}
+      ${obCard('obAge', 'kid', ob.age === 'kid', '🎒', t('ageKid'), t('ageKidX'))}
+      ${obCard('obAge', 'teen', ob.age === 'teen', '🎧', t('ageTeen'), t('ageTeenX'))}
+      ${obCard('obAge', 'adult', ob.age === 'adult', '👤', t('ageAdult'), t('ageAdultX'))}
+    </div>`;
+  } else {
+    body = `<h3>${esc(t('obInput'))}</h3><div class="ob-grid three">
+      ${obCard('obInput', 'pen', ob.input === 'pen', '✏️', t('inPen'), t('inPenX'))}
+      ${obCard('obInput', 'finger', ob.input === 'finger', '👆', t('inFinger'), t('inFingerX'))}
+      ${obCard('obInput', 'keyboard', ob.input === 'keyboard', '⌨️', t('inKeys'), t('inKeysX'))}
+    </div>
+    <div class="sub-label">${esc(t('obTheme'))}</div>
+    <div class="ob-lang">
+      <button class="ob-card slim${!isDark() ? ' on' : ''}" data-act="obTheme" data-v="light"><span class="ob-t">☀️ ${esc(t('themeLight'))}</span></button>
+      <button class="ob-card slim${isDark() ? ' on' : ''}" data-act="obTheme" data-v="dark"><span class="ob-t">🌙 ${esc(t('themeDark'))}</span></button>
+    </div>
+    <div class="set-note">${esc(t('obLater'))}</div>`;
+  }
+  const canNext = ob.step === 0 || (ob.step === 1 && ob.age) || (ob.step === 2 && ob.input);
+  $('onboard-body').innerHTML = `<div class="ob-dots">${dots}</div>${body}
+    <div class="modal-btns ob-btns">
+      ${ob.step === 0 ? `<button class="btn" data-act="obSkip">${esc(t('obSkip'))}</button>` : `<button class="btn" data-act="obBack">‹ ${esc(t('obBack'))}</button>`}
+      <button class="btn primary" data-act="obNext"${canNext ? '' : ' disabled'}>${esc(ob.step === steps - 1 ? t('obGo') : t('obNext'))}</button>
+    </div>`;
+}
+function obKeepName() { const i = $('ob-name'); if (i) ob.name = i.value.trim().slice(0, 30); }
+function finishOnboard() {
+  Object.assign(settings, PROFILES[ob.age] || PROFILES.adult, { profile: ob.age || 'adult', name: ob.name, onboarded: true });
+  if (ob.input === 'keyboard') { settings.defaultBlock = 'text'; settings.fingerDraw = false; }
+  else if (ob.input === 'finger') { settings.defaultBlock = 'ink'; settings.fingerDraw = true; }
+  else if (ob.input === 'pen') { settings.defaultBlock = 'ink'; settings.fingerDraw = false; }
+  saveSettings();
+  closeModal('modal-onboard');
+  applyBodyClasses();
+  if (cur) keepScroll(renderEntry); else renderList();
+  toast(settings.name ? t('hello').replace('{n}', settings.name) : t('obReady'));
+}
+
+function applyTheme() {
+  const dark = settings.theme === 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  $('btn-theme').textContent = dark ? '☀️' : '🌙';
+  $('btn-theme').title = dark ? t('themeLight') : t('themeDark');
+  if (cur) keepScroll(renderEntry);
+}
 function applyBodyClasses() {
   document.body.classList.toggle('kid', !!settings.kidMode);
+  document.body.classList.toggle('small', settings.profile === 'small');
   document.body.classList.toggle('finger', !!settings.fingerDraw);
 }
 function applyLang() {
@@ -1913,7 +2233,8 @@ function applyLang() {
   $('bp-l-book').textContent = t('book'); $('bp-l-ch').textContent = t('chapter');
   $('bp-l-v').textContent = t('verse'); $('bp-l-ve').textContent = t('vend');
   $('bp-cancel').textContent = t('cancel'); $('bp-insert').textContent = t('insert');
-  $('gloss-label').textContent = t('glossShort'); $('btn-settings').title = t('settings');
+  $('gloss-label').textContent = t('glossShort');
+  $('btn-theme').title = isDark() ? t('themeLight') : t('themeDark'); $('btn-settings').title = t('settings');
   $('fb-tr').title = t('translate'); $('fb-wol').title = t('lookUpWol'); $('fb-done').textContent = t('ok');
   updateHeader();
   if (cur) keepScroll(renderEntry); else renderList();
@@ -1944,8 +2265,10 @@ function applyLang() {
   } catch {}
 
   applyBodyClasses();
+  applyTheme();
   applyLang();
   route();
+  if (!settings.onboarded) openOnboard();
 })();
 </script>
 </body>
