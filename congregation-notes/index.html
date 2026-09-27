@@ -529,6 +529,12 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
   .paras { border: none; padding: 0; }
   .p-extra { margin-left: 0; }
 }
+.meeting-help { color:var(--sub); font-size:12px; margin:10px 0 0; }
+.mid-part { border:1px solid var(--border); border-radius:12px; padding:12px; margin:12px 0; }
+.mid-part .blk-top { gap:8px; align-items:center; }
+.mid-part strong { overflow-wrap:anywhere; }
+.song-row { flex-wrap:wrap; }
+@media print { .meeting-help, [data-act="addPart"], [data-act="removePart"] { display:none !important; } }
 </style>
 </head>
 <body class="kid">
@@ -566,7 +572,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.1.9 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.0 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -653,7 +659,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.1.9';
+const APP_VERSION = '1.2.0';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -790,7 +796,7 @@ function songInfo(v) {
 const UI = {
   en: {
     appTitle: 'Congregation Notes', appSub: 'My meeting notebook',
-    search: 'Search speaker, topic, notes…', empty1: 'No notes yet', empty2: 'Tap ＋ to start your first Sunday notebook.',
+    search: 'Search speaker, topic, notes…', empty1: 'No notes yet', empty2: 'Tap ＋ to start your first meeting notebook.',
     noResults: 'Nothing found.', untitled: 'Talk without title', noSpeaker: 'Speaker not filled in',
     date: 'Date', speaker: 'Speaker', phSpeaker: 'Who is giving the talk?', speakerCong: 'Speaker’s congregation', phCong: 'e.g. Ulm English',
     talkTitle: 'Talk title', phTalk: 'What is the talk about?',
@@ -800,6 +806,7 @@ const UI = {
     addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
+    meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
     wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Edit words', editWordsHint: 'Change words and symbols or choose defaults for new notes.', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete “{word}” and its count?',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
     question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
@@ -836,7 +843,7 @@ const UI = {
   },
   de: {
     appTitle: 'Congregation Notes', appSub: 'Mein Notizbuch für die Zusammenkunft',
-    search: 'Redner, Thema, Notizen suchen…', empty1: 'Noch keine Notizen', empty2: 'Tippe auf ＋ für dein erstes Sonntags-Notizbuch.',
+    search: 'Redner, Thema, Notizen suchen…', empty1: 'Noch keine Notizen', empty2: 'Tippe auf ＋ für dein erstes Notizbuch.',
     noResults: 'Nichts gefunden.', untitled: 'Vortrag ohne Thema', noSpeaker: 'Redner nicht eingetragen',
     date: 'Datum', speaker: 'Redner', phSpeaker: 'Wer hält den Vortrag?', speakerCong: 'Versammlung des Redners', phCong: 'z. B. Ulm English',
     talkTitle: 'Vortragsthema', phTalk: 'Worum geht es im Vortrag?',
@@ -846,6 +853,7 @@ const UI = {
     addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
+    meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
     wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter bearbeiten', editWordsHint: 'Wörter und Symbole ändern oder Vorgaben für neue Notizen festlegen.', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: '„{word}“ und seinen Zählerstand löschen?',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
     question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
@@ -1044,17 +1052,64 @@ function mkBlock(type) {
   type = type || settings.defaultBlock;
   return type === 'ink' ? { type: 'ink', h: 520, strokes: [], refs: [] } : { type: 'text', html: '', refs: [] };
 }
+const MID_KEYS = ['treasures', 'apply', 'living'];
+const MID_PARTS = {treasures:['treasureTalk','spiritualGems','bibleReading'],apply:['ministryPart','ministryPart','ministryPart'],living:['christianLifePart','bibleStudy']};
+function meetingForDate(date) { const day = parseISO(date).getDay(); return day === 0 || day === 6 ? 'weekend' : 'midweek'; }
+function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(kind=>({kind,title:'',person:'',assistant:'',notes:''}))}; }
+function sortStandardWords(list) {
+  const rank = w => { const word=String(w.w).toLowerCase(); const i=DEFAULT_WORDS.findIndex(d=>d.en.toLowerCase()===word || d.de.toLowerCase()===word); return i<0 ? DEFAULT_WORDS.length : i; };
+  return list.map((w,i)=>({w,i})).sort((a,b)=>rank(a.w)-rank(b.w)||a.i-b.i).map(x=>x.w);
+}
+function entryBlocks(e) { return e.meetingType==='midweek' ? MID_KEYS.flatMap(k=>e[k].blocks) : [...e.talk.blocks,...e.wt.blocks]; }
+function partNumber(e, key, index) { return 1 + index + MID_KEYS.slice(0, MID_KEYS.indexOf(key)).reduce((sum, k)=>sum + e[k].parts.length, 0); }
+function fieldHtml(path,label,value,wide=false) { return `<label class="fld${wide?' wide':''}"><span>${esc(t(label))}</span><input type="text" data-f="${path}" value="${esc(value||'')}" autocomplete="off"></label>`; }
+function meetingControls(e) {
+  return `<section class="card"><div class="meta-grid"><label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
+  <label class="fld"><span>${esc(t('meetingType'))}</span><select id="meeting-type"><option value="weekend"${e.meetingType==='weekend'?' selected':''}>${esc(t('weekend'))}</option><option value="midweek"${e.meetingType==='midweek'?' selected':''}>${esc(t('midweek'))}</option></select></label></div><p class="meeting-help">${esc(t('meetingHint'))}</p></section>`;
+}
+function midweekTop(e) {
+  return `<section class="card"><div class="meta-grid">${fieldHtml('midweek.reading','weeklyReading',e.midweek.reading,true)}${fieldHtml('midweek.chairman','chairman',e.midweek.chairman)}${fieldHtml('midweek.openPrayer','openingPrayer',e.midweek.openPrayer)}${fieldHtml('midweek.closePrayer','closingPrayer',e.midweek.closePrayer)}</div></section>`;
+}
+function midweekParts(key) {
+  const parts=cur[key].parts;
+  return `<div class="mid-parts">${parts.map((p,i)=>`<div class="mid-part">
+    <div class="blk-top"><strong>${partNumber(cur,key,i)}. ${esc(t(p.kind))}</strong><button class="x-btn" data-act="removePart" data-sec="${key}" data-i="${i}" aria-label="${esc(t('removePart'))}" title="${esc(t('removePart'))}">×</button></div>
+    <div class="meta-grid">${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant)}</div>
+    <div class="sub-label">${esc(t('myNotes'))}</div><div class="rt short" contenteditable="true" data-f="${key}.parts.${i}.notes" data-ph="${esc(t('phNotes'))}">${sanitize(p.notes)}</div>
+  </div>`).join('')}</div><button class="btn" data-act="addPart" data-sec="${key}">${esc(t('addPart'))}</button><div class="sub-label">${esc(t('sectionNotes'))}</div>`;
+}
+function renderMidweek() {
+  let h=songRow(0);
+  for(const key of MID_KEYS) {
+    if(key==='living') h+=songRow(1);
+    const color={treasures:'#607d8b',apply:'#bd8b13',living:'#a13e43'}[key];
+    h+=renderSection(key,t(key),color,midweekParts(key),'');
+  }
+  return h+songRow(2);
+}
+document.addEventListener('change',ev=>{
+  if(!cur)return;
+  if(ev.target.id==='meeting-type') {
+    cur.meetingType=ev.target.value==='midweek'?'midweek':'weekend';cur.autoMeetingType=false;
+    dirty();keepScroll(renderEntry);updateHeader();
+  } else if(ev.target.dataset.f==='date' && cur.autoMeetingType) {
+    cur.meetingType=meetingForDate(cur.date);dirty();keepScroll(renderEntry);updateHeader();
+  }
+});
+
 function newEntry() {
   const now = Date.now();
   return {
-    id: uid(), createdAt: now, updatedAt: now, date: nextSundayISO(),
+    id: uid(), createdAt: now, updatedAt: now, date: isoLocal(new Date()), meetingType: meetingForDate(isoLocal(new Date())), autoMeetingType: true,
+    midweek: {reading:'',chairman:'',openPrayer:'',closePrayer:''},
+    treasures: newMidSection('treasures'), apply: newMidSection('apply'), living: newMidSection('living'),
     speaker: '', speakerCong: '', talkTitle: '',
     songs: ['', '', ''],
     talk: { blocks: [mkBlock()] },
     wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()], paras: { count: 0, done: [], notes: {} } },
     comment: '',
     kids: { best: '', question: '', mood: '' },
-    counter: defaultWords().map(w => ({ e: w.e, w: w.w, n: 0 }))
+    counter: sortStandardWords(defaultWords()).map(w => ({ e: w.e, w: w.w, n: 0 }))
   };
 }
 const str = (v, max = 5000) => (typeof v === 'string' ? v.slice(0, max) : '');
@@ -1084,6 +1139,21 @@ function normalizeEntry(r) {
   e.id = typeof r.id === 'string' && r.id ? r.id.slice(0, 60) : uid();
   e.createdAt = num(r.createdAt, Date.now()); e.updatedAt = num(r.updatedAt, Date.now());
   e.date = /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : e.date;
+  // Old backups always remain weekend notes, even when their date is a weekday.
+  e.meetingType = r.meetingType === 'midweek' ? 'midweek' : 'weekend';
+  e.autoMeetingType = false;
+  const mw = r.midweek || {};
+  e.midweek = {reading:str(mw.reading,300),chairman:str(mw.chairman,200),openPrayer:str(mw.openPrayer,200),closePrayer:str(mw.closePrayer,200)};
+  for (const key of MID_KEYS) {
+    const source = r[key];
+    if (source && typeof source === 'object') e[key] = {
+      blocks:normBlocks(source.blocks),
+      parts:Array.isArray(source.parts) ? source.parts.filter(p=>p && typeof p==='object').map(p=>({
+        kind:[...MID_PARTS[key],'customPart'].includes(p.kind)?p.kind:'customPart',
+        title:str(p.title,300),person:str(p.person,200),assistant:str(p.assistant,200),notes:sanitize(str(p.notes,200000))
+      })) : newMidSection(key).parts
+    };
+  }
   e.speaker = str(r.speaker, 200); e.speakerCong = str(r.speakerCong, 200); e.talkTitle = str(r.talkTitle, 300);
   e.songs = [0, 1, 2].map(i => str((r.songs || [])[i], 6));
   e.talk = { blocks: normBlocks(r.talk && r.talk.blocks) };
@@ -1103,6 +1173,7 @@ function normalizeEntry(r) {
   const k = r.kids || {};
   e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '' };
   if (Array.isArray(r.counter)) e.counter = r.counter.filter(c => c && c.w).map(c => ({ e: str(c.e, 16), w: str(c.w, 40), n: Math.max(0, Math.round(num(c.n))) }));
+  e.counter = sortStandardWords(e.counter);
   return e;
 }
 
@@ -1136,7 +1207,7 @@ function updateHeader() {
     icon.className = 'app-icon leaf-mode';
     icon.innerHTML = `<span class="mi-m">${esc(d.toLocaleDateString(locale(), { month: 'short' }))}</span><span class="mi-d">${d.getDate()}</span>`;
     $('hdr-title').textContent = fmtDate(cur.date, { weekday: 'long', day: 'numeric', month: 'long' });
-    $('hdr-sub').textContent = cur.talkTitle || t('appTitle');
+    $('hdr-sub').textContent = cur.meetingType==='midweek' ? t('midweek') : (cur.talkTitle || t('weekend'));
   } else {
     icon.className = 'app-icon'; icon.textContent = '📓';
     $('hdr-title').textContent = t('appTitle');
@@ -1148,11 +1219,12 @@ function updateHeader() {
 //  HISTORY LIST
 // ═══════════════════════════════════════════
 function entrySearchText(e) {
-  const blocks = [...e.talk.blocks, ...e.wt.blocks];
+  const blocks = entryBlocks(e);
   return [e.speaker, e.speakerCong, e.talkTitle, e.wt.title, stripHtml(e.comment), stripHtml(e.kids.best), stripHtml(e.kids.question),
     ...blocks.map(b => (b.type === 'text' ? stripHtml(b.html) : '') + ' ' + b.refs.map(r => r.label).join(' ')),
     ...Object.values((e.wt.paras && e.wt.paras.notes) || {}).map(n => stripHtml(n.html) + ' ' + n.refs.map(r => r.label).join(' ')),
-    fmtDate(e.date)].join(' ').toLowerCase();
+    ...MID_KEYS.flatMap(k=>e[k].parts.flatMap(p=>[p.title,p.person,p.assistant,stripHtml(p.notes)])),
+    ...Object.values(e.midweek), t(e.meetingType), fmtDate(e.date)].join(' ').toLowerCase();
 }
 function renderList() {
   $('search').placeholder = t('search');
@@ -1165,7 +1237,7 @@ function renderList() {
   $('banner-slot').innerHTML = due
     ? `<div class="banner"><span>💾 ${esc(t('backupDue'))}</span><button class="btn" data-act="backupAll">${esc(t('backupNow'))}</button></div>` : '';
 
-  const nextIso = nextSundayISO(), nextEntry = entries.find(e => e.date === nextIso);
+  const nextIso = isoLocal(new Date()), nextEntry = entries.find(e => e.date === nextIso);
   const nd = parseISO(nextIso), isToday = nextIso === isoLocal(new Date());
   const hero = q ? '' : `<div class="hero">
       <div class="leaf"><div class="m">${esc(nd.toLocaleDateString(locale(), { month: 'short' }))}</div><div class="d">${nd.getDate()}</div><div class="w">${esc(nd.toLocaleDateString(locale(), { weekday: 'short' }))}</div></div>
@@ -1185,7 +1257,7 @@ function renderList() {
 
   $('list').innerHTML = hero + list.map(e => {
     const d = parseISO(e.date);
-    const blocks = [...e.talk.blocks, ...e.wt.blocks];
+    const blocks = entryBlocks(e);
     const refs = blocks.reduce((n, b) => n + b.refs.length, 0);
     const hasInk = blocks.some(b => b.type === 'ink' && b.strokes.length);
     const top = [...e.counter].sort((a, b) => b.n - a.n)[0];
@@ -1201,8 +1273,8 @@ function renderList() {
         <div class="w">${esc(d.toLocaleDateString(locale(), { weekday: 'short' }))}${d.getFullYear() !== new Date().getFullYear() ? ' ’' + String(d.getFullYear()).slice(2) : ''}</div>
       </div>
       <div class="h-body">
-        <div class="h-title">${esc(e.talkTitle || t('untitled'))}</div>
-        <div class="h-speaker">🎤 ${esc(e.speaker || t('noSpeaker'))}${e.speakerCong ? ' – ' + esc(e.speakerCong) : ''}</div>
+        <div class="h-title">${esc(e.meetingType==='midweek' ? (e.midweek.reading || t('midweek')) : (e.talkTitle || t('untitled')))}</div>
+        <div class="h-speaker">🎤 ${esc(e.meetingType==='midweek' ? (e.midweek.chairman || t('midweek')) : (e.speaker || t('noSpeaker')))}${e.meetingType!=='midweek' && e.speakerCong ? ' – ' + esc(e.speakerCong) : ''}</div>
         ${pills.length ? `<div class="h-meta">${pills.map(p => `<span class="pill">${p}</span>`).join('')}</div>` : ''}
       </div>
     </button>`;
@@ -1218,10 +1290,12 @@ function renderEntry() {
   const e = cur, kid = settings.kidMode;
   const uniq = f => [...new Set(entries.map(f).filter(Boolean))].sort();
 
-  let h = `<div class="print-head"><h1>${esc(e.talkTitle || t('publicTalk'))}</h1><div>${esc(fmtDate(e.date))}${e.speaker ? ' · ' + esc(e.speaker) : ''}</div></div>`;
+  let h = `<div class="print-head"><h1>${esc(e.meetingType==='midweek'?t('midweek'):(e.talkTitle || t('publicTalk')))}</h1><div>${esc(fmtDate(e.date))}${e.speaker ? ' · ' + esc(e.speaker) : ''}</div></div>`;
 
+  h += meetingControls(e);
+  if(e.meetingType==='midweek') h += midweekTop(e);
+  else {
   h += `<section class="card"><div class="meta-grid">
-    <label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
     <label class="fld"><span>${esc(t('speaker'))}</span><input type="text" list="dl-speakers" value="${esc(e.speaker)}" data-f="speaker" placeholder="${esc(t('phSpeaker'))}" autocomplete="off"></label>
     ${kid ? '' : `<label class="fld wide"><span>${esc(t('speakerCong'))}</span><input type="text" list="dl-congs" value="${esc(e.speakerCong)}" data-f="speakerCong" placeholder="${esc(t('phCong'))}" autocomplete="off"></label>`}
     <label class="fld wide"><span>${esc(t('talkTitle'))}</span><input type="text" value="${esc(e.talkTitle)}" data-f="talkTitle" placeholder="${esc(t('phTalk'))}" autocomplete="off"></label>
@@ -1230,8 +1304,12 @@ function renderEntry() {
   <datalist id="dl-congs">${uniq(x => x.speakerCong).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
   </section>`;
 
+  }
+
   if (kid && settings.showCounter) h += renderCounter();
 
+  if(e.meetingType==='midweek') h += renderMidweek();
+  else {
   h += songRow(0);
   h += renderSection('talk', t('publicTalk'), 'var(--talk)', '', '');
   h += songRow(1);
@@ -1246,6 +1324,8 @@ function renderEntry() {
     <div class="rt short" contenteditable="true" data-f="comment" data-ph="${esc(t('phComment'))}">${sanitize(e.comment)}</div>`;
   h += renderSection('wt', t('wtStudy'), 'var(--wt)', wtTop, wtBottom);
   h += songRow(2);
+
+  }
 
   if (settings.showKids) {
     h += `<section class="card sec kids">
@@ -1278,7 +1358,7 @@ function songLinkHtml(v) {
   return info ? `<a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(info.url)}">${esc(info.title)} <span aria-hidden="true">▶</span></a>` : '';
 }
 function songRow(i) {
-  return `<div class="song-row">🎵 ${esc(t('song'))}
+  return `<div class="song-row">🎵 ${esc(t(['songOpening','songMiddle','songClosing'][i]))}
     <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-song="${i}" value="${esc(cur.songs[i])}" placeholder="#" aria-label="${esc(t('song'))} ${i + 1}">
     <span class="song-slot">${songLinkHtml(cur.songs[i])}</span></div>`;
 }
@@ -1407,6 +1487,7 @@ function getBlock(sec, i) { return cur && cur[sec] && cur[sec].blocks[i]; }
 document.addEventListener('input', ev => {
   if (!cur) return;
   const el = ev.target;
+  if(el.closest('#entry') && el.dataset.f!=='date') cur.autoMeetingType=false;
   if (el.matches('.rt')) {
     if (el.innerHTML === '<br>') el.innerHTML = '';
     if (el.dataset.sec) { const b = getBlock(el.dataset.sec, +el.dataset.i); if (b) b.html = el.innerHTML; }
@@ -1720,7 +1801,7 @@ function inkUp(st, ev) {
   }
   if (!st.cur) return;
   const s = st.cur; st.cur = null;
-  st.b.strokes.push(s);
+  cur.autoMeetingType=false; st.b.strokes.push(s);
   ctxOf(st, st.live);
   // writing near the bottom? the page grows by itself
   const maxY = Math.max(...s.p.map(q => q[1]));
@@ -1749,6 +1830,15 @@ const ACTIONS = {
     location.hash = '#e=' + encodeURIComponent(e.id);
   },
 
+  addPart: el => {
+    const key=el.dataset.sec;if(!MID_KEYS.includes(key))return;
+    cur[key].parts.push({kind:'customPart',title:'',person:'',assistant:'',notes:''});
+    cur.autoMeetingType=false;dirty();keepScroll(renderEntry);
+  },
+  removePart: el => {
+    const key=el.dataset.sec;if(!MID_KEYS.includes(key)||!confirm(t('removePartConfirm')))return;
+    cur[key].parts.splice(+el.dataset.i,1);cur.autoMeetingType=false;dirty();keepScroll(renderEntry);
+  },
   addRef: el => openBP({ sec: el.dataset.sec }),
   bpInsert: () => {
     const r = readBP();
@@ -1830,7 +1920,7 @@ const ACTIONS = {
   count: el => {
     const i = +el.dataset.i, c = cur.counter[i];
     if (!c) return;
-    c.n++; dirty();
+    cur.autoMeetingType=false; c.n++; dirty();
     $('cnt-' + i).textContent = c.n;
     el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
     if (navigator.vibrate) navigator.vibrate(12);
@@ -1854,7 +1944,7 @@ const ACTIONS = {
   resetMeeting: () => {
     if (!cur || !confirm(t('resetConfirm'))) return;
     const fresh = newEntry();
-    const keep = {id: cur.id, date: cur.date, createdAt: cur.createdAt};
+    const keep = {id: cur.id, date: cur.date, createdAt: cur.createdAt, meetingType: cur.meetingType, autoMeetingType:false};
     Object.assign(cur, fresh, keep);
     dirty(); flush(); keepScroll(renderEntry); updateHeader();
   },
@@ -1899,10 +1989,10 @@ const ACTIONS = {
       e: r.querySelector('.w-em').value.trim().slice(0, 16) || '⭐',
       w: r.querySelector('.w-word').value.trim().slice(0, 40)
     })).filter(x => x.w);
-    cur.counter = list.map(x => {
+    cur.counter = sortStandardWords(list.map(x => {
       const old = x.originalIndex >= 0 ? cur.counter[x.originalIndex] : null;
       return { e: x.e, w: x.w, n: old ? old.n : 0 };
-    });
+    }));
     if ($('words-default').checked) { settings.words = list.map(({e, w}) => ({e, w})); saveSettings(); }
     dirty(); closeModal('modal-words'); keepScroll(renderEntry);
   },
@@ -2216,7 +2306,7 @@ function pdfText(html) {
 }
 async function makeNotesPdf(entry) {
   const doc = await PDFLib.PDFDocument.create();
-  doc.setTitle(entry.talkTitle || 'Congregation Notes');
+  doc.setTitle(entry.meetingType==='midweek'?t('midweek'):(entry.talkTitle || 'Congregation Notes'));
   const W = 1240, H = 1754, margin = 85, bottom = 1650;
   let canvas, ctx, y, pageNo = 0;
   function page() {
@@ -2281,6 +2371,23 @@ async function makeNotesPdf(entry) {
     }
   }
   page();
+  if(entry.meetingType==='midweek') {
+    await text(t('midweek'),true);
+    for(const [key,label] of [['reading','weeklyReading'],['chairman','chairman'],['openPrayer','openingPrayer'],['closePrayer','closingPrayer']]) if(entry.midweek[key]) await text(t(label)+': '+entry.midweek[key]);
+    if(entry.songs[0]) await text(t('songOpening')+': '+entry.songs[0]);
+    for(const key of MID_KEYS) {
+      if(key==='living' && entry.songs[1]) await text(t('songMiddle')+': '+entry.songs[1]);
+      await text(t(key),true);
+      for(const [i,p] of entry[key].parts.entries()) {
+        await text(partNumber(entry,key,i)+'. '+t(p.kind)+(p.title?' · '+p.title:''),true);
+        if(p.person) await text(t(p.kind==='bibleStudy'?'conductor':'participant')+': '+p.person);
+        if(p.assistant) await text(t(p.kind==='bibleStudy'?'reader':'assistant')+': '+p.assistant);
+        await text(pdfText(p.notes));
+      }
+      await blocks(entry[key].blocks);
+    }
+    if(entry.songs[2]) await text(t('songClosing')+': '+entry.songs[2]);
+  } else {
   await text(entry.talkTitle || t('publicTalk'), true);
   if (entry.speaker) await text(t('speaker') + ': ' + entry.speaker);
   if (entry.speakerCong) await text(t('speakerCong') + ': ' + entry.speakerCong);
@@ -2295,6 +2402,7 @@ async function makeNotesPdf(entry) {
   }
   if (entry.wt.paras.done.length) await text(t('paragraphs') + ': ' + entry.wt.paras.done.join(', '));
   if (pdfText(entry.comment)) { await text(t('comment'), true); await text(pdfText(entry.comment)); }
+  }
   if (entry.counter.some(w => w.n)) { await text(t('wordCounter'), true); for (const w of entry.counter) await text(`${w.e || ''} ${wordLabel(w.w)}: ${w.n}`); }
   for (const [key, label] of [['best','best'],['question','question'],['mood','mood']]) if (entry.kids[key]) { await text(t(label), true); await text(pdfText(entry.kids[key])); }
   await finish();
