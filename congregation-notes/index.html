@@ -4,8 +4,8 @@
 <!-- Icons -->
 <link rel="icon" type="image/png" sizes="any" href="favicon.png">
 <link rel="apple-touch-icon" href="congregation-notes.png">
-<meta name="theme-color" content="#f3f6fa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#f3f6fa" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1c2740" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c2740" media="(prefers-color-scheme: dark)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,461 +15,545 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Congregation Notes palette – sky blue + green + orange,
-     deliberately different from the RC (orange/green/blue) and CA (gold/plum) tools. */
-  --bg:        #f3f6fa;
-  --card:      #ffffff;
-  --border:    #dde5ee;
-  --text:      #17212b;
-  --text-sub:  #5b6878;
-  --text-ref:  #93a0ae;
+  /* Sunday notebook palette – cool paper blue, each meeting part has its own colour */
+  --bg:       #eaf1f7;
+  --card:     #ffffff;
+  --border:   #d7e1ec;
+  --ink:      #1c2740;
+  --sub:      #5b6882;
+  --faint:    #8e9ab0;
 
-  --bar:   #2f80ed;
-  --talk:  #2f6fd1;
-  --wt:    #2e8b62;
-  --kids:  #e0782a;
-  --cnt:   #8a4fd6;
+  --talk:     #2c5fb3;   /* Public Talk */
+  --wt:       #2f8f63;   /* Watchtower Study */
+  --sun:      #e0a100;   /* word counter */
+  --berry:    #c2417a;   /* kids' corner */
 
-  --notes-bg:     #fbfdff;
-  --notes-border: #d7e3f0;
-  --chip-bg:      #e8f1fd;
-  --chip-text:    #1f4f96;
-  --chip-border:  #b9d2f3;
+  --rule:     #d3e0f1;   /* notebook lines */
+  --margin:   #f3b0b0;   /* notebook margin line */
 
-  --radius: 10px;
-  --shadow: 0 1px 4px rgba(0,0,0,.07);
-  --fs: 15px;
+  --chip-bg:  #e8f0fb;
+  --chip-bd:  #bcd0ee;
+  --chip-tx:  #1f4a91;
+
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(28,39,64,.08);
+  --line: 28px;
 }
 
+html { -webkit-text-size-adjust: 100%; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg); color: var(--text);
-  font-size: var(--fs); line-height: 1.5;
-  -webkit-text-size-adjust: 100%;
+  font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
   overflow-x: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-body.kid { --fs: 17px; }
+body.kid { font-size: 16.5px; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--talk) 45%, transparent); outline-offset: 2px; }
+[hidden] { display: none !important; }
 
-button { font-family: inherit; }
-
-/* ── HEADER ─────────────────────────────── */
+/* ── HEADER (navy notebook cover) ───────── */
 .app-header {
   position: sticky; top: 0; z-index: 100;
-  background: #fff;
-  border-top: 4px solid var(--bar);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,.09);
+  background-color: #1c2740;
+  background-image:
+    linear-gradient(90deg, transparent 22px, rgba(243,176,176,.22) 22px, rgba(243,176,176,.22) 23px, transparent 23px),
+    repeating-linear-gradient(180deg, transparent 0, transparent 17px, rgba(255,255,255,.045) 17px, rgba(255,255,255,.045) 18px);
+  color: #fff;
+  box-shadow: 0 3px 14px rgba(28,39,64,.22);
   padding-top: env(safe-area-inset-top, 0px);
 }
-.header-top, .header-sub {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  max-width: 760px; margin: 0 auto;
+/* colour stripe = the four parts of the notebook */
+.app-header::after {
+  content: ""; display: block; height: 4px;
+  background: linear-gradient(90deg, var(--talk) 0 25%, var(--wt) 25% 50%, var(--sun) 50% 75%, var(--berry) 75% 100%);
 }
-.header-top { padding: 9px 14px 5px; }
-.header-sub { padding: 3px 14px 9px; }
-.app-branding { cursor: pointer; min-width: 0; }
-.app-title { font-size: 15px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; display: flex; align-items: center; gap: 7px; }
-.app-kicker {
-  font-size: 10px; font-weight: 900; letter-spacing: .05em;
-  background: var(--bar); color: #fff; border-radius: 5px; padding: 2px 5px;
+.hdr-in {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 720px; margin: 0 auto; padding: 10px 14px;
 }
-.app-subtitle { font-size: 10.5px; color: var(--text-sub); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.header-actions { display: flex; gap: 5px; flex-shrink: 0; align-items: center; }
-
+.btn-back {
+  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); border-radius: 11px;
+  width: 36px; height: 40px; font-size: 24px; line-height: 1; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.app-icon {
+  width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(145deg, #3d78d6, #2f8f63);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.2), 0 2px 6px rgba(0,0,0,.25);
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.app-icon.leaf-mode {
+  background: #fff; color: var(--ink); flex-direction: column; overflow: hidden; justify-content: flex-start;
+}
+.app-icon .mi-m { width: 100%; background: var(--talk); color: #fff; font-size: 9.5px; font-weight: 800; text-align: center; line-height: 1.5; }
+.app-icon .mi-d { font-size: 18px; font-weight: 800; line-height: 1.45; }
+.brand { flex: 1; min-width: 0; }
+.app-title { font-size: 17px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-sub { font-size: 12px; color: #aebbd6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.hdr-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
 .btn-hdr {
-  border: 1px solid var(--border); background: var(--bg);
-  border-radius: 8px; padding: 5px 9px;
-  font-size: 11.5px; font-weight: 600; color: var(--text-sub);
-  cursor: pointer; white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
+  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); border-radius: 11px;
+  height: 36px; min-width: 36px; padding: 0 8px; font-size: 16px; color: #fff;
 }
-.btn-hdr:active { background: var(--border); color: var(--text); }
-.btn-hdr.danger { color: #c0392b; }
+.btn-hdr:active, .btn-back:active { background: rgba(255,255,255,.22); }
+.lang-seg { display: flex; border: 1px solid rgba(255,255,255,.18); border-radius: 11px; overflow: hidden; height: 36px; }
+.lang-seg button { border: none; background: transparent; padding: 0 9px; font-size: 11.5px; font-weight: 800; color: #c3cde2; }
+.lang-seg button.on { background: #fff; color: var(--ink); }
+@media (max-width: 380px) { .app-icon { display: none; } }
 
-.lang-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.lang-toggle button {
-  border: none; background: var(--bg); color: var(--text-sub);
-  font-size: 11px; font-weight: 700; padding: 5px 8px; cursor: pointer;
+/* ── NEXT-MEETING HERO ──────────────────── */
+.hero {
+  display: flex; gap: 14px; align-items: center;
+  border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow);
+  padding: 16px 16px 16px 20px; margin-bottom: 14px; position: relative; overflow: hidden;
+  background-color: #fffefb;
+  background-image:
+    linear-gradient(90deg, transparent 10px, var(--margin) 10px, var(--margin) 11px, transparent 11px),
+    repeating-linear-gradient(180deg, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px);
 }
-.lang-toggle button.active { background: var(--bar); color: #fff; }
+.hero .leaf { width: 70px; background: #fff; }
+.hero .leaf .d { font-size: 30px; }
+.hero-k { font-size: 12.5px; font-weight: 700; color: var(--sub); }
+.hero-d { font-size: 19px; font-weight: 800; line-height: 1.25; margin: 1px 0 9px; }
+.hero .btn { padding: 8px 14px; }
 
-.search {
-  flex: 1; min-width: 0;
-  border: 1px solid var(--border); border-radius: 20px;
-  padding: 7px 13px; font-size: 14px; background: var(--bg); outline: none;
-}
-.search:focus { border-color: var(--bar); background: #fff; }
-.hs-date { flex: 1; text-align: center; font-weight: 800; font-size: 13.5px; }
-
-/* ── MAIN ───────────────────────────────── */
-main { max-width: 760px; margin: 0 auto; padding: 14px 12px 20px; }
-
+/* ── LAYOUT ─────────────────────────────── */
+main { max-width: 720px; margin: 0 auto; padding: 14px 12px 28px; }
+body.fmt-open main { padding-bottom: 90px; }
 .card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); box-shadow: var(--shadow);
-  margin-bottom: 10px; overflow: hidden;
+  padding: 14px; margin-bottom: 12px;
 }
 
-/* History */
-.h-card { display: flex; gap: 12px; padding: 12px 13px; cursor: pointer; align-items: flex-start; }
-.h-card:active { background: var(--bg); }
-.h-date {
-  flex-shrink: 0; width: 54px; text-align: center;
-  background: var(--chip-bg); color: var(--chip-text);
-  border-radius: 9px; padding: 5px 0 6px; line-height: 1.1;
+/* ── HISTORY LIST ───────────────────────── */
+.search {
+  width: 100%; border: 1px solid var(--border); background: #fff; border-radius: 12px;
+  padding: 11px 14px 11px 38px; font-size: 15px; margin-bottom: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238e9ab0' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 12px center;
 }
-.h-date .d { font-size: 20px; font-weight: 900; display: block; }
-.h-date .m { font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
-.h-date .y { font-size: 9.5px; opacity: .75; display: block; }
-.h-body { flex: 1; min-width: 0; }
-.h-theme { font-weight: 800; font-size: 14.5px; line-height: 1.3; }
-.h-meta { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-.h-snip { font-size: 12.5px; color: var(--text-ref); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.h-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-.h-tag { font-size: 10.5px; font-weight: 700; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px; color: var(--text-sub); }
-
-.empty { text-align: center; color: var(--text-sub); padding: 50px 20px; }
-.empty .big { font-size: 46px; display: block; margin-bottom: 10px; }
-
+.h-card {
+  display: flex; gap: 12px; width: 100%; text-align: left;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 10px; margin-bottom: 9px; align-items: stretch;
+}
+.h-card:active { transform: scale(.99); }
+.leaf {
+  flex-shrink: 0; width: 62px; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column;
+}
+.leaf .m { background: var(--talk); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 0; }
+.leaf .d { font-size: 25px; font-weight: 800; line-height: 1.15; padding-top: 3px; }
+.leaf .w { font-size: 10.5px; color: var(--sub); padding-bottom: 4px; }
+.h-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.h-title { font-weight: 800; font-size: 15px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.h-speaker { color: var(--sub); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
+.pill { font-size: 11.5px; background: var(--bg); border-radius: 20px; padding: 1px 8px; color: var(--sub); white-space: nowrap; }
+.empty { text-align: center; padding: 50px 20px; color: var(--sub); }
+.empty .big { font-size: 46px; margin-bottom: 8px; }
+.empty strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 4px; }
+.banner {
+  display: flex; align-items: center; gap: 10px; justify-content: space-between;
+  background: #fff8e1; border: 1px solid #f1d98a; border-radius: 12px;
+  padding: 10px 12px; margin-bottom: 12px; font-size: 13px;
+}
 .fab {
-  position: fixed; right: 18px; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
-  width: 58px; height: 58px; border-radius: 50%;
-  background: var(--bar); color: #fff; border: none;
-  font-size: 30px; font-weight: 400; line-height: 1;
-  box-shadow: 0 4px 14px rgba(47,128,237,.45);
-  cursor: pointer; z-index: 90;
+  position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 62px; height: 62px; border-radius: 50%; border: none;
+  background: var(--talk); color: #fff; font-size: 34px; line-height: 1; font-weight: 400;
+  box-shadow: 0 6px 18px rgba(44,95,179,.38); z-index: 90;
 }
 .fab:active { transform: scale(.94); }
 
-/* Entry – meta */
-.meta { padding: 12px 13px; display: grid; gap: 9px; }
-.meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.fld label { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-ref); margin-bottom: 3px; }
-.fld input {
-  width: 100%; border: 1px solid var(--border); border-radius: 8px;
-  padding: 8px 10px; font-size: 15px; background: var(--notes-bg); outline: none;
-  font-family: inherit; color: var(--text);
+/* ── ENTRY: META ────────────────────────── */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.fld { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fld.wide { grid-column: 1 / -1; }
+.fld > span { font-size: 11.5px; font-weight: 700; color: var(--sub); }
+.fld input, .fld select {
+  width: 100%; border: 1px solid var(--border); border-radius: 10px; background: #fbfcfe;
+  padding: 9px 11px; font-size: 15px; min-height: 42px;
 }
-.fld input:focus { border-color: var(--sec, var(--bar)); background: #fff; }
-.fld input[type=date] { min-height: 38px; }
+body.kid .fld input { font-size: 16.5px; }
+.fld input:focus, .fld select:focus { outline: none; border-color: var(--talk); background: #fff; }
 
-/* Sections */
-.sec-hdr {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding: 10px 13px 8px;
-  border-left: 4px solid var(--sec);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--sec) 9%, white), #fff 60%);
+/* ── SONG ROWS (quiet, like the programme's song lines) ── */
+.song-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 14px; margin: 2px 0 10px; color: var(--faint); font-size: 13px;
 }
-.sec-title { font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--sec); }
-.sec-body { padding: 10px 13px 12px; display: grid; gap: 9px; }
-
-.blocks { display: grid; gap: 8px; }
-.blk { position: relative; }
-.blk-x {
-  position: absolute; top: 5px; right: 5px; z-index: 2;
-  width: 24px; height: 24px; border-radius: 50%;
-  border: 1px solid var(--border); background: #fff; color: var(--text-ref);
-  font-size: 11px; cursor: pointer; line-height: 1;
+.song-row input {
+  width: 64px; border: 1px dashed var(--border); border-radius: 8px; background: transparent;
+  padding: 3px 8px; font-size: 14px; color: var(--sub); text-align: center;
 }
-.blk-x:active { background: #fdecea; color: #c0392b; }
+.song-link { color: var(--talk); font-weight: 700; font-size: 12.5px; text-decoration: none; padding: 3px 9px; border-radius: 14px; background: var(--chip-bg); }
+.song-row input:focus { outline: none; border-style: solid; border-color: var(--faint); background: #fff; }
 
+/* ── SECTIONS ───────────────────────────── */
+.sec { border-left: 5px solid var(--c, var(--talk)); }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.sec h2 { font-size: 17px; font-weight: 800; color: var(--c, var(--talk)); letter-spacing: -.01em; }
+.sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-bottom: 12px; }
+.blk { margin-bottom: 8px; }
+.blk-top { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 3px; }
+.blk-top span { font-size: 11.5px; font-weight: 700; color: var(--faint); }
+.x-btn {
+  border: none; background: none; color: var(--faint); font-size: 14px;
+  width: 28px; height: 28px; border-radius: 8px;
+}
+.x-btn:active { background: var(--bg); }
+
+/* rich text on notebook lines */
 .rt {
-  min-height: 60px; padding: 9px 34px 9px 11px;
-  border: 1px solid var(--notes-border); border-radius: 8px;
-  background: var(--notes-bg); outline: none;
-  font-size: var(--fs); line-height: 1.5;
-  overflow-wrap: anywhere;
+  min-height: calc(var(--line) * 3);
+  line-height: var(--line);
+  font-size: 16px;
+  padding: 0 12px 0 38px;
+  border: 1px solid var(--border); border-radius: 10px;
+  background-color: #fffefb;
+  background-image:
+    linear-gradient(90deg, transparent 29px, var(--margin) 29px, var(--margin) 30px, transparent 30px),
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px), var(--rule) var(--line));
+  background-attachment: local;
+  outline: none; word-wrap: break-word; overflow-wrap: anywhere;
+  -webkit-user-select: text; user-select: text;
 }
-.rt:focus { border-color: var(--sec, var(--bar)); background: #fff; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sec, var(--bar)) 14%, transparent); }
-.rt:empty::before { content: attr(data-ph); color: var(--text-ref); pointer-events: none; }
-.rt ul, .rt ol { padding-left: 22px; }
-.rt.single { min-height: 44px; }
+body.kid .rt { font-size: 17px; }
+.rt:focus { border-color: color-mix(in srgb, var(--c, var(--talk)) 60%, white); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--talk)) 14%, transparent); }
+.rt:empty::before { content: attr(data-ph); color: var(--faint); pointer-events: none; }
+.rt ul, .rt ol { padding-left: 20px; }
+.rt.short { min-height: calc(var(--line) * 2); }
 
-.blk-ref { display: flex; }
-.ref-chip {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--chip-bg); border: 1px solid var(--chip-border); color: var(--chip-text);
-  border-radius: 18px; padding: 5px 6px 5px 12px; font-size: 14px; font-weight: 700;
+/* bible chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chips:empty { display: none; }
+.chip {
+  display: inline-flex; align-items: center; border-radius: 20px;
+  background: var(--chip-bg); border: 1px solid var(--chip-bd); overflow: hidden;
 }
-.ref-chip a { color: inherit; text-decoration: none; }
-.ref-del { border: none; background: transparent; color: var(--chip-text); opacity: .6; font-size: 15px; cursor: pointer; padding: 0 5px; }
+.chip a { color: var(--chip-tx); text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 4px 4px 4px 11px; }
+.chip button { border: none; background: none; color: var(--chip-tx); opacity: .6; padding: 4px 10px 4px 6px; font-size: 15px; }
 
-/* Pen */
-.blk-pen { border: 1px solid var(--notes-border); border-radius: 8px; background: #fff; overflow: hidden; }
-.pen-bar, .pen-foot {
-  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
-  padding: 6px 36px 6px 8px; background: var(--bg); border-bottom: 1px solid var(--border);
+.sec-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.btn-soft {
+  border: 1px solid color-mix(in srgb, var(--c, var(--talk)) 35%, white);
+  color: var(--c, var(--talk)); background: color-mix(in srgb, var(--c, var(--talk)) 7%, white);
+  border-radius: 20px; padding: 6px 13px; font-size: 13px; font-weight: 700;
 }
-.pen-foot { border-bottom: none; border-top: 1px solid var(--border); padding-right: 8px; justify-content: flex-end; }
-.pb {
-  min-width: 32px; height: 32px; border-radius: 8px;
-  border: 1px solid var(--border); background: #fff; cursor: pointer;
-  font-size: 15px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px;
-  -webkit-tap-highlight-color: transparent;
-}
-.pb.active { border-color: var(--sec, var(--bar)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sec, var(--bar)) 30%, transparent); }
-.pb.txt { font-size: 12px; font-weight: 700; color: var(--text-sub); }
-.pb-sep { width: 1px; height: 22px; background: var(--border); margin: 0 2px; }
-.dot { width: 18px; height: 18px; border-radius: 50%; display: block; }
-.sz { border-radius: 50%; background: var(--text); display: block; }
-.pen-wrap { position: relative; line-height: 0; }
-.pen-cv {
-  display: block; width: 100%; touch-action: none;
-  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
-}
-.pen-print { display: none; }
+.btn-soft:active { background: color-mix(in srgb, var(--c, var(--talk)) 16%, white); }
+.sub-label { font-size: 13px; font-weight: 800; color: var(--c, var(--talk)); margin: 16px 0 5px; }
 
-.sec-actions { display: flex; gap: 7px; flex-wrap: wrap; }
-.btn-add {
-  border: 1.5px dashed color-mix(in srgb, var(--sec, var(--bar)) 55%, white);
-  background: transparent; color: var(--sec, var(--bar));
-  border-radius: 18px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+/* ── INK (pen) ──────────────────────────── */
+.ink-tools {
+  display: flex; align-items: center; gap: 5px;
+  overflow-x: auto; padding: 4px 2px 7px; scrollbar-width: none;
 }
-.btn-add:active { background: color-mix(in srgb, var(--sec, var(--bar)) 10%, white); }
-body.kid .btn-add { padding: 9px 15px; font-size: 14px; }
+.ink-tools::-webkit-scrollbar { display: none; }
+.ink-tools .sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+.ink-tools .grow { flex: 1; }
+.sw {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  border: 3px solid #fff; background: var(--sw); box-shadow: 0 0 0 1px var(--border);
+}
+.sw.on { box-shadow: 0 0 0 2px var(--ink); }
+.sz, .tl {
+  height: 32px; min-width: 32px; border-radius: 9px; flex-shrink: 0;
+  border: 1px solid var(--border); background: #fff; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 15px; padding: 0 5px;
+}
+.sz i { display: block; border-radius: 50%; background: var(--ink); }
+.sz.on, .tl.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.sz.on i { background: #fff; }
+.paper {
+  position: relative; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  background-color: #fffefb;
+  background-image:
+    linear-gradient(90deg, transparent var(--ml, 40px), var(--margin) var(--ml, 40px), var(--margin) calc(var(--ml, 40px) + 1px), transparent calc(var(--ml, 40px) + 1px)),
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--lh, 32px) - 1px), var(--rule) calc(var(--lh, 32px) - 1px), var(--rule) var(--lh, 32px));
+  min-height: 120px;
+}
+.paper canvas { position: absolute; left: 0; top: 0; display: block; }
+.paper .c-live { touch-action: pan-y; }
+body.finger .paper .c-live { touch-action: none; }
+.ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
-/* Songs */
-.songs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 13px 12px; }
-.songs .fld input { text-align: center; font-weight: 800; font-size: 17px; }
+/* ── WORD COUNTER ───────────────────────── */
+.counter { --c: var(--sun); border-left: 5px solid var(--sun); }
+.counter h2 { color: #a57400; }
+.hint { font-size: 12.5px; color: var(--sub); margin: -6px 0 10px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 9px; }
+body.kid .tiles { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+.tile {
+  position: relative; border: 2px solid #f1d98a; background: #fffaea; border-radius: 16px;
+  padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.tile .em { font-size: 30px; line-height: 1.15; }
+body.kid .tile .em { font-size: 36px; }
+.tile .w { font-size: 13px; font-weight: 700; color: var(--sub); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile .n { font-size: 24px; font-weight: 800; color: #8a6100; line-height: 1.1; }
+.tile .minus {
+  position: absolute; top: 3px; right: 3px; width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--faint); font-size: 18px; font-weight: 700;
+}
+.tile.bump .n { animation: bump .32s ease; }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.45); color: var(--sun); } 100% { transform: scale(1); } }
+details.counter > summary { list-style: none; cursor: pointer; }
+details.counter > summary::-webkit-details-marker { display: none; }
+details.counter > summary .sec-head { margin-bottom: 0; }
+details.counter[open] > summary .sec-head { margin-bottom: 10px; }
+.btn-link { border: none; background: none; color: var(--sub); font-size: 13px; font-weight: 700; padding: 4px 6px; }
 
-/* Mood */
-.mood { display: flex; gap: 8px; flex-wrap: wrap; }
-.mood button {
-  font-size: 28px; width: 50px; height: 50px; border-radius: 14px;
-  border: 2px solid var(--border); background: #fff; cursor: pointer; opacity: .55;
+/* ── KIDS' CORNER ───────────────────────── */
+.kids { --c: var(--berry); }
+.moods { display: flex; gap: 8px; flex-wrap: wrap; }
+.mood {
+  width: 50px; height: 50px; font-size: 28px; border-radius: 14px;
+  border: 2px solid var(--border); background: #fff;
 }
-.mood button.active { opacity: 1; border-color: var(--kids); background: color-mix(in srgb, var(--kids) 12%, white); transform: scale(1.06); }
+.mood.on { border-color: var(--berry); background: #fdeef5; transform: scale(1.06); }
 
-/* Counter */
-.cnt-card { --sec: var(--cnt); }
-.cnt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; padding: 10px 13px 12px; }
-.cnt {
-  position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px;
-  padding: 10px 6px 8px; border-radius: 14px; cursor: pointer;
-  border: 2px solid color-mix(in srgb, var(--cnt) 30%, white);
-  background: color-mix(in srgb, var(--cnt) 6%, white);
-  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
-  transition: transform .08s;
+/* ── ENTRY ACTIONS ──────────────────────── */
+.entry-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px 0 6px; }
+.btn {
+  border: 1px solid var(--border); background: #fff; border-radius: 12px;
+  padding: 9px 14px; font-size: 14px; font-weight: 700;
 }
-.cnt:active { transform: scale(.95); }
-.cnt-e { font-size: 28px; line-height: 1.1; }
-.cnt-w { font-size: 13px; font-weight: 700; color: var(--text-sub); text-align: center; }
-.cnt-n { font-size: 24px; font-weight: 900; color: var(--cnt); line-height: 1.1; }
-.cnt.pop .cnt-n { animation: pop .35s ease; }
-@keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.5)} 100%{transform:scale(1)} }
-.cnt-rm {
-  position: absolute; top: -7px; right: -7px; width: 24px; height: 24px; border-radius: 50%;
-  border: none; background: #c0392b; color: #fff; font-size: 12px; cursor: pointer;
-}
-.cnt-add { display: flex; gap: 6px; padding: 0 13px 12px; flex-wrap: wrap; }
-.cnt-add input { border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; font-size: 14px; }
-.cnt-add input.emo { width: 54px; text-align: center; }
-.cnt-add input.word { flex: 1; min-width: 120px; }
-.cnt-total { font-size: 12px; font-weight: 800; color: var(--cnt); }
-body.kid .cnt-e { font-size: 34px; }
-body.kid .cnt-n { font-size: 30px; }
+.btn.primary { background: var(--talk); border-color: var(--talk); color: #fff; }
+.btn.danger { color: #b3261e; }
+.saved-hint { text-align: center; font-size: 12px; color: var(--faint); }
 
-/* Format toolbar */
-.fmt {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  top: 0; display: none; z-index: 250;
-  background: #1d2733; border-radius: 12px; padding: 5px;
-  gap: 4px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+/* ── FORMAT BAR (floats above the keyboard) ── */
+.fmt-bar {
+  position: fixed; left: 0; right: 0; z-index: 150;
+  display: flex; gap: 5px; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.97); border-top: 1px solid var(--border);
+  box-shadow: 0 -3px 12px rgba(28,39,64,.08);
+  padding: 7px 8px; overflow-x: auto;
 }
-.fmt.show { display: flex; }
-.fmt button {
-  min-width: 38px; height: 36px; border: none; border-radius: 8px;
-  background: transparent; color: #fff; font-size: 16px; cursor: pointer;
+.fmt-bar button {
+  height: 38px; min-width: 40px; border-radius: 10px; border: 1px solid var(--border);
+  background: #fff; font-size: 16px; flex-shrink: 0; padding: 0 8px;
 }
-.fmt button.on { background: rgba(255,255,255,.2); }
-.fmt .sep { width: 1px; background: rgba(255,255,255,.2); margin: 4px 2px; }
+.fmt-bar button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fmt-bar .sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+.fmt-bar .done { font-size: 13px; font-weight: 800; color: var(--talk); }
 
-/* Modals */
+/* ── MODALS ─────────────────────────────── */
 .modal-bg {
-  position: fixed; inset: 0; z-index: 300;
-  background: rgba(15,22,30,.45);
-  display: none; align-items: flex-end; justify-content: center;
+  position: fixed; inset: 0; z-index: 200; background: rgba(20,28,46,.45);
+  display: flex; align-items: flex-end; justify-content: center;
 }
-.modal-bg.show { display: flex; }
 @media (min-width: 640px) { .modal-bg { align-items: center; } }
-.modal-box {
-  background: #fff; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto;
-  border-radius: 16px 16px 0 0; padding: 16px 16px calc(18px + env(safe-area-inset-bottom, 0px));
-  box-shadow: 0 -4px 24px rgba(0,0,0,.2);
+.modal {
+  background: #fff; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
+  border-radius: 20px 20px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
 }
-@media (min-width: 640px) { .modal-box { border-radius: 16px; } }
-.modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.modal-top h3 { font-size: 16px; font-weight: 800; }
-.modal-x { border: none; background: var(--bg); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; color: var(--text-sub); }
-.form-row { margin-bottom: 10px; }
-.form-row label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
-.form-row select, .form-row input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 16px; background: #fff; font-family: inherit; }
-.form-inline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.ref-preview { padding: 10px; background: var(--bg); border-radius: 8px; font-size: 14px; color: var(--text-sub); }
-.ref-preview a { color: var(--chip-text); font-weight: 700; }
-.modal-btns { display: flex; gap: 9px; margin-top: 16px; }
-.btn-cancel { padding: 12px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text-sub); }
-.btn-insert { flex: 1; padding: 12px; background: var(--bar); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 800; cursor: pointer; }
+@media (min-width: 640px) { .modal { border-radius: 20px; } }
+.modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 14px; }
+.modal .row { display: flex; gap: 10px; }
+.modal .row > * { flex: 1; }
+.modal .fld { margin-bottom: 10px; }
+.preview { background: var(--bg); border-radius: 10px; padding: 10px 12px; font-weight: 700; margin: 4px 0 14px; min-height: 42px; }
+.preview a { color: var(--chip-tx); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
 
-/* Glossary */
-.g-item { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin-bottom: 7px; }
-.g-terms { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.g-main { font-weight: 800; font-size: 15px; }
-.g-alt { font-size: 13px; color: var(--text-sub); font-style: italic; }
-.g-x { font-size: 13.5px; color: var(--text); margin-top: 3px; line-height: 1.4; }
-.g-links { display: flex; gap: 10px; margin-top: 5px; font-size: 12px; align-items: center; }
-.g-links a { color: var(--chip-text); font-weight: 700; text-decoration: none; }
-.g-links button { margin-left: auto; border: none; background: none; color: var(--text-ref); cursor: pointer; font-size: 12px; }
-.g-own { font-size: 10px; font-weight: 800; color: var(--kids); text-transform: uppercase; letter-spacing: .05em; }
-.g-add { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; }
-.g-add .row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 7px; }
-.g-add input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 14px; font-family: inherit; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--bg); }
+.set-row .lbl { font-weight: 700; font-size: 14.5px; }
+.set-row .hint2 { font-size: 12px; color: var(--sub); }
+.set-row select { border: 1px solid var(--border); border-radius: 10px; padding: 7px 9px; background: #fbfcfe; }
+.switch { position: relative; width: 50px; height: 30px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch span { position: absolute; inset: 0; background: #cfd8e3; border-radius: 30px; transition: .2s; }
+.switch span::before { content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.switch input:checked + span { background: var(--wt); }
+.switch input:checked + span::before { transform: translateX(20px); }
+.set-block { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.set-note { font-size: 12.5px; color: var(--sub); }
 
-/* Profiles */
-.p-row { display: flex; gap: 8px; align-items: center; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 7px; }
-.p-row.active { border-color: var(--bar); background: var(--chip-bg); }
-.p-row input[type=text] { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 7px; padding: 7px 9px; font-size: 15px; background: #fff; }
-.p-kid { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-sub); white-space: nowrap; }
-.p-sel { border: none; background: var(--bar); color: #fff; border-radius: 7px; padding: 7px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
-.p-row.active .p-sel { background: var(--wt); }
-.p-del { border: none; background: none; font-size: 16px; cursor: pointer; }
-.hint { font-size: 12px; color: var(--text-sub); line-height: 1.45; margin-top: 8px; }
+.gl-h { font-size: 13px; font-weight: 800; color: var(--sub); margin: 14px 0 4px; }
+.jwg-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.jwg { font-size: 13px; font-weight: 600; color: var(--chip-tx); text-decoration: none; border: 1px solid var(--chip-bd); background: var(--chip-bg); border-radius: 16px; padding: 3px 10px; }
+.gl-item { padding: 11px 0; border-bottom: 1px solid var(--bg); }
+.gl-term { font-weight: 800; font-size: 16px; }
+.gl-alt { font-size: 12.5px; color: var(--sub); font-weight: 600; margin-left: 6px; }
+.gl-x { font-size: 14px; margin: 3px 0 6px; }
+.gl-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.gl-links a, .gl-links button {
+  font-size: 12.5px; font-weight: 700; border-radius: 16px; padding: 3px 10px;
+  border: 1px solid var(--chip-bd); background: var(--chip-bg); color: var(--chip-tx); text-decoration: none;
+}
 
-/* Toast */
+.w-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.w-row input { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: #fbfcfe; min-width: 0; }
+.w-row .w-em { width: 58px; text-align: center; font-size: 20px; flex-shrink: 0; }
+.w-row .w-word { flex: 1; }
+.chk { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 10px 0; }
+
+/* ── TOAST / FOOTER ─────────────────────── */
 .toast {
-  position: fixed; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); left: 50%;
-  transform: translateX(-50%) translateY(90px);
-  background: #1d2733; color: #fff; padding: 8px 18px; border-radius: 22px;
-  font-size: 13px; z-index: 400; transition: transform .28s ease; pointer-events: none; white-space: nowrap;
+  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: #fff; padding: 9px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: .22s; z-index: 300; max-width: 90vw; text-align: center;
 }
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-/* Footer */
-.app-footer { text-align: center; padding: 18px 16px 90px; font-size: 11px; color: var(--text-ref); }
-.app-footer a { color: var(--text-sub); text-decoration: none; }
-
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.app-footer { text-align: center; font-size: 11.5px; color: var(--faint); padding: 18px 12px 100px; line-height: 1.8; }
+.app-footer a { color: var(--sub); text-decoration: none; }
 .print-head { display: none; }
 
-@media (max-width: 420px) {
-  .hdr-label { display: none; }
-  .meta-row { grid-template-columns: 1fr; }
-}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-/* ── PRINT ───────────────────────────────── */
-@page { size: A4 portrait; margin: 12mm; }
+/* ── PRINT ──────────────────────────────── */
 @media print {
-  body { background: #fff !important; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .app-header, .fab, .app-footer, .toast, .modal-bg, .fmt, .blk-x, .ref-del,
-  .sec-actions, .pen-bar, .pen-foot, .cnt-add, .cnt-rm, .no-print { display: none !important; }
-  main { max-width: none; padding: 0; }
+  @page { margin: 14mm; }
+  body { background: #fff; font-size: 12pt; }
+  .app-header, .fab, .fmt-bar, .sec-actions, .ink-tools, .ink-hint, .x-btn, .chip button, .tile .minus,
+  .entry-actions, .saved-hint, .app-footer, .toast, .modal-bg, #view-list, .btn-link, .hint, .print-empty { display: none !important; }
+  main { padding: 0; max-width: none; }
   .card { box-shadow: none; break-inside: avoid-page; }
-  .print-head { display: block; font-size: 17px; font-weight: 900; border-bottom: 1.5pt solid #111; padding-bottom: 2mm; margin-bottom: 3mm; }
-  .print-head small { display: block; font-size: 10px; font-weight: 600; color: #555; }
+  .print-head { display: block; margin-bottom: 10px; }
+  .print-head h1 { font-size: 18pt; }
+  .print-head div { color: var(--sub); }
+  .rt, .paper { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .rt:empty { display: none; }
-  .rt { border: none; padding: 1mm 0; min-height: 0; background: none; }
-  .fld input { border: none; padding: 0; background: none; font-weight: 700; }
-  .pen-cv { display: none !important; }
-  .pen-print { display: block !important; width: 100%; }
-  .blk-pen { border: 1px solid #ddd; }
-  .mood button:not(.active) { display: none; }
-  .mood button { border: none; }
+  .paper canvas { display: none; }
+  .paper img.print-ink { display: block; width: 100%; height: 100%; }
+  .chip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .song-row input { border: none; }
+  details.counter { display: block; }
 }
 </style>
 </head>
-<body>
+<body class="kid">
 
-<div class="toast" id="toast"></div>
-
-<!-- ── HEADER ── -->
 <header class="app-header">
-  <div class="header-top">
-    <div class="app-branding" onclick="goHome()">
-      <div class="app-title"><span class="app-kicker">CN</span><span data-i18n="title">Congregation Notes</span></div>
-      <div class="app-subtitle" id="app-subtitle"></div>
+  <div class="hdr-in">
+    <button class="btn-back" id="btn-back" data-act="back" hidden aria-label="Back">‹</button>
+    <div class="app-icon" id="hdr-icon" aria-hidden="true">📓</div>
+    <div class="brand">
+      <div class="app-title" id="hdr-title">Congregation Notes</div>
+      <div class="app-sub" id="hdr-sub"></div>
     </div>
-    <div class="header-actions">
-      <span class="lang-toggle" aria-label="Language / Sprache">
-        <button type="button" id="lang-en" onclick="setLang('en')">EN</button>
-        <button type="button" id="lang-de" onclick="setLang('de')">DE</button>
-      </span>
-      <button class="btn-hdr" onclick="openGloss()" data-i18n-title="glossary">📘</button>
-      <button class="btn-hdr" id="btn-prof" onclick="openProfiles()">👤</button>
+    <div class="hdr-actions">
+      <button class="btn-hdr" data-act="openGlossary" id="btn-gloss" aria-label="Glossary">📘</button>
+      <div class="lang-seg" role="group" aria-label="Language">
+        <button data-act="setLang" data-l="en" id="lang-en">EN</button>
+        <button data-act="setLang" data-l="de" id="lang-de">DE</button>
+      </div>
+      <button class="btn-hdr" data-act="openSettings" id="btn-settings" aria-label="Settings">⚙︎</button>
     </div>
   </div>
-  <div class="header-sub" id="header-sub"></div>
 </header>
 
-<main id="view"></main>
+<main id="view-list">
+  <div id="banner-slot"></div>
+  <input type="search" class="search" id="search" autocomplete="off">
+  <div id="list"></div>
+</main>
 
-<button class="fab" id="fab" onclick="createEntry()" aria-label="New">＋</button>
+<main id="view-entry" hidden>
+  <div id="entry"></div>
+</main>
 
-<footer class="app-footer">
-  <span>Congregation Notes · V1.0.0 · Made with Love ©</span><br>
-  <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Congregation%20Notes%20V1.0.0">✉ Feedback</a>
+<button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
+
+<footer class="app-footer" id="app-footer">
+  <span id="footer-text">Congregation Notes · V1.1.0 · Made with Love ©</span><br>
+  <a id="footer-mail" href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Congregation%20Notes%20V1.1.0">✉ Feedback</a>
 </footer>
 
-<!-- ── FORMAT TOOLBAR ── -->
-<div class="fmt" id="fmt">
-  <button data-cmd="bold" style="font-weight:900">B</button>
-  <button data-cmd="italic" style="font-style:italic;font-family:Georgia,serif">I</button>
-  <button data-cmd="underline" style="text-decoration:underline">U</button>
-  <button data-cmd="insertUnorderedList">•</button>
+<!-- format bar for typed notes -->
+<div class="fmt-bar" id="fmt-bar" hidden>
+  <button data-act="fmt" data-cmd="bold" id="fb-bold"><b>B</b></button>
+  <button data-act="fmt" data-cmd="italic" id="fb-italic"><i>I</i></button>
+  <button data-act="fmt" data-cmd="underline" id="fb-underline"><u>U</u></button>
+  <button data-act="fmt" data-cmd="hilite" id="fb-hilite">🖍️</button>
+  <button data-act="fmt" data-cmd="insertUnorderedList" id="fb-list">•≡</button>
   <span class="sep"></span>
-  <button data-act="translate">🌐</button>
-  <button data-act="gloss">📘</button>
+  <button data-act="fmtTranslate" id="fb-tr">🌐</button>
+  <button data-act="fmtWol" id="fb-wol">📘</button>
+  <span class="sep"></span>
+  <button data-act="fmtDone" class="done" id="fb-done">OK</button>
 </div>
 
-<!-- ── BIBLE PICKER ── -->
-<div class="modal-bg" id="modal-bible" onclick="if(event.target===this)closeModal('modal-bible')">
-  <div class="modal-box">
-    <div class="modal-top"><h3 data-i18n="modalTitle">📖 Add Bible Reference</h3><button class="modal-x" onclick="closeModal('modal-bible')">✕</button></div>
-    <div class="form-row"><label data-i18n="book">Book</label><select id="bp-book" onchange="previewRef()"></select></div>
-    <div class="form-inline">
-      <div class="form-row"><label data-i18n="chapter">Chapter</label><input type="number" inputmode="numeric" id="bp-chapter" min="1" oninput="previewRef()"></div>
-      <div class="form-row"><label data-i18n="verse">Verse</label><input type="number" inputmode="numeric" id="bp-verse" min="1" oninput="previewRef()"></div>
-      <div class="form-row"><label data-i18n="vend">To verse</label><input type="number" inputmode="numeric" id="bp-vend" min="1" oninput="previewRef()"></div>
+<!-- Bible picker -->
+<div class="modal-bg" id="modal-bible" hidden>
+  <div class="modal">
+    <h3 id="bp-title">📖 Add Bible text</h3>
+    <label class="fld"><span id="bp-l-book">Book</span><select id="bp-book"></select></label>
+    <div class="row">
+      <label class="fld"><span id="bp-l-ch">Chapter</span><input type="number" inputmode="numeric" id="bp-ch" min="1"></label>
+      <label class="fld"><span id="bp-l-v">Verse</span><input type="number" inputmode="numeric" id="bp-v" min="1"></label>
+      <label class="fld"><span id="bp-l-ve">To verse</span><input type="number" inputmode="numeric" id="bp-ve" min="1"></label>
     </div>
-    <div class="form-row"><label data-i18n="preview">Preview</label><div class="ref-preview" id="bp-preview"></div></div>
+    <div class="preview" id="bp-preview"></div>
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-bible')" data-i18n="cancel">Cancel</button>
-      <button class="btn-insert" onclick="insertRef()" data-i18n="insert">Insert</button>
+      <button class="btn" data-act="closeModal" data-m="modal-bible" id="bp-cancel">Cancel</button>
+      <button class="btn primary" data-act="bpInsert" id="bp-insert">Insert</button>
     </div>
   </div>
 </div>
 
-<!-- ── GLOSSARY ── -->
-<div class="modal-bg" id="modal-gloss" onclick="if(event.target===this)closeModal('modal-gloss')">
-  <div class="modal-box">
-    <div class="modal-top"><h3 data-i18n="glossTitle">📘 Word Helper</h3><button class="modal-x" onclick="closeModal('modal-gloss')">✕</button></div>
-    <input class="search" id="g-search" style="width:100%;margin-bottom:10px" oninput="renderGloss()" data-i18n-ph="glossSearch">
-    <div id="g-extra"></div>
-    <div id="g-list"></div>
-    <div class="g-add">
-      <div class="form-row" style="margin-bottom:6px"><label data-i18n="glossAdd">Add your own word</label></div>
-      <div class="row"><input id="ga-en" placeholder="English"><input id="ga-de" placeholder="Deutsch"></div>
-      <input id="ga-x" data-i18n-ph="glossAddX" style="margin-bottom:7px">
-      <button class="btn-insert" style="width:100%" onclick="addGloss()" data-i18n="add">Add</button>
-    </div>
+<!-- Glossary -->
+<div class="modal-bg" id="modal-gloss" hidden>
+  <div class="modal">
+    <div class="sec-head"><h3 id="gl-title" style="margin:0">📘 Glossary</h3><button class="x-btn" data-act="closeModal" data-m="modal-gloss">✕</button></div>
+    <input type="search" class="search" id="gl-search" autocomplete="off" style="margin-top:6px">
+    <div id="gl-list"></div>
   </div>
 </div>
 
-<!-- ── PROFILES ── -->
-<div class="modal-bg" id="modal-prof" onclick="if(event.target===this)closeModal('modal-prof')">
-  <div class="modal-box">
-    <div class="modal-top"><h3 data-i18n="profTitle">👤 Who is writing?</h3><button class="modal-x" onclick="closeModal('modal-prof')">✕</button></div>
-    <div id="p-list"></div>
-    <button class="btn-add" style="--sec:var(--bar);margin-top:4px" onclick="addProfile()" data-i18n="profAdd">+ Add person</button>
-    <p class="hint" data-i18n="profHint"></p>
-  </div>
+<!-- Settings -->
+<div class="modal-bg" id="modal-settings" hidden>
+  <div class="modal" id="settings-body"></div>
 </div>
 
-<input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="doImport(event)">
+<!-- Word editor -->
+<div class="modal-bg" id="modal-words" hidden>
+  <div class="modal" id="words-body"></div>
+</div>
+
+<input type="file" id="import-file" accept=".json,.txt,application/json,text/plain" hidden>
+<div class="toast" id="toast"></div>
 
 <script>
 'use strict';
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const APP_VERSION = '1.1.0';
+const TOOL_ID = 'congregation-notes';
+const DB_NAME = 'congregation-notes';
+const LS_KEY = 'congregation-notes-v1';
+const LOGICAL_W = 1000;     // ink coordinates are stored in a 1000-wide space
+const RULE = 56;            // notebook line spacing (logical units)
+const MARGIN_X = 70;        // notebook margin line (logical units)
+const INK_COLORS = ['#1c2740', '#2c5fb3', '#2f8f63', '#d64545', '#7b4bb7'];
+const INK_SIZES = [3, 5, 9];
+const MOODS = ['🤩', '😊', '🙂', '😐', '😴'];
+
+const DEFAULT_WORDS = [
+  { e: '💛', w: 'Jehovah' }, { e: '🐑', w: 'Jesus' }, { e: '👑', w: 'Kingdom' },
+  { e: '📖', w: 'Bible' },   { e: '🙏', w: 'Prayer' }, { e: '❤️', w: 'Love' }
+];
+const DEFAULT_SETTINGS = {
+  lang: 'en', contentLang: 'en', translateTo: 'de',
+  kidMode: true, fingerDraw: false, defaultBlock: 'text',
+  words: DEFAULT_WORDS,
+  pen: { tool: 'pen', color: '#1c2740', size: 5 },
+  lastBackup: null
+};
 
 // ═══════════════════════════════════════════
-//  BIBLE BOOKS (from CA tools)
+//  BIBLE BOOKS
 // ═══════════════════════════════════════════
 const BOOKS_EN = [
   {n:1,name:'Genesis',slug:'genesis'},{n:2,name:'Exodus',slug:'exodus'},{n:3,name:'Leviticus',slug:'leviticus'},
@@ -501,1223 +585,1339 @@ const BOOKS_EN = [
 const BOOKS_DE=[{"n": 1, "name": "1. Mose"}, {"n": 2, "name": "2. Mose"}, {"n": 3, "name": "3. Mose"}, {"n": 4, "name": "4. Mose"}, {"n": 5, "name": "5. Mose"}, {"n": 6, "name": "Josua"}, {"n": 7, "name": "Richter"}, {"n": 8, "name": "Ruth"}, {"n": 9, "name": "1. Samuel"}, {"n": 10, "name": "2. Samuel"}, {"n": 11, "name": "1. Könige"}, {"n": 12, "name": "2. Könige"}, {"n": 13, "name": "1. Chronika"}, {"n": 14, "name": "2. Chronika"}, {"n": 15, "name": "Esra"}, {"n": 16, "name": "Nehemia"}, {"n": 17, "name": "Ester"}, {"n": 18, "name": "Hiob"}, {"n": 19, "name": "Psalm"}, {"n": 20, "name": "Sprüche"}, {"n": 21, "name": "Prediger"}, {"n": 22, "name": "Hohelied"}, {"n": 23, "name": "Jesaja"}, {"n": 24, "name": "Jeremia"}, {"n": 25, "name": "Klagelieder"}, {"n": 26, "name": "Hesekiel"}, {"n": 27, "name": "Daniel"}, {"n": 28, "name": "Hosea"}, {"n": 29, "name": "Joel"}, {"n": 30, "name": "Amos"}, {"n": 31, "name": "Obadja"}, {"n": 32, "name": "Jona"}, {"n": 33, "name": "Micha"}, {"n": 34, "name": "Nahum"}, {"n": 35, "name": "Habakuk"}, {"n": 36, "name": "Zephanja"}, {"n": 37, "name": "Haggai"}, {"n": 38, "name": "Sacharja"}, {"n": 39, "name": "Maleachi"}, {"n": 40, "name": "Matthäus"}, {"n": 41, "name": "Markus"}, {"n": 42, "name": "Lukas"}, {"n": 43, "name": "Johannes"}, {"n": 44, "name": "Apostelgeschichte"}, {"n": 45, "name": "Römer"}, {"n": 46, "name": "1. Korinther"}, {"n": 47, "name": "2. Korinther"}, {"n": 48, "name": "Galater"}, {"n": 49, "name": "Epheser"}, {"n": 50, "name": "Philipper"}, {"n": 51, "name": "Kolosser"}, {"n": 52, "name": "1. Thessalonicher"}, {"n": 53, "name": "2. Thessalonicher"}, {"n": 54, "name": "1. Timotheus"}, {"n": 55, "name": "2. Timotheus"}, {"n": 56, "name": "Titus"}, {"n": 57, "name": "Philemon"}, {"n": 58, "name": "Hebräer"}, {"n": 59, "name": "Jakobus"}, {"n": 60, "name": "1. Petrus"}, {"n": 61, "name": "2. Petrus"}, {"n": 62, "name": "1. Johannes"}, {"n": 63, "name": "2. Johannes"}, {"n": 64, "name": "3. Johannes"}, {"n": 65, "name": "Judas"}, {"n": 66, "name": "Offenbarung"}];
 
 // ═══════════════════════════════════════════
-//  I18N
+//  GLOSSARY  (short, child-friendly; WOL link for more)
+// ═══════════════════════════════════════════
+const GLOSSARY = [
+  { en:'Jehovah', de:'Jehova', xen:'God’s personal name. It appears thousands of times in the Bible.', xde:'Der persönliche Name Gottes. Er kommt tausende Male in der Bibel vor.' },
+  { en:'Jesus Christ', de:'Jesus Christus', xen:'God’s Son. He taught people about his Father and gave his life for us.', xde:'Gottes Sohn. Er hat den Menschen von seinem Vater erzählt und sein Leben für uns gegeben.' },
+  { en:'God’s Kingdom', de:'Gottes Königreich', xen:'A real government in heaven with Jesus as King. It will make the earth a paradise.', xde:'Eine echte Regierung im Himmel mit Jesus als König. Sie wird die Erde zu einem Paradies machen.' },
+  { en:'Ransom', de:'Loskaufsopfer', xen:'Jesus gave his perfect life so that our sins can be forgiven and we can live forever.', xde:'Jesus hat sein vollkommenes Leben gegeben, damit uns Sünden vergeben werden und wir für immer leben können.' },
+  { en:'Paradise', de:'Paradies', xen:'A beautiful, garden-like home. God promises that the whole earth will become a paradise.', xde:'Ein wunderschönes Zuhause wie ein Garten. Gott verspricht, dass die ganze Erde ein Paradies wird.' },
+  { en:'Resurrection', de:'Auferstehung', xen:'When God brings someone who has died back to life.', xde:'Wenn Gott jemanden, der gestorben ist, wieder lebendig macht.' },
+  { en:'Holy spirit', de:'heiliger Geist', xen:'God’s active force – the power he uses to get things done. It is not a person.', xde:'Gottes wirksame Kraft – die Kraft, mit der er Dinge bewirkt. Er ist keine Person.' },
+  { en:'Faith', de:'Glaube', xen:'Being sure about things we can’t see yet, because we have good reasons to trust Jehovah.', xde:'Sich sicher sein bei Dingen, die man noch nicht sieht, weil man gute Gründe hat, Jehova zu vertrauen.' },
+  { en:'Prayer', de:'Gebet', xen:'Talking to Jehovah. We can tell him everything, in Jesus’ name.', xde:'Mit Jehova reden. Wir können ihm alles sagen, im Namen Jesu.' },
+  { en:'Sin', de:'Sünde', xen:'Doing something wrong in God’s eyes. Because Adam sinned, all humans are born imperfect.', xde:'Etwas tun, was in Gottes Augen falsch ist. Weil Adam gesündigt hat, sind alle Menschen unvollkommen.' },
+  { en:'Repentance', de:'Reue', xen:'Being truly sorry for something wrong and wanting to change.', xde:'Wenn einem etwas Falsches wirklich leidtut und man sich ändern möchte.' },
+  { en:'Loyal love', de:'loyale Liebe', xen:'Love that stays faithful and never gives up. Jehovah shows it to his people.', xde:'Liebe, die treu bleibt und nie aufgibt. Jehova zeigt sie seinen Dienern.' },
+  { en:'Undeserved kindness', de:'unverdiente Güte', xen:'Kindness from God that we could never earn.', xde:'Freundlichkeit von Gott, die wir uns nie verdienen könnten.' },
+  { en:'Integrity', de:'Integrität', xen:'Staying loyal to Jehovah and doing what is right, even when it is hard.', xde:'Jehova treu bleiben und das Richtige tun, auch wenn es schwer ist.' },
+  { en:'Satan', de:'Satan', xen:'An angel who rebelled against God. The name means “Resister.”', xde:'Ein Engel, der sich gegen Gott aufgelehnt hat. Der Name bedeutet „Widerstandleistender“.' },
+  { en:'Armageddon', de:'Harmagedon', xen:'God’s war that will end all wickedness on the earth.', xde:'Gottes Krieg, der alles Böse auf der Erde beendet.' },
+  { en:'Congregation', de:'Versammlung', xen:'The group of brothers and sisters who meet together to worship Jehovah.', xde:'Die Brüder und Schwestern, die sich treffen, um Jehova gemeinsam anzubeten.' },
+  { en:'Elder', de:'Ältester', xen:'A spiritually mature brother who teaches and takes care of the congregation.', xde:'Ein geistig reifer Bruder, der die Versammlung lehrt und für sie sorgt.' },
+  { en:'Ministerial servant', de:'Dienstamtgehilfe', xen:'A brother who helps the elders with many tasks in the congregation.', xde:'Ein Bruder, der den Ältesten bei vielen Aufgaben in der Versammlung hilft.' },
+  { en:'Publisher', de:'Verkündiger', xen:'Someone who shares in telling others the good news about God’s Kingdom.', xde:'Jemand, der anderen die gute Botschaft von Gottes Königreich erzählt.' },
+  { en:'Pioneer', de:'Pionier', xen:'A publisher who spends many hours each month telling others about the Bible.', xde:'Ein Verkündiger, der jeden Monat viele Stunden anderen von der Bibel erzählt.' },
+  { en:'Ministry', de:'Predigtdienst', xen:'Telling other people the good news about God’s Kingdom.', xde:'Anderen Menschen die gute Botschaft von Gottes Königreich erzählen.' },
+  { en:'Baptism', de:'Taufe', xen:'Being put completely under water to show that you have dedicated yourself to Jehovah.', xde:'Ganz unter Wasser getaucht werden, um zu zeigen, dass man sich Jehova hingegeben hat.' },
+  { en:'Memorial', de:'Gedächtnismahl', xen:'The yearly meeting where we remember Jesus’ death, as he asked us to.', xde:'Die jährliche Zusammenkunft, bei der wir an den Tod Jesu denken, so wie er es gesagt hat.' },
+  { en:'Public talk', de:'öffentlicher Vortrag', xen:'The Bible talk at the start of the weekend meeting.', xde:'Der biblische Vortrag am Anfang der Zusammenkunft am Wochenende.' },
+  { en:'Watchtower Study', de:'Wachtturm-Studium', xen:'The part of the weekend meeting where we discuss a Watchtower article together.', xde:'Der Teil der Zusammenkunft am Wochenende, in dem wir gemeinsam einen Wachtturm-Artikel besprechen.' },
+  { en:'Kingdom Hall', de:'Königreichssaal', xen:'The building where the congregation meets for worship.', xde:'Das Gebäude, in dem sich die Versammlung zum Gottesdienst trifft.' }
+];
+
+// jw.org "Bible Glossary" (NWT) – only titles + links, the explanations stay on jw.org
+const JWG_BASE = 'https://www.jw.org/en/library/books/bible-glossary/';
+const JWG_RAW = "Ab|Abib|Abyss|Achaia|Adar|Adultery|Alabaster jar|Alamoth|Alpha and Omega|Altar|Amen|Angels|Anoint|Antichrist|Apostasy|Apostle|Arabia; Arabian~Arabia-Arabian|Aram; Aramaeans|Aramaic|Archangel|Areopagus|Ark of the covenant|Armageddon|Armor|Aselgeia|Ashtoreth|Asia|Assembly|Astrologer|Atonement|Azazel|Baal|Baptism; Baptize|Bath|Beelzebub|Brazen conduct|Breastpiece|Brother-in-law marriage|Bul|Burnt offering|Cab|Caesar|Canaan|Capital|Cassia|Chaff|Chaldea; Chaldeans|Chariot|Chemosh|Cherubs|Chief Agent|Chief priest|Chislev|Christ|Christian|Circumcision|Cities of refuge|City of David|Clean|Communion offering|Conclusion of the system of things~conclusion-system-of-things|Concubine|Congregation|Cor|Coral|Cornerstone|Courtyard|Covenant|Cubit|Curse|Curtain|Dagon|Daric|Day of Atonement|Daystar|Decapolis|Dedication, holy sign of~holy-sign-of-dedication|Demons|Denarius|Devil|Director|Dirge|Drachma|Drink offering|Edom|Elder; Older man|Elul|Ephah|Ephesus|Ephod|Ephraim|Epicurean philosophers|Ethanim|Ethiopia|Eunuch|Euphrates|Exile|Extinguishers|Fast|Fathom|Festival of Booths|Festival of Dedication|Festival of Harvest; Festival of Weeks~festival-of-harvest-weeks|Festival of Unleavened Bread|Fire holders|Firstborn|Firstfruits|Fornication|Fortune-teller|Frankincense|Freeman; Freedman|Furnace|Galatia|Gehenna|Gerah|Gifts of mercy|Gilead|Gittith|Glean|Goad|Godly devotion|God’s Kingdom|Good news, the~the-good-news|Grave|Great tribulation|Greek|Guilt offering|Hades|Hebrew|Hermes|Herod|Herod, party followers of~herodians|Higgaion|High place|High priest|Hin|Holy; Holiness|Holy, the~the-holy|Holy spirit|Homer|Horeb; Mount Horeb|Horn|Horns of the altar|Hyssop|Idol; Idolatry|Illyricum|Incense|Israel|Jacob|Jeduthun|Jehovah|Jew|Jubilee|Judah|Judges|Judgment Day|Judgment seat|Lake of fire|Last days|Law|Lay hands on|Leaven|Lebanon Mountain range|Leprosy; Leper|Lepton|Levi; Levite|Leviathan|Loaves of presentation|Locusts|Log|Loom|Lord’s Evening Meal|Lots|Loyal love|Macedonia|Magistrates|Mahalath|Malcam|Manna|Maskil|Measuring reed|Medes; Media|Mediator|Memorial tomb|Merodach|Messiah~Messiah|Miktam|Milcom|Mildew|Mile|Millstone|Mina|Ministerial servant|Miracles; Powerful works|Molech|Moloch|Morning star|Moses, Law of~law-of-moses|Most Holy, the~the-most-holy|Mound|Mourning|Muth-labben|Myrrh|Nard|Nazarene|Nazirite|Nehiloth|Nephilim|Nethinim|New moon|Nisan|Oath|Omer|Onyx|Overseer|Papyrus|Paradise|Parchment|Party followers of Herod|Passover|Pentecost|Persia; Persians|Pestilence|Pharaoh|Pharisees|Philistia; Philistines|Pillar|Pim|Pledge|Pomegranate|Porneia|Potter|Praetorian Guard|Prefect|Preparation|Presence|Priest|Proconsul|Prophecy|Prophet|Propitiation|Propitiatory cover|Proselyte|Prostitute|Proverb|Psalm|Purim|Queen of Heaven|Rahab|Ransom|Reed|Repentance|Resurrection|Righteousness|Sabbath|Sackcloth|Sacred pillar|Sacred pole|Sacred secret|Sacred service|Sacrifice|Sadducees|Samaria|Samaritans|Sanctuary|Sanhedrin|Satan|Satrap|Scepter|Scourge|Scribe|Scripture(s)~scripture|Scroll|Seah|Seal|Seal ring|Sect|Seer|Selah|Seraphs|Sexual immorality|Shebat|Shekel|Sheminith|Sheol|Showbread|Sign|Sin offering|Sivan|Sling|Snuffers|Solomon’s Colonnade|Song of the Ascents|Son of David|Son of man|Sons of Aaron|Sorcery|Soul|Span|Spelt|Spirit|Spiritism|Spirit medium|Spoil|Stake|Stocks|Stoic philosophers|Superscription|Synagogue|Syria; Syrians|Syrtis|System(s) of things~system-of-things|Tabernacle|Talent|Tammuz|Tarshish, ships of~ships-of-tarshish|Tartarus|Tebeth|Temple|Tenth (tithe)|Tent of meeting|Teraphim|Testimony|Thanksgiving offering|Thessalonica|Thresh; Threshing floor|Tishri|Torture stake|Transgress; Transgression|Tree of life|Tree of the knowledge of good and bad|Tribute|True God, the~the-true-god|Trumpet|Turban|Unclean|Undeserved kindness|Unleavened|Urim and Thummim|Vow|Vow offering|Wadi|Warp|Watchman|Wave offering|Way, the~the-way|Wicked one, the~the-wicked-one|Winepress|Wineskin|Woof|World|Wormwood|Yoke|Zeus|Zion; Mount Zion|Ziv";
+const jwgSlug = title => title.toLowerCase().replace(/[’'()]/g, '').replace(/[;,]/g, '').trim().replace(/\s+/g, '-');
+const JWG = JWG_RAW.split('|').map(x => {
+  const [title, slug] = x.split('~');
+  return { title, url: JWG_BASE + (slug || jwgSlug(title)) + '/', keys: title.toLowerCase().replace(/[()]/g, ';').split(/[;,]\s*/).map(k => k.trim()).filter(Boolean) };
+});
+// kids' glossary → matching jw.org glossary entry
+const KID_JWG = {
+  'Jehovah': 'Jehovah', 'Jesus Christ': 'Christ', 'God’s Kingdom': 'God’s Kingdom', 'Ransom': 'Ransom', 'Paradise': 'Paradise',
+  'Resurrection': 'Resurrection', 'Holy spirit': 'Holy spirit', 'Repentance': 'Repentance', 'Loyal love': 'Loyal love',
+  'Undeserved kindness': 'Undeserved kindness', 'Satan': 'Satan', 'Armageddon': 'Armageddon', 'Congregation': 'Congregation',
+  'Elder': 'Elder; Older man', 'Ministerial servant': 'Ministerial servant', 'Baptism': 'Baptism; Baptize', 'Memorial': 'Lord’s Evening Meal'
+};
+const jwgByTitle = title => JWG.find(g => g.title === title);
+function jwgLookup(word) {
+  const w = word.toLowerCase().replace(/[“”"'.,!?:;]/g, '').trim();
+  if (!w) return null;
+  return JWG.find(g => g.keys.includes(w)) || JWG.find(g => g.keys.includes(w.replace(/s$/, ''))) || null;
+}
+
+// ═══════════════════════════════════════════
+//  UI TEXT
 // ═══════════════════════════════════════════
 const UI = {
   en: {
-    title: 'Congregation Notes',
-    newEntry: 'New notes', search: 'Search notes…', export: 'Export', import: 'Import',
-    back: 'Back', print: 'Print', del: 'Delete',
-    emptyTitle: 'No notes yet', emptyText: 'Tap ＋ to start your notes for Sunday.', noResults: 'Nothing found.',
-    date: 'Date', speaker: 'Speaker', cong: 'Speaker’s congregation', theme: 'Talk theme',
-    talk: '🎤 Public Talk', wt: '📚 Watchtower Study', kids: '⭐ Just for me', songs: '🎵 Songs',
-    songOpen: 'Opening', songMid: 'Middle', songClose: 'Closing',
-    wtTitle: 'Article title', conductor: 'Conductor', reader: 'Reader',
-    notes: 'Notes…', moreNotes: 'More notes…',
-    addText: '+ ✍️ Text', addPen: '+ ✏️ Pen', addRef: '+ 📖 Bible text',
-    fav: 'What I liked best today', favPh: 'I liked…', question: 'A question for Mum or Dad', questionPh: 'I want to ask…',
-    mood: 'How was it?',
-    counter: '🔢 Word counter', edit: 'Edit', done: 'Done', undo: '↶', total: 'total',
-    wordPh: 'Word', addWord: 'Add', resetCounts: 'Reset',
-    moreSpace: '↕ More space', clear: '🗑 Clear', finger: 'Draw with finger',
-    modalTitle: '📖 Add Bible Reference', book: 'Book', chapter: 'Chapter', verse: 'Verse', vend: 'To verse',
-    preview: 'Preview', cancel: 'Cancel', insert: 'Insert', choose: 'Choose a book and chapter…',
-    selectBookChapter: 'Please select a book and chapter', added: 'added',
-    glossary: 'Word helper', glossTitle: '📘 Word Helper', glossSearch: 'Search a word…',
-    glossAdd: 'Add your own word', glossAddX: 'Short explanation (optional)', add: 'Add', own: 'my word',
-    translateOnline: '🌐 Translate', searchWol: '🔎 Online Library',
-    profTitle: '👤 Who is writing?', profAdd: '+ Add person', kidMode: 'Kids mode', use: 'Use', active: 'Active',
-    profHint: 'Each person has their own notes history. Kids mode shows bigger text and puts the word counter first.',
-    newPerson: 'New person',
-    confirmDelEntry: 'Delete these notes? This cannot be undone.',
-    confirmDelBlock: 'Remove this field and its content?',
-    confirmClearPen: 'Clear the whole drawing?',
-    confirmDelProfile: 'Delete this person and ALL their notes?',
-    confirmImport: 'Import notes? Entries with the same ID are replaced by the newer version.',
-    exists: 'Notes for this day already exist – opened.',
-    deleted: 'Deleted', exported: 'Exported ✓', imported: 'Imported ✓', importFailed: 'Import failed: invalid file.',
-    selectWord: 'Select a word first', saveErr: 'Could not save!',
-    openScripture: 'Open in JW Library / Online Library',
-    noTheme: 'Sunday meeting',
-    me: 'Me'
+    appTitle: 'Congregation Notes', appSub: 'My meeting notebook',
+    search: 'Search speaker, topic, notes…', empty1: 'No notes yet', empty2: 'Tap ＋ to start your first Sunday notebook.',
+    noResults: 'Nothing found.', untitled: 'Talk without title', noSpeaker: 'Speaker not filled in',
+    date: 'Date', speaker: 'Speaker', phSpeaker: 'Who is giving the talk?', speakerCong: 'Speaker’s congregation', phCong: 'e.g. Ulm English',
+    talkTitle: 'Talk title', phTalk: 'What is the talk about?',
+    song: 'Song', publicTalk: 'Public Talk', wtStudy: 'Watchtower Study', wtTitle: 'Article title', phWt: 'Title of the study article',
+    conductor: 'Conductor', reader: 'Reader', myComment: '💬 My comment', phComment: 'What I want to answer…',
+    notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
+    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
+    inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
+    wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Words',
+    kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
+    question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
+    print: '🖨 Print / PDF', shareEntry: '⤴ Save / share', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
+    autosave: 'Saved automatically on this device',
+    bpTitle: '📖 Add Bible text', book: 'Book', chapter: 'Chapter', verse: 'Verse', vend: 'To verse',
+    cancel: 'Cancel', insert: 'Insert', choose: 'Choose a book and chapter…', needBookCh: 'Please choose a book and chapter', added: 'added',
+    glossary: '📘 Glossary', glSearch: 'Search a word…', lookUp: '📘 WOL', countIt: '+ Count', counted: 'Added to the word counter', alreadyCounted: 'Already in the word counter',
+    settings: '⚙︎ Settings', kidMode: 'Kids mode', kidModeHint: 'Bigger, simpler, word counter on top',
+    fingerDraw: 'Draw with finger', fingerDrawHint: 'Off: only a pen draws, fingers scroll',
+    defBlock: 'New note fields', defText: '⌨️ Text', defInk: '✏️ Pen',
+    contentLang: 'Bible & WOL language', translateTo: 'Translate into',
+    backup: 'Backup', backupAll: '💾 Save backup (all notes)', importBtn: '📂 Import backup',
+    storageOk: 'Storage is protected on this device ✓', storageWeak: 'The browser may clear its storage – please make backups now and then.',
+    lastBackup: 'Last backup', never: 'never', done: 'Done', entriesCount: 'notes',
+    wordsTitle: '✎ Word counter words', addWord: '+ Word', asDefault: 'Use these words for new notes too', save: 'Save', emoji: 'Emoji', word: 'Word',
+    selectWord: 'Select a word first', clearInk: 'Clear this drawing?', exported: 'Saved ✓',
+    imported: 'Imported: {a} new, {u} updated', importFailed: 'Import failed: invalid file.', saveFailed: 'Could not save!',
+    backupDue: 'It has been a while since your last backup.', backupNow: 'Back up',
+    moreSpace: 'More space', undo: 'Undo', highlighter: 'Highlighter', eraser: 'Eraser', clear: 'Clear',
+    translate: 'Translate', lookUpWol: 'Look up in WOL', ok: 'OK',
+    today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
+    kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', glossLink: '📖 Glossary',
+    shareOk: 'Save/share opens the system share sheet ✓', shareNoHttps: 'Share sheet only works over https (e.g. GitHub Pages) – here files are downloaded.',
+    shareSaveDialog: 'Saving opens a “Save as” dialog.', shareDownload: 'Files are downloaded (no share sheet in this browser).',
+    footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
   },
   de: {
-    title: 'Versammlungsnotizen',
-    newEntry: 'Neue Notizen', search: 'Notizen durchsuchen…', export: 'Export', import: 'Import',
-    back: 'Zurück', print: 'Drucken', del: 'Löschen',
-    emptyTitle: 'Noch keine Notizen', emptyText: 'Tippe auf ＋, um deine Notizen für Sonntag zu beginnen.', noResults: 'Nichts gefunden.',
-    date: 'Datum', speaker: 'Redner', cong: 'Versammlung des Redners', theme: 'Vortragsthema',
-    talk: '🎤 Öffentlicher Vortrag', wt: '📚 Wachtturm-Studium', kids: '⭐ Nur für mich', songs: '🎵 Lieder',
-    songOpen: 'Anfang', songMid: 'Mitte', songClose: 'Schluss',
-    wtTitle: 'Artikeltitel', conductor: 'Leiter', reader: 'Leser',
-    notes: 'Notizen…', moreNotes: 'Weitere Notizen…',
-    addText: '+ ✍️ Text', addPen: '+ ✏️ Stift', addRef: '+ 📖 Bibelstelle',
-    fav: 'Das hat mir heute am besten gefallen', favPh: 'Mir hat gefallen…', question: 'Eine Frage an Mama oder Papa', questionPh: 'Ich möchte fragen…',
-    mood: 'Wie war es?',
-    counter: '🔢 Wörterzähler', edit: 'Bearbeiten', done: 'Fertig', undo: '↶', total: 'gesamt',
-    wordPh: 'Wort', addWord: 'Hinzufügen', resetCounts: 'Zurücksetzen',
-    moreSpace: '↕ Mehr Platz', clear: '🗑 Leeren', finger: 'Mit Finger zeichnen',
-    modalTitle: '📖 Bibelstelle hinzufügen', book: 'Buch', chapter: 'Kapitel', verse: 'Vers', vend: 'Bis Vers',
-    preview: 'Vorschau', cancel: 'Abbrechen', insert: 'Einfügen', choose: 'Buch und Kapitel auswählen…',
-    selectBookChapter: 'Bitte Buch und Kapitel auswählen', added: 'hinzugefügt',
-    glossary: 'Wort-Helfer', glossTitle: '📘 Wort-Helfer', glossSearch: 'Wort suchen…',
-    glossAdd: 'Eigenes Wort hinzufügen', glossAddX: 'Kurze Erklärung (optional)', add: 'Hinzufügen', own: 'mein Wort',
-    translateOnline: '🌐 Übersetzen', searchWol: '🔎 Online-Bibliothek',
-    profTitle: '👤 Wer schreibt?', profAdd: '+ Person hinzufügen', kidMode: 'Kindermodus', use: 'Wählen', active: 'Aktiv',
-    profHint: 'Jede Person hat ihre eigene Notiz-Historie. Der Kindermodus zeigt größere Schrift und den Wörterzähler zuerst.',
-    newPerson: 'Neue Person',
-    confirmDelEntry: 'Diese Notizen löschen? Das kann nicht rückgängig gemacht werden.',
-    confirmDelBlock: 'Dieses Feld mit Inhalt entfernen?',
-    confirmClearPen: 'Die ganze Zeichnung löschen?',
-    confirmDelProfile: 'Diese Person und ALLE ihre Notizen löschen?',
-    confirmImport: 'Notizen importieren? Einträge mit gleicher ID werden durch die neuere Version ersetzt.',
-    exists: 'Für diesen Tag gibt es schon Notizen – geöffnet.',
-    deleted: 'Gelöscht', exported: 'Exportiert ✓', imported: 'Importiert ✓', importFailed: 'Import fehlgeschlagen: ungültige Datei.',
-    selectWord: 'Erst ein Wort markieren', saveErr: 'Speichern fehlgeschlagen!',
-    openScripture: 'In JW Library / Online-Bibliothek öffnen',
-    noTheme: 'Zusammenkunft am Sonntag',
-    me: 'Ich'
+    appTitle: 'Congregation Notes', appSub: 'Mein Notizbuch für die Zusammenkunft',
+    search: 'Redner, Thema, Notizen suchen…', empty1: 'Noch keine Notizen', empty2: 'Tippe auf ＋ für dein erstes Sonntags-Notizbuch.',
+    noResults: 'Nichts gefunden.', untitled: 'Vortrag ohne Thema', noSpeaker: 'Redner nicht eingetragen',
+    date: 'Datum', speaker: 'Redner', phSpeaker: 'Wer hält den Vortrag?', speakerCong: 'Versammlung des Redners', phCong: 'z. B. Ulm English',
+    talkTitle: 'Vortragsthema', phTalk: 'Worum geht es im Vortrag?',
+    song: 'Lied', publicTalk: 'Öffentlicher Vortrag', wtStudy: 'Wachtturm-Studium', wtTitle: 'Artikelthema', phWt: 'Thema des Studienartikels',
+    conductor: 'Leiter', reader: 'Leser', myComment: '💬 Mein Kommentar', phComment: 'Was ich antworten möchte…',
+    notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
+    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
+    inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
+    wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter',
+    kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
+    question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
+    print: '🖨 Drucken / PDF', shareEntry: '⤴ Speichern / Teilen', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
+    autosave: 'Wird automatisch auf diesem Gerät gespeichert',
+    bpTitle: '📖 Bibelstelle hinzufügen', book: 'Buch', chapter: 'Kapitel', verse: 'Vers', vend: 'Bis Vers',
+    cancel: 'Abbrechen', insert: 'Einfügen', choose: 'Buch und Kapitel auswählen…', needBookCh: 'Bitte Buch und Kapitel auswählen', added: 'hinzugefügt',
+    glossary: '📘 Glossar', glSearch: 'Wort suchen…', lookUp: '📘 WOL', countIt: '+ Zählen', counted: 'Zum Wörter-Zähler hinzugefügt', alreadyCounted: 'Schon im Wörter-Zähler',
+    settings: '⚙︎ Einstellungen', kidMode: 'Kindermodus', kidModeHint: 'Größer, einfacher, Wörter-Zähler oben',
+    fingerDraw: 'Mit Finger zeichnen', fingerDrawHint: 'Aus: nur der Stift zeichnet, Finger scrollen',
+    defBlock: 'Neue Notizfelder', defText: '⌨️ Text', defInk: '✏️ Stift',
+    contentLang: 'Sprache für Bibel & WOL', translateTo: 'Übersetzen in',
+    backup: 'Sicherung', backupAll: '💾 Sicherung speichern (alle Notizen)', importBtn: '📂 Sicherung importieren',
+    storageOk: 'Speicher auf diesem Gerät ist geschützt ✓', storageWeak: 'Der Browser kann den Speicher leeren – bitte ab und zu sichern.',
+    lastBackup: 'Letzte Sicherung', never: 'nie', done: 'Fertig', entriesCount: 'Notizen',
+    wordsTitle: '✎ Wörter für den Zähler', addWord: '+ Wort', asDefault: 'Diese Wörter auch für neue Notizen verwenden', save: 'Speichern', emoji: 'Emoji', word: 'Wort',
+    selectWord: 'Bitte zuerst ein Wort markieren', clearInk: 'Diese Zeichnung löschen?', exported: 'Gespeichert ✓',
+    imported: 'Importiert: {a} neu, {u} aktualisiert', importFailed: 'Import fehlgeschlagen: ungültige Datei.', saveFailed: 'Speichern fehlgeschlagen!',
+    backupDue: 'Deine letzte Sicherung ist schon eine Weile her.', backupNow: 'Sichern',
+    moreSpace: 'Mehr Platz', undo: 'Rückgängig', highlighter: 'Textmarker', eraser: 'Radierer', clear: 'Löschen',
+    translate: 'Übersetzen', lookUpWol: 'In WOL nachschlagen', ok: 'OK',
+    today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
+    kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Bibel-Glossar · jw.org (englisch)', bibleGlossHint: 'Erklärungen aus dem Glossar der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', glossLink: '📖 Glossar',
+    shareOk: 'Speichern/Teilen öffnet das Teilen-Menü des Systems ✓', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages) – hier wird heruntergeladen.',
+    shareSaveDialog: 'Speichern öffnet einen „Speichern unter“-Dialog.', shareDownload: 'Dateien werden heruntergeladen (kein Teilen-Menü in diesem Browser).',
+    footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
   }
 };
-
-const DEFAULT_WORDS = {
-  en: [{e:'⭐',w:'Jehovah'},{e:'💛',w:'Jesus'},{e:'👑',w:'Kingdom'},{e:'❤️',w:'love'},{e:'🙏',w:'prayer'},{e:'🌳',w:'paradise'}],
-  de: [{e:'⭐',w:'Jehova'},{e:'💛',w:'Jesus'},{e:'👑',w:'Königreich'},{e:'❤️',w:'Liebe'},{e:'🙏',w:'Gebet'},{e:'🌳',w:'Paradies'}]
-};
-
-// Built-in glossary: en, de, simple explanation en / de
-const GLOSS = [
-  ['ransom','Lösegeld / Loskaufsopfer','Jesus gave his perfect life so that we can be set free from sin and death.','Jesus gab sein vollkommenes Leben, damit wir von Sünde und Tod befreit werden können.'],
-  ['Kingdom','Königreich','God’s government in heaven with Jesus as King. It will make the earth a paradise.','Gottes Regierung im Himmel mit Jesus als König. Sie macht die Erde zu einem Paradies.'],
-  ['paradise','Paradies','A beautiful park-like earth where there is no more sickness, pain or death.','Eine wunderschöne Erde wie ein Park – ohne Krankheit, Schmerz und Tod.'],
-  ['resurrection','Auferstehung','Jehovah will bring people who have died back to life.','Jehova holt Menschen, die gestorben sind, wieder ins Leben zurück.'],
-  ['sin','Sünde','Doing what is wrong in God’s eyes. All humans inherited sin from Adam.','Etwas tun, was in Gottes Augen falsch ist. Alle Menschen haben die Sünde von Adam geerbt.'],
-  ['faith','Glaube','Being sure about things we cannot see yet, because we have good reasons.','Sich sicher sein bei Dingen, die man noch nicht sieht – weil man gute Gründe dafür hat.'],
-  ['holy spirit','heiliger Geist','God’s active force – the power Jehovah uses to do things.','Gottes wirksame Kraft – die Kraft, mit der Jehova etwas bewirkt.'],
-  ['prophecy','Prophezeiung','A message from God, often telling what will happen in the future.','Eine Botschaft von Gott, die oft sagt, was in der Zukunft passiert.'],
-  ['Armageddon','Harmagedon','God’s war that will end all wickedness on earth.','Gottes Krieg, der alles Böse auf der Erde beendet.'],
-  ['mercy','Barmherzigkeit','Being kind and forgiving to someone even when they made a mistake.','Freundlich sein und vergeben, auch wenn jemand einen Fehler gemacht hat.'],
-  ['undeserved kindness','unverdiente Güte','A kind gift from Jehovah that we could never earn ourselves.','Ein liebevolles Geschenk von Jehova, das wir uns nie selbst verdienen könnten.'],
-  ['loyalty','Loyalität','Staying close to Jehovah and his friends, even when it is hard.','Fest zu Jehova und seinen Freunden halten, auch wenn es schwer ist.'],
-  ['righteous','gerecht','Doing what is right by God’s standards.','Das tun, was nach Gottes Maßstäben richtig ist.'],
-  ['repent','bereuen','Being truly sorry for something wrong and wanting to change.','Etwas Falsches wirklich bedauern und sich ändern wollen.'],
-  ['covenant','Bund','A formal agreement or promise.','Eine feste Abmachung oder ein Versprechen.'],
-  ['apostle','Apostel','One of the men Jesus sent out; the word means “one who is sent”.','Einer der Männer, die Jesus aussandte; das Wort bedeutet „Ausgesandter“.'],
-  ['disciple','Jünger','A person who learns from Jesus and follows him.','Jemand, der von Jesus lernt und ihm nachfolgt.'],
-  ['Memorial','Gedächtnismahl','Once a year we remember Jesus’ death, as he asked us to.','Einmal im Jahr denken wir an den Tod Jesu, so wie er es wollte.'],
-  ['anointed','Gesalbte','Christians chosen by God to rule with Jesus in heaven.','Christen, die Gott ausgewählt hat, mit Jesus im Himmel zu regieren.'],
-  ['great crowd','große Volksmenge','A huge number of people who will survive into the new world on earth.','Eine riesige Zahl von Menschen, die in die neue Welt auf der Erde hineinkommen.'],
-  ['sovereignty','Souveränität','Jehovah’s right to rule over everything.','Jehovas Recht, über alles zu herrschen.'],
-  ['elder','Ältester','A spiritually mature brother who takes care of the congregation.','Ein geistig reifer Bruder, der sich um die Versammlung kümmert.'],
-  ['ministerial servant','Dienstamtgehilfe','A brother who helps the elders in the congregation.','Ein Bruder, der den Ältesten in der Versammlung hilft.'],
-  ['pioneer','Pionier','A publisher who spends a lot of time in the preaching work.','Ein Verkündiger, der besonders viel Zeit im Predigtdienst einsetzt.'],
-  ['publisher','Verkündiger','Someone who shares the good news of the Kingdom with others.','Jemand, der die gute Botschaft vom Königreich weitererzählt.'],
-  ['integrity','Integrität / Lauterkeit','Staying faithful to Jehovah completely, in good and hard times.','Jehova ganz treu bleiben – in guten und in schweren Zeiten.']
-];
 
 // ═══════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════
-const LANGKEY = 'cong-notes-lang';
-let curLang = localStorage.getItem(LANGKEY) || 'en';   // English congregation → EN default
-let BOOKS = curLang === 'de' ? BOOKS_DE : BOOKS_EN;
-let settings = null;
+let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
 let entries = [];
-let view = 'home';
-let curId = null;
-let searchQ = '';
-let activeIdx = {};         // sec → block index
-let bpSec = null;
-let cntEdit = false;
-let cntOpen = null;
-let bumpStack = [];
-let saveTimer = null, setTimer = null;
-let penActive = false;
-let lastRT = null;
+let cur = null;               // entry currently open
+let db = null, useLS = false;
+let storagePersisted = false;
+let saveTimer = null;
+let penSeen = false;          // once a pen was used, fingers only scroll (palm rejection)
+const activeBlk = {};         // section -> index of last used block
+let bpSection = null;
+let inkStates = [];
 
-const tool = { mode: 'pen', color: '#1b2430', size: 4 };
-const COLORS = ['#1b2430', '#2f6fd1', '#d93a3a', '#2e8b62', '#8a4fd6'];
-const HL_COLORS = ['#ffd400', '#7ee2a8', '#ff9fd0', '#8fd3ff'];
-const SIZES = [2, 4, 8];
-const LW = 800;             // logical canvas width
-const MOODS = ['😍','😀','🙂','😐','😴'];
-
-const t = k => (UI[curLang] && UI[curLang][k]) ?? UI.en[k] ?? k;
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const t = k => (UI[settings.lang] && UI[settings.lang][k]) || UI.en[k] || k;
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const $ = id => document.getElementById(id);
-const E = () => entries.find(e => e.id === curId);
-const prof = () => settings.profiles.find(p => p.id === settings.activeProfile) || settings.profiles[0];
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-function toast(msg) {
-  const el = $('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2200);
-}
 
 // ═══════════════════════════════════════════
-//  INDEXEDDB (local, in the browser – no server)
+//  STORAGE  (IndexedDB, localStorage fallback)
 // ═══════════════════════════════════════════
-let dbp = null;
-function db() {
-  if (!dbp) dbp = new Promise((res, rej) => {
-    const r = indexedDB.open('cong-notes', 1);
+function openDB() {
+  return new Promise((res, rej) => {
+    if (!window.indexedDB) return rej(new Error('no idb'));
+    let r;
+    try { r = indexedDB.open(DB_NAME, 1); } catch (e) { return rej(e); }
     r.onupgradeneeded = () => {
       const d = r.result;
       if (!d.objectStoreNames.contains('entries')) d.createObjectStore('entries', { keyPath: 'id' });
-      if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'k' });
+      if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta');
     };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
+    r.onblocked = () => rej(new Error('blocked'));
   });
-  return dbp;
 }
-async function idb(store, mode, fn) {
-  const d = await db();
+function idb(store, mode, fn) {
   return new Promise((res, rej) => {
-    const tx = d.transaction(store, mode);
-    const req = fn(tx.objectStore(store));
-    tx.oncomplete = () => res(req ? req.result : undefined);
-    tx.onerror = () => rej(tx.error);
-    tx.onabort = () => rej(tx.error);
+    const tr = db.transaction(store, mode);
+    const req = fn(tr.objectStore(store));
+    tr.oncomplete = () => res(req ? req.result : undefined);
+    tr.onerror = () => rej(tr.error);
+    tr.onabort = () => rej(tr.error);
   });
 }
-const idbGetAll = s => idb(s, 'readonly', st => st.getAll());
-const idbGet = (s, k) => idb(s, 'readonly', st => st.get(k));
-const idbPut = (s, v) => idb(s, 'readwrite', st => st.put(v));
-const idbDel = (s, k) => idb(s, 'readwrite', st => st.delete(k));
+function lsRead() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || { entries: {}, meta: {} }; } catch { return { entries: {}, meta: {} }; } }
+function lsWrite(o) { try { localStorage.setItem(LS_KEY, JSON.stringify(o)); } catch { toast(t('saveFailed')); } }
 
-function scheduleSave() {
-  const e = E(); if (!e) return;
-  e.updated = Date.now();
+async function storeAll() {
+  if (useLS) return Object.values(lsRead().entries);
+  return (await idb('entries', 'readonly', s => s.getAll())) || [];
+}
+async function storePut(e) {
+  const copy = JSON.parse(JSON.stringify(e));
+  if (useLS) { const o = lsRead(); o.entries[copy.id] = copy; lsWrite(o); return; }
+  await idb('entries', 'readwrite', s => s.put(copy));
+}
+async function storeDel(id) {
+  if (useLS) { const o = lsRead(); delete o.entries[id]; lsWrite(o); return; }
+  await idb('entries', 'readwrite', s => s.delete(id));
+}
+async function metaGet(k) {
+  if (useLS) return lsRead().meta[k];
+  return idb('meta', 'readonly', s => s.get(k));
+}
+async function metaPut(k, v) {
+  if (useLS) { const o = lsRead(); o.meta[k] = v; lsWrite(o); return; }
+  await idb('meta', 'readwrite', s => s.put(JSON.parse(JSON.stringify(v)), k));
+}
+function saveSettings() { metaPut('settings', settings).catch(() => {}); }
+
+function dirty() {
+  if (!cur) return;
+  cur.updatedAt = Date.now();
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(flushSave, 400);
+  saveTimer = setTimeout(flush, 400);
 }
-async function flushSave() {
+function flush() {
   clearTimeout(saveTimer); saveTimer = null;
-  const e = E(); if (!e) return;
-  try { await idbPut('entries', JSON.parse(JSON.stringify(e))); }
-  catch (err) { console.error(err); toast(t('saveErr')); }
+  if (cur) storePut(cur).catch(() => toast(t('saveFailed')));
 }
-function saveSettings() {
-  clearTimeout(setTimer);
-  setTimer = setTimeout(() => idbPut('meta', { k: 'settings', ...JSON.parse(JSON.stringify(settings)) }).catch(console.error), 250);
-}
-document.addEventListener('visibilitychange', () => { if (document.hidden && saveTimer) flushSave(); });
-window.addEventListener('pagehide', () => { if (saveTimer) flushSave(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
+window.addEventListener('pagehide', flush);
 
 // ═══════════════════════════════════════════
-//  DATES
+//  HELPERS
 // ═══════════════════════════════════════════
 function isoLocal(d) {
-  const x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset());
-  return x.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
-function defaultDate() {
+function nextSundayISO() {
   const d = new Date();
-  d.setDate(d.getDate() + ((7 - d.getDay()) % 7));   // today if Sunday, otherwise next Sunday
+  d.setDate(d.getDate() + (7 - d.getDay()) % 7);
   return isoLocal(d);
 }
-const dObj = iso => new Date(iso + 'T12:00:00');
-const loc = () => curLang === 'de' ? 'de-DE' : 'en-GB';
-function fmtDate(iso, long) {
-  if (!iso) return '';
-  return dObj(iso).toLocaleDateString(loc(), long
-    ? { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
-    : { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+function parseISO(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date();
+}
+function locale() { return settings.lang === 'de' ? 'de-DE' : 'en-GB'; }
+function fmtDate(iso, opts) { return parseISO(iso).toLocaleDateString(locale(), opts || { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+function uid() { return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function stripHtml(h) { const d = document.createElement('div'); d.innerHTML = h || ''; return d.textContent || ''; }
+function getPath(o, p) { return p.split('.').reduce((a, k) => (a == null ? a : a[k]), o); }
+function setPath(o, p, v) { const ks = p.split('.'); const last = ks.pop(); ks.reduce((a, k) => (a[k] = a[k] || {}), o)[last] = v; }
+
+let toastTimer;
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
 }
 
-// ═══════════════════════════════════════════
-//  LANGUAGE
-// ═══════════════════════════════════════════
-function setLang(lang) {
-  curLang = lang === 'de' ? 'de' : 'en';
-  localStorage.setItem(LANGKEY, curLang);
-  BOOKS = curLang === 'de' ? BOOKS_DE : BOOKS_EN;
-  document.documentElement.lang = curLang;
-  $('lang-en').classList.toggle('active', curLang === 'en');
-  $('lang-de').classList.toggle('active', curLang === 'de');
-  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
-  document.querySelectorAll('[data-i18n-title]').forEach(el => el.title = t(el.dataset.i18nTitle));
-  document.title = t('title');
-  fillBookSelect();
-  if (settings) render();
-}
-
-// ═══════════════════════════════════════════
-//  RENDER – SHELL
-// ═══════════════════════════════════════════
-function render() {
-  const p = prof();
-  document.body.classList.toggle('kid', !!p.kid);
-  $('app-subtitle').textContent = '👤 ' + p.name + (view === 'entry' && E() ? ' · ' + fmtDate(E().date) : '');
-  $('fab').style.display = view === 'home' ? '' : 'none';
-  renderHeaderSub();
-  if (view === 'home') renderHome(); else renderEntry();
-}
-
-function renderHeaderSub() {
-  const hs = $('header-sub');
-  if (view === 'home') {
-    hs.innerHTML = `
-      <input class="search" id="h-search" type="search" placeholder="${esc(t('search'))}" value="${esc(searchQ)}" oninput="searchQ=this.value;renderHome()">
-      <button class="btn-hdr" onclick="exportAll()">💾 <span class="hdr-label">${esc(t('export'))}</span></button>
-      <button class="btn-hdr" onclick="$('import-file').click()">📂 <span class="hdr-label">${esc(t('import'))}</span></button>`;
-  } else {
-    const e = E();
-    hs.innerHTML = `
-      <button class="btn-hdr" onclick="goHome()">← <span class="hdr-label">${esc(t('back'))}</span></button>
-      <span class="hs-date">${esc(fmtDate(e.date))}</span>
-      <button class="btn-hdr" onclick="printEntry()">🖨️ <span class="hdr-label">${esc(t('print'))}</span></button>
-      <button class="btn-hdr danger" onclick="deleteEntry()">🗑</button>`;
-  }
-}
-
-function goHome() {
-  if (saveTimer) flushSave();
-  hideFmt();
-  view = 'home'; curId = null; activeIdx = {}; bumpStack = []; cntEdit = false;
-  render(); window.scrollTo(0, 0);
-}
-
-// ═══════════════════════════════════════════
-//  HOME / HISTORY
-// ═══════════════════════════════════════════
-const plain = html => { const d = document.createElement('div'); d.innerHTML = html || ''; return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
-
-function entryText(e) {
-  const parts = [e.talk.speaker, e.talk.cong, e.talk.theme, e.wt.title, e.kids.fav, e.kids.question];
-  ['talk', 'wt', 'kids'].forEach(s => e[s].blocks.forEach(b => {
-    if (b.type === 'text') parts.push(plain(b.html));
-    if (b.type === 'ref') parts.push(b.label);
-  }));
-  return parts.map(plain).join(' ');
-}
-
-function renderHome() {
-  const q = searchQ.trim().toLowerCase();
-  const list = entries
-    .filter(e => e.profileId === prof().id)
-    .filter(e => !q || (entryText(e) + ' ' + fmtDate(e.date, true)).toLowerCase().includes(q))
-    .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.updated - a.updated);
-
-  if (!list.length) {
-    $('view').innerHTML = q
-      ? `<div class="empty"><span class="big">🔍</span>${esc(t('noResults'))}</div>`
-      : `<div class="empty"><span class="big">📝</span><b>${esc(t('emptyTitle'))}</b><br>${esc(t('emptyText'))}</div>`;
-    return;
-  }
-
-  $('view').innerHTML = list.map(e => {
-    const d = dObj(e.date);
-    const refs = ['talk', 'wt', 'kids'].reduce((n, s) => n + e[s].blocks.filter(b => b.type === 'ref').length, 0);
-    const pens = ['talk', 'wt', 'kids'].some(s => e[s].blocks.some(b => b.type === 'pen' && b.strokes.length));
-    const cnt = (e.counter || []).reduce((n, w) => n + w.c, 0);
-    const firstText = ['talk', 'wt'].map(s => e[s].blocks.filter(b => b.type === 'text').map(b => plain(b.html)).join(' ')).join(' ').trim();
-    const meta = [e.talk.speaker, e.talk.cong].filter(Boolean).join(' · ');
-    return `<div class="card h-card" onclick="openEntry('${e.id}')">
-      <div class="h-date">
-        <span class="m">${esc(d.toLocaleDateString(loc(), { weekday: 'short' }))}</span>
-        <span class="d">${d.getDate()}</span>
-        <span class="m">${esc(d.toLocaleDateString(loc(), { month: 'short' }))}</span>
-        <span class="y">${d.getFullYear()}</span>
-      </div>
-      <div class="h-body">
-        <div class="h-theme">${esc(e.talk.theme || t('noTheme'))}</div>
-        ${meta ? `<div class="h-meta">🎤 ${esc(meta)}</div>` : ''}
-        ${firstText ? `<div class="h-snip">${esc(firstText)}</div>` : ''}
-        <div class="h-tags">
-          ${refs ? `<span class="h-tag">📖 ${refs}</span>` : ''}
-          ${pens ? `<span class="h-tag">✏️</span>` : ''}
-          ${cnt ? `<span class="h-tag">🔢 ${cnt}</span>` : ''}
-          ${e.kids.mood ? `<span class="h-tag">${e.kids.mood}</span>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════
-//  ENTRIES
-// ═══════════════════════════════════════════
-const tb = () => ({ id: uid(), type: 'text', html: '' });
-
-function newEntry(date) {
-  const p = prof();
-  return {
-    id: uid(), profileId: p.id, date, created: Date.now(), updated: Date.now(),
-    talk: { speaker: '', cong: '', theme: '', blocks: [tb()] },
-    songs: ['', '', ''],
-    wt: { title: '', conductor: '', reader: '', blocks: [tb()] },
-    kids: { fav: '', question: '', mood: '', blocks: [] },
-    counter: (p.words || []).map(w => ({ e: w.e, w: w.w, c: 0 }))
-  };
-}
-
-async function createEntry() {
-  const date = defaultDate();
-  const ex = entries.find(e => e.profileId === prof().id && e.date === date);
-  if (ex) { openEntry(ex.id); toast(t('exists')); return; }
-  const e = newEntry(date);
-  entries.push(e);
-  curId = e.id;
-  await flushSave();
-  openEntry(e.id);
-}
-
-function openEntry(id) {
-  curId = id; view = 'entry'; activeIdx = {}; bumpStack = []; cntEdit = false; cntOpen = null;
-  render(); window.scrollTo(0, 0);
-}
-
-async function deleteEntry() {
-  if (!confirm(t('confirmDelEntry'))) return;
-  const id = curId;
-  clearTimeout(saveTimer); saveTimer = null;
-  entries = entries.filter(e => e.id !== id);
-  await idbDel('entries', id).catch(console.error);
-  toast(t('deleted'));
-  goHome();
-}
-
-function getPath(obj, path) { return path.split('.').reduce((o, k) => o?.[k], obj); }
-function setPath(obj, path, val) {
-  const ks = path.split('.'); const last = ks.pop();
-  ks.reduce((o, k) => o[k], obj)[last] = val;
-}
-function onField(el) {
-  setPath(E(), el.dataset.path, el.value);
-  if (el.dataset.path === 'date') {
-    const e = E();
-    if (entries.some(x => x.id !== e.id && x.profileId === e.profileId && x.date === e.date)) toast('⚠️ ' + fmtDate(e.date));
-    renderHeaderSub();
-    $('app-subtitle').textContent = '👤 ' + prof().name + ' · ' + fmtDate(e.date);
-  }
-  scheduleSave();
-}
-
-// ═══════════════════════════════════════════
-//  RENDER – ENTRY
-// ═══════════════════════════════════════════
-function fld(label, path, extra = '') {
-  return `<div class="fld"><label>${esc(label)}</label>
-    <input ${extra} data-path="${path}" value="${esc(getPath(E(), path))}" oninput="onField(this)"></div>`;
-}
-
-function secActions(sec) {
-  return `<div class="sec-actions">
-    <button class="btn-add" onclick="addBlock('${sec}','text')">${esc(t('addText'))}</button>
-    <button class="btn-add" onclick="addBlock('${sec}','pen')">${esc(t('addPen'))}</button>
-    <button class="btn-add" onclick="openBP('${sec}')">${esc(t('addRef'))}</button>
-  </div>`;
-}
-
-function renderEntry() {
-  const e = E();
-  if (!e) { goHome(); return; }
-  const kid = !!prof().kid;
-  const counter = renderCounter();
-
-  $('view').innerHTML = `
-    <div class="print-head">${esc(fmtDate(e.date, true))}<small>${esc(prof().name)}${e.talk.speaker ? ' · 🎤 ' + esc(e.talk.speaker) : ''}</small></div>
-
-    ${kid ? counter : ''}
-
-    <div class="card" style="--sec:var(--talk)">
-      <div class="sec-hdr"><span class="sec-title">${esc(t('talk'))}</span></div>
-      <div class="meta">
-        <div class="meta-row">
-          ${fld(t('date'), 'date', 'type="date"')}
-          ${fld(t('speaker'), 'talk.speaker', 'type="text" autocomplete="off"')}
-        </div>
-        <div class="meta-row">
-          ${fld(t('theme'), 'talk.theme', 'type="text" autocomplete="off"')}
-          ${fld(t('cong'), 'talk.cong', 'type="text" autocomplete="off"')}
-        </div>
-      </div>
-      <div class="sec-body">
-        <div class="blocks" id="blk-talk">${blocksHtml('talk')}</div>
-        ${secActions('talk')}
-      </div>
-    </div>
-
-    <div class="card" style="--sec:var(--bar)">
-      <div class="sec-hdr"><span class="sec-title">${esc(t('songs'))}</span></div>
-      <div class="songs">
-        ${[t('songOpen'), t('songMid'), t('songClose')].map((l, i) =>
-          `<div class="fld"><label>${esc(l)}</label><input type="number" inputmode="numeric" min="1" data-path="songs.${i}" value="${esc(e.songs[i])}" oninput="onField(this)"></div>`).join('')}
-      </div>
-    </div>
-
-    <div class="card" style="--sec:var(--wt)">
-      <div class="sec-hdr"><span class="sec-title">${esc(t('wt'))}</span></div>
-      <div class="meta">
-        ${fld(t('wtTitle'), 'wt.title', 'type="text" autocomplete="off"')}
-        <div class="meta-row">
-          ${fld(t('conductor'), 'wt.conductor', 'type="text" autocomplete="off"')}
-          ${fld(t('reader'), 'wt.reader', 'type="text" autocomplete="off"')}
-        </div>
-      </div>
-      <div class="sec-body">
-        <div class="blocks" id="blk-wt">${blocksHtml('wt')}</div>
-        ${secActions('wt')}
-      </div>
-    </div>
-
-    ${kid ? '' : counter}
-
-    <div class="card" style="--sec:var(--kids)">
-      <div class="sec-hdr"><span class="sec-title">${esc(t('kids'))}</span></div>
-      <div class="sec-body">
-        <div class="fld"><label>${esc(t('fav'))}</label>
-          <div class="rt single" contenteditable="true" data-ph="${esc(t('favPh'))}" data-path="kids.fav"
-            oninput="onRTField(this)" onfocus="focusRT(this)" onblur="blurRT()" onpaste="onPaste(event)">${sanitize(e.kids.fav)}</div></div>
-        <div class="fld"><label>${esc(t('question'))}</label>
-          <div class="rt single" contenteditable="true" data-ph="${esc(t('questionPh'))}" data-path="kids.question"
-            oninput="onRTField(this)" onfocus="focusRT(this)" onblur="blurRT()" onpaste="onPaste(event)">${sanitize(e.kids.question)}</div></div>
-        <div class="fld"><label>${esc(t('mood'))}</label>
-          <div class="mood" id="mood">${MOODS.map(m => `<button class="${e.kids.mood === m ? 'active' : ''}" onclick="setMood('${m}')">${m}</button>`).join('')}</div></div>
-        <div class="blocks" id="blk-kids">${blocksHtml('kids')}</div>
-        ${secActions('kids')}
-      </div>
-    </div>`;
-
-  initCanvases($('view'));
-}
-
-// ═══════════════════════════════════════════
-//  BLOCKS
-// ═══════════════════════════════════════════
-function blocksHtml(sec) {
-  return E()[sec].blocks.map((b, i) => blockHtml(sec, b, i)).join('');
-}
-
-function blockHtml(sec, b, i) {
-  if (b.type === 'ref') {
-    return `<div class="blk blk-ref">
-      <span class="ref-chip">
-        <a href="${esc(b.url)}" onclick="openScripture('${esc(b.url)}',event)" title="${esc(t('openScripture'))}">📖 ${esc(b.label)}</a>
-        <button class="ref-del" onclick="delBlock('${sec}',${i},true)">×</button>
-      </span></div>`;
-  }
-  if (b.type === 'pen') {
-    return `<div class="blk blk-pen" data-sec="${sec}" data-i="${i}">
-      <button class="blk-x" onclick="delBlock('${sec}',${i})">✕</button>
-      <div class="pen-bar">${penBarInner()}</div>
-      <div class="pen-wrap"><canvas class="pen-cv" data-sec="${sec}" data-i="${i}"></canvas></div>
-      <div class="pen-foot">
-        <button class="pb txt" onclick="penUndo('${sec}',${i})">↶</button>
-        <button class="pb txt" onclick="penMore('${sec}',${i})">${esc(t('moreSpace'))}</button>
-        <button class="pb txt" onclick="penClear('${sec}',${i})">${esc(t('clear'))}</button>
-      </div>
-    </div>`;
-  }
-  const first = E()[sec].blocks.findIndex(x => x.type === 'text') === i;
-  return `<div class="blk blk-text">
-    <div class="rt" contenteditable="true" data-sec="${sec}" data-i="${i}" data-ph="${esc(first ? t('notes') : t('moreNotes'))}"
-      oninput="onRT(this)" onfocus="focusRT(this)" onblur="blurRT()" onpaste="onPaste(event)">${sanitize(b.html)}</div>
-    <button class="blk-x" onclick="delBlock('${sec}',${i})">✕</button>
-  </div>`;
-}
-
-function rerenderSec(sec, focusIdx) {
-  const box = $('blk-' + sec);
-  if (!box) return;
-  box.innerHTML = blocksHtml(sec);
-  initCanvases(box);
-  if (focusIdx != null) requestAnimationFrame(() => {
-    const el = box.querySelector(`.rt[data-i="${focusIdx}"]`);
-    if (el) { el.focus(); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-    else box.querySelector(`.blk-pen[data-i="${focusIdx}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  });
-}
-
-function insertPos(sec) {
-  const n = E()[sec].blocks.length;
-  const a = activeIdx[sec];
-  return (a == null || a >= n) ? n : a + 1;
-}
-
-function addBlock(sec, type) {
-  const arr = E()[sec].blocks;
-  const pos = insertPos(sec);
-  const b = type === 'pen' ? { id: uid(), type: 'pen', h: 420, strokes: [] } : tb();
-  arr.splice(pos, 0, b);
-  activeIdx[sec] = pos;
-  scheduleSave();
-  rerenderSec(sec, pos);
-}
-
-function blockHasContent(b) {
-  if (b.type === 'text') return plain(b.html).length > 0;
-  if (b.type === 'pen') return b.strokes.length > 0;
-  return false;
-}
-
-function delBlock(sec, i, noConfirm) {
-  const arr = E()[sec].blocks;
-  const b = arr[i]; if (!b) return;
-  if (!noConfirm && blockHasContent(b) && !confirm(t('confirmDelBlock'))) return;
-  arr.splice(i, 1);
-  activeIdx[sec] = Math.max(0, i - 1);
-  scheduleSave();
-  rerenderSec(sec);
-}
-
-// ═══════════════════════════════════════════
-//  RICH TEXT
-// ═══════════════════════════════════════════
-const ALLOWED = new Set(['B','STRONG','I','EM','U','BR','DIV','P','UL','OL','LI']);
+// keep only simple formatting (used for stored and imported notes)
+const ALLOWED_TAGS = { B:1, STRONG:1, I:1, EM:1, U:1, BR:1, DIV:1, P:1, UL:1, OL:1, LI:1, SPAN:1 };
+const DROP_TAGS = { SCRIPT:1, STYLE:1, IFRAME:1, OBJECT:1, EMBED:1, LINK:1, META:1, SVG:1, MATH:1, TEMPLATE:1 };
 function sanitize(html) {
-  const tpl = document.createElement('template');
-  tpl.innerHTML = html || '';
-  (function walk(node) {
+  if (!html) return '';
+  const doc = new DOMParser().parseFromString('<body>' + html + '</body>', 'text/html');
+  const walk = node => {
     [...node.childNodes].forEach(ch => {
       if (ch.nodeType === 3) return;
       if (ch.nodeType !== 1) { ch.remove(); return; }
-      const tag = ch.tagName;
-      if (tag === 'SCRIPT' || tag === 'STYLE') { ch.remove(); return; }
+      if (DROP_TAGS[ch.tagName]) { ch.remove(); return; }
       walk(ch);
-      if (ALLOWED.has(tag)) { [...ch.attributes].forEach(a => ch.removeAttribute(a.name)); return; }
-      // keep Safari-style spans as real tags
-      const st = (ch.getAttribute && ch.getAttribute('style')) || '';
-      let repl = document.createDocumentFragment();
-      while (ch.firstChild) repl.appendChild(ch.firstChild);
-      [[/font-weight:\s*(bold|[6-9]00)/i,'b'],[/font-style:\s*italic/i,'i'],[/text-decoration[^;]*underline/i,'u']].forEach(([re, tg]) => {
-        if (re.test(st)) { const w = document.createElement(tg); w.appendChild(repl); repl = document.createDocumentFragment(); repl.appendChild(w); }
-      });
-      ch.replaceWith(repl);
+      if (!ALLOWED_TAGS[ch.tagName]) { ch.replaceWith(...ch.childNodes); return; }
+      const st = ch.style || {};
+      const keep = { bg: st.backgroundColor, fw: st.fontWeight, fs: st.fontStyle, td: st.textDecorationLine || st.textDecoration };
+      [...ch.attributes].forEach(a => ch.removeAttribute(a.name));
+      if (ch.tagName === 'SPAN') {
+        if (keep.bg && /^(rgba?\([\d\s,.]+\)|#[0-9a-f]{3,8}|transparent)$/i.test(keep.bg)) ch.style.backgroundColor = keep.bg;
+        if (/^(bold|[6-9]00)$/.test(keep.fw || '')) ch.style.fontWeight = 'bold';
+        if (keep.fs === 'italic') ch.style.fontStyle = 'italic';
+        if (/underline/.test(keep.td || '')) ch.style.textDecoration = 'underline';
+      }
     });
-  })(tpl.content);
-  return tpl.innerHTML;
+  };
+  walk(doc.body);
+  return doc.body.innerHTML;
 }
 
-function normRT(el) {
-  if (!plain(el.innerHTML) && !el.querySelector('li')) { if (el.innerHTML) el.innerHTML = ''; return ''; }
-  return el.innerHTML;
+// ═══════════════════════════════════════════
+//  DATA MODEL
+// ═══════════════════════════════════════════
+function mkBlock(type) {
+  type = type || settings.defaultBlock;
+  return type === 'ink' ? { type: 'ink', h: 520, strokes: [], refs: [] } : { type: 'text', html: '', refs: [] };
+}
+function newEntry() {
+  const now = Date.now();
+  return {
+    id: uid(), createdAt: now, updatedAt: now, date: nextSundayISO(),
+    speaker: '', speakerCong: '', talkTitle: '',
+    songs: ['', '', ''],
+    talk: { blocks: [mkBlock()] },
+    wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()] },
+    comment: '',
+    kids: { best: '', question: '', mood: '' },
+    counter: settings.words.map(w => ({ e: w.e, w: w.w, n: 0 }))
+  };
+}
+const str = (v, max = 5000) => (typeof v === 'string' ? v.slice(0, max) : '');
+const num = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
+function normRefs(a) {
+  return (Array.isArray(a) ? a : []).filter(r => r && typeof r.label === 'string' && /^https:\/\/(www\.)?jw\.org\//.test(r.url || ''))
+    .map(r => ({ label: str(r.label, 120), url: r.url }));
+}
+function normBlocks(a) {
+  const out = (Array.isArray(a) ? a : []).map(b => {
+    if (b && b.type === 'ink') {
+      const strokes = (Array.isArray(b.strokes) ? b.strokes : []).filter(s => s && Array.isArray(s.p)).map(s => ({
+        t: s.t === 'hl' ? 'hl' : 'pen',
+        c: /^#[0-9a-f]{3,8}$/i.test(s.c) ? s.c : '#1c2740',
+        w: Math.min(60, Math.max(1, num(s.w, 5))),
+        p: s.p.filter(q => Array.isArray(q) && q.length >= 2).map(q => [num(q[0]), num(q[1]), Math.min(1, Math.max(0, num(q[2], .5)))])
+      }));
+      return { type: 'ink', h: Math.min(20000, Math.max(200, num(b.h, 520))), strokes, refs: normRefs(b.refs) };
+    }
+    return { type: 'text', html: sanitize(str(b && b.html, 200000)), refs: normRefs(b && b.refs) };
+  });
+  return out.length ? out : [mkBlock('text')];
+}
+function normalizeEntry(r) {
+  if (!r || typeof r !== 'object') return null;
+  const e = newEntry();
+  e.id = typeof r.id === 'string' && r.id ? r.id.slice(0, 60) : uid();
+  e.createdAt = num(r.createdAt, Date.now()); e.updatedAt = num(r.updatedAt, Date.now());
+  e.date = /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : e.date;
+  e.speaker = str(r.speaker, 200); e.speakerCong = str(r.speakerCong, 200); e.talkTitle = str(r.talkTitle, 300);
+  e.songs = [0, 1, 2].map(i => str((r.songs || [])[i], 6));
+  e.talk = { blocks: normBlocks(r.talk && r.talk.blocks) };
+  const w = r.wt || {};
+  e.wt = { title: str(w.title, 300), conductor: str(w.conductor, 200), reader: str(w.reader, 200), blocks: normBlocks(w.blocks) };
+  e.comment = sanitize(str(r.comment, 50000));
+  const k = r.kids || {};
+  e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '' };
+  if (Array.isArray(r.counter)) e.counter = r.counter.filter(c => c && c.w).slice(0, 24).map(c => ({ e: str(c.e, 16), w: str(c.w, 40), n: Math.max(0, Math.round(num(c.n))) }));
+  return e;
 }
 
-function onRT(el) {
-  const sec = el.dataset.sec, i = +el.dataset.i;
-  const b = E()[sec].blocks[i]; if (!b) return;
-  b.html = normRT(el);
-  scheduleSave();
-  updFmtState();
+// ═══════════════════════════════════════════
+//  ROUTING
+// ═══════════════════════════════════════════
+function route() {
+  const m = /^#e=(.+)$/.exec(location.hash);
+  const e = m && entries.find(x => x.id === decodeURIComponent(m[1]));
+  if (cur && cur !== e) flush();
+  hideFmt();
+  if (e) {
+    cur = e;
+    $('view-list').hidden = true; $('view-entry').hidden = false; $('fab').hidden = true; $('btn-back').hidden = false;
+    renderEntry();
+  } else {
+    cur = null; disposeInks();
+    $('view-entry').hidden = true; $('view-list').hidden = false; $('fab').hidden = false; $('btn-back').hidden = true;
+    $('entry').innerHTML = '';
+    renderList();
+  }
+  updateHeader();
+  window.scrollTo(0, 0);
 }
-function onRTField(el) {
-  setPath(E(), el.dataset.path, normRT(el));
-  scheduleSave();
-  updFmtState();
+window.addEventListener('hashchange', route);
+
+function updateHeader() {
+  const icon = $('hdr-icon');
+  if (cur) {
+    const d = parseISO(cur.date);
+    icon.className = 'app-icon leaf-mode';
+    icon.innerHTML = `<span class="mi-m">${esc(d.toLocaleDateString(locale(), { month: 'short' }))}</span><span class="mi-d">${d.getDate()}</span>`;
+    $('hdr-title').textContent = fmtDate(cur.date, { weekday: 'long', day: 'numeric', month: 'long' });
+    $('hdr-sub').textContent = cur.talkTitle || t('appTitle');
+  } else {
+    icon.className = 'app-icon'; icon.textContent = '📓';
+    $('hdr-title').textContent = t('appTitle');
+    $('hdr-sub').textContent = t('appSub');
+  }
 }
 
-function onPaste(ev) {
+// ═══════════════════════════════════════════
+//  HISTORY LIST
+// ═══════════════════════════════════════════
+function entrySearchText(e) {
+  const blocks = [...e.talk.blocks, ...e.wt.blocks];
+  return [e.speaker, e.speakerCong, e.talkTitle, e.wt.title, stripHtml(e.comment), stripHtml(e.kids.best), stripHtml(e.kids.question),
+    ...blocks.map(b => (b.type === 'text' ? stripHtml(b.html) : '') + ' ' + b.refs.map(r => r.label).join(' ')),
+    fmtDate(e.date)].join(' ').toLowerCase();
+}
+function renderList() {
+  $('search').placeholder = t('search');
+  const q = $('search').value.trim().toLowerCase();
+  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt - a.updatedAt);
+  const list = q ? sorted.filter(e => entrySearchText(e).includes(q)) : sorted;
+
+  // backup reminder
+  const due = entries.length >= 3 && (!settings.lastBackup || Date.now() - settings.lastBackup > 30 * 864e5);
+  $('banner-slot').innerHTML = due
+    ? `<div class="banner"><span>💾 ${esc(t('backupDue'))}</span><button class="btn" data-act="backupAll">${esc(t('backupNow'))}</button></div>` : '';
+
+  const nextIso = nextSundayISO(), nextEntry = entries.find(e => e.date === nextIso);
+  const nd = parseISO(nextIso), isToday = nextIso === isoLocal(new Date());
+  const hero = q ? '' : `<div class="hero">
+      <div class="leaf"><div class="m">${esc(nd.toLocaleDateString(locale(), { month: 'short' }))}</div><div class="d">${nd.getDate()}</div><div class="w">${esc(nd.toLocaleDateString(locale(), { weekday: 'short' }))}</div></div>
+      <div>
+        <div class="hero-k">${esc(isToday ? t('today') : t('nextMeeting'))}</div>
+        <div class="hero-d">${esc(fmtDate(nextIso, { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
+        ${nextEntry
+          ? `<button class="btn primary" data-act="open" data-id="${esc(nextEntry.id)}">${esc(t('continueNotes'))}</button>`
+          : `<button class="btn primary" data-act="newEntry">${esc(t('startNotes'))}</button>`}
+      </div>
+    </div>`;
+  if (!entries.length) {
+    $('list').innerHTML = hero + `<div class="empty"><div class="big">📓</div><strong>${esc(t('empty1'))}</strong>${esc(t('empty2'))}</div>`;
+    return;
+  }
+  if (!list.length) { $('list').innerHTML = `<div class="empty">${esc(t('noResults'))}</div>`; return; }
+
+  $('list').innerHTML = hero + list.map(e => {
+    const d = parseISO(e.date);
+    const blocks = [...e.talk.blocks, ...e.wt.blocks];
+    const refs = blocks.reduce((n, b) => n + b.refs.length, 0);
+    const hasInk = blocks.some(b => b.type === 'ink' && b.strokes.length);
+    const top = [...e.counter].sort((a, b) => b.n - a.n)[0];
+    const pills = [];
+    if (refs) pills.push(`📖 ${refs}`);
+    if (hasInk) pills.push('✏️');
+    if (top && top.n) pills.push(`${esc(top.e)} ×${top.n}`);
+    if (e.kids.mood) pills.push(e.kids.mood);
+    return `<button class="h-card" data-act="open" data-id="${esc(e.id)}">
+      <div class="leaf">
+        <div class="m">${esc(d.toLocaleDateString(locale(), { month: 'short' }))}</div>
+        <div class="d">${d.getDate()}</div>
+        <div class="w">${esc(d.toLocaleDateString(locale(), { weekday: 'short' }))}${d.getFullYear() !== new Date().getFullYear() ? ' ’' + String(d.getFullYear()).slice(2) : ''}</div>
+      </div>
+      <div class="h-body">
+        <div class="h-title">${esc(e.talkTitle || t('untitled'))}</div>
+        <div class="h-speaker">🎤 ${esc(e.speaker || t('noSpeaker'))}${e.speakerCong ? ' – ' + esc(e.speakerCong) : ''}</div>
+        ${pills.length ? `<div class="h-meta">${pills.map(p => `<span class="pill">${p}</span>`).join('')}</div>` : ''}
+      </div>
+    </button>`;
+  }).join('');
+}
+$('search').addEventListener('input', renderList);
+
+// ═══════════════════════════════════════════
+//  ENTRY VIEW
+// ═══════════════════════════════════════════
+function renderEntry() {
+  disposeInks();
+  const e = cur, kid = settings.kidMode;
+  const uniq = f => [...new Set(entries.map(f).filter(Boolean))].sort();
+
+  let h = `<div class="print-head"><h1>${esc(e.talkTitle || t('publicTalk'))}</h1><div>${esc(fmtDate(e.date))}${e.speaker ? ' · ' + esc(e.speaker) : ''}</div></div>`;
+
+  h += `<section class="card"><div class="meta-grid">
+    <label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
+    <label class="fld"><span>${esc(t('speaker'))}</span><input type="text" list="dl-speakers" value="${esc(e.speaker)}" data-f="speaker" placeholder="${esc(t('phSpeaker'))}" autocomplete="off"></label>
+    ${kid ? '' : `<label class="fld wide"><span>${esc(t('speakerCong'))}</span><input type="text" list="dl-congs" value="${esc(e.speakerCong)}" data-f="speakerCong" placeholder="${esc(t('phCong'))}" autocomplete="off"></label>`}
+    <label class="fld wide"><span>${esc(t('talkTitle'))}</span><input type="text" value="${esc(e.talkTitle)}" data-f="talkTitle" placeholder="${esc(t('phTalk'))}" autocomplete="off"></label>
+  </div>
+  <datalist id="dl-speakers">${uniq(x => x.speaker).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
+  <datalist id="dl-congs">${uniq(x => x.speakerCong).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
+  </section>`;
+
+  if (kid) h += renderCounter();
+
+  h += songRow(0);
+  h += renderSection('talk', t('publicTalk'), 'var(--talk)', '', '');
+  h += songRow(1);
+
+  const wtTop = `<div class="sub-grid">
+      <label class="fld wide"><span>${esc(t('wtTitle'))}</span><input type="text" value="${esc(e.wt.title)}" data-f="wt.title" placeholder="${esc(t('phWt'))}" autocomplete="off"></label>
+      ${kid ? '' : `<label class="fld"><span>${esc(t('conductor'))}</span><input type="text" value="${esc(e.wt.conductor)}" data-f="wt.conductor" autocomplete="off"></label>
+      <label class="fld"><span>${esc(t('reader'))}</span><input type="text" value="${esc(e.wt.reader)}" data-f="wt.reader" autocomplete="off"></label>`}
+    </div>`;
+  const wtBottom = `<div class="sub-label">${esc(t('myComment'))}</div>
+    <div class="rt short" contenteditable="true" data-f="comment" data-ph="${esc(t('phComment'))}">${sanitize(e.comment)}</div>`;
+  h += renderSection('wt', t('wtStudy'), 'var(--wt)', wtTop, wtBottom);
+  h += songRow(2);
+
+  if (kid) {
+    h += `<section class="card sec kids">
+      <div class="sec-head"><h2>${esc(t('kidsCorner'))}</h2></div>
+      <div class="sub-label" style="margin-top:0">${esc(t('best'))}</div>
+      <div class="rt short" contenteditable="true" data-f="kids.best" data-ph="${esc(t('phBest'))}">${sanitize(e.kids.best)}</div>
+      <div class="sub-label">${esc(t('question'))}</div>
+      <div class="rt short" contenteditable="true" data-f="kids.question" data-ph="${esc(t('phQuestion'))}">${sanitize(e.kids.question)}</div>
+      <div class="sub-label">${esc(t('mood'))}</div>
+      <div class="moods">${MOODS.map(m => `<button class="mood${e.kids.mood === m ? ' on' : ''}" data-act="mood" data-m="${m}">${m}</button>`).join('')}</div>
+    </section>`;
+  } else {
+    h += renderCounter();
+  }
+
+  h += `<div class="entry-actions">
+      <button class="btn" data-act="print">${esc(t('print'))}</button>
+      <button class="btn" data-act="shareEntry">${esc(t('shareEntry'))}</button>
+      <button class="btn danger" data-act="deleteEntry">${esc(t('del'))}</button>
+    </div>
+    <div class="saved-hint">✓ ${esc(t('autosave'))}</div>`;
+
+  $('entry').innerHTML = h;
+  initInks();
+}
+
+// "Sing Out Joyfully" (sjj): song N has the document id 1102016800 + N
+function songUrl(v) {
+  const n = parseInt(v, 10);
+  if (!(n >= 1)) return '';
+  if (n > 151) return wolSearch(`sjj ${n}`);
+  const loc = settings.contentLang === 'de' ? 'X' : 'E';
+  return `https://www.jw.org/finder?wtlocale=${loc}&prefer=lang&docid=${1102016800 + n}`;
+}
+function songRow(i) {
+  const url = songUrl(cur.songs[i]);
+  return `<div class="song-row">🎵 ${esc(t('song'))}
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-song="${i}" value="${esc(cur.songs[i])}" placeholder="#" aria-label="${esc(t('song'))} ${i + 1}">
+    <a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(url || '#')}"${url ? '' : ' hidden'}>▶ ${esc(t('openSong'))}</a></div>`;
+}
+
+function renderSection(key, title, color, top, bottom) {
+  const sec = cur[key];
+  return `<section class="card sec" style="--c:${color}" data-sec="${key}">
+    <div class="sec-head"><h2>${esc(title)}</h2></div>
+    ${top}
+    <div class="blocks">${sec.blocks.map((b, i) => renderBlock(key, b, i, sec.blocks.length)).join('')}</div>
+    <div class="sec-actions">
+      <button class="btn-soft" data-act="addRef" data-sec="${key}">${esc(t('addRef'))}</button>
+      <button class="btn-soft" data-act="addText" data-sec="${key}">${esc(t('addText'))}</button>
+      <button class="btn-soft" data-act="addInk" data-sec="${key}">${esc(t('addInk'))}</button>
+    </div>
+    ${bottom}
+  </section>`;
+}
+
+function renderBlock(key, b, i, n) {
+  const topBar = n > 1
+    ? `<div class="blk-top"><span>${esc(i === 0 ? t('notes') : t('moreNotes'))}</span><button class="x-btn" data-act="delBlock" data-sec="${key}" data-i="${i}" aria-label="✕">✕</button></div>`
+    : '';
+  const body = b.type === 'ink'
+    ? `<div class="ink" data-sec="${key}" data-i="${i}">
+        <div class="ink-tools">${inkToolsHtml()}</div>
+        <div class="paper"><canvas class="c-base"></canvas><canvas class="c-live"></canvas></div>
+        <div class="ink-hint">${esc(settings.fingerDraw ? t('inkHintFinger') : t('inkHintPen'))}</div>
+      </div>`
+    : `<div class="rt" contenteditable="true" data-sec="${key}" data-i="${i}" data-ph="${esc(i === 0 ? t('phNotes') : t('phMore'))}">${sanitize(b.html)}</div>`;
+  return `<div class="blk" data-sec="${key}" data-i="${i}">${topBar}${body}<div class="chips">${chipsHtml(key, i, b.refs)}</div></div>`;
+}
+
+function chipsHtml(key, i, refs) {
+  return refs.map((r, ri) => `<span class="chip"><a href="${esc(r.url)}" data-act="openRef" target="_blank" rel="noopener">📖 ${esc(r.label)}</a><button data-act="delRef" data-sec="${key}" data-i="${i}" data-r="${ri}" aria-label="✕">×</button></span>`).join('');
+}
+
+function renderCounter() {
+  const c = cur.counter;
+  const head = `<div class="sec-head"><h2>🔢 ${esc(t('wordCounter'))}</h2><button class="btn-link" data-act="editWords">${esc(t('editWords'))}</button></div>`;
+  const body = `<p class="hint">${esc(t('counterHint'))}</p>
+    <div class="tiles">${c.map((w, i) => `<button class="tile" data-act="count" data-i="${i}">
+      <span class="em">${esc(w.e)}</span><span class="w">${esc(w.w)}</span><span class="n" id="cnt-${i}">${w.n}</span>
+      <span class="minus" data-act="uncount" data-i="${i}" role="button" aria-label="−1">−</span></button>`).join('')}</div>`;
+  if (settings.kidMode) return `<section class="card counter">${head}${body}</section>`;
+  const total = c.reduce((s, w) => s + w.n, 0);
+  return `<details class="card counter"${total ? ' open' : ''}><summary>${head}</summary>${body}</details>`;
+}
+
+function getBlock(sec, i) { return cur && cur[sec] && cur[sec].blocks[i]; }
+
+// ── field input (delegated) ──
+document.addEventListener('input', ev => {
+  if (!cur) return;
+  const el = ev.target;
+  if (el.matches('.rt')) {
+    if (el.innerHTML === '<br>') el.innerHTML = '';
+    if (el.dataset.sec) { const b = getBlock(el.dataset.sec, +el.dataset.i); if (b) b.html = el.innerHTML; }
+    else if (el.dataset.f) setPath(cur, el.dataset.f, el.innerHTML);
+    dirty(); return;
+  }
+  if (el.dataset.song != null) {
+    const v = el.value.replace(/\D/g, '').slice(0, 3);
+    cur.songs[+el.dataset.song] = v; dirty();
+    const a = el.parentElement.querySelector('.song-link'), url = songUrl(v);
+    if (a) { a.hidden = !url; a.href = url || '#'; }
+    return;
+  }
+  if (el.dataset.f && cur && el.closest('#entry')) {
+    if (el.dataset.f === 'date') { if (!el.value) return; cur.date = el.value; }
+    else setPath(cur, el.dataset.f, el.value);
+    dirty();
+    if (el.dataset.f === 'date' || el.dataset.f === 'talkTitle') updateHeader();
+  }
+});
+
+// plain-text paste into notes
+document.addEventListener('paste', ev => {
+  const el = ev.target.closest && ev.target.closest('.rt');
+  if (!el) return;
   ev.preventDefault();
-  const txt = (ev.clipboardData || window.clipboardData).getData('text/plain');
-  document.execCommand('insertText', false, txt);
-}
+  const text = (ev.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
+});
 
-function focusRT(el) {
-  lastRT = el;
-  if (el.dataset.sec) activeIdx[el.dataset.sec] = +el.dataset.i;
-  try { document.execCommand('styleWithCSS', false, false); } catch (_) {}
-  $('fmt').classList.add('show');
-  placeFmt(); updFmtState();
-}
-function blurRT() {
-  setTimeout(() => {
-    const a = document.activeElement;
-    if (!a || !a.classList || !a.classList.contains('rt')) hideFmt();
-  }, 150);
-}
-function hideFmt() { $('fmt').classList.remove('show'); }
-
+// ═══════════════════════════════════════════
+//  FORMAT BAR
+// ═══════════════════════════════════════════
+let fmtHideTimer = null;
+document.addEventListener('focusin', ev => {
+  const el = ev.target;
+  if (el.matches && el.matches('.rt')) {
+    clearTimeout(fmtHideTimer);
+    if (el.dataset.sec) activeBlk[el.dataset.sec] = +el.dataset.i;
+    showFmt();
+  }
+});
+document.addEventListener('focusout', ev => {
+  if (ev.target.matches && ev.target.matches('.rt')) {
+    fmtHideTimer = setTimeout(() => { if (!document.activeElement || !document.activeElement.matches('.rt')) hideFmt(); }, 150);
+  }
+});
+function showFmt() { $('fmt-bar').hidden = false; document.body.classList.add('fmt-open'); placeFmt(); updateFmtState(); }
+function hideFmt() { $('fmt-bar').hidden = true; document.body.classList.remove('fmt-open'); }
 function placeFmt() {
-  const f = $('fmt');
-  if (!f.classList.contains('show')) return;
+  const bar = $('fmt-bar');
+  if (bar.hidden) return;
   const vv = window.visualViewport;
-  const top = vv ? vv.offsetTop + vv.height - f.offsetHeight - 10 : window.innerHeight - f.offsetHeight - 10;
-  f.style.top = Math.max(0, top) + 'px';
+  if (!vv) { bar.style.top = ''; bar.style.bottom = '0'; return; }
+  bar.style.bottom = 'auto';
+  bar.style.left = vv.offsetLeft + 'px';
+  bar.style.width = vv.width + 'px';
+  bar.style.top = (vv.offsetTop + vv.height - bar.offsetHeight) + 'px';
 }
 if (window.visualViewport) {
   visualViewport.addEventListener('resize', placeFmt);
   visualViewport.addEventListener('scroll', placeFmt);
 }
 window.addEventListener('scroll', placeFmt, { passive: true });
+// keep the text selection when tapping bar buttons
+$('fmt-bar').addEventListener('pointerdown', ev => { if (ev.target.closest('button')) ev.preventDefault(); });
+$('fmt-bar').addEventListener('mousedown', ev => ev.preventDefault());
 
-function updFmtState() {
-  document.querySelectorAll('#fmt [data-cmd]').forEach(b => {
-    let on = false; try { on = document.queryCommandState(b.dataset.cmd); } catch (_) {}
-    b.classList.toggle('on', on);
+function updateFmtState() {
+  if ($('fmt-bar').hidden) return;
+  ['bold', 'italic', 'underline'].forEach(c => {
+    let on = false; try { on = document.queryCommandState(c); } catch {}
+    $('fb-' + c).classList.toggle('on', on);
   });
 }
-document.addEventListener('selectionchange', () => { if ($('fmt').classList.contains('show')) updFmtState(); });
+document.addEventListener('selectionchange', updateFmtState);
 
-$('fmt').addEventListener('pointerdown', ev => ev.preventDefault());   // keep focus/selection
-$('fmt').addEventListener('mousedown', ev => ev.preventDefault());
-$('fmt').addEventListener('click', ev => {
-  const b = ev.target.closest('button'); if (!b) return;
-  if (b.dataset.cmd) {
-    document.execCommand(b.dataset.cmd, false, null);
-    if (lastRT) lastRT.dispatchEvent(new Event('input'));
-    updFmtState();
-  } else if (b.dataset.act === 'translate') {
-    const sel = String(window.getSelection() || '').trim();
-    if (!sel) { toast(t('selectWord')); return; }
-    openTranslate(sel);
-  } else if (b.dataset.act === 'gloss') {
-    const sel = String(window.getSelection() || '').trim();
-    openGloss(sel);
-  }
-});
-
-// ═══════════════════════════════════════════
-//  PEN / CANVAS
-// ═══════════════════════════════════════════
-function penBarInner() {
-  const hl = tool.mode === 'hl';
-  const cols = hl ? HL_COLORS : COLORS;
-  return `
-    <button class="pb ${tool.mode === 'pen' ? 'active' : ''}" onclick="setTool('mode','pen')" title="Pen">✏️</button>
-    <button class="pb ${hl ? 'active' : ''}" onclick="setTool('mode','hl')" title="Highlighter">🖍️</button>
-    <button class="pb ${tool.mode === 'eraser' ? 'active' : ''}" onclick="setTool('mode','eraser')" title="Eraser">🧽</button>
-    <span class="pb-sep"></span>
-    ${cols.map(c => `<button class="pb ${tool.color === c ? 'active' : ''}" onclick="setTool('color','${c}')"><span class="dot" style="background:${c}"></span></button>`).join('')}
-    <span class="pb-sep"></span>
-    ${SIZES.map(s => `<button class="pb ${tool.size === s ? 'active' : ''}" onclick="setTool('size',${s})"><span class="sz" style="width:${s + 3}px;height:${s + 3}px"></span></button>`).join('')}
-    <span class="pb-sep"></span>
-    <button class="pb ${settings.finger ? 'active' : ''}" onclick="toggleFinger()" title="${esc(t('finger'))}">👆</button>`;
-}
-function refreshPenBars() { document.querySelectorAll('.pen-bar').forEach(b => b.innerHTML = penBarInner()); }
-
-function setTool(k, v) {
-  if (k === 'mode') {
-    const was = tool.mode;
-    tool.mode = v;
-    if (v === 'hl' && !HL_COLORS.includes(tool.color)) { tool._pc = tool.color; tool.color = HL_COLORS[0]; }
-    if (v === 'pen' && was === 'hl') tool.color = tool._pc || COLORS[0];
-  } else {
-    tool[k] = v;
-    if (k === 'color' && tool.mode === 'eraser') tool.mode = HL_COLORS.includes(v) ? 'hl' : 'pen';
-  }
-  refreshPenBars();
-}
-function toggleFinger() {
-  settings.finger = !settings.finger;
-  saveSettings(); refreshPenBars();
-  toast((settings.finger ? '👆 ' : '✏️ ') + t('finger') + (settings.finger ? ' ✓' : ' ✕'));
-}
-
-const cvBlock = cv => E()?.[cv.dataset.sec]?.blocks[+cv.dataset.i];
-
-function initCanvases(root) {
-  root.querySelectorAll('canvas.pen-cv').forEach(cv => {
-    if (!cv._init) { attachPen(cv); cv._init = true; }
-    sizeCanvas(cv); redraw(cv);
-  });
-}
-
-function sizeCanvas(cv) {
-  const b = cvBlock(cv); if (!b) return;
-  const w = cv.parentElement.clientWidth || 300;
-  const scale = w / LW;
-  const h = b.h * scale;
-  const dpr = Math.min(window.devicePixelRatio || 1, 3);
-  cv.style.height = h + 'px';
-  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-  cv._scale = scale;
-  cv.getContext('2d').setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
-}
-
-function redraw(cv) {
-  const b = cvBlock(cv); if (!b) return;
-  const ctx = cv.getContext('2d');
-  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); ctx.restore();
-  // ruled lines
-  ctx.save(); ctx.strokeStyle = '#e6eef7'; ctx.lineWidth = 1.2;
-  for (let y = 48; y < b.h; y += 48) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(LW, y); ctx.stroke(); }
-  ctx.restore();
-  b.strokes.filter(s => s.hl).forEach(s => drawStroke(ctx, s));
-  b.strokes.filter(s => !s.hl).forEach(s => drawStroke(ctx, s));
-}
-
-const wAt = (s, p) => s.pen ? s.s * (0.35 + (p || 0.5) * 1.3) : s.s;
-
-function drawStroke(ctx, s) {
-  const P = s.pts; if (!P.length) return;
-  ctx.save();
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.strokeStyle = s.c; ctx.fillStyle = s.c;
-  if (s.hl) {
-    ctx.globalAlpha = .38; ctx.lineWidth = s.s * 5;
-    ctx.beginPath(); ctx.moveTo(P[0][0], P[0][1]);
-    if (P.length === 1) ctx.lineTo(P[0][0] + .1, P[0][1]);
-    for (let i = 1; i < P.length - 1; i++) {
-      const mx = (P[i][0] + P[i + 1][0]) / 2, my = (P[i][1] + P[i + 1][1]) / 2;
-      ctx.quadraticCurveTo(P[i][0], P[i][1], mx, my);
-    }
-    if (P.length > 1) ctx.lineTo(P[P.length - 1][0], P[P.length - 1][1]);
-    ctx.stroke();
-  } else if (P.length === 1) {
-    ctx.beginPath(); ctx.arc(P[0][0], P[0][1], wAt(s, P[0][2]) / 2, 0, Math.PI * 2); ctx.fill();
-  } else {
-    for (let i = 1; i < P.length; i++) segment(ctx, s, i);
-  }
-  ctx.restore();
-}
-
-function segment(ctx, s, i) {
-  const a = s.pts[i - 1], b = s.pts[i];
-  ctx.lineWidth = (wAt(s, a[2]) + wAt(s, b[2])) / 2;
-  ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
-}
-
-function ptOf(cv, e) {
-  const r = cv.getBoundingClientRect();
-  const x = (e.clientX - r.left) / cv._scale, y = (e.clientY - r.top) / cv._scale;
-  const p = e.pointerType === 'pen' ? (e.pressure || 0.5) : 0.5;
-  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10, Math.round(p * 100) / 100];
-}
-
-function segDist(px, py, a, b) {
-  const dx = b[0] - a[0], dy = b[1] - a[1];
-  const l2 = dx * dx + dy * dy;
-  let tt = l2 ? ((px - a[0]) * dx + (py - a[1]) * dy) / l2 : 0;
-  tt = Math.max(0, Math.min(1, tt));
-  return Math.hypot(px - (a[0] + tt * dx), py - (a[1] + tt * dy));
-}
-
-function eraseAt(cv, pt) {
-  const b = cvBlock(cv); const R = 14;
-  const before = b.strokes.length;
-  b.strokes = b.strokes.filter(s => {
-    const lim = R + (s.hl ? s.s * 2.5 : s.s);
-    if (s.pts.length === 1) return Math.hypot(pt[0] - s.pts[0][0], pt[1] - s.pts[0][1]) > lim;
-    for (let i = 1; i < s.pts.length; i++) if (segDist(pt[0], pt[1], s.pts[i - 1], s.pts[i]) < lim) return false;
-    return true;
-  });
-  if (b.strokes.length !== before) { redraw(cv); scheduleSave(); }
-}
-
-function attachPen(cv) {
-  cv.addEventListener('pointerdown', e => {
-    const b = cvBlock(cv); if (!b) return;
-    activeIdx[cv.dataset.sec] = +cv.dataset.i;
-    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-    if (e.pointerType === 'touch') {
-      if (penActive) return;                         // palm rejection while pen is writing
-      if (!settings.finger) {                         // finger scrolls the page
-        cv._pan = { id: e.pointerId, y: e.clientY };
-        try { cv.setPointerCapture(e.pointerId); } catch (_) {}
-        return;
-      }
-    }
-    e.preventDefault();
-    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
-    cv._pid = e.pointerId;
-    const pt = ptOf(cv, e);
-    if (tool.mode === 'eraser') { cv._erasing = true; eraseAt(cv, pt); return; }
-    const s = { c: tool.color, s: tool.size, hl: tool.mode === 'hl', pen: e.pointerType === 'pen', pts: [pt] };
-    b.strokes.push(s);
-    cv._stroke = s;
-    penActive = e.pointerType === 'pen';
-    if (!s.hl) drawStroke(cv.getContext('2d'), s);
-  });
-
-  cv.addEventListener('pointermove', e => {
-    if (cv._pan && e.pointerId === cv._pan.id) {
-      window.scrollBy(0, cv._pan.y - e.clientY);
-      cv._pan.y = e.clientY;
-      return;
-    }
-    if (e.pointerId !== cv._pid) return;
-    const evs = (e.getCoalescedEvents && e.getCoalescedEvents().length) ? e.getCoalescedEvents() : [e];
-    if (cv._erasing) { evs.forEach(ev => eraseAt(cv, ptOf(cv, ev))); return; }
-    const s = cv._stroke; if (!s) return;
-    e.preventDefault();
-    const ctx = cv.getContext('2d');
-    evs.forEach(ev => {
-      const p = ptOf(cv, ev);
-      const last = s.pts[s.pts.length - 1];
-      if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.8) return;
-      s.pts.push(p);
-      if (!s.hl) { ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = s.c; segment(ctx, s, s.pts.length - 1); ctx.restore(); }
-    });
-    if (s.hl) redraw(cv);
-  });
-
-  const end = e => {
-    if (cv._pan && e.pointerId === cv._pan.id) { cv._pan = null; return; }
-    if (e.pointerId !== cv._pid) return;
-    cv._pid = null;
-    if (cv._erasing) { cv._erasing = false; return; }
-    const s = cv._stroke; cv._stroke = null;
-    penActive = false;
-    if (!s) return;
-    const b = cvBlock(cv);
-    const maxY = Math.max(...s.pts.map(p => p[1]));
-    if (maxY > b.h - 60) { b.h += 180; sizeCanvas(cv); }     // auto-grow near the bottom
-    redraw(cv);
-    scheduleSave();
-  };
-  cv.addEventListener('pointerup', end);
-  cv.addEventListener('pointercancel', end);
-  cv.addEventListener('contextmenu', e => e.preventDefault());
-}
-
-const cvFor = (sec, i) => document.querySelector(`canvas.pen-cv[data-sec="${sec}"][data-i="${i}"]`);
-function penUndo(sec, i) { const b = E()[sec].blocks[i]; if (!b.strokes.length) return; b.strokes.pop(); redraw(cvFor(sec, i)); scheduleSave(); }
-function penMore(sec, i) { const b = E()[sec].blocks[i]; b.h += 240; const cv = cvFor(sec, i); sizeCanvas(cv); redraw(cv); scheduleSave(); }
-function penClear(sec, i) {
-  const b = E()[sec].blocks[i];
-  if (!b.strokes.length || !confirm(t('confirmClearPen'))) return;
-  b.strokes = []; b.h = 420; const cv = cvFor(sec, i); sizeCanvas(cv); redraw(cv); scheduleSave();
-}
-
-let rsT;
-window.addEventListener('resize', () => {
-  clearTimeout(rsT);
-  rsT = setTimeout(() => document.querySelectorAll('canvas.pen-cv').forEach(cv => { sizeCanvas(cv); redraw(cv); }), 150);
-});
-
-// ═══════════════════════════════════════════
-//  WORD COUNTER
-// ═══════════════════════════════════════════
-function renderCounter() {
-  const e = E();
-  const open = cntOpen ?? !!prof().kid;
-  const total = e.counter.reduce((n, w) => n + w.c, 0);
-  return `<div class="card cnt-card" id="cnt-card">
-    <div class="sec-hdr" onclick="toggleCnt(event)" style="cursor:pointer">
-      <span class="sec-title">${esc(t('counter'))} ${open ? '▾' : '▸'}</span>
-      <span style="display:flex;gap:6px;align-items:center">
-        <span class="cnt-total" id="cnt-total">${total} ${esc(t('total'))}</span>
-        ${open ? `<button class="btn-hdr no-print" onclick="cntUndo(event)">↶</button>
-        <button class="btn-hdr no-print" onclick="toggleCntEdit(event)">${esc(cntEdit ? t('done') : t('edit'))}</button>` : ''}
-      </span>
-    </div>
-    ${open ? `<div class="cnt-grid">
-      ${e.counter.map((w, i) => `<div class="cnt" id="cnt-${i}" onclick="bump(${i})">
-          ${cntEdit ? `<button class="cnt-rm" onclick="event.stopPropagation();rmWord(${i})">✕</button>` : ''}
-          <span class="cnt-e">${esc(w.e || '•')}</span>
-          <span class="cnt-w">${esc(w.w)}</span>
-          <span class="cnt-n">${w.c}</span>
-        </div>`).join('')}
-    </div>
-    ${cntEdit ? `<div class="cnt-add">
-      <input class="emo" id="cw-e" placeholder="🙂" maxlength="4">
-      <input class="word" id="cw-w" placeholder="${esc(t('wordPh'))}" onkeydown="if(event.key==='Enter')addWord()">
-      <button class="btn-hdr" onclick="addWord()">${esc(t('addWord'))}</button>
-      <button class="btn-hdr danger" onclick="resetCounts()">${esc(t('resetCounts'))}</button>
-    </div>` : ''}` : ''}
-  </div>`;
-}
-function reCounter() {
-  const c = $('cnt-card'); if (!c) return;
-  c.outerHTML = renderCounter();
-}
-function toggleCnt(ev) {
-  if (ev.target.closest('button')) return;
-  cntOpen = !(cntOpen ?? !!prof().kid);
-  reCounter();
-}
-function toggleCntEdit(ev) { ev.stopPropagation(); cntEdit = !cntEdit; reCounter(); }
-
-function bump(i) {
-  if (cntEdit) return;
-  const w = E().counter[i]; w.c++;
-  bumpStack.push(i);
-  const el = $('cnt-' + i);
-  if (el) {
-    el.querySelector('.cnt-n').textContent = w.c;
-    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-  }
-  updTotal();
-  if (navigator.vibrate) navigator.vibrate(15);
-  scheduleSave();
-}
-function cntUndo(ev) {
-  ev.stopPropagation();
-  const i = bumpStack.pop(); if (i == null) return;
-  const w = E().counter[i]; if (!w || !w.c) return;
-  w.c--;
-  const el = $('cnt-' + i); if (el) el.querySelector('.cnt-n').textContent = w.c;
-  updTotal(); scheduleSave();
-}
-function updTotal() { const el = $('cnt-total'); if (el) el.textContent = E().counter.reduce((n, w) => n + w.c, 0) + ' ' + t('total'); }
-function syncWordsToProfile() { prof().words = E().counter.map(w => ({ e: w.e, w: w.w })); saveSettings(); }
-function addWord() {
-  const w = $('cw-w').value.trim(); if (!w) return;
-  E().counter.push({ e: $('cw-e').value.trim() || '•', w, c: 0 });
-  syncWordsToProfile(); scheduleSave(); reCounter();
-  requestAnimationFrame(() => $('cw-w')?.focus());
-}
-function rmWord(i) { E().counter.splice(i, 1); bumpStack = []; syncWordsToProfile(); scheduleSave(); reCounter(); }
-function resetCounts() { E().counter.forEach(w => w.c = 0); bumpStack = []; scheduleSave(); reCounter(); }
-
-function setMood(m) {
-  const e = E(); e.kids.mood = e.kids.mood === m ? '' : m;
-  document.querySelectorAll('#mood button').forEach(b => b.classList.toggle('active', b.textContent === e.kids.mood));
-  scheduleSave();
+function selectedWord() {
+  const s = (window.getSelection() || '').toString().trim();
+  return s.slice(0, 300);
 }
 
 // ═══════════════════════════════════════════
 //  BIBLE PICKER
 // ═══════════════════════════════════════════
-function fillBookSelect() {
-  const sel = $('bp-book'); const v = sel.value;
-  sel.innerHTML = BOOKS.map(b => `<option value="${b.n}">${esc(b.name)}</option>`).join('');
-  if (v) sel.value = v;
-}
-function buildUrl(book, ch, v, ve) {
-  const first = `${String(book.n).padStart(2,'0')}${String(ch).padStart(3,'0')}${String(v || 1).padStart(3,'0')}`;
-  const lastVerse = ve || v;
-  const range = lastVerse ? `${first}-${String(book.n).padStart(2,'0')}${String(ch).padStart(3,'0')}${String(lastVerse).padStart(3,'0')}` : first;
-  const locale = curLang === 'de' ? 'X' : 'E';
-  return `https://www.jw.org/finder?wtlocale=${locale}&pub=nwtsty&bible=${range}`;
+function books() { return settings.contentLang === 'de' ? BOOKS_DE : BOOKS_EN; }
+function buildUrl(bookN, ch, v, ve) {
+  const pad = (n, l) => String(n).padStart(l, '0');
+  const first = `${pad(bookN, 2)}${pad(ch, 3)}${pad(v || 1, 3)}`;
+  const last = ve || v;
+  const range = last ? `${first}-${pad(bookN, 2)}${pad(ch, 3)}${pad(last, 3)}` : first;
+  const loc = settings.contentLang === 'de' ? 'X' : 'E';
+  return `https://www.jw.org/finder?wtlocale=${loc}&pub=nwtsty&bible=${range}`;
 }
 function buildLabel(name, ch, v, ve) {
   if (!v) return `${name} ${ch}`;
-  if (!ve) return `${name} ${ch}:${v}`;
+  if (!ve || +ve <= +v) return `${name} ${ch}:${v}`;
   return `${name} ${ch}:${v}–${ve}`;
 }
-function readBP() {
-  const book = BOOKS[parseInt($('bp-book').value) - 1];
-  const ch = $('bp-chapter').value, v = $('bp-verse').value, ve = $('bp-vend').value;
-  if (!book || !ch) return null;
-  return {
-    label: buildLabel(book.name, ch, v || null, ve || null),
-    url: buildUrl(book, +ch, v ? +v : null, ve ? +ve : null)
-  };
-}
 function openBP(sec) {
-  bpSec = sec;
-  ['bp-chapter', 'bp-verse', 'bp-vend'].forEach(i => $(i).value = '');
-  $('bp-preview').textContent = t('choose');
-  $('modal-bible').style.setProperty('--bar', getComputedStyle(document.body).getPropertyValue(sec === 'wt' ? '--wt' : sec === 'kids' ? '--kids' : '--talk'));
+  bpSection = sec;
+  const sel = $('bp-book');
+  const prev = sel.value;
+  sel.innerHTML = books().map(b => `<option value="${b.n}">${esc(b.name)}</option>`).join('');
+  if (prev) sel.value = prev;
+  ['bp-ch', 'bp-v', 'bp-ve'].forEach(i => $(i).value = '');
+  previewRef();
   openModal('modal-bible');
-  setTimeout(() => $('bp-chapter').focus(), 250);
+  setTimeout(() => $('bp-ch').focus(), 250);
+}
+function readBP() {
+  const bookN = +$('bp-book').value;
+  const book = books().find(b => b.n === bookN);
+  const ch = parseInt($('bp-ch').value, 10), v = parseInt($('bp-v').value, 10), ve = parseInt($('bp-ve').value, 10);
+  if (!book || !ch) return null;
+  return { label: buildLabel(book.name, ch, v || null, ve || null), url: buildUrl(bookN, ch, v || null, (ve && v && ve > v) ? ve : null) };
 }
 function previewRef() {
   const r = readBP();
-  $('bp-preview').innerHTML = r ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.label)}</a> ↗` : esc(t('choose'));
+  $('bp-preview').innerHTML = r ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">📖 ${esc(r.label)}</a> ↗` : esc(t('choose'));
 }
-function insertRef() {
-  const r = readBP();
-  if (!r) { toast(t('selectBookChapter')); return; }
-  const sec = bpSec, arr = E()[sec].blocks;
-  const pos = insertPos(sec);
-  arr.splice(pos, 0, { id: uid(), type: 'ref', ...r });
-  // note field after the scripture, like in the CA tools
-  let focus = pos + 1;
-  if (!arr[pos + 1] || arr[pos + 1].type !== 'text' || blockHasContent(arr[pos + 1])) arr.splice(pos + 1, 0, tb());
-  activeIdx[sec] = focus;
-  scheduleSave();
-  closeModal('modal-bible');
-  toast(`✓ ${r.label} ${t('added')}`);
-  rerenderSec(sec, focus);
-}
-function openScripture(url, e) {
-  e.preventDefault();
-  const mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 640 || navigator.maxTouchPoints > 1;
-  if (mobile) { window.open(url, '_blank'); return; }
-  const w = 440, h = 640;
-  window.open(url, 'scripture_popup', `width=${w},height=${h},left=${Math.round((screen.width - w) / 2)},top=${Math.round((screen.height - h) / 2)},scrollbars=yes,resizable=yes`);
+['bp-book', 'bp-ch', 'bp-v', 'bp-ve'].forEach(id => $(id).addEventListener('input', previewRef));
+['bp-ch', 'bp-v', 'bp-ve'].forEach(id => $(id).addEventListener('keydown', e => { if (e.key === 'Enter') ACTIONS.bpInsert(); }));
+
+function openScripture(url) {
+  const mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 640 || matchMedia('(pointer:coarse)').matches;
+  if (mobile) { window.open(url, '_blank', 'noopener'); return; }
+  const w = 440, hgt = 640;
+  window.open(url, 'scripture_popup', `width=${w},height=${hgt},left=${Math.round((screen.width - w) / 2)},top=${Math.round((screen.height - hgt) / 2)},scrollbars=yes,resizable=yes`);
 }
 
 // ═══════════════════════════════════════════
-//  GLOSSARY / TRANSLATE
+//  INK  (pen notes)
 // ═══════════════════════════════════════════
-const wolSearch = q => curLang === 'de'
-  ? `https://wol.jw.org/de/wol/s/r10/lp-x?q=${encodeURIComponent(q)}`
-  : `https://wol.jw.org/en/wol/s/r1/lp-e?q=${encodeURIComponent(q)}`;
-const translateUrl = q => `https://translate.google.com/?sl=auto&tl=${curLang === 'de' ? 'en' : 'de'}&text=${encodeURIComponent(q)}&op=translate`;
-function openTranslate(q) { window.open(translateUrl(q), '_blank', 'noopener'); }
-
-function allGloss() {
-  const own = (settings.glossary || []).map(g => ({ ...g, own: true }));
-  const built = GLOSS.map(([en, de, xen, xde]) => ({ en, de, xen, xde }));
-  return [...own, ...built];
+function inkToolsHtml() {
+  return INK_COLORS.map(c => `<button class="sw" data-act="inkColor" data-c="${c}" style="--sw:${c}" aria-label="${c}"></button>`).join('')
+    + '<span class="sep"></span>'
+    + INK_SIZES.map((s, ix) => `<button class="sz" data-act="inkSize" data-s="${s}" aria-label="size ${ix + 1}"><i style="width:${4 + ix * 4}px;height:${4 + ix * 4}px"></i></button>`).join('')
+    + '<span class="sep"></span>'
+    + `<button class="tl" data-act="inkTool" data-t="hl" title="${esc(t('highlighter'))}" aria-label="${esc(t('highlighter'))}">🖍️</button>`
+    + `<button class="tl" data-act="inkTool" data-t="er" title="${esc(t('eraser'))}" aria-label="${esc(t('eraser'))}">🧽</button>`
+    + '<span class="grow"></span>'
+    + `<button class="tl" data-act="inkUndo" title="${esc(t('undo'))}" aria-label="${esc(t('undo'))}">↶</button>`
+    + `<button class="tl" data-act="inkMore" title="${esc(t('moreSpace'))}" aria-label="${esc(t('moreSpace'))}">↕</button>`
+    + `<button class="tl" data-act="inkClear" title="${esc(t('clear'))}" aria-label="${esc(t('clear'))}">🗑</button>`;
 }
-
-function openGloss(q = '') {
-  $('g-search').value = q;
-  renderGloss();
-  openModal('modal-gloss');
-  if (!q) setTimeout(() => $('g-search').focus(), 250);
+function updateInkToolbars() {
+  const p = settings.pen;
+  document.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', p.tool === 'pen' && b.dataset.c === p.color));
+  document.querySelectorAll('.sz').forEach(b => b.classList.toggle('on', p.tool === 'pen' && +b.dataset.s === p.size));
+  document.querySelectorAll('.tl[data-act="inkTool"]').forEach(b => b.classList.toggle('on', b.dataset.t === p.tool));
 }
-
-function renderGloss() {
-  const q = $('g-search').value.trim().toLowerCase();
-  const list = allGloss().filter(g => !q || g.en.toLowerCase().includes(q) || g.de.toLowerCase().includes(q));
-  const main = g => curLang === 'de' ? g.de : g.en;
-  const alt = g => curLang === 'de' ? g.en : g.de;
-  $('g-extra').innerHTML = q ? `<div class="g-links" style="margin:0 0 10px">
-      <a href="${esc(translateUrl(q))}" target="_blank" rel="noopener">${esc(t('translateOnline'))}: „${esc(q)}“</a>
-      <a href="${esc(wolSearch(q))}" target="_blank" rel="noopener">${esc(t('searchWol'))}</a></div>` : '';
-  $('g-list').innerHTML = list.map(g => {
-    const x = curLang === 'de' ? (g.xde || g.xen) : (g.xen || g.xde);
-    const idx = g.own ? settings.glossary.indexOf(settings.glossary.find(o => o.id === g.id)) : -1;
-    return `<div class="g-item">
-      ${g.own ? `<div class="g-own">${esc(t('own'))}</div>` : ''}
-      <div class="g-terms"><span class="g-main">${esc(main(g))}</span><span class="g-alt">${esc(alt(g))}</span></div>
-      ${x ? `<div class="g-x">${esc(x)}</div>` : ''}
-      <div class="g-links">
-        <a href="${esc(wolSearch(curLang === 'de' ? g.de.split(' / ')[0] : g.en))}" target="_blank" rel="noopener">${esc(t('searchWol'))}</a>
-        ${g.own ? `<button onclick="rmGloss(${idx})">🗑</button>` : ''}
-      </div>
-    </div>`;
-  }).join('');
+function disposeInks() { inkStates.forEach(st => st.ro && st.ro.disconnect()); inkStates = []; }
+function initInks() {
+  document.querySelectorAll('#entry .ink').forEach(el => {
+    const b = getBlock(el.dataset.sec, +el.dataset.i);
+    if (b) setupInk(el, b);
+  });
+  updateInkToolbars();
 }
-
-function addGloss() {
-  const en = $('ga-en').value.trim(), de = $('ga-de').value.trim(), x = $('ga-x').value.trim();
-  if (!en && !de) return;
-  settings.glossary = settings.glossary || [];
-  settings.glossary.unshift({ id: uid(), en: en || de, de: de || en, xen: x, xde: x });
-  saveSettings();
-  ['ga-en', 'ga-de', 'ga-x'].forEach(i => $(i).value = '');
-  renderGloss();
+function setupInk(el, b) {
+  const paper = el.querySelector('.paper');
+  const st = { el, b, paper, base: el.querySelector('.c-base'), live: el.querySelector('.c-live'), scale: 1, dpr: 1, undo: [], cur: null, pid: null, w: 0, hCss: 0 };
+  el._ink = st;
+  inkStates.push(st);
+  const live = st.live;
+  live.addEventListener('pointerdown', ev => inkDown(st, ev));
+  live.addEventListener('pointermove', ev => inkMove(st, ev));
+  live.addEventListener('pointerup', ev => inkUp(st, ev));
+  live.addEventListener('pointercancel', ev => inkUp(st, ev));
+  // stop the page from scrolling while the pen (or an allowed finger) writes
+  const blockScroll = ev => {
+    const tt = ev.touches && ev.touches[0];
+    if (!tt) return;
+    if (tt.touchType === 'stylus' || st.pid !== null || (settings.fingerDraw && !penSeen)) ev.preventDefault();
+  };
+  live.addEventListener('touchstart', blockScroll, { passive: false });
+  live.addEventListener('touchmove', blockScroll, { passive: false });
+  if (window.ResizeObserver) { st.ro = new ResizeObserver(() => sizeInk(st)); st.ro.observe(paper); }
+  else window.addEventListener('resize', () => sizeInk(st));
+  sizeInk(st);
 }
-function rmGloss(i) { if (i < 0) return; settings.glossary.splice(i, 1); saveSettings(); renderGloss(); }
+function sizeInk(st, force) {
+  const w = st.paper.clientWidth;
+  if (!w) return;
+  const scale = w / LOGICAL_W;
+  const hCss = Math.round(st.b.h * scale);
+  if (!force && st.w === w && st.hCss === hCss) return;
+  st.w = w; st.hCss = hCss; st.scale = scale;
+  st.dpr = Math.min(window.devicePixelRatio || 1, 3);
+  st.paper.style.height = hCss + 'px';
+  st.paper.style.setProperty('--lh', (RULE * scale) + 'px');
+  st.paper.style.setProperty('--ml', (MARGIN_X * scale) + 'px');
+  [st.base, st.live].forEach(c => {
+    c.width = Math.round(w * st.dpr); c.height = Math.round(hCss * st.dpr);
+    c.style.width = w + 'px'; c.style.height = hCss + 'px';
+  });
+  redrawInk(st);
+}
+function ctxOf(st, c) {
+  const ctx = c.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.setTransform(st.dpr * st.scale, 0, 0, st.dpr * st.scale, 0, 0);
+  return ctx;
+}
+function redrawInk(st) {
+  const ctx = ctxOf(st, st.base);
+  // highlighter strokes sit underneath the writing
+  st.b.strokes.filter(s => s.t === 'hl').forEach(s => drawStroke(ctx, s));
+  st.b.strokes.filter(s => s.t !== 'hl').forEach(s => drawStroke(ctx, s));
+}
+const strokeW = (s, pr) => s.w * (0.45 + 1.1 * (pr == null ? .5 : pr));
+function drawStroke(ctx, s) {
+  const p = s.p;
+  if (!p.length) return;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (s.t === 'hl') {
+    ctx.save();
+    ctx.globalAlpha = .38; ctx.strokeStyle = s.c; ctx.lineWidth = s.w;
+    ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
+    if (p.length === 1) ctx.lineTo(p[0][0] + .1, p[0][1]);
+    for (let i = 1; i < p.length; i++) ctx.lineTo(p[i][0], p[i][1]);
+    ctx.stroke(); ctx.restore();
+    return;
+  }
+  ctx.strokeStyle = s.c; ctx.fillStyle = s.c;
+  if (p.length === 1) {
+    ctx.beginPath(); ctx.arc(p[0][0], p[0][1], strokeW(s, p[0][2]) / 2, 0, Math.PI * 2); ctx.fill();
+    return;
+  }
+  let prev = [p[0][0], p[0][1]];
+  for (let i = 1; i < p.length; i++) {
+    const a = p[i - 1], b = p[i];
+    const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    ctx.beginPath(); ctx.moveTo(prev[0], prev[1]);
+    ctx.quadraticCurveTo(a[0], a[1], mid[0], mid[1]);
+    ctx.lineWidth = strokeW(s, (a[2] + b[2]) / 2);
+    ctx.stroke();
+    prev = mid;
+  }
+  const last = p[p.length - 1];
+  ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(last[0], last[1]);
+  ctx.lineWidth = strokeW(s, last[2]); ctx.stroke();
+}
+function inkPoint(st, ev) {
+  const r = st.live.getBoundingClientRect();
+  const x = (ev.clientX - r.left) / st.scale, y = (ev.clientY - r.top) / st.scale;
+  const pr = ev.pointerType === 'pen' ? Math.max(.08, ev.pressure || .5) : .5;
+  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10, Math.round(pr * 100) / 100];
+}
+function allowPointer(ev) {
+  if (ev.pointerType === 'pen') { if (!penSeen) { penSeen = true; } return true; }
+  if (ev.pointerType === 'mouse') return ev.button === 0;
+  return settings.fingerDraw && !penSeen;
+}
+function pushUndo(st) { st.undo.push(JSON.stringify(st.b.strokes)); if (st.undo.length > 40) st.undo.shift(); }
+let liveRaf = 0;
+function scheduleLive(st) {
+  if (liveRaf) return;
+  liveRaf = requestAnimationFrame(() => {
+    liveRaf = 0;
+    if (!st.cur) return;
+    const ctx = ctxOf(st, st.live);
+    drawStroke(ctx, st.cur);
+  });
+}
+function inkDown(st, ev) {
+  if (st.pid !== null || !allowPointer(ev)) return;
+  ev.preventDefault();
+  try { st.live.setPointerCapture(ev.pointerId); } catch {}
+  st.pid = ev.pointerId;
+  activeBlk[st.el.dataset.sec] = +st.el.dataset.i;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  pushUndo(st);
+  const tool = settings.pen.tool;
+  if (tool === 'er') { st.erasing = true; st.erasedAny = false; eraseAt(st, inkPoint(st, ev)); return; }
+  st.cur = tool === 'hl'
+    ? { t: 'hl', c: '#ffd23f', w: 26, p: [inkPoint(st, ev)] }
+    : { t: 'pen', c: settings.pen.color, w: settings.pen.size, p: [inkPoint(st, ev)] };
+  scheduleLive(st);
+}
+function inkMove(st, ev) {
+  if (ev.pointerId !== st.pid) return;
+  ev.preventDefault();
+  let evs = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [];
+  if (!evs.length) evs = [ev];
+  if (st.erasing) { evs.forEach(e => eraseAt(st, inkPoint(st, e))); return; }
+  if (!st.cur) return;
+  for (const e of evs) {
+    const q = inkPoint(st, e), l = st.cur.p[st.cur.p.length - 1];
+    if (Math.hypot(q[0] - l[0], q[1] - l[1]) < 1.5) continue;
+    st.cur.p.push(q);
+  }
+  scheduleLive(st);
+}
+function inkUp(st, ev) {
+  if (ev.pointerId !== st.pid) return;
+  st.pid = null;
+  if (st.erasing) {
+    st.erasing = false;
+    if (!st.erasedAny) st.undo.pop(); else dirty();
+    return;
+  }
+  if (!st.cur) return;
+  const s = st.cur; st.cur = null;
+  st.b.strokes.push(s);
+  ctxOf(st, st.live);
+  // writing near the bottom? the page grows by itself
+  const maxY = Math.max(...s.p.map(q => q[1]));
+  if (maxY > st.b.h - 90) { st.b.h += 260; sizeInk(st, true); }
+  else redrawInk(st);
+  dirty();
+}
+function eraseAt(st, q) {
+  const r = 16;
+  const before = st.b.strokes.length;
+  st.b.strokes = st.b.strokes.filter(s => !s.p.some(p => Math.hypot(p[0] - q[0], p[1] - q[1]) < r + s.w / 2));
+  if (st.b.strokes.length !== before) { st.erasedAny = true; redrawInk(st); }
+}
+function inkOf(el) { const ink = el.closest('.ink'); return ink && ink._ink; }
 
 // ═══════════════════════════════════════════
-//  PROFILES
+//  ACTIONS  (delegated clicks)
 // ═══════════════════════════════════════════
-function openProfiles() { renderProfiles(); openModal('modal-prof'); }
-function renderProfiles() {
-  $('p-list').innerHTML = settings.profiles.map((p, i) => {
-    const act = p.id === settings.activeProfile;
-    return `<div class="p-row ${act ? 'active' : ''}">
-      <input type="text" value="${esc(p.name)}" oninput="renameProfile(${i},this.value)">
-      <label class="p-kid"><input type="checkbox" ${p.kid ? 'checked' : ''} onchange="kidProfile(${i},this.checked)"> ${esc(t('kidMode'))}</label>
-      <button class="p-sel" onclick="useProfile(${i})">${esc(act ? t('active') : t('use'))}</button>
-      ${settings.profiles.length > 1 ? `<button class="p-del" onclick="delProfile(${i})">🗑</button>` : ''}
-    </div>`;
-  }).join('');
-}
-function renameProfile(i, v) { settings.profiles[i].name = v || '?'; saveSettings(); $('app-subtitle').textContent = '👤 ' + prof().name; }
-function kidProfile(i, v) { settings.profiles[i].kid = v; saveSettings(); if (settings.profiles[i].id === prof().id) render(); }
-function useProfile(i) {
-  if (saveTimer) flushSave();
-  settings.activeProfile = settings.profiles[i].id; saveSettings();
-  closeModal('modal-prof'); goHome();
-}
-function addProfile() {
-  settings.profiles.push({ id: uid(), name: t('newPerson'), kid: true, words: DEFAULT_WORDS[curLang].map(w => ({ ...w })) });
-  saveSettings(); renderProfiles();
-  requestAnimationFrame(() => { const ins = document.querySelectorAll('#p-list input[type=text]'); const last = ins[ins.length - 1]; last.focus(); last.select(); });
-}
-async function delProfile(i) {
-  const p = settings.profiles[i];
-  if (!confirm(t('confirmDelProfile') + '\n\n' + p.name)) return;
-  const gone = entries.filter(e => e.profileId === p.id);
-  entries = entries.filter(e => e.profileId !== p.id);
-  for (const e of gone) await idbDel('entries', e.id).catch(console.error);
-  settings.profiles.splice(i, 1);
-  if (settings.activeProfile === p.id) settings.activeProfile = settings.profiles[0].id;
-  saveSettings(); renderProfiles(); if (view === 'home') render(); else goHome();
+const ACTIONS = {
+  open: el => { location.hash = '#e=' + encodeURIComponent(el.dataset.id); },
+  back: () => { location.hash = ''; },
+  newEntry: () => {
+    const e = newEntry();
+    entries.push(e);
+    storePut(e).catch(() => toast(t('saveFailed')));
+    location.hash = '#e=' + encodeURIComponent(e.id);
+  },
+
+  addRef: el => openBP(el.dataset.sec),
+  bpInsert: () => {
+    const r = readBP();
+    if (!r) { toast(t('needBookCh')); return; }
+    const sec = cur[bpSection];
+    let i = activeBlk[bpSection];
+    if (i == null || !sec.blocks[i]) i = sec.blocks.length - 1;
+    sec.blocks[i].refs.push(r);
+    dirty();
+    const blk = document.querySelector(`.blk[data-sec="${bpSection}"][data-i="${i}"] .chips`);
+    if (blk) blk.innerHTML = chipsHtml(bpSection, i, sec.blocks[i].refs);
+    closeModal('modal-bible');
+    toast(`✓ ${r.label} ${t('added')}`);
+  },
+  delRef: el => {
+    const b = getBlock(el.dataset.sec, +el.dataset.i);
+    if (!b) return;
+    b.refs.splice(+el.dataset.r, 1);
+    dirty();
+    el.closest('.chips').innerHTML = chipsHtml(el.dataset.sec, +el.dataset.i, b.refs);
+  },
+  openRef: (el, ev) => { ev.preventDefault(); openScripture(el.getAttribute('href')); },
+
+  addText: el => addBlock(el.dataset.sec, 'text'),
+  addInk: el => addBlock(el.dataset.sec, 'ink'),
+  delBlock: el => {
+    const sec = el.dataset.sec, i = +el.dataset.i, b = getBlock(sec, i);
+    if (!b) return;
+    const hasContent = b.refs.length || (b.type === 'ink' ? b.strokes.length : stripHtml(b.html).trim());
+    if (hasContent && !confirm(t('removeConfirm'))) return;
+    cur[sec].blocks.splice(i, 1);
+    if (!cur[sec].blocks.length) cur[sec].blocks.push(mkBlock('text'));
+    activeBlk[sec] = null;
+    dirty(); keepScroll(renderEntry);
+  },
+
+  count: el => {
+    const i = +el.dataset.i, c = cur.counter[i];
+    if (!c) return;
+    c.n++; dirty();
+    $('cnt-' + i).textContent = c.n;
+    el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+    if (navigator.vibrate) navigator.vibrate(12);
+  },
+  uncount: (el, ev) => {
+    ev.stopPropagation();
+    const i = +el.dataset.i, c = cur.counter[i];
+    if (!c || c.n <= 0) return;
+    c.n--; dirty();
+    $('cnt-' + i).textContent = c.n;
+  },
+  editWords: (el, ev) => { if (ev) ev.preventDefault(); openWords(); },
+  wordsAdd: () => {
+    const rows = $('words-rows');
+    if (rows.children.length >= 24) return;
+    rows.insertAdjacentHTML('beforeend', wordRow('⭐', ''));
+    rows.lastElementChild.querySelector('.w-word').focus();
+  },
+  wordsDel: el => el.closest('.w-row').remove(),
+  wordsSave: () => {
+    const list = [...document.querySelectorAll('#words-rows .w-row')].map(r => ({
+      e: r.querySelector('.w-em').value.trim().slice(0, 16) || '⭐',
+      w: r.querySelector('.w-word').value.trim().slice(0, 40)
+    })).filter(x => x.w);
+    cur.counter = list.map(x => {
+      const old = cur.counter.find(c => c.w.toLowerCase() === x.w.toLowerCase());
+      return { e: x.e, w: x.w, n: old ? old.n : 0 };
+    });
+    if ($('words-default').checked) { settings.words = list; saveSettings(); }
+    dirty(); closeModal('modal-words'); keepScroll(renderEntry);
+  },
+
+  mood: el => {
+    cur.kids.mood = cur.kids.mood === el.dataset.m ? '' : el.dataset.m;
+    document.querySelectorAll('.mood').forEach(b => b.classList.toggle('on', b.dataset.m === cur.kids.mood));
+    dirty();
+  },
+
+  inkColor: el => { settings.pen.tool = 'pen'; settings.pen.color = el.dataset.c; saveSettings(); updateInkToolbars(); },
+  inkSize: el => { settings.pen.tool = 'pen'; settings.pen.size = +el.dataset.s; saveSettings(); updateInkToolbars(); },
+  inkTool: el => { settings.pen.tool = settings.pen.tool === el.dataset.t ? 'pen' : el.dataset.t; saveSettings(); updateInkToolbars(); },
+  inkUndo: el => { const st = inkOf(el); if (!st || !st.undo.length) return; st.b.strokes = JSON.parse(st.undo.pop()); redrawInk(st); dirty(); },
+  inkMore: el => { const st = inkOf(el); if (!st) return; st.b.h += 300; sizeInk(st, true); dirty(); },
+  inkClear: el => {
+    const st = inkOf(el); if (!st || !st.b.strokes.length) return;
+    if (!confirm(t('clearInk'))) return;
+    pushUndo(st); st.b.strokes = []; redrawInk(st); dirty();
+  },
+
+  fmt: el => {
+    const cmd = el.dataset.cmd;
+    try {
+      if (cmd === 'hilite') {
+        document.execCommand('styleWithCSS', false, true);
+        const v = String(document.queryCommandValue('hiliteColor') || document.queryCommandValue('backColor') || '');
+        const on = /255,\s*2(3[0-9]|4[0-9]),\s*1[4-9][0-9]/.test(v);
+        if (!document.execCommand('hiliteColor', false, on ? 'transparent' : '#fff0a0')) document.execCommand('backColor', false, on ? 'transparent' : '#fff0a0');
+        document.execCommand('styleWithCSS', false, false);
+      } else {
+        document.execCommand('styleWithCSS', false, false);
+        document.execCommand(cmd, false, null);
+      }
+    } catch {}
+    const active = document.activeElement;
+    if (active && active.matches('.rt')) active.dispatchEvent(new Event('input', { bubbles: true }));
+    updateFmtState();
+  },
+  fmtTranslate: () => {
+    const w = selectedWord();
+    if (!w) { toast(t('selectWord')); return; }
+    const from = settings.contentLang;
+    const to = settings.translateTo === from ? (from === 'en' ? 'de' : 'en') : settings.translateTo;
+    window.open(`https://translate.google.com/?sl=${from}&tl=${to}&text=${encodeURIComponent(w)}&op=translate`, '_blank', 'noopener');
+  },
+  fmtWol: () => {
+    const w = selectedWord();
+    if (!w) { toast(t('selectWord')); return; }
+    const hit = settings.contentLang === 'en' && jwgLookup(w);
+    openScripture(hit ? hit.url : wolSearch(w));
+  },
+  fmtDone: () => { if (document.activeElement) document.activeElement.blur(); hideFmt(); },
+
+  print: () => { flush(); window.print(); },
+  shareEntry: async () => {
+    flush();
+    const name = `congregation-notes-${cur.date}.json`;
+    const ok = await saveFile(name, JSON.stringify(exportPayload([cur]), null, 1));
+    if (ok) toast(t('exported'));
+  },
+  deleteEntry: async () => {
+    if (!confirm(t('delConfirm'))) return;
+    const id = cur.id;
+    clearTimeout(saveTimer); cur = null;
+    entries = entries.filter(e => e.id !== id);
+    await storeDel(id).catch(() => {});
+    toast(t('deleted'));
+    location.hash = '';
+  },
+
+  openGlossary: () => { $('gl-search').value = ''; renderGlossary(); openModal('modal-gloss'); },
+  glossCount: el => {
+    if (!cur) { toast(t('noEntryOpen') || t('counted')); return; }
+    const g = GLOSSARY[+el.dataset.g];
+    const word = settings.contentLang === 'de' ? g.de : g.en;
+    if (cur.counter.some(c => c.w.toLowerCase() === word.toLowerCase())) { toast(t('alreadyCounted')); return; }
+    cur.counter.push({ e: '⭐', w: word, n: 0 });
+    dirty(); keepScroll(renderEntry); toast(t('counted'));
+  },
+
+  openSettings: () => { renderSettings(); openModal('modal-settings'); },
+  setLang: el => { settings.lang = el.dataset.l; saveSettings(); applyLang(); },
+  backupAll: async () => {
+    flush();
+    const ok = await saveFile(`congregation-notes-backup-${isoLocal(new Date())}.json`, JSON.stringify(exportPayload(entries), null, 1));
+    if (ok) { settings.lastBackup = Date.now(); saveSettings(); toast(t('exported')); if (!cur) renderList(); if (!$('modal-settings').hidden) renderSettings(); }
+  },
+  importBackup: () => { $('import-file').value = ''; $('import-file').click(); },
+  closeModal: el => closeModal(el.dataset.m)
+};
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]');
+  if (!el) return;
+  const fn = ACTIONS[el.dataset.act];
+  if (fn) fn(el, ev);
+});
+
+function keepScroll(fn) { const y = window.scrollY; fn(); window.scrollTo(0, y); }
+
+function addBlock(sec, type) {
+  const arr = cur[sec].blocks;
+  arr.push(mkBlock(type));
+  const i = arr.length - 1;
+  activeBlk[sec] = i;
+  dirty();
+  keepScroll(renderEntry);
+  const blk = document.querySelector(`.blk[data-sec="${sec}"][data-i="${i}"]`);
+  if (!blk) return;
+  if (type === 'text') { const rt = blk.querySelector('.rt'); rt && rt.focus(); }
+  blk.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // ═══════════════════════════════════════════
 //  MODALS
 // ═══════════════════════════════════════════
-function openModal(id) { hideFmt(); $(id).classList.add('show'); }
-function closeModal(id) { $(id).classList.remove('show'); }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-bg.show').forEach(m => m.classList.remove('show'));
+function openModal(id) { hideFmt(); $(id).hidden = false; }
+function closeModal(id) { $(id).hidden = true; }
+document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', ev => { if (ev.target === bg) closeModal(bg.id); }));
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') document.querySelectorAll('.modal-bg').forEach(bg => { if (!bg.hidden) closeModal(bg.id); });
+});
+
+// ── glossary ──
+function wolSearch(q) {
+  return settings.contentLang === 'de'
+    ? `https://wol.jw.org/de/wol/s/r10/lp-x?q=${encodeURIComponent(q)}`
+    : `https://wol.jw.org/en/wol/s/r1/lp-e?q=${encodeURIComponent(q)}`;
+}
+function renderGlossary() {
+  const q = $('gl-search').value.trim().toLowerCase();
+  const cl = settings.contentLang, ul = settings.lang;
+  $('gl-title').textContent = t('glossary');
+  $('gl-search').placeholder = t('glSearch');
+  const items = GLOSSARY.map((g, i) => ({ g, i }))
+    .filter(({ g }) => !q || [g.en, g.de, g.xen, g.xde].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => a.g[cl].localeCompare(b.g[cl], cl));
+  const kids = items.map(({ g, i }) => {
+    const j = KID_JWG[g.en] && jwgByTitle(KID_JWG[g.en]);
+    return `<div class="gl-item">
+      <div><span class="gl-term">${esc(g[cl])}</span><span class="gl-alt">${esc(cl === 'en' ? g.de : g.en)}</span></div>
+      <div class="gl-x">${esc(ul === 'de' ? g.xde : g.xen)}</div>
+      <div class="gl-links">
+        ${j ? `<a href="${esc(j.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(t('glossLink'))}</a>` : ''}
+        <a href="${esc(wolSearch(g[cl]))}" target="_blank" rel="noopener">${esc(t('lookUp'))}</a>
+        ${cur ? `<button data-act="glossCount" data-g="${i}">${esc(t('countIt'))}</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  const bible = JWG.filter(g => !q || g.title.toLowerCase().includes(q))
+    .map(g => `<a class="jwg" href="${esc(g.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(g.title)}</a>`).join('');
+  $('gl-list').innerHTML =
+    (kids ? `<div class="gl-h">🧒 ${esc(t('kidsGloss'))}</div>${kids}` : '') +
+    (bible ? `<div class="gl-h">📖 ${esc(t('bibleGloss'))}</div><div class="set-note" style="margin-bottom:8px">${esc(t('bibleGlossHint'))}</div><div class="jwg-wrap">${bible}</div>` : '') ||
+    `<div class="empty">${esc(t('noResults'))}</div>`;
+}
+$('gl-search').addEventListener('input', renderGlossary);
+
+// ── word editor ──
+function wordRow(e, w) {
+  return `<div class="w-row"><input class="w-em" value="${esc(e)}" aria-label="${esc(t('emoji'))}" maxlength="16">
+    <input class="w-word" value="${esc(w)}" placeholder="${esc(t('word'))}" maxlength="40">
+    <button class="x-btn" data-act="wordsDel" aria-label="✕">✕</button></div>`;
+}
+function openWords() {
+  $('words-body').innerHTML = `<h3>${esc(t('wordsTitle'))}</h3>
+    <div id="words-rows">${cur.counter.map(c => wordRow(c.e, c.w)).join('')}</div>
+    <button class="btn" data-act="wordsAdd">${esc(t('addWord'))}</button>
+    <label class="chk"><input type="checkbox" id="words-default"> ${esc(t('asDefault'))}</label>
+    <div class="modal-btns">
+      <button class="btn" data-act="closeModal" data-m="modal-words">${esc(t('cancel'))}</button>
+      <button class="btn primary" data-act="wordsSave">${esc(t('save'))}</button>
+    </div>`;
+  openModal('modal-words');
+}
+
+// ── settings ──
+function renderSettings() {
+  const s = settings;
+  const langOpt = (v, l) => `<option value="${v}"${s.translateTo === v ? ' selected' : ''}>${l}</option>`;
+  $('settings-body').innerHTML = `
+    <div class="sec-head"><h3 style="margin:0">${esc(t('settings'))}</h3><button class="x-btn" data-act="closeModal" data-m="modal-settings">✕</button></div>
+    <div class="set-row"><div><div class="lbl">${esc(t('kidMode'))}</div><div class="hint2">${esc(t('kidModeHint'))}</div></div>
+      <label class="switch"><input type="checkbox" data-set="kidMode"${s.kidMode ? ' checked' : ''}><span></span></label></div>
+    <div class="set-row"><div><div class="lbl">${esc(t('fingerDraw'))}</div><div class="hint2">${esc(t('fingerDrawHint'))}</div></div>
+      <label class="switch"><input type="checkbox" data-set="fingerDraw"${s.fingerDraw ? ' checked' : ''}><span></span></label></div>
+    <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
+      <select data-set="defaultBlock"><option value="text"${s.defaultBlock === 'text' ? ' selected' : ''}>${esc(t('defText'))}</option><option value="ink"${s.defaultBlock === 'ink' ? ' selected' : ''}>${esc(t('defInk'))}</option></select></div>
+    <div class="set-row"><div class="lbl">${esc(t('contentLang'))}</div>
+      <select data-set="contentLang"><option value="en"${s.contentLang === 'en' ? ' selected' : ''}>English</option><option value="de"${s.contentLang === 'de' ? ' selected' : ''}>Deutsch</option></select></div>
+    <div class="set-row"><div class="lbl">🌐 ${esc(t('translateTo'))}</div>
+      <select data-set="translateTo">${langOpt('de', 'Deutsch')}${langOpt('en', 'English')}${langOpt('es', 'Español')}${langOpt('fr', 'Français')}${langOpt('it', 'Italiano')}${langOpt('pl', 'Polski')}${langOpt('ro', 'Română')}${langOpt('ru', 'Русский')}${langOpt('tr', 'Türkçe')}${langOpt('tl', 'Tagalog')}</select></div>
+    <div class="set-block">
+      <div class="lbl" style="font-weight:800">${esc(t('backup'))} · ${entries.length} ${esc(t('entriesCount'))}</div>
+      <button class="btn" data-act="backupAll">${esc(t('backupAll'))}</button>
+      <button class="btn" data-act="importBackup">${esc(t('importBtn'))}</button>
+      <div class="set-note">${esc(t('lastBackup'))}: ${s.lastBackup ? esc(new Date(s.lastBackup).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })) : esc(t('never'))}</div>
+      <div class="set-note">${esc(shareStatus())}</div>
+      <div class="set-note">${storagePersisted && !useLS ? esc(t('storageOk')) : esc(t('storageWeak'))}</div>
+    </div>
+    <div class="modal-btns"><button class="btn primary" data-act="closeModal" data-m="modal-settings">${esc(t('done'))}</button></div>`;
+}
+$('modal-settings').addEventListener('change', ev => {
+  const el = ev.target, k = el.dataset.set;
+  if (!k) return;
+  settings[k] = el.type === 'checkbox' ? el.checked : el.value;
+  saveSettings();
+  applyBodyClasses();
+  if (cur) keepScroll(renderEntry); else renderList();
 });
 
 // ═══════════════════════════════════════════
-//  EXPORT / IMPORT / PRINT
+//  EXPORT / IMPORT
 // ═══════════════════════════════════════════
-async function shareOrDownload(blob, name) {
-  const touch = window.matchMedia('(pointer: coarse)').matches;
-  const file = new File([blob], name, { type: blob.type });
-  if (touch && navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: name }); return true; }
-    catch (e) { if (e.name === 'AbortError') return false; }
+function exportPayload(list) {
+  return { _tool: TOOL_ID, _version: APP_VERSION, _exported: new Date().toISOString(), entries: list };
+}
+// 1) phones/tablets: system share sheet (Files/iCloud Drive, Google Drive …)
+//    Android Chrome refuses .json in the share sheet → retry as .txt
+// 2) browsers with a save dialog (Chrome/Edge): "Save as" picker
+// 3) otherwise a normal download
+async function saveFile(name, text) {
+  const touch = matchMedia('(pointer:coarse)').matches;
+  const tryShare = async (fname, type) => {
+    const file = new File([text], fname, { type });
+    if (!navigator.canShare || !navigator.canShare({ files: [file] })) return false;
+    await navigator.share({ files: [file], title: fname });
+    return true;
+  };
+  if (touch && navigator.share) {
+    try {
+      if (await tryShare(name, 'application/json')) return true;
+      if (await tryShare(name.replace(/\.json$/, '.txt'), 'text/plain')) return true;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return false;
+    }
   }
+  if (window.showSaveFilePicker) {
+    try {
+      const h = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Congregation Notes (JSON)', accept: { 'application/json': ['.json'] } }] });
+      const w = await h.createWritable(); await w.write(text); await w.close();
+      return true;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return false;
+    }
+  }
+  const blob = new Blob([text], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
   return true;
 }
-
-async function exportAll() {
-  if (saveTimer) await flushSave();
-  const data = { app: 'congregation-notes', version: 1, exported: new Date().toISOString(), settings, entries };
-  const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
-  if (await shareOrDownload(blob, `congregation-notes-${isoLocal(new Date())}.json`)) toast(t('exported'));
-}
-
-async function doImport(ev) {
-  const f = ev.target.files[0]; ev.target.value = '';
-  if (!f) return;
-  try {
-    const data = JSON.parse(await f.text());
-    if (data.app !== 'congregation-notes' || !Array.isArray(data.entries)) throw new Error('format');
-    if (!confirm(t('confirmImport'))) return;
-    // merge profiles
-    (data.settings?.profiles || []).forEach(p => { if (!settings.profiles.some(x => x.id === p.id)) settings.profiles.push(p); });
-    (data.settings?.glossary || []).forEach(g => {
-      settings.glossary = settings.glossary || [];
-      if (!settings.glossary.some(x => x.id === g.id)) settings.glossary.push(g);
-    });
-    // merge entries (newer wins)
-    for (const e of data.entries) {
-      if (!e || !e.id || !e.talk || !e.wt || !e.kids) continue;
-      if (!settings.profiles.some(p => p.id === e.profileId)) e.profileId = settings.profiles[0].id;
-      const cur = entries.find(x => x.id === e.id);
-      if (cur && cur.updated >= e.updated) continue;
-      entries = entries.filter(x => x.id !== e.id).concat(e);
-      await idbPut('entries', e);
-    }
-    saveSettings();
-    toast(t('imported')); goHome();
-  } catch (err) {
-    console.error(err); toast(t('importFailed'));
+function shareStatus() {
+  if (!window.isSecureContext) return t('shareNoHttps');
+  if (navigator.canShare) {
+    try { if (navigator.canShare({ files: [new File(['x'], 'x.txt', { type: 'text/plain' })] })) return t('shareOk'); } catch {}
   }
+  return window.showSaveFilePicker ? t('shareSaveDialog') : t('shareDownload');
 }
+$('import-file').addEventListener('change', ev => {
+  const f = ev.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = async () => {
+    try {
+      const data = JSON.parse(rd.result);
+      const list = Array.isArray(data.entries) ? data.entries : (data && data.id ? [data] : null);
+      if (!list) throw new Error('format');
+      let a = 0, u = 0;
+      for (const raw of list) {
+        const e = normalizeEntry(raw);
+        if (!e) continue;
+        const ix = entries.findIndex(x => x.id === e.id);
+        if (ix < 0) { entries.push(e); a++; await storePut(e); }
+        else if (e.updatedAt > entries[ix].updatedAt) {
+          if (cur && cur.id === e.id) cur = e;
+          entries[ix] = e; u++; await storePut(e);
+        }
+      }
+      toast(t('imported').replace('{a}', a).replace('{u}', u));
+      closeModal('modal-settings');
+      route();
+    } catch {
+      alert(t('importFailed'));
+    }
+  };
+  rd.readAsText(f);
+});
 
-function printEntry() {
-  hideFmt();
-  document.querySelectorAll('.pen-print').forEach(i => i.remove());
-  document.querySelectorAll('canvas.pen-cv').forEach(cv => {
-    const img = new Image(); img.className = 'pen-print'; img.src = cv.toDataURL('image/png');
-    cv.after(img);
+// ── print: pen notes become images, empty fields disappear ──
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('#entry .ink').forEach(el => {
+    const st = el._ink; if (!st) return;
+    const img = document.createElement('img');
+    img.className = 'print-ink'; img.alt = '';
+    img.src = st.base.toDataURL('image/png');
+    st.paper.appendChild(img);
+    if (!st.b.strokes.length && !st.b.refs.length) el.closest('.blk').classList.add('print-empty');
   });
-  setTimeout(() => window.print(), 60);
+  document.querySelectorAll('#entry .blk').forEach(blk => {
+    const rt = blk.querySelector('.rt');
+    if (rt && !rt.textContent.trim() && !blk.querySelector('.chip')) blk.classList.add('print-empty');
+  });
+  document.querySelectorAll('#entry .song-row').forEach(r => { if (!r.querySelector('input').value) r.classList.add('print-empty'); });
+  document.querySelectorAll('#entry .kids .sub-label').forEach(l => {
+    const next = l.nextElementSibling;
+    if (next && next.classList.contains('rt') && !next.textContent.trim()) l.classList.add('print-empty');
+  });
+});
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('img.print-ink').forEach(i => i.remove());
+  document.querySelectorAll('.print-empty').forEach(el => el.classList.remove('print-empty'));
+});
+
+// ═══════════════════════════════════════════
+//  LANGUAGE / BODY STATE
+// ═══════════════════════════════════════════
+function applyBodyClasses() {
+  document.body.classList.toggle('kid', !!settings.kidMode);
+  document.body.classList.toggle('finger', !!settings.fingerDraw);
 }
-window.addEventListener('afterprint', () => document.querySelectorAll('.pen-print').forEach(i => i.remove()));
+function applyLang() {
+  const L = settings.lang;
+  document.documentElement.lang = L;
+  $('lang-en').classList.toggle('on', L === 'en');
+  $('lang-de').classList.toggle('on', L === 'de');
+  $('footer-text').textContent = t('footer');
+  $('bp-title').textContent = t('bpTitle');
+  $('bp-l-book').textContent = t('book'); $('bp-l-ch').textContent = t('chapter');
+  $('bp-l-v').textContent = t('verse'); $('bp-l-ve').textContent = t('vend');
+  $('bp-cancel').textContent = t('cancel'); $('bp-insert').textContent = t('insert');
+  $('btn-gloss').title = t('glossary'); $('btn-settings').title = t('settings');
+  $('fb-tr').title = t('translate'); $('fb-wol').title = t('lookUpWol'); $('fb-done').textContent = t('ok');
+  updateHeader();
+  if (cur) keepScroll(renderEntry); else renderList();
+  if (!$('modal-gloss').hidden) renderGlossary();
+  if (!$('modal-settings').hidden) renderSettings();
+}
 
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
-async function init() {
-  setLang(curLang);
+(async function init() {
+  try { db = await openDB(); } catch { useLS = true; }
   try {
-    const s = await idbGet('meta', 'settings');
-    if (s) { delete s.k; settings = s; }
-    entries = await idbGetAll('entries');
-  } catch (err) {
-    console.error(err); toast(t('saveErr'));
-  }
-  if (!settings || !Array.isArray(settings.profiles) || !settings.profiles.length) {
-    const id = uid();
-    settings = { activeProfile: id, finger: false, glossary: [],
-      profiles: [{ id, name: t('me'), kid: false, words: DEFAULT_WORDS[curLang].map(w => ({ ...w })) }] };
-    saveSettings();
-  }
-  // ask the browser to keep the data (important for Safari)
-  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-  render();
-}
-init();
+    const s = await metaGet('settings');
+    if (s && typeof s === 'object') settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), s, { pen: Object.assign({}, DEFAULT_SETTINGS.pen, s.pen || {}) });
+  } catch {}
+  if (!Array.isArray(settings.words) || !settings.words.length) settings.words = DEFAULT_WORDS;
+  try { entries = (await storeAll()).map(normalizeEntry).filter(Boolean); } catch { entries = []; }
+
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      storagePersisted = await navigator.storage.persisted();
+      if (!storagePersisted) storagePersisted = await navigator.storage.persist();
+    }
+  } catch {}
+
+  applyBodyClasses();
+  applyLang();
+  route();
+})();
 </script>
 </body>
 </html>
