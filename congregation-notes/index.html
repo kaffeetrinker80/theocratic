@@ -572,7 +572,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.0 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.2 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -659,7 +659,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.2.2';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -775,20 +775,43 @@ function jwgLookup(word) {
 }
 
 // “Sing Out Joyfully” / „Singt voller Freude“ – titles + jw.org song pages (1–163)
-const SONG_BASE = {
-  en: 'https://www.jw.org/en/library/music-songs/sing-out-joyfully/',
-  de: 'https://www.jw.org/de/bibliothek/musik-lieder/singt-voller-freude/'
-};
-const SONGS = {
-  en: "Jehovah’s Attributes~jehovahs-attributes|Jehovah Is Your Name~jehovah-is-your-name|Our Strength, Our Hope, Our Confidence~our-strength-our-hope-our-confidence|“Jehovah Is My Shepherd”~jehovah-is-my-shepherd|God’s Wondrous Works~gods-wondrous-works|The Heavens Declare God’s Glory~the-heavens-declare-gods-glory|Jehovah, Our Strength~jehovah-our-strength|Jehovah Is Our Refuge~jehovah-is-our-refuge|Jehovah Is Our King!~jehovah-is-our-king|Praise Jehovah Our God!~praise-jehovah-our-god|Creation Praises God~creation-praises-god|Great God, Jehovah~great-god-jehovah|Christ, Our Model~christ-our-model|Praising Earth’s New King~praising-earths-new-king|Praise Jehovah’s Firstborn!~praise-jehovahs-firstborn|Praise Jah for His Son, the Anointed~praise-jah-for-his-son-the-anointed|“I Want To”~i-want-to|Grateful for the Ransom~grateful-for-the-ransom|The Lord’s Evening Meal~lords-evening-meal|You Gave Your Precious Son~you-gave-your-precious-son|Keep On Seeking First the Kingdom~keep-on-seeking-first-the-kingdom|The Kingdom Is in Place—Let It Come!~the-kingdom-is-in-place-let-it-come|Jehovah Begins His Rule~jehovah-begins-his-rule|Come to Jehovah’s Mountain~come-to-jehovahs-mountain|A Special Possession~a-special-possession|You Did It for Me~you-did-it-for-me|The Revealing of God’s Sons~revealing-of-gods-sons|Gaining Jehovah’s Friendship~gaining-jehovahs-friendship|Living Up to Our Name~living-up-to-our-name|My Father, My God and Friend~my-father-god-and-friend|Oh, Walk With God!~walk-with-god|Take Sides With Jehovah!~take-sides-with-jehovah|Throw Your Burden on Jehovah~throw-your-burden-on-jehovah|Walking in Integrity~walking-in-integrity|“Make Sure of the More Important Things”~make-sure-of-more-important-things|We Guard Our Hearts~we-guard-our-hearts|Serving Jehovah Whole-Souled~serving-jehovah-whole-souled|He Will Make You Strong~he-will-make-you-strong|Make a Good Name With God~make-a-good-name-with-god|To Whom Do We Belong?~to-whom-do-we-belong|Please Hear My Prayer~hear-my-prayer|The Prayer of God’s Servant~the-prayer-of-gods-servant|A Prayer of Thanks~prayer-of-thanks|A Prayer of the Lowly One~prayer-of-the-lowly-one|The Meditation of My Heart~meditation-of-my-heart|We Thank You, Jehovah~we-thank-you-jehovah|Pray to Jehovah Each Day~pray-to-jehovah-each-day|Daily Walking With Jehovah~daily-walking-with-jehovah|Making Jehovah’s Heart Glad~making-jehovahs-heart-glad|My Prayer of Dedication~prayer-of-dedication|To God We Are Dedicated!~to-god-we-are-dedicated|Christian Dedication~christian-dedication|Preparing to Preach~preparing-to-preach|“This Is the Way”~this-is-the-way|Fear Them Not!~fear-them-not|Make the Truth Your Own~make-the-truth-your-own|Preaching to All Sorts of People~preaching-to-all-sorts-of-people|Searching for Friends of Peace~search-for-friends-of-peace|Praise Jah With Me~praise-jah-with-me|It Means Their Life~it-means-their-life|Forward, You Witnesses!~forward-you-witnesses|The New Song~the-new-song|We’re Jehovah’s Witnesses!~we-are-jehovahs-witnesses|Sharing Joyfully in the Harvest~sharing-joyfully-in-harvest|Move Ahead!~move-ahead|Declare the Good News~declare-the-good-news|“Preach the Word”~preach-the-word|Sowing Kingdom Seed~sowing-kingdom-seed|Go Forward in Preaching the Kingdom!~forward-preaching-the-kingdom|Search Out Deserving Ones~search-out-deserving-ones|We Are Jehovah’s Army!~jehovahs-army|Making Known the Kingdom Truth~making-known-kingdom-truth|Grant Us Boldness~grant-us-boldness|Join in the Kingdom Song!~join-in-kingdom-song|“Here I Am! Send Me!”~here-i-am-send-me|How Does It Make You Feel?~how-does-it-make-you-feel|Light in a Darkened World~light-in-dark-world|“Teaching the Word of God”~teaching-word-of-god|Teach Them to Stand Firm~prayer-stand-firm|“Taste and See That Jehovah Is Good”~taste-see-jehovah-is-good|The Life of a Pioneer~life-of-a-pioneer|“Let Your Light Shine”~let-light-shine|“From House to House”~from-house-to-house|Reaching Out~reaching-out-christian-ministry|Welcome One Another~welcome-one-another|We Must Be Taught~we-must-be-taught|Come! Be Refreshed~come-be-refreshed|Make Me Know Your Ways~make-me-know-your-ways|Listen, Obey, and Be Blessed~listen-obey-be-blessed|Encourage One Another~encourage-one-another|Our Labor of Love~our-labor-of-love|A Place Bearing Your Name~a-place-bearing-your-name|Bless Our Meeting Together~bless-our-meeting-together|Grateful for God’s Word~grateful-for-gods-word|The Light Gets Brighter~light-gets-brighter|God’s Own Book—A Treasure~gods-own-book-a-treasure|Life Depends on God’s Word~life-depends-on-gods-word|The Scriptures—Inspired of God~the-scriptures-inspired-of-god|Myriads of Brothers~myriads-of-brothers|Receive Them With Hospitality~receive-them-with-hospitality|Working Together in Unity~working-together-in-unity|“Assist Those Who Are Weak”~assist-those-who-are-weak|Shepherds—Gifts in Men~shepherds-gifts-in-men|God’s Gift of Holy Spirit~gods-gift-of-holy-spirit|“God Is Love”~god-is-love|Cultivating the Quality of Love~cultivating-the-quality-of-love|The Divine Pattern of Love~divine-pattern-of-love|God’s Loyal Love~gods-loyal-love|Love Intensely From the Heart~love-intensely-from-the-heart|“The Joy of Jehovah”~joy-of-jehovah|Our Reasons for Joy~our-reasons-for-joy|Jehovah, God of Peace~jehovah-god-of-peace|Our Possession of Peace~our-possession-of-peace|“Exercise Patience”~exercise-patience|Gratitude for Divine Patience~gratitude-for-divine-patience|The Power of Kindness~power-of-kindness|The Quality of Goodness~quality-of-goodness|“Give Us More Faith”~give-us-more-faith|We Must Have Faith~we-must-have-faith|Imitate Christ’s Mildness~imitate-christs-mildness|We Need Self-Control~we-need-self-control|Be Steadfast, Immovable!~be-steadfast-immovable|Loyally Submitting to Theocratic Order~loyally-submitting-to-theocratic-order|Ever Loyal~ever-loyal|“Happy Are the Merciful!”~happy-are-the-merciful|Stay Awake, Stand Firm, Grow Mighty~stay-awake-stand-firm-grow-mighty|The Sort of Person I Should Be~sort-of-person-i-should-be|Enduring to the End~endure-to-the-end|We Will Keep Enduring~keep-enduring|Be Forgiving~be-forgiving|“What God Has Yoked Together”~what-god-yoked-together|Now We Are One~now-we-are-one|Worship Jehovah During Youth~worship-jehovah-during-youth|Children Are a Trust From God~children-are-a-trust-from-god|Jehovah’s Warm Appeal: “Be Wise, My Son”~jehovahs-appeal-be-wise-my-son|“A Perfect Wage” From Jehovah~perfect-wage-from-jehovah|Faithful Women, Christian Sisters~faithful-women-christian-sisters|Beauty in Gray-Headedness~beauty-in-gray-headedness|See Yourself When All Is New~when-all-is-new|Life Without End—At Last!~life-without-end|The Miracle of Life~miracle-of-life|Holding Fast to Our Hope~holding-to-our-hope|Keep Working, Watching, and Waiting~keep-working-watching-waiting|Keep Your Eyes on the Prize!~keep-eye-on-the-prize|God’s Promise of Paradise~gods-promise-of-paradise|“Making All Things New”~making-all-things-new|Life Everlasting Is Promised~life-everlasting-promised|Jehovah Provides Escape~jehovah-provides-escape|A Victory Song~a-victory-song|Seek God for Your Deliverance~seek-god-for-deliverance|He Will Call~he-will-call|A Place That Will Bring You Praise~a-place-that-will-bring-you-praise|Give Me Courage~give-me-courage|Unfailing Love~unfailing-love|Our Joy Eternally~our-joy-eternally|With Eyes of Faith~with-eyes-of-faith|Peace at Last!~peace-at-last|“It Will Not Be Late!”~it-will-not-be-late|Give Jehovah Glory~give-jehovah-glory|“Good News”!~good-news|To Do Your Will Is My Delight~to-do-your-will-is-my-delight|My Spiritual Need~my-spiritual-need|Happy Are These Eyes~happy-are-these-eyes".split('|').map(x => x.split('~')),
-  de: "Jehovas großartige Eigenschaften~jehovas-eigenschaften|Jehova ist dein Name~jehova-ist-dein-name|Unser Fels, unser Gott, unsre Zuversicht~unser-fels-unser-gott-unsre-zuversicht|„Jehova ist mein Hirte“~jehova-ist-mein-hirte|Gottes wunderbare Werke~gottes-wunderbare-werke|Der Himmel verkündet die Herrlichkeit Jehovas~der-himmel-verkuendet-herrlichkeit-jehovas|Jehova, unsere Stärke und Macht~jehova-unsere-staerke-und-macht|Jehova ist unsere Zuflucht~jehova-unsere-zuflucht|Jehova ist unser König!~jehova-ist-unser-koenig|Lobt Jehova, unseren Gott!~lobt-jehova-unseren-gott|Die Schöpfung spricht von Gottes Herrlichkeit~die-schoepfung-spricht-von-gottes-herrlichkeit|Unser großer Gott Jehova~grosser-gott-jehova|Christus, unser großes Vorbild~christus-unser-grosses-vorbild|Wir heißen unseren König willkommen!~wir-heissen-unseren-koenig-willkommen|Wir ehren Jehovas Erstgeborenen!~wir-ehren-jehovas-erstgeborenen|Dankt Jehova für seinen Sohn, den Gesalbten~dankt-jehova-f%C3%BCr-sohn-gesalbten|„Das will ich“~das-will-ich|Dankbar für das Lösegeld~dankbar-fuer-das-loesegeld|Das Abendmahl des Herrn~das-abendmahl-des-herrn|Du hast uns deinen kostbaren Sohn geschenkt~kostbaren-sohn-geschenkt|Setzt das Königreich an die erste Stelle~koenigreich-an-die-erste-stelle|Dein Königreich regiert — es komme!~dein-koenigreich-regiert-es-komme|Jehova, der Höchste, regiert!~jehova-der-hoechste-regiert|Kommt zum Berg Jehovas~kommt-zum-berg-jehovas|Sein besonderes Eigentum~sein-besonderes-eigentum|Ihr habt es für mich getan~fuer-mich-getan|Die Offenbarung der Söhne Gottes~offenbarung-der-soehne-gottes|Freundschaft mit Jehova~freundschaft-mit-jehova|Gemäß unserem Namen leben~gemaess-unserem-namen-leben|Mein Vater, mein Gott und Freund~vater-gott-und-freund|Geh mit Jehova, deinem Gott!~geh-mit-jehova-gott|Komm auf Jehovas Seite!~komm-auf-jehovas-seite|Wirf deine Last auf Jehova~wirf-deine-last-auf-jehova|Jehova ganz ergeben sein~jehova-ganz-ergeben-sein|Uns auf wirklich Wichtiges konzentrieren~uns-auf-wirklich-wichtiges-konzentrieren|Wir beschützen unser Herz~wir-beschuetzen-unser-herz|Jehova mit ganzem Herzen dienen~jehova-mit-ganzem-herzen-dienen|Er wird dich stärken~er-wird-dich-staerken|Ein Name, der Gott gefällt~name-der-gott-gefaellt|Wem möchten wir gehören?~wem-moechten-wir-gehoeren|Vater Jehova, bitte hör mein Gebet~vater-jehova-bitte-hoer-gebet|Gebet der Diener Gottes~gebet-der-diener-gottes|Ein Dankgebet~ein-dankgebet|Gebet eines Niedergedrückten~gebet-eines-niedergedrueckten|Die Gedanken meines Herzens~die-gedanken-meines-herzens|Hab Dank, Herr Jehova!~hab-dank-herr-jehova|Bete jeden Tag zu Jehova~bete-jeden-tag-zu-jehova|Täglich unseren Weg mit Jehova gehen~taeglich-mit-jehova-gehen|Jehovas Herz erfreuen~jehovas-herz-erfreuen|Mein Gebet der Hingabe~mein-gebet-der-hingabe|Jehova, dir gehört mein Leben!~jehova-dir-gehoert-mein-leben|Hingabe und Taufe~hingabe-und-taufe|Vor unserem Dienst~vor-unserem-dienst|„Das ist der Weg“~das-ist-der-weg|Habt keine Angst!~habt-keine-angst|Mache dir die Wahrheit zu eigen~mache-dir-die-wahrheit-zu-eigen|Jeder kann ein Freund Jehovas werden~jeder-kann-ein-freund-jehovas-werden|Wir suchen Menschen, die den Frieden lieben~wir-suchen-menschen-die-den-frieden-lieben|Preist Jah mit mir!~preist-jah-mit-mir|Ihr Leben steht auf dem Spiel~ihr-leben-steht-auf-dem-spiel|Fest und entschlossen~fest-und-entschlossen|Das neue Lied~das-neue-lied|Wir sind Jehovas Zeugen~wir-sind-jehovas-zeugen|Freudig in der Ernte mitarbeiten~freudig-in-der-ernte-mitarbeiten|Fortschritte machen~fortschritte-machen|Die gute Botschaft bekannt machen~die-gute-botschaft-bekannt-machen|„Predige das Wort Gottes“~predige-das-wort-gottes|Den Samen vom Königreich säen~den-samen-vom-koenigreich-saeen|Macht das Königreich weiter bekannt!~macht-das-koenigreich-weiter-bekannt|Findet heraus, wer es verdient~findet-heraus-wer-es-verdient|Wir sind das Heer Jehovas!~wir-sind-heer-jehovas|Die Königreichswahrheit bekannt machen~die-koenigreichswahrheit-bekannt-machen|Schenk uns Mut~schenk-uns-mut|Stimmt ein ins Lied vom Königreich!~stimmt-ein-ins-lied-vom-koenigreich|„Hier bin ich! Sende mich!“~hier-bin-ich-sende-mich|Von Jehova zu sprechen tut uns gut~von-jehova-sprechen-tut-gut|Licht in der Dunkelheit~licht-in-der-dunkelheit|Das Wort Gottes lehren~das-wort-gottes-lehren|Lehrt sie, fest zu Jehova zu stehen~lehrt-fest-zu-jehova-stehen|„Schmeckt und seht, dass Jehova gut ist“~schmeckt-seht-jehova-gut|Das Leben eines Pioniers~das-leben-eines-pioniers|„Lasst euer Licht leuchten“~lasst-euer-licht-leuchten|„Von Haus zu Haus“~von-haus-zu-haus|Jederzeit gern bereit~jederzeit-gern-bereit|Heißt euch gegenseitig willkommen~heisst-euch-gegenseitig-willkommen|Kommt und lernt von Jehova!~kommt-lernt-von-jehova|Kommt und werdet erfrischt!~kommt-und-werdet-erfrischt|Lass mich deine Wege erkennen~lass-mich-deine-wege-erkennen|Glücklich ist, wer hört und danach lebt~gluecklich-wer-hoert-danach-lebt|Uns gegenseitig Mut machen~uns-gegenseitig-mut-machen|Mit Liebe gebaut~mit-liebe-gebaut|Ein Haus für Jehovas Namen~ein-haus-fuer-jehovas-namen|Bitte segne unsere Zusammenkunft~segne-unsere-zusammenkunft|Dankbar für Gottes Wort~dankbar-fuer-gottes-wort|Das Licht wird immer heller~das-licht-wird-immer-heller|Gottes Buch — ein echter Schatz~gottes-buch-ein-echter-schatz|Gottes Wort schenkt Leben~gottes-wort-schenkt-leben|Die Heilige Schrift — von Gott inspiriert~die-heilige-schrift-von-gott-inspiriert|Millionen von Brüdern~millionen-von-bruedern|Andere gastfreundlich aufnehmen~andere-gastfreundlich-aufnehmen|Harmonisch zusammenarbeiten~harmonisch-zusammenarbeiten|„Den Schwachen beistehen“~den-schwachen-beistehen|Hirten — ein Geschenk von Jehova~hirten-geschenk-von-jehova|Der heilige Geist — ein Geschenk Gottes~heiliger-geist-geschenk-gottes|„Gott ist Liebe“~gott-ist-liebe|In der Liebe wachsen~in-der-liebe-wachsen|So lieben wie Jehova~so-lieben-wie-jehova|Gottes loyale Liebe~gottes-loyale-liebe|Liebt einander von ganzem Herzen~liebt-von-ganzem-herzen|„Jehova schenkt Freude, die stark macht“~jehova-schenkt-freude|Unsere Gründe zur Freude~unsere-gruende-zur-freude|Jehova, der Gott des Friedens~jehova-gott-des-friedens|Gott schenkt Frieden~gott-schenkt-frieden|„Übt Geduld“~uebt-geduld|Dankbar für Gottes Geduld~dankbar-fuer-gottes-geduld|Freundlichkeit bewirkt viel Gutes~freundlichkeit-bewirkt-viel-gutes|Güte — wie wertvoll!~guete-wie-wertvoll|„Gib uns mehr Glauben“~gib-uns-mehr-glauben|Wir müssen Glauben haben~wir-muessen-glauben-haben|So sanft und mild wie Jesus werden~sanft-mild-wie-jesus|Wir brauchen Selbstbeherrschung~wir-brauchen-selbstbeherrschung|Bleibt standhaft!~bleibt-standhaft|Uns loyal der theokratischen Ordnung unterstellen~der-theokratischen-ordnung-unterstellen|Wahre Liebe ist loyal~wahre-liebe-ist-loyal|„Glücklich sind die Barmherzigen“~gluecklich-sind-die-barmherzigen|Steh fest im Glauben!~steh-fest-im-glauben|Was für ein Mensch sollte ich sein?~was-fuer-ein-mensch-sein|Bis zum Ende ausharren~bis-zum-ende-ausharren|Wir harren weiter aus~wir-harren-weiter-aus|Gerne verzeihen~gerne-verzeihen|„Was Gott verbunden hat“~was-gott-verbunden-hat|Glücklich vereint~gluecklich-vereint|Als junger Mensch Jehova dienen~als-junger-mensch-jehova-dienen|Kinder — ein kostbares Geschenk von Jehova~kinder-kostbares-geschenk|Jehova bittet: „Sei weise, mein Sohn“~sei-weise-mein-sohn|Ein vollkommener Lohn von Jehova~vollkommener-lohn-von-jehova|Treue Frauen, unsere Schwestern~treue-frauen-unsere-schwestern|Graues Haar — eine schöne Krone~graues-haar-schoene-krone|Siehst du dich in der neuen Welt?~in-der-neuen-welt|Endlich ewiges Leben!~endlich-ewiges-leben|Das Wunder des Lebens~das-wunder-des-lebens|An unserer Hoffnung festhalten~an-unserer-hoffnung-festhalten|Bleibe wachsam, beschäftigt und warte~bleibe-wachsam-beschaeftigt-und-warte|Schau fest auf das Ziel!~schau-fest-auf-das-ziel|Gott hat ein Paradies versprochen~gott-hat-ein-paradies-versprochen|„Ich mache alles neu“~ich-mache-alles-neu|Bald ewiges Leben!~bald-ewiges-leben|Jehova — unser Retter~jehova-unser-retter|Ein Siegeslied~ein-siegeslied|Sucht Jehova, damit er euch befreit~sucht-jehova-euch-befreit|Er wird sie rufen~er-wird-sie-rufen|Ein Ort, der dich ehrt und preist~ein-ort-der-dich-ehrt-und-preist|Mach mich mutig!~mach-mich-mutig|Liebe versagt nie~liebe-versagt-nie|Jehova – unsere Freude~jehova-unsere-freude|Durch Glauben stark~durch-glauben-stark|Endlich Frieden!~endlich-frieden|Schenk uns Geduld~schenk-uns-geduld|Jehova steht alle Ehre zu~jehova-steht-alle-ehre-zu|Ruft die Botschaft aus!~ruft-die-botschaft-aus|Ich lebe nur für dich!~ich-lebe-nur-f%C3%BCr-dich|Mit Jehova hat mein Leben Sinn~mit-jehova-hat-mein-leben-sinn|Glücklich ist, wer sieht und versteht~gl%C3%BCcklich-ist-wer-sieht-und-versteht".split('|').map(x => x.split('~'))
-};
-function songInfo(v) {
-  const n = parseInt(v, 10), list = SONGS[settings.lang] || SONGS.en;
-  if (!(n >= 1 && n <= list.length)) return null;
-  const [title, slug] = list[n - 1];
-  return { title, url: `${SONG_BASE[settings.lang] || SONG_BASE.en}${n}-${slug}/` };
+const SONGS = {};
+const SONG_REQUESTS = {};
+const SONG_ERRORS = {};
+function validSongData(data, lang) {
+  const expected = lang === 'de' ? 'https://www.jw.org/de/bibliothek/musik-lieder/singt-voller-freude/' : 'https://www.jw.org/en/library/music-songs/sing-out-joyfully/';
+  return data && data.language === lang && data.baseUrl === expected && Array.isArray(data.songs) && data.songs.length > 0 && data.songs.every((s,i)=>s && s.number===i+1 && typeof s.title==='string' && s.title.length>0 && typeof s.slug==='string' && /^[a-zA-Z0-9%_-]+$/.test(s.slug));
 }
+function refreshSongLinks() {
+  document.querySelectorAll('#entry .song-row').forEach(row=>{
+    const input=row.querySelector('[data-song]'),slot=row.querySelector('.song-slot');
+    if(input&&slot)slot.innerHTML=songLinkHtml(input.value);
+  });
+}
+async function loadSongs(lang = settings.lang, retry = false) {
+  if (SONG_REQUESTS[lang]) return SONG_REQUESTS[lang];
+  if (SONGS[lang] && !retry) return;
+  const cacheKey='congregation-notes-song-catalog-v1-'+lang;
+  try { const cached=JSON.parse(localStorage.getItem(cacheKey)); if(validSongData(cached,lang))SONGS[lang]=cached; } catch {}
+  SONG_ERRORS[lang]=false;refreshSongLinks();
+  SONG_REQUESTS[lang]=(async()=>{
+    try {
+      const response=await fetch('./songs-'+lang+'.json');
+      if(!response.ok)throw new Error('Song catalog unavailable');
+      const data=await response.json();if(!validSongData(data,lang))throw new Error('Invalid song catalog');
+      SONGS[lang]=data;
+      try { localStorage.setItem(cacheKey,JSON.stringify(data)); } catch {}
+    } catch { SONG_ERRORS[lang]=!SONGS[lang]; }
+    finally { delete SONG_REQUESTS[lang];refreshSongLinks(); }
+  })();
+  return SONG_REQUESTS[lang];
+}
+function songInfo(v) {
+  const n=parseInt(v,10),catalog=SONGS[settings.lang];
+  const song=catalog && catalog.songs[n-1];
+  return song ? {title:song.title,url:catalog.baseUrl+n+'-'+song.slug+'/'} : null;
+}
+
 
 // ═══════════════════════════════════════════
 //  UI TEXT
@@ -807,6 +830,7 @@ const UI = {
     inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
     meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
+    songLoading: 'Loading song titles…', songLoadError: 'Song titles unavailable.', songRetry: 'Retry',
     wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Edit words', editWordsHint: 'Change words and symbols or choose defaults for new notes.', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete “{word}” and its count?',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
     question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
@@ -854,6 +878,7 @@ const UI = {
     inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
     meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
+    songLoading: 'Liedtitel werden geladen …', songLoadError: 'Liedtitel nicht verfügbar.', songRetry: 'Erneut laden',
     wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter bearbeiten', editWordsHint: 'Wörter und Symbole ändern oder Vorgaben für neue Notizen festlegen.', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: '„{word}“ und seinen Zählerstand löschen?',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
     question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
@@ -1055,7 +1080,7 @@ function mkBlock(type) {
 const MID_KEYS = ['treasures', 'apply', 'living'];
 const MID_PARTS = {treasures:['treasureTalk','spiritualGems','bibleReading'],apply:['ministryPart','ministryPart','ministryPart'],living:['christianLifePart','bibleStudy']};
 function meetingForDate(date) { const day = parseISO(date).getDay(); return day === 0 || day === 6 ? 'weekend' : 'midweek'; }
-function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(kind=>({kind,title:'',person:'',assistant:'',notes:''}))}; }
+function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(kind=>({kind,title:'',person:'',assistant:'',notes:'',refs:[]}))}; }
 function sortStandardWords(list) {
   const rank = w => { const word=String(w.w).toLowerCase(); const i=DEFAULT_WORDS.findIndex(d=>d.en.toLowerCase()===word || d.de.toLowerCase()===word); return i<0 ? DEFAULT_WORDS.length : i; };
   return list.map((w,i)=>({w,i})).sort((a,b)=>rank(a.w)-rank(b.w)||a.i-b.i).map(x=>x.w);
@@ -1070,12 +1095,17 @@ function meetingControls(e) {
 function midweekTop(e) {
   return `<section class="card"><div class="meta-grid">${fieldHtml('midweek.reading','weeklyReading',e.midweek.reading,true)}${fieldHtml('midweek.chairman','chairman',e.midweek.chairman)}${fieldHtml('midweek.openPrayer','openingPrayer',e.midweek.openPrayer)}${fieldHtml('midweek.closePrayer','closingPrayer',e.midweek.closePrayer)}</div></section>`;
 }
+function partChipsHtml(key,i,refs) {
+  return refs.map((r,ri)=>`<span class="chip"><a href="${esc(r.url)}" data-act="openRef" target="_blank" rel="noopener">📖 ${esc(r.label)}</a><button data-act="partDelRef" data-sec="${key}" data-i="${i}" data-r="${ri}" aria-label="${esc(t('del'))}">×</button></span>`).join('');
+}
 function midweekParts(key) {
   const parts=cur[key].parts;
   return `<div class="mid-parts">${parts.map((p,i)=>`<div class="mid-part">
     <div class="blk-top"><strong>${partNumber(cur,key,i)}. ${esc(t(p.kind))}</strong><button class="x-btn" data-act="removePart" data-sec="${key}" data-i="${i}" aria-label="${esc(t('removePart'))}" title="${esc(t('removePart'))}">×</button></div>
-    <div class="meta-grid">${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant)}</div>
+    <div class="meta-grid">${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${key==='apply'||p.kind==='bibleStudy'?fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant):''}</div>
     <div class="sub-label">${esc(t('myNotes'))}</div><div class="rt short" contenteditable="true" data-f="${key}.parts.${i}.notes" data-ph="${esc(t('phNotes'))}">${sanitize(p.notes)}</div>
+    <div class="chips" data-part-chips="${key}-${i}">${partChipsHtml(key,i,p.refs||[])}</div>
+    <button class="btn-soft" data-act="partRef" data-sec="${key}" data-i="${i}">${esc(t('addRef'))}</button>
   </div>`).join('')}</div><button class="btn" data-act="addPart" data-sec="${key}">${esc(t('addPart'))}</button><div class="sub-label">${esc(t('sectionNotes'))}</div>`;
 }
 function renderMidweek() {
@@ -1150,7 +1180,7 @@ function normalizeEntry(r) {
       blocks:normBlocks(source.blocks),
       parts:Array.isArray(source.parts) ? source.parts.filter(p=>p && typeof p==='object').map(p=>({
         kind:[...MID_PARTS[key],'customPart'].includes(p.kind)?p.kind:'customPart',
-        title:str(p.title,300),person:str(p.person,200),assistant:str(p.assistant,200),notes:sanitize(str(p.notes,200000))
+        title:str(p.title,300),person:str(p.person,200),assistant:str(p.assistant,200),notes:sanitize(str(p.notes,200000)),refs:normRefs(p.refs)
       })) : newMidSection(key).parts
     };
   }
@@ -1223,7 +1253,7 @@ function entrySearchText(e) {
   return [e.speaker, e.speakerCong, e.talkTitle, e.wt.title, stripHtml(e.comment), stripHtml(e.kids.best), stripHtml(e.kids.question),
     ...blocks.map(b => (b.type === 'text' ? stripHtml(b.html) : '') + ' ' + b.refs.map(r => r.label).join(' ')),
     ...Object.values((e.wt.paras && e.wt.paras.notes) || {}).map(n => stripHtml(n.html) + ' ' + n.refs.map(r => r.label).join(' ')),
-    ...MID_KEYS.flatMap(k=>e[k].parts.flatMap(p=>[p.title,p.person,p.assistant,stripHtml(p.notes)])),
+    ...MID_KEYS.flatMap(k=>e[k].parts.flatMap(p=>[p.title,p.person,p.assistant,stripHtml(p.notes),...(p.refs||[]).map(r=>r.label)])),
     ...Object.values(e.midweek), t(e.meetingType), fmtDate(e.date)].join(' ').toLowerCase();
 }
 function renderList() {
@@ -1355,6 +1385,9 @@ function renderEntry() {
 
 function songLinkHtml(v) {
   const info = songInfo(v);
+  if (!info && v && !SONGS[settings.lang]) return SONG_ERRORS[settings.lang]
+    ? esc(t('songLoadError'))+' <button class="btn-link" data-act="reloadSongs">'+esc(t('songRetry'))+'</button>'
+    : esc(t('songLoading'));
   return info ? `<a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(info.url)}">${esc(info.title)} <span aria-hidden="true">▶</span></a>` : '';
 }
 function songRow(i) {
@@ -1821,6 +1854,7 @@ function inkOf(el) { const ink = el.closest('.ink'); return ink && ink._ink; }
 //  ACTIONS  (delegated clicks)
 // ═══════════════════════════════════════════
 const ACTIONS = {
+  reloadSongs: () => { void loadSongs(settings.lang,true); },
   open: el => { location.hash = '#e=' + encodeURIComponent(el.dataset.id); },
   back: () => { location.hash = ''; },
   newEntry: () => {
@@ -1832,18 +1866,31 @@ const ACTIONS = {
 
   addPart: el => {
     const key=el.dataset.sec;if(!MID_KEYS.includes(key))return;
-    cur[key].parts.push({kind:'customPart',title:'',person:'',assistant:'',notes:''});
+    const part={kind:'customPart',title:'',person:'',assistant:'',notes:'',refs:[]};
+    const study=key==='living'?cur[key].parts.findIndex(p=>p.kind==='bibleStudy'):-1;
+    if(study>=0)cur[key].parts.splice(study,0,part);else cur[key].parts.push(part);
     cur.autoMeetingType=false;dirty();keepScroll(renderEntry);
   },
   removePart: el => {
     const key=el.dataset.sec;if(!MID_KEYS.includes(key)||!confirm(t('removePartConfirm')))return;
     cur[key].parts.splice(+el.dataset.i,1);cur.autoMeetingType=false;dirty();keepScroll(renderEntry);
   },
+  partRef: el => openBP({sec:el.dataset.sec,part:+el.dataset.i}),
+  partDelRef: el => {
+    const part=cur[el.dataset.sec]?.parts[+el.dataset.i];if(!part)return;
+    part.refs.splice(+el.dataset.r,1);dirty();
+    el.closest('.chips').innerHTML=partChipsHtml(el.dataset.sec,+el.dataset.i,part.refs);
+  },
   addRef: el => openBP({ sec: el.dataset.sec }),
   bpInsert: () => {
     const r = readBP();
     if (!r) { toast(t('needBookCh')); return; }
-    if (bpTarget.para) {
+    if (bpTarget.part != null) {
+      const part=cur[bpTarget.sec]?.parts[bpTarget.part];if(!part)return;
+      if(!part.refs)part.refs=[];part.refs.push(r);cur.autoMeetingType=false;dirty();
+      const chips=document.querySelector(`[data-part-chips="${bpTarget.sec}-${bpTarget.part}"]`);
+      if(chips)chips.innerHTML=partChipsHtml(bpTarget.sec,bpTarget.part,part.refs);
+    } else if (bpTarget.para) {
       paraNote(bpTarget.para).refs.push(r);
       dirty(); refreshParas();
     } else {
@@ -2381,8 +2428,9 @@ async function makeNotesPdf(entry) {
       for(const [i,p] of entry[key].parts.entries()) {
         await text(partNumber(entry,key,i)+'. '+t(p.kind)+(p.title?' · '+p.title:''),true);
         if(p.person) await text(t(p.kind==='bibleStudy'?'conductor':'participant')+': '+p.person);
-        if(p.assistant) await text(t(p.kind==='bibleStudy'?'reader':'assistant')+': '+p.assistant);
+        if(p.assistant && (key==='apply'||p.kind==='bibleStudy')) await text(t(p.kind==='bibleStudy'?'reader':'assistant')+': '+p.assistant);
         await text(pdfText(p.notes));
+        await refs(p.refs);
       }
       await blocks(entry[key].blocks);
     }
@@ -2548,6 +2596,7 @@ function applyBodyClasses() {
   document.body.classList.toggle('finger', !!settings.fingerDraw);
 }
 function applyLang() {
+  void loadSongs(settings.lang);
   const L = settings.lang;
   document.documentElement.lang = L;
   $('lang-en').classList.toggle('on', L === 'en');
