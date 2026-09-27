@@ -131,7 +131,7 @@ input, select { font: inherit; color: inherit; }
   border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); border-radius: 11px;
   height: 36px; min-width: 36px; padding: 0 8px; font-size: 16px; color: #fff;
 }
-.btn-hdr:active, .btn-back:active { background: rgba(255,255,255,.22); }
+#btn-settings { min-height: 44px; height: auto; padding: 8px 12px; font-size: 14px; font-weight: 700; border-color: #aebbd6; background: rgba(255,255,255,.16); } .btn-hdr:active, .btn-back:active { background: rgba(255,255,255,.22); }
 .btn-gloss {
   display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px 0 10px;
   border: none; border-radius: 11px; background: #ffd25e; color: #1c2740;
@@ -143,7 +143,7 @@ input, select { font: inherit; color: inherit; }
 .lang-seg button.on { background: #fff; color: #1c2740; }
 @media (max-width: 600px) {
   .hdr-in { flex-wrap: wrap; row-gap: 8px; padding-bottom: 9px; }
-  .hdr-actions { order: 3; width: 100%; justify-content: flex-end; }
+  .hdr-actions { order: 3; width: 100%; justify-content: flex-end; flex-wrap: wrap; } #btn-settings { flex: 1 0 100%; }
   .hdr-actions .btn-gloss { margin-right: auto; }
 }
 
@@ -390,6 +390,10 @@ body.finger .paper .c-live { touch-action: none; }
  .word-list { display: grid; gap: 9px; }
 .word-row { display: flex; align-items: center; gap: 6px; padding: 6px; min-width: 0; border: 2px solid var(--tile-bd); background: var(--tile-bg); border-radius: 14px; }
 .word-count { flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 8px; padding: 8px; border: 0; background: transparent; text-align: left; color: var(--ink); touch-action: manipulation; }
+.word-count .em { flex: 0 0 auto; font-size: 26px; line-height: 1.2; }
+.word-edit { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin: 12px 0; }
+.word-edit .btn { min-height: 44px; border: 2px solid var(--tile-bd); background: var(--tile-bg); color: var(--ink); font-weight: 700; }
+.word-edit small { color: var(--sub); font-size: 12px; }
 .word-count .w { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
 .word-count .n { font-size: 24px; font-weight: 800; color: var(--tile-n); }
 .word-action { flex: 0 0 44px; width: 44px; height: 44px; border: 1px solid var(--tile-bd); border-radius: 10px; background: var(--card); color: var(--ink); font-size: 20px; touch-action: manipulation; }
@@ -544,7 +548,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
         <button data-act="setLang" data-l="de" id="lang-de">DE</button>
       </div>
       <button class="btn-hdr" data-act="toggleTheme" id="btn-theme" aria-label="Theme">🌙</button>
-      <button class="btn-hdr" data-act="openSettings" id="btn-settings" aria-label="Settings">⚙︎</button>
+      <button class="btn-hdr" data-act="openSettings" id="btn-settings" aria-label="Settings">⚙︎ Settings</button>
     </div>
   </div>
 </header>
@@ -562,7 +566,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.1.7 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.1.8 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -629,7 +633,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.1.7';
+const APP_VERSION = '1.1.8';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -775,7 +779,7 @@ const UI = {
     notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
     addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
-    wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Words', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete this word and its count?',
+    wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Edit words', editWordsHint: 'Change words and symbols or choose defaults for new notes.', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete “{word}” and its count?',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
     question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
     print: '🖨 Print / PDF', shareEntry: '⤴ Share', fileEntry: '⬇ Save file', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
@@ -820,7 +824,7 @@ const UI = {
     notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
     addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
-    wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: 'Dieses Wort und seinen Zählerstand löschen?',
+    wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter bearbeiten', editWordsHint: 'Wörter und Symbole ändern oder Vorgaben für neue Notizen festlegen.', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: '„{word}“ und seinen Zählerstand löschen?',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
     question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
     print: '🖨 Drucken / PDF', shareEntry: '⤴ Teilen', fileEntry: '⬇ Als Datei', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
@@ -1345,13 +1349,14 @@ function chipsHtml(key, i, refs) {
 function renderCounter() {
   const head = `<div class="sec-head"><h2>🔢 ${esc(t('wordCounter'))}</h2></div>`;
   const body = `<p class="hint">${esc(t('counterHint'))}</p>
+    <div class="word-edit"><button type="button" class="btn" data-act="editWords" title="${esc(t('editWordsHint'))}">${esc(t('editWords'))}</button><small>${esc(t('editWordsHint'))}</small></div>
     <div class="word-list">${cur.counter.map((w, i) => `<div class="word-row">
-      <button type="button" class="word-count" data-act="count" data-i="${i}" aria-label="${esc(t('increaseWord') + wordLabel(w.w))}"><span class="w">${esc(wordLabel(w.w))}</span><span class="n" id="cnt-${i}" aria-live="polite">${w.n}</span></button>
+      <button type="button" class="word-count" data-act="count" data-i="${i}" aria-label="${esc(t('increaseWord') + wordLabel(w.w))}"><span class="em" aria-hidden="true">${esc(w.e || '⭐')}</span><span class="w">${esc(wordLabel(w.w))}</span><span class="n" id="cnt-${i}" aria-live="polite">${w.n}</span></button>
       <button type="button" class="word-action" data-act="uncount" data-i="${i}" aria-label="${esc(t('decreaseWord') + wordLabel(w.w))}">−</button>
       <button type="button" class="word-action" data-act="counterDelete" data-i="${i}" aria-label="${esc(t('deleteWord') + wordLabel(w.w))}">×</button>
     </div>`).join('') || `<p>${esc(t('emptyWords'))}</p>`}</div>
     <div class="word-add"><input id="counter-new-word" type="text" maxlength="40" placeholder="${esc(t('newWord'))}" aria-label="${esc(t('newWord'))}" autocomplete="off"><button type="button" class="btn" data-act="counterAdd">${esc(t('addCounterWord'))}</button></div>
-    <button type="button" class="btn-link" data-act="editWords">${esc(t('editWords'))}</button>`;
+    `;
   if (settings.kidMode) return `<section class="card counter">${head}${body}</section>`;
   const total = cur.counter.reduce((sum, w) => sum + w.n, 0);
   return `<details class="card counter"${total ? ' open' : ''}><summary>${head}</summary>${body}</details>`;
@@ -1826,7 +1831,7 @@ const ACTIONS = {
   counterDelete: el => {
     if (!cur) return;
     const i = +el.dataset.i, word = cur.counter[i];
-    if (!word || (word.n > 0 && !confirm(t('deleteWordConfirm')))) return;
+    if (!word || !confirm(t('deleteWordConfirm').replace('{word}', wordLabel(word.w)))) return;
     cur.counter.splice(i, 1); dirty(); refreshCounter();
     const next = document.querySelectorAll('#entry .word-count');
     (next[Math.min(i, next.length - 1)] || $('counter-new-word')).focus();
@@ -1837,17 +1842,22 @@ const ACTIONS = {
     rows.insertAdjacentHTML('beforeend', wordRow('⭐', ''));
     rows.lastElementChild.querySelector('.w-word').focus();
   },
-  wordsDel: el => el.closest('.w-row').remove(),
+  wordsDel: el => {
+    const row = el.closest('.w-row');
+    const word = row.querySelector('.w-word').value.trim() || t('word');
+    if (confirm(t('deleteWordConfirm').replace('{word}', word))) row.remove();
+  },
   wordsSave: () => {
     const list = [...document.querySelectorAll('#words-rows .w-row')].map(r => ({
+      originalIndex: Number(r.dataset.originalIndex),
       e: r.querySelector('.w-em').value.trim().slice(0, 16) || '⭐',
       w: r.querySelector('.w-word').value.trim().slice(0, 40)
     })).filter(x => x.w);
     cur.counter = list.map(x => {
-      const old = cur.counter.find(c => wordLabel(c.w).toLowerCase() === x.w.toLowerCase());
+      const old = x.originalIndex >= 0 ? cur.counter[x.originalIndex] : null;
       return { e: x.e, w: x.w, n: old ? old.n : 0 };
     });
-    if ($('words-default').checked) { settings.words = list; saveSettings(); }
+    if ($('words-default').checked) { settings.words = list.map(({e, w}) => ({e, w})); saveSettings(); }
     dirty(); closeModal('modal-words'); keepScroll(renderEntry);
   },
 
@@ -2005,14 +2015,14 @@ function renderGlossary() {
 $('gl-search').addEventListener('input', renderGlossary);
 
 // ── word editor ──
-function wordRow(e, w) {
-  return `<div class="w-row"><input class="w-em" value="${esc(e)}" aria-label="${esc(t('emoji'))}" maxlength="16">
+function wordRow(e, w, originalIndex = -1) {
+  return `<div class="w-row" data-original-index="${originalIndex}"><input class="w-em" value="${esc(e)}" aria-label="${esc(t('emoji'))}" maxlength="16">
     <input class="w-word" value="${esc(w)}" placeholder="${esc(t('word'))}" maxlength="40">
-    <button class="x-btn" data-act="wordsDel" aria-label="✕">✕</button></div>`;
+    <button class="x-btn" data-act="wordsDel" aria-label="${esc(t('deleteWord') + w)}">✕</button></div>`;
 }
 function openWords() {
   $('words-body').innerHTML = `<h3>${esc(t('wordsTitle'))}</h3>
-    <div id="words-rows">${cur.counter.map(c => wordRow(c.e, wordLabel(c.w))).join('')}</div>
+    <div id="words-rows">${cur.counter.map((c, i) => wordRow(c.e, wordLabel(c.w), i)).join('')}</div>
     <button class="btn" data-act="wordsAdd">${esc(t('addWord'))}</button>
     <label class="chk"><input type="checkbox" id="words-default"> ${esc(t('asDefault'))}</label>
     <div class="modal-btns">
@@ -2278,7 +2288,10 @@ function applyLang() {
   $('bp-l-v').textContent = t('verse'); $('bp-l-ve').textContent = t('vend');
   $('bp-cancel').textContent = t('cancel'); $('bp-insert').textContent = t('insert');
   $('gloss-label').textContent = t('glossShort');
-  $('btn-theme').title = isDark() ? t('themeLight') : t('themeDark'); $('btn-settings').title = t('settings');
+  $('btn-theme').title = isDark() ? t('themeLight') : t('themeDark');
+  $('btn-settings').title = t('settings');
+  $('btn-settings').textContent = t('settings');
+  $('btn-settings').setAttribute('aria-label', t('settings'));
   $('fb-tr').title = t('translate'); $('fb-wol').title = t('lookUpWol'); $('fb-done').textContent = t('ok');
   updateHeader();
   if (cur) keepScroll(renderEntry); else renderList();
