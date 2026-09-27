@@ -1,2317 +1,483 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<!-- Icons + Manifest -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#1c2740">
-<meta name="apple-mobile-web-app-title" content="Notes">
-<meta name="application-name" content="Congregation Notes">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Theocratic Tools | kaffeetrinker80</title>
+  
+  <meta name="description" content="Theocratic Tools by kaffeetrinker80 – browser-based helpers for congregation, assembly and convention planning.">
 
-<!-- Link-Vorschau -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="Congregation Notes">
-<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/congregation-notes/">
-<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/congregation-notes/og-image.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Congregation Notes</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <!-- Favicons / App-Icons – eigene Icons im /theocratic/-Ordner, daher relativ -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#12151a">
+  <meta name="apple-mobile-web-app-title" content="Theocratic">
+  <meta name="application-name" content="Theocratic Tools">
 
-:root {
-  /* Sunday notebook palette – cool paper blue, each meeting part has its own colour */
-  --bg:       #eaf1f7;
-  --card:     #ffffff;
-  --border:   #d7e1ec;
-  --ink:      #1c2740;
-  --sub:      #5b6882;
-  --faint:    #8e9ab0;
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Theocratic Tools | kaffeetrinker80">
+  <meta property="og:description" content="Browser-based helpers for congregation, assembly and convention planning.">
+  <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/">
+  <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/android-chrome-512x512.png">
 
-  --talk:     #2c5fb3;   /* Public Talk */
-  --wt:       #2f8f63;   /* Watchtower Study */
-  --sun:      #e0a100;   /* word counter */
-  --berry:    #c2417a;   /* kids' corner */
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-  --rule:     #d3e0f1;   /* notebook lines */
-  --margin:   #f3b0b0;   /* notebook margin line */
+  <style>
+    :root {
+      --bg: #12151a;
+      --bg-soft: #1a1e24;
+      --surface: #1e232b;
+      --text: #eef2f7;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      --primary: #8fd39a; /* Theocratic Green */
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-  --chip-bg:  #e8f0fb;
-  --chip-bd:  #bcd0ee;
-  --chip-tx:  #1f4a91;
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
 
-  --paper:    #fffefb;   /* note fields */
-  --field:    #fbfcfe;   /* inputs */
-  --primary:  #2c5fb3;   /* filled buttons */
-  --tile-bg:  #fffaea; --tile-bd: #f1d98a; --tile-n: #8a6100; --sun-tx: #a57400;
-  --banner-bg:#fff8e1; --mood-on: #fdeef5; --danger: #b3261e; --switch-off: #cfd8e3;
+    body {
+      margin: 0; font-family: 'Outfit', sans-serif;
+      background-color: var(--bg); color: var(--text);
+      position: relative; overflow-x: hidden; line-height: 1.5;
+    }
 
-  --radius: 14px;
-  --shadow: 0 1px 3px rgba(28,39,64,.08);
-  --line: 28px;
-}
+    body::before, body::after {
+      content: ""; position: fixed; width: 400px; height: 400px;
+      border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.12; pointer-events: none;
+    }
+    body::before { background: var(--primary); top: -100px; left: -100px; }
+    body::after { background: #8dc2ff; bottom: 10%; right: -150px; }
 
-/* dark = calm slate, deliberately not black */
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #2b3345; --card: #353f55; --border: #4a5570;
-  --ink: #e8ecf4; --sub: #b8c1d4; --faint: #8f9ab2;
-  --talk: #8ab0f5; --wt: #6ccf9f; --sun: #f2c14e; --berry: #f08bb8;
-  --rule: #46516b; --margin: #8f5f6a;
-  --chip-bg: #3d4b6b; --chip-bd: #5a6b92; --chip-tx: #d6e4ff;
-  --paper: #313a4f; --field: #303a4e; --primary: #4a7ad4;
-  --tile-bg: #453f2e; --tile-bd: #7d6b38; --tile-n: #f2c14e; --sun-tx: #f2c14e;
-  --banner-bg: #453f2e; --mood-on: #5a3a4c; --danger: #ff8f86; --switch-off: #5b6680;
-  --shadow: 0 1px 3px rgba(0,0,0,.25);
-}
-:root[data-theme="dark"] .rt span[style*="background"] { color: #1c2740; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.5;
-  overflow-x: hidden;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-body.kid { font-size: 16.5px; }
-button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-input, select { font: inherit; color: inherit; }
-:focus-visible { outline: 3px solid color-mix(in srgb, var(--talk) 45%, transparent); outline-offset: 2px; }
-[hidden] { display: none !important; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUpCard { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shine { to { background-position: 200% center; } }
+    @keyframes starPulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 8px var(--primary)); }
+      100% { transform: scale(1); opacity: 0.7; }
+    }
 
-/* ── HEADER (navy notebook cover) ───────── */
-.app-header {
-  position: sticky; top: 0; z-index: 100;
-  background-color: #1c2740;
-  background-image:
-    linear-gradient(90deg, transparent 22px, rgba(243,176,176,.22) 22px, rgba(243,176,176,.22) 23px, transparent 23px),
-    repeating-linear-gradient(180deg, transparent 0, transparent 17px, rgba(255,255,255,.045) 17px, rgba(255,255,255,.045) 18px);
-  color: #fff;
-  box-shadow: 0 3px 14px rgba(28,39,64,.22);
-  padding-top: env(safe-area-inset-top, 0px);
-}
-/* colour stripe = the four parts of the notebook */
-.app-header::after {
-  content: ""; display: block; height: 4px;
-  background: linear-gradient(90deg, var(--talk) 0 25%, var(--wt) 25% 50%, var(--sun) 50% 75%, var(--berry) 75% 100%);
-}
-.hdr-in {
-  display: flex; align-items: center; gap: 10px;
-  max-width: 720px; margin: 0 auto; padding: 10px 14px;
-}
-.btn-back {
-  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); border-radius: 11px;
-  width: 36px; height: 40px; font-size: 24px; line-height: 1; font-weight: 700; color: #fff;
-  flex-shrink: 0;
-}
-.app-icon {
-  width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
-  background: linear-gradient(145deg, #3d78d6, #2f8f63);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.2), 0 2px 6px rgba(0,0,0,.25);
-  display: flex; align-items: center; justify-content: center; font-size: 22px;
-}
-.app-icon.leaf-mode {
-  background: #fff; color: #1c2740; flex-direction: column; overflow: hidden; justify-content: flex-start;
-}
-.app-icon .mi-m { width: 100%; background: var(--talk); color: #fff; font-size: 9.5px; font-weight: 800; text-align: center; line-height: 1.5; }
-.app-icon .mi-d { font-size: 18px; font-weight: 800; line-height: 1.45; }
-.brand { flex: 1; min-width: 0; }
-.app-title { font-size: 17px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.app-sub { font-size: 12px; color: #aebbd6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-.hdr-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-.btn-hdr {
-  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1); border-radius: 11px;
-  height: 36px; min-width: 36px; padding: 0 8px; font-size: 16px; color: #fff;
-}
-.btn-hdr:active, .btn-back:active { background: rgba(255,255,255,.22); }
-.btn-gloss {
-  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px 0 10px;
-  border: none; border-radius: 11px; background: #ffd25e; color: #1c2740;
-  font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(255,210,94,.28);
-}
-.btn-gloss:active { background: #ffc53a; }
-.lang-seg { display: flex; border: 1px solid rgba(255,255,255,.18); border-radius: 11px; overflow: hidden; height: 36px; }
-.lang-seg button { border: none; background: transparent; padding: 0 9px; font-size: 11.5px; font-weight: 800; color: #c3cde2; }
-.lang-seg button.on { background: #fff; color: #1c2740; }
-@media (max-width: 600px) {
-  .hdr-in { flex-wrap: wrap; row-gap: 8px; padding-bottom: 9px; }
-  .hdr-actions { order: 3; width: 100%; justify-content: flex-end; }
-  .hdr-actions .btn-gloss { margin-right: auto; }
-}
+    .animate-in { animation: fadeInUp 0.6s var(--transition-smooth) forwards; opacity: 0; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
 
-/* ── NEXT-MEETING HERO ──────────────────── */
-.hero {
-  display: flex; gap: 14px; align-items: center;
-  border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow);
-  padding: 16px; margin-bottom: 14px; position: relative; overflow: hidden;
-  background: var(--card);
-}
-.hero .leaf { width: 70px; background: var(--card); }
-.hero .leaf .d { font-size: 30px; }
-.hero-k { font-size: 12.5px; font-weight: 700; color: var(--sub); }
-.hero-d { font-size: 19px; font-weight: 800; line-height: 1.25; margin: 1px 0 9px; }
-.hero .btn { padding: 8px 14px; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 20px 20px 40px; position: relative; }
 
-/* ── LAYOUT ─────────────────────────────── */
-main { max-width: 720px; margin: 0 auto; padding: 14px 12px 28px; }
-body.fmt-open main { padding-bottom: 90px; }
-.card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 14px; margin-bottom: 12px;
-}
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; position: relative; z-index: 9999; }
+    
+    .bookmark-btn {
+      background: var(--bg-soft); border: 1px solid var(--border); color: var(--primary);
+      width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease;
+    }
+    .bookmark-btn:hover { transform: translateY(-2px); background: #252b33; }
+    .bookmark-btn svg { animation: starPulse 4s infinite ease-in-out; }
 
-/* ── HISTORY LIST ───────────────────────── */
-.search {
-  width: 100%; border: 1px solid var(--border); background-color: var(--field); border-radius: 12px;
-  padding: 11px 14px 11px 38px; font-size: 15px; margin-bottom: 12px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238e9ab0' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: 12px center;
-}
-.h-card {
-  display: flex; gap: 12px; width: 100%; text-align: left;
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  box-shadow: var(--shadow); padding: 10px; margin-bottom: 9px; align-items: stretch;
-}
-.h-card:active { transform: scale(.99); }
-.leaf {
-  flex-shrink: 0; width: 62px; border-radius: 10px; overflow: hidden;
-  border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column;
-}
-.leaf .m { background: var(--primary); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 0; }
-.leaf .d { font-size: 25px; font-weight: 800; line-height: 1.15; padding-top: 3px; }
-.leaf .w { font-size: 10.5px; color: var(--sub); padding-bottom: 4px; }
-.h-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.h-title { font-weight: 800; font-size: 15px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.h-speaker { color: var(--sub); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.h-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
-.pill { font-size: 11.5px; background: var(--bg); border-radius: 20px; padding: 1px 8px; color: var(--sub); white-space: nowrap; }
-.empty { text-align: center; padding: 50px 20px; color: var(--sub); }
-.empty .big { font-size: 46px; margin-bottom: 8px; }
-.empty strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 4px; }
-.banner {
-  display: flex; align-items: center; gap: 10px; justify-content: space-between;
-  background: var(--banner-bg); border: 1px solid var(--tile-bd); border-radius: 12px;
-  padding: 10px 12px; margin-bottom: 12px; font-size: 13px;
-}
-.fab {
-  position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
-  width: 62px; height: 62px; border-radius: 50%; border: none;
-  background: var(--primary); color: #fff; font-size: 34px; line-height: 1; font-weight: 400;
-  box-shadow: 0 6px 18px rgba(44,95,179,.38); z-index: 90;
-}
-.fab:active { transform: scale(.94); }
+    .nav-back {
+      text-decoration: none; color: var(--text); background: var(--bg-soft); border: 1px solid var(--border);
+      padding: 12px 20px; border-radius: 14px; font-size: .95rem; font-weight: 600;
+      transition: all var(--transition-smooth);
+    }
+    .nav-back:hover { transform: translateY(-2px); background: #252b33; }
 
-/* ── ENTRY: META ────────────────────────── */
-.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
-.fld { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.fld.wide { grid-column: 1 / -1; }
-.fld > span { font-size: 11.5px; font-weight: 700; color: var(--sub); }
-.fld input, .fld select {
-  width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--field);
-  padding: 9px 11px; font-size: 15px; min-height: 42px;
-}
-body.kid .fld input { font-size: 16.5px; }
-.fld input[type="date"] { display: block; min-inline-size: 0; }
-.fld input[type="date"]::-webkit-date-and-time-value { text-align: left; }
-@media (max-width: 480px) { .meta-grid { grid-template-columns: minmax(0, 1fr); } }
-.fld input:focus, .fld select:focus { outline: none; border-color: var(--talk); background: var(--card); }
+    .hero {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 50px 24px; margin-bottom: 24px; text-align: center;
+    }
+    .hero h1 {
+      margin: 0; font-size: 3.2rem; line-height: 1.1; font-weight: 700;
+      background: linear-gradient(90deg, #ffffff 0%, var(--primary) 25%, #ffffff 50%, var(--primary) 75%, #ffffff 100%);
+      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shine 6s linear infinite;
+    }
+    .hero-byline { font-size: 1.3rem; color: var(--primary); margin-top: 10px; font-weight: 400; }
+    .hero p { color: var(--muted); line-height: 1.6; font-size: 1.1rem; margin: 24px auto 0; max-width: 700px; }
 
-/* ── SONG ROWS (quiet, like the programme's song lines) ── */
-.song-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 14px; margin: 2px 0 10px; color: var(--faint); font-size: 13px;
-}
-.song-row input {
-  width: 64px; border: 1px dashed var(--border); border-radius: 8px; background: transparent;
-  padding: 3px 8px; font-size: 14px; color: var(--sub); text-align: center;
-}
-.song-slot { min-width: 0; flex: 1; }
-.song-link { display: inline-block; max-width: 100%; color: var(--talk); font-weight: 700; font-size: 13px; text-decoration: none; padding: 3px 10px; border-radius: 14px; background: var(--chip-bg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
-.song-row input:focus { outline: none; border-style: solid; border-color: var(--faint); background: var(--card); }
+    .notices { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; }
+    .notice-box {
+      padding: 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border);
+      border-radius: 16px; color: var(--muted); font-size: 0.9rem; border-left: 4px solid #444; text-align: left;
+    }
+    .notice-box.privacy { border-left-color: var(--primary); }
+    .notice-box.tip { border-left-color: #8dc2ff; }
+    .notice-box strong { display: block; color: #fff; margin-bottom: 4px; }
 
-/* ── SECTIONS ───────────────────────────── */
-.sec { border-left: 5px solid var(--c, var(--talk)); }
-.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-.sec h2 { font-size: 17px; font-weight: 800; color: var(--c, var(--talk)); letter-spacing: -.01em; }
-.sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-bottom: 12px; }
-.blk { margin-bottom: 8px; }
-.blk-top { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 3px; }
-.blk-top span { font-size: 11.5px; font-weight: 700; color: var(--faint); }
-.x-btn {
-  border: none; background: none; color: var(--faint); font-size: 14px;
-  width: 28px; height: 28px; border-radius: 8px;
-}
-.x-btn:active { background: var(--bg); }
+    .filter-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 10px 20px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--bg-soft); color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: 0.3s;
+    }
+    .filter-btn.active { background: var(--primary); color: #102036; border-color: var(--primary); font-weight: 600; }
 
-/* rich text on notebook lines */
-.rt {
-  min-height: calc(var(--line) * 3);
-  line-height: var(--line);
-  font-size: 16px;
-  padding: 0 12px 0 38px;
-  border: 1px solid var(--border); border-radius: 10px;
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(90deg, transparent 29px, var(--margin) 29px, var(--margin) 30px, transparent 30px),
-    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--line) - 1px), var(--rule) calc(var(--line) - 1px), var(--rule) var(--line));
-  background-attachment: local;
-  outline: none; word-wrap: break-word; overflow-wrap: anywhere;
-  -webkit-user-select: text; user-select: text;
-}
-body.kid .rt { font-size: 17px; }
-.rt:focus { border-color: color-mix(in srgb, var(--c, var(--talk)) 60%, var(--card)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--talk)) 14%, transparent); }
-.rt:empty::before { content: attr(data-ph); color: var(--faint); pointer-events: none; }
-.rt ul, .rt ol { padding-left: 20px; }
-.rt.short { min-height: calc(var(--line) * 2); }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    
+    /* Abgesetzte Überschriften im Grid */
+    .section-title {
+      grid-column: 1 / -1;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 16px 0 4px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      opacity: 0; animation: fadeUpCard 0.6s var(--transition-smooth) forwards;
+    }
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 4px;
+      margin-right: 12px;
+    }
 
-/* bible chips */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.chips:empty { display: none; }
-.chip {
-  display: inline-flex; align-items: center; border-radius: 20px;
-  background: var(--chip-bg); border: 1px solid var(--chip-bd); overflow: hidden;
-}
-.chip a { color: var(--chip-tx); text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 4px 4px 4px 11px; }
-.chip button { border: none; background: none; color: var(--chip-tx); opacity: .6; padding: 4px 10px 4px 6px; font-size: 15px; }
+    .hidden { display: none !important; }
 
-.sec-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
-.btn-soft {
-  border: 1px solid color-mix(in srgb, var(--c, var(--talk)) 35%, var(--card));
-  color: var(--c, var(--talk)); background: color-mix(in srgb, var(--c, var(--talk)) 7%, var(--card));
-  border-radius: 20px; padding: 6px 13px; font-size: 13px; font-weight: 700;
-}
-.btn-soft:active { background: color-mix(in srgb, var(--c, var(--talk)) 16%, var(--card)); }
-.sub-label { font-size: 13px; font-weight: 800; color: var(--c, var(--talk)); margin: 16px 0 5px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 24px; display: flex; flex-direction: column;
+      transition: var(--transition-smooth); height: 100%;
+      opacity: 0; animation: fadeUpCard 0.6s var(--transition-smooth) forwards;
+    }
+    .card:hover { transform: translateY(-5px); border-color: var(--c-theme); }
 
-/* ── FIRST START ─────────────────────────── */
-.ob { max-width: 560px; }
-.ob h3 { font-size: 20px; margin: 4px 0 10px; }
-.ob-hero { font-size: 44px; line-height: 1; margin-top: 4px; }
-.ob-p { color: var(--sub); margin-bottom: 14px; }
-.ob-dots { display: flex; gap: 6px; margin-bottom: 10px; }
-.ob-dots span { width: 26px; height: 5px; border-radius: 5px; background: var(--border); }
-.ob-dots span.on { background: var(--primary); }
-.ob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
-.ob-grid.three { grid-template-columns: repeat(3, 1fr); }
-@media (max-width: 460px) { .ob-grid.three { grid-template-columns: 1fr; } }
-.ob-lang { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.ob-card {
-  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px;
-  border: 2px solid var(--border); background: var(--card); border-radius: 16px; padding: 14px 10px;
-}
-.ob-card.slim { padding: 10px; }
-.ob-card.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--card)); }
-.ob-em { font-size: 34px; line-height: 1.1; }
-.ob-t { font-weight: 800; font-size: 15px; }
-.ob-x { font-size: 12.5px; color: var(--sub); line-height: 1.35; }
-.ob-btns { justify-content: space-between; margin-top: 16px; }
-.btn[disabled] { opacity: .45; }
-body.small { font-size: 17.5px; }
-body.small .tile .em { font-size: 42px; }
-body.small .tile .n { font-size: 28px; }
+    /* Cascading Animation Delays for all grid items (titles + cards) */
+    .grid > *:nth-child(1) { animation-delay: 0.15s; }
+    .grid > *:nth-child(2) { animation-delay: 0.20s; }
+    .grid > *:nth-child(3) { animation-delay: 0.25s; }
+    .grid > *:nth-child(4) { animation-delay: 0.30s; }
+    .grid > *:nth-child(5) { animation-delay: 0.35s; }
+    .grid > *:nth-child(6) { animation-delay: 0.40s; }
+    .grid > *:nth-child(7) { animation-delay: 0.45s; }
+    .grid > *:nth-child(8) { animation-delay: 0.50s; }
+    .grid > *:nth-child(9) { animation-delay: 0.55s; }
+    .grid > *:nth-child(10) { animation-delay: 0.60s; }
+    .grid > *:nth-child(11) { animation-delay: 0.65s; }
+    .grid > *:nth-child(12) { animation-delay: 0.70s; }
+    .grid > *:nth-child(13) { animation-delay: 0.75s; }
+    .grid > *:nth-child(14) { animation-delay: 0.80s; }
+    .grid > *:nth-child(15) { animation-delay: 0.85s; }
+    .grid > *:nth-child(16) { animation-delay: 0.90s; }
+    .grid > *:nth-child(17) { animation-delay: 0.95s; }
+    .grid > *:nth-child(18) { animation-delay: 1.00s; }
+    .grid > *:nth-child(19) { animation-delay: 1.05s; }
+    .grid > *:nth-child(20) { animation-delay: 1.10s; }
+    .grid > *:nth-child(21) { animation-delay: 1.15s; }
+    .grid > *:nth-child(22) { animation-delay: 1.20s; }
 
-/* ── WATCHTOWER PARAGRAPHS ─────────────── */
-.paras { margin: 2px 0 14px; padding: 12px; border: 1px dashed color-mix(in srgb, var(--wt) 45%, var(--card)); border-radius: 12px; }
-.p-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-.p-count { display: flex; align-items: center; gap: 5px; }
-.p-count input { width: 62px; text-align: center; border: 1px solid var(--border); border-radius: 10px; background: var(--field); padding: 6px; font-size: 17px; font-weight: 800; }
-.p-step { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); font-size: 20px; font-weight: 700; }
-.p-progress { height: 7px; border-radius: 7px; background: var(--bg); overflow: hidden; margin-top: 4px; }
-.p-progress div { height: 100%; background: var(--wt); transition: width .25s; }
-.p-done-txt { font-size: 12px; color: var(--sub); margin-top: 3px; }
-.p-list { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
-.p-row { display: flex; align-items: center; gap: 10px; padding: 3px 4px; border-radius: 12px; }
-.para.cur .p-row { background: color-mix(in srgb, var(--wt) 13%, var(--card)); }
-.p-num {
-  position: relative; width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
-  border: 2px solid var(--wt); background: var(--card); color: var(--wt); font-weight: 800; font-size: 15px;
-}
-.para.done .p-num { background: var(--wt); color: var(--card); }
-.para.done .p-num::after {
-  content: "✓"; position: absolute; right: -5px; bottom: -5px; width: 18px; height: 18px; line-height: 16px;
-  font-size: 11px; border-radius: 50%; background: var(--card); color: var(--wt); border: 1px solid var(--wt);
-}
-.p-label { flex: 1; font-size: 14.5px; font-weight: 600; }
-.para.done .p-label { color: var(--faint); }
-.p-label em { font-style: normal; font-size: 12.5px; font-weight: 800; color: var(--wt); }
-.p-act { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); font-size: 16px; opacity: .5; flex-shrink: 0; }
-.p-act.on { opacity: 1; border-color: var(--wt); background: color-mix(in srgb, var(--wt) 13%, var(--card)); }
-.p-extra { margin: 3px 0 10px 52px; }
-.p-extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
-.btn-soft.on { background: var(--c, var(--talk)); border-color: var(--c, var(--talk)); color: var(--card); }
+    .theme-rc { --c-theme: #ff8c8c; --c-soft: rgba(255, 140, 140, 0.1); }
+    .theme-assembly { --c-theme: #8dc2ff; --c-soft: rgba(141, 194, 255, 0.1); }
+    .theme-congregation { --c-theme: #e08cff; --c-soft: rgba(224, 140, 255, 0.1); }
+    .theme-kh { --c-theme: #a1e28c; --c-soft: rgba(161, 226, 140, 0.1); }
+    .theme-ptc { --c-theme: #ffd37f; --c-soft: rgba(255, 211, 127, 0.1); }
 
-/* ── INK (pen) ──────────────────────────── */
-.ink-tools {
-  display: flex; align-items: center; gap: 5px;
-  overflow-x: auto; padding: 4px 2px 7px; scrollbar-width: none;
-}
-.ink-tools::-webkit-scrollbar { display: none; }
-.ink-tools .sep { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
-.ink-tools .grow { flex: 1; }
-.sw {
-  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-  border: 3px solid var(--card); background: var(--sw); box-shadow: 0 0 0 1px var(--border);
-}
-.sw.on { box-shadow: 0 0 0 2px var(--ink); }
-.sz, .tl {
-  height: 32px; min-width: 32px; border-radius: 9px; flex-shrink: 0;
-  border: 1px solid var(--border); background: var(--card); display: inline-flex; align-items: center; justify-content: center;
-  font-size: 15px; padding: 0 5px;
-}
-.sz i { display: block; border-radius: 50%; background: var(--ink); }
-.sz.on, .tl.on { background: var(--ink); border-color: var(--ink); color: var(--card); }
-.sz.on i { background: var(--card); }
-.paper {
-  position: relative; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(90deg, transparent var(--ml, 40px), var(--margin) var(--ml, 40px), var(--margin) calc(var(--ml, 40px) + 1px), transparent calc(var(--ml, 40px) + 1px)),
-    repeating-linear-gradient(180deg, transparent 0, transparent calc(var(--lh, 32px) - 1px), var(--rule) calc(var(--lh, 32px) - 1px), var(--rule) var(--lh, 32px));
-  min-height: 120px;
-}
-.paper canvas { position: absolute; left: 0; top: 0; display: block; }
-.paper .c-live { touch-action: pan-y; }
-body.finger .paper .c-live { touch-action: none; }
-.ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
+    .icon-wrap { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background: var(--c-soft); }
+    .icon-wrap img { 
+      width: 36px; height: 36px; object-fit: contain; 
+      transition: transform var(--transition-smooth);
+    }
+    .card:hover .icon-wrap img { transform: scale(1.15); }
 
-/* ── WORD COUNTER ───────────────────────── */
-.counter { --c: var(--sun); border-left: 5px solid var(--sun); }
-.counter h2 { color: var(--sun-tx); }
-.hint { font-size: 12.5px; color: var(--sub); margin: -6px 0 10px; }
- .word-list { display: grid; gap: 9px; }
-.word-row { display: flex; align-items: center; gap: 6px; padding: 6px; min-width: 0; border: 2px solid var(--tile-bd); background: var(--tile-bg); border-radius: 14px; }
-.word-count { flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 8px; padding: 8px; border: 0; background: transparent; text-align: left; color: var(--ink); touch-action: manipulation; }
-.word-count .w { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
-.word-count .n { font-size: 24px; font-weight: 800; color: var(--tile-n); }
-.word-action { flex: 0 0 44px; width: 44px; height: 44px; border: 1px solid var(--tile-bd); border-radius: 10px; background: var(--card); color: var(--ink); font-size: 20px; touch-action: manipulation; }
-.word-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.word-add input { flex: 1 1 150px; min-width: 0; width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--field); color: var(--ink); font-size: 16px; }
-.word-add .btn { flex: 0 0 auto; min-height: 44px; }
-.word-count.bump .n { animation: bump .32s ease; }
-@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-details.counter > summary { list-style: none; cursor: pointer; }
-details.counter > summary::-webkit-details-marker { display: none; }
-details.counter > summary .sec-head { margin-bottom: 0; }
-details.counter[open] > summary .sec-head { margin-bottom: 10px; }
-.btn-link { border: none; background: none; color: var(--sub); font-size: 13px; font-weight: 700; padding: 4px 6px; }
+    .card h2 { font-size: 1.3rem; color: #fff; margin-bottom: 8px; }
+    .card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
+    
+    .list { list-style: none; padding: 0; margin: 0 0 20px; }
+    .list li { position: relative; padding-left: 18px; margin-bottom: 6px; color: #d7dee8; font-size: 0.88rem; }
+    .list li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--primary); opacity: 0.6; position: absolute; left: 0; top: 0.6em; }
 
-/* ── KIDS' CORNER ───────────────────────── */
-.kids { --c: var(--berry); }
-.moods { display: flex; gap: 8px; flex-wrap: wrap; }
-.mood {
-  width: 50px; height: 50px; font-size: 28px; border-radius: 14px;
-  border: 2px solid var(--border); background: var(--card);
-}
-.mood.on { border-color: var(--berry); background: var(--mood-on); transform: scale(1.06); }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .meta, .language {
+      font-size: .75rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+      display: inline-block; width: fit-content; margin: 0;
+    }
+    .meta { color: var(--c-theme); background: var(--c-soft); }
+    .language { color: var(--text); background: rgba(255,255,255,.07); border: 1px solid var(--border); }
 
-/* ── ENTRY ACTIONS ──────────────────────── */
-.entry-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px 0 6px; }
-.btn {
-  border: 1px solid var(--border); background: var(--card); border-radius: 12px;
-  padding: 9px 14px; font-size: 14px; font-weight: 700;
-}
-.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
-.btn.danger { color: var(--danger); }
-.saved-hint { text-align: center; font-size: 12px; color: var(--faint); }
+    .btn-card { 
+      width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 12px; border-radius: 12px; 
+      color: var(--c-theme); background: var(--c-soft); transition: all 0.3s;
+    }
+    .btn-card:hover { background: var(--c-theme); color: #102036; }
 
-/* ── FORMAT BAR (floats above the keyboard) ── */
-.fmt-bar {
-  position: fixed; left: 0; right: 0; z-index: 150;
-  display: flex; gap: 5px; align-items: center; justify-content: center;
-  background: var(--card); border-top: 1px solid var(--border);
-  box-shadow: 0 -3px 12px rgba(28,39,64,.08);
-  padding: 7px 8px; overflow-x: auto;
-}
-.fmt-bar button {
-  height: 38px; min-width: 40px; border-radius: 10px; border: 1px solid var(--border);
-  background: var(--card); font-size: 16px; flex-shrink: 0; padding: 0 8px;
-}
-.fmt-bar button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
-.fmt-bar .sep { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-.fmt-bar .done { font-size: 13px; font-weight: 800; color: var(--talk); }
+    .footer { 
+      margin-top: 40px; text-align: center; color: var(--muted); 
+      font-size: 0.85rem; padding-bottom: 20px;
+      opacity: 0; animation: fadeUpCard 0.6s var(--transition-smooth) forwards; animation-delay: 1.0s;
+    }
 
-/* ── MODALS ─────────────────────────────── */
-.modal-bg {
-  position: fixed; inset: 0; z-index: 200; background: rgba(20,28,46,.45);
-  display: flex; align-items: flex-end; justify-content: center;
-}
-@media (min-width: 640px) { .modal-bg { align-items: center; } }
-.modal {
-  background: var(--card); width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
-  border-radius: 20px 20px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
-}
-@media (min-width: 640px) { .modal { border-radius: 20px; } }
-.modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 14px; }
-.modal .row { display: flex; gap: 10px; }
-.modal .row > * { flex: 1; }
-.modal .fld { margin-bottom: 10px; }
-.preview { background: var(--bg); border-radius: 10px; padding: 10px 12px; font-weight: 700; margin: 4px 0 14px; min-height: 42px; }
-.preview a { color: var(--chip-tx); }
-.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+    /* Scroll to Top Button */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .scroll-top-btn.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .scroll-top-btn:hover {
+      background: #252b33;
+      transform: translateY(-4px);
+      border-color: var(--primary);
+    }
 
-.set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--bg); }
-.set-row .lbl { font-weight: 700; font-size: 14.5px; }
-.set-row .hint2 { font-size: 12px; color: var(--sub); }
-.set-row select { border: 1px solid var(--border); border-radius: 10px; padding: 7px 9px; background: var(--field); }
-.switch { position: relative; width: 50px; height: 30px; flex-shrink: 0; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.switch span { position: absolute; inset: 0; background: var(--switch-off); border-radius: 30px; transition: .2s; }
-.switch span::before { content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.switch input:checked + span { background: var(--wt); }
-.switch input:checked + span::before { transform: translateX(20px); }
-.set-block { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-.set-note { font-size: 12.5px; color: var(--sub); }
-
-.gl-h { font-size: 13px; font-weight: 800; color: var(--sub); margin: 14px 0 4px; }
-.jwg-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-.jwg { font-size: 13px; font-weight: 600; color: var(--chip-tx); text-decoration: none; border: 1px solid var(--chip-bd); background: var(--chip-bg); border-radius: 16px; padding: 3px 10px; }
-.gl-item { padding: 11px 0; border-bottom: 1px solid var(--bg); }
-.gl-term { font-weight: 800; font-size: 16px; }
-.gl-alt { font-size: 12.5px; color: var(--sub); font-weight: 600; margin-left: 6px; }
-.gl-x { font-size: 14px; margin: 3px 0 6px; }
-.gl-links { display: flex; gap: 8px; flex-wrap: wrap; }
-.gl-links a, .gl-links button {
-  font-size: 12.5px; font-weight: 700; border-radius: 16px; padding: 3px 10px;
-  border: 1px solid var(--chip-bd); background: var(--chip-bg); color: var(--chip-tx); text-decoration: none;
-}
-
-.w-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-.w-row input { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: var(--field); min-width: 0; }
-.w-row .w-em { width: 58px; text-align: center; font-size: 20px; flex-shrink: 0; }
-.w-row .w-word { flex: 1; }
-.chk { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 10px 0; }
-
-/* ── TOAST / FOOTER ─────────────────────── */
-.toast {
-  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px);
-  background: #1c2740; color: #fff; border: 1px solid rgba(255,255,255,.12); padding: 9px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600;
-  opacity: 0; pointer-events: none; transition: .22s; z-index: 300; max-width: 90vw; text-align: center;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.app-footer { text-align: center; font-size: 11.5px; color: var(--faint); padding: 18px 12px 100px; line-height: 1.8; }
-.app-footer a { color: var(--sub); text-decoration: none; }
-.print-head { display: none; }
-
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-
-/* ── PRINT ──────────────────────────────── */
-@media print {
-  @page { margin: 14mm; }
-  body { background: #fff; font-size: 12pt; }
-  .app-header, .fab, .fmt-bar, .sec-actions, .ink-tools, .ink-hint, .x-btn, .chip button, .tile .minus,
-  .entry-actions, .saved-hint, .app-footer, .toast, .modal-bg, #view-list, .btn-link, .hint, .print-empty { display: none !important; }
-  main { padding: 0; max-width: none; }
-  .card { box-shadow: none; break-inside: avoid-page; }
-  .print-head { display: block; margin-bottom: 10px; }
-  .print-head h1 { font-size: 18pt; }
-  .print-head div { color: var(--sub); }
-  .rt, .paper { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .rt:empty { display: none; }
-  .paper canvas { display: none; }
-  .paper img.print-ink { display: block; width: 100%; height: 100%; }
-  .chip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .song-row input { border: none; }
-  details.counter { display: block; }
-  .para:not(.has-extra), .p-count, .p-progress, .p-done-txt, .p-act, .p-num, .p-extra-actions, .p-label em { display: none !important; }
-  .paras { border: none; padding: 0; }
-  .p-extra { margin-left: 0; }
-}
-</style>
+    @media (min-width: 768px) {
+      .hero h1 { font-size: 4rem; }
+      .notices { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
 </head>
-<body class="kid">
+<body>
+  <div class="container">
+    <header class="topbar animate-in">
+      <button class="bookmark-btn" onclick="addBookmark()" title="Bookmark this page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </button>
+      <nav class="nav">
+        <a href="https://kaffeetrinker80.github.io/" class="nav-back">← Back to Home</a>
+      </nav>
+    </header>
 
-<header class="app-header">
-  <div class="hdr-in">
-    <button class="btn-back" id="btn-back" data-act="back" hidden aria-label="Back">‹</button>
-    <div class="app-icon" id="hdr-icon" aria-hidden="true">📓</div>
-    <div class="brand">
-      <div class="app-title" id="hdr-title">Congregation Notes</div>
-      <div class="app-sub" id="hdr-sub"></div>
-    </div>
-    <div class="hdr-actions">
-      <button class="btn-gloss" data-act="openGlossary" id="btn-gloss"><span aria-hidden="true">📘</span><span id="gloss-label">Glossary</span></button>
-      <div class="lang-seg" role="group" aria-label="Language">
-        <button data-act="setLang" data-l="en" id="lang-en">EN</button>
-        <button data-act="setLang" data-l="de" id="lang-de">DE</button>
-      </div>
-      <button class="btn-hdr" data-act="toggleTheme" id="btn-theme" aria-label="Theme">🌙</button>
-      <button class="btn-hdr" data-act="openSettings" id="btn-settings" aria-label="Settings">⚙︎</button>
-    </div>
-  </div>
-</header>
-
-<main id="view-list">
-  <div id="banner-slot"></div>
-  <input type="search" class="search" id="search" autocomplete="off">
-  <div id="list"></div>
-</main>
-
-<main id="view-entry" hidden>
-  <div id="entry"></div>
-</main>
-
-<button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
-
-<footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.1.6 · Made with Love ©</span>
-</footer>
-
-<!-- format bar for typed notes -->
-<div class="fmt-bar" id="fmt-bar" hidden>
-  <button data-act="fmt" data-cmd="bold" id="fb-bold"><b>B</b></button>
-  <button data-act="fmt" data-cmd="italic" id="fb-italic"><i>I</i></button>
-  <button data-act="fmt" data-cmd="underline" id="fb-underline"><u>U</u></button>
-  <button data-act="fmt" data-cmd="hilite" id="fb-hilite">🖍️</button>
-  <button data-act="fmt" data-cmd="insertUnorderedList" id="fb-list">•≡</button>
-  <span class="sep"></span>
-  <button data-act="fmtTranslate" id="fb-tr">🌐</button>
-  <button data-act="fmtWol" id="fb-wol">📘</button>
-  <span class="sep"></span>
-  <button data-act="fmtDone" class="done" id="fb-done">OK</button>
-</div>
-
-<!-- Bible picker -->
-<div class="modal-bg" id="modal-bible" hidden>
-  <div class="modal">
-    <h3 id="bp-title">📖 Add Bible text</h3>
-    <label class="fld"><span id="bp-l-book">Book</span><select id="bp-book"></select></label>
-    <div class="row">
-      <label class="fld"><span id="bp-l-ch">Chapter</span><input type="number" inputmode="numeric" id="bp-ch" min="1"></label>
-      <label class="fld"><span id="bp-l-v">Verse</span><input type="number" inputmode="numeric" id="bp-v" min="1"></label>
-      <label class="fld"><span id="bp-l-ve">To verse</span><input type="number" inputmode="numeric" id="bp-ve" min="1"></label>
-    </div>
-    <div class="preview" id="bp-preview"></div>
-    <div class="modal-btns">
-      <button class="btn" data-act="closeModal" data-m="modal-bible" id="bp-cancel">Cancel</button>
-      <button class="btn primary" data-act="bpInsert" id="bp-insert">Insert</button>
-    </div>
-  </div>
-</div>
-
-<!-- Glossary -->
-<div class="modal-bg" id="modal-gloss" hidden>
-  <div class="modal">
-    <div class="sec-head"><h3 id="gl-title" style="margin:0">📘 Glossary</h3><button class="x-btn" data-act="closeModal" data-m="modal-gloss">✕</button></div>
-    <input type="search" class="search" id="gl-search" autocomplete="off" style="margin-top:6px">
-    <div id="gl-list"></div>
-  </div>
-</div>
-
-<!-- Settings -->
-<div class="modal-bg" id="modal-settings" hidden>
-  <div class="modal" id="settings-body"></div>
-</div>
-
-<!-- First start / setup -->
-<div class="modal-bg" id="modal-onboard" hidden>
-  <div class="modal ob" id="onboard-body"></div>
-</div>
-
-<!-- Word editor -->
-<div class="modal-bg" id="modal-words" hidden>
-  <div class="modal" id="words-body"></div>
-</div>
-
-<input type="file" id="import-file" accept=".json,.txt,application/json,text/plain" hidden>
-<div class="toast" id="toast"></div>
-
-<script>
-'use strict';
-// ═══════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════
-const APP_VERSION = '1.1.6';
-const TOOL_ID = 'congregation-notes';
-const DB_NAME = 'congregation-notes';
-const LS_KEY = 'congregation-notes-v1';
-const LOGICAL_W = 1000;     // ink coordinates are stored in a 1000-wide space
-const RULE = 56;            // notebook line spacing (logical units)
-const MARGIN_X = 70;        // notebook margin line (logical units)
-const INK_COLORS = ['#1c2740', '#2c5fb3', '#2f8f63', '#d64545', '#7b4bb7'];
-const INK_SIZES = [3, 5, 9];
-// same strokes, lighter colours on the dark theme (stored colours never change)
-const INK_DARK = { '#1c2740': '#e8ecf4', '#2c5fb3': '#8db4ff', '#2f8f63': '#6fd3a4', '#d64545': '#ff8a8a', '#7b4bb7': '#c9a6ff' };
-const isDark = () => document.documentElement.dataset.theme === 'dark';
-const inkCol = c => (isDark() && INK_DARK[c]) || c;
-const MOODS = ['🤩', '😊', '🙂', '😐', '😴'];
-
-const DEFAULT_WORDS = [
-  { e: '💛', en: 'Jehovah', de: 'Jehova' }, { e: '🐑', en: 'Jesus', de: 'Jesus' }, { e: '👑', en: 'Kingdom', de: 'Königreich' },
-  { e: '📖', en: 'Bible', de: 'Bibel' },    { e: '🙏', en: 'Prayer', de: 'Gebet' }, { e: '❤️', en: 'Love', de: 'Liebe' }
-];
-const DEFAULT_SETTINGS = {
-  lang: 'en', translateTo: 'de', theme: 'light',
-  kidMode: true, fingerDraw: false, defaultBlock: 'text',
-  showCounter: true, showKids: true, profile: null, name: '', onboarded: false,
-  words: null,            // null = default words in the current language
-  pen: { tool: 'pen', color: '#1c2740', size: 5 },
-  lastBackup: null
-};
-
-// ═══════════════════════════════════════════
-//  BIBLE BOOKS
-// ═══════════════════════════════════════════
-const BOOKS_EN = [
-  {n:1,name:'Genesis',slug:'genesis'},{n:2,name:'Exodus',slug:'exodus'},{n:3,name:'Leviticus',slug:'leviticus'},
-  {n:4,name:'Numbers',slug:'numbers'},{n:5,name:'Deuteronomy',slug:'deuteronomy'},{n:6,name:'Joshua',slug:'joshua'},
-  {n:7,name:'Judges',slug:'judges'},{n:8,name:'Ruth',slug:'ruth'},{n:9,name:'1 Samuel',slug:'1-samuel'},
-  {n:10,name:'2 Samuel',slug:'2-samuel'},{n:11,name:'1 Kings',slug:'1-kings'},{n:12,name:'2 Kings',slug:'2-kings'},
-  {n:13,name:'1 Chronicles',slug:'1-chronicles'},{n:14,name:'2 Chronicles',slug:'2-chronicles'},
-  {n:15,name:'Ezra',slug:'ezra'},{n:16,name:'Nehemiah',slug:'nehemiah'},{n:17,name:'Esther',slug:'esther'},
-  {n:18,name:'Job',slug:'job'},{n:19,name:'Psalms',slug:'psalms'},{n:20,name:'Proverbs',slug:'proverbs'},
-  {n:21,name:'Ecclesiastes',slug:'ecclesiastes'},{n:22,name:'Song of Solomon',slug:'song-of-solomon'},
-  {n:23,name:'Isaiah',slug:'isaiah'},{n:24,name:'Jeremiah',slug:'jeremiah'},{n:25,name:'Lamentations',slug:'lamentations'},
-  {n:26,name:'Ezekiel',slug:'ezekiel'},{n:27,name:'Daniel',slug:'daniel'},{n:28,name:'Hosea',slug:'hosea'},
-  {n:29,name:'Joel',slug:'joel'},{n:30,name:'Amos',slug:'amos'},{n:31,name:'Obadiah',slug:'obadiah'},
-  {n:32,name:'Jonah',slug:'jonah'},{n:33,name:'Micah',slug:'micah'},{n:34,name:'Nahum',slug:'nahum'},
-  {n:35,name:'Habakkuk',slug:'habakkuk'},{n:36,name:'Zephaniah',slug:'zephaniah'},{n:37,name:'Haggai',slug:'haggai'},
-  {n:38,name:'Zechariah',slug:'zechariah'},{n:39,name:'Malachi',slug:'malachi'},
-  {n:40,name:'Matthew',slug:'matthew'},{n:41,name:'Mark',slug:'mark'},{n:42,name:'Luke',slug:'luke'},
-  {n:43,name:'John',slug:'john'},{n:44,name:'Acts',slug:'acts'},{n:45,name:'Romans',slug:'romans'},
-  {n:46,name:'1 Corinthians',slug:'1-corinthians'},{n:47,name:'2 Corinthians',slug:'2-corinthians'},
-  {n:48,name:'Galatians',slug:'galatians'},{n:49,name:'Ephesians',slug:'ephesians'},{n:50,name:'Philippians',slug:'philippians'},
-  {n:51,name:'Colossians',slug:'colossians'},{n:52,name:'1 Thessalonians',slug:'1-thessalonians'},
-  {n:53,name:'2 Thessalonians',slug:'2-thessalonians'},{n:54,name:'1 Timothy',slug:'1-timothy'},
-  {n:55,name:'2 Timothy',slug:'2-timothy'},{n:56,name:'Titus',slug:'titus'},{n:57,name:'Philemon',slug:'philemon'},
-  {n:58,name:'Hebrews',slug:'hebrews'},{n:59,name:'James',slug:'james'},{n:60,name:'1 Peter',slug:'1-peter'},
-  {n:61,name:'2 Peter',slug:'2-peter'},{n:62,name:'1 John',slug:'1-john'},{n:63,name:'2 John',slug:'2-john'},
-  {n:64,name:'3 John',slug:'3-john'},{n:65,name:'Jude',slug:'jude'},{n:66,name:'Revelation',slug:'revelation'},
-];
-
-const BOOKS_DE=[{"n": 1, "name": "1. Mose"}, {"n": 2, "name": "2. Mose"}, {"n": 3, "name": "3. Mose"}, {"n": 4, "name": "4. Mose"}, {"n": 5, "name": "5. Mose"}, {"n": 6, "name": "Josua"}, {"n": 7, "name": "Richter"}, {"n": 8, "name": "Ruth"}, {"n": 9, "name": "1. Samuel"}, {"n": 10, "name": "2. Samuel"}, {"n": 11, "name": "1. Könige"}, {"n": 12, "name": "2. Könige"}, {"n": 13, "name": "1. Chronika"}, {"n": 14, "name": "2. Chronika"}, {"n": 15, "name": "Esra"}, {"n": 16, "name": "Nehemia"}, {"n": 17, "name": "Ester"}, {"n": 18, "name": "Hiob"}, {"n": 19, "name": "Psalm"}, {"n": 20, "name": "Sprüche"}, {"n": 21, "name": "Prediger"}, {"n": 22, "name": "Hohelied"}, {"n": 23, "name": "Jesaja"}, {"n": 24, "name": "Jeremia"}, {"n": 25, "name": "Klagelieder"}, {"n": 26, "name": "Hesekiel"}, {"n": 27, "name": "Daniel"}, {"n": 28, "name": "Hosea"}, {"n": 29, "name": "Joel"}, {"n": 30, "name": "Amos"}, {"n": 31, "name": "Obadja"}, {"n": 32, "name": "Jona"}, {"n": 33, "name": "Micha"}, {"n": 34, "name": "Nahum"}, {"n": 35, "name": "Habakuk"}, {"n": 36, "name": "Zephanja"}, {"n": 37, "name": "Haggai"}, {"n": 38, "name": "Sacharja"}, {"n": 39, "name": "Maleachi"}, {"n": 40, "name": "Matthäus"}, {"n": 41, "name": "Markus"}, {"n": 42, "name": "Lukas"}, {"n": 43, "name": "Johannes"}, {"n": 44, "name": "Apostelgeschichte"}, {"n": 45, "name": "Römer"}, {"n": 46, "name": "1. Korinther"}, {"n": 47, "name": "2. Korinther"}, {"n": 48, "name": "Galater"}, {"n": 49, "name": "Epheser"}, {"n": 50, "name": "Philipper"}, {"n": 51, "name": "Kolosser"}, {"n": 52, "name": "1. Thessalonicher"}, {"n": 53, "name": "2. Thessalonicher"}, {"n": 54, "name": "1. Timotheus"}, {"n": 55, "name": "2. Timotheus"}, {"n": 56, "name": "Titus"}, {"n": 57, "name": "Philemon"}, {"n": 58, "name": "Hebräer"}, {"n": 59, "name": "Jakobus"}, {"n": 60, "name": "1. Petrus"}, {"n": 61, "name": "2. Petrus"}, {"n": 62, "name": "1. Johannes"}, {"n": 63, "name": "2. Johannes"}, {"n": 64, "name": "3. Johannes"}, {"n": 65, "name": "Judas"}, {"n": 66, "name": "Offenbarung"}];
-
-// ═══════════════════════════════════════════
-//  GLOSSARY  (short, child-friendly; WOL link for more)
-// ═══════════════════════════════════════════
-const GLOSSARY = [
-  { en:'Jehovah', de:'Jehova', xen:'God’s personal name. It appears thousands of times in the Bible.', xde:'Der persönliche Name Gottes. Er kommt tausende Male in der Bibel vor.' },
-  { en:'Jesus Christ', de:'Jesus Christus', xen:'God’s Son. He taught people about his Father and gave his life for us.', xde:'Gottes Sohn. Er hat den Menschen von seinem Vater erzählt und sein Leben für uns gegeben.' },
-  { en:'God’s Kingdom', de:'Gottes Königreich', xen:'A real government in heaven with Jesus as King. It will make the earth a paradise.', xde:'Eine echte Regierung im Himmel mit Jesus als König. Sie wird die Erde zu einem Paradies machen.' },
-  { en:'Ransom', de:'Loskaufsopfer', xen:'Jesus gave his perfect life so that our sins can be forgiven and we can live forever.', xde:'Jesus hat sein vollkommenes Leben gegeben, damit uns Sünden vergeben werden und wir für immer leben können.' },
-  { en:'Paradise', de:'Paradies', xen:'A beautiful, garden-like home. God promises that the whole earth will become a paradise.', xde:'Ein wunderschönes Zuhause wie ein Garten. Gott verspricht, dass die ganze Erde ein Paradies wird.' },
-  { en:'Resurrection', de:'Auferstehung', xen:'When God brings someone who has died back to life.', xde:'Wenn Gott jemanden, der gestorben ist, wieder lebendig macht.' },
-  { en:'Holy spirit', de:'heiliger Geist', xen:'God’s active force – the power he uses to get things done. It is not a person.', xde:'Gottes wirksame Kraft – die Kraft, mit der er Dinge bewirkt. Er ist keine Person.' },
-  { en:'Faith', de:'Glaube', xen:'Being sure about things we can’t see yet, because we have good reasons to trust Jehovah.', xde:'Sich sicher sein bei Dingen, die man noch nicht sieht, weil man gute Gründe hat, Jehova zu vertrauen.' },
-  { en:'Prayer', de:'Gebet', xen:'Talking to Jehovah. We can tell him everything, in Jesus’ name.', xde:'Mit Jehova reden. Wir können ihm alles sagen, im Namen Jesu.' },
-  { en:'Sin', de:'Sünde', xen:'Doing something wrong in God’s eyes. Because Adam sinned, all humans are born imperfect.', xde:'Etwas tun, was in Gottes Augen falsch ist. Weil Adam gesündigt hat, sind alle Menschen unvollkommen.' },
-  { en:'Repentance', de:'Reue', xen:'Being truly sorry for something wrong and wanting to change.', xde:'Wenn einem etwas Falsches wirklich leidtut und man sich ändern möchte.' },
-  { en:'Loyal love', de:'loyale Liebe', xen:'Love that stays faithful and never gives up. Jehovah shows it to his people.', xde:'Liebe, die treu bleibt und nie aufgibt. Jehova zeigt sie seinen Dienern.' },
-  { en:'Undeserved kindness', de:'unverdiente Güte', xen:'Kindness from God that we could never earn.', xde:'Freundlichkeit von Gott, die wir uns nie verdienen könnten.' },
-  { en:'Integrity', de:'Integrität', xen:'Staying loyal to Jehovah and doing what is right, even when it is hard.', xde:'Jehova treu bleiben und das Richtige tun, auch wenn es schwer ist.' },
-  { en:'Satan', de:'Satan', xen:'An angel who rebelled against God. The name means “Resister.”', xde:'Ein Engel, der sich gegen Gott aufgelehnt hat. Der Name bedeutet „Widerstandleistender“.' },
-  { en:'Armageddon', de:'Harmagedon', xen:'God’s war that will end all wickedness on the earth.', xde:'Gottes Krieg, der alles Böse auf der Erde beendet.' },
-  { en:'Congregation', de:'Versammlung', xen:'The group of brothers and sisters who meet together to worship Jehovah.', xde:'Die Brüder und Schwestern, die sich treffen, um Jehova gemeinsam anzubeten.' },
-  { en:'Elder', de:'Ältester', xen:'A spiritually mature brother who teaches and takes care of the congregation.', xde:'Ein geistig reifer Bruder, der die Versammlung lehrt und für sie sorgt.' },
-  { en:'Ministerial servant', de:'Dienstamtgehilfe', xen:'A brother who helps the elders with many tasks in the congregation.', xde:'Ein Bruder, der den Ältesten bei vielen Aufgaben in der Versammlung hilft.' },
-  { en:'Publisher', de:'Verkündiger', xen:'Someone who shares in telling others the good news about God’s Kingdom.', xde:'Jemand, der anderen die gute Botschaft von Gottes Königreich erzählt.' },
-  { en:'Pioneer', de:'Pionier', xen:'A publisher who spends many hours each month telling others about the Bible.', xde:'Ein Verkündiger, der jeden Monat viele Stunden anderen von der Bibel erzählt.' },
-  { en:'Ministry', de:'Predigtdienst', xen:'Telling other people the good news about God’s Kingdom.', xde:'Anderen Menschen die gute Botschaft von Gottes Königreich erzählen.' },
-  { en:'Baptism', de:'Taufe', xen:'Being put completely under water to show that you have dedicated yourself to Jehovah.', xde:'Ganz unter Wasser getaucht werden, um zu zeigen, dass man sich Jehova hingegeben hat.' },
-  { en:'Memorial', de:'Gedächtnismahl', xen:'The yearly meeting where we remember Jesus’ death, as he asked us to.', xde:'Die jährliche Zusammenkunft, bei der wir an den Tod Jesu denken, so wie er es gesagt hat.' },
-  { en:'Public talk', de:'öffentlicher Vortrag', xen:'The Bible talk at the start of the weekend meeting.', xde:'Der biblische Vortrag am Anfang der Zusammenkunft am Wochenende.' },
-  { en:'Watchtower Study', de:'Wachtturm-Studium', xen:'The part of the weekend meeting where we discuss a Watchtower article together.', xde:'Der Teil der Zusammenkunft am Wochenende, in dem wir gemeinsam einen Wachtturm-Artikel besprechen.' },
-  { en:'Kingdom Hall', de:'Königreichssaal', xen:'The building where the congregation meets for worship.', xde:'Das Gebäude, in dem sich die Versammlung zum Gottesdienst trifft.' }
-];
-
-// jw.org "Bible Glossary" (NWT) – only titles + links, the explanations stay on jw.org
-const JWG_BASE = 'https://www.jw.org/en/library/books/bible-glossary/';
-const JWG_RAW = "Ab|Abib|Abyss|Achaia|Adar|Adultery|Alabaster jar|Alamoth|Alpha and Omega|Altar|Amen|Angels|Anoint|Antichrist|Apostasy|Apostle|Arabia; Arabian~Arabia-Arabian|Aram; Aramaeans|Aramaic|Archangel|Areopagus|Ark of the covenant|Armageddon|Armor|Aselgeia|Ashtoreth|Asia|Assembly|Astrologer|Atonement|Azazel|Baal|Baptism; Baptize|Bath|Beelzebub|Brazen conduct|Breastpiece|Brother-in-law marriage|Bul|Burnt offering|Cab|Caesar|Canaan|Capital|Cassia|Chaff|Chaldea; Chaldeans|Chariot|Chemosh|Cherubs|Chief Agent|Chief priest|Chislev|Christ|Christian|Circumcision|Cities of refuge|City of David|Clean|Communion offering|Conclusion of the system of things~conclusion-system-of-things|Concubine|Congregation|Cor|Coral|Cornerstone|Courtyard|Covenant|Cubit|Curse|Curtain|Dagon|Daric|Day of Atonement|Daystar|Decapolis|Dedication, holy sign of~holy-sign-of-dedication|Demons|Denarius|Devil|Director|Dirge|Drachma|Drink offering|Edom|Elder; Older man|Elul|Ephah|Ephesus|Ephod|Ephraim|Epicurean philosophers|Ethanim|Ethiopia|Eunuch|Euphrates|Exile|Extinguishers|Fast|Fathom|Festival of Booths|Festival of Dedication|Festival of Harvest; Festival of Weeks~festival-of-harvest-weeks|Festival of Unleavened Bread|Fire holders|Firstborn|Firstfruits|Fornication|Fortune-teller|Frankincense|Freeman; Freedman|Furnace|Galatia|Gehenna|Gerah|Gifts of mercy|Gilead|Gittith|Glean|Goad|Godly devotion|God’s Kingdom|Good news, the~the-good-news|Grave|Great tribulation|Greek|Guilt offering|Hades|Hebrew|Hermes|Herod|Herod, party followers of~herodians|Higgaion|High place|High priest|Hin|Holy; Holiness|Holy, the~the-holy|Holy spirit|Homer|Horeb; Mount Horeb|Horn|Horns of the altar|Hyssop|Idol; Idolatry|Illyricum|Incense|Israel|Jacob|Jeduthun|Jehovah|Jew|Jubilee|Judah|Judges|Judgment Day|Judgment seat|Lake of fire|Last days|Law|Lay hands on|Leaven|Lebanon Mountain range|Leprosy; Leper|Lepton|Levi; Levite|Leviathan|Loaves of presentation|Locusts|Log|Loom|Lord’s Evening Meal|Lots|Loyal love|Macedonia|Magistrates|Mahalath|Malcam|Manna|Maskil|Measuring reed|Medes; Media|Mediator|Memorial tomb|Merodach|Messiah~Messiah|Miktam|Milcom|Mildew|Mile|Millstone|Mina|Ministerial servant|Miracles; Powerful works|Molech|Moloch|Morning star|Moses, Law of~law-of-moses|Most Holy, the~the-most-holy|Mound|Mourning|Muth-labben|Myrrh|Nard|Nazarene|Nazirite|Nehiloth|Nephilim|Nethinim|New moon|Nisan|Oath|Omer|Onyx|Overseer|Papyrus|Paradise|Parchment|Party followers of Herod|Passover|Pentecost|Persia; Persians|Pestilence|Pharaoh|Pharisees|Philistia; Philistines|Pillar|Pim|Pledge|Pomegranate|Porneia|Potter|Praetorian Guard|Prefect|Preparation|Presence|Priest|Proconsul|Prophecy|Prophet|Propitiation|Propitiatory cover|Proselyte|Prostitute|Proverb|Psalm|Purim|Queen of Heaven|Rahab|Ransom|Reed|Repentance|Resurrection|Righteousness|Sabbath|Sackcloth|Sacred pillar|Sacred pole|Sacred secret|Sacred service|Sacrifice|Sadducees|Samaria|Samaritans|Sanctuary|Sanhedrin|Satan|Satrap|Scepter|Scourge|Scribe|Scripture(s)~scripture|Scroll|Seah|Seal|Seal ring|Sect|Seer|Selah|Seraphs|Sexual immorality|Shebat|Shekel|Sheminith|Sheol|Showbread|Sign|Sin offering|Sivan|Sling|Snuffers|Solomon’s Colonnade|Song of the Ascents|Son of David|Son of man|Sons of Aaron|Sorcery|Soul|Span|Spelt|Spirit|Spiritism|Spirit medium|Spoil|Stake|Stocks|Stoic philosophers|Superscription|Synagogue|Syria; Syrians|Syrtis|System(s) of things~system-of-things|Tabernacle|Talent|Tammuz|Tarshish, ships of~ships-of-tarshish|Tartarus|Tebeth|Temple|Tenth (tithe)|Tent of meeting|Teraphim|Testimony|Thanksgiving offering|Thessalonica|Thresh; Threshing floor|Tishri|Torture stake|Transgress; Transgression|Tree of life|Tree of the knowledge of good and bad|Tribute|True God, the~the-true-god|Trumpet|Turban|Unclean|Undeserved kindness|Unleavened|Urim and Thummim|Vow|Vow offering|Wadi|Warp|Watchman|Wave offering|Way, the~the-way|Wicked one, the~the-wicked-one|Winepress|Wineskin|Woof|World|Wormwood|Yoke|Zeus|Zion; Mount Zion|Ziv";
-const jwgSlug = title => title.toLowerCase().replace(/[’'()]/g, '').replace(/[;,]/g, '').trim().replace(/\s+/g, '-');
-const JWG = JWG_RAW.split('|').map(x => {
-  const [title, slug] = x.split('~');
-  return { title, url: JWG_BASE + (slug || jwgSlug(title)) + '/', keys: title.toLowerCase().replace(/[()]/g, ';').split(/[;,]\s*/).map(k => k.trim()).filter(Boolean) };
-});
-// kids' glossary → matching jw.org glossary entry
-const KID_JWG = {
-  'Jehovah': 'Jehovah', 'Jesus Christ': 'Christ', 'God’s Kingdom': 'God’s Kingdom', 'Ransom': 'Ransom', 'Paradise': 'Paradise',
-  'Resurrection': 'Resurrection', 'Holy spirit': 'Holy spirit', 'Repentance': 'Repentance', 'Loyal love': 'Loyal love',
-  'Undeserved kindness': 'Undeserved kindness', 'Satan': 'Satan', 'Armageddon': 'Armageddon', 'Congregation': 'Congregation',
-  'Elder': 'Elder; Older man', 'Ministerial servant': 'Ministerial servant', 'Baptism': 'Baptism; Baptize', 'Memorial': 'Lord’s Evening Meal'
-};
-const jwgByTitle = title => JWG.find(g => g.title === title);
-function jwgLookup(word) {
-  const w = word.toLowerCase().replace(/[“”"'.,!?:;]/g, '').trim();
-  if (!w) return null;
-  return JWG.find(g => g.keys.includes(w)) || JWG.find(g => g.keys.includes(w.replace(/s$/, ''))) || null;
-}
-
-// “Sing Out Joyfully” / „Singt voller Freude“ – titles + jw.org song pages (1–163)
-const SONG_BASE = {
-  en: 'https://www.jw.org/en/library/music-songs/sing-out-joyfully/',
-  de: 'https://www.jw.org/de/bibliothek/musik-lieder/singt-voller-freude/'
-};
-const SONGS = {
-  en: "Jehovah’s Attributes~jehovahs-attributes|Jehovah Is Your Name~jehovah-is-your-name|Our Strength, Our Hope, Our Confidence~our-strength-our-hope-our-confidence|“Jehovah Is My Shepherd”~jehovah-is-my-shepherd|God’s Wondrous Works~gods-wondrous-works|The Heavens Declare God’s Glory~the-heavens-declare-gods-glory|Jehovah, Our Strength~jehovah-our-strength|Jehovah Is Our Refuge~jehovah-is-our-refuge|Jehovah Is Our King!~jehovah-is-our-king|Praise Jehovah Our God!~praise-jehovah-our-god|Creation Praises God~creation-praises-god|Great God, Jehovah~great-god-jehovah|Christ, Our Model~christ-our-model|Praising Earth’s New King~praising-earths-new-king|Praise Jehovah’s Firstborn!~praise-jehovahs-firstborn|Praise Jah for His Son, the Anointed~praise-jah-for-his-son-the-anointed|“I Want To”~i-want-to|Grateful for the Ransom~grateful-for-the-ransom|The Lord’s Evening Meal~lords-evening-meal|You Gave Your Precious Son~you-gave-your-precious-son|Keep On Seeking First the Kingdom~keep-on-seeking-first-the-kingdom|The Kingdom Is in Place—Let It Come!~the-kingdom-is-in-place-let-it-come|Jehovah Begins His Rule~jehovah-begins-his-rule|Come to Jehovah’s Mountain~come-to-jehovahs-mountain|A Special Possession~a-special-possession|You Did It for Me~you-did-it-for-me|The Revealing of God’s Sons~revealing-of-gods-sons|Gaining Jehovah’s Friendship~gaining-jehovahs-friendship|Living Up to Our Name~living-up-to-our-name|My Father, My God and Friend~my-father-god-and-friend|Oh, Walk With God!~walk-with-god|Take Sides With Jehovah!~take-sides-with-jehovah|Throw Your Burden on Jehovah~throw-your-burden-on-jehovah|Walking in Integrity~walking-in-integrity|“Make Sure of the More Important Things”~make-sure-of-more-important-things|We Guard Our Hearts~we-guard-our-hearts|Serving Jehovah Whole-Souled~serving-jehovah-whole-souled|He Will Make You Strong~he-will-make-you-strong|Make a Good Name With God~make-a-good-name-with-god|To Whom Do We Belong?~to-whom-do-we-belong|Please Hear My Prayer~hear-my-prayer|The Prayer of God’s Servant~the-prayer-of-gods-servant|A Prayer of Thanks~prayer-of-thanks|A Prayer of the Lowly One~prayer-of-the-lowly-one|The Meditation of My Heart~meditation-of-my-heart|We Thank You, Jehovah~we-thank-you-jehovah|Pray to Jehovah Each Day~pray-to-jehovah-each-day|Daily Walking With Jehovah~daily-walking-with-jehovah|Making Jehovah’s Heart Glad~making-jehovahs-heart-glad|My Prayer of Dedication~prayer-of-dedication|To God We Are Dedicated!~to-god-we-are-dedicated|Christian Dedication~christian-dedication|Preparing to Preach~preparing-to-preach|“This Is the Way”~this-is-the-way|Fear Them Not!~fear-them-not|Make the Truth Your Own~make-the-truth-your-own|Preaching to All Sorts of People~preaching-to-all-sorts-of-people|Searching for Friends of Peace~search-for-friends-of-peace|Praise Jah With Me~praise-jah-with-me|It Means Their Life~it-means-their-life|Forward, You Witnesses!~forward-you-witnesses|The New Song~the-new-song|We’re Jehovah’s Witnesses!~we-are-jehovahs-witnesses|Sharing Joyfully in the Harvest~sharing-joyfully-in-harvest|Move Ahead!~move-ahead|Declare the Good News~declare-the-good-news|“Preach the Word”~preach-the-word|Sowing Kingdom Seed~sowing-kingdom-seed|Go Forward in Preaching the Kingdom!~forward-preaching-the-kingdom|Search Out Deserving Ones~search-out-deserving-ones|We Are Jehovah’s Army!~jehovahs-army|Making Known the Kingdom Truth~making-known-kingdom-truth|Grant Us Boldness~grant-us-boldness|Join in the Kingdom Song!~join-in-kingdom-song|“Here I Am! Send Me!”~here-i-am-send-me|How Does It Make You Feel?~how-does-it-make-you-feel|Light in a Darkened World~light-in-dark-world|“Teaching the Word of God”~teaching-word-of-god|Teach Them to Stand Firm~prayer-stand-firm|“Taste and See That Jehovah Is Good”~taste-see-jehovah-is-good|The Life of a Pioneer~life-of-a-pioneer|“Let Your Light Shine”~let-light-shine|“From House to House”~from-house-to-house|Reaching Out~reaching-out-christian-ministry|Welcome One Another~welcome-one-another|We Must Be Taught~we-must-be-taught|Come! Be Refreshed~come-be-refreshed|Make Me Know Your Ways~make-me-know-your-ways|Listen, Obey, and Be Blessed~listen-obey-be-blessed|Encourage One Another~encourage-one-another|Our Labor of Love~our-labor-of-love|A Place Bearing Your Name~a-place-bearing-your-name|Bless Our Meeting Together~bless-our-meeting-together|Grateful for God’s Word~grateful-for-gods-word|The Light Gets Brighter~light-gets-brighter|God’s Own Book—A Treasure~gods-own-book-a-treasure|Life Depends on God’s Word~life-depends-on-gods-word|The Scriptures—Inspired of God~the-scriptures-inspired-of-god|Myriads of Brothers~myriads-of-brothers|Receive Them With Hospitality~receive-them-with-hospitality|Working Together in Unity~working-together-in-unity|“Assist Those Who Are Weak”~assist-those-who-are-weak|Shepherds—Gifts in Men~shepherds-gifts-in-men|God’s Gift of Holy Spirit~gods-gift-of-holy-spirit|“God Is Love”~god-is-love|Cultivating the Quality of Love~cultivating-the-quality-of-love|The Divine Pattern of Love~divine-pattern-of-love|God’s Loyal Love~gods-loyal-love|Love Intensely From the Heart~love-intensely-from-the-heart|“The Joy of Jehovah”~joy-of-jehovah|Our Reasons for Joy~our-reasons-for-joy|Jehovah, God of Peace~jehovah-god-of-peace|Our Possession of Peace~our-possession-of-peace|“Exercise Patience”~exercise-patience|Gratitude for Divine Patience~gratitude-for-divine-patience|The Power of Kindness~power-of-kindness|The Quality of Goodness~quality-of-goodness|“Give Us More Faith”~give-us-more-faith|We Must Have Faith~we-must-have-faith|Imitate Christ’s Mildness~imitate-christs-mildness|We Need Self-Control~we-need-self-control|Be Steadfast, Immovable!~be-steadfast-immovable|Loyally Submitting to Theocratic Order~loyally-submitting-to-theocratic-order|Ever Loyal~ever-loyal|“Happy Are the Merciful!”~happy-are-the-merciful|Stay Awake, Stand Firm, Grow Mighty~stay-awake-stand-firm-grow-mighty|The Sort of Person I Should Be~sort-of-person-i-should-be|Enduring to the End~endure-to-the-end|We Will Keep Enduring~keep-enduring|Be Forgiving~be-forgiving|“What God Has Yoked Together”~what-god-yoked-together|Now We Are One~now-we-are-one|Worship Jehovah During Youth~worship-jehovah-during-youth|Children Are a Trust From God~children-are-a-trust-from-god|Jehovah’s Warm Appeal: “Be Wise, My Son”~jehovahs-appeal-be-wise-my-son|“A Perfect Wage” From Jehovah~perfect-wage-from-jehovah|Faithful Women, Christian Sisters~faithful-women-christian-sisters|Beauty in Gray-Headedness~beauty-in-gray-headedness|See Yourself When All Is New~when-all-is-new|Life Without End—At Last!~life-without-end|The Miracle of Life~miracle-of-life|Holding Fast to Our Hope~holding-to-our-hope|Keep Working, Watching, and Waiting~keep-working-watching-waiting|Keep Your Eyes on the Prize!~keep-eye-on-the-prize|God’s Promise of Paradise~gods-promise-of-paradise|“Making All Things New”~making-all-things-new|Life Everlasting Is Promised~life-everlasting-promised|Jehovah Provides Escape~jehovah-provides-escape|A Victory Song~a-victory-song|Seek God for Your Deliverance~seek-god-for-deliverance|He Will Call~he-will-call|A Place That Will Bring You Praise~a-place-that-will-bring-you-praise|Give Me Courage~give-me-courage|Unfailing Love~unfailing-love|Our Joy Eternally~our-joy-eternally|With Eyes of Faith~with-eyes-of-faith|Peace at Last!~peace-at-last|“It Will Not Be Late!”~it-will-not-be-late|Give Jehovah Glory~give-jehovah-glory|“Good News”!~good-news|To Do Your Will Is My Delight~to-do-your-will-is-my-delight|My Spiritual Need~my-spiritual-need|Happy Are These Eyes~happy-are-these-eyes".split('|').map(x => x.split('~')),
-  de: "Jehovas großartige Eigenschaften~jehovas-eigenschaften|Jehova ist dein Name~jehova-ist-dein-name|Unser Fels, unser Gott, unsre Zuversicht~unser-fels-unser-gott-unsre-zuversicht|„Jehova ist mein Hirte“~jehova-ist-mein-hirte|Gottes wunderbare Werke~gottes-wunderbare-werke|Der Himmel verkündet die Herrlichkeit Jehovas~der-himmel-verkuendet-herrlichkeit-jehovas|Jehova, unsere Stärke und Macht~jehova-unsere-staerke-und-macht|Jehova ist unsere Zuflucht~jehova-unsere-zuflucht|Jehova ist unser König!~jehova-ist-unser-koenig|Lobt Jehova, unseren Gott!~lobt-jehova-unseren-gott|Die Schöpfung spricht von Gottes Herrlichkeit~die-schoepfung-spricht-von-gottes-herrlichkeit|Unser großer Gott Jehova~grosser-gott-jehova|Christus, unser großes Vorbild~christus-unser-grosses-vorbild|Wir heißen unseren König willkommen!~wir-heissen-unseren-koenig-willkommen|Wir ehren Jehovas Erstgeborenen!~wir-ehren-jehovas-erstgeborenen|Dankt Jehova für seinen Sohn, den Gesalbten~dankt-jehova-f%C3%BCr-sohn-gesalbten|„Das will ich“~das-will-ich|Dankbar für das Lösegeld~dankbar-fuer-das-loesegeld|Das Abendmahl des Herrn~das-abendmahl-des-herrn|Du hast uns deinen kostbaren Sohn geschenkt~kostbaren-sohn-geschenkt|Setzt das Königreich an die erste Stelle~koenigreich-an-die-erste-stelle|Dein Königreich regiert — es komme!~dein-koenigreich-regiert-es-komme|Jehova, der Höchste, regiert!~jehova-der-hoechste-regiert|Kommt zum Berg Jehovas~kommt-zum-berg-jehovas|Sein besonderes Eigentum~sein-besonderes-eigentum|Ihr habt es für mich getan~fuer-mich-getan|Die Offenbarung der Söhne Gottes~offenbarung-der-soehne-gottes|Freundschaft mit Jehova~freundschaft-mit-jehova|Gemäß unserem Namen leben~gemaess-unserem-namen-leben|Mein Vater, mein Gott und Freund~vater-gott-und-freund|Geh mit Jehova, deinem Gott!~geh-mit-jehova-gott|Komm auf Jehovas Seite!~komm-auf-jehovas-seite|Wirf deine Last auf Jehova~wirf-deine-last-auf-jehova|Jehova ganz ergeben sein~jehova-ganz-ergeben-sein|Uns auf wirklich Wichtiges konzentrieren~uns-auf-wirklich-wichtiges-konzentrieren|Wir beschützen unser Herz~wir-beschuetzen-unser-herz|Jehova mit ganzem Herzen dienen~jehova-mit-ganzem-herzen-dienen|Er wird dich stärken~er-wird-dich-staerken|Ein Name, der Gott gefällt~name-der-gott-gefaellt|Wem möchten wir gehören?~wem-moechten-wir-gehoeren|Vater Jehova, bitte hör mein Gebet~vater-jehova-bitte-hoer-gebet|Gebet der Diener Gottes~gebet-der-diener-gottes|Ein Dankgebet~ein-dankgebet|Gebet eines Niedergedrückten~gebet-eines-niedergedrueckten|Die Gedanken meines Herzens~die-gedanken-meines-herzens|Hab Dank, Herr Jehova!~hab-dank-herr-jehova|Bete jeden Tag zu Jehova~bete-jeden-tag-zu-jehova|Täglich unseren Weg mit Jehova gehen~taeglich-mit-jehova-gehen|Jehovas Herz erfreuen~jehovas-herz-erfreuen|Mein Gebet der Hingabe~mein-gebet-der-hingabe|Jehova, dir gehört mein Leben!~jehova-dir-gehoert-mein-leben|Hingabe und Taufe~hingabe-und-taufe|Vor unserem Dienst~vor-unserem-dienst|„Das ist der Weg“~das-ist-der-weg|Habt keine Angst!~habt-keine-angst|Mache dir die Wahrheit zu eigen~mache-dir-die-wahrheit-zu-eigen|Jeder kann ein Freund Jehovas werden~jeder-kann-ein-freund-jehovas-werden|Wir suchen Menschen, die den Frieden lieben~wir-suchen-menschen-die-den-frieden-lieben|Preist Jah mit mir!~preist-jah-mit-mir|Ihr Leben steht auf dem Spiel~ihr-leben-steht-auf-dem-spiel|Fest und entschlossen~fest-und-entschlossen|Das neue Lied~das-neue-lied|Wir sind Jehovas Zeugen~wir-sind-jehovas-zeugen|Freudig in der Ernte mitarbeiten~freudig-in-der-ernte-mitarbeiten|Fortschritte machen~fortschritte-machen|Die gute Botschaft bekannt machen~die-gute-botschaft-bekannt-machen|„Predige das Wort Gottes“~predige-das-wort-gottes|Den Samen vom Königreich säen~den-samen-vom-koenigreich-saeen|Macht das Königreich weiter bekannt!~macht-das-koenigreich-weiter-bekannt|Findet heraus, wer es verdient~findet-heraus-wer-es-verdient|Wir sind das Heer Jehovas!~wir-sind-heer-jehovas|Die Königreichswahrheit bekannt machen~die-koenigreichswahrheit-bekannt-machen|Schenk uns Mut~schenk-uns-mut|Stimmt ein ins Lied vom Königreich!~stimmt-ein-ins-lied-vom-koenigreich|„Hier bin ich! Sende mich!“~hier-bin-ich-sende-mich|Von Jehova zu sprechen tut uns gut~von-jehova-sprechen-tut-gut|Licht in der Dunkelheit~licht-in-der-dunkelheit|Das Wort Gottes lehren~das-wort-gottes-lehren|Lehrt sie, fest zu Jehova zu stehen~lehrt-fest-zu-jehova-stehen|„Schmeckt und seht, dass Jehova gut ist“~schmeckt-seht-jehova-gut|Das Leben eines Pioniers~das-leben-eines-pioniers|„Lasst euer Licht leuchten“~lasst-euer-licht-leuchten|„Von Haus zu Haus“~von-haus-zu-haus|Jederzeit gern bereit~jederzeit-gern-bereit|Heißt euch gegenseitig willkommen~heisst-euch-gegenseitig-willkommen|Kommt und lernt von Jehova!~kommt-lernt-von-jehova|Kommt und werdet erfrischt!~kommt-und-werdet-erfrischt|Lass mich deine Wege erkennen~lass-mich-deine-wege-erkennen|Glücklich ist, wer hört und danach lebt~gluecklich-wer-hoert-danach-lebt|Uns gegenseitig Mut machen~uns-gegenseitig-mut-machen|Mit Liebe gebaut~mit-liebe-gebaut|Ein Haus für Jehovas Namen~ein-haus-fuer-jehovas-namen|Bitte segne unsere Zusammenkunft~segne-unsere-zusammenkunft|Dankbar für Gottes Wort~dankbar-fuer-gottes-wort|Das Licht wird immer heller~das-licht-wird-immer-heller|Gottes Buch — ein echter Schatz~gottes-buch-ein-echter-schatz|Gottes Wort schenkt Leben~gottes-wort-schenkt-leben|Die Heilige Schrift — von Gott inspiriert~die-heilige-schrift-von-gott-inspiriert|Millionen von Brüdern~millionen-von-bruedern|Andere gastfreundlich aufnehmen~andere-gastfreundlich-aufnehmen|Harmonisch zusammenarbeiten~harmonisch-zusammenarbeiten|„Den Schwachen beistehen“~den-schwachen-beistehen|Hirten — ein Geschenk von Jehova~hirten-geschenk-von-jehova|Der heilige Geist — ein Geschenk Gottes~heiliger-geist-geschenk-gottes|„Gott ist Liebe“~gott-ist-liebe|In der Liebe wachsen~in-der-liebe-wachsen|So lieben wie Jehova~so-lieben-wie-jehova|Gottes loyale Liebe~gottes-loyale-liebe|Liebt einander von ganzem Herzen~liebt-von-ganzem-herzen|„Jehova schenkt Freude, die stark macht“~jehova-schenkt-freude|Unsere Gründe zur Freude~unsere-gruende-zur-freude|Jehova, der Gott des Friedens~jehova-gott-des-friedens|Gott schenkt Frieden~gott-schenkt-frieden|„Übt Geduld“~uebt-geduld|Dankbar für Gottes Geduld~dankbar-fuer-gottes-geduld|Freundlichkeit bewirkt viel Gutes~freundlichkeit-bewirkt-viel-gutes|Güte — wie wertvoll!~guete-wie-wertvoll|„Gib uns mehr Glauben“~gib-uns-mehr-glauben|Wir müssen Glauben haben~wir-muessen-glauben-haben|So sanft und mild wie Jesus werden~sanft-mild-wie-jesus|Wir brauchen Selbstbeherrschung~wir-brauchen-selbstbeherrschung|Bleibt standhaft!~bleibt-standhaft|Uns loyal der theokratischen Ordnung unterstellen~der-theokratischen-ordnung-unterstellen|Wahre Liebe ist loyal~wahre-liebe-ist-loyal|„Glücklich sind die Barmherzigen“~gluecklich-sind-die-barmherzigen|Steh fest im Glauben!~steh-fest-im-glauben|Was für ein Mensch sollte ich sein?~was-fuer-ein-mensch-sein|Bis zum Ende ausharren~bis-zum-ende-ausharren|Wir harren weiter aus~wir-harren-weiter-aus|Gerne verzeihen~gerne-verzeihen|„Was Gott verbunden hat“~was-gott-verbunden-hat|Glücklich vereint~gluecklich-vereint|Als junger Mensch Jehova dienen~als-junger-mensch-jehova-dienen|Kinder — ein kostbares Geschenk von Jehova~kinder-kostbares-geschenk|Jehova bittet: „Sei weise, mein Sohn“~sei-weise-mein-sohn|Ein vollkommener Lohn von Jehova~vollkommener-lohn-von-jehova|Treue Frauen, unsere Schwestern~treue-frauen-unsere-schwestern|Graues Haar — eine schöne Krone~graues-haar-schoene-krone|Siehst du dich in der neuen Welt?~in-der-neuen-welt|Endlich ewiges Leben!~endlich-ewiges-leben|Das Wunder des Lebens~das-wunder-des-lebens|An unserer Hoffnung festhalten~an-unserer-hoffnung-festhalten|Bleibe wachsam, beschäftigt und warte~bleibe-wachsam-beschaeftigt-und-warte|Schau fest auf das Ziel!~schau-fest-auf-das-ziel|Gott hat ein Paradies versprochen~gott-hat-ein-paradies-versprochen|„Ich mache alles neu“~ich-mache-alles-neu|Bald ewiges Leben!~bald-ewiges-leben|Jehova — unser Retter~jehova-unser-retter|Ein Siegeslied~ein-siegeslied|Sucht Jehova, damit er euch befreit~sucht-jehova-euch-befreit|Er wird sie rufen~er-wird-sie-rufen|Ein Ort, der dich ehrt und preist~ein-ort-der-dich-ehrt-und-preist|Mach mich mutig!~mach-mich-mutig|Liebe versagt nie~liebe-versagt-nie|Jehova – unsere Freude~jehova-unsere-freude|Durch Glauben stark~durch-glauben-stark|Endlich Frieden!~endlich-frieden|Schenk uns Geduld~schenk-uns-geduld|Jehova steht alle Ehre zu~jehova-steht-alle-ehre-zu|Ruft die Botschaft aus!~ruft-die-botschaft-aus|Ich lebe nur für dich!~ich-lebe-nur-f%C3%BCr-dich|Mit Jehova hat mein Leben Sinn~mit-jehova-hat-mein-leben-sinn|Glücklich ist, wer sieht und versteht~gl%C3%BCcklich-ist-wer-sieht-und-versteht".split('|').map(x => x.split('~'))
-};
-function songInfo(v) {
-  const n = parseInt(v, 10), list = SONGS[settings.lang] || SONGS.en;
-  if (!(n >= 1 && n <= list.length)) return null;
-  const [title, slug] = list[n - 1];
-  return { title, url: `${SONG_BASE[settings.lang] || SONG_BASE.en}${n}-${slug}/` };
-}
-
-// ═══════════════════════════════════════════
-//  UI TEXT
-// ═══════════════════════════════════════════
-const UI = {
-  en: {
-    appTitle: 'Congregation Notes', appSub: 'My meeting notebook',
-    search: 'Search speaker, topic, notes…', empty1: 'No notes yet', empty2: 'Tap ＋ to start your first Sunday notebook.',
-    noResults: 'Nothing found.', untitled: 'Talk without title', noSpeaker: 'Speaker not filled in',
-    date: 'Date', speaker: 'Speaker', phSpeaker: 'Who is giving the talk?', speakerCong: 'Speaker’s congregation', phCong: 'e.g. Ulm English',
-    talkTitle: 'Talk title', phTalk: 'What is the talk about?',
-    song: 'Song', publicTalk: 'Public Talk', wtStudy: 'Watchtower Study', wtTitle: 'Article title', phWt: 'Title of the study article',
-    conductor: 'Conductor', reader: 'Reader', myComment: '💬 My comment', phComment: 'What I want to answer…',
-    notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
-    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
-    inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
-    wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Words', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete this word and its count?',
-    kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
-    question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
-    print: '🖨 Print / PDF', shareEntry: '⤴ Share', fileEntry: '⬇ Save file', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
-    autosave: 'Saved automatically on this device',
-    bpTitle: '📖 Add Bible text', book: 'Book', chapter: 'Chapter', verse: 'Verse', vend: 'To verse',
-    cancel: 'Cancel', insert: 'Insert', choose: 'Choose a book and chapter…', needBookCh: 'Please choose a book and chapter', added: 'added',
-    glossary: '📘 Glossary', glSearch: 'Search a word…', lookUp: '📘 WOL', countIt: '+ Count', counted: 'Added to the word counter', alreadyCounted: 'Already in the word counter',
-    settings: '⚙︎ Settings', kidMode: 'Kids view', kidModeHint: 'Bigger buttons, fewer fields',
-    fingerDraw: 'Draw with finger', fingerDrawHint: 'Off: only a pen draws, fingers scroll',
-    defBlock: 'New note fields', defText: '⌨️ Text', defInk: '✏️ Pen',
-    contentLang: 'Bible & WOL language', translateTo: 'Translate into',
-    backup: 'Backup', backupAll: '⤴ Share backup (iCloud, Drive …)', backupFile: '⬇ Save backup as file', importBtn: '📂 Import backup',
-    storageOk: 'Storage is protected on this device ✓', storageWeak: 'The browser may clear its storage – please make backups now and then.',
-    lastBackup: 'Last backup', never: 'never', done: 'Done', entriesCount: 'notes',
-    wordsTitle: '✎ Word counter words', addWord: '+ Word', asDefault: 'Use these words for new notes too', save: 'Save', emoji: 'Emoji', word: 'Word',
-    selectWord: 'Select a word first', clearInk: 'Clear this drawing?', exported: 'Saved ✓',
-    imported: 'Imported: {a} new, {u} updated', importFailed: 'Import failed: invalid file.', saveFailed: 'Could not save!',
-    backupDue: 'It has been a while since your last backup.', backupNow: 'Back up',
-    moreSpace: 'More space', undo: 'Undo', highlighter: 'Highlighter', eraser: 'Eraser', clear: 'Clear',
-    translate: 'Translate', lookUpWol: 'Look up in WOL', ok: 'OK',
-    glossShort: 'Glossary', hello: 'Hi {n} 👋', kidsCornerHint: 'Best part, question for Mum/Dad, mood', setupAgain: 'Setup again',
-    obWelcome: 'Welcome to Congregation Notes!', obIntro: 'Three quick questions so the notebook fits you.', obName: 'What’s your name? (optional)', obNamePh: 'e.g. Lea',
-    obPrivacy: 'Everything stays on this device only.', obAge: 'How old are you?',
-    ageSmall: 'Under 8', ageSmallX: 'Big buttons, count words, draw', ageKid: '8 – 12', ageKidX: 'Notes, word counter, kids’ corner',
-    ageTeen: '13 – 17', ageTeenX: 'Notes, paragraphs, glossary – no kids’ stuff', ageAdult: 'Adult', ageAdultX: 'Clean: notes, Bible texts, paragraphs',
-    obInput: 'How do you like to write?', inPen: 'Pen', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Draw and write on the screen',
-    inKeys: 'Keyboard', inKeysX: 'Type your notes', obTheme: 'Look', obLater: 'You can change all of this later in ⚙︎ Settings.',
-    obSkip: 'Skip', obBack: 'Back', obNext: 'Next', obGo: 'Let’s go!', obReady: 'All set ✓', paragraphs: 'Paragraphs today', paragraph: 'Paragraph', paraHint: 'How many paragraphs does the article have? Then you can tick them off one by one.', weAreHere: 'we are here', comment: 'Comment', phParaComment: 'My comment on this paragraph…', commented: 'I commented', themeDark: 'Dark mode', themeLight: 'Light mode', shareNoApi: 'This browser has no share sheet for files – please use “Save file”.', shareNoFiles: 'This browser cannot share files – please use “Save file”.', shareFailed: 'Sharing did not work', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
-    kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', glossLink: '📖 Glossary',
-    shareOk: '“Share” opens the system share sheet ✓', shareNoHttps: 'The share sheet only works over https (e.g. GitHub Pages), not from a local file – please use “Save file”.',
-    shareSaveDialog: 'Saving opens a “Save as” dialog.', shareDownload: 'Files are downloaded (no share sheet in this browser).',
-    footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
-  },
-  de: {
-    appTitle: 'Congregation Notes', appSub: 'Mein Notizbuch für die Zusammenkunft',
-    search: 'Redner, Thema, Notizen suchen…', empty1: 'Noch keine Notizen', empty2: 'Tippe auf ＋ für dein erstes Sonntags-Notizbuch.',
-    noResults: 'Nichts gefunden.', untitled: 'Vortrag ohne Thema', noSpeaker: 'Redner nicht eingetragen',
-    date: 'Datum', speaker: 'Redner', phSpeaker: 'Wer hält den Vortrag?', speakerCong: 'Versammlung des Redners', phCong: 'z. B. Ulm English',
-    talkTitle: 'Vortragsthema', phTalk: 'Worum geht es im Vortrag?',
-    song: 'Lied', publicTalk: 'Öffentlicher Vortrag', wtStudy: 'Wachtturm-Studium', wtTitle: 'Artikelthema', phWt: 'Thema des Studienartikels',
-    conductor: 'Leiter', reader: 'Leser', myComment: '💬 Mein Kommentar', phComment: 'Was ich antworten möchte…',
-    notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
-    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
-    inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
-    wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: 'Dieses Wort und seinen Zählerstand löschen?',
-    kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
-    question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
-    print: '🖨 Drucken / PDF', shareEntry: '⤴ Teilen', fileEntry: '⬇ Als Datei', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
-    autosave: 'Wird automatisch auf diesem Gerät gespeichert',
-    bpTitle: '📖 Bibelstelle hinzufügen', book: 'Buch', chapter: 'Kapitel', verse: 'Vers', vend: 'Bis Vers',
-    cancel: 'Abbrechen', insert: 'Einfügen', choose: 'Buch und Kapitel auswählen…', needBookCh: 'Bitte Buch und Kapitel auswählen', added: 'hinzugefügt',
-    glossary: '📘 Glossar', glSearch: 'Wort suchen…', lookUp: '📘 WOL', countIt: '+ Zählen', counted: 'Zum Wörter-Zähler hinzugefügt', alreadyCounted: 'Schon im Wörter-Zähler',
-    settings: '⚙︎ Einstellungen', kidMode: 'Kinderansicht', kidModeHint: 'Größere Buttons, weniger Felder',
-    fingerDraw: 'Mit Finger zeichnen', fingerDrawHint: 'Aus: nur der Stift zeichnet, Finger scrollen',
-    defBlock: 'Neue Notizfelder', defText: '⌨️ Text', defInk: '✏️ Stift',
-    contentLang: 'Sprache für Bibel & WOL', translateTo: 'Übersetzen in',
-    backup: 'Sicherung', backupAll: '⤴ Sicherung teilen (iCloud, Drive …)', backupFile: '⬇ Sicherung als Datei speichern', importBtn: '📂 Sicherung importieren',
-    storageOk: 'Speicher auf diesem Gerät ist geschützt ✓', storageWeak: 'Der Browser kann den Speicher leeren – bitte ab und zu sichern.',
-    lastBackup: 'Letzte Sicherung', never: 'nie', done: 'Fertig', entriesCount: 'Notizen',
-    wordsTitle: '✎ Wörter für den Zähler', addWord: '+ Wort', asDefault: 'Diese Wörter auch für neue Notizen verwenden', save: 'Speichern', emoji: 'Emoji', word: 'Wort',
-    selectWord: 'Bitte zuerst ein Wort markieren', clearInk: 'Diese Zeichnung löschen?', exported: 'Gespeichert ✓',
-    imported: 'Importiert: {a} neu, {u} aktualisiert', importFailed: 'Import fehlgeschlagen: ungültige Datei.', saveFailed: 'Speichern fehlgeschlagen!',
-    backupDue: 'Deine letzte Sicherung ist schon eine Weile her.', backupNow: 'Sichern',
-    moreSpace: 'Mehr Platz', undo: 'Rückgängig', highlighter: 'Textmarker', eraser: 'Radierer', clear: 'Löschen',
-    translate: 'Übersetzen', lookUpWol: 'In WOL nachschlagen', ok: 'OK',
-    glossShort: 'Glossar', hello: 'Hallo {n} 👋', kidsCornerHint: 'Das Beste, Frage an Mama/Papa, Stimmung', setupAgain: 'Einrichtung neu',
-    obWelcome: 'Willkommen bei Congregation Notes!', obIntro: 'Drei kurze Fragen, damit das Notizbuch zu dir passt.', obName: 'Wie heißt du? (freiwillig)', obNamePh: 'z. B. Lea',
-    obPrivacy: 'Alles bleibt nur auf diesem Gerät.', obAge: 'Wie alt bist du?',
-    ageSmall: 'Unter 8', ageSmallX: 'Große Buttons, Wörter zählen, malen', ageKid: '8 – 12', ageKidX: 'Notizen, Wörter-Zähler, Kinder-Ecke',
-    ageTeen: '13 – 17', ageTeenX: 'Notizen, Absätze, Glossar – ohne Kinderkram', ageAdult: 'Erwachsen', ageAdultX: 'Schlicht: Notizen, Bibelstellen, Absätze',
-    obInput: 'Wie schreibst du am liebsten?', inPen: 'Stift', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Mit dem Finger malen und schreiben',
-    inKeys: 'Tastatur', inKeysX: 'Notizen tippen', obTheme: 'Aussehen', obLater: 'Das alles kannst du später unter ⚙︎ Einstellungen ändern.',
-    obSkip: 'Überspringen', obBack: 'Zurück', obNext: 'Weiter', obGo: 'Los geht’s!', obReady: 'Fertig eingerichtet ✓', paragraphs: 'Absätze heute', paragraph: 'Absatz', paraHint: 'Wie viele Absätze hat der Artikel? Dann kannst du sie nacheinander abhaken.', weAreHere: 'hier sind wir', comment: 'Kommentar', phParaComment: 'Mein Kommentar zu diesem Absatz…', commented: 'Ich habe kommentiert', themeDark: 'Dunkler Modus', themeLight: 'Heller Modus', shareNoApi: 'Dieser Browser hat kein Teilen-Menü für Dateien – bitte „Als Datei“ nutzen.', shareNoFiles: 'Dieser Browser kann keine Dateien teilen – bitte „Als Datei“ nutzen.', shareFailed: 'Teilen hat nicht geklappt', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
-    kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Bibel-Glossar · jw.org (englisch)', bibleGlossHint: 'Erklärungen aus dem Glossar der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', glossLink: '📖 Glossar',
-    shareOk: '„Teilen“ öffnet das Teilen-Menü des Systems ✓', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages), nicht aus einer lokalen Datei – bitte „Als Datei“ nutzen.',
-    shareSaveDialog: 'Speichern öffnet einen „Speichern unter“-Dialog.', shareDownload: 'Dateien werden heruntergeladen (kein Teilen-Menü in diesem Browser).',
-    footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
-  }
-};
-
-// ═══════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════
-let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-let entries = [];
-let cur = null;               // entry currently open
-let db = null, useLS = false;
-let storagePersisted = false;
-let saveTimer = null;
-let penSeen = false;          // once a pen was used, fingers only scroll (palm rejection)
-const activeBlk = {};         // section -> index of last used block
-let bpTarget = null;     // { sec } or { para }
-let inkStates = [];
-
-const t = k => (UI[settings.lang] && UI[settings.lang][k]) || UI.en[k] || k;
-const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-const $ = id => document.getElementById(id);
-
-// ═══════════════════════════════════════════
-//  STORAGE  (IndexedDB, localStorage fallback)
-// ═══════════════════════════════════════════
-function openDB() {
-  return new Promise((res, rej) => {
-    if (!window.indexedDB) return rej(new Error('no idb'));
-    let r;
-    try { r = indexedDB.open(DB_NAME, 1); } catch (e) { return rej(e); }
-    r.onupgradeneeded = () => {
-      const d = r.result;
-      if (!d.objectStoreNames.contains('entries')) d.createObjectStore('entries', { keyPath: 'id' });
-      if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta');
-    };
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-    r.onblocked = () => rej(new Error('blocked'));
-  });
-}
-function idb(store, mode, fn) {
-  return new Promise((res, rej) => {
-    const tr = db.transaction(store, mode);
-    const req = fn(tr.objectStore(store));
-    tr.oncomplete = () => res(req ? req.result : undefined);
-    tr.onerror = () => rej(tr.error);
-    tr.onabort = () => rej(tr.error);
-  });
-}
-function lsRead() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || { entries: {}, meta: {} }; } catch { return { entries: {}, meta: {} }; } }
-function lsWrite(o) { try { localStorage.setItem(LS_KEY, JSON.stringify(o)); } catch { toast(t('saveFailed')); } }
-
-async function storeAll() {
-  if (useLS) return Object.values(lsRead().entries);
-  return (await idb('entries', 'readonly', s => s.getAll())) || [];
-}
-async function storePut(e) {
-  const copy = JSON.parse(JSON.stringify(e));
-  if (useLS) { const o = lsRead(); o.entries[copy.id] = copy; lsWrite(o); return; }
-  await idb('entries', 'readwrite', s => s.put(copy));
-}
-async function storeDel(id) {
-  if (useLS) { const o = lsRead(); delete o.entries[id]; lsWrite(o); return; }
-  await idb('entries', 'readwrite', s => s.delete(id));
-}
-async function metaGet(k) {
-  if (useLS) return lsRead().meta[k];
-  return idb('meta', 'readonly', s => s.get(k));
-}
-async function metaPut(k, v) {
-  if (useLS) { const o = lsRead(); o.meta[k] = v; lsWrite(o); return; }
-  await idb('meta', 'readwrite', s => s.put(JSON.parse(JSON.stringify(v)), k));
-}
-function saveSettings() { metaPut('settings', settings).catch(() => {}); }
-
-function dirty() {
-  if (!cur) return;
-  cur.updatedAt = Date.now();
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(flush, 400);
-}
-function flush() {
-  clearTimeout(saveTimer); saveTimer = null;
-  if (cur) storePut(cur).catch(() => toast(t('saveFailed')));
-}
-document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
-window.addEventListener('pagehide', flush);
-
-// ═══════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════
-function isoLocal(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-function nextSundayISO() {
-  const d = new Date();
-  d.setDate(d.getDate() + (7 - d.getDay()) % 7);
-  return isoLocal(d);
-}
-function parseISO(iso) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
-  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date();
-}
-function locale() { return settings.lang === 'de' ? 'de-DE' : 'en-GB'; }
-function fmtDate(iso, opts) { return parseISO(iso).toLocaleDateString(locale(), opts || { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
-function uid() { return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-function stripHtml(h) { const d = document.createElement('div'); d.innerHTML = h || ''; return d.textContent || ''; }
-function getPath(o, p) { return p.split('.').reduce((a, k) => (a == null ? a : a[k]), o); }
-function setPath(o, p, v) { const ks = p.split('.'); const last = ks.pop(); ks.reduce((a, k) => (a[k] = a[k] || {}), o)[last] = v; }
-
-let toastTimer;
-function toast(msg) {
-  const el = $('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
-}
-
-// keep only simple formatting (used for stored and imported notes)
-const ALLOWED_TAGS = { B:1, STRONG:1, I:1, EM:1, U:1, BR:1, DIV:1, P:1, UL:1, OL:1, LI:1, SPAN:1 };
-const DROP_TAGS = { SCRIPT:1, STYLE:1, IFRAME:1, OBJECT:1, EMBED:1, LINK:1, META:1, SVG:1, MATH:1, TEMPLATE:1 };
-function sanitize(html) {
-  if (!html) return '';
-  const doc = new DOMParser().parseFromString('<body>' + html + '</body>', 'text/html');
-  const walk = node => {
-    [...node.childNodes].forEach(ch => {
-      if (ch.nodeType === 3) return;
-      if (ch.nodeType !== 1) { ch.remove(); return; }
-      if (DROP_TAGS[ch.tagName]) { ch.remove(); return; }
-      walk(ch);
-      if (!ALLOWED_TAGS[ch.tagName]) { ch.replaceWith(...ch.childNodes); return; }
-      const st = ch.style || {};
-      const keep = { bg: st.backgroundColor, fw: st.fontWeight, fs: st.fontStyle, td: st.textDecorationLine || st.textDecoration };
-      [...ch.attributes].forEach(a => ch.removeAttribute(a.name));
-      if (ch.tagName === 'SPAN') {
-        if (keep.bg && /^(rgba?\([\d\s,.]+\)|#[0-9a-f]{3,8}|transparent)$/i.test(keep.bg)) ch.style.backgroundColor = keep.bg;
-        if (/^(bold|[6-9]00)$/.test(keep.fw || '')) ch.style.fontWeight = 'bold';
-        if (keep.fs === 'italic') ch.style.fontStyle = 'italic';
-        if (/underline/.test(keep.td || '')) ch.style.textDecoration = 'underline';
-      }
-    });
-  };
-  walk(doc.body);
-  return doc.body.innerHTML;
-}
-
-// known words (default counter words + kids' glossary) switch with the language
-function wordLabel(w) {
-  const k = String(w || '').toLowerCase();
-  const d = DEFAULT_WORDS.find(x => x.en.toLowerCase() === k || x.de.toLowerCase() === k);
-  if (d) return d[settings.lang];
-  const g = GLOSSARY.find(x => x.en.toLowerCase() === k || x.de.toLowerCase() === k);
-  return g ? g[settings.lang] : w;
-}
-function defaultWords() {
-  return Array.isArray(settings.words)
-    ? settings.words
-    : DEFAULT_WORDS.map(d => ({ e: d.e, w: d[settings.lang] }));
-}
-
-// ═══════════════════════════════════════════
-//  DATA MODEL
-// ═══════════════════════════════════════════
-function mkBlock(type) {
-  type = type || settings.defaultBlock;
-  return type === 'ink' ? { type: 'ink', h: 520, strokes: [], refs: [] } : { type: 'text', html: '', refs: [] };
-}
-function newEntry() {
-  const now = Date.now();
-  return {
-    id: uid(), createdAt: now, updatedAt: now, date: nextSundayISO(),
-    speaker: '', speakerCong: '', talkTitle: '',
-    songs: ['', '', ''],
-    talk: { blocks: [mkBlock()] },
-    wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()], paras: { count: 0, done: [], notes: {} } },
-    comment: '',
-    kids: { best: '', question: '', mood: '' },
-    counter: defaultWords().map(w => ({ e: w.e, w: w.w, n: 0 }))
-  };
-}
-const str = (v, max = 5000) => (typeof v === 'string' ? v.slice(0, max) : '');
-const num = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-function normRefs(a) {
-  return (Array.isArray(a) ? a : []).filter(r => r && typeof r.label === 'string' && /^https:\/\/(www\.)?jw\.org\//.test(r.url || ''))
-    .map(r => ({ label: str(r.label, 120), url: r.url }));
-}
-function normBlocks(a) {
-  const out = (Array.isArray(a) ? a : []).map(b => {
-    if (b && b.type === 'ink') {
-      const strokes = (Array.isArray(b.strokes) ? b.strokes : []).filter(s => s && Array.isArray(s.p)).map(s => ({
-        t: s.t === 'hl' ? 'hl' : 'pen',
-        c: /^#[0-9a-f]{3,8}$/i.test(s.c) ? s.c : '#1c2740',
-        w: Math.min(60, Math.max(1, num(s.w, 5))),
-        p: s.p.filter(q => Array.isArray(q) && q.length >= 2).map(q => [num(q[0]), num(q[1]), Math.min(1, Math.max(0, num(q[2], .5)))])
-      }));
-      return { type: 'ink', h: Math.min(20000, Math.max(200, num(b.h, 520))), strokes, refs: normRefs(b.refs) };
-    }
-    return { type: 'text', html: sanitize(str(b && b.html, 200000)), refs: normRefs(b && b.refs) };
-  });
-  return out.length ? out : [mkBlock('text')];
-}
-function normalizeEntry(r) {
-  if (!r || typeof r !== 'object') return null;
-  const e = newEntry();
-  e.id = typeof r.id === 'string' && r.id ? r.id.slice(0, 60) : uid();
-  e.createdAt = num(r.createdAt, Date.now()); e.updatedAt = num(r.updatedAt, Date.now());
-  e.date = /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date : e.date;
-  e.speaker = str(r.speaker, 200); e.speakerCong = str(r.speakerCong, 200); e.talkTitle = str(r.talkTitle, 300);
-  e.songs = [0, 1, 2].map(i => str((r.songs || [])[i], 6));
-  e.talk = { blocks: normBlocks(r.talk && r.talk.blocks) };
-  const w = r.wt || {};
-  e.wt = { title: str(w.title, 300), conductor: str(w.conductor, 200), reader: str(w.reader, 200), blocks: normBlocks(w.blocks) };
-  const pp = w.paras || {}, pnotes = {};
-  if (pp.notes && typeof pp.notes === 'object') Object.keys(pp.notes).forEach(k => {
-    const n = parseInt(k, 10), v = pp.notes[k];
-    if (n >= 1 && n <= 60 && v) pnotes[n] = { html: sanitize(str(v.html, 50000)), refs: normRefs(v.refs), commented: !!v.commented };
-  });
-  e.wt.paras = {
-    count: Math.min(60, Math.max(0, Math.round(num(pp.count)))),
-    done: [...new Set((Array.isArray(pp.done) ? pp.done : []).map(x => parseInt(x, 10)).filter(x => x >= 1 && x <= 60))],
-    notes: pnotes
-  };
-  e.comment = sanitize(str(r.comment, 50000));
-  const k = r.kids || {};
-  e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '' };
-  if (Array.isArray(r.counter)) e.counter = r.counter.filter(c => c && c.w).map(c => ({ e: str(c.e, 16), w: str(c.w, 40), n: Math.max(0, Math.round(num(c.n))) }));
-  return e;
-}
-
-// ═══════════════════════════════════════════
-//  ROUTING
-// ═══════════════════════════════════════════
-function route() {
-  const m = /^#e=(.+)$/.exec(location.hash);
-  const e = m && entries.find(x => x.id === decodeURIComponent(m[1]));
-  if (cur && cur !== e) flush();
-  hideFmt();
-  if (e) {
-    cur = e;
-    $('view-list').hidden = true; $('view-entry').hidden = false; $('fab').hidden = true; $('btn-back').hidden = false;
-    renderEntry();
-  } else {
-    cur = null; disposeInks();
-    $('view-entry').hidden = true; $('view-list').hidden = false; $('fab').hidden = false; $('btn-back').hidden = true;
-    $('entry').innerHTML = '';
-    renderList();
-  }
-  updateHeader();
-  window.scrollTo(0, 0);
-}
-window.addEventListener('hashchange', route);
-
-function updateHeader() {
-  const icon = $('hdr-icon');
-  if (cur) {
-    const d = parseISO(cur.date);
-    icon.className = 'app-icon leaf-mode';
-    icon.innerHTML = `<span class="mi-m">${esc(d.toLocaleDateString(locale(), { month: 'short' }))}</span><span class="mi-d">${d.getDate()}</span>`;
-    $('hdr-title').textContent = fmtDate(cur.date, { weekday: 'long', day: 'numeric', month: 'long' });
-    $('hdr-sub').textContent = cur.talkTitle || t('appTitle');
-  } else {
-    icon.className = 'app-icon'; icon.textContent = '📓';
-    $('hdr-title').textContent = t('appTitle');
-    $('hdr-sub').textContent = t('appSub');
-  }
-}
-
-// ═══════════════════════════════════════════
-//  HISTORY LIST
-// ═══════════════════════════════════════════
-function entrySearchText(e) {
-  const blocks = [...e.talk.blocks, ...e.wt.blocks];
-  return [e.speaker, e.speakerCong, e.talkTitle, e.wt.title, stripHtml(e.comment), stripHtml(e.kids.best), stripHtml(e.kids.question),
-    ...blocks.map(b => (b.type === 'text' ? stripHtml(b.html) : '') + ' ' + b.refs.map(r => r.label).join(' ')),
-    ...Object.values((e.wt.paras && e.wt.paras.notes) || {}).map(n => stripHtml(n.html) + ' ' + n.refs.map(r => r.label).join(' ')),
-    fmtDate(e.date)].join(' ').toLowerCase();
-}
-function renderList() {
-  $('search').placeholder = t('search');
-  const q = $('search').value.trim().toLowerCase();
-  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.updatedAt - a.updatedAt);
-  const list = q ? sorted.filter(e => entrySearchText(e).includes(q)) : sorted;
-
-  // backup reminder
-  const due = entries.length >= 3 && (!settings.lastBackup || Date.now() - settings.lastBackup > 30 * 864e5);
-  $('banner-slot').innerHTML = due
-    ? `<div class="banner"><span>💾 ${esc(t('backupDue'))}</span><button class="btn" data-act="backupAll">${esc(t('backupNow'))}</button></div>` : '';
-
-  const nextIso = nextSundayISO(), nextEntry = entries.find(e => e.date === nextIso);
-  const nd = parseISO(nextIso), isToday = nextIso === isoLocal(new Date());
-  const hero = q ? '' : `<div class="hero">
-      <div class="leaf"><div class="m">${esc(nd.toLocaleDateString(locale(), { month: 'short' }))}</div><div class="d">${nd.getDate()}</div><div class="w">${esc(nd.toLocaleDateString(locale(), { weekday: 'short' }))}</div></div>
-      <div>
-        <div class="hero-k">${settings.name ? esc(t('hello').replace('{n}', settings.name)) + ' · ' : ''}${esc(isToday ? t('today') : t('nextMeeting'))}</div>
-        <div class="hero-d">${esc(fmtDate(nextIso, { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
-        ${nextEntry
-          ? `<button class="btn primary" data-act="open" data-id="${esc(nextEntry.id)}">${esc(t('continueNotes'))}</button>`
-          : `<button class="btn primary" data-act="newEntry">${esc(t('startNotes'))}</button>`}
-      </div>
-    </div>`;
-  if (!entries.length) {
-    $('list').innerHTML = hero + `<div class="empty"><div class="big">📓</div><strong>${esc(t('empty1'))}</strong>${esc(t('empty2'))}</div>`;
-    return;
-  }
-  if (!list.length) { $('list').innerHTML = `<div class="empty">${esc(t('noResults'))}</div>`; return; }
-
-  $('list').innerHTML = hero + list.map(e => {
-    const d = parseISO(e.date);
-    const blocks = [...e.talk.blocks, ...e.wt.blocks];
-    const refs = blocks.reduce((n, b) => n + b.refs.length, 0);
-    const hasInk = blocks.some(b => b.type === 'ink' && b.strokes.length);
-    const top = [...e.counter].sort((a, b) => b.n - a.n)[0];
-    const pills = [];
-    if (refs) pills.push(`📖 ${refs}`);
-    if (hasInk) pills.push('✏️');
-    if (top && top.n) pills.push(`${esc(top.e)} ×${top.n}`);
-    if (e.kids.mood) pills.push(e.kids.mood);
-    return `<button class="h-card" data-act="open" data-id="${esc(e.id)}">
-      <div class="leaf">
-        <div class="m">${esc(d.toLocaleDateString(locale(), { month: 'short' }))}</div>
-        <div class="d">${d.getDate()}</div>
-        <div class="w">${esc(d.toLocaleDateString(locale(), { weekday: 'short' }))}${d.getFullYear() !== new Date().getFullYear() ? ' ’' + String(d.getFullYear()).slice(2) : ''}</div>
-      </div>
-      <div class="h-body">
-        <div class="h-title">${esc(e.talkTitle || t('untitled'))}</div>
-        <div class="h-speaker">🎤 ${esc(e.speaker || t('noSpeaker'))}${e.speakerCong ? ' – ' + esc(e.speakerCong) : ''}</div>
-        ${pills.length ? `<div class="h-meta">${pills.map(p => `<span class="pill">${p}</span>`).join('')}</div>` : ''}
-      </div>
-    </button>`;
-  }).join('');
-}
-$('search').addEventListener('input', renderList);
-
-// ═══════════════════════════════════════════
-//  ENTRY VIEW
-// ═══════════════════════════════════════════
-function renderEntry() {
-  disposeInks();
-  const e = cur, kid = settings.kidMode;
-  const uniq = f => [...new Set(entries.map(f).filter(Boolean))].sort();
-
-  let h = `<div class="print-head"><h1>${esc(e.talkTitle || t('publicTalk'))}</h1><div>${esc(fmtDate(e.date))}${e.speaker ? ' · ' + esc(e.speaker) : ''}</div></div>`;
-
-  h += `<section class="card"><div class="meta-grid">
-    <label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
-    <label class="fld"><span>${esc(t('speaker'))}</span><input type="text" list="dl-speakers" value="${esc(e.speaker)}" data-f="speaker" placeholder="${esc(t('phSpeaker'))}" autocomplete="off"></label>
-    ${kid ? '' : `<label class="fld wide"><span>${esc(t('speakerCong'))}</span><input type="text" list="dl-congs" value="${esc(e.speakerCong)}" data-f="speakerCong" placeholder="${esc(t('phCong'))}" autocomplete="off"></label>`}
-    <label class="fld wide"><span>${esc(t('talkTitle'))}</span><input type="text" value="${esc(e.talkTitle)}" data-f="talkTitle" placeholder="${esc(t('phTalk'))}" autocomplete="off"></label>
-  </div>
-  <datalist id="dl-speakers">${uniq(x => x.speaker).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
-  <datalist id="dl-congs">${uniq(x => x.speakerCong).map(s => `<option value="${esc(s)}">`).join('')}</datalist>
-  </section>`;
-
-  if (kid && settings.showCounter) h += renderCounter();
-
-  h += songRow(0);
-  h += renderSection('talk', t('publicTalk'), 'var(--talk)', '', '');
-  h += songRow(1);
-
-  const wtTop = `<div class="sub-grid">
-      <label class="fld wide"><span>${esc(t('wtTitle'))}</span><input type="text" value="${esc(e.wt.title)}" data-f="wt.title" placeholder="${esc(t('phWt'))}" autocomplete="off"></label>
-      ${kid ? '' : `<label class="fld"><span>${esc(t('conductor'))}</span><input type="text" value="${esc(e.wt.conductor)}" data-f="wt.conductor" autocomplete="off"></label>
-      <label class="fld"><span>${esc(t('reader'))}</span><input type="text" value="${esc(e.wt.reader)}" data-f="wt.reader" autocomplete="off"></label>`}
-    </div>
-    <div class="paras" id="paras">${parasHtml()}</div>`;
-  const wtBottom = `<div class="sub-label">${esc(t('myComment'))}</div>
-    <div class="rt short" contenteditable="true" data-f="comment" data-ph="${esc(t('phComment'))}">${sanitize(e.comment)}</div>`;
-  h += renderSection('wt', t('wtStudy'), 'var(--wt)', wtTop, wtBottom);
-  h += songRow(2);
-
-  if (settings.showKids) {
-    h += `<section class="card sec kids">
-      <div class="sec-head"><h2>${esc(t('kidsCorner'))}</h2></div>
-      <div class="sub-label" style="margin-top:0">${esc(t('best'))}</div>
-      <div class="rt short" contenteditable="true" data-f="kids.best" data-ph="${esc(t('phBest'))}">${sanitize(e.kids.best)}</div>
-      <div class="sub-label">${esc(t('question'))}</div>
-      <div class="rt short" contenteditable="true" data-f="kids.question" data-ph="${esc(t('phQuestion'))}">${sanitize(e.kids.question)}</div>
-      <div class="sub-label">${esc(t('mood'))}</div>
-      <div class="moods">${MOODS.map(m => `<button class="mood${e.kids.mood === m ? ' on' : ''}" data-act="mood" data-m="${m}">${m}</button>`).join('')}</div>
-    </section>`;
-  }
-  if (!kid && settings.showCounter) h += renderCounter();
-
-  h += `<div class="entry-actions">
-      <button class="btn" data-act="print">${esc(t('print'))}</button>
-      <button class="btn" data-act="shareEntry" data-mode="share">${esc(t('shareEntry'))}</button>
-      <button class="btn" data-act="shareEntry" data-mode="file">${esc(t('fileEntry'))}</button>
-      <button class="btn danger" data-act="deleteEntry">${esc(t('del'))}</button>
-    </div>
-    <div class="saved-hint">✓ ${esc(t('autosave'))}</div>`;
-
-  $('entry').innerHTML = h;
-  initInks();
-}
-
-function songLinkHtml(v) {
-  const info = songInfo(v);
-  return info ? `<a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(info.url)}">${esc(info.title)} <span aria-hidden="true">▶</span></a>` : '';
-}
-function songRow(i) {
-  return `<div class="song-row">🎵 ${esc(t('song'))}
-    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-song="${i}" value="${esc(cur.songs[i])}" placeholder="#" aria-label="${esc(t('song'))} ${i + 1}">
-    <span class="song-slot">${songLinkHtml(cur.songs[i])}</span></div>`;
-}
-
-function renderSection(key, title, color, top, bottom) {
-  const sec = cur[key];
-  return `<section class="card sec" style="--c:${color}" data-sec="${key}">
-    <div class="sec-head"><h2>${esc(title)}</h2></div>
-    ${top}
-    <div class="blocks">${sec.blocks.map((b, i) => renderBlock(key, b, i, sec.blocks.length)).join('')}</div>
-    <div class="sec-actions">
-      <button class="btn-soft" data-act="addRef" data-sec="${key}">${esc(t('addRef'))}</button>
-      <button class="btn-soft" data-act="addText" data-sec="${key}">${esc(t('addText'))}</button>
-      <button class="btn-soft" data-act="addInk" data-sec="${key}">${esc(t('addInk'))}</button>
-    </div>
-    ${bottom}
-  </section>`;
-}
-
-function renderBlock(key, b, i, n) {
-  const topBar = n > 1
-    ? `<div class="blk-top"><span>${esc(i === 0 ? t('notes') : t('moreNotes'))}</span><button class="x-btn" data-act="delBlock" data-sec="${key}" data-i="${i}" aria-label="✕">✕</button></div>`
-    : '';
-  const body = b.type === 'ink'
-    ? `<div class="ink" data-sec="${key}" data-i="${i}">
-        <div class="ink-tools">${inkToolsHtml()}</div>
-        <div class="paper"><canvas class="c-base"></canvas><canvas class="c-live"></canvas></div>
-        <div class="ink-hint">${esc(settings.fingerDraw ? t('inkHintFinger') : t('inkHintPen'))}</div>
-      </div>`
-    : `<div class="rt" contenteditable="true" data-sec="${key}" data-i="${i}" data-ph="${esc(i === 0 ? t('phNotes') : t('phMore'))}">${sanitize(b.html)}</div>`;
-  return `<div class="blk" data-sec="${key}" data-i="${i}">${topBar}${body}<div class="chips">${chipsHtml(key, i, b.refs)}</div></div>`;
-}
-
-function paras() {
-  if (!cur.wt.paras) cur.wt.paras = { count: 0, done: [], notes: {} };
-  return cur.wt.paras;
-}
-function paraNote(n) {
-  const P = paras();
-  if (!P.notes[n]) P.notes[n] = { html: '', refs: [], commented: false };
-  return P.notes[n];
-}
-function parasHtml() {
-  const P = paras(), n = P.count, done = new Set(P.done);
-  let current = 0;
-  for (let i = 1; i <= n; i++) if (!done.has(i)) { current = i; break; }
-  const doneCount = P.done.filter(x => x <= n).length;
-  let h = `<div class="p-head">
-      <div class="sub-label" style="margin:0">¶ ${esc(t('paragraphs'))}</div>
-      <div class="p-count">
-        <button class="p-step" data-act="paraCount" data-d="-1" aria-label="−1">−</button>
-        <input type="number" inputmode="numeric" min="0" max="60" id="p-count" value="${n || ''}" placeholder="0" aria-label="${esc(t('paragraphs'))}">
-        <button class="p-step" data-act="paraCount" data-d="1" aria-label="+1">+</button>
-      </div>
-    </div>`;
-  if (!n) return h + `<div class="p-done-txt">${esc(t('paraHint'))}</div>`;
-  h += `<div class="p-progress"><div style="width:${Math.round(doneCount / n * 100)}%"></div></div>
-    <div class="p-done-txt">${doneCount} / ${n} ✓${doneCount === n ? ' 🎉' : ''}</div><div class="p-list">`;
-  for (let i = 1; i <= n; i++) {
-    const note = P.notes[i], isDone = done.has(i);
-    h += `<div class="para${isDone ? ' done' : ''}${i === current ? ' cur' : ''}${note ? ' has-extra' : ''}">
-      <div class="p-row">
-        <button class="p-num" data-act="paraToggle" data-p="${i}" aria-pressed="${isDone}">${i}</button>
-        <span class="p-label">${esc(t('paragraph'))} ${i}${note && note.commented ? ' ✋' : ''}${i === current ? ` <em>← ${esc(t('weAreHere'))}</em>` : ''}</span>
-        <button class="p-act${note && stripHtml(note.html).trim() ? ' on' : ''}" data-act="paraComment" data-p="${i}" aria-label="${esc(t('comment'))}">💬</button>
-        <button class="p-act${note && note.refs.length ? ' on' : ''}" data-act="paraRef" data-p="${i}" aria-label="${esc(t('addRef'))}">📖</button>
-      </div>
-      ${note ? `<div class="p-extra">
-        <div class="rt short" contenteditable="true" data-para="${i}" data-ph="${esc(t('phParaComment'))}">${sanitize(note.html)}</div>
-        <div class="chips">${chipsHtml('para', i, note.refs)}</div>
-        <div class="p-extra-actions">
-          <button class="btn-soft${note.commented ? ' on' : ''}" data-act="paraCommented" data-p="${i}">✋ ${esc(t('commented'))}</button>
-          <button class="x-btn" data-act="paraClose" data-p="${i}" aria-label="✕">✕</button>
+    <section class="hero animate-in delay-1">
+      <h1>Theocratic Tools</h1>
+      <div class="hero-byline">by kaffeetrinker80</div>
+      <p>
+        Planning and coordination.<br>
+        Browser-based tools for planning, scheduling and internal coordination.
+      </p>
+      
+      <div class="notices">
+        <div class="notice-box privacy">
+          <strong>🔒 Strict Privacy & Data Security</strong>
+          All data is read strictly locally inside your browser. Nothing is sent to external servers or GitHub. The data never leaves your device.
         </div>
-      </div>` : ''}
-    </div>`;
-  }
-  return h + '</div>';
-}
-function refreshParas(focusP) {
-  const box = $('paras');
-  if (!box) return;
-  box.innerHTML = parasHtml();
-  if (focusP) { const rt = box.querySelector(`.rt[data-para="${focusP}"]`); if (rt) rt.focus(); }
-}
-
-function chipsHtml(key, i, refs) {
-  return refs.map((r, ri) => `<span class="chip"><a href="${esc(r.url)}" data-act="openRef" target="_blank" rel="noopener">📖 ${esc(r.label)}</a><button data-act="delRef" data-sec="${key}" data-i="${i}" data-r="${ri}" aria-label="✕">×</button></span>`).join('');
-}
-
-function renderCounter() {
-  const head = `<div class="sec-head"><h2>🔢 ${esc(t('wordCounter'))}</h2></div>`;
-  const body = `<p class="hint">${esc(t('counterHint'))}</p>
-    <div class="word-list">${cur.counter.map((w, i) => `<div class="word-row">
-      <button type="button" class="word-count" data-act="count" data-i="${i}" aria-label="${esc(t('increaseWord') + wordLabel(w.w))}"><span class="w">${esc(wordLabel(w.w))}</span><span class="n" id="cnt-${i}" aria-live="polite">${w.n}</span></button>
-      <button type="button" class="word-action" data-act="uncount" data-i="${i}" aria-label="${esc(t('decreaseWord') + wordLabel(w.w))}">−</button>
-      <button type="button" class="word-action" data-act="counterDelete" data-i="${i}" aria-label="${esc(t('deleteWord') + wordLabel(w.w))}">×</button>
-    </div>`).join('') || `<p>${esc(t('emptyWords'))}</p>`}</div>
-    <div class="word-add"><input id="counter-new-word" type="text" maxlength="40" placeholder="${esc(t('newWord'))}" aria-label="${esc(t('newWord'))}" autocomplete="off"><button type="button" class="btn" data-act="counterAdd">${esc(t('addCounterWord'))}</button></div>
-    <button type="button" class="btn-link" data-act="editWords">${esc(t('editWords'))}</button>`;
-  if (settings.kidMode) return `<section class="card counter">${head}${body}</section>`;
-  const total = cur.counter.reduce((sum, w) => sum + w.n, 0);
-  return `<details class="card counter"${total ? ' open' : ''}><summary>${head}</summary>${body}</details>`;
-}
-
-function refreshCounter() {
-  const old = document.querySelector('#entry .counter');
-  if (!old) return;
-  const wasOpen = old.tagName === 'DETAILS' && old.open;
-  old.outerHTML = renderCounter();
-  const current = document.querySelector('#entry .counter');
-  if (wasOpen && current.tagName === 'DETAILS') current.open = true;
-}
-document.addEventListener('keydown', ev => {
-  if (ev.target.id === 'counter-new-word' && ev.key === 'Enter' && !ev.isComposing) {
-    ev.preventDefault(); ACTIONS.counterAdd();
-  }
-});
-
-function getBlock(sec, i) { return cur && cur[sec] && cur[sec].blocks[i]; }
-
-// ── field input (delegated) ──
-document.addEventListener('input', ev => {
-  if (!cur) return;
-  const el = ev.target;
-  if (el.matches('.rt')) {
-    if (el.innerHTML === '<br>') el.innerHTML = '';
-    if (el.dataset.sec) { const b = getBlock(el.dataset.sec, +el.dataset.i); if (b) b.html = el.innerHTML; }
-    else if (el.dataset.para) { paraNote(+el.dataset.para).html = el.innerHTML; }
-    else if (el.dataset.f) setPath(cur, el.dataset.f, el.innerHTML);
-    dirty(); return;
-  }
-  if (el.dataset.song != null) {
-    const v = el.value.replace(/\D/g, '').slice(0, 3);
-    cur.songs[+el.dataset.song] = v; dirty();
-    const slot = el.parentElement.querySelector('.song-slot');
-    if (slot) slot.innerHTML = songLinkHtml(v);
-    return;
-  }
-  if (el.dataset.f && cur && el.closest('#entry')) {
-    if (el.dataset.f === 'date') { if (!el.value) return; cur.date = el.value; }
-    else setPath(cur, el.dataset.f, el.value);
-    dirty();
-    if (el.dataset.f === 'date' || el.dataset.f === 'talkTitle') updateHeader();
-  }
-});
-
-document.addEventListener('change', ev => {
-  if (!cur || ev.target.id !== 'p-count') return;
-  paras().count = Math.min(60, Math.max(0, parseInt(ev.target.value, 10) || 0));
-  dirty(); refreshParas();
-});
-
-// plain-text paste into notes
-document.addEventListener('paste', ev => {
-  const el = ev.target.closest && ev.target.closest('.rt');
-  if (!el) return;
-  ev.preventDefault();
-  const text = (ev.clipboardData || window.clipboardData).getData('text/plain');
-  document.execCommand('insertText', false, text);
-});
-
-// ═══════════════════════════════════════════
-//  FORMAT BAR
-// ═══════════════════════════════════════════
-let fmtHideTimer = null;
-document.addEventListener('focusin', ev => {
-  const el = ev.target;
-  if (el.matches && el.matches('.rt')) {
-    clearTimeout(fmtHideTimer);
-    if (el.dataset.sec) activeBlk[el.dataset.sec] = +el.dataset.i;
-    showFmt();
-  }
-});
-document.addEventListener('focusout', ev => {
-  if (ev.target.matches && ev.target.matches('.rt')) {
-    fmtHideTimer = setTimeout(() => { if (!document.activeElement || !document.activeElement.matches('.rt')) hideFmt(); }, 150);
-  }
-});
-function showFmt() { $('fmt-bar').hidden = false; document.body.classList.add('fmt-open'); placeFmt(); updateFmtState(); }
-function hideFmt() { $('fmt-bar').hidden = true; document.body.classList.remove('fmt-open'); }
-function placeFmt() {
-  const bar = $('fmt-bar');
-  if (bar.hidden) return;
-  const vv = window.visualViewport;
-  if (!vv) { bar.style.top = ''; bar.style.bottom = '0'; return; }
-  bar.style.bottom = 'auto';
-  bar.style.left = vv.offsetLeft + 'px';
-  bar.style.width = vv.width + 'px';
-  bar.style.top = (vv.offsetTop + vv.height - bar.offsetHeight) + 'px';
-}
-if (window.visualViewport) {
-  visualViewport.addEventListener('resize', placeFmt);
-  visualViewport.addEventListener('scroll', placeFmt);
-}
-window.addEventListener('scroll', placeFmt, { passive: true });
-// keep the text selection when tapping bar buttons
-$('fmt-bar').addEventListener('pointerdown', ev => { if (ev.target.closest('button')) ev.preventDefault(); });
-$('fmt-bar').addEventListener('mousedown', ev => ev.preventDefault());
-
-function updateFmtState() {
-  if ($('fmt-bar').hidden) return;
-  ['bold', 'italic', 'underline'].forEach(c => {
-    let on = false; try { on = document.queryCommandState(c); } catch {}
-    $('fb-' + c).classList.toggle('on', on);
-  });
-}
-document.addEventListener('selectionchange', updateFmtState);
-
-function selectedWord() {
-  const s = (window.getSelection() || '').toString().trim();
-  return s.slice(0, 300);
-}
-
-// ═══════════════════════════════════════════
-//  BIBLE PICKER
-// ═══════════════════════════════════════════
-function books() { return settings.lang === 'de' ? BOOKS_DE : BOOKS_EN; }
-function buildUrl(bookN, ch, v, ve) {
-  const pad = (n, l) => String(n).padStart(l, '0');
-  const first = `${pad(bookN, 2)}${pad(ch, 3)}${pad(v || 1, 3)}`;
-  const last = ve || v;
-  const range = last ? `${first}-${pad(bookN, 2)}${pad(ch, 3)}${pad(last, 3)}` : first;
-  const loc = settings.lang === 'de' ? 'X' : 'E';
-  return `https://www.jw.org/finder?wtlocale=${loc}&pub=nwtsty&bible=${range}`;
-}
-function buildLabel(name, ch, v, ve) {
-  if (!v) return `${name} ${ch}`;
-  if (!ve || +ve <= +v) return `${name} ${ch}:${v}`;
-  return `${name} ${ch}:${v}–${ve}`;
-}
-function openBP(target) {
-  bpTarget = target;
-  const sel = $('bp-book');
-  const prev = sel.value;
-  sel.innerHTML = books().map(b => `<option value="${b.n}">${esc(b.name)}</option>`).join('');
-  if (prev) sel.value = prev;
-  ['bp-ch', 'bp-v', 'bp-ve'].forEach(i => $(i).value = '');
-  previewRef();
-  openModal('modal-bible');
-  setTimeout(() => $('bp-ch').focus(), 250);
-}
-function readBP() {
-  const bookN = +$('bp-book').value;
-  const book = books().find(b => b.n === bookN);
-  const ch = parseInt($('bp-ch').value, 10), v = parseInt($('bp-v').value, 10), ve = parseInt($('bp-ve').value, 10);
-  if (!book || !ch) return null;
-  return { label: buildLabel(book.name, ch, v || null, ve || null), url: buildUrl(bookN, ch, v || null, (ve && v && ve > v) ? ve : null) };
-}
-function previewRef() {
-  const r = readBP();
-  $('bp-preview').innerHTML = r ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">📖 ${esc(r.label)}</a> ↗` : esc(t('choose'));
-}
-['bp-book', 'bp-ch', 'bp-v', 'bp-ve'].forEach(id => $(id).addEventListener('input', previewRef));
-['bp-ch', 'bp-v', 'bp-ve'].forEach(id => $(id).addEventListener('keydown', e => { if (e.key === 'Enter') ACTIONS.bpInsert(); }));
-
-function openScripture(url) {
-  const mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 640 || matchMedia('(pointer:coarse)').matches;
-  if (mobile) { window.open(url, '_blank', 'noopener'); return; }
-  const w = 440, hgt = 640;
-  window.open(url, 'scripture_popup', `width=${w},height=${hgt},left=${Math.round((screen.width - w) / 2)},top=${Math.round((screen.height - hgt) / 2)},scrollbars=yes,resizable=yes`);
-}
-
-// ═══════════════════════════════════════════
-//  INK  (pen notes)
-// ═══════════════════════════════════════════
-function inkToolsHtml() {
-  return INK_COLORS.map(c => `<button class="sw" data-act="inkColor" data-c="${c}" style="--sw:${inkCol(c)}" aria-label="${c}"></button>`).join('')
-    + '<span class="sep"></span>'
-    + INK_SIZES.map((s, ix) => `<button class="sz" data-act="inkSize" data-s="${s}" aria-label="size ${ix + 1}"><i style="width:${4 + ix * 4}px;height:${4 + ix * 4}px"></i></button>`).join('')
-    + '<span class="sep"></span>'
-    + `<button class="tl" data-act="inkTool" data-t="hl" title="${esc(t('highlighter'))}" aria-label="${esc(t('highlighter'))}">🖍️</button>`
-    + `<button class="tl" data-act="inkTool" data-t="er" title="${esc(t('eraser'))}" aria-label="${esc(t('eraser'))}">🧽</button>`
-    + '<span class="grow"></span>'
-    + `<button class="tl" data-act="inkUndo" title="${esc(t('undo'))}" aria-label="${esc(t('undo'))}">↶</button>`
-    + `<button class="tl" data-act="inkMore" title="${esc(t('moreSpace'))}" aria-label="${esc(t('moreSpace'))}">↕</button>`
-    + `<button class="tl" data-act="inkClear" title="${esc(t('clear'))}" aria-label="${esc(t('clear'))}">🗑</button>`;
-}
-function updateInkToolbars() {
-  const p = settings.pen;
-  document.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', p.tool === 'pen' && b.dataset.c === p.color));
-  document.querySelectorAll('.sz').forEach(b => b.classList.toggle('on', p.tool === 'pen' && +b.dataset.s === p.size));
-  document.querySelectorAll('.tl[data-act="inkTool"]').forEach(b => b.classList.toggle('on', b.dataset.t === p.tool));
-}
-function disposeInks() { inkStates.forEach(st => st.ro && st.ro.disconnect()); inkStates = []; }
-function initInks() {
-  document.querySelectorAll('#entry .ink').forEach(el => {
-    const b = getBlock(el.dataset.sec, +el.dataset.i);
-    if (b) setupInk(el, b);
-  });
-  updateInkToolbars();
-}
-function setupInk(el, b) {
-  const paper = el.querySelector('.paper');
-  const st = { el, b, paper, base: el.querySelector('.c-base'), live: el.querySelector('.c-live'), scale: 1, dpr: 1, undo: [], cur: null, pid: null, w: 0, hCss: 0 };
-  el._ink = st;
-  inkStates.push(st);
-  const live = st.live;
-  live.addEventListener('pointerdown', ev => inkDown(st, ev));
-  live.addEventListener('pointermove', ev => inkMove(st, ev));
-  live.addEventListener('pointerup', ev => inkUp(st, ev));
-  live.addEventListener('pointercancel', ev => inkUp(st, ev));
-  // stop the page from scrolling while the pen (or an allowed finger) writes
-  const blockScroll = ev => {
-    const tt = ev.touches && ev.touches[0];
-    if (!tt) return;
-    if (tt.touchType === 'stylus' || st.pid !== null || (settings.fingerDraw && !penSeen)) ev.preventDefault();
-  };
-  live.addEventListener('touchstart', blockScroll, { passive: false });
-  live.addEventListener('touchmove', blockScroll, { passive: false });
-  if (window.ResizeObserver) { st.ro = new ResizeObserver(() => sizeInk(st)); st.ro.observe(paper); }
-  else window.addEventListener('resize', () => sizeInk(st));
-  sizeInk(st);
-}
-function sizeInk(st, force) {
-  const w = st.paper.clientWidth;
-  if (!w) return;
-  const scale = w / LOGICAL_W;
-  const hCss = Math.round(st.b.h * scale);
-  if (!force && st.w === w && st.hCss === hCss) return;
-  st.w = w; st.hCss = hCss; st.scale = scale;
-  st.dpr = Math.min(window.devicePixelRatio || 1, 3);
-  st.paper.style.height = hCss + 'px';
-  st.paper.style.setProperty('--lh', (RULE * scale) + 'px');
-  st.paper.style.setProperty('--ml', (MARGIN_X * scale) + 'px');
-  [st.base, st.live].forEach(c => {
-    c.width = Math.round(w * st.dpr); c.height = Math.round(hCss * st.dpr);
-    c.style.width = w + 'px'; c.style.height = hCss + 'px';
-  });
-  redrawInk(st);
-}
-function ctxOf(st, c) {
-  const ctx = c.getContext('2d');
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, c.width, c.height);
-  ctx.setTransform(st.dpr * st.scale, 0, 0, st.dpr * st.scale, 0, 0);
-  return ctx;
-}
-function redrawInk(st) {
-  const ctx = ctxOf(st, st.base);
-  // highlighter strokes sit underneath the writing
-  st.b.strokes.filter(s => s.t === 'hl').forEach(s => drawStroke(ctx, s));
-  st.b.strokes.filter(s => s.t !== 'hl').forEach(s => drawStroke(ctx, s));
-}
-const strokeW = (s, pr) => s.w * (0.45 + 1.1 * (pr == null ? .5 : pr));
-function drawStroke(ctx, s) {
-  const p = s.p;
-  if (!p.length) return;
-  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  if (s.t === 'hl') {
-    ctx.save();
-    ctx.globalAlpha = .38; ctx.strokeStyle = s.c; ctx.lineWidth = s.w;
-    ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
-    if (p.length === 1) ctx.lineTo(p[0][0] + .1, p[0][1]);
-    for (let i = 1; i < p.length; i++) ctx.lineTo(p[i][0], p[i][1]);
-    ctx.stroke(); ctx.restore();
-    return;
-  }
-  ctx.strokeStyle = inkCol(s.c); ctx.fillStyle = inkCol(s.c);
-  if (p.length === 1) {
-    ctx.beginPath(); ctx.arc(p[0][0], p[0][1], strokeW(s, p[0][2]) / 2, 0, Math.PI * 2); ctx.fill();
-    return;
-  }
-  let prev = [p[0][0], p[0][1]];
-  for (let i = 1; i < p.length; i++) {
-    const a = p[i - 1], b = p[i];
-    const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    ctx.beginPath(); ctx.moveTo(prev[0], prev[1]);
-    ctx.quadraticCurveTo(a[0], a[1], mid[0], mid[1]);
-    ctx.lineWidth = strokeW(s, (a[2] + b[2]) / 2);
-    ctx.stroke();
-    prev = mid;
-  }
-  const last = p[p.length - 1];
-  ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(last[0], last[1]);
-  ctx.lineWidth = strokeW(s, last[2]); ctx.stroke();
-}
-function inkPoint(st, ev) {
-  const r = st.live.getBoundingClientRect();
-  const x = (ev.clientX - r.left) / st.scale, y = (ev.clientY - r.top) / st.scale;
-  const pr = ev.pointerType === 'pen' ? Math.max(.08, ev.pressure || .5) : .5;
-  return [Math.round(x * 10) / 10, Math.round(y * 10) / 10, Math.round(pr * 100) / 100];
-}
-function allowPointer(ev) {
-  if (ev.pointerType === 'pen') { if (!penSeen) { penSeen = true; } return true; }
-  if (ev.pointerType === 'mouse') return ev.button === 0;
-  return settings.fingerDraw && !penSeen;
-}
-function pushUndo(st) { st.undo.push(JSON.stringify(st.b.strokes)); if (st.undo.length > 40) st.undo.shift(); }
-let liveRaf = 0;
-function scheduleLive(st) {
-  if (liveRaf) return;
-  liveRaf = requestAnimationFrame(() => {
-    liveRaf = 0;
-    if (!st.cur) return;
-    const ctx = ctxOf(st, st.live);
-    drawStroke(ctx, st.cur);
-  });
-}
-function inkDown(st, ev) {
-  if (st.pid !== null || !allowPointer(ev)) return;
-  ev.preventDefault();
-  try { st.live.setPointerCapture(ev.pointerId); } catch {}
-  st.pid = ev.pointerId;
-  activeBlk[st.el.dataset.sec] = +st.el.dataset.i;
-  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-  pushUndo(st);
-  const tool = settings.pen.tool;
-  if (tool === 'er') { st.erasing = true; st.erasedAny = false; eraseAt(st, inkPoint(st, ev)); return; }
-  st.cur = tool === 'hl'
-    ? { t: 'hl', c: '#ffd23f', w: 26, p: [inkPoint(st, ev)] }
-    : { t: 'pen', c: settings.pen.color, w: settings.pen.size, p: [inkPoint(st, ev)] };
-  scheduleLive(st);
-}
-function inkMove(st, ev) {
-  if (ev.pointerId !== st.pid) return;
-  ev.preventDefault();
-  let evs = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [];
-  if (!evs.length) evs = [ev];
-  if (st.erasing) { evs.forEach(e => eraseAt(st, inkPoint(st, e))); return; }
-  if (!st.cur) return;
-  for (const e of evs) {
-    const q = inkPoint(st, e), l = st.cur.p[st.cur.p.length - 1];
-    if (Math.hypot(q[0] - l[0], q[1] - l[1]) < 1.5) continue;
-    st.cur.p.push(q);
-  }
-  scheduleLive(st);
-}
-function inkUp(st, ev) {
-  if (ev.pointerId !== st.pid) return;
-  st.pid = null;
-  if (st.erasing) {
-    st.erasing = false;
-    if (!st.erasedAny) st.undo.pop(); else dirty();
-    return;
-  }
-  if (!st.cur) return;
-  const s = st.cur; st.cur = null;
-  st.b.strokes.push(s);
-  ctxOf(st, st.live);
-  // writing near the bottom? the page grows by itself
-  const maxY = Math.max(...s.p.map(q => q[1]));
-  if (maxY > st.b.h - 90) { st.b.h += 260; sizeInk(st, true); }
-  else redrawInk(st);
-  dirty();
-}
-function eraseAt(st, q) {
-  const r = 16;
-  const before = st.b.strokes.length;
-  st.b.strokes = st.b.strokes.filter(s => !s.p.some(p => Math.hypot(p[0] - q[0], p[1] - q[1]) < r + s.w / 2));
-  if (st.b.strokes.length !== before) { st.erasedAny = true; redrawInk(st); }
-}
-function inkOf(el) { const ink = el.closest('.ink'); return ink && ink._ink; }
-
-// ═══════════════════════════════════════════
-//  ACTIONS  (delegated clicks)
-// ═══════════════════════════════════════════
-const ACTIONS = {
-  open: el => { location.hash = '#e=' + encodeURIComponent(el.dataset.id); },
-  back: () => { location.hash = ''; },
-  newEntry: () => {
-    const e = newEntry();
-    entries.push(e);
-    storePut(e).catch(() => toast(t('saveFailed')));
-    location.hash = '#e=' + encodeURIComponent(e.id);
-  },
-
-  addRef: el => openBP({ sec: el.dataset.sec }),
-  bpInsert: () => {
-    const r = readBP();
-    if (!r) { toast(t('needBookCh')); return; }
-    if (bpTarget.para) {
-      paraNote(bpTarget.para).refs.push(r);
-      dirty(); refreshParas();
-    } else {
-      const key = bpTarget.sec, sec = cur[key];
-      let i = activeBlk[key];
-      if (i == null || !sec.blocks[i]) i = sec.blocks.length - 1;
-      sec.blocks[i].refs.push(r);
-      dirty();
-      const blk = document.querySelector(`.blk[data-sec="${key}"][data-i="${i}"] .chips`);
-      if (blk) blk.innerHTML = chipsHtml(key, i, sec.blocks[i].refs);
-    }
-    closeModal('modal-bible');
-    toast(`✓ ${r.label} ${t('added')}`);
-  },
-  delRef: el => {
-    const para = el.dataset.sec === 'para';
-    const b = para ? paras().notes[+el.dataset.i] : getBlock(el.dataset.sec, +el.dataset.i);
-    if (!b) return;
-    b.refs.splice(+el.dataset.r, 1);
-    dirty();
-    if (para) refreshParas();
-    else el.closest('.chips').innerHTML = chipsHtml(el.dataset.sec, +el.dataset.i, b.refs);
-  },
-
-  paraCount: el => {
-    const P = paras();
-    P.count = Math.min(60, Math.max(0, P.count + +el.dataset.d));
-    dirty(); refreshParas();
-  },
-  paraToggle: el => {
-    const P = paras(), p = +el.dataset.p;
-    P.done = P.done.includes(p) ? P.done.filter(x => x !== p) : [...P.done, p];
-    if (navigator.vibrate) navigator.vibrate(10);
-    dirty(); refreshParas();
-  },
-  paraComment: el => { const p = +el.dataset.p; paraNote(p); dirty(); refreshParas(p); },
-  paraRef: el => openBP({ para: +el.dataset.p }),
-  paraCommented: el => { const n = paraNote(+el.dataset.p); n.commented = !n.commented; dirty(); refreshParas(); },
-  paraClose: el => {
-    const p = +el.dataset.p, n = paras().notes[p];
-    if (!n) return;
-    if ((stripHtml(n.html).trim() || n.refs.length) && !confirm(t('removeConfirm'))) return;
-    delete paras().notes[p];
-    dirty(); refreshParas();
-  },
-
-  obLang: el => { obKeepName(); settings.lang = el.dataset.v; saveSettings(); applyLang(); renderOnboard(); },
-  obAge: el => { ob.age = el.dataset.v; renderOnboard(); },
-  obInput: el => { ob.input = el.dataset.v; renderOnboard(); },
-  obTheme: el => { settings.theme = el.dataset.v; saveSettings(); applyTheme(); renderOnboard(); },
-  obBack: () => { ob.step = Math.max(0, ob.step - 1); renderOnboard(); },
-  obNext: () => {
-    if (ob.step === 0) obKeepName();
-    if (ob.step < 2) { ob.step++; renderOnboard(); } else finishOnboard();
-  },
-  obSkip: () => { obKeepName(); settings.name = ob.name; settings.onboarded = true; saveSettings(); closeModal('modal-onboard'); renderList(); },
-  restartSetup: () => { closeModal('modal-settings'); openOnboard(); },
-  toggleTheme: () => { settings.theme = isDark() ? 'light' : 'dark'; saveSettings(); applyTheme(); },
-  openRef: (el, ev) => { ev.preventDefault(); openScripture(el.getAttribute('href')); },
-
-  addText: el => addBlock(el.dataset.sec, 'text'),
-  addInk: el => addBlock(el.dataset.sec, 'ink'),
-  delBlock: el => {
-    const sec = el.dataset.sec, i = +el.dataset.i, b = getBlock(sec, i);
-    if (!b) return;
-    const hasContent = b.refs.length || (b.type === 'ink' ? b.strokes.length : stripHtml(b.html).trim());
-    if (hasContent && !confirm(t('removeConfirm'))) return;
-    cur[sec].blocks.splice(i, 1);
-    if (!cur[sec].blocks.length) cur[sec].blocks.push(mkBlock('text'));
-    activeBlk[sec] = null;
-    dirty(); keepScroll(renderEntry);
-  },
-
-  count: el => {
-    const i = +el.dataset.i, c = cur.counter[i];
-    if (!c) return;
-    c.n++; dirty();
-    $('cnt-' + i).textContent = c.n;
-    el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
-    if (navigator.vibrate) navigator.vibrate(12);
-  },
-  uncount: (el, ev) => {
-    ev.stopPropagation();
-    const i = +el.dataset.i, c = cur.counter[i];
-    if (!c || c.n <= 0) return;
-    c.n--; dirty();
-    $('cnt-' + i).textContent = c.n;
-  },
-  counterAdd: () => {
-    if (!cur) return;
-    const input = $('counter-new-word');
-    const word = input.value.trim().slice(0, 40);
-    if (!word) { input.focus(); return; }
-    if (cur.counter.some(c => wordLabel(c.w).toLocaleLowerCase() === wordLabel(word).toLocaleLowerCase())) {
-      toast(t('alreadyCounted')); input.focus(); return;
-    }
-    cur.counter.push({ e: '⭐', w: word, n: 0 });
-    dirty(); refreshCounter(); $('counter-new-word').focus();
-  },
-  counterDelete: el => {
-    if (!cur) return;
-    const i = +el.dataset.i, word = cur.counter[i];
-    if (!word || (word.n > 0 && !confirm(t('deleteWordConfirm')))) return;
-    cur.counter.splice(i, 1); dirty(); refreshCounter();
-    const next = document.querySelectorAll('#entry .word-count');
-    (next[Math.min(i, next.length - 1)] || $('counter-new-word')).focus();
-  },
-  editWords: (el, ev) => { if (ev) ev.preventDefault(); openWords(); },
-  wordsAdd: () => {
-    const rows = $('words-rows');
-    rows.insertAdjacentHTML('beforeend', wordRow('⭐', ''));
-    rows.lastElementChild.querySelector('.w-word').focus();
-  },
-  wordsDel: el => el.closest('.w-row').remove(),
-  wordsSave: () => {
-    const list = [...document.querySelectorAll('#words-rows .w-row')].map(r => ({
-      e: r.querySelector('.w-em').value.trim().slice(0, 16) || '⭐',
-      w: r.querySelector('.w-word').value.trim().slice(0, 40)
-    })).filter(x => x.w);
-    cur.counter = list.map(x => {
-      const old = cur.counter.find(c => wordLabel(c.w).toLowerCase() === x.w.toLowerCase());
-      return { e: x.e, w: x.w, n: old ? old.n : 0 };
-    });
-    if ($('words-default').checked) { settings.words = list; saveSettings(); }
-    dirty(); closeModal('modal-words'); keepScroll(renderEntry);
-  },
-
-  mood: el => {
-    cur.kids.mood = cur.kids.mood === el.dataset.m ? '' : el.dataset.m;
-    document.querySelectorAll('.mood').forEach(b => b.classList.toggle('on', b.dataset.m === cur.kids.mood));
-    dirty();
-  },
-
-  inkColor: el => { settings.pen.tool = 'pen'; settings.pen.color = el.dataset.c; saveSettings(); updateInkToolbars(); },
-  inkSize: el => { settings.pen.tool = 'pen'; settings.pen.size = +el.dataset.s; saveSettings(); updateInkToolbars(); },
-  inkTool: el => { settings.pen.tool = settings.pen.tool === el.dataset.t ? 'pen' : el.dataset.t; saveSettings(); updateInkToolbars(); },
-  inkUndo: el => { const st = inkOf(el); if (!st || !st.undo.length) return; st.b.strokes = JSON.parse(st.undo.pop()); redrawInk(st); dirty(); },
-  inkMore: el => { const st = inkOf(el); if (!st) return; st.b.h += 300; sizeInk(st, true); dirty(); },
-  inkClear: el => {
-    const st = inkOf(el); if (!st || !st.b.strokes.length) return;
-    if (!confirm(t('clearInk'))) return;
-    pushUndo(st); st.b.strokes = []; redrawInk(st); dirty();
-  },
-
-  fmt: el => {
-    const cmd = el.dataset.cmd;
-    try {
-      if (cmd === 'hilite') {
-        document.execCommand('styleWithCSS', false, true);
-        const v = String(document.queryCommandValue('hiliteColor') || document.queryCommandValue('backColor') || '');
-        const on = /255,\s*2(3[0-9]|4[0-9]),\s*1[4-9][0-9]/.test(v);
-        if (!document.execCommand('hiliteColor', false, on ? 'transparent' : '#fff0a0')) document.execCommand('backColor', false, on ? 'transparent' : '#fff0a0');
-        document.execCommand('styleWithCSS', false, false);
-      } else {
-        document.execCommand('styleWithCSS', false, false);
-        document.execCommand(cmd, false, null);
-      }
-    } catch {}
-    const active = document.activeElement;
-    if (active && active.matches('.rt')) active.dispatchEvent(new Event('input', { bubbles: true }));
-    updateFmtState();
-  },
-  fmtTranslate: () => {
-    const w = selectedWord();
-    if (!w) { toast(t('selectWord')); return; }
-    const to = settings.translateTo;
-    window.open(`https://translate.google.com/?sl=auto&tl=${to}&text=${encodeURIComponent(w)}&op=translate`, '_blank', 'noopener');
-  },
-  fmtWol: () => {
-    const w = selectedWord();
-    if (!w) { toast(t('selectWord')); return; }
-    const hit = settings.lang === 'en' && jwgLookup(w);
-    openScripture(hit ? hit.url : wolSearch(w));
-  },
-  fmtDone: () => { if (document.activeElement) document.activeElement.blur(); hideFmt(); },
-
-  print: () => { flush(); window.print(); },
-  shareEntry: async el => {
-    flush();
-    const ok = await exportVia(el.dataset.mode || 'share', `congregation-notes-${cur.date}.json`, JSON.stringify(exportPayload([cur]), null, 1));
-    if (ok) toast(t('exported'));
-  },
-  deleteEntry: async () => {
-    if (!confirm(t('delConfirm'))) return;
-    const id = cur.id;
-    clearTimeout(saveTimer); cur = null;
-    entries = entries.filter(e => e.id !== id);
-    await storeDel(id).catch(() => {});
-    toast(t('deleted'));
-    location.hash = '';
-  },
-
-  openGlossary: () => { $('gl-search').value = ''; renderGlossary(); openModal('modal-gloss'); },
-  glossCount: el => {
-    if (!cur) { toast(t('noEntryOpen') || t('counted')); return; }
-    const g = GLOSSARY[+el.dataset.g];
-    const word = settings.lang === 'de' ? g.de : g.en;
-    if (cur.counter.some(c => wordLabel(c.w).toLowerCase() === word.toLowerCase())) { toast(t('alreadyCounted')); return; }
-    cur.counter.push({ e: '⭐', w: word, n: 0 });
-    dirty(); keepScroll(renderEntry); toast(t('counted'));
-  },
-
-  openSettings: () => { renderSettings(); openModal('modal-settings'); },
-  setLang: el => { settings.lang = el.dataset.l; saveSettings(); applyLang(); },
-  backupAll: async el => {
-    flush();
-    const ok = await exportVia(el.dataset.mode || 'share', `congregation-notes-backup-${isoLocal(new Date())}.json`, JSON.stringify(exportPayload(entries), null, 1));
-    if (ok) { settings.lastBackup = Date.now(); saveSettings(); toast(t('exported')); if (!cur) renderList(); if (!$('modal-settings').hidden) renderSettings(); }
-  },
-  importBackup: () => { $('import-file').value = ''; $('import-file').click(); },
-  closeModal: el => closeModal(el.dataset.m)
-};
-
-document.addEventListener('click', ev => {
-  const el = ev.target.closest('[data-act]');
-  if (!el) return;
-  const fn = ACTIONS[el.dataset.act];
-  if (fn) fn(el, ev);
-});
-
-function keepScroll(fn) { const y = window.scrollY; fn(); window.scrollTo(0, y); }
-
-function addBlock(sec, type) {
-  const arr = cur[sec].blocks;
-  arr.push(mkBlock(type));
-  const i = arr.length - 1;
-  activeBlk[sec] = i;
-  dirty();
-  keepScroll(renderEntry);
-  const blk = document.querySelector(`.blk[data-sec="${sec}"][data-i="${i}"]`);
-  if (!blk) return;
-  if (type === 'text') { const rt = blk.querySelector('.rt'); rt && rt.focus(); }
-  blk.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-// ═══════════════════════════════════════════
-//  MODALS
-// ═══════════════════════════════════════════
-function openModal(id) { hideFmt(); $(id).hidden = false; }
-function closeModal(id) { $(id).hidden = true; }
-document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', ev => { if (ev.target === bg && bg.id !== 'modal-onboard') closeModal(bg.id); }));
-document.addEventListener('keydown', ev => {
-  if (ev.key === 'Escape') document.querySelectorAll('.modal-bg').forEach(bg => { if (!bg.hidden && bg.id !== 'modal-onboard') closeModal(bg.id); });
-});
-
-// ── glossary ──
-function wolSearch(q) {
-  return settings.lang === 'de'
-    ? `https://wol.jw.org/de/wol/s/r10/lp-x?q=${encodeURIComponent(q)}`
-    : `https://wol.jw.org/en/wol/s/r1/lp-e?q=${encodeURIComponent(q)}`;
-}
-function renderGlossary() {
-  const q = $('gl-search').value.trim().toLowerCase();
-  const cl = settings.lang, ul = settings.lang;
-  $('gl-title').textContent = t('glossary');
-  $('gl-search').placeholder = t('glSearch');
-  const items = GLOSSARY.map((g, i) => ({ g, i }))
-    .filter(({ g }) => !q || (cl === 'de' ? [g.de, g.xde] : [g.en, g.xen]).join(' ').toLowerCase().includes(q))
-    .sort((a, b) => a.g[cl].localeCompare(b.g[cl], cl));
-  const kids = items.map(({ g, i }) => {
-    const j = cl === 'en' && KID_JWG[g.en] && jwgByTitle(KID_JWG[g.en]);
-    return `<div class="gl-item">
-      <div><span class="gl-term">${esc(g[cl])}</span></div>
-      <div class="gl-x">${esc(ul === 'de' ? g.xde : g.xen)}</div>
-      <div class="gl-links">
-        ${j ? `<a href="${esc(j.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(t('glossLink'))}</a>` : ''}
-        <a href="${esc(wolSearch(g[cl]))}" target="_blank" rel="noopener">${esc(t('lookUp'))}</a>
-        ${cur ? `<button data-act="glossCount" data-g="${i}">${esc(t('countIt'))}</button>` : ''}
+        <div class="notice-box tip">
+          <strong>📱 Tablet & Mobile Experience</strong>
+          On tablets, use the browser's zoom function (75% or 80%) to fit the interfaces perfectly.
+        </div>
       </div>
-    </div>`;
-  }).join('');
-  const bible = cl !== 'en' ? '' : JWG.filter(g => !q || g.title.toLowerCase().includes(q))
-    .map(g => `<a class="jwg" href="${esc(g.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(g.title)}</a>`).join('');
-  $('gl-list').innerHTML =
-    (kids ? `<div class="gl-h">🧒 ${esc(t('kidsGloss'))}</div>${kids}` : '') +
-    (bible ? `<div class="gl-h">📖 ${esc(t('bibleGloss'))}</div><div class="set-note" style="margin-bottom:8px">${esc(t('bibleGlossHint'))}</div><div class="jwg-wrap">${bible}</div>` : '') ||
-    `<div class="empty">${esc(t('noResults'))}</div>`;
-}
-$('gl-search').addEventListener('input', renderGlossary);
+    </section>
 
-// ── word editor ──
-function wordRow(e, w) {
-  return `<div class="w-row"><input class="w-em" value="${esc(e)}" aria-label="${esc(t('emoji'))}" maxlength="16">
-    <input class="w-word" value="${esc(w)}" placeholder="${esc(t('word'))}" maxlength="40">
-    <button class="x-btn" data-act="wordsDel" aria-label="✕">✕</button></div>`;
-}
-function openWords() {
-  $('words-body').innerHTML = `<h3>${esc(t('wordsTitle'))}</h3>
-    <div id="words-rows">${cur.counter.map(c => wordRow(c.e, wordLabel(c.w))).join('')}</div>
-    <button class="btn" data-act="wordsAdd">${esc(t('addWord'))}</button>
-    <label class="chk"><input type="checkbox" id="words-default"> ${esc(t('asDefault'))}</label>
-    <div class="modal-btns">
-      <button class="btn" data-act="closeModal" data-m="modal-words">${esc(t('cancel'))}</button>
-      <button class="btn primary" data-act="wordsSave">${esc(t('save'))}</button>
-    </div>`;
-  openModal('modal-words');
-}
-
-// ── settings ──
-function renderSettings() {
-  const s = settings;
-  const langOpt = (v, l) => `<option value="${v}"${s.translateTo === v ? ' selected' : ''}>${l}</option>`;
-  $('settings-body').innerHTML = `
-    <div class="sec-head"><h3 style="margin:0">${esc(t('settings'))}</h3><button class="x-btn" data-act="closeModal" data-m="modal-settings">✕</button></div>
-    <div class="set-row"><div><div class="lbl">${esc(t('kidMode'))}</div><div class="hint2">${esc(t('kidModeHint'))}</div></div>
-      <label class="switch"><input type="checkbox" data-set="kidMode"${s.kidMode ? ' checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><div class="lbl">🔢 ${esc(t('wordCounter'))}</div></div>
-      <label class="switch"><input type="checkbox" data-set="showCounter"${s.showCounter ? ' checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><div class="lbl">🧒 ${esc(t('kidsCorner'))}</div><div class="hint2">${esc(t('kidsCornerHint'))}</div></div>
-      <label class="switch"><input type="checkbox" data-set="showKids"${s.showKids ? ' checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><div class="lbl">${esc(t('fingerDraw'))}</div><div class="hint2">${esc(t('fingerDrawHint'))}</div></div>
-      <label class="switch"><input type="checkbox" data-set="fingerDraw"${s.fingerDraw ? ' checked' : ''}><span></span></label></div>
-    <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
-      <select data-set="defaultBlock"><option value="text"${s.defaultBlock === 'text' ? ' selected' : ''}>${esc(t('defText'))}</option><option value="ink"${s.defaultBlock === 'ink' ? ' selected' : ''}>${esc(t('defInk'))}</option></select></div>
-    <div class="set-row"><div class="lbl">🌐 ${esc(t('translateTo'))}</div>
-      <select data-set="translateTo">${langOpt('de', 'Deutsch')}${langOpt('en', 'English')}${langOpt('es', 'Español')}${langOpt('fr', 'Français')}${langOpt('it', 'Italiano')}${langOpt('pl', 'Polski')}${langOpt('ro', 'Română')}${langOpt('ru', 'Русский')}${langOpt('tr', 'Türkçe')}${langOpt('tl', 'Tagalog')}</select></div>
-    <div class="set-block">
-      <div class="lbl" style="font-weight:800">${esc(t('backup'))} · ${entries.length} ${esc(t('entriesCount'))}</div>
-      <button class="btn" data-act="backupAll" data-mode="share">${esc(t('backupAll'))}</button>
-      <button class="btn" data-act="backupAll" data-mode="file">${esc(t('backupFile'))}</button>
-      <button class="btn" data-act="importBackup">${esc(t('importBtn'))}</button>
-      <div class="set-note">${esc(t('lastBackup'))}: ${s.lastBackup ? esc(new Date(s.lastBackup).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })) : esc(t('never'))}</div>
-      <div class="set-note">${esc(shareStatus())}</div>
-      <div class="set-note">${storagePersisted && !useLS ? esc(t('storageOk')) : esc(t('storageWeak'))}</div>
+    <div class="filter-bar animate-in delay-2">
+      <button class="filter-btn active" onclick="filterTools('all', event)">All</button>
+      <button class="filter-btn" onclick="filterTools('events', event)">Assembly & Regional Convention</button>
+      <button class="filter-btn" onclick="filterTools('congregation', event)">Congregation</button>
+      <button class="filter-btn" onclick="filterTools('kh', event)">Kingdom Hall</button>
     </div>
-    <div class="modal-btns"><button class="btn" data-act="restartSetup">↺ ${esc(t('setupAgain'))}</button><button class="btn primary" data-act="closeModal" data-m="modal-settings">${esc(t('done'))}</button></div>`;
-}
-$('modal-settings').addEventListener('change', ev => {
-  const el = ev.target, k = el.dataset.set;
-  if (!k) return;
-  settings[k] = el.type === 'checkbox' ? el.checked : el.value;
-  saveSettings();
-  applyBodyClasses();
-  if (cur) keepScroll(renderEntry); else renderList();
-});
 
-// ═══════════════════════════════════════════
-//  EXPORT / IMPORT
-// ═══════════════════════════════════════════
-function exportPayload(list) {
-  return { _tool: TOOL_ID, _version: APP_VERSION, _exported: new Date().toISOString(), entries: list };
-}
-// System share sheet (Files/iCloud Drive, Google Drive, WhatsApp …).
-// Android Chrome refuses .json files in the share sheet → falls back to .txt (import accepts both).
-// Returns true, false (cancelled) or throws Error(reason) so the user sees why it did not work.
-async function shareFile(name, text) {
-  if (!window.isSecureContext) throw new Error(t('shareNoHttps'));
-  if (!navigator.share || !navigator.canShare) throw new Error(t('shareNoApi'));
-  const candidates = [
-    new File([text], name, { type: 'application/json' }),
-    new File([text], name.replace(/\.json$/, '.txt'), { type: 'text/plain' })
-  ];
-  const file = candidates.find(f => { try { return navigator.canShare({ files: [f] }); } catch { return false; } });
-  if (!file) throw new Error(t('shareNoFiles'));
-  try {
-    await navigator.share({ files: [file], title: file.name });
-    return true;
-  } catch (err) {
-    if (err && err.name === 'AbortError') return false;
-    throw new Error(`${t('shareFailed')} (${err && err.name || 'Error'})`);
-  }
-}
-// "Save as" dialog where available, otherwise a normal download
-async function downloadFile(name, text) {
-  if (window.showSaveFilePicker) {
-    try {
-      const h = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Congregation Notes (JSON)', accept: { 'application/json': ['.json'] } }] });
-      const w = await h.createWritable(); await w.write(text); await w.close();
-      return true;
-    } catch (err) {
-      if (err && err.name === 'AbortError') return false;
-    }
-  }
-  const blob = new Blob([text], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
-  return true;
-}
-async function exportVia(mode, name, text) {
-  try {
-    return mode === 'share' ? await shareFile(name, text) : await downloadFile(name, text);
-  } catch (err) {
-    alert(err.message);
-    return false;
-  }
-}
-function shareStatus() {
-  if (!window.isSecureContext) return t('shareNoHttps');
-  if (!navigator.share || !navigator.canShare) return t('shareNoApi');
-  try { if (navigator.canShare({ files: [new File(['x'], 'x.txt', { type: 'text/plain' })] })) return t('shareOk'); } catch {}
-  return window.showSaveFilePicker ? t('shareSaveDialog') : t('shareDownload');
-}
-$('import-file').addEventListener('change', ev => {
-  const f = ev.target.files[0];
-  if (!f) return;
-  const rd = new FileReader();
-  rd.onload = async () => {
-    try {
-      const data = JSON.parse(rd.result);
-      const list = Array.isArray(data.entries) ? data.entries : (data && data.id ? [data] : null);
-      if (!list) throw new Error('format');
-      let a = 0, u = 0;
-      for (const raw of list) {
-        const e = normalizeEntry(raw);
-        if (!e) continue;
-        const ix = entries.findIndex(x => x.id === e.id);
-        if (ix < 0) { entries.push(e); a++; await storePut(e); }
-        else if (e.updatedAt > entries[ix].updatedAt) {
-          if (cur && cur.id === e.id) cur = e;
-          entries[ix] = e; u++; await storePut(e);
+    <section class="grid">
+      
+      <!-- ==========================================
+           ASSEMBLY & REGIONAL CONVENTION
+           ========================================== -->
+      <h2 class="section-title" data-cat="events">Assembly & Regional Convention</h2>
+
+      <article class="card theme-assembly" data-cat="events">
+        <div class="icon-wrap"><img src="./programs/android-chrome-192x192.png" alt="Programs"></div>
+        <h2>Assembly & Convention Notes</h2>
+        <p>Open current and archived assembly and regional convention programs with personal notes.</p>
+        <div class="meta-row"><div class="meta">Assembly & Convention · Programs</div><div class="language">DE / EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./programs/">Open Programs</a></div>
+     
+            </article>
+
+      <article class="card theme-assembly" data-cat="events">
+        <div class="icon-wrap"><img src="./cleaning-planner/android-chrome-192x192.png" alt="Cleaning Planner"></div>
+        <h2>Cleaning Planner</h2>
+        <p>Plan cleaning teams, schedules and shift coordination for circuit assemblies and regional conventions.</p>
+        <div class="meta-row"><div class="meta">Assembly & Convention · Cleaning</div><div class="language">DE / EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./cleaning-planner/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-assembly" data-cat="events">
+        <div class="icon-wrap"><img src="./attendance-counting/android-chrome-192x192.png" alt="Attendance Counting"></div>
+        <h2>Attendance Counting</h2>
+        <p>Count and summarize attendance for circuit assemblies and regional conventions in one tool.</p>
+        <div class="meta-row"><div class="meta">Assembly & Convention · Attendance</div><div class="language">EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./attendance-counting/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-assembly" data-cat="events">
+        <div class="icon-wrap"><img src="./attendant-tool/favicon.ico" alt="Icon"></div>
+        <h2>Attendant Tool</h2>
+        <p>Prepare attendants for assemblies and regional conventions: contact congregations, manage volunteers and hand teams over to the Team Captain Manager.</p>
+        <div class="meta-row"><div class="meta">Assembly · Attendants</div><div class="language">EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./attendant-tool/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-rc" data-cat="events">
+        <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>Regional Convention A/V Planner</h2>
+        <p>Plan and coordinate audio and video assignments for regional conventions.</p>
+        <div class="meta-row"><div class="meta">Regional Convention · A/V</div><div class="language">EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./av-planner/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-rc" data-cat="events">
+        <div class="icon-wrap"><img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon"></div>
+        <h2>Regional Convention Attendant Scheduler</h2>
+        <p>German-only shift-plan overview for attendants at regional conventions.</p>
+        <div class="meta-row"><div class="meta">Regional Convention · Attendants</div><div class="language">DE</div></div>
+        <div class="card-actions"><a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-rc" data-cat="events">
+        <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>Regional Convention Volunteers</h2>
+        <p>Manage volunteers, availability and communication for regional conventions.</p>
+        <div class="meta-row"><div class="meta">Regional Convention · Volunteers</div><div class="language">EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./rc-volunteers-management/">Open Tool</a></div>
+      </article>
+
+      <!-- ==========================================
+           CONGREGATION
+           ========================================== -->
+      <h2 class="section-title" data-cat="congregation">Congregation</h2>
+
+      <article class="card theme-congregation" data-cat="congregation">
+        <div class="icon-wrap"><img src="./congregation-notes/android-chrome-192x192.png" alt="Congregation Notes"></div>
+        <h2>Congregation Notes</h2>
+        <p>Take personal notes during congregation meetings, with child-friendly activities and a glossary explaining important terms.</p>
+        <div class="meta-row"><div class="meta">Congregation · Notes</div><div class="language">DE / EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./congregation-notes/">Open Notes</a></div>
+      </article>
+
+      <article class="card theme-congregation" data-cat="congregation">
+        <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>Congregation Microphone Service</h2>
+        <p>Plan microphone assignments and service during congregation meetings.</p>
+        <div class="meta-row"><div class="meta">Congregation · Microphones</div><div class="language">EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./microphoneservice-tool/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-congregation" data-cat="congregation">
+        <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>Congregation Volunteers</h2>
+        <p>Manage congregation volunteers, details and availability.</p>
+        <div class="meta-row"><div class="meta">Congregation · Volunteers</div><div class="language">DE / EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./congregation-volunteers/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-congregation" data-cat="congregation">
+        <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>PTC Tool</h2>
+        <p>Browse and coordinate public talks, speakers and outlines.</p>
+        <div class="meta-row"><div class="meta">Congregation · Public Talks</div><div class="language">EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./ptc-tool/">Open Tool</a></div>
+      </article>
+
+      <!-- ==========================================
+           KINGDOM HALL
+           ========================================== -->
+      <h2 class="section-title" data-cat="kh">Kingdom Hall</h2>
+
+      <article class="card theme-kh" data-cat="kh">
+        <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
+        <h2>KH Cleaning Planner</h2>
+        <p>Plan annual deep cleaning for Kingdom Halls shared by multiple congregations.</p>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN</div></div>
+        <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-kh" data-cat="kh">
+        <div class="icon-wrap"><img src="./kh-cleaning-generator/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
+        <h2>KH Cleaning Generator</h2>
+        <p>Generate printable annual congregation cleaning schedules from planner data.</p>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Annual Schedule</div><div class="language">DE / EN / IT / RU / SH</div></div>
+        <div class="card-actions"><a class="btn-card" href="./kh-cleaning-generator/">Open Tool</a></div>
+      </article>
+
+      <article class="card theme-kh" data-cat="kh">
+        <div class="icon-wrap"><img src="./intermediate-cleaning/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
+        <h2>Intermediate Cleaning Planner</h2>
+        <p>Create rotating intermediate-cleaning schedules for shared Kingdom Halls.</p>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN / RU</div></div>
+        <div class="card-actions"><a class="btn-card" href="./intermediate-cleaning/">Open Tool</a></div>
+      </article>
+
+    </section>
+
+    <footer class="footer">
+      <p>Made with Love © · kaffeetrinker80</p>
+    </footer>
+  </div>
+
+  <!-- Scroll to Top Button Element -->
+  <button id="scrollToTopBtn" class="scroll-top-btn" aria-label="Scroll to top" title="Scroll to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
+
+  <script>
+    function filterTools(category, event) {
+      const items = document.querySelectorAll('.card, .section-title');
+      const buttons = document.querySelectorAll('.filter-btn');
+      
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      
+      items.forEach(item => {
+        if (category === 'all' || item.getAttribute('data-cat') === category) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
         }
+      });
+    }
+
+    function addBookmark() {
+      alert("To bookmark this page, please press:\n\nCTRL + D (Windows/Linux)\nCMD + D (Mac)");
+    }
+
+    // Scroll to Top Logic
+    const scrollTopBtn = document.getElementById("scrollToTopBtn");
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 250) {
+        scrollTopBtn.classList.add("show");
+      } else {
+        scrollTopBtn.classList.remove("show");
       }
-      toast(t('imported').replace('{a}', a).replace('{u}', u));
-      closeModal('modal-settings');
-      route();
-    } catch {
-      alert(t('importFailed'));
-    }
-  };
-  rd.readAsText(f);
-});
+    });
 
-// ── print: pen notes become images, empty fields disappear ──
-let printTheme = null;
-window.addEventListener('beforeprint', () => {
-  printTheme = document.documentElement.dataset.theme;
-  document.documentElement.dataset.theme = 'light';
-  inkStates.forEach(st => redrawInk(st));
-  document.querySelectorAll('#entry .ink').forEach(el => {
-    const st = el._ink; if (!st) return;
-    const img = document.createElement('img');
-    img.className = 'print-ink'; img.alt = '';
-    img.src = st.base.toDataURL('image/png');
-    st.paper.appendChild(img);
-    if (!st.b.strokes.length && !st.b.refs.length) el.closest('.blk').classList.add('print-empty');
-  });
-  document.querySelectorAll('#entry .blk').forEach(blk => {
-    const rt = blk.querySelector('.rt');
-    if (rt && !rt.textContent.trim() && !blk.querySelector('.chip')) blk.classList.add('print-empty');
-  });
-  document.querySelectorAll('#entry .song-row').forEach(r => { if (!r.querySelector('input').value) r.classList.add('print-empty'); });
-  document.querySelectorAll('#entry .kids .sub-label').forEach(l => {
-    const next = l.nextElementSibling;
-    if (next && next.classList.contains('rt') && !next.textContent.trim()) l.classList.add('print-empty');
-  });
-});
-window.addEventListener('afterprint', () => {
-  if (printTheme) { document.documentElement.dataset.theme = printTheme; inkStates.forEach(st => redrawInk(st)); printTheme = null; }
-  document.querySelectorAll('img.print-ink').forEach(i => i.remove());
-  document.querySelectorAll('.print-empty').forEach(el => el.classList.remove('print-empty'));
-});
-
-// ═══════════════════════════════════════════
-//  LANGUAGE / BODY STATE
-// ═══════════════════════════════════════════
-// ═══════════════════════════════════════════
-//  FIRST START  (who are you? how do you write?)
-// ═══════════════════════════════════════════
-const PROFILES = {
-  small: { kidMode: true,  showCounter: true,  showKids: true },
-  kid:   { kidMode: true,  showCounter: true,  showKids: true },
-  teen:  { kidMode: false, showCounter: false, showKids: false },
-  adult: { kidMode: false, showCounter: false, showKids: false }
-};
-let ob = { step: 0, name: '', age: null, input: null };
-function openOnboard() {
-  ob = { step: 0, name: settings.name || '', age: settings.profile, input: null };
-  renderOnboard();
-  openModal('modal-onboard');
-}
-function obCard(act, val, on, emoji, title, text) {
-  return `<button class="ob-card${on ? ' on' : ''}" data-act="${act}" data-v="${val}">
-    <span class="ob-em">${emoji}</span><span class="ob-t">${esc(title)}</span><span class="ob-x">${esc(text)}</span></button>`;
-}
-function renderOnboard() {
-  const steps = 3, dots = [0, 1, 2].map(i => `<span class="${i === ob.step ? 'on' : ''}"></span>`).join('');
-  let body = '';
-  if (ob.step === 0) {
-    body = `<div class="ob-hero">📓</div>
-      <h3>${esc(t('obWelcome'))}</h3>
-      <p class="ob-p">${esc(t('obIntro'))}</p>
-      <div class="ob-lang">
-        <button class="ob-card slim${settings.lang === 'en' ? ' on' : ''}" data-act="obLang" data-v="en"><span class="ob-t">English</span></button>
-        <button class="ob-card slim${settings.lang === 'de' ? ' on' : ''}" data-act="obLang" data-v="de"><span class="ob-t">Deutsch</span></button>
-      </div>
-      <label class="fld"><span>${esc(t('obName'))}</span><input type="text" id="ob-name" maxlength="30" autocomplete="off" value="${esc(ob.name)}" placeholder="${esc(t('obNamePh'))}"></label>
-      <div class="set-note">🔒 ${esc(t('obPrivacy'))}</div>`;
-  } else if (ob.step === 1) {
-    body = `<h3>${esc(t('obAge'))}</h3><div class="ob-grid">
-      ${obCard('obAge', 'small', ob.age === 'small', '🧸', t('ageSmall'), t('ageSmallX'))}
-      ${obCard('obAge', 'kid', ob.age === 'kid', '🎒', t('ageKid'), t('ageKidX'))}
-      ${obCard('obAge', 'teen', ob.age === 'teen', '🎧', t('ageTeen'), t('ageTeenX'))}
-      ${obCard('obAge', 'adult', ob.age === 'adult', '👤', t('ageAdult'), t('ageAdultX'))}
-    </div>`;
-  } else {
-    body = `<h3>${esc(t('obInput'))}</h3><div class="ob-grid three">
-      ${obCard('obInput', 'pen', ob.input === 'pen', '✏️', t('inPen'), t('inPenX'))}
-      ${obCard('obInput', 'finger', ob.input === 'finger', '👆', t('inFinger'), t('inFingerX'))}
-      ${obCard('obInput', 'keyboard', ob.input === 'keyboard', '⌨️', t('inKeys'), t('inKeysX'))}
-    </div>
-    <div class="sub-label">${esc(t('obTheme'))}</div>
-    <div class="ob-lang">
-      <button class="ob-card slim${!isDark() ? ' on' : ''}" data-act="obTheme" data-v="light"><span class="ob-t">☀️ ${esc(t('themeLight'))}</span></button>
-      <button class="ob-card slim${isDark() ? ' on' : ''}" data-act="obTheme" data-v="dark"><span class="ob-t">🌙 ${esc(t('themeDark'))}</span></button>
-    </div>
-    <div class="set-note">${esc(t('obLater'))}</div>`;
-  }
-  const canNext = ob.step === 0 || (ob.step === 1 && ob.age) || (ob.step === 2 && ob.input);
-  $('onboard-body').innerHTML = `<div class="ob-dots">${dots}</div>${body}
-    <div class="modal-btns ob-btns">
-      ${ob.step === 0 ? `<button class="btn" data-act="obSkip">${esc(t('obSkip'))}</button>` : `<button class="btn" data-act="obBack">‹ ${esc(t('obBack'))}</button>`}
-      <button class="btn primary" data-act="obNext"${canNext ? '' : ' disabled'}>${esc(ob.step === steps - 1 ? t('obGo') : t('obNext'))}</button>
-    </div>`;
-}
-function obKeepName() { const i = $('ob-name'); if (i) ob.name = i.value.trim().slice(0, 30); }
-function finishOnboard() {
-  Object.assign(settings, PROFILES[ob.age] || PROFILES.adult, { profile: ob.age || 'adult', name: ob.name, onboarded: true });
-  if (ob.input === 'keyboard') { settings.defaultBlock = 'text'; settings.fingerDraw = false; }
-  else if (ob.input === 'finger') { settings.defaultBlock = 'ink'; settings.fingerDraw = true; }
-  else if (ob.input === 'pen') { settings.defaultBlock = 'ink'; settings.fingerDraw = false; }
-  saveSettings();
-  closeModal('modal-onboard');
-  applyBodyClasses();
-  if (cur) keepScroll(renderEntry); else renderList();
-  toast(settings.name ? t('hello').replace('{n}', settings.name) : t('obReady'));
-}
-
-function applyTheme() {
-  const dark = settings.theme === 'dark';
-  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  $('btn-theme').textContent = dark ? '☀️' : '🌙';
-  $('btn-theme').title = dark ? t('themeLight') : t('themeDark');
-  if (cur) keepScroll(renderEntry);
-}
-function applyBodyClasses() {
-  document.body.classList.toggle('kid', !!settings.kidMode);
-  document.body.classList.toggle('small', settings.profile === 'small');
-  document.body.classList.toggle('finger', !!settings.fingerDraw);
-}
-function applyLang() {
-  const L = settings.lang;
-  document.documentElement.lang = L;
-  $('lang-en').classList.toggle('on', L === 'en');
-  $('lang-de').classList.toggle('on', L === 'de');
-  $('footer-text').textContent = t('footer');
-  $('bp-title').textContent = t('bpTitle');
-  $('bp-l-book').textContent = t('book'); $('bp-l-ch').textContent = t('chapter');
-  $('bp-l-v').textContent = t('verse'); $('bp-l-ve').textContent = t('vend');
-  $('bp-cancel').textContent = t('cancel'); $('bp-insert').textContent = t('insert');
-  $('gloss-label').textContent = t('glossShort');
-  $('btn-theme').title = isDark() ? t('themeLight') : t('themeDark'); $('btn-settings').title = t('settings');
-  $('fb-tr').title = t('translate'); $('fb-wol').title = t('lookUpWol'); $('fb-done').textContent = t('ok');
-  updateHeader();
-  if (cur) keepScroll(renderEntry); else renderList();
-  if (!$('modal-gloss').hidden) renderGlossary();
-  if (!$('modal-settings').hidden) renderSettings();
-}
-
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-(async function init() {
-  try { db = await openDB(); } catch { useLS = true; }
-  try {
-    const s = await metaGet('settings');
-    if (s && typeof s === 'object') settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), s, { pen: Object.assign({}, DEFAULT_SETTINGS.pen, s.pen || {}) });
-  } catch {}
-  // the English default list saved by V1.0/1.1 → back to language-dependent defaults
-  if (!Array.isArray(settings.words) ||
-      (settings.words.length === DEFAULT_WORDS.length && settings.words.every((w, i) => w.w === DEFAULT_WORDS[i].en))) settings.words = null;
-  delete settings.contentLang;
-  try { entries = (await storeAll()).map(normalizeEntry).filter(Boolean); } catch { entries = []; }
-
-  try {
-    if (navigator.storage && navigator.storage.persist) {
-      storagePersisted = await navigator.storage.persisted();
-      if (!storagePersisted) storagePersisted = await navigator.storage.persist();
-    }
-  } catch {}
-
-  applyBodyClasses();
-  applyTheme();
-  applyLang();
-  route();
-  if (!settings.onboarded) openOnboard();
-})();
-</script>
+    scrollTopBtn.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+  </script>
 </body>
 </html>
+
