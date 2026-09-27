@@ -211,15 +211,18 @@ body.fmt-open main { padding-bottom: 90px; }
 .fab:active { transform: scale(.94); }
 
 /* ── ENTRY: META ────────────────────────── */
-.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
 .fld { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .fld.wide { grid-column: 1 / -1; }
 .fld > span { font-size: 11.5px; font-weight: 700; color: var(--sub); }
 .fld input, .fld select {
-  width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--field);
+  width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--border); border-radius: 10px; background: var(--field);
   padding: 9px 11px; font-size: 15px; min-height: 42px;
 }
 body.kid .fld input { font-size: 16.5px; }
+.fld input[type="date"] { display: block; min-inline-size: 0; }
+.fld input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+@media (max-width: 480px) { .meta-grid { grid-template-columns: minmax(0, 1fr); } }
 .fld input:focus, .fld select:focus { outline: none; border-color: var(--talk); background: var(--card); }
 
 /* ── SONG ROWS (quiet, like the programme's song lines) ── */
@@ -384,24 +387,17 @@ body.finger .paper .c-live { touch-action: none; }
 .counter { --c: var(--sun); border-left: 5px solid var(--sun); }
 .counter h2 { color: var(--sun-tx); }
 .hint { font-size: 12.5px; color: var(--sub); margin: -6px 0 10px; }
-.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 9px; }
-body.kid .tiles { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
-.tile {
-  position: relative; border: 2px solid var(--tile-bd); background: var(--tile-bg); border-radius: 16px;
-  padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 1px;
-  user-select: none; -webkit-user-select: none; touch-action: manipulation;
-}
-.tile .em { font-size: 30px; line-height: 1.15; }
-body.kid .tile .em { font-size: 36px; }
-.tile .w { font-size: 13px; font-weight: 700; color: var(--sub); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tile .n { font-size: 24px; font-weight: 800; color: var(--tile-n); line-height: 1.1; }
-.tile .minus {
-  position: absolute; top: 3px; right: 3px; width: 26px; height: 26px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--faint); font-size: 18px; font-weight: 700;
-}
-.tile.bump .n { animation: bump .32s ease; }
-@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.45); color: var(--sun); } 100% { transform: scale(1); } }
+ .word-list { display: grid; gap: 9px; }
+.word-row { display: flex; align-items: center; gap: 6px; padding: 6px; min-width: 0; border: 2px solid var(--tile-bd); background: var(--tile-bg); border-radius: 14px; }
+.word-count { flex: 1; min-width: 0; min-height: 52px; display: flex; align-items: center; gap: 8px; padding: 8px; border: 0; background: transparent; text-align: left; color: var(--ink); touch-action: manipulation; }
+.word-count .w { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+.word-count .n { font-size: 24px; font-weight: 800; color: var(--tile-n); }
+.word-action { flex: 0 0 44px; width: 44px; height: 44px; border: 1px solid var(--tile-bd); border-radius: 10px; background: var(--card); color: var(--ink); font-size: 20px; touch-action: manipulation; }
+.word-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.word-add input { flex: 1 1 150px; min-width: 0; width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--field); color: var(--ink); font-size: 16px; }
+.word-add .btn { flex: 0 0 auto; min-height: 44px; }
+.word-count.bump .n { animation: bump .32s ease; }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
 details.counter > summary { list-style: none; cursor: pointer; }
 details.counter > summary::-webkit-details-marker { display: none; }
 details.counter > summary .sec-head { margin-bottom: 0; }
@@ -566,7 +562,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.1.5 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.1.7 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -633,7 +629,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.1.5';
+const APP_VERSION = '1.1.7';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -779,7 +775,7 @@ const UI = {
     notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
     addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
-    wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Words',
+    wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Words', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete this word and its count?',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
     question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
     print: '🖨 Print / PDF', shareEntry: '⤴ Share', fileEntry: '⬇ Save file', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
@@ -807,9 +803,9 @@ const UI = {
     ageTeen: '13 – 17', ageTeenX: 'Notes, paragraphs, glossary – no kids’ stuff', ageAdult: 'Adult', ageAdultX: 'Clean: notes, Bible texts, paragraphs',
     obInput: 'How do you like to write?', inPen: 'Pen', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Draw and write on the screen',
     inKeys: 'Keyboard', inKeysX: 'Type your notes', obTheme: 'Look', obLater: 'You can change all of this later in ⚙︎ Settings.',
-    obSkip: 'Skip', obBack: 'Back', obNext: 'Next', obGo: 'Let’s go!', obReady: 'All set ✓', paragraphs: 'Paragraphs today', paragraph: 'Paragraph', paraHint: 'How many paragraphs does the article have? Then you can tick them off one by one.', weAreHere: 'we are here', comment: 'Comment', phParaComment: 'My comment on this paragraph…', commented: 'I commented', themeDark: 'Dark mode', themeLight: 'Light mode', shareNoApi: 'This browser has no share sheet for files – please use “Save file”.', shareNoFiles: 'This browser cannot share files – please use “Save file”.', shareFailed: 'Sharing did not work', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
+    obSkip: 'Skip', obBack: 'Back', obNext: 'Next', obGo: 'Let’s go!', obReady: 'All set ✓', paragraphs: 'Paragraphs today', paragraph: 'Paragraph', paraHint: 'How many paragraphs does the article have? Then you can tick them off one by one.', weAreHere: 'we are here', comment: 'Comment', phParaComment: 'My comment on this paragraph…', commented: 'I commented', themeDark: 'Dark mode', themeLight: 'Light mode', shareNoApi: 'This browser has no share sheet for files – please use “Save file”.', shareNoFiles: 'This browser cannot share files – please use “Save file”.', shareBlocked: 'The browser blocked sharing. Open this page directly in Chrome over HTTPS and tap Share again. If it is still blocked, use Save file and share the downloaded file from the Files app.', shareFailed: 'Sharing did not work', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
     kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', glossLink: '📖 Glossary',
-    shareOk: '“Share” opens the system share sheet ✓', shareNoHttps: 'The share sheet only works over https (e.g. GitHub Pages), not from a local file – please use “Save file”.',
+    shareOk: 'Share uses the system share sheet with an importable .txt backup.', shareNoHttps: 'The share sheet only works over https (e.g. GitHub Pages), not from a local file – please use “Save file”.',
     shareSaveDialog: 'Saving opens a “Save as” dialog.', shareDownload: 'Files are downloaded (no share sheet in this browser).',
     footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
   },
@@ -824,7 +820,7 @@ const UI = {
     notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
     addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
-    wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter',
+    wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: 'Dieses Wort und seinen Zählerstand löschen?',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
     question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
     print: '🖨 Drucken / PDF', shareEntry: '⤴ Teilen', fileEntry: '⬇ Als Datei', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
@@ -852,9 +848,9 @@ const UI = {
     ageTeen: '13 – 17', ageTeenX: 'Notizen, Absätze, Glossar – ohne Kinderkram', ageAdult: 'Erwachsen', ageAdultX: 'Schlicht: Notizen, Bibelstellen, Absätze',
     obInput: 'Wie schreibst du am liebsten?', inPen: 'Stift', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Mit dem Finger malen und schreiben',
     inKeys: 'Tastatur', inKeysX: 'Notizen tippen', obTheme: 'Aussehen', obLater: 'Das alles kannst du später unter ⚙︎ Einstellungen ändern.',
-    obSkip: 'Überspringen', obBack: 'Zurück', obNext: 'Weiter', obGo: 'Los geht’s!', obReady: 'Fertig eingerichtet ✓', paragraphs: 'Absätze heute', paragraph: 'Absatz', paraHint: 'Wie viele Absätze hat der Artikel? Dann kannst du sie nacheinander abhaken.', weAreHere: 'hier sind wir', comment: 'Kommentar', phParaComment: 'Mein Kommentar zu diesem Absatz…', commented: 'Ich habe kommentiert', themeDark: 'Dunkler Modus', themeLight: 'Heller Modus', shareNoApi: 'Dieser Browser hat kein Teilen-Menü für Dateien – bitte „Als Datei“ nutzen.', shareNoFiles: 'Dieser Browser kann keine Dateien teilen – bitte „Als Datei“ nutzen.', shareFailed: 'Teilen hat nicht geklappt', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
+    obSkip: 'Überspringen', obBack: 'Zurück', obNext: 'Weiter', obGo: 'Los geht’s!', obReady: 'Fertig eingerichtet ✓', paragraphs: 'Absätze heute', paragraph: 'Absatz', paraHint: 'Wie viele Absätze hat der Artikel? Dann kannst du sie nacheinander abhaken.', weAreHere: 'hier sind wir', comment: 'Kommentar', phParaComment: 'Mein Kommentar zu diesem Absatz…', commented: 'Ich habe kommentiert', themeDark: 'Dunkler Modus', themeLight: 'Heller Modus', shareNoApi: 'Dieser Browser hat kein Teilen-Menü für Dateien – bitte „Als Datei“ nutzen.', shareNoFiles: 'Dieser Browser kann keine Dateien teilen – bitte „Als Datei“ nutzen.', shareBlocked: 'Der Browser hat das Teilen blockiert. Öffne diese Seite direkt in Chrome über HTTPS und tippe erneut auf Teilen. Falls es weiter blockiert wird, nutze Als Datei und teile die heruntergeladene Datei über die Dateien-App.', shareFailed: 'Teilen hat nicht geklappt', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
     kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Bibel-Glossar · jw.org (englisch)', bibleGlossHint: 'Erklärungen aus dem Glossar der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', glossLink: '📖 Glossar',
-    shareOk: '„Teilen“ öffnet das Teilen-Menü des Systems ✓', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages), nicht aus einer lokalen Datei – bitte „Als Datei“ nutzen.',
+    shareOk: 'Teilen verwendet das Systemmenü mit einer importierbaren .txt-Sicherung.', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages), nicht aus einer lokalen Datei – bitte „Als Datei“ nutzen.',
     shareSaveDialog: 'Speichern öffnet einen „Speichern unter“-Dialog.', shareDownload: 'Dateien werden heruntergeladen (kein Teilen-Menü in diesem Browser).',
     footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
   }
@@ -1010,7 +1006,7 @@ function wordLabel(w) {
   return g ? g[settings.lang] : w;
 }
 function defaultWords() {
-  return Array.isArray(settings.words) && settings.words.length
+  return Array.isArray(settings.words)
     ? settings.words
     : DEFAULT_WORDS.map(d => ({ e: d.e, w: d[settings.lang] }));
 }
@@ -1080,7 +1076,7 @@ function normalizeEntry(r) {
   e.comment = sanitize(str(r.comment, 50000));
   const k = r.kids || {};
   e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '' };
-  if (Array.isArray(r.counter)) e.counter = r.counter.filter(c => c && c.w).slice(0, 24).map(c => ({ e: str(c.e, 16), w: str(c.w, 40), n: Math.max(0, Math.round(num(c.n))) }));
+  if (Array.isArray(r.counter)) e.counter = r.counter.filter(c => c && c.w).map(c => ({ e: str(c.e, 16), w: str(c.w, 40), n: Math.max(0, Math.round(num(c.n))) }));
   return e;
 }
 
@@ -1347,16 +1343,33 @@ function chipsHtml(key, i, refs) {
 }
 
 function renderCounter() {
-  const c = cur.counter;
-  const head = `<div class="sec-head"><h2>🔢 ${esc(t('wordCounter'))}</h2><button class="btn-link" data-act="editWords">${esc(t('editWords'))}</button></div>`;
+  const head = `<div class="sec-head"><h2>🔢 ${esc(t('wordCounter'))}</h2></div>`;
   const body = `<p class="hint">${esc(t('counterHint'))}</p>
-    <div class="tiles">${c.map((w, i) => `<button class="tile" data-act="count" data-i="${i}">
-      <span class="em">${esc(w.e)}</span><span class="w">${esc(wordLabel(w.w))}</span><span class="n" id="cnt-${i}">${w.n}</span>
-      <span class="minus" data-act="uncount" data-i="${i}" role="button" aria-label="−1">−</span></button>`).join('')}</div>`;
+    <div class="word-list">${cur.counter.map((w, i) => `<div class="word-row">
+      <button type="button" class="word-count" data-act="count" data-i="${i}" aria-label="${esc(t('increaseWord') + wordLabel(w.w))}"><span class="w">${esc(wordLabel(w.w))}</span><span class="n" id="cnt-${i}" aria-live="polite">${w.n}</span></button>
+      <button type="button" class="word-action" data-act="uncount" data-i="${i}" aria-label="${esc(t('decreaseWord') + wordLabel(w.w))}">−</button>
+      <button type="button" class="word-action" data-act="counterDelete" data-i="${i}" aria-label="${esc(t('deleteWord') + wordLabel(w.w))}">×</button>
+    </div>`).join('') || `<p>${esc(t('emptyWords'))}</p>`}</div>
+    <div class="word-add"><input id="counter-new-word" type="text" maxlength="40" placeholder="${esc(t('newWord'))}" aria-label="${esc(t('newWord'))}" autocomplete="off"><button type="button" class="btn" data-act="counterAdd">${esc(t('addCounterWord'))}</button></div>
+    <button type="button" class="btn-link" data-act="editWords">${esc(t('editWords'))}</button>`;
   if (settings.kidMode) return `<section class="card counter">${head}${body}</section>`;
-  const total = c.reduce((s, w) => s + w.n, 0);
+  const total = cur.counter.reduce((sum, w) => sum + w.n, 0);
   return `<details class="card counter"${total ? ' open' : ''}><summary>${head}</summary>${body}</details>`;
 }
+
+function refreshCounter() {
+  const old = document.querySelector('#entry .counter');
+  if (!old) return;
+  const wasOpen = old.tagName === 'DETAILS' && old.open;
+  old.outerHTML = renderCounter();
+  const current = document.querySelector('#entry .counter');
+  if (wasOpen && current.tagName === 'DETAILS') current.open = true;
+}
+document.addEventListener('keydown', ev => {
+  if (ev.target.id === 'counter-new-word' && ev.key === 'Enter' && !ev.isComposing) {
+    ev.preventDefault(); ACTIONS.counterAdd();
+  }
+});
 
 function getBlock(sec, i) { return cur && cur[sec] && cur[sec].blocks[i]; }
 
@@ -1799,10 +1812,28 @@ const ACTIONS = {
     c.n--; dirty();
     $('cnt-' + i).textContent = c.n;
   },
+  counterAdd: () => {
+    if (!cur) return;
+    const input = $('counter-new-word');
+    const word = input.value.trim().slice(0, 40);
+    if (!word) { input.focus(); return; }
+    if (cur.counter.some(c => wordLabel(c.w).toLocaleLowerCase() === wordLabel(word).toLocaleLowerCase())) {
+      toast(t('alreadyCounted')); input.focus(); return;
+    }
+    cur.counter.push({ e: '⭐', w: word, n: 0 });
+    dirty(); refreshCounter(); $('counter-new-word').focus();
+  },
+  counterDelete: el => {
+    if (!cur) return;
+    const i = +el.dataset.i, word = cur.counter[i];
+    if (!word || (word.n > 0 && !confirm(t('deleteWordConfirm')))) return;
+    cur.counter.splice(i, 1); dirty(); refreshCounter();
+    const next = document.querySelectorAll('#entry .word-count');
+    (next[Math.min(i, next.length - 1)] || $('counter-new-word')).focus();
+  },
   editWords: (el, ev) => { if (ev) ev.preventDefault(); openWords(); },
   wordsAdd: () => {
     const rows = $('words-rows');
-    if (rows.children.length >= 24) return;
     rows.insertAdjacentHTML('beforeend', wordRow('⭐', ''));
     rows.lastElementChild.querySelector('.w-word').focus();
   },
@@ -2036,14 +2067,15 @@ function exportPayload(list) {
   return { _tool: TOOL_ID, _version: APP_VERSION, _exported: new Date().toISOString(), entries: list };
 }
 // System share sheet (Files/iCloud Drive, Google Drive, WhatsApp …).
-// Android Chrome refuses .json files in the share sheet → falls back to .txt (import accepts both).
+// Prefer text/plain with a .txt extension: canShare may accept JSON before share rejects it.
+// The JSON backup content is unchanged; import accepts both extensions.
+// Call share synchronously from the click handler, without awaiting storage or other work first.
 // Returns true, false (cancelled) or throws Error(reason) so the user sees why it did not work.
 async function shareFile(name, text) {
   if (!window.isSecureContext) throw new Error(t('shareNoHttps'));
   if (!navigator.share || !navigator.canShare) throw new Error(t('shareNoApi'));
   const candidates = [
-    new File([text], name, { type: 'application/json' }),
-    new File([text], name.replace(/\.json$/, '.txt'), { type: 'text/plain' })
+    new File([text], name.replace(/\.json$/i, '') + '.txt', { type: 'text/plain' })
   ];
   const file = candidates.find(f => { try { return navigator.canShare({ files: [f] }); } catch { return false; } });
   if (!file) throw new Error(t('shareNoFiles'));
@@ -2052,6 +2084,7 @@ async function shareFile(name, text) {
     return true;
   } catch (err) {
     if (err && err.name === 'AbortError') return false;
+    if (err && err.name === 'NotAllowedError') throw new Error(t('shareBlocked'));
     throw new Error(`${t('shareFailed')} (${err && err.name || 'Error'})`);
   }
 }
@@ -2263,7 +2296,7 @@ function applyLang() {
     if (s && typeof s === 'object') settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), s, { pen: Object.assign({}, DEFAULT_SETTINGS.pen, s.pen || {}) });
   } catch {}
   // the English default list saved by V1.0/1.1 → back to language-dependent defaults
-  if (!Array.isArray(settings.words) || !settings.words.length ||
+  if (!Array.isArray(settings.words) ||
       (settings.words.length === DEFAULT_WORDS.length && settings.words.every((w, i) => w.w === DEFAULT_WORDS[i].en))) settings.words = null;
   delete settings.contentLang;
   try { entries = (await storeAll()).map(normalizeEntry).filter(Boolean); } catch { entries = []; }
