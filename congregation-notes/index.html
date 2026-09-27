@@ -101,6 +101,13 @@ input, select { font: inherit; color: inherit; }
   height: 36px; min-width: 36px; padding: 0 8px; font-size: 16px; color: #fff;
 }
 .btn-hdr:active, .btn-back:active { background: rgba(255,255,255,.22); }
+.btn-gloss {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px 0 10px;
+  border: none; border-radius: 11px; background: #ffd25e; color: var(--ink);
+  font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(255,210,94,.28);
+}
+.btn-gloss:active { background: #ffc53a; }
+@media (max-width: 360px) { #gloss-label { display: none; } .btn-gloss { padding: 0 10px; } }
 .lang-seg { display: flex; border: 1px solid rgba(255,255,255,.18); border-radius: 11px; overflow: hidden; height: 36px; }
 .lang-seg button { border: none; background: transparent; padding: 0 9px; font-size: 11.5px; font-weight: 800; color: #c3cde2; }
 .lang-seg button.on { background: #fff; color: var(--ink); }
@@ -110,11 +117,8 @@ input, select { font: inherit; color: inherit; }
 .hero {
   display: flex; gap: 14px; align-items: center;
   border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow);
-  padding: 16px 16px 16px 20px; margin-bottom: 14px; position: relative; overflow: hidden;
-  background-color: #fffefb;
-  background-image:
-    linear-gradient(90deg, transparent 10px, var(--margin) 10px, var(--margin) 11px, transparent 11px),
-    repeating-linear-gradient(180deg, transparent 0, transparent 27px, var(--rule) 27px, var(--rule) 28px);
+  padding: 16px; margin-bottom: 14px; position: relative; overflow: hidden;
+  background: #fff;
 }
 .hero .leaf { width: 70px; background: #fff; }
 .hero .leaf .d { font-size: 30px; }
@@ -193,7 +197,8 @@ body.kid .fld input { font-size: 16.5px; }
   width: 64px; border: 1px dashed var(--border); border-radius: 8px; background: transparent;
   padding: 3px 8px; font-size: 14px; color: var(--sub); text-align: center;
 }
-.song-link { color: var(--talk); font-weight: 700; font-size: 12.5px; text-decoration: none; padding: 3px 9px; border-radius: 14px; background: var(--chip-bg); }
+.song-slot { min-width: 0; flex: 1; }
+.song-link { display: inline-block; max-width: 100%; color: var(--talk); font-weight: 700; font-size: 13px; text-decoration: none; padding: 3px 10px; border-radius: 14px; background: var(--chip-bg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
 .song-row input:focus { outline: none; border-style: solid; border-color: var(--faint); background: #fff; }
 
 /* ── SECTIONS ───────────────────────────── */
@@ -443,7 +448,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
       <div class="app-sub" id="hdr-sub"></div>
     </div>
     <div class="hdr-actions">
-      <button class="btn-hdr" data-act="openGlossary" id="btn-gloss" aria-label="Glossary">📘</button>
+      <button class="btn-gloss" data-act="openGlossary" id="btn-gloss"><span aria-hidden="true">📘</span><span id="gloss-label">Glossary</span></button>
       <div class="lang-seg" role="group" aria-label="Language">
         <button data-act="setLang" data-l="en" id="lang-en">EN</button>
         <button data-act="setLang" data-l="de" id="lang-de">DE</button>
@@ -466,8 +471,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.1.0 · Made with Love ©</span><br>
-  <a id="footer-mail" href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Congregation%20Notes%20V1.1.0">✉ Feedback</a>
+  <span id="footer-text">Congregation Notes · V1.1.2 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -529,7 +533,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.2';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -541,13 +545,13 @@ const INK_SIZES = [3, 5, 9];
 const MOODS = ['🤩', '😊', '🙂', '😐', '😴'];
 
 const DEFAULT_WORDS = [
-  { e: '💛', w: 'Jehovah' }, { e: '🐑', w: 'Jesus' }, { e: '👑', w: 'Kingdom' },
-  { e: '📖', w: 'Bible' },   { e: '🙏', w: 'Prayer' }, { e: '❤️', w: 'Love' }
+  { e: '💛', en: 'Jehovah', de: 'Jehova' }, { e: '🐑', en: 'Jesus', de: 'Jesus' }, { e: '👑', en: 'Kingdom', de: 'Königreich' },
+  { e: '📖', en: 'Bible', de: 'Bibel' },    { e: '🙏', en: 'Prayer', de: 'Gebet' }, { e: '❤️', en: 'Love', de: 'Liebe' }
 ];
 const DEFAULT_SETTINGS = {
-  lang: 'en', contentLang: 'en', translateTo: 'de',
+  lang: 'en', translateTo: 'de',
   kidMode: true, fingerDraw: false, defaultBlock: 'text',
-  words: DEFAULT_WORDS,
+  words: null,            // null = default words in the current language
   pen: { tool: 'pen', color: '#1c2740', size: 5 },
   lastBackup: null
 };
@@ -639,6 +643,22 @@ function jwgLookup(word) {
   return JWG.find(g => g.keys.includes(w)) || JWG.find(g => g.keys.includes(w.replace(/s$/, ''))) || null;
 }
 
+// “Sing Out Joyfully” / „Singt voller Freude“ – titles + jw.org song pages (1–163)
+const SONG_BASE = {
+  en: 'https://www.jw.org/en/library/music-songs/sing-out-joyfully/',
+  de: 'https://www.jw.org/de/bibliothek/musik-lieder/singt-voller-freude/'
+};
+const SONGS = {
+  en: "Jehovah’s Attributes~jehovahs-attributes|Jehovah Is Your Name~jehovah-is-your-name|Our Strength, Our Hope, Our Confidence~our-strength-our-hope-our-confidence|“Jehovah Is My Shepherd”~jehovah-is-my-shepherd|God’s Wondrous Works~gods-wondrous-works|The Heavens Declare God’s Glory~the-heavens-declare-gods-glory|Jehovah, Our Strength~jehovah-our-strength|Jehovah Is Our Refuge~jehovah-is-our-refuge|Jehovah Is Our King!~jehovah-is-our-king|Praise Jehovah Our God!~praise-jehovah-our-god|Creation Praises God~creation-praises-god|Great God, Jehovah~great-god-jehovah|Christ, Our Model~christ-our-model|Praising Earth’s New King~praising-earths-new-king|Praise Jehovah’s Firstborn!~praise-jehovahs-firstborn|Praise Jah for His Son, the Anointed~praise-jah-for-his-son-the-anointed|“I Want To”~i-want-to|Grateful for the Ransom~grateful-for-the-ransom|The Lord’s Evening Meal~lords-evening-meal|You Gave Your Precious Son~you-gave-your-precious-son|Keep On Seeking First the Kingdom~keep-on-seeking-first-the-kingdom|The Kingdom Is in Place—Let It Come!~the-kingdom-is-in-place-let-it-come|Jehovah Begins His Rule~jehovah-begins-his-rule|Come to Jehovah’s Mountain~come-to-jehovahs-mountain|A Special Possession~a-special-possession|You Did It for Me~you-did-it-for-me|The Revealing of God’s Sons~revealing-of-gods-sons|Gaining Jehovah’s Friendship~gaining-jehovahs-friendship|Living Up to Our Name~living-up-to-our-name|My Father, My God and Friend~my-father-god-and-friend|Oh, Walk With God!~walk-with-god|Take Sides With Jehovah!~take-sides-with-jehovah|Throw Your Burden on Jehovah~throw-your-burden-on-jehovah|Walking in Integrity~walking-in-integrity|“Make Sure of the More Important Things”~make-sure-of-more-important-things|We Guard Our Hearts~we-guard-our-hearts|Serving Jehovah Whole-Souled~serving-jehovah-whole-souled|He Will Make You Strong~he-will-make-you-strong|Make a Good Name With God~make-a-good-name-with-god|To Whom Do We Belong?~to-whom-do-we-belong|Please Hear My Prayer~hear-my-prayer|The Prayer of God’s Servant~the-prayer-of-gods-servant|A Prayer of Thanks~prayer-of-thanks|A Prayer of the Lowly One~prayer-of-the-lowly-one|The Meditation of My Heart~meditation-of-my-heart|We Thank You, Jehovah~we-thank-you-jehovah|Pray to Jehovah Each Day~pray-to-jehovah-each-day|Daily Walking With Jehovah~daily-walking-with-jehovah|Making Jehovah’s Heart Glad~making-jehovahs-heart-glad|My Prayer of Dedication~prayer-of-dedication|To God We Are Dedicated!~to-god-we-are-dedicated|Christian Dedication~christian-dedication|Preparing to Preach~preparing-to-preach|“This Is the Way”~this-is-the-way|Fear Them Not!~fear-them-not|Make the Truth Your Own~make-the-truth-your-own|Preaching to All Sorts of People~preaching-to-all-sorts-of-people|Searching for Friends of Peace~search-for-friends-of-peace|Praise Jah With Me~praise-jah-with-me|It Means Their Life~it-means-their-life|Forward, You Witnesses!~forward-you-witnesses|The New Song~the-new-song|We’re Jehovah’s Witnesses!~we-are-jehovahs-witnesses|Sharing Joyfully in the Harvest~sharing-joyfully-in-harvest|Move Ahead!~move-ahead|Declare the Good News~declare-the-good-news|“Preach the Word”~preach-the-word|Sowing Kingdom Seed~sowing-kingdom-seed|Go Forward in Preaching the Kingdom!~forward-preaching-the-kingdom|Search Out Deserving Ones~search-out-deserving-ones|We Are Jehovah’s Army!~jehovahs-army|Making Known the Kingdom Truth~making-known-kingdom-truth|Grant Us Boldness~grant-us-boldness|Join in the Kingdom Song!~join-in-kingdom-song|“Here I Am! Send Me!”~here-i-am-send-me|How Does It Make You Feel?~how-does-it-make-you-feel|Light in a Darkened World~light-in-dark-world|“Teaching the Word of God”~teaching-word-of-god|Teach Them to Stand Firm~prayer-stand-firm|“Taste and See That Jehovah Is Good”~taste-see-jehovah-is-good|The Life of a Pioneer~life-of-a-pioneer|“Let Your Light Shine”~let-light-shine|“From House to House”~from-house-to-house|Reaching Out~reaching-out-christian-ministry|Welcome One Another~welcome-one-another|We Must Be Taught~we-must-be-taught|Come! Be Refreshed~come-be-refreshed|Make Me Know Your Ways~make-me-know-your-ways|Listen, Obey, and Be Blessed~listen-obey-be-blessed|Encourage One Another~encourage-one-another|Our Labor of Love~our-labor-of-love|A Place Bearing Your Name~a-place-bearing-your-name|Bless Our Meeting Together~bless-our-meeting-together|Grateful for God’s Word~grateful-for-gods-word|The Light Gets Brighter~light-gets-brighter|God’s Own Book—A Treasure~gods-own-book-a-treasure|Life Depends on God’s Word~life-depends-on-gods-word|The Scriptures—Inspired of God~the-scriptures-inspired-of-god|Myriads of Brothers~myriads-of-brothers|Receive Them With Hospitality~receive-them-with-hospitality|Working Together in Unity~working-together-in-unity|“Assist Those Who Are Weak”~assist-those-who-are-weak|Shepherds—Gifts in Men~shepherds-gifts-in-men|God’s Gift of Holy Spirit~gods-gift-of-holy-spirit|“God Is Love”~god-is-love|Cultivating the Quality of Love~cultivating-the-quality-of-love|The Divine Pattern of Love~divine-pattern-of-love|God’s Loyal Love~gods-loyal-love|Love Intensely From the Heart~love-intensely-from-the-heart|“The Joy of Jehovah”~joy-of-jehovah|Our Reasons for Joy~our-reasons-for-joy|Jehovah, God of Peace~jehovah-god-of-peace|Our Possession of Peace~our-possession-of-peace|“Exercise Patience”~exercise-patience|Gratitude for Divine Patience~gratitude-for-divine-patience|The Power of Kindness~power-of-kindness|The Quality of Goodness~quality-of-goodness|“Give Us More Faith”~give-us-more-faith|We Must Have Faith~we-must-have-faith|Imitate Christ’s Mildness~imitate-christs-mildness|We Need Self-Control~we-need-self-control|Be Steadfast, Immovable!~be-steadfast-immovable|Loyally Submitting to Theocratic Order~loyally-submitting-to-theocratic-order|Ever Loyal~ever-loyal|“Happy Are the Merciful!”~happy-are-the-merciful|Stay Awake, Stand Firm, Grow Mighty~stay-awake-stand-firm-grow-mighty|The Sort of Person I Should Be~sort-of-person-i-should-be|Enduring to the End~endure-to-the-end|We Will Keep Enduring~keep-enduring|Be Forgiving~be-forgiving|“What God Has Yoked Together”~what-god-yoked-together|Now We Are One~now-we-are-one|Worship Jehovah During Youth~worship-jehovah-during-youth|Children Are a Trust From God~children-are-a-trust-from-god|Jehovah’s Warm Appeal: “Be Wise, My Son”~jehovahs-appeal-be-wise-my-son|“A Perfect Wage” From Jehovah~perfect-wage-from-jehovah|Faithful Women, Christian Sisters~faithful-women-christian-sisters|Beauty in Gray-Headedness~beauty-in-gray-headedness|See Yourself When All Is New~when-all-is-new|Life Without End—At Last!~life-without-end|The Miracle of Life~miracle-of-life|Holding Fast to Our Hope~holding-to-our-hope|Keep Working, Watching, and Waiting~keep-working-watching-waiting|Keep Your Eyes on the Prize!~keep-eye-on-the-prize|God’s Promise of Paradise~gods-promise-of-paradise|“Making All Things New”~making-all-things-new|Life Everlasting Is Promised~life-everlasting-promised|Jehovah Provides Escape~jehovah-provides-escape|A Victory Song~a-victory-song|Seek God for Your Deliverance~seek-god-for-deliverance|He Will Call~he-will-call|A Place That Will Bring You Praise~a-place-that-will-bring-you-praise|Give Me Courage~give-me-courage|Unfailing Love~unfailing-love|Our Joy Eternally~our-joy-eternally|With Eyes of Faith~with-eyes-of-faith|Peace at Last!~peace-at-last|“It Will Not Be Late!”~it-will-not-be-late|Give Jehovah Glory~give-jehovah-glory|“Good News”!~good-news|To Do Your Will Is My Delight~to-do-your-will-is-my-delight|My Spiritual Need~my-spiritual-need|Happy Are These Eyes~happy-are-these-eyes".split('|').map(x => x.split('~')),
+  de: "Jehovas großartige Eigenschaften~jehovas-eigenschaften|Jehova ist dein Name~jehova-ist-dein-name|Unser Fels, unser Gott, unsre Zuversicht~unser-fels-unser-gott-unsre-zuversicht|„Jehova ist mein Hirte“~jehova-ist-mein-hirte|Gottes wunderbare Werke~gottes-wunderbare-werke|Der Himmel verkündet die Herrlichkeit Jehovas~der-himmel-verkuendet-herrlichkeit-jehovas|Jehova, unsere Stärke und Macht~jehova-unsere-staerke-und-macht|Jehova ist unsere Zuflucht~jehova-unsere-zuflucht|Jehova ist unser König!~jehova-ist-unser-koenig|Lobt Jehova, unseren Gott!~lobt-jehova-unseren-gott|Die Schöpfung spricht von Gottes Herrlichkeit~die-schoepfung-spricht-von-gottes-herrlichkeit|Unser großer Gott Jehova~grosser-gott-jehova|Christus, unser großes Vorbild~christus-unser-grosses-vorbild|Wir heißen unseren König willkommen!~wir-heissen-unseren-koenig-willkommen|Wir ehren Jehovas Erstgeborenen!~wir-ehren-jehovas-erstgeborenen|Dankt Jehova für seinen Sohn, den Gesalbten~dankt-jehova-f%C3%BCr-sohn-gesalbten|„Das will ich“~das-will-ich|Dankbar für das Lösegeld~dankbar-fuer-das-loesegeld|Das Abendmahl des Herrn~das-abendmahl-des-herrn|Du hast uns deinen kostbaren Sohn geschenkt~kostbaren-sohn-geschenkt|Setzt das Königreich an die erste Stelle~koenigreich-an-die-erste-stelle|Dein Königreich regiert — es komme!~dein-koenigreich-regiert-es-komme|Jehova, der Höchste, regiert!~jehova-der-hoechste-regiert|Kommt zum Berg Jehovas~kommt-zum-berg-jehovas|Sein besonderes Eigentum~sein-besonderes-eigentum|Ihr habt es für mich getan~fuer-mich-getan|Die Offenbarung der Söhne Gottes~offenbarung-der-soehne-gottes|Freundschaft mit Jehova~freundschaft-mit-jehova|Gemäß unserem Namen leben~gemaess-unserem-namen-leben|Mein Vater, mein Gott und Freund~vater-gott-und-freund|Geh mit Jehova, deinem Gott!~geh-mit-jehova-gott|Komm auf Jehovas Seite!~komm-auf-jehovas-seite|Wirf deine Last auf Jehova~wirf-deine-last-auf-jehova|Jehova ganz ergeben sein~jehova-ganz-ergeben-sein|Uns auf wirklich Wichtiges konzentrieren~uns-auf-wirklich-wichtiges-konzentrieren|Wir beschützen unser Herz~wir-beschuetzen-unser-herz|Jehova mit ganzem Herzen dienen~jehova-mit-ganzem-herzen-dienen|Er wird dich stärken~er-wird-dich-staerken|Ein Name, der Gott gefällt~name-der-gott-gefaellt|Wem möchten wir gehören?~wem-moechten-wir-gehoeren|Vater Jehova, bitte hör mein Gebet~vater-jehova-bitte-hoer-gebet|Gebet der Diener Gottes~gebet-der-diener-gottes|Ein Dankgebet~ein-dankgebet|Gebet eines Niedergedrückten~gebet-eines-niedergedrueckten|Die Gedanken meines Herzens~die-gedanken-meines-herzens|Hab Dank, Herr Jehova!~hab-dank-herr-jehova|Bete jeden Tag zu Jehova~bete-jeden-tag-zu-jehova|Täglich unseren Weg mit Jehova gehen~taeglich-mit-jehova-gehen|Jehovas Herz erfreuen~jehovas-herz-erfreuen|Mein Gebet der Hingabe~mein-gebet-der-hingabe|Jehova, dir gehört mein Leben!~jehova-dir-gehoert-mein-leben|Hingabe und Taufe~hingabe-und-taufe|Vor unserem Dienst~vor-unserem-dienst|„Das ist der Weg“~das-ist-der-weg|Habt keine Angst!~habt-keine-angst|Mache dir die Wahrheit zu eigen~mache-dir-die-wahrheit-zu-eigen|Jeder kann ein Freund Jehovas werden~jeder-kann-ein-freund-jehovas-werden|Wir suchen Menschen, die den Frieden lieben~wir-suchen-menschen-die-den-frieden-lieben|Preist Jah mit mir!~preist-jah-mit-mir|Ihr Leben steht auf dem Spiel~ihr-leben-steht-auf-dem-spiel|Fest und entschlossen~fest-und-entschlossen|Das neue Lied~das-neue-lied|Wir sind Jehovas Zeugen~wir-sind-jehovas-zeugen|Freudig in der Ernte mitarbeiten~freudig-in-der-ernte-mitarbeiten|Fortschritte machen~fortschritte-machen|Die gute Botschaft bekannt machen~die-gute-botschaft-bekannt-machen|„Predige das Wort Gottes“~predige-das-wort-gottes|Den Samen vom Königreich säen~den-samen-vom-koenigreich-saeen|Macht das Königreich weiter bekannt!~macht-das-koenigreich-weiter-bekannt|Findet heraus, wer es verdient~findet-heraus-wer-es-verdient|Wir sind das Heer Jehovas!~wir-sind-heer-jehovas|Die Königreichswahrheit bekannt machen~die-koenigreichswahrheit-bekannt-machen|Schenk uns Mut~schenk-uns-mut|Stimmt ein ins Lied vom Königreich!~stimmt-ein-ins-lied-vom-koenigreich|„Hier bin ich! Sende mich!“~hier-bin-ich-sende-mich|Von Jehova zu sprechen tut uns gut~von-jehova-sprechen-tut-gut|Licht in der Dunkelheit~licht-in-der-dunkelheit|Das Wort Gottes lehren~das-wort-gottes-lehren|Lehrt sie, fest zu Jehova zu stehen~lehrt-fest-zu-jehova-stehen|„Schmeckt und seht, dass Jehova gut ist“~schmeckt-seht-jehova-gut|Das Leben eines Pioniers~das-leben-eines-pioniers|„Lasst euer Licht leuchten“~lasst-euer-licht-leuchten|„Von Haus zu Haus“~von-haus-zu-haus|Jederzeit gern bereit~jederzeit-gern-bereit|Heißt euch gegenseitig willkommen~heisst-euch-gegenseitig-willkommen|Kommt und lernt von Jehova!~kommt-lernt-von-jehova|Kommt und werdet erfrischt!~kommt-und-werdet-erfrischt|Lass mich deine Wege erkennen~lass-mich-deine-wege-erkennen|Glücklich ist, wer hört und danach lebt~gluecklich-wer-hoert-danach-lebt|Uns gegenseitig Mut machen~uns-gegenseitig-mut-machen|Mit Liebe gebaut~mit-liebe-gebaut|Ein Haus für Jehovas Namen~ein-haus-fuer-jehovas-namen|Bitte segne unsere Zusammenkunft~segne-unsere-zusammenkunft|Dankbar für Gottes Wort~dankbar-fuer-gottes-wort|Das Licht wird immer heller~das-licht-wird-immer-heller|Gottes Buch — ein echter Schatz~gottes-buch-ein-echter-schatz|Gottes Wort schenkt Leben~gottes-wort-schenkt-leben|Die Heilige Schrift — von Gott inspiriert~die-heilige-schrift-von-gott-inspiriert|Millionen von Brüdern~millionen-von-bruedern|Andere gastfreundlich aufnehmen~andere-gastfreundlich-aufnehmen|Harmonisch zusammenarbeiten~harmonisch-zusammenarbeiten|„Den Schwachen beistehen“~den-schwachen-beistehen|Hirten — ein Geschenk von Jehova~hirten-geschenk-von-jehova|Der heilige Geist — ein Geschenk Gottes~heiliger-geist-geschenk-gottes|„Gott ist Liebe“~gott-ist-liebe|In der Liebe wachsen~in-der-liebe-wachsen|So lieben wie Jehova~so-lieben-wie-jehova|Gottes loyale Liebe~gottes-loyale-liebe|Liebt einander von ganzem Herzen~liebt-von-ganzem-herzen|„Jehova schenkt Freude, die stark macht“~jehova-schenkt-freude|Unsere Gründe zur Freude~unsere-gruende-zur-freude|Jehova, der Gott des Friedens~jehova-gott-des-friedens|Gott schenkt Frieden~gott-schenkt-frieden|„Übt Geduld“~uebt-geduld|Dankbar für Gottes Geduld~dankbar-fuer-gottes-geduld|Freundlichkeit bewirkt viel Gutes~freundlichkeit-bewirkt-viel-gutes|Güte — wie wertvoll!~guete-wie-wertvoll|„Gib uns mehr Glauben“~gib-uns-mehr-glauben|Wir müssen Glauben haben~wir-muessen-glauben-haben|So sanft und mild wie Jesus werden~sanft-mild-wie-jesus|Wir brauchen Selbstbeherrschung~wir-brauchen-selbstbeherrschung|Bleibt standhaft!~bleibt-standhaft|Uns loyal der theokratischen Ordnung unterstellen~der-theokratischen-ordnung-unterstellen|Wahre Liebe ist loyal~wahre-liebe-ist-loyal|„Glücklich sind die Barmherzigen“~gluecklich-sind-die-barmherzigen|Steh fest im Glauben!~steh-fest-im-glauben|Was für ein Mensch sollte ich sein?~was-fuer-ein-mensch-sein|Bis zum Ende ausharren~bis-zum-ende-ausharren|Wir harren weiter aus~wir-harren-weiter-aus|Gerne verzeihen~gerne-verzeihen|„Was Gott verbunden hat“~was-gott-verbunden-hat|Glücklich vereint~gluecklich-vereint|Als junger Mensch Jehova dienen~als-junger-mensch-jehova-dienen|Kinder — ein kostbares Geschenk von Jehova~kinder-kostbares-geschenk|Jehova bittet: „Sei weise, mein Sohn“~sei-weise-mein-sohn|Ein vollkommener Lohn von Jehova~vollkommener-lohn-von-jehova|Treue Frauen, unsere Schwestern~treue-frauen-unsere-schwestern|Graues Haar — eine schöne Krone~graues-haar-schoene-krone|Siehst du dich in der neuen Welt?~in-der-neuen-welt|Endlich ewiges Leben!~endlich-ewiges-leben|Das Wunder des Lebens~das-wunder-des-lebens|An unserer Hoffnung festhalten~an-unserer-hoffnung-festhalten|Bleibe wachsam, beschäftigt und warte~bleibe-wachsam-beschaeftigt-und-warte|Schau fest auf das Ziel!~schau-fest-auf-das-ziel|Gott hat ein Paradies versprochen~gott-hat-ein-paradies-versprochen|„Ich mache alles neu“~ich-mache-alles-neu|Bald ewiges Leben!~bald-ewiges-leben|Jehova — unser Retter~jehova-unser-retter|Ein Siegeslied~ein-siegeslied|Sucht Jehova, damit er euch befreit~sucht-jehova-euch-befreit|Er wird sie rufen~er-wird-sie-rufen|Ein Ort, der dich ehrt und preist~ein-ort-der-dich-ehrt-und-preist|Mach mich mutig!~mach-mich-mutig|Liebe versagt nie~liebe-versagt-nie|Jehova – unsere Freude~jehova-unsere-freude|Durch Glauben stark~durch-glauben-stark|Endlich Frieden!~endlich-frieden|Schenk uns Geduld~schenk-uns-geduld|Jehova steht alle Ehre zu~jehova-steht-alle-ehre-zu|Ruft die Botschaft aus!~ruft-die-botschaft-aus|Ich lebe nur für dich!~ich-lebe-nur-f%C3%BCr-dich|Mit Jehova hat mein Leben Sinn~mit-jehova-hat-mein-leben-sinn|Glücklich ist, wer sieht und versteht~gl%C3%BCcklich-ist-wer-sieht-und-versteht".split('|').map(x => x.split('~'))
+};
+function songInfo(v) {
+  const n = parseInt(v, 10), list = SONGS[settings.lang] || SONGS.en;
+  if (!(n >= 1 && n <= list.length)) return null;
+  const [title, slug] = list[n - 1];
+  return { title, url: `${SONG_BASE[settings.lang] || SONG_BASE.en}${n}-${slug}/` };
+}
+
 // ═══════════════════════════════════════════
 //  UI TEXT
 // ═══════════════════════════════════════════
@@ -675,7 +695,7 @@ const UI = {
     backupDue: 'It has been a while since your last backup.', backupNow: 'Back up',
     moreSpace: 'More space', undo: 'Undo', highlighter: 'Highlighter', eraser: 'Eraser', clear: 'Clear',
     translate: 'Translate', lookUpWol: 'Look up in WOL', ok: 'OK',
-    today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
+    glossShort: 'Glossary', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
     kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', glossLink: '📖 Glossary',
     shareOk: 'Save/share opens the system share sheet ✓', shareNoHttps: 'Share sheet only works over https (e.g. GitHub Pages) – here files are downloaded.',
     shareSaveDialog: 'Saving opens a “Save as” dialog.', shareDownload: 'Files are downloaded (no share sheet in this browser).',
@@ -713,7 +733,7 @@ const UI = {
     backupDue: 'Deine letzte Sicherung ist schon eine Weile her.', backupNow: 'Sichern',
     moreSpace: 'Mehr Platz', undo: 'Rückgängig', highlighter: 'Textmarker', eraser: 'Radierer', clear: 'Löschen',
     translate: 'Übersetzen', lookUpWol: 'In WOL nachschlagen', ok: 'OK',
-    today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
+    glossShort: 'Glossar', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
     kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Bibel-Glossar · jw.org (englisch)', bibleGlossHint: 'Erklärungen aus dem Glossar der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', glossLink: '📖 Glossar',
     shareOk: 'Speichern/Teilen öffnet das Teilen-Menü des Systems ✓', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages) – hier wird heruntergeladen.',
     shareSaveDialog: 'Speichern öffnet einen „Speichern unter“-Dialog.', shareDownload: 'Dateien werden heruntergeladen (kein Teilen-Menü in diesem Browser).',
@@ -862,6 +882,20 @@ function sanitize(html) {
   return doc.body.innerHTML;
 }
 
+// known words (default counter words + kids' glossary) switch with the language
+function wordLabel(w) {
+  const k = String(w || '').toLowerCase();
+  const d = DEFAULT_WORDS.find(x => x.en.toLowerCase() === k || x.de.toLowerCase() === k);
+  if (d) return d[settings.lang];
+  const g = GLOSSARY.find(x => x.en.toLowerCase() === k || x.de.toLowerCase() === k);
+  return g ? g[settings.lang] : w;
+}
+function defaultWords() {
+  return Array.isArray(settings.words) && settings.words.length
+    ? settings.words
+    : DEFAULT_WORDS.map(d => ({ e: d.e, w: d[settings.lang] }));
+}
+
 // ═══════════════════════════════════════════
 //  DATA MODEL
 // ═══════════════════════════════════════════
@@ -879,7 +913,7 @@ function newEntry() {
     wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()] },
     comment: '',
     kids: { best: '', question: '', mood: '' },
-    counter: settings.words.map(w => ({ e: w.e, w: w.w, n: 0 }))
+    counter: defaultWords().map(w => ({ e: w.e, w: w.w, n: 0 }))
   };
 }
 const str = (v, max = 5000) => (typeof v === 'string' ? v.slice(0, max) : '');
@@ -1085,19 +1119,14 @@ function renderEntry() {
   initInks();
 }
 
-// "Sing Out Joyfully" (sjj): song N has the document id 1102016800 + N
-function songUrl(v) {
-  const n = parseInt(v, 10);
-  if (!(n >= 1)) return '';
-  if (n > 151) return wolSearch(`sjj ${n}`);
-  const loc = settings.contentLang === 'de' ? 'X' : 'E';
-  return `https://www.jw.org/finder?wtlocale=${loc}&prefer=lang&docid=${1102016800 + n}`;
+function songLinkHtml(v) {
+  const info = songInfo(v);
+  return info ? `<a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(info.url)}">${esc(info.title)} <span aria-hidden="true">▶</span></a>` : '';
 }
 function songRow(i) {
-  const url = songUrl(cur.songs[i]);
   return `<div class="song-row">🎵 ${esc(t('song'))}
     <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-song="${i}" value="${esc(cur.songs[i])}" placeholder="#" aria-label="${esc(t('song'))} ${i + 1}">
-    <a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(url || '#')}"${url ? '' : ' hidden'}>▶ ${esc(t('openSong'))}</a></div>`;
+    <span class="song-slot">${songLinkHtml(cur.songs[i])}</span></div>`;
 }
 
 function renderSection(key, title, color, top, bottom) {
@@ -1138,7 +1167,7 @@ function renderCounter() {
   const head = `<div class="sec-head"><h2>🔢 ${esc(t('wordCounter'))}</h2><button class="btn-link" data-act="editWords">${esc(t('editWords'))}</button></div>`;
   const body = `<p class="hint">${esc(t('counterHint'))}</p>
     <div class="tiles">${c.map((w, i) => `<button class="tile" data-act="count" data-i="${i}">
-      <span class="em">${esc(w.e)}</span><span class="w">${esc(w.w)}</span><span class="n" id="cnt-${i}">${w.n}</span>
+      <span class="em">${esc(w.e)}</span><span class="w">${esc(wordLabel(w.w))}</span><span class="n" id="cnt-${i}">${w.n}</span>
       <span class="minus" data-act="uncount" data-i="${i}" role="button" aria-label="−1">−</span></button>`).join('')}</div>`;
   if (settings.kidMode) return `<section class="card counter">${head}${body}</section>`;
   const total = c.reduce((s, w) => s + w.n, 0);
@@ -1160,8 +1189,8 @@ document.addEventListener('input', ev => {
   if (el.dataset.song != null) {
     const v = el.value.replace(/\D/g, '').slice(0, 3);
     cur.songs[+el.dataset.song] = v; dirty();
-    const a = el.parentElement.querySelector('.song-link'), url = songUrl(v);
-    if (a) { a.hidden = !url; a.href = url || '#'; }
+    const slot = el.parentElement.querySelector('.song-slot');
+    if (slot) slot.innerHTML = songLinkHtml(v);
     return;
   }
   if (el.dataset.f && cur && el.closest('#entry')) {
@@ -1236,13 +1265,13 @@ function selectedWord() {
 // ═══════════════════════════════════════════
 //  BIBLE PICKER
 // ═══════════════════════════════════════════
-function books() { return settings.contentLang === 'de' ? BOOKS_DE : BOOKS_EN; }
+function books() { return settings.lang === 'de' ? BOOKS_DE : BOOKS_EN; }
 function buildUrl(bookN, ch, v, ve) {
   const pad = (n, l) => String(n).padStart(l, '0');
   const first = `${pad(bookN, 2)}${pad(ch, 3)}${pad(v || 1, 3)}`;
   const last = ve || v;
   const range = last ? `${first}-${pad(bookN, 2)}${pad(ch, 3)}${pad(last, 3)}` : first;
-  const loc = settings.contentLang === 'de' ? 'X' : 'E';
+  const loc = settings.lang === 'de' ? 'X' : 'E';
   return `https://www.jw.org/finder?wtlocale=${loc}&pub=nwtsty&bible=${range}`;
 }
 function buildLabel(name, ch, v, ve) {
@@ -1551,7 +1580,7 @@ const ACTIONS = {
       w: r.querySelector('.w-word').value.trim().slice(0, 40)
     })).filter(x => x.w);
     cur.counter = list.map(x => {
-      const old = cur.counter.find(c => c.w.toLowerCase() === x.w.toLowerCase());
+      const old = cur.counter.find(c => wordLabel(c.w).toLowerCase() === x.w.toLowerCase());
       return { e: x.e, w: x.w, n: old ? old.n : 0 };
     });
     if ($('words-default').checked) { settings.words = list; saveSettings(); }
@@ -1596,14 +1625,13 @@ const ACTIONS = {
   fmtTranslate: () => {
     const w = selectedWord();
     if (!w) { toast(t('selectWord')); return; }
-    const from = settings.contentLang;
-    const to = settings.translateTo === from ? (from === 'en' ? 'de' : 'en') : settings.translateTo;
-    window.open(`https://translate.google.com/?sl=${from}&tl=${to}&text=${encodeURIComponent(w)}&op=translate`, '_blank', 'noopener');
+    const to = settings.translateTo;
+    window.open(`https://translate.google.com/?sl=auto&tl=${to}&text=${encodeURIComponent(w)}&op=translate`, '_blank', 'noopener');
   },
   fmtWol: () => {
     const w = selectedWord();
     if (!w) { toast(t('selectWord')); return; }
-    const hit = settings.contentLang === 'en' && jwgLookup(w);
+    const hit = settings.lang === 'en' && jwgLookup(w);
     openScripture(hit ? hit.url : wolSearch(w));
   },
   fmtDone: () => { if (document.activeElement) document.activeElement.blur(); hideFmt(); },
@@ -1629,8 +1657,8 @@ const ACTIONS = {
   glossCount: el => {
     if (!cur) { toast(t('noEntryOpen') || t('counted')); return; }
     const g = GLOSSARY[+el.dataset.g];
-    const word = settings.contentLang === 'de' ? g.de : g.en;
-    if (cur.counter.some(c => c.w.toLowerCase() === word.toLowerCase())) { toast(t('alreadyCounted')); return; }
+    const word = settings.lang === 'de' ? g.de : g.en;
+    if (cur.counter.some(c => wordLabel(c.w).toLowerCase() === word.toLowerCase())) { toast(t('alreadyCounted')); return; }
     cur.counter.push({ e: '⭐', w: word, n: 0 });
     dirty(); keepScroll(renderEntry); toast(t('counted'));
   },
@@ -1680,22 +1708,22 @@ document.addEventListener('keydown', ev => {
 
 // ── glossary ──
 function wolSearch(q) {
-  return settings.contentLang === 'de'
+  return settings.lang === 'de'
     ? `https://wol.jw.org/de/wol/s/r10/lp-x?q=${encodeURIComponent(q)}`
     : `https://wol.jw.org/en/wol/s/r1/lp-e?q=${encodeURIComponent(q)}`;
 }
 function renderGlossary() {
   const q = $('gl-search').value.trim().toLowerCase();
-  const cl = settings.contentLang, ul = settings.lang;
+  const cl = settings.lang, ul = settings.lang;
   $('gl-title').textContent = t('glossary');
   $('gl-search').placeholder = t('glSearch');
   const items = GLOSSARY.map((g, i) => ({ g, i }))
-    .filter(({ g }) => !q || [g.en, g.de, g.xen, g.xde].join(' ').toLowerCase().includes(q))
+    .filter(({ g }) => !q || (cl === 'de' ? [g.de, g.xde] : [g.en, g.xen]).join(' ').toLowerCase().includes(q))
     .sort((a, b) => a.g[cl].localeCompare(b.g[cl], cl));
   const kids = items.map(({ g, i }) => {
-    const j = KID_JWG[g.en] && jwgByTitle(KID_JWG[g.en]);
+    const j = cl === 'en' && KID_JWG[g.en] && jwgByTitle(KID_JWG[g.en]);
     return `<div class="gl-item">
-      <div><span class="gl-term">${esc(g[cl])}</span><span class="gl-alt">${esc(cl === 'en' ? g.de : g.en)}</span></div>
+      <div><span class="gl-term">${esc(g[cl])}</span></div>
       <div class="gl-x">${esc(ul === 'de' ? g.xde : g.xen)}</div>
       <div class="gl-links">
         ${j ? `<a href="${esc(j.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(t('glossLink'))}</a>` : ''}
@@ -1704,7 +1732,7 @@ function renderGlossary() {
       </div>
     </div>`;
   }).join('');
-  const bible = JWG.filter(g => !q || g.title.toLowerCase().includes(q))
+  const bible = cl !== 'en' ? '' : JWG.filter(g => !q || g.title.toLowerCase().includes(q))
     .map(g => `<a class="jwg" href="${esc(g.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(g.title)}</a>`).join('');
   $('gl-list').innerHTML =
     (kids ? `<div class="gl-h">🧒 ${esc(t('kidsGloss'))}</div>${kids}` : '') +
@@ -1721,7 +1749,7 @@ function wordRow(e, w) {
 }
 function openWords() {
   $('words-body').innerHTML = `<h3>${esc(t('wordsTitle'))}</h3>
-    <div id="words-rows">${cur.counter.map(c => wordRow(c.e, c.w)).join('')}</div>
+    <div id="words-rows">${cur.counter.map(c => wordRow(c.e, wordLabel(c.w))).join('')}</div>
     <button class="btn" data-act="wordsAdd">${esc(t('addWord'))}</button>
     <label class="chk"><input type="checkbox" id="words-default"> ${esc(t('asDefault'))}</label>
     <div class="modal-btns">
@@ -1743,8 +1771,6 @@ function renderSettings() {
       <label class="switch"><input type="checkbox" data-set="fingerDraw"${s.fingerDraw ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
       <select data-set="defaultBlock"><option value="text"${s.defaultBlock === 'text' ? ' selected' : ''}>${esc(t('defText'))}</option><option value="ink"${s.defaultBlock === 'ink' ? ' selected' : ''}>${esc(t('defInk'))}</option></select></div>
-    <div class="set-row"><div class="lbl">${esc(t('contentLang'))}</div>
-      <select data-set="contentLang"><option value="en"${s.contentLang === 'en' ? ' selected' : ''}>English</option><option value="de"${s.contentLang === 'de' ? ' selected' : ''}>Deutsch</option></select></div>
     <div class="set-row"><div class="lbl">🌐 ${esc(t('translateTo'))}</div>
       <select data-set="translateTo">${langOpt('de', 'Deutsch')}${langOpt('en', 'English')}${langOpt('es', 'Español')}${langOpt('fr', 'Français')}${langOpt('it', 'Italiano')}${langOpt('pl', 'Polski')}${langOpt('ro', 'Română')}${langOpt('ru', 'Русский')}${langOpt('tr', 'Türkçe')}${langOpt('tl', 'Tagalog')}</select></div>
     <div class="set-block">
@@ -1887,7 +1913,7 @@ function applyLang() {
   $('bp-l-book').textContent = t('book'); $('bp-l-ch').textContent = t('chapter');
   $('bp-l-v').textContent = t('verse'); $('bp-l-ve').textContent = t('vend');
   $('bp-cancel').textContent = t('cancel'); $('bp-insert').textContent = t('insert');
-  $('btn-gloss').title = t('glossary'); $('btn-settings').title = t('settings');
+  $('gloss-label').textContent = t('glossShort'); $('btn-settings').title = t('settings');
   $('fb-tr').title = t('translate'); $('fb-wol').title = t('lookUpWol'); $('fb-done').textContent = t('ok');
   updateHeader();
   if (cur) keepScroll(renderEntry); else renderList();
@@ -1904,7 +1930,10 @@ function applyLang() {
     const s = await metaGet('settings');
     if (s && typeof s === 'object') settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), s, { pen: Object.assign({}, DEFAULT_SETTINGS.pen, s.pen || {}) });
   } catch {}
-  if (!Array.isArray(settings.words) || !settings.words.length) settings.words = DEFAULT_WORDS;
+  // the English default list saved by V1.0/1.1 → back to language-dependent defaults
+  if (!Array.isArray(settings.words) || !settings.words.length ||
+      (settings.words.length === DEFAULT_WORDS.length && settings.words.every((w, i) => w.w === DEFAULT_WORDS[i].en))) settings.words = null;
+  delete settings.contentLang;
   try { entries = (await storeAll()).map(normalizeEntry).filter(Boolean); } catch { entries = []; }
 
   try {
