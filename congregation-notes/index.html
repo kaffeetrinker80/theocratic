@@ -390,7 +390,6 @@ body.finger .paper .c-live { touch-action: none; }
 .mode-seg button.on { background: var(--c, var(--talk)); color: var(--card); }
 @media (max-width: 480px) { .mode-seg button span { display: none; } .mode-seg button { padding: 4px 10px; font-size: 15px; } }
 @media print { .mode-seg { display: none !important; } }
-body.no-mode-switch .mode-seg { display: none; }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -585,7 +584,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.10 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.11 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -654,7 +653,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.10';
+const APP_VERSION = '1.2.11';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -676,7 +675,7 @@ const DEFAULT_WORDS = [
 const DEFAULT_SETTINGS = {
   lang: 'en', translateTo: 'de', theme: 'light',
   kidMode: true, fingerDraw: false, defaultBlock: 'text',
-  showCounter: true, showKids: true, showModeSwitch: true, profile: null, name: '', onboarded: false,
+  showCounter: true, showKids: true, profile: null, name: '', onboarded: false,
   words: null,            // null = default words in the current language
   pen: { tool: 'pen', color: '#1c2740', size: 5 },
   lastBackup: null
@@ -1882,7 +1881,7 @@ let penOnlyHinted = false;
 function inkDown(st, ev) {
   if (ev.pointerType === 'touch' && !settings.fingerDraw && !penSeen && !penOnlyHinted) {
     penOnlyHinted = true;
-    toast(settings.showModeSwitch === false ? t('penOnlyHintLocked') : t('penOnlyHint'));
+    toast(t('penOnlyHint'));
   }
   if (st.pid !== null || !allowPointer(ev)) return;
   ev.preventDefault();
@@ -2034,7 +2033,7 @@ const ACTIONS = {
   },
 
   obLang: el => { obKeepName(); settings.lang = el.dataset.v; saveSettings(); applyLang(); renderOnboard(); },
-  obAge: el => { ob.age = el.dataset.v; if ((ob.age === 'small') !== (ob.input === 'hand' || ob.input === 'keyboard' || !ob.input)) ob.input = null; renderOnboard(); },
+  obAge: el => { ob.age = el.dataset.v; renderOnboard(); },
   obInput: el => { ob.input = el.dataset.v; renderOnboard(); },
   obTheme: el => { settings.theme = el.dataset.v; saveSettings(); applyTheme(); renderOnboard(); },
   obBack: () => { ob.step = Math.max(0, ob.step - 1); renderOnboard(); },
@@ -2050,7 +2049,7 @@ const ACTIONS = {
   addText: el => addBlock(el.dataset.sec, 'text'),
   addInk: el => addBlock(el.dataset.sec, 'ink'),
   // new field continues with the kind of the last field in this section
-  addNote: el => { const o = secObj(el.dataset.sec), last = o && o.blocks[o.blocks.length - 1]; addBlock(el.dataset.sec, settings.showModeSwitch !== false && last ? last.type : settings.defaultBlock); },
+  addNote: el => { const o = secObj(el.dataset.sec), last = o && o.blocks[o.blocks.length - 1]; addBlock(el.dataset.sec, last ? last.type : settings.defaultBlock); },
   blockMode: el => {
     const sec = el.dataset.sec, i = +el.dataset.i, b = getBlock(sec, i), m = el.dataset.m;
     if (!b) return;
@@ -2355,8 +2354,6 @@ function renderSettings() {
       <label class="switch"><input type="checkbox" data-set="showCounter"${s.showCounter ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div><div class="lbl">🧒 ${esc(t('kidsCorner'))}</div><div class="hint2">${esc(t('kidsCornerHint'))}</div></div>
       <label class="switch"><input type="checkbox" data-set="showKids"${s.showKids ? ' checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><div class="lbl">⌨️ ✏️ 👆 ${esc(t('modeSwitchSetting'))}</div><div class="hint2">${esc(t('modeSwitchHint'))}</div></div>
-      <label class="switch"><input type="checkbox" data-set="showModeSwitch"${s.showModeSwitch ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div><div class="lbl">${esc(t('fingerDraw'))}</div><div class="hint2">${esc(t('fingerDrawHint'))}</div></div>
       <label class="switch"><input type="checkbox" data-set="fingerDraw"${s.fingerDraw ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
@@ -2661,10 +2658,10 @@ window.addEventListener('afterprint', () => {
 //  FIRST START  (who are you? how do you write?)
 // ═══════════════════════════════════════════
 const PROFILES = {
-  small: { kidMode: true,  showCounter: true,  showKids: true,  showModeSwitch: false },
-  kid:   { kidMode: true,  showCounter: true,  showKids: true,  showModeSwitch: true },
-  teen:  { kidMode: false, showCounter: false, showKids: false, showModeSwitch: true },
-  adult: { kidMode: false, showCounter: false, showKids: false, showModeSwitch: true }
+  small: { kidMode: true,  showCounter: true,  showKids: true },
+  kid:   { kidMode: true,  showCounter: true,  showKids: true },
+  teen:  { kidMode: false, showCounter: false, showKids: false },
+  adult: { kidMode: false, showCounter: false, showKids: false }
 };
 let ob = { step: 0, name: '', age: null, input: null };
 function openOnboard() {
@@ -2697,12 +2694,7 @@ function renderOnboard() {
       ${obCard('obAge', 'adult', ob.age === 'adult', '👤', t('ageAdult'), t('ageAdultX'))}
     </div>`;
   } else {
-    body = ob.age === 'small'
-      ? `<h3>${esc(t('obInput'))}</h3><div class="ob-grid">
-      ${obCard('obInput', 'hand', ob.input === 'hand', '✍️', t('inHand'), t('inHandX'))}
-      ${obCard('obInput', 'keyboard', ob.input === 'keyboard', '⌨️', t('inKeys'), t('inKeysX'))}
-    </div>`
-      : `<h3>${esc(t('obInput'))}</h3><div class="ob-grid three">
+    body = `<h3>${esc(t('obInput'))}</h3><div class="ob-grid three">
       ${obCard('obInput', 'pen', ob.input === 'pen', '✏️', t('inPen'), t('inPenX'))}
       ${obCard('obInput', 'finger', ob.input === 'finger', '👆', t('inFinger'), t('inFingerX'))}
       ${obCard('obInput', 'keyboard', ob.input === 'keyboard', '⌨️', t('inKeys'), t('inKeysX'))}
@@ -2746,7 +2738,6 @@ function applyBodyClasses() {
   document.body.classList.toggle('kid', !!settings.kidMode);
   document.body.classList.toggle('small', settings.profile === 'small');
   document.body.classList.toggle('finger', !!settings.fingerDraw);
-  document.body.classList.toggle('no-mode-switch', settings.showModeSwitch === false);
 }
 function applyLang() {
   void loadSongs(settings.lang);
@@ -2794,7 +2785,6 @@ function applyLang() {
     }
   } catch {}
 
-  if (settings.profile === 'small' && settings.showModeSwitch === false && settings.defaultBlock === 'ink' && !settings.fingerDraw && !settings.smallFingerFix) { settings.fingerDraw = true; settings.smallFingerFix = true; saveSettings(); }
   applyBodyClasses();
   applyTheme();
   applyLang();
