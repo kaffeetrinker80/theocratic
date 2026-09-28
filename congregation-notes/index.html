@@ -383,6 +383,13 @@ body.small .tile .n { font-size: 28px; }
 body.finger .paper .c-live { touch-action: none; }
 .tl.mode { padding: 0 9px; font-size: 13px; font-weight: 700; white-space: nowrap; }
 .tl.mode.finger { border-color: var(--berry); color: var(--berry); }
+.blk-tools { display: inline-flex; align-items: center; gap: 6px; }
+.mode-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--card); }
+.mode-seg button { border: none; background: transparent; padding: 4px 9px; font-size: 12.5px; font-weight: 700; color: var(--sub); display: inline-flex; align-items: center; gap: 4px; min-height: 30px; }
+.mode-seg button + button { border-left: 1px solid var(--border); }
+.mode-seg button.on { background: var(--c, var(--talk)); color: var(--card); }
+@media (max-width: 480px) { .mode-seg button span { display: none; } .mode-seg button { padding: 4px 10px; font-size: 15px; } }
+@media print { .mode-seg { display: none !important; } }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -577,7 +584,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.7 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.8 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -646,7 +653,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.7';
+const APP_VERSION = '1.2.8';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -848,7 +855,7 @@ const UI = {
     song: 'Song', publicTalk: 'Public Talk', wtStudy: 'Watchtower Study', wtTitle: 'Article title', phWt: 'Title of the study article',
     conductor: 'Conductor', reader: 'Reader', myComment: '💬 My comment', phComment: 'What I want to answer…',
     notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
-    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
+    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', addNote: '+ New field', modeText: 'Text', fieldMode: 'Write with', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Pen mode: only the pen writes, fingers scroll.', inkHintFinger: 'Finger mode: finger and pen write. Scroll next to the field.', modePen: 'Pen', modeFinger: 'Finger', inkModeHint: 'Switch between pen and finger',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
     partType: "Type of part", choosePartType: "– choose –", as_startConv: "Starting a Conversation", as_explainBeliefs: "Explaining Your Beliefs", as_followUp: "Following Up", as_whatSay: "What Would You Say?", as_talkPart: "Talk", as_makeDisciples: "Making Disciples", meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
@@ -896,7 +903,7 @@ const UI = {
     song: 'Lied', publicTalk: 'Öffentlicher Vortrag', wtStudy: 'Wachtturm-Studium', wtTitle: 'Artikelthema', phWt: 'Thema des Studienartikels',
     conductor: 'Leiter', reader: 'Leser', myComment: '💬 Mein Kommentar', phComment: 'Was ich antworten möchte…',
     notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
-    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
+    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', addNote: '+ Neues Feld', modeText: 'Text', fieldMode: 'Schreiben mit', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Stiftmodus: nur der Stift schreibt, Finger scrollen.', inkHintFinger: 'Fingermodus: Finger und Stift schreiben. Neben dem Feld scrollen.', modePen: 'Stift', modeFinger: 'Finger', inkModeHint: 'Zwischen Stift und Finger umschalten',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
     partType: "Art der Aufgabe", choosePartType: "– auswählen –", as_startConv: "Gespräche beginnen", as_explainBeliefs: "Unsere Glaubensansichten erklären", as_followUp: "Interesse fördern", as_whatSay: "Was würdest du sagen?", as_talkPart: "Vortrag", as_makeDisciples: "Menschen zu Jüngern machen", meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
@@ -1144,8 +1151,7 @@ function partHtml(key, p, i) {
     <div class="blocks">${p.blocks.map((b, j) => renderBlock(sec, b, j, p.blocks.length)).join('')}</div>
     <div class="sec-actions">
       <button class="btn-soft" data-act="addRef" data-sec="${sec}">${esc(t('addRef'))}</button>
-      <button class="btn-soft" data-act="addText" data-sec="${sec}">${esc(t('addText'))}</button>
-      <button class="btn-soft" data-act="addInk" data-sec="${sec}">${esc(t('addInk'))}</button>
+      <button class="btn-soft" data-act="addNote" data-sec="${sec}">${esc(t('addNote'))}</button>
     </div>
   </div>`;
 }
@@ -1207,6 +1213,9 @@ function normRefs(a) {
 }
 function normBlocks(a) {
   const out = (Array.isArray(a) ? a : []).map(b => {
+    const other = {};
+    if (b && Array.isArray(b.strokes) && b.type !== 'ink' && b.strokes.length) Object.assign(other, normBlocks([{ ...b, type: 'ink' }])[0], { type: 'text', html: '' });
+    if (b && b.type === 'ink' && typeof b.html === 'string' && b.html) other.html = sanitize(str(b.html, 200000));
     if (b && b.type === 'ink') {
       const strokes = (Array.isArray(b.strokes) ? b.strokes : []).filter(s => s && Array.isArray(s.p)).map(s => ({
         t: s.t === 'hl' ? 'hl' : 'pen',
@@ -1214,9 +1223,9 @@ function normBlocks(a) {
         w: Math.min(60, Math.max(1, num(s.w, 5))),
         p: s.p.filter(q => Array.isArray(q) && q.length >= 2).map(q => [num(q[0]), num(q[1]), Math.min(1, Math.max(0, num(q[2], .5)))])
       }));
-      return { type: 'ink', h: Math.min(20000, Math.max(200, num(b.h, 520))), strokes, refs: normRefs(b.refs) };
+      return { type: 'ink', h: Math.min(20000, Math.max(200, num(b.h, 520))), strokes, refs: normRefs(b.refs), ...(other.html ? { html: other.html } : {}) };
     }
-    return { type: 'text', html: sanitize(str(b && b.html, 200000)), refs: normRefs(b && b.refs) };
+    return { type: 'text', html: sanitize(str(b && b.html, 200000)), refs: normRefs(b && b.refs), ...(other.strokes ? { h: other.h, strokes: other.strokes } : {}) };
   });
   return out.length ? out : [mkBlock('text')];
 }
@@ -1463,19 +1472,22 @@ function renderSection(key, title, color, top, bottom) {
     <div class="blocks">${sec.blocks.map((b, i) => renderBlock(key, b, i, sec.blocks.length)).join('')}</div>
     <div class="sec-actions">
       <button class="btn-soft" data-act="addRef" data-sec="${key}">${esc(t('addRef'))}</button>
-      <button class="btn-soft" data-act="addText" data-sec="${key}">${esc(t('addText'))}</button>
-      <button class="btn-soft" data-act="addInk" data-sec="${key}">${esc(t('addInk'))}</button>
+      <button class="btn-soft" data-act="addNote" data-sec="${key}">${esc(t('addNote'))}</button>
     </div>
     ${bottom}
   </section>`;
 }
 
+function blockModeHtml(key, b, i) {
+  const mode = b.type === 'text' ? 'text' : (settings.fingerDraw ? 'finger' : 'pen');
+  return `<div class="mode-seg" role="group" aria-label="${esc(t('fieldMode'))}">${[['text', '⌨️', t('modeText')], ['pen', '✏️', t('modePen')], ['finger', '👆', t('modeFinger')]]
+    .map(([m, icon, label]) => `<button class="${mode === m ? 'on' : ''}" data-act="blockMode" data-sec="${key}" data-i="${i}" data-m="${m}" title="${esc(label)}" aria-pressed="${mode === m}">${icon}<span>${esc(label)}</span></button>`).join('')}</div>`;
+}
 function renderBlock(key, b, i, n) {
-  const topBar = key === 'talk' && i === 0 && b.type === 'text'
-    ? `<div class="blk-top"><span>${esc(t('notes'))}</span><button class="x-btn" data-act="clearTalkText" data-i="${i}" aria-label="${esc(t('clearText'))}" title="${esc(t('clearText'))}">×</button></div>`
-    : n > 1
-    ? `<div class="blk-top"><span>${esc(i === 0 ? t('notes') : t('moreNotes'))}</span><button class="x-btn" data-act="delBlock" data-sec="${key}" data-i="${i}" aria-label="✕">✕</button></div>`
-    : '';
+  const xBtn = key === 'talk' && i === 0 && b.type === 'text'
+    ? `<button class="x-btn" data-act="clearTalkText" data-i="${i}" aria-label="${esc(t('clearText'))}" title="${esc(t('clearText'))}">×</button>`
+    : n > 1 ? `<button class="x-btn" data-act="delBlock" data-sec="${key}" data-i="${i}" aria-label="✕">✕</button>` : '';
+  const topBar = `<div class="blk-top"><span>${esc(i === 0 ? t('notes') : t('moreNotes'))}</span><span class="blk-tools">${blockModeHtml(key, b, i)}${xBtn}</span></div>`;
   const body = b.type === 'ink'
     ? `<div class="ink" data-sec="${key}" data-i="${i}">
         <div class="ink-tools">${inkToolsHtml()}</div>
@@ -1728,15 +1740,21 @@ function inkToolsHtml() {
     + '<span class="sep"></span>'
     + `<button class="tl" data-act="inkTool" data-t="hl" title="${esc(t('highlighter'))}" aria-label="${esc(t('highlighter'))}">🖍️</button>`
     + `<button class="tl" data-act="inkTool" data-t="er" title="${esc(t('eraser'))}" aria-label="${esc(t('eraser'))}">🧽</button>`
-    + '<span class="sep"></span>'
-    + `<button class="tl mode" data-act="inkMode" title="${esc(t('inkModeHint'))}" aria-label="${esc(t('inkModeHint'))}">${inkModeLabel()}</button>`
     + '<span class="grow"></span>'
     + `<button class="tl" data-act="inkUndo" title="${esc(t('undo'))}" aria-label="${esc(t('undo'))}">↶</button>`
     + `<button class="tl" data-act="inkMore" title="${esc(t('moreSpace'))}" aria-label="${esc(t('moreSpace'))}">↕</button>`
     + `<button class="tl" data-act="inkClear" title="${esc(t('clear'))}" aria-label="${esc(t('clear'))}">🗑</button>`;
 }
 function inkModeLabel() { return settings.fingerDraw ? `👆 ${esc(t('modeFinger'))}` : `✏️ ${esc(t('modePen'))}`; }
+function updateModeSegs() {
+  document.querySelectorAll('.mode-seg').forEach(seg => {
+    const ink = !seg.querySelector('[data-m="text"]').classList.contains('on');
+    if (!ink) return;
+    seg.querySelectorAll('button').forEach(b => { const on = b.dataset.m === (settings.fingerDraw ? 'finger' : 'pen'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  });
+}
 function updateInkToolbars() {
+  updateModeSegs();
   document.querySelectorAll('.tl.mode').forEach(b => { b.innerHTML = inkModeLabel(); b.classList.toggle('finger', !!settings.fingerDraw); });
   document.querySelectorAll('.ink-hint').forEach(h => { h.textContent = settings.fingerDraw ? t('inkHintFinger') : t('inkHintPen'); });
   const p = settings.pen;
@@ -2025,10 +2043,30 @@ const ACTIONS = {
 
   addText: el => addBlock(el.dataset.sec, 'text'),
   addInk: el => addBlock(el.dataset.sec, 'ink'),
+  // new field continues with the kind of the last field in this section
+  addNote: el => { const o = secObj(el.dataset.sec), last = o && o.blocks[o.blocks.length - 1]; addBlock(el.dataset.sec, last ? last.type : settings.defaultBlock); },
+  blockMode: el => {
+    const sec = el.dataset.sec, i = +el.dataset.i, b = getBlock(sec, i), m = el.dataset.m;
+    if (!b) return;
+    if (m === 'text') {
+      if (b.type === 'text') return;
+      b.type = 'text'; if (typeof b.html !== 'string') b.html = '';
+    } else {
+      if (b.type !== 'ink') {
+        b.type = 'ink';
+        if (!Array.isArray(b.strokes)) b.strokes = [];
+        if (!b.h) b.h = /:/.test(sec) ? 320 : 520;
+      }
+      settings.fingerDraw = m === 'finger'; saveSettings();
+      document.body.classList.toggle('finger', !!settings.fingerDraw);
+    }
+    activeBlk[sec] = i; dirty(); keepScroll(renderEntry);
+    if (m === 'text') { const rt = document.querySelector(`.blk[data-sec="${sec}"][data-i="${i}"] .rt`); if (rt) rt.focus(); }
+  },
   delBlock: el => {
     const sec = el.dataset.sec, i = +el.dataset.i, b = getBlock(sec, i);
     if (!b) return;
-    const hasContent = b.refs.length || (b.type === 'ink' ? b.strokes.length : stripHtml(b.html).trim());
+    const hasContent = b.refs.length || (b.strokes && b.strokes.length) || stripHtml(b.html || '').trim();
     if (hasContent && !confirm(t('removeConfirm'))) return;
     const holder = secObj(sec);
     holder.blocks.splice(i, 1);
