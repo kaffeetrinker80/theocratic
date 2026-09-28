@@ -381,6 +381,8 @@ body.small .tile .n { font-size: 28px; }
 .paper canvas { position: absolute; left: 0; top: 0; display: block; }
 .paper .c-live { touch-action: pan-y; }
 body.finger .paper .c-live { touch-action: none; }
+.tl.mode { padding: 0 9px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.tl.mode.finger { border-color: var(--berry); color: var(--berry); }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -575,7 +577,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.6 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.7 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -644,7 +646,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.6';
+const APP_VERSION = '1.2.7';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -847,7 +849,7 @@ const UI = {
     conductor: 'Conductor', reader: 'Reader', myComment: '💬 My comment', phComment: 'What I want to answer…',
     notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
     addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
-    inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
+    inkHintPen: 'Pen mode: only the pen writes, fingers scroll.', inkHintFinger: 'Finger mode: finger and pen write. Scroll next to the field.', modePen: 'Pen', modeFinger: 'Finger', inkModeHint: 'Switch between pen and finger',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
     partType: "Type of part", choosePartType: "– choose –", as_startConv: "Starting a Conversation", as_explainBeliefs: "Explaining Your Beliefs", as_followUp: "Following Up", as_whatSay: "What Would You Say?", as_talkPart: "Talk", as_makeDisciples: "Making Disciples", meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
     songLoading: 'Loading song titles…', songLoadError: 'Song titles unavailable.', songRetry: 'Retry',
@@ -895,7 +897,7 @@ const UI = {
     conductor: 'Leiter', reader: 'Leser', myComment: '💬 Mein Kommentar', phComment: 'Was ich antworten möchte…',
     notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
     addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
-    inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
+    inkHintPen: 'Stiftmodus: nur der Stift schreibt, Finger scrollen.', inkHintFinger: 'Fingermodus: Finger und Stift schreiben. Neben dem Feld scrollen.', modePen: 'Stift', modeFinger: 'Finger', inkModeHint: 'Zwischen Stift und Finger umschalten',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
     partType: "Art der Aufgabe", choosePartType: "– auswählen –", as_startConv: "Gespräche beginnen", as_explainBeliefs: "Unsere Glaubensansichten erklären", as_followUp: "Interesse fördern", as_whatSay: "Was würdest du sagen?", as_talkPart: "Vortrag", as_makeDisciples: "Menschen zu Jüngern machen", meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
     songLoading: 'Liedtitel werden geladen …', songLoadError: 'Liedtitel nicht verfügbar.', songRetry: 'Erneut laden',
@@ -1726,12 +1728,17 @@ function inkToolsHtml() {
     + '<span class="sep"></span>'
     + `<button class="tl" data-act="inkTool" data-t="hl" title="${esc(t('highlighter'))}" aria-label="${esc(t('highlighter'))}">🖍️</button>`
     + `<button class="tl" data-act="inkTool" data-t="er" title="${esc(t('eraser'))}" aria-label="${esc(t('eraser'))}">🧽</button>`
+    + '<span class="sep"></span>'
+    + `<button class="tl mode" data-act="inkMode" title="${esc(t('inkModeHint'))}" aria-label="${esc(t('inkModeHint'))}">${inkModeLabel()}</button>`
     + '<span class="grow"></span>'
     + `<button class="tl" data-act="inkUndo" title="${esc(t('undo'))}" aria-label="${esc(t('undo'))}">↶</button>`
     + `<button class="tl" data-act="inkMore" title="${esc(t('moreSpace'))}" aria-label="${esc(t('moreSpace'))}">↕</button>`
     + `<button class="tl" data-act="inkClear" title="${esc(t('clear'))}" aria-label="${esc(t('clear'))}">🗑</button>`;
 }
+function inkModeLabel() { return settings.fingerDraw ? `👆 ${esc(t('modeFinger'))}` : `✏️ ${esc(t('modePen'))}`; }
 function updateInkToolbars() {
+  document.querySelectorAll('.tl.mode').forEach(b => { b.innerHTML = inkModeLabel(); b.classList.toggle('finger', !!settings.fingerDraw); });
+  document.querySelectorAll('.ink-hint').forEach(h => { h.textContent = settings.fingerDraw ? t('inkHintFinger') : t('inkHintPen'); });
   const p = settings.pen;
   document.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', p.tool === 'pen' && b.dataset.c === p.color));
   document.querySelectorAll('.sz').forEach(b => b.classList.toggle('on', p.tool === 'pen' && +b.dataset.s === p.size));
@@ -1759,7 +1766,7 @@ function setupInk(el, b) {
   const blockScroll = ev => {
     const tt = ev.touches && ev.touches[0];
     if (!tt) return;
-    if (tt.touchType === 'stylus' || st.pid !== null || (settings.fingerDraw && !penSeen)) ev.preventDefault();
+    if (tt.touchType === 'stylus' || st.pid !== null || settings.fingerDraw) ev.preventDefault();
   };
   live.addEventListener('touchstart', blockScroll, { passive: false });
   live.addEventListener('touchmove', blockScroll, { passive: false });
@@ -1839,7 +1846,7 @@ function inkPoint(st, ev) {
 function allowPointer(ev) {
   if (ev.pointerType === 'pen') { if (!penSeen) { penSeen = true; } return true; }
   if (ev.pointerType === 'mouse') return ev.button === 0;
-  return settings.fingerDraw && !penSeen;
+  return !!settings.fingerDraw;
 }
 function pushUndo(st) { st.undo.push(JSON.stringify(st.b.strokes)); if (st.undo.length > 40) st.undo.shift(); }
 let liveRaf = 0;
@@ -1886,7 +1893,7 @@ function inkUp(st, ev) {
   st.pid = null;
   if (st.erasing) {
     st.erasing = false;
-    if (!st.erasedAny) st.undo.pop(); else dirty();
+    if (!st.erasedAny) st.undo.pop(); else { fitInk(st); dirty(); }
     return;
   }
   if (!st.cur) return;
@@ -1898,6 +1905,14 @@ function inkUp(st, ev) {
   if (maxY > st.b.h - 90) { st.b.h += 260; sizeInk(st, true); }
   else redrawInk(st);
   dirty();
+}
+// smallest height for this field: part fields start lower than section fields
+function inkMinH(st) { return /:/.test(st.el.dataset.sec || '') ? 320 : 520; }
+function fitInk(st) {
+  const bottom = st.b.strokes.length ? Math.max(...st.b.strokes.flatMap(s => s.p.map(q => q[1] + s.w))) : 0;
+  const target = Math.max(inkMinH(st), Math.ceil((bottom + 140) / 130) * 130);
+  if (target < st.b.h) { st.b.h = target; sizeInk(st, true); return true; }
+  return false;
 }
 function eraseAt(st, q) {
   const r = 16;
@@ -2111,12 +2126,18 @@ const ACTIONS = {
   inkColor: el => { settings.pen.tool = 'pen'; settings.pen.color = el.dataset.c; saveSettings(); updateInkToolbars(); },
   inkSize: el => { settings.pen.tool = 'pen'; settings.pen.size = +el.dataset.s; saveSettings(); updateInkToolbars(); },
   inkTool: el => { settings.pen.tool = settings.pen.tool === el.dataset.t ? 'pen' : el.dataset.t; saveSettings(); updateInkToolbars(); },
-  inkUndo: el => { const st = inkOf(el); if (!st || !st.undo.length) return; st.b.strokes = JSON.parse(st.undo.pop()); redrawInk(st); dirty(); },
+  inkUndo: el => { const st = inkOf(el); if (!st || !st.undo.length) return; st.b.strokes = JSON.parse(st.undo.pop()); if (!fitInk(st)) redrawInk(st); dirty(); },
+  inkMode: () => {
+    settings.fingerDraw = !settings.fingerDraw; saveSettings();
+    document.body.classList.toggle('finger', !!settings.fingerDraw);
+    updateInkToolbars();
+    toast(settings.fingerDraw ? t('inkHintFinger') : t('inkHintPen'));
+  },
   inkMore: el => { const st = inkOf(el); if (!st) return; st.b.h += 300; sizeInk(st, true); dirty(); },
   inkClear: el => {
     const st = inkOf(el); if (!st || !st.b.strokes.length) return;
     if (!confirm(t('clearInk'))) return;
-    pushUndo(st); st.b.strokes = []; redrawInk(st); dirty();
+    pushUndo(st); st.b.strokes = []; if (!fitInk(st)) redrawInk(st); dirty();
   },
 
   fmt: el => {
