@@ -390,6 +390,8 @@ body.finger .paper .c-live { touch-action: none; }
 .mode-seg button.on { background: var(--c, var(--talk)); color: var(--card); }
 @media (max-width: 480px) { .mode-seg button span { display: none; } .mode-seg button { padding: 4px 10px; font-size: 15px; } }
 @media print { .mode-seg { display: none !important; } }
+.print-extra { display: none; }
+@media print { .print-extra { display: block; margin: 6px 0; } }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -584,7 +586,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.11 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.12 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -653,7 +655,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.11';
+const APP_VERSION = '1.2.12';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -2535,9 +2537,15 @@ async function makeNotesPdf(entry) {
   async function refs(list) { for (const ref of list || []) await text('📖 ' + ref.label); }
   async function blocks(list) {
     for (const b of list) {
-      if (b.type === 'text') await text(pdfText(b.html));
-      else if (b.strokes.length) {
-        const height = Math.min(b.h, Math.max(...b.strokes.flatMap(s => s.p.map(p => p[1] + s.w))) + 35);
+      const typed = pdfText(b.html || ''), hasInk = Array.isArray(b.strokes) && b.strokes.length > 0;
+      if (b.type === 'ink') { if (hasInk) await ink(b); await text(typed); }
+      else { await text(typed); if (hasInk) await ink(b); }
+      await refs(b.refs);
+    }
+  }
+  async function ink(b) {
+      {
+        const height = Math.min(b.h || Infinity, Math.max(...b.strokes.flatMap(s => s.p.map(p => p[1] + s.w))) + 35);
         // Slice tall drawings into pages at their original aspect ratio.
         const scale = (W - margin * 2) / LOGICAL_W;
         let offset = 0;
@@ -2558,8 +2566,6 @@ async function makeNotesPdf(entry) {
         }
         y += 20;
       }
-      await refs(b.refs);
-    }
   }
   page();
   if(entry.meetingType==='midweek') {
@@ -2623,7 +2629,27 @@ ACTIONS.pdfSave = () => {
 
 // ── print: pen notes become images, empty fields disappear ──
 let printTheme = null;
+function strokesImage(b) {
+  const bottom = Math.max(...b.strokes.flatMap(s => s.p.map(q => q[1] + s.w))) + 30;
+  const c = document.createElement('canvas'), scale = 1.2;
+  c.width = LOGICAL_W * scale; c.height = Math.max(60, Math.min(b.h || bottom, bottom)) * scale;
+  const ctx = c.getContext('2d'); ctx.scale(scale, scale);
+  const wasDark = isDark(); if (wasDark) document.documentElement.dataset.theme = 'light';
+  [...b.strokes.filter(s => s.t === 'hl'), ...b.strokes.filter(s => s.t !== 'hl')].forEach(s => drawStroke(ctx, s));
+  if (wasDark) document.documentElement.dataset.theme = 'dark';
+  const img = document.createElement('img'); img.src = c.toDataURL('image/png'); img.className = 'print-extra'; img.style.width = '100%';
+  return img;
+}
 window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('#entry .blk').forEach(blk => {
+    const b = getBlock(blk.dataset.sec, +blk.dataset.i);
+    if (!b) return;
+    const chips = blk.querySelector('.chips');
+    if (b.type === 'text' && Array.isArray(b.strokes) && b.strokes.length) blk.insertBefore(strokesImage(b), chips);
+    if (b.type === 'ink' && typeof b.html === 'string' && stripHtml(b.html).trim()) {
+      const d = document.createElement('div'); d.className = 'print-extra print-text'; d.innerHTML = sanitize(b.html); blk.insertBefore(d, chips);
+    }
+  });
   printTheme = document.documentElement.dataset.theme;
   document.documentElement.dataset.theme = 'light';
   inkStates.forEach(st => redrawInk(st));
@@ -2646,6 +2672,7 @@ window.addEventListener('beforeprint', () => {
   });
 });
 window.addEventListener('afterprint', () => {
+  document.querySelectorAll('.print-extra').forEach(el => el.remove());
   if (printTheme) { document.documentElement.dataset.theme = printTheme; inkStates.forEach(st => redrawInk(st)); printTheme = null; }
   document.querySelectorAll('img.print-ink').forEach(i => i.remove());
   document.querySelectorAll('.print-empty').forEach(el => el.classList.remove('print-empty'));
