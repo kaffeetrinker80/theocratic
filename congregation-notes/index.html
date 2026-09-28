@@ -390,6 +390,7 @@ body.finger .paper .c-live { touch-action: none; }
 .mode-seg button.on { background: var(--c, var(--talk)); color: var(--card); }
 @media (max-width: 480px) { .mode-seg button span { display: none; } .mode-seg button { padding: 4px 10px; font-size: 15px; } }
 @media print { .mode-seg { display: none !important; } }
+body.no-mode-switch .mode-seg { display: none; }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -584,7 +585,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.8 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.9 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -653,7 +654,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.8';
+const APP_VERSION = '1.2.9';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -675,7 +676,7 @@ const DEFAULT_WORDS = [
 const DEFAULT_SETTINGS = {
   lang: 'en', translateTo: 'de', theme: 'light',
   kidMode: true, fingerDraw: false, defaultBlock: 'text',
-  showCounter: true, showKids: true, profile: null, name: '', onboarded: false,
+  showCounter: true, showKids: true, showModeSwitch: true, profile: null, name: '', onboarded: false,
   words: null,            // null = default words in the current language
   pen: { tool: 'pen', color: '#1c2740', size: 5 },
   lastBackup: null
@@ -855,7 +856,7 @@ const UI = {
     song: 'Song', publicTalk: 'Public Talk', wtStudy: 'Watchtower Study', wtTitle: 'Article title', phWt: 'Title of the study article',
     conductor: 'Conductor', reader: 'Reader', myComment: '💬 My comment', phComment: 'What I want to answer…',
     notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
-    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', addNote: '+ New field', modeText: 'Text', fieldMode: 'Write with', removeConfirm: 'Remove this field with its content?',
+    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', addNote: '+ New field', modeSwitchSetting: 'Choose text/pen per field', modeSwitchHint: 'Off: every field uses the way of writing from the setup', modeText: 'Text', fieldMode: 'Write with', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Pen mode: only the pen writes, fingers scroll.', inkHintFinger: 'Finger mode: finger and pen write. Scroll next to the field.', modePen: 'Pen', modeFinger: 'Finger', inkModeHint: 'Switch between pen and finger',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
     partType: "Type of part", choosePartType: "– choose –", as_startConv: "Starting a Conversation", as_explainBeliefs: "Explaining Your Beliefs", as_followUp: "Following Up", as_whatSay: "What Would You Say?", as_talkPart: "Talk", as_makeDisciples: "Making Disciples", meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
@@ -903,7 +904,7 @@ const UI = {
     song: 'Lied', publicTalk: 'Öffentlicher Vortrag', wtStudy: 'Wachtturm-Studium', wtTitle: 'Artikelthema', phWt: 'Thema des Studienartikels',
     conductor: 'Leiter', reader: 'Leser', myComment: '💬 Mein Kommentar', phComment: 'Was ich antworten möchte…',
     notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
-    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', addNote: '+ Neues Feld', modeText: 'Text', fieldMode: 'Schreiben mit', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
+    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', addNote: '+ Neues Feld', modeSwitchSetting: 'Schreibart pro Feld wählbar', modeSwitchHint: 'Aus: alle Felder nutzen die Schreibart aus der Einrichtung', modeText: 'Text', fieldMode: 'Schreiben mit', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Stiftmodus: nur der Stift schreibt, Finger scrollen.', inkHintFinger: 'Fingermodus: Finger und Stift schreiben. Neben dem Feld scrollen.', modePen: 'Stift', modeFinger: 'Finger', inkModeHint: 'Zwischen Stift und Finger umschalten',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
     partType: "Art der Aufgabe", choosePartType: "– auswählen –", as_startConv: "Gespräche beginnen", as_explainBeliefs: "Unsere Glaubensansichten erklären", as_followUp: "Interesse fördern", as_whatSay: "Was würdest du sagen?", as_talkPart: "Vortrag", as_makeDisciples: "Menschen zu Jüngern machen", meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
@@ -2044,7 +2045,7 @@ const ACTIONS = {
   addText: el => addBlock(el.dataset.sec, 'text'),
   addInk: el => addBlock(el.dataset.sec, 'ink'),
   // new field continues with the kind of the last field in this section
-  addNote: el => { const o = secObj(el.dataset.sec), last = o && o.blocks[o.blocks.length - 1]; addBlock(el.dataset.sec, last ? last.type : settings.defaultBlock); },
+  addNote: el => { const o = secObj(el.dataset.sec), last = o && o.blocks[o.blocks.length - 1]; addBlock(el.dataset.sec, settings.showModeSwitch !== false && last ? last.type : settings.defaultBlock); },
   blockMode: el => {
     const sec = el.dataset.sec, i = +el.dataset.i, b = getBlock(sec, i), m = el.dataset.m;
     if (!b) return;
@@ -2349,6 +2350,8 @@ function renderSettings() {
       <label class="switch"><input type="checkbox" data-set="showCounter"${s.showCounter ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div><div class="lbl">🧒 ${esc(t('kidsCorner'))}</div><div class="hint2">${esc(t('kidsCornerHint'))}</div></div>
       <label class="switch"><input type="checkbox" data-set="showKids"${s.showKids ? ' checked' : ''}><span></span></label></div>
+    <div class="set-row"><div><div class="lbl">⌨️ ✏️ 👆 ${esc(t('modeSwitchSetting'))}</div><div class="hint2">${esc(t('modeSwitchHint'))}</div></div>
+      <label class="switch"><input type="checkbox" data-set="showModeSwitch"${s.showModeSwitch ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div><div class="lbl">${esc(t('fingerDraw'))}</div><div class="hint2">${esc(t('fingerDrawHint'))}</div></div>
       <label class="switch"><input type="checkbox" data-set="fingerDraw"${s.fingerDraw ? ' checked' : ''}><span></span></label></div>
     <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
@@ -2653,10 +2656,10 @@ window.addEventListener('afterprint', () => {
 //  FIRST START  (who are you? how do you write?)
 // ═══════════════════════════════════════════
 const PROFILES = {
-  small: { kidMode: true,  showCounter: true,  showKids: true },
-  kid:   { kidMode: true,  showCounter: true,  showKids: true },
-  teen:  { kidMode: false, showCounter: false, showKids: false },
-  adult: { kidMode: false, showCounter: false, showKids: false }
+  small: { kidMode: true,  showCounter: true,  showKids: true,  showModeSwitch: false },
+  kid:   { kidMode: true,  showCounter: true,  showKids: true,  showModeSwitch: true },
+  teen:  { kidMode: false, showCounter: false, showKids: false, showModeSwitch: true },
+  adult: { kidMode: false, showCounter: false, showKids: false, showModeSwitch: true }
 };
 let ob = { step: 0, name: '', age: null, input: null };
 function openOnboard() {
@@ -2732,6 +2735,7 @@ function applyBodyClasses() {
   document.body.classList.toggle('kid', !!settings.kidMode);
   document.body.classList.toggle('small', settings.profile === 'small');
   document.body.classList.toggle('finger', !!settings.fingerDraw);
+  document.body.classList.toggle('no-mode-switch', settings.showModeSwitch === false);
 }
 function applyLang() {
   void loadSongs(settings.lang);
