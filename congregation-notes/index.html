@@ -478,6 +478,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 .gl-h { font-size: 13px; font-weight: 800; color: var(--sub); margin: 14px 0 4px; }
 .jwg-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 .jwg { font-size: 13px; font-weight: 600; color: var(--chip-tx); text-decoration: none; border: 1px solid var(--chip-bd); background: var(--chip-bg); border-radius: 16px; padding: 3px 10px; }
+.jwg.nb { opacity: .7; font-weight: 500; }
 .gl-item { padding: 11px 0; border-bottom: 1px solid var(--bg); }
 .gl-term { font-weight: 800; font-size: 16px; }
 .gl-alt { font-size: 12.5px; color: var(--sub); font-weight: 600; margin-left: 6px; }
@@ -574,7 +575,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.5 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.6 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -643,7 +644,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.5';
+const APP_VERSION = '1.2.6';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -736,26 +737,61 @@ const GLOSSARY = [
   { en:'Kingdom Hall', de:'Königreichssaal', xen:'The building where the congregation meets for worship.', xde:'Das Gebäude, in dem sich die Versammlung zum Gottesdienst trifft.' }
 ];
 
-// jw.org "Bible Glossary" (NWT) – only titles + links, the explanations stay on jw.org
-const JWG_BASE = 'https://www.jw.org/en/library/books/bible-glossary/';
-const JWG_RAW = "Ab|Abib|Abyss|Achaia|Adar|Adultery|Alabaster jar|Alamoth|Alpha and Omega|Altar|Amen|Angels|Anoint|Antichrist|Apostasy|Apostle|Arabia; Arabian~Arabia-Arabian|Aram; Aramaeans|Aramaic|Archangel|Areopagus|Ark of the covenant|Armageddon|Armor|Aselgeia|Ashtoreth|Asia|Assembly|Astrologer|Atonement|Azazel|Baal|Baptism; Baptize|Bath|Beelzebub|Brazen conduct|Breastpiece|Brother-in-law marriage|Bul|Burnt offering|Cab|Caesar|Canaan|Capital|Cassia|Chaff|Chaldea; Chaldeans|Chariot|Chemosh|Cherubs|Chief Agent|Chief priest|Chislev|Christ|Christian|Circumcision|Cities of refuge|City of David|Clean|Communion offering|Conclusion of the system of things~conclusion-system-of-things|Concubine|Congregation|Cor|Coral|Cornerstone|Courtyard|Covenant|Cubit|Curse|Curtain|Dagon|Daric|Day of Atonement|Daystar|Decapolis|Dedication, holy sign of~holy-sign-of-dedication|Demons|Denarius|Devil|Director|Dirge|Drachma|Drink offering|Edom|Elder; Older man|Elul|Ephah|Ephesus|Ephod|Ephraim|Epicurean philosophers|Ethanim|Ethiopia|Eunuch|Euphrates|Exile|Extinguishers|Fast|Fathom|Festival of Booths|Festival of Dedication|Festival of Harvest; Festival of Weeks~festival-of-harvest-weeks|Festival of Unleavened Bread|Fire holders|Firstborn|Firstfruits|Fornication|Fortune-teller|Frankincense|Freeman; Freedman|Furnace|Galatia|Gehenna|Gerah|Gifts of mercy|Gilead|Gittith|Glean|Goad|Godly devotion|God’s Kingdom|Good news, the~the-good-news|Grave|Great tribulation|Greek|Guilt offering|Hades|Hebrew|Hermes|Herod|Herod, party followers of~herodians|Higgaion|High place|High priest|Hin|Holy; Holiness|Holy, the~the-holy|Holy spirit|Homer|Horeb; Mount Horeb|Horn|Horns of the altar|Hyssop|Idol; Idolatry|Illyricum|Incense|Israel|Jacob|Jeduthun|Jehovah|Jew|Jubilee|Judah|Judges|Judgment Day|Judgment seat|Lake of fire|Last days|Law|Lay hands on|Leaven|Lebanon Mountain range|Leprosy; Leper|Lepton|Levi; Levite|Leviathan|Loaves of presentation|Locusts|Log|Loom|Lord’s Evening Meal|Lots|Loyal love|Macedonia|Magistrates|Mahalath|Malcam|Manna|Maskil|Measuring reed|Medes; Media|Mediator|Memorial tomb|Merodach|Messiah~Messiah|Miktam|Milcom|Mildew|Mile|Millstone|Mina|Ministerial servant|Miracles; Powerful works|Molech|Moloch|Morning star|Moses, Law of~law-of-moses|Most Holy, the~the-most-holy|Mound|Mourning|Muth-labben|Myrrh|Nard|Nazarene|Nazirite|Nehiloth|Nephilim|Nethinim|New moon|Nisan|Oath|Omer|Onyx|Overseer|Papyrus|Paradise|Parchment|Party followers of Herod|Passover|Pentecost|Persia; Persians|Pestilence|Pharaoh|Pharisees|Philistia; Philistines|Pillar|Pim|Pledge|Pomegranate|Porneia|Potter|Praetorian Guard|Prefect|Preparation|Presence|Priest|Proconsul|Prophecy|Prophet|Propitiation|Propitiatory cover|Proselyte|Prostitute|Proverb|Psalm|Purim|Queen of Heaven|Rahab|Ransom|Reed|Repentance|Resurrection|Righteousness|Sabbath|Sackcloth|Sacred pillar|Sacred pole|Sacred secret|Sacred service|Sacrifice|Sadducees|Samaria|Samaritans|Sanctuary|Sanhedrin|Satan|Satrap|Scepter|Scourge|Scribe|Scripture(s)~scripture|Scroll|Seah|Seal|Seal ring|Sect|Seer|Selah|Seraphs|Sexual immorality|Shebat|Shekel|Sheminith|Sheol|Showbread|Sign|Sin offering|Sivan|Sling|Snuffers|Solomon’s Colonnade|Song of the Ascents|Son of David|Son of man|Sons of Aaron|Sorcery|Soul|Span|Spelt|Spirit|Spiritism|Spirit medium|Spoil|Stake|Stocks|Stoic philosophers|Superscription|Synagogue|Syria; Syrians|Syrtis|System(s) of things~system-of-things|Tabernacle|Talent|Tammuz|Tarshish, ships of~ships-of-tarshish|Tartarus|Tebeth|Temple|Tenth (tithe)|Tent of meeting|Teraphim|Testimony|Thanksgiving offering|Thessalonica|Thresh; Threshing floor|Tishri|Torture stake|Transgress; Transgression|Tree of life|Tree of the knowledge of good and bad|Tribute|True God, the~the-true-god|Trumpet|Turban|Unclean|Undeserved kindness|Unleavened|Urim and Thummim|Vow|Vow offering|Wadi|Warp|Watchman|Wave offering|Way, the~the-way|Wicked one, the~the-wicked-one|Winepress|Wineskin|Woof|World|Wormwood|Yoke|Zeus|Zion; Mount Zion|Ziv";
-const jwgSlug = title => title.toLowerCase().replace(/[’'()]/g, '').replace(/[;,]/g, '').trim().replace(/\s+/g, '-');
-const JWG = JWG_RAW.split('|').map(x => {
-  const [title, slug] = x.split('~');
-  return { title, url: JWG_BASE + (slug || jwgSlug(title)) + '/', keys: title.toLowerCase().replace(/[()]/g, ';').split(/[;,]\s*/).map(k => k.trim()).filter(Boolean) };
-});
-// kids' glossary → matching jw.org glossary entry
-const KID_JWG = {
-  'Jehovah': 'Jehovah', 'Jesus Christ': 'Christ', 'God’s Kingdom': 'God’s Kingdom', 'Ransom': 'Ransom', 'Paradise': 'Paradise',
-  'Resurrection': 'Resurrection', 'Holy spirit': 'Holy spirit', 'Repentance': 'Repentance', 'Loyal love': 'Loyal love',
-  'Undeserved kindness': 'Undeserved kindness', 'Satan': 'Satan', 'Armageddon': 'Armageddon', 'Congregation': 'Congregation',
-  'Elder': 'Elder; Older man', 'Ministerial servant': 'Ministerial servant', 'Baptism': 'Baptism; Baptize', 'Memorial': 'Lord’s Evening Meal'
+// jw.org "Bible Glossary" / „Worterklärungen zur Bibel“ – titles + links from ./glossary-<lang>.json
+// (the explanations themselves stay on jw.org)
+const GLOSSARY_BASE = {
+  en: 'https://www.jw.org/en/library/books/bible-glossary/',
+  de: 'https://www.jw.org/de/bibliothek/buecher/bibel-worterklaerungen/'
 };
-const jwgByTitle = title => JWG.find(g => g.title === title);
+const JWG_DATA = {};
+const JWG_REQUESTS = {};
+const JWG_ERRORS = {};
+function validGlossaryData(data, lang) {
+  return data && data.language === lang && data.baseUrl === GLOSSARY_BASE[lang] && Array.isArray(data.terms) && data.terms.length > 0 &&
+    data.terms.every(x => x && typeof x.title === 'string' && x.title.length > 0 && typeof x.slug === 'string' && /^[a-zA-Z0-9%_-]+$/.test(x.slug));
+}
+function prepareGlossary(data) {
+  return data.terms.map(x => ({
+    title: x.title, nonBiblical: !!x.nonBiblical, url: data.baseUrl + x.slug + '/',
+    keys: x.title.toLowerCase().replace(/[()]/g, ';').split(/[;,]\s*/).map(k => k.trim()).filter(Boolean)
+  }));
+}
+async function loadGlossary(lang = settings.lang, retry = false) {
+  if (JWG_REQUESTS[lang]) return JWG_REQUESTS[lang];
+  if (JWG_DATA[lang] && !retry) return;
+  const cacheKey = 'congregation-notes-glossary-v1-' + lang;
+  try { const cached = JSON.parse(localStorage.getItem(cacheKey)); if (validGlossaryData(cached, lang)) JWG_DATA[lang] = prepareGlossary(cached); } catch {}
+  JWG_ERRORS[lang] = false;
+  JWG_REQUESTS[lang] = (async () => {
+    try {
+      const response = await fetch('./glossary-' + lang + '.json');
+      if (!response.ok) throw new Error('Glossary unavailable');
+      const data = await response.json();
+      if (!validGlossaryData(data, lang)) throw new Error('Invalid glossary');
+      JWG_DATA[lang] = prepareGlossary(data);
+      try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch {}
+    } catch { JWG_ERRORS[lang] = !JWG_DATA[lang]; }
+    finally { delete JWG_REQUESTS[lang]; if (!$('modal-gloss').hidden) renderGlossary(); }
+  })();
+  return JWG_REQUESTS[lang];
+}
+const jwgList = () => JWG_DATA[settings.lang] || [];
+// kids' glossary → matching jw.org entry [English title, German title]
+const KID_JWG = {
+  'Jehovah': ['Jehovah', 'Jehova'], 'Jesus Christ': ['Christ', 'Christus'], 'God’s Kingdom': ['God’s Kingdom', 'Gottes Königreich'],
+  'Ransom': ['Ransom', 'Lösegeld'], 'Paradise': ['Paradise', 'Paradies'], 'Resurrection': ['Resurrection', 'Auferstehung'],
+  'Holy spirit': ['Holy spirit', 'Heiliger Geist'], 'Repentance': ['Repentance', 'Reue'], 'Loyal love': ['Loyal love', 'Loyale Liebe'],
+  'Undeserved kindness': ['Undeserved kindness', 'Unverdiente Güte'], 'Integrity': [null, 'Integrität'], 'Satan': ['Satan', 'Satan'],
+  'Armageddon': ['Armageddon', 'Armageddon'], 'Congregation': ['Congregation', 'Versammlung'], 'Elder': ['Elder; Older man', 'Ältester; älterer Mann'],
+  'Ministerial servant': ['Ministerial servant', 'Dienstamtgehilfe'], 'Baptism': ['Baptism; Baptize', 'Taufe; taufen'],
+  'Memorial': ['Lord’s Evening Meal', 'Abendmahl des Herrn']
+};
+const jwgByTitle = title => title ? jwgList().find(g => g.title === title) : null;
 function jwgLookup(word) {
-  const w = word.toLowerCase().replace(/[“”"'.,!?:;]/g, '').trim();
+  const w = word.toLowerCase().replace(/[“”„"'.,!?:;]/g, '').trim();
   if (!w) return null;
-  return JWG.find(g => g.keys.includes(w)) || JWG.find(g => g.keys.includes(w.replace(/s$/, ''))) || null;
+  const list = jwgList();
+  return list.find(g => g.keys.includes(w)) || list.find(g => g.keys.includes(w.replace(/(e?s|n)$/, ''))) || null;
 }
 
 // “Sing Out Joyfully” / „Singt voller Freude“ – titles + jw.org song pages (1–163)
@@ -844,7 +880,7 @@ const UI = {
     obInput: 'How do you like to write?', inPen: 'Pen', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Draw and write on the screen',
     inKeys: 'Keyboard', inKeysX: 'Type your notes', obTheme: 'Look', obLater: 'You can change all of this later in ⚙︎ Settings.',
     obSkip: 'Skip', obBack: 'Back', obNext: 'Next', obGo: 'Let’s go!', obReady: 'All set ✓', paragraphs: 'Paragraphs today', paragraph: 'Paragraph', paraHint: 'How many paragraphs does the article have? Then you can tick them off one by one.', weAreHere: 'we are here', comment: 'Comment', phParaComment: 'My comment on this paragraph…', commented: 'I commented', themeDark: 'Dark mode', themeLight: 'Light mode', shareNoApi: 'This browser has no share sheet for files – please use “Save file”.', shareNoFiles: 'This browser cannot share files – please use “Save file”.', shareBlocked: 'The browser blocked sharing. Open this page directly in Chrome over HTTPS and tap Share again. If it is still blocked, use Save file and share the downloaded file from the Files app.', shareFailed: 'Sharing did not work', today: 'Today', nextMeeting: 'Next meeting', startNotes: '✏️ Start notes', continueNotes: '✏️ Continue notes', openSong: 'Open song',
-    kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', glossLink: '📖 Glossary',
+    kidsGloss: 'Explained for kids', bibleGloss: 'Bible Glossary · jw.org', bibleGlossHint: 'Explanations from the New World Translation glossary. Tap a word to open it.', nonBiblical: 'non-Biblical term', glossaryLoading: 'Loading the glossary…', glossaryOffline: 'The glossary could not be loaded (offline?). It will appear once you are online again.', glossLink: '📖 Glossary',
     shareOk: 'Share uses the system share sheet with an importable .txt backup.', shareNoHttps: 'The share sheet only works over https (e.g. GitHub Pages), not from a local file – please use “Save file”.',
     shareSaveDialog: 'Saving opens a “Save as” dialog.', shareDownload: 'Files are downloaded (no share sheet in this browser).',
     footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
@@ -892,7 +928,7 @@ const UI = {
     obInput: 'Wie schreibst du am liebsten?', inPen: 'Stift', inPenX: 'Apple Pencil, S Pen …', inFinger: 'Finger', inFingerX: 'Mit dem Finger malen und schreiben',
     inKeys: 'Tastatur', inKeysX: 'Notizen tippen', obTheme: 'Aussehen', obLater: 'Das alles kannst du später unter ⚙︎ Einstellungen ändern.',
     obSkip: 'Überspringen', obBack: 'Zurück', obNext: 'Weiter', obGo: 'Los geht’s!', obReady: 'Fertig eingerichtet ✓', paragraphs: 'Absätze heute', paragraph: 'Absatz', paraHint: 'Wie viele Absätze hat der Artikel? Dann kannst du sie nacheinander abhaken.', weAreHere: 'hier sind wir', comment: 'Kommentar', phParaComment: 'Mein Kommentar zu diesem Absatz…', commented: 'Ich habe kommentiert', themeDark: 'Dunkler Modus', themeLight: 'Heller Modus', shareNoApi: 'Dieser Browser hat kein Teilen-Menü für Dateien – bitte „Als Datei“ nutzen.', shareNoFiles: 'Dieser Browser kann keine Dateien teilen – bitte „Als Datei“ nutzen.', shareBlocked: 'Der Browser hat das Teilen blockiert. Öffne diese Seite direkt in Chrome über HTTPS und tippe erneut auf Teilen. Falls es weiter blockiert wird, nutze Als Datei und teile die heruntergeladene Datei über die Dateien-App.', shareFailed: 'Teilen hat nicht geklappt', today: 'Heute', nextMeeting: 'Nächste Zusammenkunft', startNotes: '✏️ Notizen starten', continueNotes: '✏️ Weiterschreiben', openSong: 'Lied öffnen',
-    kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Bibel-Glossar · jw.org (englisch)', bibleGlossHint: 'Erklärungen aus dem Glossar der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', glossLink: '📖 Glossar',
+    kidsGloss: 'Für Kinder erklärt', bibleGloss: 'Worterklärungen zur Bibel · jw.org', bibleGlossHint: 'Erklärungen aus der Neuen-Welt-Übersetzung. Wort antippen zum Öffnen.', nonBiblical: 'nicht biblischer Begriff', glossaryLoading: 'Glossar wird geladen …', glossaryOffline: 'Das Glossar konnte nicht geladen werden (offline?). Es erscheint, sobald du wieder online bist.', glossLink: '📖 Glossar',
     shareOk: 'Teilen verwendet das Systemmenü mit einer importierbaren .txt-Sicherung.', shareNoHttps: 'Das Teilen-Menü geht nur über https (z. B. GitHub Pages), nicht aus einer lokalen Datei – bitte „Als Datei“ nutzen.',
     shareSaveDialog: 'Speichern öffnet einen „Speichern unter“-Dialog.', shareDownload: 'Dateien werden heruntergeladen (kein Teilen-Menü in diesem Browser).',
     footer: 'Congregation Notes · V' + APP_VERSION + ' · Made with Love ©'
@@ -2110,7 +2146,7 @@ const ACTIONS = {
   fmtWol: () => {
     const w = selectedWord();
     if (!w) { toast(t('selectWord')); return; }
-    const hit = settings.lang === 'en' && jwgLookup(w);
+    const hit = jwgLookup(w);
     openScripture(hit ? hit.url : wolSearch(w));
   },
   fmtDone: () => { if (document.activeElement) document.activeElement.blur(); hideFmt(); },
@@ -2132,7 +2168,7 @@ const ACTIONS = {
     location.hash = '';
   },
 
-  openGlossary: () => { $('gl-search').value = ''; renderGlossary(); openModal('modal-gloss'); },
+  openGlossary: () => { $('gl-search').value = ''; void loadGlossary(settings.lang, JWG_ERRORS[settings.lang]); renderGlossary(); openModal('modal-gloss'); },
   glossCount: el => {
     if (!cur) { toast(t('noEntryOpen') || t('counted')); return; }
     const g = GLOSSARY[+el.dataset.g];
@@ -2200,7 +2236,7 @@ function renderGlossary() {
     .filter(({ g }) => !q || (cl === 'de' ? [g.de, g.xde] : [g.en, g.xen]).join(' ').toLowerCase().includes(q))
     .sort((a, b) => a.g[cl].localeCompare(b.g[cl], cl));
   const kids = items.map(({ g, i }) => {
-    const j = cl === 'en' && KID_JWG[g.en] && jwgByTitle(KID_JWG[g.en]);
+    const k = KID_JWG[g.en], j = k && jwgByTitle(k[cl === 'de' ? 1 : 0]);
     return `<div class="gl-item">
       <div><span class="gl-term">${esc(g[cl])}</span></div>
       <div class="gl-x">${esc(ul === 'de' ? g.xde : g.xen)}</div>
@@ -2211,11 +2247,14 @@ function renderGlossary() {
       </div>
     </div>`;
   }).join('');
-  const bible = cl !== 'en' ? '' : JWG.filter(g => !q || g.title.toLowerCase().includes(q))
-    .map(g => `<a class="jwg" href="${esc(g.url)}" data-act="openRef" target="_blank" rel="noopener">${esc(g.title)}</a>`).join('');
+  const bible = jwgList().filter(g => !q || g.title.toLowerCase().includes(q))
+    .sort((a, b) => byLabel(a.title, b.title))
+    .map(g => `<a class="jwg${g.nonBiblical ? ' nb' : ''}" href="${esc(g.url)}" data-act="openRef" target="_blank" rel="noopener"${g.nonBiblical ? ` title="${esc(t('nonBiblical'))}"` : ''}>${esc(g.title)}${g.nonBiblical ? '*' : ''}</a>`).join('');
+  const glossState = !bible && !q
+    ? `<div class="set-note">${esc(JWG_ERRORS[cl] ? t('glossaryOffline') : t('glossaryLoading'))}</div>` : '';
   $('gl-list').innerHTML =
     (kids ? `<div class="gl-h">🧒 ${esc(t('kidsGloss'))}</div>${kids}` : '') +
-    (bible ? `<div class="gl-h">📖 ${esc(t('bibleGloss'))}</div><div class="set-note" style="margin-bottom:8px">${esc(t('bibleGlossHint'))}</div><div class="jwg-wrap">${bible}</div>` : '') ||
+    (bible ? `<div class="gl-h">📖 ${esc(t('bibleGloss'))}</div><div class="set-note" style="margin-bottom:8px">${esc(t('bibleGlossHint'))} * = ${esc(t('nonBiblical'))}</div><div class="jwg-wrap">${bible}</div>` : glossState) ||
     `<div class="empty">${esc(t('noResults'))}</div>`;
 }
 $('gl-search').addEventListener('input', renderGlossary);
@@ -2637,6 +2676,7 @@ function applyBodyClasses() {
 }
 function applyLang() {
   void loadSongs(settings.lang);
+  void loadGlossary(settings.lang);
   const L = settings.lang;
   document.documentElement.lang = L;
   $('lang-en').classList.toggle('on', L === 'en');
