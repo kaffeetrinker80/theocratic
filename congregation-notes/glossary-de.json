@@ -1,0 +1,1758 @@
+{
+ "language": "de",
+ "name": "Worterklärungen zur Bibel",
+ "baseUrl": "https://www.jw.org/de/bibliothek/buecher/bibel-worterklaerungen/",
+ "terms": [
+  {
+   "title": "Ab",
+   "slug": "ab"
+  },
+  {
+   "title": "Abendmahl des Herrn",
+   "slug": "abendmahl-des-herrn"
+  },
+  {
+   "title": "Abgrund",
+   "slug": "abgrund"
+  },
+  {
+   "title": "Abib",
+   "slug": "abib"
+  },
+  {
+   "title": "Abschluss des Weltsystems",
+   "slug": "abschluss-des-weltsystems"
+  },
+  {
+   "title": "Abschreiber",
+   "slug": "abschreiber",
+   "nonBiblical": true
+  },
+  {
+   "title": "Abtrünnigkeit",
+   "slug": "abtruennigkeit"
+  },
+  {
+   "title": "Achaia",
+   "slug": "achaia"
+  },
+  {
+   "title": "Adar",
+   "slug": "adar"
+  },
+  {
+   "title": "Alabastergefäß",
+   "slug": "alabastergefaess"
+  },
+  {
+   "title": "Alamoth",
+   "slug": "alamoth"
+  },
+  {
+   "title": "Allerheiligstes",
+   "slug": "allerheiligstes"
+  },
+  {
+   "title": "Alpha und Omega",
+   "slug": "alpha-und-omega"
+  },
+  {
+   "title": "Altar",
+   "slug": "altar"
+  },
+  {
+   "title": "Ältester; älterer Mann",
+   "slug": "aeltester-aelterer-mann"
+  },
+  {
+   "title": "Amen",
+   "slug": "amen"
+  },
+  {
+   "title": "Antichrist",
+   "slug": "antichrist"
+  },
+  {
+   "title": "Aorist",
+   "slug": "aorist",
+   "nonBiblical": true
+  },
+  {
+   "title": "Apokryphen",
+   "slug": "apokryphen",
+   "nonBiblical": true
+  },
+  {
+   "title": "Apostel",
+   "slug": "apostel"
+  },
+  {
+   "title": "Arabien; Araber",
+   "slug": "Arabien-Araber"
+  },
+  {
+   "title": "Aram; Aramäer",
+   "slug": "aram-aramaeer"
+  },
+  {
+   "title": "Aramäisch",
+   "slug": "aramaeisch"
+  },
+  {
+   "title": "Aramäische Targume",
+   "slug": "Aram%C3%A4ische-Targume",
+   "nonBiblical": true
+  },
+  {
+   "title": "Areopag",
+   "slug": "areopag"
+  },
+  {
+   "title": "Armageddon",
+   "slug": "armageddon"
+  },
+  {
+   "title": "Armenische Übersetzung",
+   "slug": "armenische-uebersetzung",
+   "nonBiblical": true
+  },
+  {
+   "title": "Asasel",
+   "slug": "asasel"
+  },
+  {
+   "title": "Aschtoret",
+   "slug": "aschtoret"
+  },
+  {
+   "title": "Aselgeia",
+   "slug": "aselgeia"
+  },
+  {
+   "title": "Asien; Asia",
+   "slug": "asien-asia"
+  },
+  {
+   "title": "Astrologe",
+   "slug": "astrologe"
+  },
+  {
+   "title": "Äthiopien",
+   "slug": "aethiopien"
+  },
+  {
+   "title": "Auferstehung",
+   "slug": "auferstehung"
+  },
+  {
+   "title": "Aufseher",
+   "slug": "aufseher"
+  },
+  {
+   "title": "Aussatz; Aussätziger",
+   "slug": "aussatz-aussaetziger"
+  },
+  {
+   "title": "Baal",
+   "slug": "baal"
+  },
+  {
+   "title": "Babylon",
+   "slug": "babylon"
+  },
+  {
+   "title": "Bath",
+   "slug": "bath"
+  },
+  {
+   "title": "Baum der Erkenntnis von Gut und Böse",
+   "slug": "baum-der-erkenntnis-gut-boese"
+  },
+  {
+   "title": "Baum des Lebens",
+   "slug": "baum-des-lebens"
+  },
+  {
+   "title": "Beelzebub",
+   "slug": "beelzebub"
+  },
+  {
+   "title": "Beschneidung",
+   "slug": "beschneidung"
+  },
+  {
+   "title": "Bestimmter Artikel",
+   "slug": "bestimmter-artikel",
+   "nonBiblical": true
+  },
+  {
+   "title": "Bibelgriechisch",
+   "slug": "bibelgriechisch",
+   "nonBiblical": true
+  },
+  {
+   "title": "Bibelhebräisch",
+   "slug": "bibelhebraeisch",
+   "nonBiblical": true
+  },
+  {
+   "title": "Biblia Hebraica (Ausgaben von Kittel und spätere Ausgaben)",
+   "slug": "Biblia-Hebraica-Ausgaben-von-Kittel-und-sp%C3%A4tere-Ausgaben",
+   "nonBiblical": true
+  },
+  {
+   "title": "Böser",
+   "slug": "boeser"
+  },
+  {
+   "title": "Brandopfer",
+   "slug": "brandopfer"
+  },
+  {
+   "title": "Brusttasche",
+   "slug": "brusttasche"
+  },
+  {
+   "title": "Buchrolle",
+   "slug": "buchrolle"
+  },
+  {
+   "title": "Bul",
+   "slug": "bul"
+  },
+  {
+   "title": "Bund",
+   "slug": "bund"
+  },
+  {
+   "title": "Bundeslade",
+   "slug": "bundeslade"
+  },
+  {
+   "title": "Cäsar",
+   "slug": "caesar"
+  },
+  {
+   "title": "Chaldäa; Chaldäer",
+   "slug": "chald%C3%A4a-chald%C3%A4er"
+  },
+  {
+   "title": "Cherub",
+   "slug": "cherub"
+  },
+  {
+   "title": "Christen",
+   "slug": "christen"
+  },
+  {
+   "title": "Christliche Griechische Schriften",
+   "slug": "christliche-griechische-schriften",
+   "nonBiblical": true
+  },
+  {
+   "title": "Christus",
+   "slug": "christus"
+  },
+  {
+   "title": "Codex Alexandrinus",
+   "slug": "codex-alexandrinus",
+   "nonBiblical": true
+  },
+  {
+   "title": "Codex Sinaiticus",
+   "slug": "codex-sinaiticus",
+   "nonBiblical": true
+  },
+  {
+   "title": "Codex Vaticanus",
+   "slug": "codex-vaticanus",
+   "nonBiblical": true
+  },
+  {
+   "title": "Dagon",
+   "slug": "dagon"
+  },
+  {
+   "title": "Dämonen",
+   "slug": "daemonen"
+  },
+  {
+   "title": "Dankopfer",
+   "slug": "dankopfer"
+  },
+  {
+   "title": "Dareike",
+   "slug": "dareike"
+  },
+  {
+   "title": "Dargebrachte Brote",
+   "slug": "dargebrachte-brote"
+  },
+  {
+   "title": "Dekapolis",
+   "slug": "dekapolis"
+  },
+  {
+   "title": "Denar",
+   "slug": "denar"
+  },
+  {
+   "title": "Dienstamtgehilfe",
+   "slug": "dienstamtgehilfe"
+  },
+  {
+   "title": "Diminutiv",
+   "slug": "diminutiv",
+   "nonBiblical": true
+  },
+  {
+   "title": "Dinkel",
+   "slug": "dinkel"
+  },
+  {
+   "title": "Diokletian",
+   "slug": "diokletian",
+   "nonBiblical": true
+  },
+  {
+   "title": "Dochtscheren",
+   "slug": "dochtscheren"
+  },
+  {
+   "title": "Dochtzangen",
+   "slug": "dochtzangen"
+  },
+  {
+   "title": "Drachme",
+   "slug": "drachme"
+  },
+  {
+   "title": "Dreistes Verhalten",
+   "slug": "dreistes-verhalten"
+  },
+  {
+   "title": "Dreschen; Dreschplatz",
+   "slug": "dreschen-dreschplatz"
+  },
+  {
+   "title": "Eckstein",
+   "slug": "eckstein"
+  },
+  {
+   "title": "Edom",
+   "slug": "edom"
+  },
+  {
+   "title": "Ehebruch",
+   "slug": "ehebruch"
+  },
+  {
+   "title": "Eid",
+   "slug": "eid"
+  },
+  {
+   "title": "Elle",
+   "slug": "elle"
+  },
+  {
+   "title": "Elul",
+   "slug": "elul"
+  },
+  {
+   "title": "Engel",
+   "slug": "engel"
+  },
+  {
+   "title": "Epha",
+   "slug": "epha"
+  },
+  {
+   "title": "Ephesus",
+   "slug": "ephesus"
+  },
+  {
+   "title": "Ephod",
+   "slug": "ephod"
+  },
+  {
+   "title": "Ephraim",
+   "slug": "ephraim"
+  },
+  {
+   "title": "Epikureische Philosophen",
+   "slug": "epikureische-philosophen"
+  },
+  {
+   "title": "Erster Ertrag; Erstling(sgabe)",
+   "slug": "ertrag-erstling-erstlingsgabe"
+  },
+  {
+   "title": "Erstgeborener",
+   "slug": "erstgeborener"
+  },
+  {
+   "title": "Erzengel",
+   "slug": "erzengel"
+  },
+  {
+   "title": "Ethanim",
+   "slug": "ethanim"
+  },
+  {
+   "title": "Eunuch",
+   "slug": "eunuch"
+  },
+  {
+   "title": "Euphrat",
+   "slug": "euphrat"
+  },
+  {
+   "title": "Eusebius von Cäsarea",
+   "slug": "eusebius-von-caesarea",
+   "nonBiblical": true
+  },
+  {
+   "title": "Evangelium",
+   "slug": "evangelium",
+   "nonBiblical": true
+  },
+  {
+   "title": "Faden",
+   "slug": "faden"
+  },
+  {
+   "title": "Fasten",
+   "slug": "fasten"
+  },
+  {
+   "title": "Fest der Einweihung",
+   "slug": "fest-der-einweihung"
+  },
+  {
+   "title": "Fest der Ernte; Fest der Wochen",
+   "slug": "fest-der-ernte-wochen"
+  },
+  {
+   "title": "Fest der ungesäuerten Brote",
+   "slug": "fest-der-ungesaeuerten-brote"
+  },
+  {
+   "title": "Feuerbehälter",
+   "slug": "feuerbehaelter"
+  },
+  {
+   "title": "Feuersee",
+   "slug": "feuersee"
+  },
+  {
+   "title": "Fluch",
+   "slug": "fluch"
+  },
+  {
+   "title": "Freier Mensch; Freigelassener",
+   "slug": "freier-mensch-freigelassener"
+  },
+  {
+   "title": "Gaben der Barmherzigkeit",
+   "slug": "gaben-der-barmherzigkeit"
+  },
+  {
+   "title": "Galatien",
+   "slug": "galatien"
+  },
+  {
+   "title": "Gedenkgrab",
+   "slug": "gedenkgrab"
+  },
+  {
+   "title": "Gegenwart",
+   "slug": "gegenwart"
+  },
+  {
+   "title": "Gehenna",
+   "slug": "gehenna"
+  },
+  {
+   "title": "Geißeln",
+   "slug": "geisseln"
+  },
+  {
+   "title": "Geist",
+   "slug": "geist"
+  },
+  {
+   "title": "Geistermedium",
+   "slug": "geistermedium"
+  },
+  {
+   "title": "Gelübde",
+   "slug": "geluebde"
+  },
+  {
+   "title": "Gelübdeopfer",
+   "slug": "geluebdeopfer"
+  },
+  {
+   "title": "Gemeinde; Versammlung",
+   "slug": "gemeinde-versammlung"
+  },
+  {
+   "title": "Gemeinschaftsopfer",
+   "slug": "gemeinschaftsopfer"
+  },
+  {
+   "title": "Gera",
+   "slug": "gera"
+  },
+  {
+   "title": "Gerechtigkeit",
+   "slug": "gerechtigkeit"
+  },
+  {
+   "title": "Gerichtstag",
+   "slug": "gerichtstag"
+  },
+  {
+   "title": "Gesalbter",
+   "slug": "gesalbter"
+  },
+  {
+   "title": "Gesetz",
+   "slug": "gesetz"
+  },
+  {
+   "title": "Gesetz von Moses",
+   "slug": "gesetz-von-moses"
+  },
+  {
+   "title": "Gilead",
+   "slug": "gilead"
+  },
+  {
+   "title": "Gittith",
+   "slug": "gittith"
+  },
+  {
+   "title": "Gomer",
+   "slug": "gomer"
+  },
+  {
+   "title": "Gottergebenheit",
+   "slug": "gottergebenheit"
+  },
+  {
+   "title": "Gottes Königreich",
+   "slug": "gottes-koenigreich"
+  },
+  {
+   "title": "Götze; Götzendienst",
+   "slug": "goetze-goetzendienst"
+  },
+  {
+   "title": "Grab",
+   "slug": "grab"
+  },
+  {
+   "title": "Granatapfel",
+   "slug": "granatapfel"
+  },
+  {
+   "title": "Grieche",
+   "slug": "grieche"
+  },
+  {
+   "title": "Griechischer Text von Erasmus",
+   "slug": "Griechischer-Text-von-Erasmus",
+   "nonBiblical": true
+  },
+  {
+   "title": "Griechischer Text von Nestle-Aland",
+   "slug": "Griechischer-Text-von-Nestle-Aland",
+   "nonBiblical": true
+  },
+  {
+   "title": "Große Drangsal",
+   "slug": "grosse-drangsal"
+  },
+  {
+   "title": "Güte",
+   "slug": "guete"
+  },
+  {
+   "title": "Gute Botschaft",
+   "slug": "gute-botschaft"
+  },
+  {
+   "title": "Hades",
+   "slug": "hades"
+  },
+  {
+   "title": "Hände auflegen",
+   "slug": "haende-auflegen"
+  },
+  {
+   "title": "Handschrift; Manuskript",
+   "slug": "handschrift-manuskript",
+   "nonBiblical": true
+  },
+  {
+   "title": "Hauptvermittler",
+   "slug": "hauptvermittler"
+  },
+  {
+   "title": "Hebräer; Hebräisch",
+   "slug": "hebraeer-hebraeisch"
+  },
+  {
+   "title": "Heilig; Heiligkeit",
+   "slug": "heilig-heiligkeit"
+  },
+  {
+   "title": "Heiliger Dienst",
+   "slug": "heiliger-dienst"
+  },
+  {
+   "title": "Heiliger Geist",
+   "slug": "heiliger-geist"
+  },
+  {
+   "title": "Heiliger Pfahl",
+   "slug": "heiliger-pfahl"
+  },
+  {
+   "title": "Heiliges",
+   "slug": "heiliges"
+  },
+  {
+   "title": "Heilige Säule",
+   "slug": "heilige-saeule"
+  },
+  {
+   "title": "Heiliges Geheimnis",
+   "slug": "heiliges-geheimnis"
+  },
+  {
+   "title": "Heiliges Zeichen der Hingabe",
+   "slug": "heiliges-zeichen-der-hingabe"
+  },
+  {
+   "title": "Heiligtum",
+   "slug": "heiligtum"
+  },
+  {
+   "title": "Hermes",
+   "slug": "hermes"
+  },
+  {
+   "title": "Herodes",
+   "slug": "herodes"
+  },
+  {
+   "title": "Heuschrecke",
+   "slug": "heuschrecke"
+  },
+  {
+   "title": "Hieronymus, Sophronius Eusebius",
+   "slug": "hieronymus",
+   "nonBiblical": true
+  },
+  {
+   "title": "Higgajon",
+   "slug": "higgajon"
+  },
+  {
+   "title": "Himmelskönigin",
+   "slug": "himmelskoenigin"
+  },
+  {
+   "title": "Hin",
+   "slug": "hin"
+  },
+  {
+   "title": "Höhe",
+   "slug": "hoehe"
+  },
+  {
+   "title": "Hoher Priester",
+   "slug": "hoher-priester"
+  },
+  {
+   "title": "Homer",
+   "slug": "homer"
+  },
+  {
+   "title": "Horeb",
+   "slug": "horeb"
+  },
+  {
+   "title": "Horn",
+   "slug": "horn"
+  },
+  {
+   "title": "Hörner des Altars",
+   "slug": "hoerner-des-altars"
+  },
+  {
+   "title": "Hort, Fenton John Anthony",
+   "slug": "fenton-john-anthony-hort",
+   "nonBiblical": true
+  },
+  {
+   "title": "Hure",
+   "slug": "hure"
+  },
+  {
+   "title": "Hurerei",
+   "slug": "hurerei"
+  },
+  {
+   "title": "Hyperbel",
+   "slug": "hyperbel",
+   "nonBiblical": true
+  },
+  {
+   "title": "Idiom",
+   "slug": "idiom",
+   "nonBiblical": true
+  },
+  {
+   "title": "Illyrien",
+   "slug": "illyrien"
+  },
+  {
+   "title": "Integrität",
+   "slug": "integritaet"
+  },
+  {
+   "title": "Interlinearübersetzung",
+   "slug": "interlinearuebersetzung",
+   "nonBiblical": true
+  },
+  {
+   "title": "Israel",
+   "slug": "israel"
+  },
+  {
+   "title": "Jakob",
+   "slug": "jakob"
+  },
+  {
+   "title": "Jeduthun",
+   "slug": "jeduthun"
+  },
+  {
+   "title": "Jehova",
+   "slug": "jehova"
+  },
+  {
+   "title": "Joch",
+   "slug": "joch"
+  },
+  {
+   "title": "Josephus, Flavius",
+   "slug": "josephus-flavius",
+   "nonBiblical": true
+  },
+  {
+   "title": "Jubeljahr",
+   "slug": "jubeljahr"
+  },
+  {
+   "title": "Juda",
+   "slug": "juda"
+  },
+  {
+   "title": "Judaisten",
+   "slug": "judaisten",
+   "nonBiblical": true
+  },
+  {
+   "title": "Jude",
+   "slug": "jude"
+  },
+  {
+   "title": "Justin der Märtyrer",
+   "slug": "justin-der-maertyrer",
+   "nonBiblical": true
+  },
+  {
+   "title": "Kab",
+   "slug": "kab"
+  },
+  {
+   "title": "Kamos",
+   "slug": "kamos"
+  },
+  {
+   "title": "Kanaan",
+   "slug": "kanaan"
+  },
+  {
+   "title": "Kanon (Bibelkanon)",
+   "slug": "kanon",
+   "nonBiblical": true
+  },
+  {
+   "title": "Kapitell",
+   "slug": "kapitell"
+  },
+  {
+   "title": "Kassia",
+   "slug": "kassia"
+  },
+  {
+   "title": "Kelter",
+   "slug": "kelter"
+  },
+  {
+   "title": "Kettfäden",
+   "slug": "kettfaeden"
+  },
+  {
+   "title": "Kislew",
+   "slug": "kislew"
+  },
+  {
+   "title": "Kodex von Aleppo",
+   "slug": "Kodex-von-Aleppo",
+   "nonBiblical": true
+  },
+  {
+   "title": "Koptische Übersetzungen",
+   "slug": "koptische-uebersetzungen",
+   "nonBiblical": true
+  },
+  {
+   "title": "Kor",
+   "slug": "kor"
+  },
+  {
+   "title": "Koralle",
+   "slug": "koralle"
+  },
+  {
+   "title": "Latein",
+   "slug": "latein",
+   "nonBiblical": true
+  },
+  {
+   "title": "Laubhüttenfest",
+   "slug": "laubhuettenfest"
+  },
+  {
+   "title": "Leningrader Kodex",
+   "slug": "Leningrader-Kodex",
+   "nonBiblical": true
+  },
+  {
+   "title": "Lepton",
+   "slug": "lepton"
+  },
+  {
+   "title": "Letzte Tage",
+   "slug": "letzte-tage"
+  },
+  {
+   "title": "Levi; Levit",
+   "slug": "levi-levit"
+  },
+  {
+   "title": "Leviathan",
+   "slug": "leviathan"
+  },
+  {
+   "title": "Libanongebirge",
+   "slug": "libanongebirge"
+  },
+  {
+   "title": "Lied der Aufstiege",
+   "slug": "lied-der-aufstiege"
+  },
+  {
+   "title": "Log",
+   "slug": "log"
+  },
+  {
+   "title": "Los",
+   "slug": "los"
+  },
+  {
+   "title": "Lösegeld",
+   "slug": "loesegeld"
+  },
+  {
+   "title": "Loyale Liebe",
+   "slug": "loyale-liebe"
+  },
+  {
+   "title": "Magistrate",
+   "slug": "magistrate"
+  },
+  {
+   "title": "Mahalath",
+   "slug": "mahalath"
+  },
+  {
+   "title": "Malkam",
+   "slug": "malkam"
+  },
+  {
+   "title": "Manna",
+   "slug": "manna"
+  },
+  {
+   "title": "Marterpfahl",
+   "slug": "marterpfahl"
+  },
+  {
+   "title": "Maskil",
+   "slug": "maskil"
+  },
+  {
+   "title": "Massoretischer Text",
+   "slug": "massoretischer-text",
+   "nonBiblical": true
+  },
+  {
+   "title": "Mazedonien",
+   "slug": "mazedonien"
+  },
+  {
+   "title": "Meder; Medien",
+   "slug": "meder-medien"
+  },
+  {
+   "title": "Mehltau",
+   "slug": "mehltau"
+  },
+  {
+   "title": "Meile",
+   "slug": "meile"
+  },
+  {
+   "title": "Menschensohn",
+   "slug": "menschensohn"
+  },
+  {
+   "title": "Merodach",
+   "slug": "merodach"
+  },
+  {
+   "title": "Messias",
+   "slug": "messias"
+  },
+  {
+   "title": "Messrohr",
+   "slug": "messrohr"
+  },
+  {
+   "title": "Metapher",
+   "slug": "metapher",
+   "nonBiblical": true
+  },
+  {
+   "title": "Miktam",
+   "slug": "miktam"
+  },
+  {
+   "title": "Milkom",
+   "slug": "milkom"
+  },
+  {
+   "title": "Mine",
+   "slug": "mine"
+  },
+  {
+   "title": "Mischna",
+   "slug": "mischna",
+   "nonBiblical": true
+  },
+  {
+   "title": "Molech",
+   "slug": "molech"
+  },
+  {
+   "title": "Moloch",
+   "slug": "moloch"
+  },
+  {
+   "title": "Morgenstern",
+   "slug": "morgenstern"
+  },
+  {
+   "title": "Mühlstein",
+   "slug": "muehlstein"
+  },
+  {
+   "title": "Musikalischer Leiter",
+   "slug": "musikalischer-leiter"
+  },
+  {
+   "title": "Muth-Labben",
+   "slug": "muth-labben"
+  },
+  {
+   "title": "Myrrhe",
+   "slug": "myrrhe"
+  },
+  {
+   "title": "Nachlese",
+   "slug": "nachlese"
+  },
+  {
+   "title": "Nardenöl",
+   "slug": "nardenoel"
+  },
+  {
+   "title": "Nasiräer",
+   "slug": "nasiraeer"
+  },
+  {
+   "title": "Nazarener",
+   "slug": "nazarener"
+  },
+  {
+   "title": "Nebenfrau",
+   "slug": "nebenfrau"
+  },
+  {
+   "title": "Nechiloth",
+   "slug": "nechiloth"
+  },
+  {
+   "title": "Nephilim",
+   "slug": "nephilim"
+  },
+  {
+   "title": "Nethinim",
+   "slug": "nethinim"
+  },
+  {
+   "title": "Neumond",
+   "slug": "neumond"
+  },
+  {
+   "title": "Nisan",
+   "slug": "nisan"
+  },
+  {
+   "title": "Oberpriester",
+   "slug": "oberpriester"
+  },
+  {
+   "title": "Ofen",
+   "slug": "ofen"
+  },
+  {
+   "title": "Onyx",
+   "slug": "onyx"
+  },
+  {
+   "title": "Opfer",
+   "slug": "opfer"
+  },
+  {
+   "title": "Papyrus",
+   "slug": "papyrus"
+  },
+  {
+   "title": "Paradies",
+   "slug": "paradies"
+  },
+  {
+   "title": "Parteianhänger von Herodes",
+   "slug": "parteianhaenger-von-herodes"
+  },
+  {
+   "title": "Passah",
+   "slug": "passah"
+  },
+  {
+   "title": "Pentateuch",
+   "slug": "pentateuch",
+   "nonBiblical": true
+  },
+  {
+   "title": "Pergament",
+   "slug": "pergament"
+  },
+  {
+   "title": "Persien; Perser",
+   "slug": "persien-perser"
+  },
+  {
+   "title": "Pest",
+   "slug": "pest"
+  },
+  {
+   "title": "Pfahl; Stamm",
+   "slug": "pfahl-stamm"
+  },
+  {
+   "title": "Pfand",
+   "slug": "pfand"
+  },
+  {
+   "title": "Pfingsten",
+   "slug": "pfingsten"
+  },
+  {
+   "title": "Pharao",
+   "slug": "pharao"
+  },
+  {
+   "title": "Pharisäer",
+   "slug": "pharisaeer"
+  },
+  {
+   "title": "Philistäa; Philister",
+   "slug": "philistaea-philister"
+  },
+  {
+   "title": "Philon von Alexandria",
+   "slug": "philon-von-alexandria",
+   "nonBiblical": true
+  },
+  {
+   "title": "Phönizien",
+   "slug": "phoenizien",
+   "nonBiblical": true
+  },
+  {
+   "title": "Pim",
+   "slug": "pim"
+  },
+  {
+   "title": "Plage",
+   "slug": "plage"
+  },
+  {
+   "title": "Porneia",
+   "slug": "porneia"
+  },
+  {
+   "title": "Präfekt",
+   "slug": "praefekt"
+  },
+  {
+   "title": "Prätorianergarde",
+   "slug": "praetorianergarde"
+  },
+  {
+   "title": "Priester",
+   "slug": "priester"
+  },
+  {
+   "title": "Prokonsul",
+   "slug": "prokonsul"
+  },
+  {
+   "title": "Prophet",
+   "slug": "prophet"
+  },
+  {
+   "title": "Prophezeiung",
+   "slug": "prophezeiung"
+  },
+  {
+   "title": "Proselyt",
+   "slug": "proselyt"
+  },
+  {
+   "title": "Prostituierte",
+   "slug": "prostituierte"
+  },
+  {
+   "title": "Psalm",
+   "slug": "psalm"
+  },
+  {
+   "title": "Psalmenüberschrift",
+   "slug": "psalmenueberschrift"
+  },
+  {
+   "title": "Purim",
+   "slug": "purim"
+  },
+  {
+   "title": "Purpur(rot)",
+   "slug": "purpurrot"
+  },
+  {
+   "title": "Querfäden",
+   "slug": "querfaeden"
+  },
+  {
+   "title": "Qumran",
+   "slug": "qumran",
+   "nonBiblical": true
+  },
+  {
+   "title": "Rahab",
+   "slug": "rahab"
+  },
+  {
+   "title": "Räucherwerk",
+   "slug": "raeucherwerk"
+  },
+  {
+   "title": "Rein",
+   "slug": "rein"
+  },
+  {
+   "title": "Reue",
+   "slug": "reue"
+  },
+  {
+   "title": "Rhetorische Frage",
+   "slug": "rhetorische-frage",
+   "nonBiblical": true
+  },
+  {
+   "title": "Richter",
+   "slug": "richter"
+  },
+  {
+   "title": "Richterstuhl",
+   "slug": "richterstuhl"
+  },
+  {
+   "title": "Rüstung",
+   "slug": "ruestung"
+  },
+  {
+   "title": "Sabbat",
+   "slug": "sabbat"
+  },
+  {
+   "title": "Sacktuch",
+   "slug": "sacktuch"
+  },
+  {
+   "title": "Sadduzäer",
+   "slug": "sadduzaeer"
+  },
+  {
+   "title": "Salben",
+   "slug": "salben"
+  },
+  {
+   "title": "Salomos Säulenhalle",
+   "slug": "salomos-saeulenhalle"
+  },
+  {
+   "title": "Samaria",
+   "slug": "samaria"
+  },
+  {
+   "title": "Samaritanischer Pentateuch",
+   "slug": "samaritanischer-pentateuch",
+   "nonBiblical": true
+  },
+  {
+   "title": "Samariter",
+   "slug": "samariter"
+  },
+  {
+   "title": "Sanhedrin",
+   "slug": "sanhedrin"
+  },
+  {
+   "title": "Satan",
+   "slug": "satan"
+  },
+  {
+   "title": "Satrap",
+   "slug": "satrap"
+  },
+  {
+   "title": "Sauerteig",
+   "slug": "sauerteig"
+  },
+  {
+   "title": "Säule; Pfeiler",
+   "slug": "saeule-pfeiler"
+  },
+  {
+   "title": "Schaubrot",
+   "slug": "schaubrot"
+  },
+  {
+   "title": "Schebat",
+   "slug": "schebat"
+  },
+  {
+   "title": "Schekel",
+   "slug": "schekel"
+  },
+  {
+   "title": "Scheminith",
+   "slug": "scheminith"
+  },
+  {
+   "title": "Scheol",
+   "slug": "scheol"
+  },
+  {
+   "title": "Schilfrohr",
+   "slug": "schilfrohr"
+  },
+  {
+   "title": "Schleuder",
+   "slug": "schleuder"
+  },
+  {
+   "title": "Schreiber; Schriftgelehrter",
+   "slug": "schreiber-schriftgelehrter"
+  },
+  {
+   "title": "Schriften",
+   "slug": "schriften"
+  },
+  {
+   "title": "Schriftrollen vom Toten Meer",
+   "slug": "schriftrollen-totes-meer",
+   "nonBiblical": true
+  },
+  {
+   "title": "Schuldopfer",
+   "slug": "schuldopfer"
+  },
+  {
+   "title": "Schwagerehe",
+   "slug": "schwagerehe"
+  },
+  {
+   "title": "Schwingopfer",
+   "slug": "schwingopfer"
+  },
+  {
+   "title": "Sea",
+   "slug": "sea"
+  },
+  {
+   "title": "Seele",
+   "slug": "seele"
+  },
+  {
+   "title": "Seher",
+   "slug": "seher"
+  },
+  {
+   "title": "Sekte",
+   "slug": "sekte"
+  },
+  {
+   "title": "Sela",
+   "slug": "sela"
+  },
+  {
+   "title": "Semitisch",
+   "slug": "semitisch",
+   "nonBiblical": true
+  },
+  {
+   "title": "Septuaginta",
+   "slug": "septuaginta",
+   "nonBiblical": true
+  },
+  {
+   "title": "Seraphim",
+   "slug": "seraphim"
+  },
+  {
+   "title": "Sexuelle Unmoral",
+   "slug": "sexuelle-unmoral"
+  },
+  {
+   "title": "Siegel",
+   "slug": "siegel"
+  },
+  {
+   "title": "Siegelring",
+   "slug": "siegelring"
+  },
+  {
+   "title": "Siw",
+   "slug": "siw"
+  },
+  {
+   "title": "Siwan",
+   "slug": "siwan"
+  },
+  {
+   "title": "Sohn Davids",
+   "slug": "sohn-davids"
+  },
+  {
+   "title": "Söhne Aarons",
+   "slug": "soehne-aarons"
+  },
+  {
+   "title": "Spanne",
+   "slug": "spanne"
+  },
+  {
+   "title": "Spiritismus",
+   "slug": "spiritismus"
+  },
+  {
+   "title": "Spreu",
+   "slug": "spreu"
+  },
+  {
+   "title": "Spruch",
+   "slug": "spruch"
+  },
+  {
+   "title": "Stachel",
+   "slug": "stachel"
+  },
+  {
+   "title": "Stadt Davids",
+   "slug": "stadt-davids"
+  },
+  {
+   "title": "Stamm",
+   "slug": "stamm"
+  },
+  {
+   "title": "Stammwort; Wortwurzel",
+   "slug": "stammwort-wortwurzel",
+   "nonBiblical": true
+  },
+  {
+   "title": "Stiftshütte",
+   "slug": "stiftshuette"
+  },
+  {
+   "title": "Stock",
+   "slug": "stock"
+  },
+  {
+   "title": "Stoische Philosophen",
+   "slug": "stoische-philosophen"
+  },
+  {
+   "title": "Sühne",
+   "slug": "suehne"
+  },
+  {
+   "title": "Sühnedeckel",
+   "slug": "suehnedeckel"
+  },
+  {
+   "title": "Sühnetag",
+   "slug": "suehnetag"
+  },
+  {
+   "title": "Sündopfer",
+   "slug": "suendopfer"
+  },
+  {
+   "title": "Synagoge",
+   "slug": "synagoge"
+  },
+  {
+   "title": "Syrien; Syrer",
+   "slug": "syrien-syrer"
+  },
+  {
+   "title": "Syrte",
+   "slug": "syrte"
+  },
+  {
+   "title": "Tacitus, Publius Cornelius",
+   "slug": "publius-cornelius-tacitus",
+   "nonBiblical": true
+  },
+  {
+   "title": "Tagesstern",
+   "slug": "tagesstern"
+  },
+  {
+   "title": "Talent",
+   "slug": "talent"
+  },
+  {
+   "title": "Talmud",
+   "slug": "talmud",
+   "nonBiblical": true
+  },
+  {
+   "title": "Tammus",
+   "slug": "tammus"
+  },
+  {
+   "title": "Tammuz",
+   "slug": "tammuz"
+  },
+  {
+   "title": "Tarschisch-Schiffe",
+   "slug": "tarschisch-schiffe"
+  },
+  {
+   "title": "Tartarus",
+   "slug": "tartarus"
+  },
+  {
+   "title": "Taufe; taufen",
+   "slug": "taufe-taufen"
+  },
+  {
+   "title": "Tebeth",
+   "slug": "tebeth"
+  },
+  {
+   "title": "Tempel",
+   "slug": "tempel"
+  },
+  {
+   "title": "Teraphim",
+   "slug": "teraphim"
+  },
+  {
+   "title": "Tetragramm",
+   "slug": "tetragramm",
+   "nonBiblical": true
+  },
+  {
+   "title": "Tetrarch",
+   "slug": "tetrarch",
+   "nonBiblical": true
+  },
+  {
+   "title": "Teufel",
+   "slug": "teufel"
+  },
+  {
+   "title": "Thessalonich",
+   "slug": "thessalonich"
+  },
+  {
+   "title": "Tischri",
+   "slug": "tischri"
+  },
+  {
+   "title": "Töpfer",
+   "slug": "toepfer"
+  },
+  {
+   "title": "Trankopfer",
+   "slug": "trankopfer"
+  },
+  {
+   "title": "Transliteration; Transkription",
+   "slug": "transliteration-transkription",
+   "nonBiblical": true
+  },
+  {
+   "title": "Trauer",
+   "slug": "trauer"
+  },
+  {
+   "title": "Trauerlied",
+   "slug": "trauerlied"
+  },
+  {
+   "title": "Tribut",
+   "slug": "tribut"
+  },
+  {
+   "title": "Trompete",
+   "slug": "trompete"
+  },
+  {
+   "title": "Turban",
+   "slug": "turban"
+  },
+  {
+   "title": "Tyndale, William",
+   "slug": "Tyndale-William",
+   "nonBiblical": true
+  },
+  {
+   "title": "Übersetzungskomitee der Neuen-Welt-Übersetzung",
+   "slug": "nwt-komitee",
+   "nonBiblical": true
+  },
+  {
+   "title": "Übertretung",
+   "slug": "uebertretung"
+  },
+  {
+   "title": "Ungesäuert",
+   "slug": "ungesaeuert"
+  },
+  {
+   "title": "Unrein",
+   "slug": "unrein"
+  },
+  {
+   "title": "Unverdiente Güte",
+   "slug": "unverdiente-guete"
+  },
+  {
+   "title": "Unziale",
+   "slug": "unziale",
+   "nonBiblical": true
+  },
+  {
+   "title": "Urim und Tummim",
+   "slug": "urim-tummim"
+  },
+  {
+   "title": "Vermittler",
+   "slug": "vermittler"
+  },
+  {
+   "title": "Versammlung",
+   "slug": "versammlung"
+  },
+  {
+   "title": "Verschleppung",
+   "slug": "verschleppung"
+  },
+  {
+   "title": "Vorbereitungstag",
+   "slug": "vorbereitungstag"
+  },
+  {
+   "title": "Vorderer Orient",
+   "slug": "vorderer-orient",
+   "nonBiblical": true
+  },
+  {
+   "title": "Vorhang",
+   "slug": "vorhang"
+  },
+  {
+   "title": "Vorhof; Hof",
+   "slug": "vorhof-hof"
+  },
+  {
+   "title": "Vulgata",
+   "slug": "vulgata",
+   "nonBiblical": true
+  },
+  {
+   "title": "Wächter",
+   "slug": "waechter"
+  },
+  {
+   "title": "Wadi",
+   "slug": "wadi"
+  },
+  {
+   "title": "Wagen; Kriegswagen",
+   "slug": "wagen-kriegswagen"
+  },
+  {
+   "title": "Wahrer Gott",
+   "slug": "wahrer-gott"
+  },
+  {
+   "title": "Wahrsager",
+   "slug": "wahrsager"
+  },
+  {
+   "title": "Wall",
+   "slug": "wall"
+  },
+  {
+   "title": "Webstuhl",
+   "slug": "webstuhl"
+  },
+  {
+   "title": "Weg",
+   "slug": "weg"
+  },
+  {
+   "title": "Weihrauch",
+   "slug": "weihrauch"
+  },
+  {
+   "title": "Weinkelter",
+   "slug": "weinkelter"
+  },
+  {
+   "title": "Weinschlauch",
+   "slug": "weinschlauch"
+  },
+  {
+   "title": "Welt",
+   "slug": "welt"
+  },
+  {
+   "title": "Weltsystem; Systeme",
+   "slug": "weltsystem-systeme"
+  },
+  {
+   "title": "Wermut",
+   "slug": "wermut"
+  },
+  {
+   "title": "Westcott, Brooke Foss",
+   "slug": "westcott",
+   "nonBiblical": true
+  },
+  {
+   "title": "Worfeln",
+   "slug": "worfeln"
+  },
+  {
+   "title": "Wunder; mächtige Taten",
+   "slug": "wunder-maechtige-taten"
+  },
+  {
+   "title": "Ysop",
+   "slug": "ysop"
+  },
+  {
+   "title": "Zauberei",
+   "slug": "zauberei"
+  },
+  {
+   "title": "Zehnter",
+   "slug": "zehnter"
+  },
+  {
+   "title": "Zeichen",
+   "slug": "zeichen"
+  },
+  {
+   "title": "Zelot",
+   "slug": "zelot",
+   "nonBiblical": true
+  },
+  {
+   "title": "Zelt der Zusammenkunft",
+   "slug": "zelt-der-zusammenkunft"
+  },
+  {
+   "title": "Zenturio",
+   "slug": "zenturio",
+   "nonBiblical": true
+  },
+  {
+   "title": "Zepter",
+   "slug": "zepter"
+  },
+  {
+   "title": "Zeugnis",
+   "slug": "zeugnis"
+  },
+  {
+   "title": "Zeus",
+   "slug": "zeus"
+  },
+  {
+   "title": "Zion; Berg Zion",
+   "slug": "zion-berg-zion"
+  },
+  {
+   "title": "Zufluchtsstädte",
+   "slug": "zufluchtsstaedte"
+  }
+ ]
+}
