@@ -79,6 +79,8 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 /* ── sister marker ── */
 .pill.sis{background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;font-size:10px;padding:2px 6px;white-space:nowrap}
 .tch.sis{background:#f3e5f5;color:#6a1b9a;border-color:#ce93d8}
+.tch.capp{background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7}
+.tch.aconf{background:#e3f2fd;color:#1565c0;border-color:#90caf9}
 
 /* ── welcome / getting started ── */
 .wc-step{display:flex;gap:7px;align-items:center;margin-bottom:2px}
@@ -188,6 +190,7 @@ tr.row-flash>td{animation:rowflash 1.8s ease-out}
 
 /* col widths — generous, real-estate focused */
 .att-table col.c-act  {width:36px}
+.att-table col.c-conf {width:62px}
 .att-table col.c-id   {width:52px}
 .att-table col.c-name {width:130px}
 .att-table col.c-first{width:110px}
@@ -236,6 +239,21 @@ textarea.flags-wrap{min-height:76px;line-height:1.35;white-space:pre-wrap}
   font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:all .12s}
 .act-dot.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
 .act-dot.off{background:#ffebee;border-color:#ef9a9a;color:#c62828}
+
+/* two-stage confirmation dots */
+.conf-cell{display:flex;gap:3px;justify-content:center;align-items:center}
+.cdot{width:22px;height:22px;border-radius:999px;border:2px solid #d7dfe6;background:#f7f9fb;color:#90a4ae;
+  font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .12s;user-select:none}
+.cdot:hover{transform:scale(1.1)}
+.cdot.c.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
+.cdot.a.on{background:#e3f2fd;border-color:#42a5f5;color:#1565c0}
+.cdot.t{cursor:default}
+.cdot.t.on{background:#fff8e1;border-color:#ffb300;color:#a45c00}
+.conf-mini{font-size:10px;color:var(--muted);font-weight:700;margin-top:2px}
+.conf-mini .c{color:#2e7d32}
+.conf-mini .a{color:#1565c0}
+.conf-mini .t{color:#a45c00}
 
 /* chips */
 .chip-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 0}
@@ -593,6 +611,13 @@ Loving greetings,
         <select id="filterActive" onchange="renderAttendantTable()">
           <option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option>
         </select></div>
+      <div class="sf"><label>Confirmation</label>
+        <select id="filterStatus" onchange="renderAttendantTable()" title="A = his own reply · T = planned (on a team)">
+          <option value="all">All</option>
+          <option value="unconfirmed">Waiting for his reply (no A)</option>
+          <option value="available">Available: confirmed, not planned (A, no T)</option>
+          <option value="planned">Planned (T)</option>
+        </select></div>
       <div class="sf btn">
         <button class="secondary small-btn" onclick="fillAndRenumberIds()" title="Sort A–Z, renumber IDs 1,2,3... (active first)">Fill IDs</button>
         <button class="secondary small-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
@@ -607,11 +632,12 @@ Loving greetings,
 
     <div class="table-wrap" style="max-height:80vh;overflow-y:auto">
       <table class="att-table" id="attTable">
-        <col class="c-act"><col class="c-id"><col class="c-name"><col class="c-first">
+        <col class="c-act"><col class="c-conf"><col class="c-id"><col class="c-name"><col class="c-first">
         <col class="c-cong"><col class="c-priv"><col class="c-teams"><col class="c-shift">
         <col class="c-mob"><col class="c-rem"><col class="c-act2"><col class="c-del">
         <thead><tr>
-          <th title="Active / Inactive">●</th>
+          <th title="On the list: is he taking part at all? Inactive = dropped out / not available. This is what the congregations see in the request mail.">●</th>
+          <th title="A = attendant confirmed himself · T = planned (lights up automatically once he is on a team)">A&nbsp;T</th>
           <th>ID</th>
           <th class="left">Name</th>
           <th class="left">First name</th>
@@ -694,7 +720,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.6.3</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.8.0</div>
 </div>
 
 <script>
@@ -823,6 +849,7 @@ function normalizeAttendant(r){
     congregation:r.congregation||'',email:r.email||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
     privilege:DEFAULT_PRIVILEGES.includes(r.privilege)?r.privilege:'Publisher',
     active:r.active===undefined?true:!!r.active,children:!!r.children,sister:!!r.sister,
+    confirmed:!!r.confirmed,confirmedAt:r.confirmedAt||'',
     otherDepartment:r.otherDepartment!==undefined?!!r.otherDepartment:teams.some(t=>otherKeys.includes(t)),
     teams,roles,shifts,
     customTags:Array.isArray(r.customTags)?r.customTags:[],
@@ -867,7 +894,7 @@ function matchTerms(text){
 }
 function attHay(row){
   return[row.id,row.name,row.firstName,row.congregation,shortCong(row.congregation),
-    row.email,row.jwpub,row.mobile,row.privilege,row.sister?'sister schwester':'',row.flags,row.remarks,
+    row.email,row.jwpub,row.mobile,row.privilege,row.sister?'sister schwester':'',row.confirmed?'confirmed':'',isPlanned(row)?'planned':'',row.active===false?'inactive':'',row.flags,row.remarks,
     (row.teams||[]).join(' '),(row.roles||[]).join(' '),(row.shifts||[]).join(' '),(row.customTags||[]).join(' ')].join(' ');
 }
 
@@ -979,7 +1006,8 @@ function renderCongTable(){
           <div class="field-actions">${row.congJwpub?`<span class="mini-copy" onclick="copyText('${js(row.congJwpub)}',false,this)">⧉</span>`:''}</div></div>
       </div></td>
       <td><div class="att-cell">
-        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${a.sister?'<span class="pill sis">Sr.</span> ':''}${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
+        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${a.confirmed?'<span class="cdot a on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">A</span> ':''}${isPlanned(a)?'<span class="cdot t on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">T</span> ':''}${a.sister?'<span class="pill sis">Sr.</span> ':''}${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
+        ${names.length?`<div class="conf-mini"><span class="a">A ${names.filter(a=>a.confirmed).length}</span> · <span class="t">T ${names.filter(isPlanned).length}</span> of ${names.length}</div>`:''}
         <button class="quick-add no-print" onclick="openAttendantModal(null,'${js(row.congregation||'')}')" title="Add an attendant to this congregation">+ Attendant</button>
       </div></td>
       <td><div class="compact-stack">${followLabel(row)}
@@ -1034,6 +1062,9 @@ function renderMiniStats(){
   const wel=state.attendants.filter(a=>(a.teams||[]).includes('welcome')).length;
   const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
   const sisters=state.attendants.filter(a=>a.sister).length;
+  const confirmedN=state.attendants.filter(a=>a.confirmed&&a.active!==false).length;
+  const plannedN=state.attendants.filter(a=>isPlanned(a)&&a.active!==false).length;
+  const availableN=state.attendants.filter(a=>a.active!==false&&a.confirmed&&!isPlanned(a)).length;
   const ms=el('miniStats');
   if(!ms)return;
   ms.innerHTML=`
@@ -1041,6 +1072,9 @@ function renderMiniStats(){
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
     <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
     <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
+    <div class="stat"><span class="label">Confirmed (A)</span><span class="val" style="color:#1565c0">${confirmedN}</span></div>
+    <div class="stat"><span class="label">Planned (T)</span><span class="val" style="color:#a45c00">${plannedN}</span></div>
+    <div class="stat"><span class="label">Still available</span><span class="val" style="color:#00796b">${availableN}</span></div>
     <div class="divider"></div>
     <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
     <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
@@ -1065,6 +1099,10 @@ function attMatchesFilters(row){
   else if(priv!=='all'&&row.privilege!==priv)return false;
   if(actFil==='active'&&row.active===false)return false;
   if(actFil==='inactive'&&row.active!==false)return false;
+  const stFil=el('filterStatus')?el('filterStatus').value:'all';
+  if(stFil==='unconfirmed'&&row.confirmed)return false;
+  if(stFil==='available'&&!(row.confirmed&&!isPlanned(row)&&row.active!==false))return false;
+  if(stFil==='planned'&&!isPlanned(row))return false;
   if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
   if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return false;
   return true;
@@ -1083,6 +1121,14 @@ function renderAttendantTable(){
 
     /* active dot */
     const dotHtml=`<div class="act-dot ${row.active!==false?'on':'off'}" onclick="toggleActive(${index})" title="${row.active!==false?'Active – click to deactivate':'Inactive – click to activate'}">${row.active!==false?'✔':'✕'}</div>`;
+
+    /* status dots: A = he confirmed himself, T = planned (derived from the teams) */
+    const confHtml=`<div class="conf-cell">
+      <div class="cdot a ${row.confirmed?'on':''}" onclick="toggleApproval(${index},'confirmed')"
+        title="${row.confirmed?'Attendant confirmed himself'+(row.confirmedAt?' · '+esc(formatStamp(row.confirmedAt)):''):'No reply from the attendant yet – click when he confirms'}">A</div>
+      <div class="cdot t ${isPlanned(row)?'on':''}" id="tdot-${index}"
+        title="${isPlanned(row)?'Planned – on '+(row.teams||[]).length+' team(s). Set automatically by the team selection.':'Not planned yet – lights up as soon as you tick a team'}">T</div>
+    </div>`;
 
     /* id cell */
     const idHtml=`<div style="display:flex;flex-direction:column;align-items:center;gap:1px">
@@ -1111,6 +1157,7 @@ function renderAttendantTable(){
     tr.dataset.idx=index;
     tr.innerHTML=`
       <td style="text-align:center">${dotHtml}</td>
+      <td>${confHtml}</td>
       <td style="text-align:center">${idHtml}</td>
       <td><div style="display:flex;align-items:center;gap:4px">
         ${row.sister?'<span class="pill sis" title="Sister">Sr.</span>':''}
@@ -1263,6 +1310,15 @@ function setSister(index,val){
   if(a.sister)a.privilege='Publisher';
   saveState();renderAttendantTable();renderCongTable();
 }
+/* "planned" is derived, never stored: an attendant counts as planned
+   as soon as he is on at least one team (main or extra) */
+function isPlanned(a){return !!(a&&(a.teams||[]).length);}
+function toggleApproval(index,key){
+  const a=state.attendants[index];if(!a)return;
+  a[key]=!a[key];
+  a[key+'At']=a[key]?new Date().toISOString():'';
+  saveState();renderAttendantTable();renderCongTable();updateMetrics();
+}
 function toggleActive(index){
   state.attendants[index].active=!(state.attendants[index].active!==false);
   saveState();renderAttendantTable();
@@ -1282,9 +1338,17 @@ function toggleArrLive(index,field,key,cbEl){
   if(field==='teams'){
     const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
     state.attendants[index].otherDepartment=arr.some(t=>otherKeys.includes(t));
+    refreshPlannedDot(index);
   }
-  saveState();updateMetrics();renderCongSummary();
+  saveState();updateMetrics();renderCongSummary();renderCongTable();
   const label=cbEl.closest('label');if(label)label.classList.toggle('off',!checked);
+}
+function refreshPlannedDot(index){
+  const dot=el('tdot-'+index);if(!dot)return;
+  const a=state.attendants[index],on=isPlanned(a);
+  dot.classList.toggle('on',on);
+  dot.title=on?`Planned – on ${(a.teams||[]).length} team(s). Set automatically by the team selection.`
+              :'Not planned yet – lights up as soon as you tick a team';
 }
 function toggleCustomTag(index,tag,cbEl){
   const checked=cbEl.checked;
@@ -1674,9 +1738,9 @@ function exportFilteredJson(){
 function exportFilteredCsv(){
   const filtered=getFilteredAttendants();
   if(!filtered.length){alert('No attendants match current filters.');return;}
-  const header=['ID','Name','First name','Congregation','Privilege','Sister','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
+  const header=['ID','Name','First name','Congregation','Privilege','Sister','Confirmed','Planned','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
   const rows=[header,...filtered.map(a=>[
-    a.id,a.name,a.firstName,a.congregation,a.privilege,a.sister?'Yes':'',
+    a.id,a.name,a.firstName,a.congregation,a.privilege,a.sister?'Yes':'',a.confirmed?'Yes':'',isPlanned(a)?'Yes':'',
     (a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/'),
     (a.roles||[]).map(k=>ROLES.find(r=>r.key===k)?.label||k).join('/'),
     (a.shifts||[]).map(k=>SHIFTS.find(s=>s.key===k)?.label||k).join('/'),
@@ -1962,9 +2026,16 @@ function openAttendantModal(index,prefillCong){
           ${DEFAULT_PRIVILEGES.map(p=>`<option value="${esc(p)}" ${row.privilege===p?'selected':''}>${esc(p)}</option>`).join('')}
         </select></div>
         <div class="modal-field"><label for="amSister">Status</label>
-          <label class="tch sis${row.sister?'':' off'}" id="amSisterChip" style="text-transform:none;letter-spacing:0;padding:6px 11px;font-size:12px;gap:6px;margin-top:2px">
-            <input type="checkbox" id="amSister" ${row.sister?'checked':''} onchange="amSisterChanged(this.checked)"> Sister
-          </label></div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px">
+            <label class="tch sis${row.sister?'':' off'}" id="amSisterChip" style="text-transform:none;letter-spacing:0;padding:6px 11px;font-size:12px;gap:6px">
+              <input type="checkbox" id="amSister" ${row.sister?'checked':''} onchange="amSisterChanged(this.checked)"> Sister
+            </label>
+            <label class="tch aconf${row.confirmed?'':' off'}" id="amConfirmedChip" style="text-transform:none;letter-spacing:0;padding:6px 11px;font-size:12px;gap:6px">
+              <input type="checkbox" id="amConfirmed" ${row.confirmed?'checked':''} onchange="el('amConfirmedChip').classList.toggle('off',!this.checked)"> Confirmed himself
+            </label>
+          </div>
+          ${row.confirmedAt?`<div class="mini" style="margin-top:4px">Confirmed ${esc(formatStamp(row.confirmedAt))}</div>`:''}
+        </div>
         <div class="modal-field"><label for="amMobile">Mobile</label><input id="amMobile" value="${esc(row.mobile||'')}"></div>
         <div class="modal-field"><label for="amEmail">Email</label><input id="amEmail" value="${esc(row.email||'')}"></div>
         <div class="modal-field"><label for="amJwpub">JWPub mail</label><input id="amJwpub" value="${esc(row.jwpub||'')}"></div>
@@ -2032,8 +2103,11 @@ function saveAttendantModal(addAnother){
   const custom=picks('custom');
   const congVal=v('amCong')==='__new__'?'':v('amCong');
   const isSister=!!el('amSister')?.checked;
+  const prev=attModalIndex===null?{}:state.attendants[attModalIndex]||{};
+  const conf=!!el('amConfirmed')?.checked;
   const obj={id:v('amId'),name,firstName:first,congregation:congVal,
     privilege:isSister?'Publisher':el('amPriv').value,sister:isSister,
+    confirmed:conf,confirmedAt:conf?(prev.confirmedAt||new Date().toISOString()):'',
     mobile:v('amMobile'),email:v('amEmail'),jwpub:v('amJwpub'),active:!!el('amActive').checked,
     teams:picks('teams'),roles:picks('roles'),shifts:picks('shifts'),customTags:custom,
     flags:v('amFlags'),remarks:v('amRemarks')};
@@ -2314,18 +2388,20 @@ function undoDelete(){
 
 /* ══════════ NEEDS ATTENTION ══════════ */
 function missingSets(){
-  const noTeam=[],noShift=[],noId=[],noMail=[];
+  const noTeam=[],noShift=[],noId=[],noMail=[],waitingReply=[];
   state.attendants.forEach((a,i)=>{
     if(!String(a.id||'').trim())noId.push(i);
     if(a.active===false)return;
     if(!(a.teams||[]).length)noTeam.push(i);
     if(!(a.shifts||[]).length)noShift.push(i);
+    if(!a.confirmed)waitingReply.push(i);
   });
   state.congregations.forEach((c,i)=>{if(!String(c.jwpub||'').trim())noMail.push(i);});
-  return{noTeam,noShift,noId,noMail};
+  return{waitingReply,noTeam,noShift,noId,noMail};
 }
 const MISS_DEFS={
-  noTeam :{title:'No team assigned',   sub:'active attendants',        clear:'All active attendants have a team'},
+  waitingReply:{title:'Waiting for his reply',  sub:'active, not confirmed',clear:'Every active attendant has confirmed'},
+  noTeam :{title:'Not planned yet',     sub:'active attendants, no team',clear:'Every active attendant is on a team'},
   noShift:{title:'No shift set',       sub:'active attendants',        clear:'All active attendants have a shift'},
   noId   :{title:'No ID',              sub:'attendants',               clear:'Every attendant has an ID'},
   noMail :{title:'No coordinator mail',sub:'congregations / groups',   clear:'Every congregation has a coordinator mail'}
@@ -2351,8 +2427,12 @@ function openMissingModal(key){
         <button class="secondary small-btn" onclick="focusCongRow(${i})">Go to row</button></div>`;
     }
     const a=state.attendants[i];
+    const dots=(key==='waitingReply')?`<div class="conf-cell">
+        <div class="cdot a ${a.confirmed?'on':''}" onclick="toggleApproval(${i},'confirmed');openMissingModal('${key}')" title="He confirmed himself">A</div>
+      </div>`:'';
     return`<div class="miss-row"><div class="grow"><b>${esc(dispName(a))}</b>
       <div class="sub">${esc(shortCong(a.congregation)||'no congregation')} · ${esc(a.privilege||'')}${a.active===false?' · inactive':''}</div></div>
+      ${dots}
       <button class="secondary small-btn" onclick="closeOverlay('missModal');openAttendantModal(${i})">✎ Fix</button></div>`;
   }).join('');
   openOverlay('missModal',`
