@@ -534,7 +534,9 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 .mid-part .blk-top { gap:8px; align-items:center; }
 .mid-part strong { overflow-wrap:anywhere; }
 .song-row { flex-wrap:wrap; }
-@media print { .meeting-help, [data-act="addPart"], [data-act="removePart"] { display:none !important; } }
+.mid-part .sec-actions { margin-top: 6px; }
+.add-part { margin: 2px 0 12px; }
+@media print { .meeting-help, [data-act="addPart"], [data-act="removePart"], select[data-assign] { display:none !important; } }
 </style>
 </head>
 <body class="kid">
@@ -572,7 +574,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.3 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.5 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -641,7 +643,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.3';
+const APP_VERSION = '1.2.5';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -811,7 +813,7 @@ const UI = {
     addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Draw with your pen. Fingers scroll.', inkHintFinger: 'Draw with your finger or pen.',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
-    meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
+    partType: "Type of part", choosePartType: "– choose –", as_startConv: "Starting a Conversation", as_explainBeliefs: "Explaining Your Beliefs", as_followUp: "Following Up", as_whatSay: "What Would You Say?", as_talkPart: "Talk", as_makeDisciples: "Making Disciples", meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
     songLoading: 'Loading song titles…', songLoadError: 'Song titles unavailable.', songRetry: 'Retry',
     wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Edit words', editWordsHint: 'Change words and symbols or choose defaults for new notes.', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete “{word}” and its count?',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
@@ -859,7 +861,7 @@ const UI = {
     addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Mit dem Stift schreiben. Finger scrollen.', inkHintFinger: 'Mit Finger oder Stift schreiben.',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
-    meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
+    partType: "Art der Aufgabe", choosePartType: "– auswählen –", as_startConv: "Gespräche beginnen", as_explainBeliefs: "Unsere Glaubensansichten erklären", as_followUp: "Interesse fördern", as_whatSay: "Was würdest du sagen?", as_talkPart: "Vortrag", as_makeDisciples: "Menschen zu Jüngern machen", meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
     songLoading: 'Liedtitel werden geladen …', songLoadError: 'Liedtitel nicht verfügbar.', songRetry: 'Erneut laden',
     wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter bearbeiten', editWordsHint: 'Wörter und Symbole ändern oder Vorgaben für neue Notizen festlegen.', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: '„{word}“ und seinen Zählerstand löschen?',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
@@ -1062,12 +1064,24 @@ function mkBlock(type) {
 const MID_KEYS = ['treasures', 'apply', 'living'];
 const MID_PARTS = {treasures:['treasureTalk','spiritualGems','bibleReading'],apply:['ministryPart','ministryPart','ministryPart'],living:['christianLifePart','bibleStudy']};
 function meetingForDate(date) { const day = parseISO(date).getDay(); return day === 0 || day === 6 ? 'weekend' : 'midweek'; }
-function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(kind=>({kind,title:'',person:'',assistant:'',notes:'',refs:[]}))}; }
+function partBlock() { const b = mkBlock(); if (b.type === 'ink') b.h = 320; return b; }
+function newPart(kind) { return {kind,assign:'',title:'',person:'',assistant:'',blocks:[partBlock()]}; }
+function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(newPart)}; }
+// "Apply Yourself to the Field Ministry" – assignment types from the workbook
+const APPLY_TYPES = ['startConv','explainBeliefs','followUp','whatSay','talkPart','makeDisciples'];
+// section key → object with .blocks; "living:1" addresses part 1 of the living section
+function secObj(sec) {
+  const m = /^(\w+):(\d+)$/.exec(sec || '');
+  if (m) return cur && cur[m[1]] && cur[m[1]].parts ? cur[m[1]].parts[+m[2]] : null;
+  return cur && cur[sec];
+}
+const byLabel = (a, b) => String(a).replace(/^[^\p{L}\p{N}]+/u, '').localeCompare(String(b).replace(/^[^\p{L}\p{N}]+/u, ''), settings.lang, { sensitivity: 'base' });
+function partLabel(key, p) { return key === 'apply' && APPLY_TYPES.includes(p.assign) ? t('as_' + p.assign) : t(p.kind); }
 function sortStandardWords(list) {
   const rank = w => { const word=String(w.w).toLowerCase(); const i=DEFAULT_WORDS.findIndex(d=>d.en.toLowerCase()===word || d.de.toLowerCase()===word); return i<0 ? DEFAULT_WORDS.length : i; };
   return list.map((w,i)=>({w,i})).sort((a,b)=>rank(a.w)-rank(b.w)||a.i-b.i).map(x=>x.w);
 }
-function entryBlocks(e) { return e.meetingType==='midweek' ? MID_KEYS.flatMap(k=>e[k].blocks) : [...e.talk.blocks,...e.wt.blocks]; }
+function entryBlocks(e) { return e.meetingType==='midweek' ? MID_KEYS.flatMap(k=>[...e[k].parts.flatMap(p=>p.blocks||[]),...e[k].blocks]) : [...e.talk.blocks,...e.wt.blocks]; }
 function partNumber(e, key, index) { return 1 + index + MID_KEYS.slice(0, MID_KEYS.indexOf(key)).reduce((sum, k)=>sum + e[k].parts.length, 0); }
 function fieldHtml(path,label,value,wide=false) { return `<label class="fld${wide?' wide':''}"><span>${esc(t(label))}</span><input type="text" data-f="${path}" value="${esc(value||'')}" autocomplete="off"></label>`; }
 function meetingControls(e) {
@@ -1080,15 +1094,33 @@ function midweekTop(e) {
 function partChipsHtml(key,i,refs) {
   return refs.map((r,ri)=>`<span class="chip"><a href="${esc(r.url)}" data-act="openRef" target="_blank" rel="noopener">📖 ${esc(r.label)}</a><button data-act="partDelRef" data-sec="${key}" data-i="${i}" data-r="${ri}" aria-label="${esc(t('del'))}">×</button></span>`).join('');
 }
+function partHtml(key, p, i) {
+  const sec = `${key}:${i}`;
+  const assign = key === 'apply' ? `<label class="fld wide"><span>${esc(t('partType'))}</span><select data-assign="${sec}">
+      <option value="">${esc(t('choosePartType'))}</option>
+      ${[...APPLY_TYPES].sort((a, b) => byLabel(t('as_' + a), t('as_' + b))).map(a => `<option value="${a}"${p.assign === a ? ' selected' : ''}>${esc(t('as_' + a))}</option>`).join('')}
+    </select></label>` : '';
+  return `<div class="mid-part">
+    <div class="blk-top"><strong>${partNumber(cur,key,i)}. ${esc(partLabel(key, p))}</strong><button class="x-btn" data-act="removePart" data-sec="${key}" data-i="${i}" aria-label="${esc(t('removePart'))}" title="${esc(t('removePart'))}">×</button></div>
+    <div class="meta-grid">${assign}${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${key==='apply'||p.kind==='bibleStudy'?fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant):''}</div>
+    <div class="blocks">${p.blocks.map((b, j) => renderBlock(sec, b, j, p.blocks.length)).join('')}</div>
+    <div class="sec-actions">
+      <button class="btn-soft" data-act="addRef" data-sec="${sec}">${esc(t('addRef'))}</button>
+      <button class="btn-soft" data-act="addText" data-sec="${sec}">${esc(t('addText'))}</button>
+      <button class="btn-soft" data-act="addInk" data-sec="${sec}">${esc(t('addInk'))}</button>
+    </div>
+  </div>`;
+}
 function midweekParts(key) {
-  const parts=cur[key].parts;
-  return `<div class="mid-parts">${parts.map((p,i)=>`<div class="mid-part">
-    <div class="blk-top"><strong>${partNumber(cur,key,i)}. ${esc(t(p.kind))}</strong><button class="x-btn" data-act="removePart" data-sec="${key}" data-i="${i}" aria-label="${esc(t('removePart'))}" title="${esc(t('removePart'))}">×</button></div>
-    <div class="meta-grid">${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${key==='apply'||p.kind==='bibleStudy'?fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant):''}</div>
-    <div class="sub-label">${esc(t('myNotes'))}</div><div class="rt short" contenteditable="true" data-f="${key}.parts.${i}.notes" data-ph="${esc(t('phNotes'))}">${sanitize(p.notes)}</div>
-    <div class="chips" data-part-chips="${key}-${i}">${partChipsHtml(key,i,p.refs||[])}</div>
-    <button class="btn-soft" data-act="partRef" data-sec="${key}" data-i="${i}">${esc(t('addRef'))}</button>
-  </div>`).join('')}</div><button class="btn" data-act="addPart" data-sec="${key}">${esc(t('addPart'))}</button><div class="sub-label">${esc(t('sectionNotes'))}</div>`;
+  const parts = cur[key].parts;
+  const addBtn = `<button class="btn add-part" data-act="addPart" data-sec="${key}">${esc(t('addPart'))}</button>`;
+  // Living as Christians: new parts go before the congregation Bible study, so the button sits there too
+  const study = key === 'living' ? parts.findIndex(p => p.kind === 'bibleStudy') : -1;
+  let h = '<div class="mid-parts">';
+  parts.forEach((p, i) => { if (i === study) h += addBtn; h += partHtml(key, p, i); });
+  h += '</div>';
+  if (study < 0) h += addBtn;
+  return h + `<div class="sub-label">${esc(t('sectionNotes'))}</div>`;
 }
 function renderMidweek() {
   let h=songRow(0);
@@ -1101,6 +1133,11 @@ function renderMidweek() {
 }
 document.addEventListener('change',ev=>{
   if(!cur)return;
+  if(ev.target.dataset.assign) {
+    const part = secObj(ev.target.dataset.assign);
+    if (part) { part.assign = APPLY_TYPES.includes(ev.target.value) ? ev.target.value : ''; cur.autoMeetingType=false; dirty(); keepScroll(renderEntry); }
+    return;
+  }
   if(ev.target.id==='meeting-type') {
     cur.meetingType=ev.target.value==='midweek'?'midweek':'weekend';cur.autoMeetingType=false;
     dirty();keepScroll(renderEntry);updateHeader();
@@ -1162,7 +1199,9 @@ function normalizeEntry(r) {
       blocks:normBlocks(source.blocks),
       parts:Array.isArray(source.parts) ? source.parts.filter(p=>p && typeof p==='object').map(p=>({
         kind:[...MID_PARTS[key],'customPart'].includes(p.kind)?p.kind:'customPart',
-        title:str(p.title,300),person:str(p.person,200),assistant:str(p.assistant,200),notes:sanitize(str(p.notes,200000)),refs:normRefs(p.refs)
+        assign:APPLY_TYPES.includes(p.assign)?p.assign:'',
+        title:str(p.title,300),person:str(p.person,200),assistant:str(p.assistant,200),
+        blocks:Array.isArray(p.blocks) ? normBlocks(p.blocks) : [{type:'text',html:sanitize(str(p.notes,200000)),refs:normRefs(p.refs)}]
       })) : newMidSection(key).parts
     };
   }
@@ -1235,7 +1274,7 @@ function entrySearchText(e) {
   return [e.speaker, e.speakerCong, e.talkTitle, e.wt.title, stripHtml(e.comment), stripHtml(e.kids.best), stripHtml(e.kids.question),
     ...blocks.map(b => (b.type === 'text' ? stripHtml(b.html) : '') + ' ' + b.refs.map(r => r.label).join(' ')),
     ...Object.values((e.wt.paras && e.wt.paras.notes) || {}).map(n => stripHtml(n.html) + ' ' + n.refs.map(r => r.label).join(' ')),
-    ...MID_KEYS.flatMap(k=>e[k].parts.flatMap(p=>[p.title,p.person,p.assistant,stripHtml(p.notes),...(p.refs||[]).map(r=>r.label)])),
+    ...MID_KEYS.flatMap(k=>e[k].parts.flatMap(p=>[p.assign?t('as_'+p.assign):'',p.title,p.person,p.assistant,...(p.blocks||[]).map(b=>(b.type==='text'?stripHtml(b.html):'')+' '+b.refs.map(r=>r.label).join(' '))])),
     ...Object.values(e.midweek), t(e.meetingType), fmtDate(e.date)].join(' ').toLowerCase();
 }
 function renderList() {
@@ -1496,7 +1535,7 @@ document.addEventListener('keydown', ev => {
   }
 });
 
-function getBlock(sec, i) { return cur && cur[sec] && cur[sec].blocks[i]; }
+function getBlock(sec, i) { const o = secObj(sec); return o && o.blocks && o.blocks[i]; }
 
 // ── field input (delegated) ──
 document.addEventListener('input', ev => {
@@ -1848,7 +1887,7 @@ const ACTIONS = {
 
   addPart: el => {
     const key=el.dataset.sec;if(!MID_KEYS.includes(key))return;
-    const part={kind:'customPart',title:'',person:'',assistant:'',notes:'',refs:[]};
+    const part=newPart('customPart');
     const study=key==='living'?cur[key].parts.findIndex(p=>p.kind==='bibleStudy'):-1;
     if(study>=0)cur[key].parts.splice(study,0,part);else cur[key].parts.push(part);
     cur.autoMeetingType=false;dirty();keepScroll(renderEntry);
@@ -1876,7 +1915,7 @@ const ACTIONS = {
       paraNote(bpTarget.para).refs.push(r);
       dirty(); refreshParas();
     } else {
-      const key = bpTarget.sec, sec = cur[key];
+      const key = bpTarget.sec, sec = secObj(key);
       let i = activeBlk[key];
       if (i == null || !sec.blocks[i]) i = sec.blocks.length - 1;
       sec.blocks[i].refs.push(r);
@@ -1940,8 +1979,9 @@ const ACTIONS = {
     if (!b) return;
     const hasContent = b.refs.length || (b.type === 'ink' ? b.strokes.length : stripHtml(b.html).trim());
     if (hasContent && !confirm(t('removeConfirm'))) return;
-    cur[sec].blocks.splice(i, 1);
-    if (!cur[sec].blocks.length) cur[sec].blocks.push(mkBlock('text'));
+    const holder = secObj(sec);
+    holder.blocks.splice(i, 1);
+    if (!holder.blocks.length) holder.blocks.push(mkBlock('text'));
     activeBlk[sec] = null;
     dirty(); keepScroll(renderEntry);
   },
@@ -2123,7 +2163,7 @@ document.addEventListener('click', ev => {
 function keepScroll(fn) { const y = window.scrollY; fn(); window.scrollTo(0, y); }
 
 function addBlock(sec, type) {
-  const arr = cur[sec].blocks;
+  const arr = secObj(sec).blocks;
   arr.push(mkBlock(type));
   const i = arr.length - 1;
   activeBlk[sec] = i;
@@ -2216,7 +2256,7 @@ function renderSettings() {
     <div class="set-row"><div class="lbl">${esc(t('defBlock'))}</div>
       <select data-set="defaultBlock"><option value="text"${s.defaultBlock === 'text' ? ' selected' : ''}>${esc(t('defText'))}</option><option value="ink"${s.defaultBlock === 'ink' ? ' selected' : ''}>${esc(t('defInk'))}</option></select></div>
     <div class="set-row"><div class="lbl">🌐 ${esc(t('translateTo'))}</div>
-      <select data-set="translateTo">${langOpt('de', 'Deutsch')}${langOpt('en', 'English')}${langOpt('es', 'Español')}${langOpt('fr', 'Français')}${langOpt('it', 'Italiano')}${langOpt('pl', 'Polski')}${langOpt('ro', 'Română')}${langOpt('ru', 'Русский')}${langOpt('tr', 'Türkçe')}${langOpt('tl', 'Tagalog')}</select></div>
+      <select data-set="translateTo">${[['de', 'Deutsch'], ['en', 'English'], ['es', 'Español'], ['fr', 'Français'], ['it', 'Italiano'], ['pl', 'Polski'], ['ro', 'Română'], ['ru', 'Русский'], ['tr', 'Türkçe'], ['tl', 'Tagalog']].sort((a, b) => byLabel(a[1], b[1])).map(([v, l]) => langOpt(v, l)).join('')}</select></div>
     <div class="set-block">
       <div class="lbl" style="font-weight:800">${esc(t('backup'))} · ${entries.length} ${esc(t('entriesCount'))}</div>
       
@@ -2427,11 +2467,10 @@ async function makeNotesPdf(entry) {
       if(key==='living' && entry.songs[1]) await text(t('songMiddle')+': '+entry.songs[1]);
       await text(t(key),true);
       for(const [i,p] of entry[key].parts.entries()) {
-        await text(partNumber(entry,key,i)+'. '+t(p.kind)+(p.title?' · '+p.title:''),true);
+        await text(partNumber(entry,key,i)+'. '+partLabel(key,p)+(p.title?' · '+p.title:''),true);
         if(p.person) await text(t(p.kind==='bibleStudy'?'conductor':'participant')+': '+p.person);
         if(p.assistant && (key==='apply'||p.kind==='bibleStudy')) await text(t(p.kind==='bibleStudy'?'reader':'assistant')+': '+p.assistant);
-        await text(pdfText(p.notes));
-        await refs(p.refs);
+        await blocks(p.blocks);
       }
       await blocks(entry[key].blocks);
     }
