@@ -379,8 +379,7 @@ body.small .tile .n { font-size: 28px; }
   min-height: 120px;
 }
 .paper canvas { position: absolute; left: 0; top: 0; display: block; }
-.paper .c-live { touch-action: pan-y; }
-body.finger .paper .c-live { touch-action: none; }
+.paper .c-live { touch-action: none; }
 .tl.mode { padding: 0 9px; font-size: 13px; font-weight: 700; white-space: nowrap; }
 .tl.mode.finger { border-color: var(--berry); color: var(--berry); }
 .blk-tools { display: inline-flex; align-items: center; gap: 6px; }
@@ -586,7 +585,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.12 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.14 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -655,7 +654,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.12';
+const APP_VERSION = '1.2.14';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -865,7 +864,7 @@ const UI = {
     wordCounter: 'Word counter', counterHint: 'Tap a word every time you hear it!', editWords: '✎ Edit words', editWordsHint: 'Change words and symbols or choose defaults for new notes.', newWord: 'New word…', addCounterWord: 'Add', increaseWord: 'Count one more: ', decreaseWord: 'Count one less: ', deleteWord: 'Delete word: ', emptyWords: 'Add a word to start counting.', deleteWordConfirm: 'Delete “{word}” and its count?',
     kidsCorner: 'Kids’ corner', best: 'The best part today', phBest: 'I liked…',
     question: 'My question for Mum or Dad', phQuestion: 'I want to ask…', mood: 'How was the meeting for me?',
-    print: '🖨 Print / PDF', shareEntry: '⤴ Share PDF', fileEntry: '⬇ Save backup', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
+    print: '🖨 Print / PDF', shareEntry: '⤴ Share / print PDF', fileEntry: '⬇ Save backup', del: '🗑 Delete', delConfirm: 'Delete these notes for good?', deleted: 'Deleted',
     autosave: 'Saved automatically on this device',
     bpTitle: '📖 Add Bible text', book: 'Book', chapter: 'Chapter', verse: 'Verse', vend: 'To verse',
     cancel: 'Cancel', insert: 'Insert', choose: 'Choose a book and chapter…', needBookCh: 'Please choose a book and chapter', added: 'added',
@@ -913,7 +912,7 @@ const UI = {
     wordCounter: 'Wörter-Zähler', counterHint: 'Tippe ein Wort jedes Mal an, wenn du es hörst!', editWords: '✎ Wörter bearbeiten', editWordsHint: 'Wörter und Symbole ändern oder Vorgaben für neue Notizen festlegen.', newWord: 'Neues Wort …', addCounterWord: 'Hinzufügen', increaseWord: 'Eins hochzählen: ', decreaseWord: 'Eins abziehen: ', deleteWord: 'Wort löschen: ', emptyWords: 'Füge ein Wort hinzu, um mit dem Zählen zu beginnen.', deleteWordConfirm: '„{word}“ und seinen Zählerstand löschen?',
     kidsCorner: 'Kinder-Ecke', best: 'Das Beste heute', phBest: 'Mir hat gefallen…',
     question: 'Meine Frage an Mama oder Papa', phQuestion: 'Ich möchte fragen…', mood: 'Wie war die Zusammenkunft für mich?',
-    print: '🖨 Drucken / PDF', shareEntry: '⤴ PDF teilen', fileEntry: '⬇ Sicherung speichern', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
+    print: '🖨 Drucken / PDF', shareEntry: '⤴ PDF teilen / drucken', fileEntry: '⬇ Sicherung speichern', del: '🗑 Löschen', delConfirm: 'Diese Notizen endgültig löschen?', deleted: 'Gelöscht',
     autosave: 'Wird automatisch auf diesem Gerät gespeichert',
     bpTitle: '📖 Bibelstelle hinzufügen', book: 'Buch', chapter: 'Kapitel', verse: 'Vers', vend: 'Bis Vers',
     cancel: 'Abbrechen', insert: 'Einfügen', choose: 'Buch und Kapitel auswählen…', needBookCh: 'Bitte Buch und Kapitel auswählen', added: 'hinzugefügt',
@@ -1441,7 +1440,6 @@ function renderEntry() {
   if (!kid && settings.showCounter) h += renderCounter();
 
   h += `<div class="entry-actions">
-      <button class="btn" data-act="print">${esc(t('print'))}</button>
       <button class="btn" data-act="shareEntry" data-mode="share">${esc(t('shareEntry'))}</button>
       <button class="btn" data-act="shareEntry" data-mode="file">${esc(t('fileEntry'))}</button>
       <button class="btn" data-act="resetMeeting">${esc(t('resetMeeting'))}</button>
@@ -1782,12 +1780,8 @@ function setupInk(el, b) {
   live.addEventListener('pointermove', ev => inkMove(st, ev));
   live.addEventListener('pointerup', ev => inkUp(st, ev));
   live.addEventListener('pointercancel', ev => inkUp(st, ev));
-  // stop the page from scrolling while the pen (or an allowed finger) writes
-  const blockScroll = ev => {
-    const tt = ev.touches && ev.touches[0];
-    if (!tt) return;
-    if (tt.touchType === 'stylus' || st.pid !== null || settings.fingerDraw) ev.preventDefault();
-  };
+  // native touch handling is off on the paper (touch-action: none); iOS additionally needs this
+  const blockScroll = ev => { if (ev.cancelable) ev.preventDefault(); };
   live.addEventListener('touchstart', blockScroll, { passive: false });
   live.addEventListener('touchmove', blockScroll, { passive: false });
   if (window.ResizeObserver) { st.ro = new ResizeObserver(() => sizeInk(st)); st.ro.observe(paper); }
@@ -1880,10 +1874,30 @@ function scheduleLive(st) {
   });
 }
 let penOnlyHinted = false;
+// finger on the paper in pen mode → scroll the page manually (with a little momentum)
+let fingerScroll = null, scrollRaf = 0;
+function startFingerScroll(st, ev) {
+  cancelAnimationFrame(scrollRaf);
+  fingerScroll = { st, id: ev.pointerId, y: ev.clientY, y0: ev.clientY, t: performance.now(), v: 0 };
+  try { st.live.setPointerCapture(ev.pointerId); } catch {}
+}
+function moveFingerScroll(ev) {
+  const f = fingerScroll, now = performance.now(), dy = f.y - ev.clientY;
+  window.scrollBy(0, dy);
+  f.v = dy / Math.max(1, now - f.t); f.y = ev.clientY; f.t = now;
+}
+function endFingerScroll() {
+  const f = fingerScroll; fingerScroll = null;
+  if (!f) return;
+  if (Math.abs(f.y - f.y0) < 8 && !penOnlyHinted) { penOnlyHinted = true; toast(t('penOnlyHint')); }
+  let v = performance.now() - f.t < 80 ? f.v : 0;
+  const step = () => { if (Math.abs(v) < .02) return; window.scrollBy(0, v * 16); v *= .94; scrollRaf = requestAnimationFrame(step); };
+  step();
+}
 function inkDown(st, ev) {
-  if (ev.pointerType === 'touch' && !settings.fingerDraw && !penSeen && !penOnlyHinted) {
-    penOnlyHinted = true;
-    toast(t('penOnlyHint'));
+  if (ev.pointerType === 'touch' && !settings.fingerDraw) {
+    if (!fingerScroll && st.pid === null) startFingerScroll(st, ev);
+    return;
   }
   if (st.pid !== null || !allowPointer(ev)) return;
   ev.preventDefault();
@@ -1900,6 +1914,7 @@ function inkDown(st, ev) {
   scheduleLive(st);
 }
 function inkMove(st, ev) {
+  if (fingerScroll && fingerScroll.id === ev.pointerId) { moveFingerScroll(ev); return; }
   if (ev.pointerId !== st.pid) return;
   ev.preventDefault();
   let evs = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [];
@@ -1914,6 +1929,7 @@ function inkMove(st, ev) {
   scheduleLive(st);
 }
 function inkUp(st, ev) {
+  if (fingerScroll && fingerScroll.id === ev.pointerId) { endFingerScroll(); return; }
   if (ev.pointerId !== st.pid) return;
   st.pid = null;
   if (st.erasing) {
@@ -2217,7 +2233,6 @@ const ACTIONS = {
   },
   fmtDone: () => { if (document.activeElement) document.activeElement.blur(); hideFmt(); },
 
-  print: () => { flush(); window.print(); },
   shareEntry: async el => {
     flush();
     if (el.dataset.mode !== 'file') { await prepareNotesPdf(); return; }
