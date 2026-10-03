@@ -391,6 +391,16 @@ body.small .tile .n { font-size: 28px; }
 @media print { .mode-seg { display: none !important; } }
 .print-extra { display: none; }
 @media print { .print-extra { display: block; margin: 6px 0; } }
+.ppl { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.pchip { display: inline-flex; align-items: center; border-radius: 20px; border: 1px solid color-mix(in srgb, var(--berry) 40%, var(--card)); background: color-mix(in srgb, var(--berry) 9%, var(--card)); font-weight: 700; font-size: 14.5px; padding-left: 12px; }
+.pchip > button { border: none; background: none; padding: 6px 10px 6px 6px; color: var(--sub); font-size: 15px; }
+.pchip .pname { padding: 6px 4px 6px 0; font-weight: 700; color: var(--ink); font-size: 14.5px; }
+.pchip.done { background: var(--berry); border-color: var(--berry); }
+.pchip.done .pname, .pchip.done > button { color: var(--card); }
+.padd { display: inline-flex; gap: 5px; align-items: center; }
+.ppl-in { width: 140px; border: 1px solid var(--border); border-radius: 18px; background: var(--field); padding: 7px 12px; font-size: 15px; }
+.padd .btn-soft { padding: 6px 12px; font-size: 16px; }
+@media print { .padd { display: none !important; } }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -585,7 +595,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.15 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.16 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -654,7 +664,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.15';
+const APP_VERSION = '1.2.16';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -856,7 +866,7 @@ const UI = {
     song: 'Song', publicTalk: 'Public Talk', wtStudy: 'Watchtower Study', wtTitle: 'Article title', phWt: 'Title of the study article',
     conductor: 'Conductor', reader: 'Reader', myComment: '💬 My comment', phComment: 'What I want to answer…',
     notes: 'Notes', moreNotes: 'More notes', phNotes: 'Write your notes here…', phMore: 'Keep writing…',
-    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', addNote: '+ New field', pdfBy: 'Notes by {n}', pdfPage: 'Page', inHand: 'By hand', inHandX: 'Draw and write with finger or pen', penOnlyHint: 'Pen mode: fingers scroll. Tap 👆 Finger above the field to draw with your finger.', penOnlyHintLocked: 'Pen mode: fingers scroll. Finger drawing can be switched on in ⚙︎ Settings.', modeSwitchSetting: 'Choose text/pen per field', modeSwitchHint: 'Off: every field uses the way of writing from the setup', modeText: 'Text', fieldMode: 'Write with', removeConfirm: 'Remove this field with its content?',
+    addRef: '+ Bible text', addText: '+ ⌨️ Text', addInk: '+ ✏️ Pen', addNote: '+ New field', talkedBefore: 'Before the meeting I talked with…', talkAfter: 'After the meeting I want to talk with…', namePh: 'Name', tickHint: 'Tap a name once you have talked.', pdfBy: 'Notes by {n}', pdfPage: 'Page', inHand: 'By hand', inHandX: 'Draw and write with finger or pen', penOnlyHint: 'Pen mode: fingers scroll. Tap 👆 Finger above the field to draw with your finger.', penOnlyHintLocked: 'Pen mode: fingers scroll. Finger drawing can be switched on in ⚙︎ Settings.', modeSwitchSetting: 'Choose text/pen per field', modeSwitchHint: 'Off: every field uses the way of writing from the setup', modeText: 'Text', fieldMode: 'Write with', removeConfirm: 'Remove this field with its content?',
     inkHintPen: 'Pen mode: only the pen writes, fingers scroll.', inkHintFinger: 'Finger mode: finger and pen write. Scroll next to the field.', modePen: 'Pen', modeFinger: 'Finger', inkModeHint: 'Switch between pen and finger',
     restoreWords: "Restore standard words", restoreConfirm: "Restore the six standard words? Existing words and counts stay. Missing standard words are added with zero.", resetMeeting: "Reset meeting", resetConfirm: "Clear all notes, drawings, speaker details and counts for this meeting? The date stays. This cannot be undone.", clearText: "Clear text field", clearTextConfirm: "Clear this text field? Bible references stay.", pdfTitle: "Share notes as PDF", pdfPreparing: "Preparing your PDF on this device…", pdfReady: "Your PDF is ready. Choose an app to share it, or save it locally.", pdfShare: "Share PDF", pdfSave: "Save PDF", pdfError: "The PDF could not be created. Please try Print / PDF.", pdfUnsupported: "The browser cannot share this PDF here. Save PDF, then share it from the Files app.",
     partType: "Type of part", choosePartType: "– choose –", as_startConv: "Starting a Conversation", as_explainBeliefs: "Explaining Your Beliefs", as_followUp: "Following Up", as_whatSay: "What Would You Say?", as_talkPart: "Talk", as_makeDisciples: "Making Disciples", meetingType: "Meeting", weekend: "Weekend meeting", midweek: "Midweek meeting", meetingHint: "The date suggests the meeting type until you start writing. You can change it here; notes in the other template stay saved.", weeklyReading: "This week’s Bible reading", chairman: "Chairman", openingPrayer: "Opening prayer", closingPrayer: "Closing prayer", treasures: "Treasures From God’s Word", apply: "Apply Yourself to the Field Ministry", living: "Living as Christians", treasureTalk: "Treasures talk", spiritualGems: "Spiritual Gems", bibleReading: "Bible Reading", ministryPart: "Ministry assignment", christianLifePart: "Christian life", bibleStudy: "Congregation Bible Study", customPart: "Additional part", partTopic: "Topic / assignment", participant: "Participant", assistant: "Assistant / additional participant", myNotes: "My notes", sectionNotes: "More notes or drawings for this section", addPart: "+ Add program part", removePart: "Remove program part", removePartConfirm: "Remove this program part and its notes?", songOpening: "Opening song", songMiddle: "Middle song", songClosing: "Closing song",
@@ -904,7 +914,7 @@ const UI = {
     song: 'Lied', publicTalk: 'Öffentlicher Vortrag', wtStudy: 'Wachtturm-Studium', wtTitle: 'Artikelthema', phWt: 'Thema des Studienartikels',
     conductor: 'Leiter', reader: 'Leser', myComment: '💬 Mein Kommentar', phComment: 'Was ich antworten möchte…',
     notes: 'Notizen', moreNotes: 'Weitere Notizen', phNotes: 'Schreib hier deine Notizen…', phMore: 'Weiterschreiben…',
-    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', addNote: '+ Neues Feld', pdfBy: 'Notizen von {n}', pdfPage: 'Seite', inHand: 'Mit der Hand', inHandX: 'Mit Finger oder Stift malen und schreiben', penOnlyHint: 'Stiftmodus: Finger scrollen. Tippe oben am Feld auf 👆 Finger, um mit dem Finger zu malen.', penOnlyHintLocked: 'Stiftmodus: Finger scrollen. Malen mit dem Finger lässt sich in ⚙︎ Einstellungen einschalten.', modeSwitchSetting: 'Schreibart pro Feld wählbar', modeSwitchHint: 'Aus: alle Felder nutzen die Schreibart aus der Einrichtung', modeText: 'Text', fieldMode: 'Schreiben mit', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
+    addRef: '+ Bibelstelle', addText: '+ ⌨️ Text', addInk: '+ ✏️ Stift', addNote: '+ Neues Feld', talkedBefore: 'Vor der Zusammenkunft habe ich geredet mit …', talkAfter: 'Nach der Zusammenkunft möchte ich noch reden mit …', namePh: 'Name', tickHint: 'Tippe auf einen Namen, wenn ihr geredet habt.', pdfBy: 'Notizen von {n}', pdfPage: 'Seite', inHand: 'Mit der Hand', inHandX: 'Mit Finger oder Stift malen und schreiben', penOnlyHint: 'Stiftmodus: Finger scrollen. Tippe oben am Feld auf 👆 Finger, um mit dem Finger zu malen.', penOnlyHintLocked: 'Stiftmodus: Finger scrollen. Malen mit dem Finger lässt sich in ⚙︎ Einstellungen einschalten.', modeSwitchSetting: 'Schreibart pro Feld wählbar', modeSwitchHint: 'Aus: alle Felder nutzen die Schreibart aus der Einrichtung', modeText: 'Text', fieldMode: 'Schreiben mit', removeConfirm: 'Dieses Feld mit Inhalt entfernen?',
     inkHintPen: 'Stiftmodus: nur der Stift schreibt, Finger scrollen.', inkHintFinger: 'Fingermodus: Finger und Stift schreiben. Neben dem Feld scrollen.', modePen: 'Stift', modeFinger: 'Finger', inkModeHint: 'Zwischen Stift und Finger umschalten',
     restoreWords: "Standardwörter wiederherstellen", restoreConfirm: "Die sechs Standardwörter wiederherstellen? Vorhandene Wörter und Zählerstände bleiben. Fehlende Standardwörter kommen mit null hinzu.", resetMeeting: "Meeting zurücksetzen", resetConfirm: "Alle Notizen, Zeichnungen, Rednerangaben und Zählerstände dieses Meetings leeren? Das Datum bleibt. Dies kann nicht rückgängig gemacht werden.", clearText: "Textfeld leeren", clearTextConfirm: "Dieses Textfeld leeren? Bibelstellen bleiben erhalten.", pdfTitle: "Notizen als PDF teilen", pdfPreparing: "Dein PDF wird auf diesem Gerät erstellt …", pdfReady: "Dein PDF ist fertig. Wähle eine App zum Teilen oder speichere es lokal.", pdfShare: "PDF teilen", pdfSave: "PDF speichern", pdfError: "Das PDF konnte nicht erstellt werden. Bitte nutze Drucken / PDF.", pdfUnsupported: "Der Browser kann dieses PDF hier nicht teilen. Speichere das PDF und teile es anschließend über die Dateien-App.",
     partType: "Art der Aufgabe", choosePartType: "– auswählen –", as_startConv: "Gespräche beginnen", as_explainBeliefs: "Unsere Glaubensansichten erklären", as_followUp: "Interesse fördern", as_whatSay: "Was würdest du sagen?", as_talkPart: "Vortrag", as_makeDisciples: "Menschen zu Jüngern machen", meetingType: "Zusammenkunft", weekend: "Am Wochenende", midweek: "Unter der Woche", meetingHint: "Das Datum schlägt die Vorlage vor, bis du etwas einträgst. Hier kannst du sie wechseln; Notizen in der anderen Vorlage bleiben gespeichert.", weeklyReading: "Bibelleseprogramm dieser Woche", chairman: "Vorsitzender", openingPrayer: "Anfangsgebet", closingPrayer: "Schlussgebet", treasures: "Schätze aus Gottes Wort", apply: "Uns im Dienst verbessern", living: "Unser Leben als Christ", treasureTalk: "Vortrag zu den Schätzen", spiritualGems: "Nach geistigen Schätzen graben", bibleReading: "Bibellesung", ministryPart: "Aufgabe für den Dienst", christianLifePart: "Unser Leben als Christ", bibleStudy: "Versammlungsbibelstudium", customPart: "Weiterer Programmpunkt", partTopic: "Thema / Aufgabe", participant: "Beteiligter / Beteiligte", assistant: "Partner / weitere Beteiligte", myNotes: "Meine Notizen", sectionNotes: "Weitere Notizen oder Zeichnungen zu diesem Teil", addPart: "+ Programmpunkt hinzufügen", removePart: "Programmpunkt entfernen", removePartConfirm: "Diesen Programmpunkt und seine Notizen entfernen?", songOpening: "Anfangslied", songMiddle: "Mittleres Lied", songClosing: "Schlusslied",
@@ -1148,7 +1158,7 @@ function partHtml(key, p, i) {
     </select></label>` : '';
   return `<div class="mid-part">
     <div class="blk-top"><strong>${partNumber(cur,key,i)}. ${esc(partLabel(key, p))}</strong><button class="x-btn" data-act="removePart" data-sec="${key}" data-i="${i}" aria-label="${esc(t('removePart'))}" title="${esc(t('removePart'))}">×</button></div>
-    <div class="meta-grid">${assign}${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${key==='apply'||p.kind==='bibleStudy'?fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant):''}</div>
+    <div class="meta-grid">${assign}${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${key==='living'&&p.kind!=='bibleStudy'?'':fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${key==='apply'||p.kind==='bibleStudy'?fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant):''}</div>
     <div class="blocks">${p.blocks.map((b, j) => renderBlock(sec, b, j, p.blocks.length)).join('')}</div>
     <div class="sec-actions">
       <button class="btn-soft" data-act="addRef" data-sec="${sec}">${esc(t('addRef'))}</button>
@@ -1202,7 +1212,7 @@ function newEntry() {
     talk: { blocks: [mkBlock()] },
     wt: { title: '', conductor: '', reader: '', blocks: [mkBlock()], paras: { count: 0, done: [], notes: {} } },
     comment: '',
-    kids: { best: '', question: '', mood: '' },
+    kids: { best: '', question: '', mood: '', before: [], after: [] },
     counter: sortStandardWords(defaultWords()).map(w => ({ e: w.e, w: w.w, n: 0 }))
   };
 }
@@ -1270,7 +1280,9 @@ function normalizeEntry(r) {
   };
   e.comment = sanitize(str(r.comment, 50000));
   const k = r.kids || {};
-  e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '' };
+  e.kids = { best: sanitize(str(k.best, 50000)), question: sanitize(str(k.question, 50000)), mood: MOODS.includes(k.mood) ? k.mood : '',
+    before: (Array.isArray(k.before) ? k.before : []).map(n => str(n, 60).trim()).filter(Boolean).slice(0, 30),
+    after: (Array.isArray(k.after) ? k.after : []).filter(x => x && typeof x.n === 'string' && x.n.trim()).slice(0, 30).map(x => ({ n: str(x.n, 60).trim(), done: !!x.done })) };
   if (Array.isArray(r.counter)) e.counter = r.counter.filter(c => c && c.w).map(c => ({ e: str(c.e, 16), w: str(c.w, 40), n: Math.max(0, Math.round(num(c.n))) }));
   e.counter = sortStandardWords(e.counter);
   return e;
@@ -1429,12 +1441,17 @@ function renderEntry() {
   if (settings.showKids) {
     h += `<section class="card sec kids">
       <div class="sec-head"><h2>${esc(t('kidsCorner'))}</h2></div>
-      <div class="sub-label" style="margin-top:0">${esc(t('best'))}</div>
+      <div class="sub-label" style="margin-top:0">👋 ${esc(t('talkedBefore'))}</div>
+      <div class="ppl" id="ppl-before">${peopleHtml('before')}</div>
+      <div class="sub-label">${esc(t('best'))}</div>
       <div class="rt short" contenteditable="true" data-f="kids.best" data-ph="${esc(t('phBest'))}">${sanitize(e.kids.best)}</div>
       <div class="sub-label">${esc(t('question'))}</div>
       <div class="rt short" contenteditable="true" data-f="kids.question" data-ph="${esc(t('phQuestion'))}">${sanitize(e.kids.question)}</div>
       <div class="sub-label">${esc(t('mood'))}</div>
       <div class="moods">${MOODS.map(m => `<button class="mood${e.kids.mood === m ? ' on' : ''}" data-act="mood" data-m="${m}">${m}</button>`).join('')}</div>
+      <div class="sub-label">💬 ${esc(t('talkAfter'))}</div>
+      <div class="ppl" id="ppl-after">${peopleHtml('after')}</div>
+      <datalist id="dl-people">${[...new Set(entries.flatMap(x => [...(x.kids.before || []), ...(x.kids.after || []).map(a => a.n)]))].sort((a, b) => byLabel(a, b)).map(n => `<option value="${esc(n)}">`).join('')}</datalist>
     </section>`;
   }
   if (!kid && settings.showCounter) h += renderCounter();
@@ -1458,6 +1475,33 @@ function songLinkHtml(v) {
     : esc(t('songLoading'));
   return info ? `<a class="song-link" data-act="openRef" target="_blank" rel="noopener" href="${esc(info.url)}">${esc(info.title)} <span aria-hidden="true">▶</span></a>` : '';
 }
+function peopleHtml(list) {
+  const k = cur.kids;
+  if (!Array.isArray(k.before)) k.before = [];
+  if (!Array.isArray(k.after)) k.after = [];
+  const chips = list === 'before'
+    ? k.before.map((n, i) => `<span class="pchip">${esc(n)}<button data-act="pplDel" data-list="before" data-i="${i}" aria-label="✕">×</button></span>`).join('')
+    : k.after.map((x, i) => `<span class="pchip${x.done ? ' done' : ''}"><button class="pname" data-act="pplToggle" data-i="${i}" aria-pressed="${x.done}">${x.done ? '✓ ' : ''}${esc(x.n)}</button><button data-act="pplDel" data-list="after" data-i="${i}" aria-label="✕">×</button></span>`).join('');
+  return `${chips}<span class="padd"><input class="ppl-in" data-list="${list}" list="dl-people" maxlength="60" autocomplete="off" placeholder="${esc(t('namePh'))}"><button class="btn-soft" data-act="pplAdd" data-list="${list}" aria-label="+">+</button></span>
+    ${list === 'after' && k.after.length ? `<div class="p-done-txt" style="width:100%">${esc(t('tickHint'))}</div>` : ''}`;
+}
+function refreshPeople(list, focus) {
+  const box = $('ppl-' + list); if (!box) return;
+  box.innerHTML = peopleHtml(list);
+  if (focus) { const i = box.querySelector('.ppl-in'); if (i) i.focus(); }
+}
+function addPerson(list) {
+  const box = $('ppl-' + list), input = box && box.querySelector('.ppl-in');
+  const name = input ? input.value.trim().slice(0, 60) : '';
+  if (!name) return;
+  if (list === 'before') { if (!cur.kids.before.includes(name)) cur.kids.before.push(name); }
+  else if (!cur.kids.after.some(x => x.n === name)) cur.kids.after.push({ n: name, done: false });
+  dirty(); refreshPeople(list, true);
+}
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && ev.target.classList && ev.target.classList.contains('ppl-in')) { ev.preventDefault(); addPerson(ev.target.dataset.list); }
+});
+
 function songRow(i) {
   return `<div class="song-row">🎵 ${esc(t(['songOpening','songMiddle','songClosing'][i]))}
     <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-song="${i}" value="${esc(cur.songs[i])}" placeholder="#" aria-label="${esc(t('song'))} ${i + 1}">
@@ -2061,6 +2105,16 @@ const ACTIONS = {
   },
   obSkip: () => { obKeepName(); settings.name = ob.name; settings.onboarded = true; saveSettings(); closeModal('modal-onboard'); renderList(); },
   restartSetup: () => { closeModal('modal-settings'); openOnboard(); },
+  pplAdd: el => addPerson(el.dataset.list),
+  pplDel: el => {
+    const list = el.dataset.list, i = +el.dataset.i;
+    cur.kids[list].splice(i, 1); dirty(); refreshPeople(list);
+  },
+  pplToggle: el => {
+    const x = cur.kids.after[+el.dataset.i]; if (!x) return;
+    x.done = !x.done; if (x.done && navigator.vibrate) navigator.vibrate(12);
+    dirty(); refreshPeople('after');
+  },
   toggleTheme: () => { settings.theme = isDark() ? 'light' : 'dark'; saveSettings(); applyTheme(); },
   openRef: (el, ev) => { ev.preventDefault(); openScripture(el.getAttribute('href')); },
 
@@ -2616,7 +2670,7 @@ async function makeNotesPdf(entry) {
       await text(t(key),true);
       for(const [i,p] of entry[key].parts.entries()) {
         await text(partNumber(entry,key,i)+'. '+partLabel(key,p)+(p.title?' · '+p.title:''),true);
-        if(p.person) await text(t(p.kind==='bibleStudy'?'conductor':'participant')+': '+p.person);
+        if(p.person && !(key==='living'&&p.kind!=='bibleStudy')) await text(t(p.kind==='bibleStudy'?'conductor':'participant')+': '+p.person);
         if(p.assistant && (key==='apply'||p.kind==='bibleStudy')) await text(t(p.kind==='bibleStudy'?'reader':'assistant')+': '+p.assistant);
         await blocks(p.blocks);
       }
@@ -2640,7 +2694,9 @@ async function makeNotesPdf(entry) {
   if (pdfText(entry.comment)) { await text(t('comment'), true); await text(pdfText(entry.comment)); }
   }
   if (entry.counter.some(w => w.n)) { await text(t('wordCounter'), true); for (const w of entry.counter) await text(`${w.e || ''} ${wordLabel(w.w)}: ${w.n}`); }
+  if ((entry.kids.before || []).length) { await text(t('talkedBefore'), true); await text(entry.kids.before.join(', ')); }
   for (const [key, label] of [['best','best'],['question','question'],['mood','mood']]) if (entry.kids[key]) { await text(t(label), true); await text(pdfText(entry.kids[key])); }
+  if ((entry.kids.after || []).length) { await text(t('talkAfter'), true); await text(entry.kids.after.map(x => (x.done ? '✓ ' : '') + x.n).join(', ')); }
   await finish();
   return new File([await doc.save()], `congregation-notes-${entry.date}.pdf`, {type:'application/pdf'});
 }
