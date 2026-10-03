@@ -401,6 +401,16 @@ body.small .tile .n { font-size: 28px; }
 .ppl-in { width: 140px; border: 1px solid var(--border); border-radius: 18px; background: var(--field); padding: 7px 12px; font-size: 15px; }
 .padd .btn-soft { padding: 6px 12px; font-size: 16px; }
 @media print { .padd { display: none !important; } }
+.card-top { display: flex; justify-content: flex-end; margin: -4px -4px 4px 0; }
+.share-mini { border: 1px solid var(--border); background: var(--card); color: var(--primary); border-radius: 10px; padding: 4px 11px; font-size: 13px; font-weight: 800; }
+.share-mini:active { background: var(--bg); }
+.to-top {
+  position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); z-index: 89;
+  width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--ink);
+  font-size: 22px; font-weight: 800; box-shadow: 0 4px 14px rgba(28,39,64,.18);
+}
+.to-top.above-fab { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); right: max(25px, env(safe-area-inset-right)); }
+@media print { .to-top, .card-top { display: none !important; } }
 .ink-hint { font-size: 11.5px; color: var(--faint); margin-top: 4px; }
 
 /* ── WORD COUNTER ───────────────────────── */
@@ -593,9 +603,10 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 </main>
 
 <button class="fab" id="fab" data-act="newEntry" aria-label="New">＋</button>
+<button class="to-top" id="to-top" data-act="toTop" aria-label="Top" hidden>↑</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.16 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.17 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -664,7 +675,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.16';
+const APP_VERSION = '1.2.17';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -1141,7 +1152,7 @@ function entryBlocks(e) { return e.meetingType==='midweek' ? MID_KEYS.flatMap(k=
 function partNumber(e, key, index) { return 1 + index + MID_KEYS.slice(0, MID_KEYS.indexOf(key)).reduce((sum, k)=>sum + e[k].parts.length, 0); }
 function fieldHtml(path,label,value,wide=false) { return `<label class="fld${wide?' wide':''}"><span>${esc(t(label))}</span><input type="text" data-f="${path}" value="${esc(value||'')}" autocomplete="off"></label>`; }
 function meetingControls(e) {
-  return `<section class="card"><div class="meta-grid"><label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
+  return `<section class="card"><div class="card-top"><button class="share-mini" data-act="shareEntry" data-mode="share" title="${esc(t('shareEntry'))}">⤴ PDF</button></div><div class="meta-grid"><label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
   <label class="fld"><span>${esc(t('meetingType'))}</span><select id="meeting-type"><option value="weekend"${e.meetingType==='weekend'?' selected':''}>${esc(t('weekend'))}</option><option value="midweek"${e.meetingType==='midweek'?' selected':''}>${esc(t('midweek'))}</option></select></label></div><p class="meeting-help">${esc(t('meetingHint'))}</p></section>`;
 }
 function midweekTop(e) {
@@ -1690,8 +1701,8 @@ document.addEventListener('focusout', ev => {
     fmtHideTimer = setTimeout(() => { if (!document.activeElement || !document.activeElement.matches('.rt')) hideFmt(); }, 150);
   }
 });
-function showFmt() { $('fmt-bar').hidden = false; document.body.classList.add('fmt-open'); placeFmt(); updateFmtState(); }
-function hideFmt() { $('fmt-bar').hidden = true; document.body.classList.remove('fmt-open'); }
+function showFmt() { $('fmt-bar').hidden = false; document.body.classList.add('fmt-open'); placeFmt(); updateFmtState(); updateToTop(); }
+function hideFmt() { $('fmt-bar').hidden = true; document.body.classList.remove('fmt-open'); updateToTop(); }
 function placeFmt() {
   const bar = $('fmt-bar');
   if (bar.hidden) return;
@@ -1707,6 +1718,13 @@ if (window.visualViewport) {
   visualViewport.addEventListener('scroll', placeFmt);
 }
 window.addEventListener('scroll', placeFmt, { passive: true });
+function updateToTop() {
+  const b = $('to-top');
+  b.hidden = window.scrollY < 500 || document.body.classList.contains('fmt-open');
+  b.classList.toggle('above-fab', !$('fab').hidden);
+}
+window.addEventListener('scroll', updateToTop, { passive: true });
+window.addEventListener('hashchange', () => setTimeout(updateToTop, 50));
 // keep the text selection when tapping bar buttons
 $('fmt-bar').addEventListener('pointerdown', ev => { if (ev.target.closest('button')) ev.preventDefault(); });
 $('fmt-bar').addEventListener('mousedown', ev => ev.preventDefault());
@@ -2115,6 +2133,7 @@ const ACTIONS = {
     x.done = !x.done; if (x.done && navigator.vibrate) navigator.vibrate(12);
     dirty(); refreshPeople('after');
   },
+  toTop: () => window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }),
   toggleTheme: () => { settings.theme = isDark() ? 'light' : 'dark'; saveSettings(); applyTheme(); },
   openRef: (el, ev) => { ev.preventDefault(); openScripture(el.getAttribute('href')); },
 
