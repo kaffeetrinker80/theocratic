@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-<title>Winter Service</title>
+<title>Winter Service v0.3</title>
 <style>
 :root{
   --bg:#eef3f7;--card:#fff;--text:#172033;--muted:#687386;--line:#dfe6ee;
@@ -63,8 +63,10 @@ h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px
 
   <div id="adminStrip" class="adminStrip hidden">
     <div class="row"><span id="adminModeLabel"></span><button class="btn ghost small" id="adminPeopleBtn"></button></div>
+    <div class="helperText" style="margin-top:6px">✏️ Tippe in „Plan“ bei einem Tag auf Bearbeiten, um Person / Gruppe / Versammlung zu ändern.</div>
   </div>
 
+  <div id="viewToday">
   <div class="card">
     <div class="heroHead">
       <div><div class="sectionTitle" style="margin:0 0 8px" id="todayLabel"></div><div id="todayDate" style="font-weight:850;font-size:18px"></div><div id="weatherText" class="weatherText"></div></div>
@@ -73,8 +75,15 @@ h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px
   </div>
 
   <div class="sectionTitle" id="todayServiceTitle"></div><div class="card" id="todayService"></div>
-  <div class="sectionTitle" id="openTitle"></div><div class="card" id="openAssignments"></div>
-  <div class="sectionTitle" id="scheduleTitle"></div><div class="card" id="schedule"></div>
+  </div>
+
+  <div id="viewOpen" class="hidden">
+    <div class="sectionTitle" id="openTitle"></div><div class="card" id="openAssignments"></div>
+  </div>
+
+  <div id="viewPlan" class="hidden">
+    <div class="sectionTitle" id="scheduleTitle"></div><div class="card" id="schedule"></div>
+  </div>
 </div>
 
 <div class="footerNav hidden" id="footerNav">
@@ -127,6 +136,14 @@ let S={lang:localStorage.getItem(K.lang)||"de",token:localStorage.getItem(K.toke
 const $=id=>document.getElementById(id),t=k=>I[S.lang]?.[k]||I.de[k]||k,esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const locale=()=>({de:"de-DE",en:"en-GB",ru:"ru-RU",it:"it-IT",hr:"hr-HR"}[S.lang]||"de-DE");
 const todayISO=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Berlin"});
+function planningStart(){
+  const today=todayISO();
+  const seasonStart="2026-11-01";
+  const seasonEnd="2027-03-31";
+  if(today<seasonStart)return seasonStart;
+  if(today>seasonEnd)return seasonStart;
+  return today;
+}
 const fmt=(iso,o={weekday:"short",day:"2-digit",month:"short"})=>new Intl.DateTimeFormat(locale(),o).format(new Date(iso+"T12:00:00"));
 
 async function api(action,payload={}){const h={"Content-Type":"application/json"};if(S.token)h.Authorization="Bearer "+S.token;const r=await fetch(API_URL,{method:"POST",headers:h,body:JSON.stringify({action,...payload})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(d.error||"API"),{status:r.status,data:d});return d}
@@ -143,17 +160,21 @@ function translate(){
   renderLangs()
 }
 async function login(){try{const r=await api("login",{secret:$("pinInput").value});S.token=r.token;S.level=r.access_level;localStorage.setItem(K.token,S.token);localStorage.setItem(K.level,S.level);await enter()}catch(e){$("loginError").textContent=e.status===401?t("wrong"):t("server");$("loginError").classList.remove("hidden")}}
-async function enter(){try{S.data=await api("bootstrap",{today:todayISO(),days:28});S.level=S.data.access_level||S.level;$("loginView").classList.add("hidden");$("mainView").classList.remove("hidden");$("footerNav").classList.remove("hidden");$("adminStrip").classList.toggle("hidden",S.level!=="admin");fillPeople();renderAll();loadWeather()}catch(e){if(e.status===401)logout(false);else alert(t("server"))}}
+async function enter(){try{S.data=await api("bootstrap",{today:planningStart(),days:28});S.level=S.data.access_level||S.level;$("loginView").classList.add("hidden");$("mainView").classList.remove("hidden");$("footerNav").classList.remove("hidden");$("adminStrip").classList.toggle("hidden",S.level!=="admin");fillPeople();renderAll();loadWeather()}catch(e){if(e.status===401)logout(false);else alert(t("server"))}}
 function logout(call=true){if(call&&S.token)api("logout").catch(()=>{});S.token="";S.data=null;localStorage.removeItem(K.token);localStorage.removeItem(K.level);$("mainView").classList.add("hidden");$("footerNav").classList.add("hidden");$("loginView").classList.remove("hidden")}
-async function refresh(){S.data=await api("bootstrap",{today:todayISO(),days:28});fillPeople();renderAll()}
+async function refresh(){S.data=await api("bootstrap",{today:planningStart(),days:28});fillPeople();renderAll()}
 function fillPeople(){const p=S.data?.people||[];$("personSelect").innerHTML=p.filter(x=>x.active!==false).map(x=>`<option value="${x.id}">${esc(x.name)}${x.congregation?" · "+esc(x.congregation):""}</option>`).join("");$("adminPersonSelect").innerHTML=`<option value="">— ${t("openAssignment")} —</option>`+p.filter(x=>x.active!==false).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");const r=localStorage.getItem(K.person);if(r)$("personSelect").value=r}
 function aByDate(d){return(S.data?.assignments||[]).find(a=>a.service_date===d)}
 function coverageText(a){if(a.coverage_type==="cleaning_team")return a.coverage_label||t("cleaning");if(a.coverage_type==="morning_congregations")return a.coverage_label||t("morning");if(a.coverage_type==="group"||a.coverage_type==="special")return a.coverage_label||t("covered");return a.responsible?.name||""}
 function renderAll(){if(!S.data)return;$("todayDate").textContent=fmt(todayISO(),{weekday:"long",day:"2-digit",month:"long"});renderToday();renderOpen();renderSchedule();renderWeather();if(S.level==="admin")renderPeople()}
 function editBtn(a){return S.level==="admin"?`<button class="btn ghost small" onclick="openEdit(${a.id})">✏️ ${t("edit")}</button>`:""}
-function renderToday(){const a=aByDate(todayISO());if(!a){$("todayService").innerHTML=`<div class="empty">${t("none")}</div>`;return}let h="";if(a.coverage_type!=="regular"){h=`<div class="row"><div><div class="name">${esc(coverageText(a))}</div><div class="helperText">${a.note?esc(a.note):t("covered")}</div></div><span class="pill covered">${t("covered")}</span></div><div class="actions">${editBtn(a)}</div>`}else{h=`<div class="row"><div><div class="muted" style="font-size:12px">${t("responsible")}</div><div class="name">${a.responsible?esc(a.responsible.name):t("none")}</div></div><span class="pill ${a.responsible?"covered":"open"}">${a.responsible?t("covered"):t("openNav")}</span></div>`;if(!a.responsible)h+=`<div class="actions"><button class="btn" onclick="startPerson('take',${a.id})">🙋 ${t("take")}</button>${editBtn(a)}</div>`;else h+=`<div class="actions">${editBtn(a)}</div>`;h+=`<div style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><div class="muted" style="font-size:12px">${t("helper")}</div><div class="helperText">${a.helpers?.length?a.helpers.map(x=>esc(x.name)).join(" · "):t("none")}</div><div class="actions"><button class="btn ghost small" onclick="startPerson('helper',${a.id})">+ ${t("join")}</button></div></div>`}$("todayService").innerHTML=h}
-function renderOpen(){const o=(S.data.assignments||[]).filter(a=>a.coverage_type==="regular"&&!a.responsible);$("openAssignments").innerHTML=o.length?o.map(a=>`<div class="openItem"><div class="dateBox">${fmt(a.service_date,{weekday:"short"})}<small>${fmt(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div><div class="openTxt">${t("needed")}</div><div class="actions"><button class="btn small" onclick="startPerson('take',${a.id})">${t("take")}</button>${editBtn(a)}</div></div>`).join(""):`<div class="empty">✅ ${t("allCovered")}</div>`}
-function renderSchedule(){let wk="",h="";for(const a of S.data.assignments||[]){const d=new Date(a.service_date+"T12:00:00");const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));const k=m.toISOString().slice(0,10);if(k!==wk){wk=k;h+=`<div class="weekHead">${fmt(k,{day:"2-digit",month:"long"})}</div>`}let c="",r="";if(a.coverage_type==="regular"){c=a.responsible?`<div class="name">${esc(a.responsible.name)}</div><div class="helperText">${a.helpers?.length?"🤝 "+a.helpers.map(x=>esc(x.name)).join(", "):""}</div>`:`<div class="openTxt">${t("needed")}</div>`;r=a.responsible?`<div class="actions"><button class="btn ghost small" onclick="startPerson('helper',${a.id})">+ ${t("helper")}</button>${editBtn(a)}</div>`:`<div class="actions"><button class="btn small" onclick="startPerson('take',${a.id})">${t("take")}</button>${editBtn(a)}</div>`}else{c=`<div class="name">${esc(coverageText(a))}</div>${a.note?`<div class="helperText">${esc(a.note)}</div>`:""}`;r=`<div class="actions"><span class="pill covered">${t("covered")}</span>${editBtn(a)}</div>`}h+=`<div class="dayItem"><div class="dateBox">${fmt(a.service_date,{weekday:"short"})}<small>${fmt(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div><div>${c}</div><div>${r}</div></div>`}$("schedule").innerHTML=h}
+function renderToday(){const a=aByDate(todayISO());if(!a){
+  const start="2026-11-01";
+  $("todayService").innerHTML=`<div class="empty">❄️ ${fmt(start,{day:"2-digit",month:"long",year:"numeric"})}</div>`;
+  return
+}let h="";if(a.coverage_type!=="regular"){h=`<div class="row"><div><div class="name">${esc(coverageText(a))}</div><div class="helperText">${a.note?esc(a.note):t("covered")}</div></div><span class="pill covered">${t("covered")}</span></div><div class="actions">${editBtn(a)}</div>`}else{h=`<div class="row"><div><div class="muted" style="font-size:12px">${t("responsible")}</div><div class="name">${a.responsible?esc(a.responsible.name):t("none")}</div></div><span class="pill ${a.responsible?"covered":"open"}">${a.responsible?t("covered"):t("openNav")}</span></div>`;if(!a.responsible)h+=`<div class="actions"><button class="btn" onclick="startPerson('take',${a.id})">🙋 ${t("take")}</button>${editBtn(a)}</div>`;else h+=`<div class="actions">${editBtn(a)}</div>`;h+=`<div style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><div class="muted" style="font-size:12px">${t("helper")}</div><div class="helperText">${a.helpers?.length?a.helpers.map(x=>esc(x.name)).join(" · "):t("none")}</div><div class="actions"><button class="btn ghost small" onclick="startPerson('helper',${a.id})">+ ${t("join")}</button></div></div>`}$("todayService").innerHTML=h}
+function renderOpen(){const o=(S.data.assignments||[]).filter(a=>a.coverage_type==="regular"&&!a.responsible);$("openAssignments").innerHTML=o.length?`<div class="helperText" style="padding-bottom:8px">${fmt(planningStart(),{day:"2-digit",month:"long"})} → ${fmt(S.data.assignments[S.data.assignments.length-1]?.service_date||planningStart(),{day:"2-digit",month:"long"})}</div>`+o.map(a=>`<div class="openItem"><div class="dateBox">${fmt(a.service_date,{weekday:"short"})}<small>${fmt(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div><div class="openTxt">${t("needed")}</div><div class="actions"><button class="btn small" onclick="startPerson('take',${a.id})">${t("take")}</button>${editBtn(a)}</div></div>`).join(""):`<div class="empty">✅ ${t("allCovered")}</div>`}
+function renderSchedule(){let wk="",h=`<div class="helperText" style="padding-bottom:8px">${fmt(planningStart(),{day:"2-digit",month:"long"})} → ${fmt(S.data.assignments[S.data.assignments.length-1]?.service_date||planningStart(),{day:"2-digit",month:"long"})}</div>`;for(const a of S.data.assignments||[]){const d=new Date(a.service_date+"T12:00:00");const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));const k=m.toISOString().slice(0,10);if(k!==wk){wk=k;h+=`<div class="weekHead">${fmt(k,{day:"2-digit",month:"long"})}</div>`}let c="",r="";if(a.coverage_type==="regular"){c=a.responsible?`<div class="name">${esc(a.responsible.name)}</div><div class="helperText">${a.helpers?.length?"🤝 "+a.helpers.map(x=>esc(x.name)).join(", "):""}</div>`:`<div class="openTxt">${t("needed")}</div>`;r=a.responsible?`<div class="actions"><button class="btn ghost small" onclick="startPerson('helper',${a.id})">+ ${t("helper")}</button>${editBtn(a)}</div>`:`<div class="actions"><button class="btn small" onclick="startPerson('take',${a.id})">${t("take")}</button>${editBtn(a)}</div>`}else{c=`<div class="name">${esc(coverageText(a))}</div>${a.note?`<div class="helperText">${esc(a.note)}</div>`:""}`;r=`<div class="actions"><span class="pill covered">${t("covered")}</span>${editBtn(a)}</div>`}h+=`<div class="dayItem"><div class="dateBox">${fmt(a.service_date,{weekday:"short"})}<small>${fmt(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div><div>${c}</div><div>${r}</div></div>`}$("schedule").innerHTML=h}
 function startPerson(type,id){S.pending={type,id};const r=localStorage.getItem(K.person);if(r)return performPerson(Number(r));$("personModal").classList.add("show")}
 async function performPerson(personId){try{if(S.pending.type==="take")await api("take_responsibility",{assignment_id:S.pending.id,person_id:personId});else await api("join_helper",{assignment_id:S.pending.id,person_id:personId});if($("rememberPerson").checked)localStorage.setItem(K.person,String(personId));$("personModal").classList.remove("show");await refresh()}catch(e){alert(e.data?.error||t("server"))}}
 function openEdit(id){const a=(S.data.assignments||[]).find(x=>x.id===id);if(!a)return;S.editId=id;$("editDate").textContent=fmt(a.service_date,{weekday:"long",day:"2-digit",month:"long",year:"numeric"});$("coverageType").value=a.coverage_type;$("adminPersonSelect").value=a.responsible_person_id||"";$("groupName").value=a.coverage_label||"";$("assignmentNote").value=a.note||"";syncCoverageFields();$("editModal").classList.add("show")}
@@ -170,7 +191,14 @@ $("loginBtn").onclick=login;$("pinInput").addEventListener("keydown",e=>{if(e.ke
 $("confirmPersonBtn").onclick=()=>{const id=Number($("personSelect").value);if(id)performPerson(id)};$("coverageType").onchange=syncCoverageFields;$("editSaveBtn").onclick=saveEdit;
 $("adminPeopleBtn").onclick=()=>{$("peopleModal").classList.add("show");renderPeople()};$("addPersonBtn").onclick=addPerson;
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("show"));
-document.querySelectorAll(".navBtn[data-scroll]").forEach(b=>b.onclick=()=>{const x=b.dataset.scroll;if(x==="top")scrollTo({top:0,behavior:"smooth"});if(x==="open")$("openTitle").scrollIntoView({behavior:"smooth"});if(x==="plan")$("scheduleTitle").scrollIntoView({behavior:"smooth"})});
+function showView(name){
+  $("viewToday").classList.toggle("hidden",name!=="top");
+  $("viewOpen").classList.toggle("hidden",name!=="open");
+  $("viewPlan").classList.toggle("hidden",name!=="plan");
+  document.querySelectorAll(".navBtn[data-scroll]").forEach(b=>b.classList.toggle("active",b.dataset.scroll===name));
+  scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".navBtn[data-scroll]").forEach(b=>b.onclick=()=>showView(b.dataset.scroll));
 translate();if(S.token)enter();else renderLangs();
 </script>
 </body>
