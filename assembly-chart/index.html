@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assembly Organization Chart v1.6.3</title>
+<style>
+  :root{
+    /* Assembly palette — evergreen + warm brass (distinct from the RC navy/teal) */
+    --brand:#2d5d4f;
+    --brand-deep:#214a3e;
+    --brand-soft:#3d7c6b;
+    --accent:#ab8a4c;
+    --accent-soft:#c9ab6d;
+    --paper:#ffffff;
+    --ink:#232b28;
+    --muted:#78827e;
+    --section:#e3ece7;
+    --subsection:#eef4f0;
+    --header:#e8ede9;
+    --workspace:#eef2ef;
+    --panel:#ffffff;
+    --line:#dce5e0;
+    --shadow:0 12px 34px rgba(26,49,42,.10);
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--workspace);
+    color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+    font-size:13.5px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .appbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:10px 18px;
+    background:rgba(255,255,255,.94);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 1px 0 rgba(45,93,79,.04);
+    backdrop-filter:blur(12px);
+  }
+  .appbar::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:3px;
+    background:linear-gradient(90deg,var(--brand-deep),var(--brand-soft) 55%,var(--accent));
+  }
+  .brand{min-width:0;display:flex;align-items:center;gap:10px}
+  .brand-dot{
+    flex:none;width:11px;height:11px;border-radius:50%;
+    background:linear-gradient(150deg,var(--brand-soft),var(--brand-deep));
+    box-shadow:0 0 0 3px rgba(45,93,79,.10)
+  }
+  .brand h1{
+    margin:0;font-size:16px;line-height:1.2;font-weight:600;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px
+  }
+  .brand h1 .ver{
+    font-size:10.5px;font-weight:700;letter-spacing:.02em;color:var(--brand);
+    background:rgba(45,93,79,.09);border:1px solid rgba(45,93,79,.18);
+    border-radius:999px;padding:1px 7px
+  }
+  .brand p{margin:2px 0 0;color:var(--muted);font-size:11px;letter-spacing:.005em}
+  .toolbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+  .personnel-count{
+    display:inline-flex;align-items:center;min-height:30px;padding:0 11px;
+    border:1px solid rgba(45,93,79,.22);border-radius:999px;background:rgba(45,93,79,.07);
+    color:var(--brand);font-size:11.5px;font-weight:700;white-space:nowrap;letter-spacing:.01em;
+  }
+  .personnel-count.loaded{background:#e8f3ec;border-color:#bcdcc6;color:#2e6b46}
+  .btn{
+    border:1px solid #d3ddd7;border-radius:9px;padding:7px 11px;
+    background:#fff;color:#33413c;font-size:12.5px;font-weight:600;line-height:1.2;
+    box-shadow:0 1px 1px rgba(26,49,42,.03);
+    transition:background .14s ease,border-color .14s ease,box-shadow .14s ease,transform .12s ease,color .14s ease;
+  }
+  .btn:hover{background:#f4f8f6;border-color:#bfcdc6;box-shadow:0 2px 6px rgba(26,49,42,.07)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{
+    background:linear-gradient(180deg,var(--brand),var(--brand-deep));
+    border-color:var(--brand-deep);color:#fff;box-shadow:0 2px 8px rgba(33,74,62,.22)
+  }
+  .btn.primary:hover{background:linear-gradient(180deg,#33685a,#20463b);border-color:var(--brand-deep)}
+  .btn.danger{color:#a3242f}
+  .btn.danger:hover{background:#fbf1f2;border-color:#e6c3c7}
+  .btn.small{padding:5px 8px;border-radius:8px;font-size:11.5px}
+  .icon-btn{width:30px;height:30px;padding:0;display:inline-grid;place-items:center}
+  .workspace{
+    display:grid;grid-template-columns:minmax(0,1fr) 0;
+    min-height:calc(100vh - 58px);
+    transition:grid-template-columns .25s ease;
+  }
+  body.editor-open .workspace{grid-template-columns:minmax(0,1fr) 470px}
+  .preview-area{padding:22px}
+  .sheets{display:flex;flex-direction:column;gap:22px;align-items:center}
+  /* aspect-ratio keeps the A4 landscape look, but with overflow:visible the
+     automatic minimum block size lets the sheet GROW when a page holds more
+     rows than fit. With overflow:hidden the surplus departments were simply
+     clipped away on screen while printing fine (print uses much smaller pt
+     sizes), which looked like a department had disappeared. */
+  .sheet{
+    position:relative;
+    width:min(100%,1400px);
+    background:var(--paper);box-shadow:var(--shadow);
+    border:1px solid rgba(45,93,79,.08);border-radius:10px;
+    padding:18px 20px 16px;overflow:visible;
+  }
+  /* A zero-width float reserves the A4 landscape height (210/297 of the content
+     width, never below 760px); ::after clears it again. A fixed aspect-ratio
+     plus overflow:hidden would look identical while silently cutting off any
+     department that does not fit — this keeps the page shape but lets the sheet
+     grow instead of hiding rows. */
+  .sheet::before{content:"";display:block;float:left;width:0;padding-top:max(760px,70.7071%)}
+  .sheet::after{content:"";display:block;clear:both}
+  .sheet-overflow-note{
+    display:none;margin:12px -20px -16px;padding:7px 20px;
+    border-top:1px dashed var(--accent-soft);border-radius:0 0 10px 10px;
+    background:rgba(171,138,76,.07);color:#7a6432;
+    font-size:11.5px;line-height:1.4;font-style:italic
+  }
+  .sheet.is-taller-than-a4 .sheet-overflow-note{display:block}
+  .doc-title{
+    background:linear-gradient(180deg,var(--brand),var(--brand-deep));
+    color:#fff;text-align:center;padding:13px 16px 12px;
+    border-bottom:2px solid var(--accent)
+  }
+  .doc-title-main{
+    font-size:clamp(18px,1.9vw,29px);font-weight:600;letter-spacing:.02em;
+    line-height:1.1;text-transform:uppercase
+  }
+  .doc-subtitle{
+    margin-top:5px;font-size:clamp(12px,1.08vw,16px);line-height:1.25;
+    font-weight:400;letter-spacing:.01em;opacity:.94
+  }
+  .updated{text-align:right;margin:5px 4px 3px 0;font-size:clamp(11px,1.1vw,17px);color:#4b5652}
+  .column-head,.person-row{
+    display:grid;grid-template-columns:2.4fr 1.85fr 2.1fr 1.3fr 1.95fr 34px;
+    align-items:center;column-gap:10px
+  }
+  .column-head{
+    background:var(--header);color:#3c473f;font-weight:600;padding:8px 14px;
+    font-size:clamp(11px,1.2vw,18px);letter-spacing:.01em;
+    border-bottom:1px solid rgba(45,93,79,.14)
+  }
+  .column-head .screen-only{text-align:center}
+  .group-title{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    margin-top:14px;padding:7px 12px;background:var(--section);
+    font-size:clamp(12px,1.28vw,19px);font-weight:600;letter-spacing:.015em;
+    border-left:3px solid var(--brand-soft)
+  }
+  .group-title.major{
+    background:linear-gradient(180deg,var(--brand-deep),#1c4137);
+    color:#fff;border-left-color:var(--accent)
+  }
+  .group-title.sub{margin-top:0;background:#dbe8e2;border-left-color:var(--brand)}
+  .hierarchy-note{
+    margin:6px 2px 0;color:#6b756f;font-size:clamp(9px,.8vw,12px);font-style:italic
+  }
+  .person-row{
+    position:relative;min-height:30px;padding:4px 14px;
+    font-size:clamp(10.5px,1.08vw,16px);line-height:1.16;
+    border-bottom:1px solid #eef2ee
+  }
+  .person-row:nth-of-type(even){background:rgba(45,93,79,.018)}
+  .person-row.strong{font-weight:600}
+  .date-text::placeholder{color:#9bb0a7;font-size:11.5px}
+  .lock-note{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:#9bb0a7;font-weight:700;padding:0 4px;align-self:center}
+  body.bold-leads .person-row.lead{font-weight:600}
+  body.bold-leads .person-row.lead .role-cell>span:last-child{color:var(--brand-deep)}
+  .person-row.co-row{border-left:4px solid var(--brand-deep);padding-left:11px}
+  .person-row.assembly-row{border-left:4px solid var(--accent);padding-left:11px}
+  .cell{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .role-cell{display:flex;align-items:center;gap:7px}
+  .role-chip{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:54px;padding:1px 8px;border-radius:999px;
+    background:rgba(45,93,79,.06);border:1px solid rgba(45,93,79,.28);
+    color:var(--brand);font-size:.74em;font-weight:700;letter-spacing:.03em
+  }
+  .contact-link{color:inherit;text-decoration:none}
+  .contact-link:hover,.contact-link:focus{text-decoration:underline;text-decoration-color:var(--brand-soft)}
+  .info-btn{
+    width:25px;height:25px;padding:0;border:1px solid rgba(45,93,79,.28);border-radius:999px;
+    background:#fff;color:var(--brand);font-weight:700;line-height:1;
+    transition:background .14s ease,border-color .14s ease
+  }
+  .info-btn:hover{background:rgba(45,93,79,.08);border-color:var(--brand-soft)}
+  .placeholder{color:#a1a8a3;font-style:italic;font-weight:400}
+  .department{margin-top:10px}
+  .department-title{
+    display:flex;align-items:center;gap:10px;
+    background:var(--section);padding:6px 11px;
+    font-weight:600;font-size:clamp(11px,1.18vw,18px);letter-spacing:.01em;
+    border-left:3px solid var(--brand-soft)
+  }
+  .department-title.sub{
+    margin-left:24px;background:var(--subsection);
+    border-left:3px solid var(--accent-soft)
+  }
+  .department-title .number{
+    display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;
+    background:#fff;border:1px solid rgba(45,93,79,.18);
+    color:var(--brand);font-size:.78em;font-weight:700
+  }
+  .department.subdepartment .person-row{margin-left:24px}
+  .empty-note{padding:16px;color:var(--muted);font-size:14px}
+  .editor{
+    position:sticky;top:58px;height:calc(100vh - 58px);overflow:auto;
+    background:var(--panel);border-left:1px solid var(--line);
+    transform:translateX(100%);transition:transform .25s ease
+  }
+  body.editor-open .editor{transform:translateX(0)}
+  .editor{scrollbar-width:thin;scrollbar-color:#bcccc4 transparent}
+  .editor-inner{padding:15px}
+  .editor-head{
+    position:sticky;top:-15px;z-index:5;
+    margin:-15px -15px 12px;padding:15px 15px 12px;
+    background:var(--panel);border-bottom:1px solid var(--line);
+  }
+  .editor-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+  .editor-head h2{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;color:var(--brand-deep)}
+  .editor-head p{margin:2px 0 0;color:var(--muted);font-size:11px}
+  .editor-toolbar{display:flex;gap:6px;margin-top:10px}
+  .editor-toolbar .btn{flex:1}
+  .panel-card{
+    border:1px solid #d7e0da;border-radius:11px;margin-bottom:10px;
+    overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(26,49,42,.03)
+  }
+  .panel-card>summary{
+    list-style:none;display:flex;align-items:center;justify-content:space-between;gap:9px;
+    padding:10px 12px;border-left:3px solid #aebcb4;
+    font-size:12.5px;font-weight:650;cursor:pointer;color:#2b3a34;background:#eef3f0
+  }
+  .panel-card>summary:hover{background:#e6efea;border-left-color:var(--brand);color:var(--brand-deep)}
+  .panel-card[open]>summary{background:#e4efe9;border-left-color:var(--brand);color:var(--brand-deep)}
+  .panel-card>summary::-webkit-details-marker{display:none}
+  /* highlighted primary panel — the personnel master, promoted near the top */
+  .panel-card.primary-panel>summary{
+    background:linear-gradient(180deg,#f2ede1,#eee6d4);
+    border-left-color:var(--accent);color:#6f5a2b
+  }
+  .panel-card.primary-panel>summary:hover,
+  .panel-card.primary-panel[open]>summary{
+    background:#efe7d6;border-left-color:var(--accent);color:#5f4d24
+  }
+  .panel-card.primary-panel .summary-chevron{border-color:var(--accent-soft);color:var(--accent)}
+  .summary-chevron{
+    display:grid;place-items:center;width:21px;height:21px;border:1px solid #b3c2ba;
+    border-radius:999px;background:#fff;color:var(--brand);font-size:17px;line-height:1;
+    transition:transform .18s ease
+  }
+  .panel-card[open]>summary .summary-chevron{transform:rotate(90deg)}
+  .panel-body{padding:11px;min-width:0}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .field-grid.one{grid-template-columns:1fr}
+  label{
+    display:flex;flex-direction:column;gap:4px;font-size:10.5px;
+    font-weight:650;color:#5c665f;letter-spacing:.005em
+  }
+  input,select,textarea{
+    width:100%;border:1px solid #d3dbd5;border-radius:8px;padding:7px 9px;
+    color:#2c342f;font-size:13px;line-height:1.25;background:#fff;
+    transition:border-color .14s ease,box-shadow .14s ease
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;border-color:var(--brand-soft);box-shadow:0 0 0 3px rgba(45,93,79,.10)
+  }
+  textarea{min-height:64px;resize:vertical}
+  input[type=checkbox]{accent-color:var(--brand)}
+  .inline-actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .item-card{
+    min-width:0;border:1px solid #dfe6e1;border-radius:10px;padding:9px;
+    margin-top:8px;background:#fbfcfb
+  }
+  .item-card.accent{border-color:#c2d3cb;background:#f7fbf9}
+  /* Department cards: a rotating, muted accent so neighbouring cards in the
+     long Departments list are easy to tell apart. --dept-accent is set inline
+     per card; everything else is derived from it. */
+  .item-card.department-card{
+    --dept-accent:var(--brand-soft);
+    margin-top:13px;padding-left:11px;
+    border-color:color-mix(in srgb,var(--dept-accent) 34%,#dfe6e1);
+    border-left:4px solid var(--dept-accent);
+    border-radius:10px;
+    background:
+      linear-gradient(180deg,color-mix(in srgb,var(--dept-accent) 9%,#fff),
+                              color-mix(in srgb,var(--dept-accent) 3%,#fff))
+  }
+  .item-card.department-card:first-of-type{margin-top:4px}
+  .item-card.department-card .item-head{
+    margin:-9px -9px 8px -11px;padding:7px 9px 7px 11px;
+    border-bottom:1px solid color-mix(in srgb,var(--dept-accent) 26%,#e6ece9);
+    border-radius:6px 9px 0 0;
+    background:color-mix(in srgb,var(--dept-accent) 13%,#fff)
+  }
+  .dept-index{
+    display:inline-grid;place-items:center;flex:none;
+    width:21px;height:21px;border-radius:6px;
+    background:#fff;border:1px solid color-mix(in srgb,var(--dept-accent) 45%,#dfe6e1);
+    color:color-mix(in srgb,var(--dept-accent) 78%,#20302a);
+    font-size:11px;font-weight:700
+  }
+  .dept-page{
+    flex:none;padding:1px 7px;border-radius:999px;
+    background:#fff;border:1px solid color-mix(in srgb,var(--dept-accent) 40%,#dfe6e1);
+    color:color-mix(in srgb,var(--dept-accent) 75%,#20302a);
+    font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap
+  }
+  .item-card.department-card.is-sub .item-head strong{font-style:italic}
+  .item-head{
+    display:flex;align-items:center;justify-content:space-between;gap:7px;
+    margin-bottom:7px;min-width:0
+  }
+  .item-head strong{
+    font-size:12.5px;font-weight:650;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;min-width:0;flex:1;color:#33413c
+  }
+  .slot-editor{
+    min-width:0;border-top:1px dashed #d4ddd7;margin-top:8px;padding-top:8px
+  }
+  .slot-editor:first-of-type{border-top:0;margin-top:0;padding-top:0}
+  .slot-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .slot-head strong{font-size:11.5px;color:#54615a}
+  .helper{font-size:10.5px;color:var(--muted);line-height:1.45}
+  .concept-note{
+    border:1px solid #c6d7ce;background:#f1f7f4;border-radius:10px;
+    border-left:3px solid var(--brand-soft);
+    padding:9px 11px;margin-bottom:11px;font-size:11px;line-height:1.5;color:#43544c
+  }
+  .search-row{display:flex;gap:7px;align-items:end;margin-bottom:8px}
+  .search-row label{flex:1}
+  .person-master-card>summary{
+    background:#f5f9f7;border-left-color:#c2cfc8
+  }
+  .person-master-card[open]>summary{background:#e9f2ed}
+  .assignment-count{
+    padding:2px 8px;border-radius:999px;background:#e6efe9;color:#5f6f68;
+    font-size:10px;font-weight:700
+  }
+  .status{
+    position:fixed;left:50%;bottom:18px;z-index:100;
+    transform:translate(-50%,20px);opacity:0;pointer-events:none;
+    background:#1f463b;color:#fff;border-radius:999px;padding:9px 15px;
+    font-size:13px;box-shadow:0 10px 26px rgba(31,70,59,.32);transition:.2s ease
+  }
+  .status.show{opacity:1;transform:translate(-50%,0)}
+  .hidden-file{display:none}
+  .modal-backdrop{
+    position:fixed;inset:0;z-index:120;display:none;place-items:center;
+    padding:20px;background:rgba(20,34,29,.44);backdrop-filter:blur(3px)
+  }
+  .modal-backdrop.open{display:grid}
+  .modal{
+    width:min(620px,100%);max-height:min(82vh,720px);overflow:auto;
+    background:#fff;border-radius:15px;box-shadow:0 24px 70px rgba(0,0,0,.24);
+    border:1px solid rgba(255,255,255,.7)
+  }
+  .modal-head{
+    position:sticky;top:0;display:flex;align-items:flex-start;justify-content:space-between;
+    gap:12px;padding:15px 16px;background:#fff;border-bottom:2px solid var(--accent)
+  }
+  .modal-head h3{margin:0;font-size:18px;color:var(--brand-deep)}
+  .modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
+  .modal-body{padding:15px 16px}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .detail{
+    min-width:0;padding:9px 11px;border:1px solid #e2e9e5;border-radius:10px;background:#fafbfa
+  }
+  .detail.wide{grid-column:1/-1}
+  .detail span{display:block;color:var(--muted);font-size:10.5px;font-weight:650;margin-bottom:3px}
+  .detail strong{display:block;font-size:13px;overflow-wrap:anywhere}
+  .csv-block{margin-bottom:16px}
+  .csv-block:last-of-type{margin-bottom:0}
+  .csv-block h4{
+    margin:0 0 7px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--brand);font-weight:700
+  }
+  .csv-block-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .csv-block-head h4{margin:0}
+  .csv-mini{display:flex;gap:6px}
+  .csv-radios{display:grid;gap:7px}
+  .csv-radio{
+    display:flex;gap:9px;align-items:flex-start;padding:9px 11px;cursor:pointer;
+    border:1px solid #e2e9e5;border-radius:10px;background:#fafbfa;transition:border-color .14s,background .14s
+  }
+  .csv-radio:hover{background:#f2f7f4;border-color:#cdddd4}
+  .csv-radio input{margin-top:2px;flex:none;accent-color:var(--brand)}
+  .csv-radio strong{display:block;font-size:12.5px}
+  .csv-radio em{display:block;font-style:normal;color:var(--muted);font-size:11px;margin-top:2px}
+  .csv-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:7px;
+    border:1px solid #e2e9e5;border-radius:10px;background:#f3f7f5;padding:9px
+  }
+  .csv-check{
+    display:flex;gap:8px;align-items:center;font-size:12.5px;line-height:1.25;cursor:pointer;
+    padding:7px 9px;border:1px solid #dde6e1;border-radius:9px;background:#fff;
+    overflow-wrap:anywhere;
+    transition:border-color .14s ease,background .14s ease,box-shadow .14s ease
+  }
+  .csv-check:hover{border-color:#bcd0c6;background:#f7fbf9}
+  .csv-check input{flex:none;width:15px;height:15px;accent-color:var(--brand)}
+  .csv-check:has(input:checked){
+    border-color:var(--brand-soft);background:#eaf3ee;
+    box-shadow:inset 3px 0 0 var(--brand)
+  }
+  .csv-check:has(input:checked) span{font-weight:650;color:var(--brand-deep)}
+  .csv-options{display:grid;gap:7px}
+  .csv-options .csv-check{align-items:flex-start}
+  .csv-options .csv-check input{margin-top:1px}
+  .csv-inline{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 6px}
+  .csv-inline label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:650}
+  .csv-inline select,.csv-inline input{
+    border:1px solid #d3ddd7;border-radius:8px;padding:6px 8px;font-size:12.5px;color:var(--ink);background:#fff
+  }
+  .csv-inline input{min-width:210px}
+  .csv-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    margin-top:16px;padding-top:13px;border-top:1px solid var(--line)
+  }
+  .csv-foot .helper{color:var(--muted);font-size:11.5px}
+  .csv-foot-actions{display:flex;gap:6px}
+  @media(min-width:1001px){
+    body.editor-open{overflow:hidden}
+    body.editor-open .workspace{height:calc(100dvh - 58px);min-height:0}
+    body.editor-open .preview-area{
+      height:100%;min-width:0;min-height:0;overflow:auto;padding-bottom:88px;
+      scrollbar-gutter:stable;overscroll-behavior:contain
+    }
+    body.editor-open .sheets{align-items:flex-start}
+    body.editor-open .sheet{min-width:1050px}
+    body.editor-open .editor{position:relative;top:auto;height:100%;min-height:0}
+  }
+  @media(max-width:1000px){
+    body.editor-open .workspace{grid-template-columns:1fr}
+    .editor{
+      position:fixed;right:0;top:0;z-index:90;width:min(94vw,470px);
+      height:100vh;box-shadow:-12px 0 30px rgba(0,0,0,.18)
+    }
+    .preview-area{padding:12px}
+    .sheet{min-width:1050px}
+    .detail-grid{grid-template-columns:1fr}
+  }
+  .personnel-count{cursor:pointer;transition:background .14s ease,border-color .14s ease,box-shadow .14s ease}
+  .personnel-count:hover{box-shadow:0 2px 7px rgba(26,49,42,.12);border-color:rgba(45,93,79,.4)}
+  .personnel-count:focus-visible{outline:2px solid var(--brand-soft);outline-offset:2px}
+  .person-extra{
+    grid-column:1/-1;display:none;flex-wrap:wrap;gap:3px 22px;
+    margin-top:3px;padding-left:2px;font-size:.82em;color:#5c665f;line-height:1.3
+  }
+  body.show-all-info .person-extra{display:flex}
+  .person-extra .k{color:#8b948f;font-weight:700;margin-right:4px}
+  .help-body{font-size:13px;color:#38423d;line-height:1.5}
+  .help-body h4{margin:15px 0 4px;font-size:13px;color:var(--brand-deep);letter-spacing:.01em}
+  .help-body h4:first-child{margin-top:0}
+  .help-body p{margin:0 0 6px}
+  .help-body ul{margin:0 0 6px;padding-left:18px}
+  .help-body li{margin:3px 0}
+  .help-body .tag{
+    display:inline-block;font-weight:700;color:var(--brand);
+    background:rgba(45,93,79,.08);border:1px solid rgba(45,93,79,.2);
+    border-radius:6px;padding:0 6px;font-size:11.5px;white-space:nowrap
+  }
+  .help-note{
+    margin-top:12px;border-left:3px solid var(--accent);background:#f6efdf;
+    border-radius:8px;padding:9px 11px;font-size:12px;color:#6a5729;line-height:1.5
+  }
+  .person-field-row{display:flex;gap:6px;align-items:center}
+  .person-field-row .icon-btn{flex:none;width:28px;height:28px;font-size:13px}
+  .person-combo{position:relative;flex:1;min-width:0}
+  .person-combo-input{width:100%}
+  .person-combo-input::placeholder{color:#9aa39d;font-style:italic}
+  .person-combo-list{
+    position:fixed;z-index:9999;
+    max-height:230px;overflow:auto;background:#fff;
+    border:1px solid #c2d0c8;border-radius:9px;
+    box-shadow:0 12px 28px rgba(26,49,42,.18);
+    padding:4px;
+  }
+  .combo-option{padding:6px 9px;border-radius:6px;font-size:12.5px;color:#2c342f;cursor:pointer}
+  .combo-option:hover,.combo-option.active{background:#eaf2ee;color:var(--brand-deep)}
+  .combo-option.empty-option{color:var(--muted);font-style:italic;cursor:default}
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body{background:#fff}
+    .appbar,.editor,.status,.screen-only,.modal-backdrop{display:none!important}
+    .workspace{display:block}
+    .preview-area{padding:0;overflow:visible}
+    .sheets{display:block;gap:0}
+    .sheet{
+      width:auto;height:194mm;min-height:194mm;aspect-ratio:auto;box-shadow:none;
+      border:0;border-radius:0;padding:0;margin:0;overflow:hidden;
+      break-after:page;page-break-after:always
+    }
+    .sheet-overflow-note{display:none!important}
+    .sheet::before,.sheet::after{content:none}
+    .sheet:last-child{break-after:auto;page-break-after:auto}
+    .person-row:nth-of-type(even){background:transparent}
+    .doc-title{padding:7px 12px 6px;border-bottom-width:2px}
+    .doc-title-main{font-size:20pt}
+    .doc-subtitle{font-size:9.5pt;margin-top:2px}
+    .updated{font-size:9.5pt;margin:2px 3px 2px 0}
+    .column-head{font-size:10pt;padding:5px 11px;grid-template-columns:2.4fr 1.85fr 2.1fr 1.3fr 1.95fr}
+    .person-row{
+      font-size:9.2pt;min-height:20px;padding-top:2px;padding-bottom:2px;
+      grid-template-columns:2.4fr 1.85fr 2.1fr 1.3fr 1.95fr
+    }
+    .group-title,.department-title{font-size:10pt;padding-top:4px;padding-bottom:4px}
+    .group-title{margin-top:7px}
+    .department{margin-top:5px}
+    .hierarchy-note{font-size:7.6pt;margin-top:3px}
+    .role-chip{border-color:#9aa8a1!important;background:transparent!important}
+    .contact-link{color:inherit!important;text-decoration:none!important}
+    body.bold-leads .person-row.lead{font-weight:700}
+    body.bold-leads .person-row.lead .role-cell>span:last-child{color:inherit}
+
+    /* Compact density — squeeze more rows onto each page */
+    body.compact-print .doc-title{padding:5px 12px 5px}
+    body.compact-print .doc-title-main{font-size:17pt}
+    body.compact-print .doc-subtitle{font-size:8.4pt;margin-top:1px}
+    body.compact-print .updated{font-size:8.4pt;margin:1px 3px 1px 0}
+    body.compact-print .column-head{font-size:8.8pt;padding:3px 11px}
+    body.compact-print .person-row{font-size:8.3pt;min-height:16px;padding-top:1.1px;padding-bottom:1.1px}
+    body.compact-print .group-title,
+    body.compact-print .department-title{font-size:8.8pt;padding-top:2.5px;padding-bottom:2.5px}
+    body.compact-print .group-title{margin-top:5px}
+    body.compact-print .department{margin-top:3px}
+    body.compact-print .hierarchy-note{font-size:6.8pt;margin-top:2px}
+    body.show-all-info .person-extra{display:flex}
+    .person-extra{font-size:7.6pt;color:#333!important;gap:1px 12px;margin-top:1px}
+    .person-extra .k{color:#555!important}
+    .person-extra a{color:inherit!important;text-decoration:none!important}
+    body.compact-print .person-extra{font-size:7pt;gap:0 10px}
+  }
+
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">
+    <span class="brand-dot" aria-hidden="true"></span>
+    <div style="min-width:0">
+      <h1>Assembly Organization Chart <span class="ver">v1.6.3</span></h1>
+      <p>Circuit assembly · separate personnel master JSON · local autosave</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="personnel-count" id="personnelCount" type="button" title="Open the personnel master / contacts">Personnel: 0</button>
+    <button class="btn" id="toggleEditor">Edit data</button>
+    <button class="btn" id="importBtn">Import</button>
+    <button class="btn" id="exportBtn">Export personnel</button>
+    <button class="btn" id="backupBtn">Export backup</button>
+    <button class="btn" id="csvBtn">Export CSV</button>
+    <button class="btn danger" id="resetBtn">Reset</button>
+    <button class="btn icon-btn" id="helpBtn" type="button" title="How this tool works" aria-label="Help">?</button>
+    <button class="btn primary" id="printBtn">Print / PDF</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <main class="preview-area">
+    <div class="sheets" id="preview"></div>
+  </main>
+  <aside class="editor" id="editor">
+    <div class="editor-inner">
+      <div class="editor-head">
+        <div class="editor-head-top">
+          <div>
+            <h2>Edit assembly organization</h2>
+            <p>The HTML holds no personal records. “Export personnel” moves the roster only — use “Export backup” to save assignments, departments and settings too.</p>
+          </div>
+          <button class="btn icon-btn" id="closeEditor" aria-label="Close editor">×</button>
+        </div>
+        <div class="editor-toolbar">
+          <button class="btn small" id="expandAllBtn" type="button" title="Expand every section">Expand all</button>
+          <button class="btn small" id="collapseAllBtn" type="button" title="Collapse every section">Collapse all</button>
+        </div>
+      </div>
+      <div id="editorContent"></div>
+    </div>
+  </aside>
+</div>
+
+<input class="hidden-file" type="file" id="fileInput" accept="application/json,.json">
+<div class="status" id="status"></div>
+<div class="person-combo-list" id="personComboList" hidden></div>
+
+<div class="modal-backdrop" id="detailsModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="detailsTitle">Person details</h3>
+        <p id="detailsSubtitle"></p>
+      </div>
+      <button class="btn icon-btn" id="closeDetails" aria-label="Close details">×</button>
+    </div>
+    <div class="modal-body" id="detailsBody"></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="personModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="personModalTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="personModalTitle">New person</h3>
+        <p id="personModalSubtitle">Added to the personnel master and assigned here.</p>
+      </div>
+      <button class="btn icon-btn" id="closePersonModal" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-grid">
+        <label>Last name<input type="text" id="pm-lastName"></label>
+        <label>First name<input type="text" id="pm-firstName"></label>
+        <label>Congregation<input type="text" id="pm-congregation"></label>
+        <label>Congregation / group
+          <select id="pm-congType">
+            <option value="">—</option>
+            <option value="Congregation">Congregation</option>
+            <option value="Group">Group</option>
+          </select>
+        </label>
+        <label>Phone<input type="text" id="pm-phone"></label>
+        <label>JW email<input type="text" id="pm-jwEmail"></label>
+        <label>Private email<input type="text" id="pm-privateEmail"></label>
+        <label>Date of birth<input type="text" id="pm-birthDate" inputmode="numeric" placeholder="TT.MM.JJJJ oder Jahr (z. B. 2001)"></label>
+      </div>
+      <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+        <input style="width:auto" type="checkbox" id="pm-pioneer">
+        Regular Pioneer
+      </label>
+      <label style="margin-top:8px">Notes<textarea id="pm-notes"></textarea></label>
+      <div class="inline-actions" style="margin-top:12px;justify-content:flex-end">
+        <button class="btn small" type="button" id="personModalCancel">Cancel</button>
+        <button class="btn small primary" type="button" id="personModalSave">Save person</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="csvModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="csvTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="csvTitle">CSV export</h3>
+        <p>Choose the rows and columns you want to keep working with in Excel.</p>
+      </div>
+      <button class="btn icon-btn" id="closeCsvModal" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="csv-block">
+        <h4>What is one row?</h4>
+        <div class="csv-radios">
+          <label class="csv-radio">
+            <input type="radio" name="csvScope" value="assignments" checked>
+            <span>
+              <strong>One row per assignment</strong>
+              <em>Chart order: top roles first, then every department slot.</em>
+            </span>
+          </label>
+          <label class="csv-radio">
+            <input type="radio" name="csvScope" value="people">
+            <span>
+              <strong>One row per person</strong>
+              <em>Personnel master A&ndash;Z, all assignments collected in one cell.</em>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="csv-block">
+        <div class="csv-block-head">
+          <h4>Columns</h4>
+          <div class="csv-mini">
+            <button class="btn small" type="button" id="csvSelectAll">All</button>
+            <button class="btn small" type="button" id="csvSelectNone">None</button>
+            <button class="btn small" type="button" id="csvSelectDefault">Default</button>
+          </div>
+        </div>
+        <div class="csv-grid" id="csvColumns"></div>
+      </div>
+
+      <div class="csv-block">
+        <h4>Options</h4>
+        <div class="csv-options">
+          <label class="csv-check" id="csvEmptyWrap"><input type="checkbox" id="csvIncludeEmpty"><span>Include unassigned slots</span></label>
+          <label class="csv-check"><input type="checkbox" id="csvLocalDates" checked><span>Dates as DD/MM/YYYY (unchecked = ISO)</span></label>
+          <label class="csv-check"><input type="checkbox" id="csvBom" checked><span>UTF-8 BOM &mdash; keeps umlauts correct in Excel</span></label>
+          <label class="csv-check"><input type="checkbox" id="csvTextGuard"><span>Excel formula guard &mdash; prefix values starting with + = - @ with an apostrophe</span></label>
+        </div>
+        <div class="csv-inline">
+          <label>Separator
+            <select id="csvDelimiter">
+              <option value="semicolon">Semicolon ;  (German Excel)</option>
+              <option value="comma">Comma ,</option>
+              <option value="tab">Tab</option>
+            </select>
+          </label>
+          <label>File name
+            <input type="text" id="csvFilename" value="assembly-organization-chart" spellcheck="false">
+          </label>
+        </div>
+      </div>
+
+      <div class="csv-foot">
+        <span class="helper" id="csvSummary"></span>
+        <div class="csv-foot-actions">
+          <button class="btn small" type="button" id="csvCancel">Cancel</button>
+          <button class="btn small primary" type="button" id="csvDownload">Download CSV</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="helpModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="helpTitle">How this tool works</h3>
+        <p>A quick guide to the assembly organization chart</p>
+      </div>
+      <button class="btn icon-btn" id="closeHelp" type="button" aria-label="Close help">&times;</button>
+    </div>
+    <div class="modal-body help-body">
+      <h4>Two separate things</h4>
+      <p>The <strong>personnel master</strong> is your list of people (the contacts). <strong>Assignments</strong> only point to a person &mdash; so editing someone once updates every position they hold.</p>
+
+      <h4>Personnel master (contacts)</h4>
+      <ul>
+        <li>Click <span class="tag">Personnel: n</span> at the top to jump straight to the contact list.</li>
+        <li>Use <span class="tag">+ Person</span> to add someone, or the search box to find them. The list is sorted A&ndash;Z by last name.</li>
+        <li>Tick <strong>Regular Pioneer</strong> where it applies. Phone numbers link to WhatsApp; e-mails open your mail app.</li>
+      </ul>
+
+      <h4>Assigning positions</h4>
+      <ul>
+        <li>Open <span class="tag">Edit data</span>. Under <strong>Oversight assignments</strong> and <strong>Departments</strong>, each field is a single search-and-pick box: click it to see everyone, or type a few letters to narrow it down, then click a match (or press Enter to take the top one).</li>
+        <li>The small <strong>i</strong> button on any row shows that person&rsquo;s full stored details.</li>
+        <li>Next to each field, <span class="tag">+</span> creates a brand-new person and assigns them right there, and <span class="tag">&#9998;</span> edits the currently assigned person &mdash; no detour through the personnel master needed.</li>
+        <li><span class="tag">Expand all</span> / <span class="tag">Collapse all</span> at the top of this panel open or close every section &mdash; top-level tabs and nested ones &mdash; in one click.</li>
+      </ul>
+
+      <p><strong>Reusing a person:</strong> everyone lives once in the <em>Personnel master</em>. To put the same brother in another department, open that assignment&rsquo;s <em>Person</em> field and start typing his name &mdash; pick him from the list and all his data (congregation, phone, e-mail, birth date) comes along automatically. Edit him once and every assignment updates. Use the <strong>+</strong> next to a Person field only for someone genuinely new.</p>
+
+      <p><strong>Dates of birth</strong> accept a full date (e.g. 04.05.2001) or just a year (2001) &mdash; type it however you like.</p>
+
+      <p><strong>Reordering:</strong> every assignment and every top-block responsibility has ↑/↓ buttons, so a newly added overseer can be moved above the assistants. Departments reorder the same way.</p>
+
+      <p><strong>Bold overseers</strong> in <em>Edit data &rarr; Document settings</em> toggles bold weight for overseer, crew captain and coordinator rows &mdash; assistants always stay regular. The choice is saved with your backup.</p>
+
+      <h4>Saving &amp; sharing (JSON)</h4>
+      <ul>
+        <li><span class="tag">Import</span> &mdash; one button; it auto-detects a roster file or a full backup.</li>
+        <li><span class="tag">Export personnel</span> &mdash; the roster only (no assignments or settings). Safe to share.</li>
+        <li><span class="tag">Export backup</span> &mdash; <strong>everything</strong>: settings, all assignments, departments and people. This is your complete save file.</li>
+        <li><span class="tag">Export CSV</span> &mdash; a spreadsheet copy for Excel. Pick one row per assignment or one row per person, tick the columns you need. CSV is a one-way export &mdash; it cannot be imported back.</li>
+      </ul>
+
+      <h4>Printing</h4>
+      <ul>
+        <li><span class="tag">Print / PDF</span> prints one A4 landscape sheet per page.</li>
+        <li><strong>Compact print</strong> squeezes more rows onto each page.</li>
+        <li><strong>Print with all details</strong> adds private e-mail, type, DOB, pioneer and notes under each name.</li>
+      </ul>
+
+      <p class="help-note"><strong>Privacy:</strong> private e-mail, birth date, pioneer status and notes are never printed unless you switch on &ldquo;Print with all details&rdquo;. A full backup <em>does</em> contain this private data &mdash; keep that file to yourself.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'assembly-org-chart-clean-v02';
+  const uid = prefix => prefix + '-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+
+  const ORIGINAL_DATA = {
+  "settings": {
+    "title": "CIRCUIT ASSEMBLY — ORGANIZATION CHART",
+    "subtitle": "",
+    "updatedLabel": "Updated",
+    "updatedDate": "",
+    "columns": [
+      "Responsibility",
+      "Name",
+      "Congregation",
+      "Phone",
+      "JW email"
+    ],
+    "showPrivateInDialog": true,
+    "boldOverseers": true,
+    "compactPrint": false,
+    "printAllInfo": false
+  },
+  "topRoles": [
+    {
+      "id": "circuit-overseer",
+      "label": "Circuit Overseer",
+      "personId": ""
+    },
+    {
+      "id": "assembly-overseer",
+      "label": "Assembly Overseer",
+      "personId": ""
+    },
+    {
+      "id": "assembly-overseer-assistant",
+      "label": "Assembly Overseer Assistant",
+      "personId": ""
+    },
+    {
+      "id": "assembly-hall-overseer",
+      "label": "Assembly Hall Overseer",
+      "personId": ""
+    }
+  ],
+  "departments": [
+    {
+      "id": "d01",
+      "name": "Safety Coordinator",
+      "sub": false,
+      "page": 1,
+      "slots": [
+        {
+          "id": "d01-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d01-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d02",
+      "name": "Accounts",
+      "sub": false,
+      "page": 1,
+      "slots": [
+        {
+          "id": "d02-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d02-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d03",
+      "name": "Attendants",
+      "sub": false,
+      "page": 1,
+      "slots": [
+        {
+          "id": "d03-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d03-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d04",
+      "name": "Audio / Video",
+      "sub": false,
+      "page": 2,
+      "slots": [
+        {
+          "id": "d04-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d04-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d05",
+      "name": "Audio Crew",
+      "sub": true,
+      "page": 2,
+      "slots": [
+        {
+          "id": "d05-s1",
+          "label": "Crew Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d05-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d06",
+      "name": "Video Crew",
+      "sub": true,
+      "page": 2,
+      "slots": [
+        {
+          "id": "d06-s1",
+          "label": "Crew Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d06-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d07",
+      "name": "Stage Crew",
+      "sub": true,
+      "page": 2,
+      "slots": [
+        {
+          "id": "d07-s1",
+          "label": "Crew Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d07-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d08",
+      "name": "Baptism",
+      "sub": false,
+      "page": 2,
+      "slots": [
+        {
+          "id": "d08-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d08-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d09",
+      "name": "Cleaning",
+      "sub": false,
+      "page": 2,
+      "slots": [
+        {
+          "id": "d09-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d09-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d10",
+      "name": "Lost & Found / Checkroom",
+      "sub": false,
+      "page": 3,
+      "slots": [
+        {
+          "id": "d10-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d10-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d11",
+      "name": "First Aid / Mother and Child",
+      "sub": false,
+      "page": 3,
+      "slots": [
+        {
+          "id": "d11-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d11-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d12",
+      "name": "Parking",
+      "sub": false,
+      "page": 3,
+      "slots": [
+        {
+          "id": "d12-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d12-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    },
+    {
+      "id": "d13",
+      "name": "Rooming / Information",
+      "sub": false,
+      "page": 3,
+      "slots": [
+        {
+          "id": "d13-s1",
+          "label": "Overseer",
+          "personId": ""
+        },
+        {
+          "id": "d13-s2",
+          "label": "Assistant",
+          "personId": ""
+        }
+      ]
+    }
+  ],
+  "people": []
+};
+  const clone = value => JSON.parse(JSON.stringify(value));
+  let data = loadData();
+
+  const preview = document.getElementById('preview');
+  const editor = document.getElementById('editor');
+  const editorContent = document.getElementById('editorContent');
+  const fileInput = document.getElementById('fileInput');
+  const statusEl = document.getElementById('status');
+  const personnelCountEl = document.getElementById('personnelCount');
+  const detailsModal = document.getElementById('detailsModal');
+  const detailsBody = document.getElementById('detailsBody');
+  const detailsTitle = document.getElementById('detailsTitle');
+  const detailsSubtitle = document.getElementById('detailsSubtitle');
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? migrate(JSON.parse(raw)) : clone(ORIGINAL_DATA);
+    }catch(err){
+      console.warn(err);
+      return clone(ORIGINAL_DATA);
+    }
+  }
+
+  function migrate(input){
+    const base = clone(ORIGINAL_DATA);
+    if(!input || typeof input !== 'object') return base;
+    input.settings = {...base.settings,...(input.settings || {})};
+    input.settings.columns = Array.isArray(input.settings.columns) && input.settings.columns.length === 5
+      ? input.settings.columns : base.settings.columns;
+    input.people = Array.isArray(input.people) ? input.people.map(normalizePerson) : base.people;
+    input.topRoles = Array.isArray(input.topRoles) ? input.topRoles.map(role => ({
+      id:role.id || uid('role'), label:role.label || 'Responsibility', personId:role.personId || ''
+    })) : base.topRoles;
+    input.departments = Array.isArray(input.departments) ? input.departments.map(dept => ({
+      id:dept.id || uid('department'),
+      name:dept.name || 'Department',
+      sub:!!dept.sub,
+      page:Math.max(1,Number(dept.page) || 1),
+      slots:Array.isArray(dept.slots) && dept.slots.length ? dept.slots.map(slot => ({
+        id:slot.id || uid('slot'),label:slot.label || 'Assigned',personId:slot.personId || ''
+      })) : [{id:uid('slot'),label:'Overseer',personId:''}]
+    })) : base.departments;
+    cleanBrokenAssignments(input);
+    return input;
+  }
+
+  function normalizePerson(person){
+    return {
+      id:person.id || uid('person'),
+      lastName:person.lastName || '',
+      firstName:person.firstName || '',
+      congregation:person.congregation || '',
+      congType:person.congType || '',
+      phone:person.phone || '',
+      jwEmail:person.jwEmail || '',
+      privateEmail:person.privateEmail || '',
+      birthDate:person.birthDate || '',
+      pioneer:(person.pioneer && String(person.pioneer).trim()) ? 'Regular Pioneer' : '',
+      dataUpdated:person.dataUpdated || '',
+      notes:person.notes || ''
+    };
+  }
+
+  function cleanBrokenAssignments(target){
+    const ids = new Set(target.people.map(person => person.id));
+    target.topRoles.forEach(role => { if(role.personId && !ids.has(role.personId)) role.personId=''; });
+    target.departments.forEach(dept => dept.slots.forEach(slot => {
+      if(slot.personId && !ids.has(slot.personId)) slot.personId='';
+    }));
+  }
+
+  function saveData(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+      return true;
+    }catch(err){
+      console.warn('Local autosave is unavailable:',err);
+      return false;
+    }
+  }
+
+  function updatePersonnelCount(){
+    if(!personnelCountEl) return;
+    const count=Array.isArray(data.people) ? data.people.length : 0;
+    personnelCountEl.textContent=`Personnel: ${count}`;
+    personnelCountEl.classList.toggle('loaded',count>0);
+  }
+
+  function esc(value){
+    return String(value ?? '').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  }
+
+  function showValue(value,placeholder='—'){
+    const text=String(value ?? '').trim();
+    return text ? esc(text) : `<span class="placeholder">${esc(placeholder)}</span>`;
+  }
+
+  function personById(id){ return data.people.find(person=>person.id===id) || null; }
+  function personName(person){
+    if(!person) return '';
+    return [person.lastName,person.firstName].filter(Boolean).join(', ');
+  }
+  function congregationLabel(person){
+    const cong = String(person?.congregation || '').trim();
+    if(!cong) return '';
+    return person.congType === 'Group' ? `${cong} (Group)` : cong;
+  }
+  function personSort(a,b){
+    return personName(a).localeCompare(personName(b),'en',{sensitivity:'base'});
+  }
+
+  function emailLink(value,placeholder='—'){
+    const text=String(value ?? '').trim();
+    return text ? `<a class="contact-link" href="${esc('mailto:'+text)}">${esc(text)}</a>` : `<span class="placeholder">${esc(placeholder)}</span>`;
+  }
+
+  function phoneToWhatsApp(value){
+    const original=String(value ?? '').trim();
+    if(!original) return '';
+    let digits=original.replace(/\D/g,'');
+    if(digits.startsWith('00')) digits=digits.slice(2);
+    if(digits.startsWith('0')) digits='49'+digits.slice(1);
+    return digits.length>=8 ? digits : '';
+  }
+
+  function phoneLink(value,placeholder='—'){
+    const text=String(value ?? '').trim();
+    if(!text) return `<span class="placeholder">${esc(placeholder)}</span>`;
+    const number=phoneToWhatsApp(text);
+    return number
+      ? `<a class="contact-link" href="https://wa.me/${esc(number)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`
+      : esc(text);
+  }
+
+  // Accepts what people actually type for a date: a bare year (2001),
+  // German dd.mm.yyyy, dd/mm/yyyy, yyyy-mm-dd, or yyyy-mm. Returns a value
+  // we store: full dates become ISO yyyy-mm-dd, a bare year stays "2001",
+  // a year+month stays "2001-05". Anything we can't read is kept as-is so
+  // the user never loses what they typed.
+  function normalizeDateInput(raw){
+    const text=String(raw||'').trim();
+    if(!text) return '';
+    // already ISO (full, or year-month)
+    let m=text.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+    if(m){
+      const y=m[1], mo=m[2], d=m[3];
+      if(d) return isValidYMD(+y,+mo,+d) ? `${y}-${mo}-${d}` : text;
+      return (+mo>=1 && +mo<=12) ? `${y}-${mo}` : text;
+    }
+    // bare year
+    if(/^\d{4}$/.test(text)) return text;
+    // d.m.y or d/m/y or d-m-y  (day first — German/European)
+    m=text.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+    if(m){
+      let [,d,mo,y]=m;
+      if(y.length===2) y=(Number(y)>40?'19':'20')+y;
+      d=d.padStart(2,'0'); mo=mo.padStart(2,'0');
+      return isValidYMD(+y,+mo,+d) ? `${y}-${mo}-${d}` : text;
+    }
+    // month.year or month/year  -> year-month
+    m=text.match(/^(\d{1,2})[.\/-](\d{4})$/);
+    if(m && +m[1]>=1 && +m[1]<=12) return `${m[2]}-${m[1].padStart(2,'0')}`;
+    return text;
+  }
+  function isValidYMD(y,mo,d){
+    if(mo<1||mo>12||d<1||d>31) return false;
+    const dt=new Date(Date.UTC(y,mo-1,d));
+    return dt.getUTCFullYear()===y && dt.getUTCMonth()===mo-1 && dt.getUTCDate()===d;
+  }
+
+  function formatDate(value){
+    const raw=String(value||'').trim();
+    if(!raw) return '';
+    // bare year
+    if(/^\d{4}$/.test(raw)) return raw;
+    // year-month -> mm/yyyy
+    let ym=raw.match(/^(\d{4})-(\d{2})$/);
+    if(ym) return `${ym[2]}/${ym[1]}`;
+    if(!value) return '';
+    const d=new Date(value+'T00:00:00');
+    if(Number.isNaN(d.getTime())) return value;
+    return new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d);
+  }
+
+  function titleBlock(){
+    return `
+      <div class="doc-title">
+        <div class="doc-title-main">${showValue(data.settings.title,'ASSEMBLY ORGANIZATION CHART')}</div>
+        ${String(data.settings.subtitle || '').trim()?`<div class="doc-subtitle">${esc(data.settings.subtitle)}</div>`:''}
+      </div>
+      <div class="updated">${esc(data.settings.updatedLabel || 'Updated')} ${esc(formatDate(data.settings.updatedDate))}</div>
+      <div class="column-head">
+        ${data.settings.columns.map(column=>`<div>${showValue(column,'Column')}</div>`).join('')}
+        <div class="screen-only">Info</div>
+      </div>`;
+  }
+
+  // Overseers / crew captains are printed in bold; assistants stay regular.
+  const LEAD_ROLE_PATTERN = /overseer|oversight|captain|coordinator|chairman|aufseher|leiter|kapit/i;
+  const ASSISTANT_PATTERN = /assistant|assistent|assist\.|helper|helfer|gehilfe|stellvertret/i;
+  function isLeadRole(label){
+    const text=String(label || '').trim();
+    if(!text) return false;
+    if(ASSISTANT_PATTERN.test(text)) return false;
+    return LEAD_ROLE_PATTERN.test(text);
+  }
+
+  function personRow(roleLabel,personId,{rowClass='',chip=''}={}){
+    const person=personById(personId);
+    return `
+      <div class="person-row ${esc(rowClass)}">
+        <div class="cell role-cell">${chip?`<span class="role-chip">${esc(chip)}</span>`:''}<span>${showValue(roleLabel,'Responsibility')}</span></div>
+        <div class="cell">${person?showValue(personName(person),'Unassigned'):'<span class="placeholder">Unassigned</span>'}</div>
+        <div class="cell">${person?showValue(congregationLabel(person),'—'):'<span class="placeholder">—</span>'}</div>
+        <div class="cell">${person?phoneLink(person.phone,'—'):'<span class="placeholder">—</span>'}</div>
+        <div class="cell">${person?emailLink(person.jwEmail,'—'):'<span class="placeholder">—</span>'}</div>
+        <div class="screen-only">${person?`<button class="info-btn" data-person-details="${esc(person.id)}" title="Show stored details">i</button>`:''}</div>
+        ${personExtra(person)}
+      </div>`;
+  }
+
+  function personExtra(person){
+    if(!person) return '';
+    const bits=[];
+    if(person.congType) bits.push(`<span><span class="k">Type</span>${esc(person.congType)}</span>`);
+    if(String(person.pioneer||'').trim()) bits.push(`<span><span class="k">Reg. Pioneer</span></span>`);
+    if(person.privateEmail) bits.push(`<span><span class="k">Private</span>${emailLink(person.privateEmail)}</span>`);
+    const dob=formatDate(person.birthDate); if(dob) bits.push(`<span><span class="k">DOB</span>${esc(dob)}</span>`);
+    const upd=formatDate(person.dataUpdated); if(upd) bits.push(`<span><span class="k">Updated</span>${esc(upd)}</span>`);
+    if(String(person.notes||'').trim()) bits.push(`<span><span class="k">Notes</span>${esc(person.notes)}</span>`);
+    if(!bits.length) return '';
+    return `<div class="person-extra">${bits.join('')}</div>`;
+  }
+
+  function topRoleChip(role){
+    const id=String(role.id||'');
+    if(id==='assembly-overseer') return 'AO';
+    if(id==='assembly-overseer-assistant') return 'ASST';
+    if(id==='assembly-hall-overseer') return 'HALL';
+    const label=String(role.label||'').toLowerCase();
+    if(/assistant|assistent|gehilfe/.test(label)) return 'ASST';
+    if(/hall|saal/.test(label)) return 'HALL';
+    return isLeadRole(role.label) ? 'OV' : 'ROLE';
+  }
+
+  function renderHierarchy(){
+    const co=data.topRoles.find(role=>role.id==='circuit-overseer') || data.topRoles[0];
+    const remaining=data.topRoles.filter(role=>role!==co);
+    return `
+      <div class="group-title major"><span>DECISION AND DIRECTION</span></div>
+      ${co?personRow(co.label,co.personId,{rowClass:'lead co-row',chip:'CO'}):''}
+      <div class="hierarchy-note">The circuit overseer makes the final decisions; operational responsibility continues with the assembly oversight team.</div>
+      <div class="group-title sub"><span>ASSEMBLY OVERSIGHT</span></div>
+      ${remaining.map(role=>personRow(role.label,role.personId,{
+        rowClass:(isLeadRole(role.label)?'lead ':'')+'assembly-row',
+        chip:topRoleChip(role)
+      })).join('')}`;
+  }
+
+  function renderDepartment(department,index){
+    return `
+      <section class="department ${department.sub?'subdepartment':''}">
+        <div class="department-title ${department.sub?'sub':''}">
+          <span class="number">${index+1}</span>
+          <span>${showValue(department.name,'Department')}</span>
+        </div>
+        ${department.slots.map(slot=>personRow(slot.label,slot.personId,{
+          rowClass:isLeadRole(slot.label)?'lead':''
+        })).join('')}
+      </section>`;
+  }
+
+  function renderPreview(){
+    const boldLeads = !(data.settings && data.settings.boldOverseers === false);
+    document.body.classList.toggle('bold-leads', boldLeads);
+    document.body.classList.toggle('compact-print', !!(data.settings && data.settings.compactPrint));
+    document.body.classList.toggle('show-all-info', !!(data.settings && data.settings.printAllInfo));
+    const pages=[...new Set(data.departments.map(dept=>Math.max(1,Number(dept.page)||1)).concat([1]))].sort((a,b)=>a-b);
+    preview.innerHTML=pages.map((page,pageIndex)=>{
+      const departments=data.departments.filter(dept=>(Math.max(1,Number(dept.page)||1))===page);
+      return `
+        <section class="sheet" data-page="${page}">
+          ${titleBlock()}
+          ${pageIndex===0?renderHierarchy():''}
+          ${departments.length?departments.map((dept,index)=>renderDepartment(dept,data.departments.indexOf(dept))).join(''):'<div class="empty-note">No departments assigned to this page.</div>'}
+          <div class="sheet-overflow-note screen-only">This page holds more rows than the A4 preview box — the sheet is stretched here so nothing is hidden. Printing uses a smaller type size, so it usually still fits; check the print preview, or enable “Compact print”.</div>
+        </section>`;
+    }).join('');
+    flagTallSheets();
+  }
+
+  // Compares the real height of each sheet against the A4 landscape ratio and
+  // flags the ones that had to stretch, so an overlong page is obvious on screen.
+  function flagTallSheets(){
+    preview.querySelectorAll('.sheet').forEach(sheet=>{
+      const style=getComputedStyle(sheet);
+      const padX=parseFloat(style.paddingLeft)+parseFloat(style.paddingRight);
+      const padY=parseFloat(style.paddingTop)+parseFloat(style.paddingBottom);
+      const pageHeight=Math.max(760,(sheet.clientWidth-padX)*210/297)+padY;
+      sheet.classList.toggle('is-taller-than-a4',sheet.clientHeight>pageHeight+4);
+    });
+  }
+
+  function personDisplayLabel(person){
+    return `${personName(person) || 'Unnamed person'} · ${congregationLabel(person) || 'No congregation'}`;
+  }
+
+  function matchingPeople(query){
+    const q=String(query||'').trim().toLowerCase();
+    return [...data.people].sort(personSort).filter(person=>{
+      if(!q) return true;
+      return (personName(person)+' '+person.congregation+' '+person.jwEmail).toLowerCase().includes(q);
+    });
+  }
+
+  // The dropdown list lives once, at the very end of <body> (see #personComboList),
+  // instead of nested inside each field. .editor has a CSS transform for its slide
+  // animation, and any transformed ancestor turns position:fixed descendants into
+  // something that behaves like position:absolute relative to THAT ancestor (and can
+  // then get clipped by overflow:hidden panels in between again). Appending the list
+  // to <body> sidesteps both problems: it is always positioned against the real
+  // viewport and never sits inside anything that clips it.
+  const personComboList = document.getElementById('personComboList');
+  let activeComboEl = null;
+
+  function positionComboList(comboEl){
+    const inputEl=comboEl.querySelector('.person-combo-input');
+    const rect=inputEl.getBoundingClientRect();
+    personComboList.style.left=rect.left+'px';
+    personComboList.style.top=(rect.bottom+4)+'px';
+    personComboList.style.width=rect.width+'px';
+  }
+
+  function renderComboList(comboEl,query){
+    activeComboEl=comboEl;
+    const q=String(query||'').trim();
+    const matches=matchingPeople(q).slice(0,60);
+    const rows=[];
+    if(!q) rows.push(`<div class="combo-option" data-person-id="">— Unassigned —</div>`);
+    if(!data.people.length){
+      rows.push(`<div class="combo-option empty-option">No people yet — add someone in the personnel master.</div>`);
+    }else if(!matches.length){
+      rows.push(`<div class="combo-option empty-option">No matches.</div>`);
+    }else{
+      rows.push(...matches.map(person=>`<div class="combo-option" data-person-id="${esc(person.id)}">${esc(personDisplayLabel(person))}</div>`));
+    }
+    personComboList.innerHTML=rows.join('');
+    positionComboList(comboEl);
+    personComboList.hidden=false;
+  }
+
+  function resetComboDisplay(comboEl){
+    const inputEl=comboEl.querySelector('.person-combo-input');
+    const person=personById(inputEl.dataset.currentId);
+    inputEl.value=person ? personDisplayLabel(person) : '';
+  }
+
+  function closeComboList(){
+    if(personComboList.hidden) return;
+    personComboList.hidden=true;
+    if(activeComboEl) resetComboDisplay(activeComboEl);
+    activeComboEl=null;
+  }
+
+  function textField(label,path,value){
+    return `<label>${esc(label)}<input type="text" data-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function dateField(label,path,value){
+    return `<label>${esc(label)}<input type="text" class="date-text" inputmode="numeric"
+      placeholder="TT.MM.JJJJ oder Jahr" data-date-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function numberField(label,path,value,min=1){
+    return `<label>${esc(label)}<input type="number" min="${min}" step="1" data-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function selectPersonField(label,path,value){
+    const person=personById(value);
+    const displayValue=person ? personDisplayLabel(person) : '';
+    return `<label>${esc(label)}
+      <span class="person-field-row">
+        <span class="person-combo" data-path="${esc(path)}">
+          <input type="text" class="person-combo-input" autocomplete="off" role="combobox" aria-expanded="false"
+                 placeholder="Type to search or pick…" value="${esc(displayValue)}" data-current-id="${esc(value||'')}">
+        </span>
+        <button type="button" class="btn small icon-btn" data-action="new-person-for" data-target-path="${esc(path)}" title="Create a new person and assign here">+</button>
+        <button type="button" class="btn small icon-btn" data-action="edit-person-for" data-target-path="${esc(path)}" title="Edit this person" ${value?'':'disabled'}>✎</button>
+      </span>
+    </label>`;
+  }
+  function selectField(label,path,value,options){
+    const current=String(value ?? '');
+    const opts=options.map(option=>`<option value="${esc(option.value)}" ${current===option.value?'selected':''}>${esc(option.label)}</option>`).join('');
+    return `<label>${esc(label)}<select data-path="${esc(path)}">${opts}</select></label>`;
+  }
+
+  function topRoleEditor(role,index){
+    const protectedRole=role.id==='circuit-overseer';
+    const total=data.topRoles.length;
+    return `
+      <div class="item-card accent" data-top-role-id="${esc(role.id)}">
+        <div class="item-head">
+          <strong>${esc(role.label || 'Responsibility')}</strong>
+          <div class="inline-actions">
+            <button class="btn small icon-btn" data-action="move-top-role-up" data-index="${index}" title="Move up" ${index===0?'disabled':''}>↑</button>
+            <button class="btn small icon-btn" data-action="move-top-role-down" data-index="${index}" title="Move down" ${index===total-1?'disabled':''}>↓</button>
+            ${protectedRole
+              ? '<span class="lock-note" title="The circuit overseer anchors the top block and cannot be removed">locked</span>'
+              : `<button class="btn small danger" data-action="remove-top-role" data-index="${index}">Remove</button>`}
+          </div>
+        </div>
+        <div class="field-grid">
+          ${textField('Responsibility',`topRoles.${index}.label`,role.label)}
+          ${selectPersonField('Assigned person',`topRoles.${index}.personId`,role.personId)}
+        </div>
+      </div>`;
+  }
+
+  // Muted hues that sit next to the evergreen/brass palette without shouting.
+  const DEPARTMENT_ACCENTS=['#2d5d4f','#4a7fa1','#8a6ba3','#ab8a4c','#a4664f','#5f8552','#7d7f9c'];
+
+  function departmentEditor(department,index){
+    const accent=DEPARTMENT_ACCENTS[index%DEPARTMENT_ACCENTS.length];
+    const page=Math.max(1,Number(department.page)||1);
+    return `
+      <div class="item-card department-card ${department.sub?'is-sub':''}" data-department-id="${esc(department.id)}" style="--dept-accent:${accent}">
+        <div class="item-head">
+          <span class="dept-index">${index+1}</span>
+          <strong>${esc(department.name || 'Department')}</strong>
+          <span class="dept-page">Page ${page}</span>
+          <div class="inline-actions">
+            <button class="btn small icon-btn" data-action="move-department-up" data-index="${index}" title="Move up">↑</button>
+            <button class="btn small icon-btn" data-action="move-department-down" data-index="${index}" title="Move down">↓</button>
+            <button class="btn small danger" data-action="remove-department" data-index="${index}">Remove</button>
+          </div>
+        </div>
+        <div class="field-grid">
+          ${textField('Department name',`departments.${index}.name`,department.name)}
+          ${numberField('Print page',`departments.${index}.page`,department.page,1)}
+        </div>
+        <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+          <input style="width:auto" type="checkbox" data-path="departments.${index}.sub" ${department.sub?'checked':''}>
+          Show as a lighter subdepartment
+        </label>
+        ${department.slots.map((slot,slotIndex)=>`
+          <div class="slot-editor" data-slot-id="${esc(slot.id)}">
+            <div class="slot-head">
+              <strong>Assignment ${slotIndex+1}</strong>
+              <div class="inline-actions">
+                <button class="btn small icon-btn" data-action="move-slot-up" data-dindex="${index}" data-sindex="${slotIndex}" title="Move up" ${slotIndex===0?'disabled':''}>↑</button>
+                <button class="btn small icon-btn" data-action="move-slot-down" data-dindex="${index}" data-sindex="${slotIndex}" title="Move down" ${slotIndex===department.slots.length-1?'disabled':''}>↓</button>
+                <button class="btn small danger" data-action="remove-slot" data-dindex="${index}" data-sindex="${slotIndex}" ${department.slots.length===1?'disabled':''}>Remove</button>
+              </div>
+            </div>
+            <div class="field-grid">
+              ${textField('Role label',`departments.${index}.slots.${slotIndex}.label`,slot.label)}
+              ${selectPersonField('Person',`departments.${index}.slots.${slotIndex}.personId`,slot.personId)}
+            </div>
+          </div>
+        `).join('')}
+        <button class="btn small" style="margin-top:8px" data-action="add-slot" data-dindex="${index}">+ Add assignment</button>
+      </div>`;
+  }
+
+  function assignedLabels(personId){
+    const labels=[];
+    data.topRoles.forEach(role=>{if(role.personId===personId) labels.push(role.label);});
+    data.departments.forEach(dept=>dept.slots.forEach(slot=>{
+      if(slot.personId===personId) labels.push(`${dept.name} — ${slot.label}`);
+    }));
+    return labels;
+  }
+
+  function personEditor(person,index){
+    const assignments=assignedLabels(person.id);
+    return `
+      <details class="panel-card person-master-card" data-details-key="person-${esc(person.id)}" data-person-master-id="${esc(person.id)}" data-search="${esc((personName(person)+' '+person.congregation+' '+person.jwEmail).toLowerCase())}">
+        <summary>
+          <span class="person-summary-name">${showValue(personName(person),'Unnamed person')} ${congregationLabel(person)?`· ${esc(congregationLabel(person))}`:''}</span>
+          <span style="display:flex;align-items:center;gap:7px">
+            <span class="assignment-count">${assignments.length} role${assignments.length===1?'':'s'}</span>
+            <span class="summary-chevron">›</span>
+          </span>
+        </summary>
+        <div class="panel-body">
+          ${assignments.length?`<p class="helper"><strong>Currently assigned:</strong> ${esc(assignments.join(' · '))}</p>`:'<p class="helper">Currently not assigned. The person remains available in all dropdowns.</p>'}
+          <div class="field-grid">
+            ${textField('Last name',`people.${index}.lastName`,person.lastName)}
+            ${textField('First name',`people.${index}.firstName`,person.firstName)}
+            ${textField('Congregation',`people.${index}.congregation`,person.congregation)}
+            ${selectField('Congregation / group',`people.${index}.congType`,person.congType,[{value:'',label:'—'},{value:'Congregation',label:'Congregation'},{value:'Group',label:'Group'}])}
+            ${textField('Phone',`people.${index}.phone`,person.phone)}
+            ${textField('JW email',`people.${index}.jwEmail`,person.jwEmail)}
+            ${textField('Private email',`people.${index}.privateEmail`,person.privateEmail)}
+            ${dateField('Date of birth',`people.${index}.birthDate`,person.birthDate)}
+            ${dateField('Data updated',`people.${index}.dataUpdated`,person.dataUpdated)}
+          </div>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-pioneer="${index}" ${String(person.pioneer||'').trim()?'checked':''}>
+            Regular Pioneer
+          </label>
+          <label style="margin-top:8px">Notes<textarea data-path="people.${index}.notes">${esc(person.notes)}</textarea></label>
+          <div class="inline-actions" style="margin-top:9px">
+            <button class="btn small danger" data-action="remove-person" data-index="${index}">Remove from personnel master</button>
+          </div>
+        </div>
+      </details>`;
+  }
+
+  function captureEditorState(){
+    const details={};
+    editorContent.querySelectorAll('details[data-details-key]').forEach(element=>{
+      details[element.dataset.detailsKey]=element.open;
+    });
+    return {scrollTop:editor.scrollTop,details,search:document.getElementById('personSearch')?.value || ''};
+  }
+
+  function restoreEditorState(state,focusSelector=''){
+    if(state){
+      editorContent.querySelectorAll('details[data-details-key]').forEach(element=>{
+        const key=element.dataset.detailsKey;
+        if(Object.prototype.hasOwnProperty.call(state.details,key)) element.open=state.details[key];
+      });
+      editor.scrollTop=state.scrollTop;
+      const search=document.getElementById('personSearch');
+      if(search){search.value=state.search || '';filterPersonnel(search.value);}
+    }
+    if(focusSelector){
+      requestAnimationFrame(()=>{
+        const target=editorContent.querySelector(focusSelector);
+        if(!target) return;
+        target.scrollIntoView({block:'center',inline:'nearest'});
+        if(target.tagName==='DETAILS') target.open=true;
+        const input=target.querySelector('input,select,textarea,button');
+        input?.focus({preventScroll:true});
+      });
+    }
+  }
+
+  function renderEditor({state=null,focusSelector=''}={}){
+    closeComboList();
+    editorContent.innerHTML=`
+      <details class="panel-card" data-details-key="document-settings" open>
+        <summary>Document settings <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          <div class="field-grid one">
+            ${textField('Title','settings.title',data.settings.title)}
+            ${textField('Subtitle / assembly details','settings.subtitle',data.settings.subtitle)}
+          </div>
+          <div class="field-grid">
+            ${textField('Updated label','settings.updatedLabel',data.settings.updatedLabel)}
+            ${dateField('Updated date','settings.updatedDate',data.settings.updatedDate)}
+          </div>
+          <div class="field-grid" style="margin-top:8px">
+            ${data.settings.columns.map((column,index)=>textField('Column '+(index+1),`settings.columns.${index}`,column)).join('')}
+          </div>
+          <label style="margin-top:10px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.boldOverseers" ${data.settings.boldOverseers!==false?'checked':''}>
+            Bold overseers — overseers and crew captains in bold, assistants regular
+          </label>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.compactPrint" ${data.settings.compactPrint?'checked':''}>
+            Compact print — fit more rows on each page
+          </label>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.printAllInfo" ${data.settings.printAllInfo?'checked':''}>
+            Print with all details — private email, type, DOB, pioneer, notes
+          </label>
+        </div>
+      </details>
+
+      <details class="panel-card primary-panel" data-details-key="personnel-master">
+        <summary>Personnel master (${data.people.length}) <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          <div class="search-row">
+            <label>Search personnel<input type="search" id="personSearch" placeholder="Name, congregation or JW email"></label>
+            <button class="btn small primary" data-action="add-person">+ Person</button>
+          </div>
+          <p class="helper">Stored locally in your browser. The roster export/import holds person records only — use “Export backup” in the toolbar to also save every assignment, department and setting to one file.</p>
+          <div id="personMasterList">
+            ${data.people
+              .map((person,index)=>({person,index}))
+              .sort((a,b)=>personSort(a.person,b.person))
+              .map(({person,index})=>personEditor(person,index)).join('')}
+          </div>
+        </div>
+      </details>
+
+      <details class="panel-card" data-details-key="oversight-assignments" open>
+        <summary>Oversight assignments <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          ${data.topRoles.map(topRoleEditor).join('')}
+          <button class="btn small" style="margin-top:4px" data-action="add-top-role">+ Add responsibility</button>
+        </div>
+      </details>
+
+      <details class="panel-card" data-details-key="departments" open>
+        <summary>Departments (${data.departments.length}) <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          <p class="helper">Departments are flat. Audio, video and stage can still be shown as lighter subdepartments where useful.</p>
+          ${data.departments.map(departmentEditor).join('')}
+          <button class="btn small" data-action="add-department">+ Add department</button>
+        </div>
+      </details>`;
+    restoreEditorState(state,focusSelector);
+  }
+
+  function setByPath(object,path,value){
+    const parts=path.split('.');
+    let current=object;
+    for(let i=0;i<parts.length-1;i++) current=current[parts[i]];
+    current[parts.at(-1)]=value;
+  }
+
+  function getByPath(object,path){
+    return path.split('.').reduce((cur,key) => (cur == null ? cur : cur[key]), object);
+  }
+
+  function updateAll({editorToo=false,editorState=null,focusSelector=''}={}){
+    saveData();
+    renderPreview();
+    if(editorToo) renderEditor({state:editorState,focusSelector});
+    updatePersonnelCount();
+  }
+
+  function filterPersonnel(query){
+    const needle=String(query || '').trim().toLowerCase();
+    editorContent.querySelectorAll('[data-person-master-id]').forEach(card=>{
+      card.hidden=needle && !card.dataset.search.includes(needle);
+    });
+  }
+
+  editorContent.addEventListener('input',event=>{
+    if(event.target.id==='personSearch'){
+      filterPersonnel(event.target.value);
+      return;
+    }
+    if(event.target.classList.contains('person-combo-input')){
+      renderComboList(event.target.closest('.person-combo'), event.target.value);
+      return;
+    }
+    if(event.target.dataset.pioneer!==undefined){
+      const personIndex=Number(event.target.dataset.pioneer);
+      if(data.people[personIndex]){
+        data.people[personIndex].pioneer=event.target.checked?'Regular Pioneer':'';
+        saveData();
+        renderPreview();
+      }
+      return;
+    }
+    const path=event.target.dataset.path;
+    if(!path) return;
+    const value=event.target.type==='checkbox'
+      ? event.target.checked
+      : event.target.type==='number'
+        ? Number(event.target.value)
+        : event.target.value;
+    setByPath(data,path,value);
+    saveData();
+    renderPreview();
+    if(path.startsWith('people.')) refreshPersonOptionLabels();
+    refreshDepartmentCardHead(path);
+  });
+
+  // Typing a name or a print page must not re-render the whole editor (that would
+  // steal the caret), so the card header is patched in place instead.
+  function refreshDepartmentCardHead(path){
+    const match=/^departments\.(\d+)\.(name|page|sub)$/.exec(path||'');
+    if(!match) return;
+    const department=data.departments[Number(match[1])];
+    if(!department) return;
+    const card=editorContent.querySelector(`.department-card[data-department-id="${CSS.escape(department.id)}"]`);
+    if(!card) return;
+    const nameEl=card.querySelector('.item-head strong');
+    if(nameEl) nameEl.textContent=department.name || 'Department';
+    const pageEl=card.querySelector('.dept-page');
+    if(pageEl) pageEl.textContent='Page '+Math.max(1,Number(department.page)||1);
+    card.classList.toggle('is-sub',!!department.sub);
+  }
+
+  // Opening the suggestion list on focus (rather than only while typing) is what
+  // makes this feel like "search and dropdown in one" instead of a plain text box.
+  editorContent.addEventListener('focusin', e => {
+    if(!e.target.classList.contains('person-combo-input')) return;
+    renderComboList(e.target.closest('.person-combo'), '');
+    e.target.select();
+  });
+
+  editorContent.addEventListener('keydown', e => {
+    if(!e.target.classList.contains('person-combo-input')) return;
+    const comboEl = e.target.closest('.person-combo');
+    if(e.key==='Escape'){
+      closeComboList();
+      e.target.blur();
+    }else if(e.key==='Enter'){
+      e.preventDefault();
+      if(!personComboList.hidden && activeComboEl===comboEl){
+        const first = personComboList.querySelector('.combo-option:not(.empty-option)');
+        if(first) first.click();
+      }
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if(personComboList.hidden) return;
+    const insideInput = activeComboEl && activeComboEl.contains(e.target);
+    const insideList = personComboList.contains(e.target);
+    if(!insideInput && !insideList) closeComboList();
+  });
+
+  editor.addEventListener('scroll', closeComboList, {passive:true});
+  window.addEventListener('resize', closeComboList);
+
+  function refreshPersonOptionLabels(){
+    editorContent.querySelectorAll('.person-combo-input').forEach(inputEl=>{
+      const pid=inputEl.dataset.currentId;
+      if(!pid) return;
+      const person=personById(pid);
+      if(person) inputEl.value=personDisplayLabel(person);
+    });
+    editorContent.querySelectorAll('[data-person-master-id]').forEach(card=>{
+      const person=personById(card.dataset.personMasterId);
+      if(!person) return;
+      card.dataset.search=(personName(person)+' '+person.congregation+' '+person.jwEmail).toLowerCase();
+      const nameEl=card.querySelector('.person-summary-name');
+      if(nameEl) nameEl.innerHTML=`${showValue(personName(person),'Unnamed person')} ${congregationLabel(person)?'· '+esc(congregationLabel(person)):''}`;
+    });
+  }
+
+  editorContent.addEventListener('change',event=>{
+    if(event.target.classList && event.target.classList.contains('date-text')){
+      const path=event.target.dataset.datePath;
+      const normalized=normalizeDateInput(event.target.value);
+      event.target.value=normalized;
+      setByPath(data,path,normalized);
+      saveData();
+      renderPreview();
+      return;
+    }
+    const path=event.target.dataset.path;
+    if(!path || event.target.type==='checkbox' || event.target.type==='number') return;
+    setByPath(data,path,event.target.value);
+    saveData();
+    renderPreview();
+  });
+
+  personComboList.addEventListener('click',event=>{
+    const option=event.target.closest('.combo-option');
+    if(!option || option.classList.contains('empty-option')) return;
+    const comboEl=activeComboEl;
+    if(!comboEl) return;
+    const inputEl=comboEl.querySelector('.person-combo-input');
+    const personId=option.dataset.personId || '';
+    const path=comboEl.dataset.path;
+
+    setByPath(data,path,personId);
+    saveData();
+    renderPreview();
+    inputEl.dataset.currentId=personId;
+    const person=personById(personId);
+    inputEl.value=person ? personDisplayLabel(person) : '';
+    personComboList.hidden=true;
+    activeComboEl=null;
+    const row=comboEl.closest('.person-field-row');
+    const editBtn=row?.querySelector('[data-action="edit-person-for"]');
+    if(editBtn) editBtn.disabled=!personId;
+  });
+
+  editorContent.addEventListener('click',event=>{
+    const button=event.target.closest('[data-action]');
+    if(!button) return;
+    const action=button.dataset.action;
+
+    if(action==='new-person-for'){
+      openPersonModal({mode:'new', personId:'', targetPath:button.dataset.targetPath});
+      return;
+    }
+    if(action==='edit-person-for'){
+      const targetPath=button.dataset.targetPath;
+      const currentId=getByPath(data,targetPath);
+      if(currentId) openPersonModal({mode:'edit', personId:currentId, targetPath});
+      return;
+    }
+
+    const index=Number(button.dataset.index);
+    const departmentIndex=Number(button.dataset.dindex);
+    const slotIndex=Number(button.dataset.sindex);
+    const state=captureEditorState();
+    let focusSelector='';
+
+    if(action==='add-top-role'){
+      const role={id:uid('role'),label:'New responsibility',personId:''};
+      data.topRoles.push(role);
+      focusSelector=`[data-top-role-id="${role.id}"]`;
+    }
+    if(action==='remove-top-role'){
+      const role=data.topRoles[index];
+      if(role && role.id==='circuit-overseer'){
+        alert('The circuit overseer anchors the top block and cannot be removed.');
+        return;
+      }
+      if(role && confirm(`Remove "${role.label || 'this responsibility'}" from the top block?`)) data.topRoles.splice(index,1);
+    }
+    if(action==='move-top-role-up') move(data.topRoles,index,index-1);
+    if(action==='move-top-role-down') move(data.topRoles,index,index+1);
+    if(action==='add-department'){
+      const department={id:uid('department'),name:'New department',sub:false,page:Math.max(1,...data.departments.map(item=>Number(item.page)||1)),slots:[{id:uid('slot'),label:'Overseer',personId:''}]};
+      data.departments.push(department);
+      focusSelector=`[data-department-id="${department.id}"]`;
+    }
+    if(action==='remove-department'){
+      if(confirm(`Remove "${data.departments[index]?.name || 'this department'}" and its assignments?`)) data.departments.splice(index,1);
+    }
+    if(action==='move-department-up') move(data.departments,index,index-1);
+    if(action==='move-department-down') move(data.departments,index,index+1);
+    if(action==='add-slot'){
+      const slot={id:uid('slot'),label:'Assistant',personId:''};
+      data.departments[departmentIndex].slots.push(slot);
+      focusSelector=`[data-slot-id="${slot.id}"]`;
+    }
+    if(action==='remove-slot' && data.departments[departmentIndex].slots.length>1){
+      data.departments[departmentIndex].slots.splice(slotIndex,1);
+    }
+    if(action==='move-slot-up') move(data.departments[departmentIndex].slots,slotIndex,slotIndex-1);
+    if(action==='move-slot-down') move(data.departments[departmentIndex].slots,slotIndex,slotIndex+1);
+    if(action==='add-person'){
+      const person=normalizePerson({id:uid('person')});
+      data.people.push(person);
+      focusSelector=`[data-person-master-id="${person.id}"]`;
+    }
+    if(action==='remove-person'){
+      const person=data.people[index];
+      const assigned=assignedLabels(person.id);
+      if(assigned.length){
+        alert(`This person is still assigned to:\n\n${assigned.join('\n')}\n\nChange those dropdowns first.`);
+        return;
+      }
+      if(confirm(`Remove ${personName(person) || 'this person'} from the personnel master?`)) data.people.splice(index,1);
+    }
+    updateAll({editorToo:true,editorState:state,focusSelector});
+  });
+
+  function move(array,from,to){
+    if(from<0 || to<0 || from>=array.length || to>=array.length || from===to) return;
+    const [item]=array.splice(from,1);
+    array.splice(to,0,item);
+  }
+
+  preview.addEventListener('click',event=>{
+    const button=event.target.closest('[data-person-details]');
+    if(!button) return;
+    openPersonDetails(button.dataset.personDetails);
+  });
+
+  function openPersonDetails(personId){
+    const person=personById(personId);
+    if(!person) return;
+    detailsTitle.textContent=personName(person) || 'Person details';
+    detailsSubtitle.textContent=assignedLabels(person.id).join(' · ') || 'Currently unassigned';
+    const detail=(label,value,{wide=false,link='' }={})=>{
+      const text=String(value || '').trim();
+      let shown=text ? esc(text) : '<span class="placeholder">Not stored</span>';
+      if(text && link==='email') shown=`<a class="contact-link" href="${esc('mailto:'+text)}">${esc(text)}</a>`;
+      if(text && link==='phone'){
+        const number=phoneToWhatsApp(text);
+        shown=number?`<a class="contact-link" href="https://wa.me/${esc(number)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>`:esc(text);
+      }
+      return `<div class="detail ${wide?'wide':''}"><span>${esc(label)}</span><strong>${shown}</strong></div>`;
+    };
+    detailsBody.innerHTML=`
+      <div class="detail-grid">
+        ${detail('Congregation',person.congregation)}
+        ${detail('Congregation / group',person.congType)}
+        ${detail('Phone',person.phone,{link:'phone'})}
+        ${detail('JW email',person.jwEmail,{link:'email'})}
+        ${detail('Private email',person.privateEmail,{link:'email'})}
+        ${detail('Date of birth',formatDate(person.birthDate))}
+        ${detail('Regular pioneer',String(person.pioneer||'').trim()?'Yes':'No')}
+        ${detail('Data updated',formatDate(person.dataUpdated))}
+        ${detail('Notes',person.notes,{wide:true})}
+      </div>`;
+    detailsModal.classList.add('open');
+    detailsModal.setAttribute('aria-hidden','false');
+  }
+
+  function closePersonDetails(){
+    detailsModal.classList.remove('open');
+    detailsModal.setAttribute('aria-hidden','true');
+  }
+
+  document.getElementById('closeDetails').addEventListener('click',closePersonDetails);
+  detailsModal.addEventListener('click',event=>{if(event.target===detailsModal) closePersonDetails();});
+
+  const personModal=document.getElementById('personModal');
+  const personModalTitle=document.getElementById('personModalTitle');
+  const personModalSubtitle=document.getElementById('personModalSubtitle');
+  let personModalState={mode:'new',personId:'',targetPath:''};
+
+  function fillPersonModalFields(person){
+    document.getElementById('pm-lastName').value=person?.lastName || '';
+    document.getElementById('pm-firstName').value=person?.firstName || '';
+    document.getElementById('pm-congregation').value=person?.congregation || '';
+    document.getElementById('pm-congType').value=person?.congType || '';
+    document.getElementById('pm-phone').value=person?.phone || '';
+    document.getElementById('pm-jwEmail').value=person?.jwEmail || '';
+    document.getElementById('pm-privateEmail').value=person?.privateEmail || '';
+    document.getElementById('pm-birthDate').value=person?.birthDate || '';
+    document.getElementById('pm-pioneer').checked=!!String(person?.pioneer||'').trim();
+    document.getElementById('pm-notes').value=person?.notes || '';
+  }
+
+  function openPersonModal({mode,personId,targetPath}){
+    personModalState={mode,personId,targetPath};
+    if(mode==='edit'){
+      const person=personById(personId);
+      personModalTitle.textContent='Edit person';
+      personModalSubtitle.textContent='Saved changes update every assignment for this person.';
+      fillPersonModalFields(person);
+    }else{
+      personModalTitle.textContent='New person';
+      personModalSubtitle.textContent='Added to the personnel master and assigned here.';
+      fillPersonModalFields(null);
+    }
+    personModal.classList.add('open');
+    personModal.setAttribute('aria-hidden','false');
+    requestAnimationFrame(()=>document.getElementById('pm-lastName')?.focus());
+  }
+
+  function closePersonModal(){
+    personModal.classList.remove('open');
+    personModal.setAttribute('aria-hidden','true');
+  }
+
+  document.getElementById('closePersonModal').addEventListener('click',closePersonModal);
+  document.getElementById('personModalCancel').addEventListener('click',closePersonModal);
+  personModal.addEventListener('click',event=>{if(event.target===personModal) closePersonModal();});
+
+  document.getElementById('personModalSave').addEventListener('click',()=>{
+    const fields={
+      lastName:document.getElementById('pm-lastName').value.trim(),
+      firstName:document.getElementById('pm-firstName').value.trim(),
+      congregation:document.getElementById('pm-congregation').value.trim(),
+      congType:document.getElementById('pm-congType').value,
+      phone:document.getElementById('pm-phone').value.trim(),
+      jwEmail:document.getElementById('pm-jwEmail').value.trim(),
+      privateEmail:document.getElementById('pm-privateEmail').value.trim(),
+      birthDate:normalizeDateInput(document.getElementById('pm-birthDate').value),
+      pioneer:document.getElementById('pm-pioneer').checked ? 'Regular Pioneer' : '',
+      dataUpdated:new Date().toISOString().slice(0,10),
+      notes:document.getElementById('pm-notes').value.trim()
+    };
+    if(!fields.lastName && !fields.firstName){
+      alert('Please enter at least a last or first name.');
+      return;
+    }
+
+    const editorState=captureEditorState();
+    let focusSelector='';
+
+    if(personModalState.mode==='edit'){
+      const person=personById(personModalState.personId);
+      if(person) Object.assign(person, normalizePerson({...fields, id:person.id}));
+      focusSelector=personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
+    }else{
+      const person=normalizePerson({id:uid('person'), ...fields});
+      data.people.push(person);
+      if(personModalState.targetPath) setByPath(data,personModalState.targetPath,person.id);
+      focusSelector=personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : `[data-person-master-id="${person.id}"]`;
+    }
+
+    closePersonModal();
+    updateAll({editorToo:true, editorState, focusSelector});
+  });
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){closePersonDetails();closeHelp();closeCsvModal();toggleEditor(false);}});
+
+  function toggleEditor(open){
+    const willOpen = open ?? !document.body.classList.contains('editor-open');
+    if(!willOpen) closeComboList();
+    document.body.classList.toggle('editor-open',willOpen);
+  }
+
+  document.getElementById('toggleEditor').addEventListener('click',()=>toggleEditor());
+  document.getElementById('closeEditor').addEventListener('click',()=>toggleEditor(false));
+  document.getElementById('expandAllBtn').addEventListener('click',()=>{
+    editorContent.querySelectorAll('details').forEach(d => d.open = true);
+  });
+  document.getElementById('collapseAllBtn').addEventListener('click',()=>{
+    editorContent.querySelectorAll('details').forEach(d => d.open = false);
+  });
+  document.getElementById('printBtn').addEventListener('click',()=>window.print());
+
+  function openPersonnelPanel(){
+    toggleEditor(true);
+    requestAnimationFrame(()=>{
+      const panel=editorContent.querySelector('[data-details-key="personnel-master"]');
+      if(panel){ panel.open=true; panel.scrollIntoView({block:'start',behavior:'smooth'}); }
+    });
+  }
+  personnelCountEl.addEventListener('click',openPersonnelPanel);
+
+  const helpModal=document.getElementById('helpModal');
+  function openHelp(){ helpModal.classList.add('open'); helpModal.setAttribute('aria-hidden','false'); }
+  function closeHelp(){ helpModal.classList.remove('open'); helpModal.setAttribute('aria-hidden','true'); }
+  document.getElementById('helpBtn').addEventListener('click',openHelp);
+  document.getElementById('closeHelp').addEventListener('click',closeHelp);
+  helpModal.addEventListener('click',event=>{if(event.target===helpModal) closeHelp();});
+  document.getElementById('importBtn').addEventListener('click',()=>{
+    // Clearing first also allows importing the same JSON file again.
+    fileInput.value='';
+    fileInput.click();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click',()=>{
+    const personnelFile={
+      type:'assembly-personnel-master',
+      version:1,
+      people:data.people.map(normalizePerson)
+    };
+    const blob=new Blob([JSON.stringify(personnelFile,null,2)],{type:'application/json'});
+    const anchor=document.createElement('a');
+    anchor.href=URL.createObjectURL(blob);
+    anchor.download='assembly-personnel-master.json';
+    anchor.click();
+    URL.revokeObjectURL(anchor.href);
+    toast('Personnel master exported');
+  });
+
+  document.getElementById('backupBtn').addEventListener('click',()=>{
+    const backupFile={
+      type:'assembly-org-chart',
+      version:1,
+      savedAt:new Date().toISOString(),
+      settings:data.settings,
+      topRoles:data.topRoles,
+      departments:data.departments,
+      people:data.people.map(normalizePerson)
+    };
+    const blob=new Blob([JSON.stringify(backupFile,null,2)],{type:'application/json'});
+    const anchor=document.createElement('a');
+    anchor.href=URL.createObjectURL(blob);
+    anchor.download='assembly-org-chart-backup.json';
+    anchor.click();
+    URL.revokeObjectURL(anchor.href);
+    toast('Full backup exported');
+  });
+
+  /* ---------------- CSV export ---------------- */
+
+  const CSV_PREFS_KEY = 'assembly-org-chart-csv-v1';
+  const csvModal = document.getElementById('csvModal');
+  const csvColumnsEl = document.getElementById('csvColumns');
+  const csvSummaryEl = document.getElementById('csvSummary');
+  const csvEmptyWrap = document.getElementById('csvEmptyWrap');
+  const csvIncludeEmptyEl = document.getElementById('csvIncludeEmpty');
+  const csvLocalDatesEl = document.getElementById('csvLocalDates');
+  const csvBomEl = document.getElementById('csvBom');
+  const csvTextGuardEl = document.getElementById('csvTextGuard');
+  const csvDelimiterEl = document.getElementById('csvDelimiter');
+  const csvFilenameEl = document.getElementById('csvFilename');
+
+  const DELIMITERS = {semicolon:';', comma:',', tab:'\t'};
+
+  function csvDate(value){
+    const raw = String(value || '').trim();
+    if(!raw) return '';
+    return csvLocalDatesEl.checked ? formatDate(raw) : raw;
+  }
+
+  const pv = (row, field) => row.person ? String(row.person[field] || '') : '';
+
+  const personColumns = [
+    {key:'fullName',     label:'Name (Last, First)', def:true,  get:r=>r.person?personName(r.person):''},
+    {key:'lastName',     label:'Last name',          def:false, get:r=>pv(r,'lastName')},
+    {key:'firstName',    label:'First name',         def:false, get:r=>pv(r,'firstName')},
+    {key:'congregation', label:'Congregation',       def:true,  get:r=>pv(r,'congregation')},
+    {key:'congType',     label:'Congregation type',  def:false, get:r=>pv(r,'congType')},
+    {key:'pioneer',      label:'Regular pioneer',    def:false, get:r=>pv(r,'pioneer')?'Yes':''},
+    {key:'phone',        label:'Phone',              def:true,  get:r=>pv(r,'phone')},
+    {key:'jwEmail',      label:'JW email',           def:true,  get:r=>pv(r,'jwEmail')},
+    {key:'privateEmail', label:'Private email',      def:false, get:r=>pv(r,'privateEmail')},
+    {key:'birthDate',    label:'Date of birth',      def:false, get:r=>csvDate(pv(r,'birthDate'))},
+    {key:'dataUpdated',  label:'Data updated',       def:false, get:r=>csvDate(pv(r,'dataUpdated'))},
+    {key:'notes',        label:'Notes',              def:false, get:r=>pv(r,'notes')}
+  ];
+
+  const CSV_COLUMN_SETS = {
+    assignments: [
+      {key:'section',    label:'Section',        def:true,  get:r=>r.section},
+      {key:'department', label:'Department',     def:true,  get:r=>r.department},
+      {key:'page',       label:'Sheet / page',   def:false, get:r=>r.page},
+      {key:'role',       label:'Responsibility', def:true,  get:r=>r.role},
+      ...personColumns,
+      {key:'status',     label:'Status',         def:false, get:r=>r.person?'Assigned':'Unassigned'}
+    ],
+    people: [
+      ...personColumns,
+      {key:'assignments',     label:'Assignments',        def:true,  get:r=>r.assignments.join(' | ')},
+      {key:'assignmentCount', label:'No. of assignments', def:false, get:r=>String(r.assignments.length)}
+    ]
+  };
+
+  function csvScope(){
+    const checked = csvModal.querySelector('input[name="csvScope"]:checked');
+    return checked ? checked.value : 'assignments';
+  }
+
+  function csvRows(scope, includeEmpty){
+    if(scope === 'people'){
+      return data.people.slice().sort(personSort)
+        .map(person => ({person, assignments:assignedLabels(person.id)}));
+    }
+    const rows = [];
+    data.topRoles.forEach(role => {
+      const person = personById(role.personId);
+      if(!person && !includeEmpty) return;
+      rows.push({section:'Decision and direction', department:'', page:'', role:role.label, person});
+    });
+    data.departments
+      .map((dept, index) => ({dept, index}))
+      .sort((a, b) => ((Number(a.dept.page)||1) - (Number(b.dept.page)||1)) || (a.index - b.index))
+      .forEach(({dept}) => {
+        dept.slots.forEach(slot => {
+          const person = personById(slot.personId);
+          if(!person && !includeEmpty) return;
+          rows.push({
+            section: dept.sub ? 'Sub-department' : 'Department',
+            department: dept.name,
+            page: String(Number(dept.page) || 1),
+            role: slot.label,
+            person
+          });
+        });
+      });
+    return rows;
+  }
+
+  function csvCell(value, delimiter){
+    let text = String(value ?? '').replace(/\r?\n/g, ' ').trim();
+    if(!text) return '';
+    if(csvTextGuardEl.checked && /^[=+\-@]/.test(text)) text = "'" + text;
+    if(text.includes(delimiter) || text.includes('"') || /[\r\n]/.test(text)){
+      text = '"' + text.replace(/"/g, '""') + '"';
+    }
+    return text;
+  }
+
+  function selectedCsvColumns(){
+    const scope = csvScope();
+    const chosen = new Set(
+      Array.from(csvColumnsEl.querySelectorAll('input[type="checkbox"]:checked')).map(box => box.value)
+    );
+    return CSV_COLUMN_SETS[scope].filter(column => chosen.has(column.key));
+  }
+
+  function csvPrefs(){
+    try{ return JSON.parse(localStorage.getItem(CSV_PREFS_KEY) || '{}') || {}; }
+    catch(err){ return {}; }
+  }
+
+  function saveCsvPrefs(){
+    const prefs = csvPrefs();
+    prefs.scope = csvScope();
+    prefs.columns = prefs.columns || {};
+    prefs.columns[csvScope()] = selectedCsvColumns().map(column => column.key);
+    prefs.includeEmpty = csvIncludeEmptyEl.checked;
+    prefs.localDates = csvLocalDatesEl.checked;
+    prefs.bom = csvBomEl.checked;
+    prefs.textGuard = csvTextGuardEl.checked;
+    prefs.delimiter = csvDelimiterEl.value;
+    prefs.filename = csvFilenameEl.value;
+    try{ localStorage.setItem(CSV_PREFS_KEY, JSON.stringify(prefs)); }catch(err){ /* ignore */ }
+  }
+
+  function renderCsvColumns(preselected){
+    const scope = csvScope();
+    const keep = preselected instanceof Set ? preselected : null;
+    csvColumnsEl.innerHTML = CSV_COLUMN_SETS[scope].map(column => {
+      const on = keep ? keep.has(column.key) : column.def;
+      return `<label class="csv-check">
+        <input type="checkbox" value="${esc(column.key)}" ${on?'checked':''}>
+        <span>${esc(column.label)}</span>
+      </label>`;
+    }).join('');
+    csvEmptyWrap.style.display = scope === 'people' ? 'none' : '';
+    updateCsvSummary();
+  }
+
+  function updateCsvSummary(){
+    const rows = csvRows(csvScope(), csvIncludeEmptyEl.checked).length;
+    const columns = selectedCsvColumns().length;
+    csvSummaryEl.textContent = `${rows} row${rows===1?'':'s'} · ${columns} column${columns===1?'':'s'}`;
+  }
+
+  function openCsvModal(){
+    const prefs = csvPrefs();
+    const scope = prefs.scope === 'people' ? 'people' : 'assignments';
+    const scopeInput = csvModal.querySelector(`input[name="csvScope"][value="${scope}"]`);
+    if(scopeInput) scopeInput.checked = true;
+    if(typeof prefs.includeEmpty === 'boolean') csvIncludeEmptyEl.checked = prefs.includeEmpty;
+    if(typeof prefs.localDates === 'boolean') csvLocalDatesEl.checked = prefs.localDates;
+    if(typeof prefs.bom === 'boolean') csvBomEl.checked = prefs.bom;
+    if(typeof prefs.textGuard === 'boolean') csvTextGuardEl.checked = prefs.textGuard;
+    if(prefs.delimiter && DELIMITERS[prefs.delimiter]) csvDelimiterEl.value = prefs.delimiter;
+    if(typeof prefs.filename === 'string' && prefs.filename.trim()) csvFilenameEl.value = prefs.filename;
+    const stored = prefs.columns && Array.isArray(prefs.columns[scope]) ? new Set(prefs.columns[scope]) : null;
+    renderCsvColumns(stored);
+    csvModal.classList.add('open');
+    csvModal.setAttribute('aria-hidden','false');
+  }
+
+  function closeCsvModal(){
+    csvModal.classList.remove('open');
+    csvModal.setAttribute('aria-hidden','true');
+  }
+
+  document.getElementById('csvBtn').addEventListener('click', openCsvModal);
+  document.getElementById('closeCsvModal').addEventListener('click', closeCsvModal);
+  document.getElementById('csvCancel').addEventListener('click', closeCsvModal);
+  csvModal.addEventListener('click', event => { if(event.target === csvModal) closeCsvModal(); });
+
+  csvModal.querySelectorAll('input[name="csvScope"]').forEach(input => {
+    input.addEventListener('change', () => {
+      const prefs = csvPrefs();
+      const stored = prefs.columns && Array.isArray(prefs.columns[csvScope()])
+        ? new Set(prefs.columns[csvScope()]) : null;
+      renderCsvColumns(stored);
+    });
+  });
+
+  csvColumnsEl.addEventListener('change', updateCsvSummary);
+  csvIncludeEmptyEl.addEventListener('change', updateCsvSummary);
+  document.getElementById('csvSelectAll').addEventListener('click', () => {
+    csvColumnsEl.querySelectorAll('input[type="checkbox"]').forEach(box => box.checked = true);
+    updateCsvSummary();
+  });
+  document.getElementById('csvSelectNone').addEventListener('click', () => {
+    csvColumnsEl.querySelectorAll('input[type="checkbox"]').forEach(box => box.checked = false);
+    updateCsvSummary();
+  });
+  document.getElementById('csvSelectDefault').addEventListener('click', () => renderCsvColumns(null));
+
+  document.getElementById('csvDownload').addEventListener('click', () => {
+    const columns = selectedCsvColumns();
+    if(!columns.length){
+      alert('Please tick at least one column.');
+      return;
+    }
+    const scope = csvScope();
+    const rows = csvRows(scope, csvIncludeEmptyEl.checked);
+    if(!rows.length){
+      alert('There is nothing to export yet. Add people or assignments first.');
+      return;
+    }
+    const delimiter = DELIMITERS[csvDelimiterEl.value] || ';';
+    const lines = [columns.map(column => csvCell(column.label, delimiter)).join(delimiter)];
+    rows.forEach(row => {
+      lines.push(columns.map(column => csvCell(column.get(row), delimiter)).join(delimiter));
+    });
+
+    const base = (csvFilenameEl.value.trim() || 'assembly-organization-chart').replace(/[\\/:*?"<>|]+/g,'-');
+    const stamp = new Date().toISOString().slice(0,10);
+    const text = (csvBomEl.checked ? '\ufeff' : '') + lines.join('\r\n') + '\r\n';
+    const blob = new Blob([text], {type:'text/csv;charset=utf-8;'});
+    const anchor = document.createElement('a');
+    anchor.href = URL.createObjectURL(blob);
+    anchor.download = `${base}-${scope}-${stamp}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(anchor.href);
+
+    saveCsvPrefs();
+    closeCsvModal();
+    toast(`CSV exported: ${rows.length} rows`);
+  });
+
+  function readFileAsText(file){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(String(reader.result || ''));
+      reader.onerror=()=>reject(reader.error || new Error('The file could not be read.'));
+      reader.readAsText(file,'utf-8');
+    });
+  }
+
+  function isFullConfig(parsed){
+    if(!parsed || typeof parsed!=='object') return false;
+    if(parsed.type==='assembly-org-chart') return true;
+    return !!(parsed.settings && Array.isArray(parsed.departments) && Array.isArray(parsed.topRoles));
+  }
+
+  function extractImportedPeople(parsed){
+    if(Array.isArray(parsed)) return parsed;
+    if(parsed && Array.isArray(parsed.people)) return parsed.people;
+    if(parsed && Array.isArray(parsed.persons)) return parsed.persons;
+    if(parsed && parsed.personnel && Array.isArray(parsed.personnel.people)) return parsed.personnel.people;
+    throw new Error('No people array was found in the JSON file.');
+  }
+
+  function normalizeImportedPeople(records){
+    const usedIds=new Set();
+    return records.map(record=>{
+      const source=(record && typeof record==='object') ? record : {};
+      const person=normalizePerson({
+        id:source.id || source.personId || '',
+        lastName:source.lastName ?? source.surname ?? '',
+        firstName:source.firstName ?? source.givenName ?? '',
+        congregation:source.congregation ?? source.congregationName ?? '',
+        congType:source.congType ?? source.congregationType ?? '',
+        phone:source.phone ?? source.phoneNumber ?? '',
+        jwEmail:source.jwEmail ?? source.jw_email ?? '',
+        privateEmail:source.privateEmail ?? source.private_email ?? '',
+        birthDate:source.birthDate ?? source.dateOfBirth ?? '',
+        pioneer:source.pioneer ?? source.pioneerStatus ?? '',
+        dataUpdated:source.dataUpdated ?? source.updated ?? '',
+        notes:source.notes ?? ''
+      });
+      while(!person.id || usedIds.has(person.id)) person.id=uid('person');
+      usedIds.add(person.id);
+      return person;
+    });
+  }
+
+  fileInput.addEventListener('change',()=>{
+    const file=fileInput.files && fileInput.files[0];
+    if(!file) return;
+
+    readFileAsText(file).then(rawText=>{
+      const cleanText=rawText.replace(/^\uFEFF/,'').trim();
+      if(!cleanText) throw new Error('The selected JSON file is empty.');
+      const parsed=JSON.parse(cleanText);
+
+      if(isFullConfig(parsed)){
+        data=migrate(parsed);
+        updateAll({editorToo:true});
+        toggleEditor(true);
+        const persisted=saveData();
+        const message=`Full configuration imported: ${data.people.length} people, ${data.departments.length} departments.`;
+        toast(message);
+        if(!persisted) alert(message+' The data is visible now, but this browser did not allow local autosave.');
+        return;
+      }
+
+      const importedPeople=extractImportedPeople(parsed);
+      const normalizedPeople=normalizeImportedPeople(importedPeople);
+      if(!normalizedPeople.length) throw new Error('The personnel master contains no people.');
+
+      data.people=normalizedPeople;
+      cleanBrokenAssignments(data);
+      updateAll({editorToo:true});
+      toggleEditor(true);
+
+      const personnelPanel=editorContent.querySelector('[data-details-key="personnel-master"]');
+      if(personnelPanel){
+        personnelPanel.open=true;
+        personnelPanel.scrollIntoView({block:'start',behavior:'smooth'});
+      }
+
+      const persisted=saveData();
+      const message=`Personnel master imported: ${data.people.length} people.`;
+      toast(message);
+      if(!persisted){
+        alert(message+' The data is visible now, but this browser did not allow local autosave.');
+      }
+    }).catch(err=>{
+      console.error('Personnel import failed:',err);
+      alert('Personnel import failed. '+(err && err.message ? err.message : 'Please select a valid personnel-master JSON file.'));
+    }).finally(()=>{
+      fileInput.value='';
+    });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    if(!confirm('Reset the organization chart and clear the locally stored personnel master?')) return;
+    data=clone(ORIGINAL_DATA);
+    updateAll({editorToo:true});
+    toast('Blank template restored');
+  });
+
+  function toast(message){
+    statusEl.textContent=message;
+    statusEl.classList.add('show');
+    clearTimeout(toast.timer);
+    toast.timer=setTimeout(()=>statusEl.classList.remove('show'),1800);
+  }
+
+  // The sheet width changes when the window resizes or the editor slides in/out,
+  // so the A4 comparison has to be re-run afterwards.
+  let tallSheetTimer=null;
+  window.addEventListener('resize',()=>{
+    clearTimeout(tallSheetTimer);
+    tallSheetTimer=setTimeout(flagTallSheets,150);
+  });
+  document.querySelector('.editor').addEventListener('transitionend',event=>{
+    if(event.propertyName==='transform') flagTallSheets();
+  });
+
+  renderPreview();
+  renderEditor();
+  updatePersonnelCount();
+})();
+</script>
+</body>
+</html>
