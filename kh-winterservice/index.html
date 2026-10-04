@@ -7,50 +7,34 @@
 <title>Winter Service</title>
 <style>
 :root{
-  --bg:#eef3f7; --card:#fff; --text:#172033; --muted:#687386; --line:#dfe6ee;
-  --accent:#1f5f8b; --accent2:#174b6d; --ok:#2d7a4b; --warn:#ad7218; --risk:#bd4b32;
-  --open:#b83a3a; --soft:#f6f8fb; --shadow:0 8px 24px rgba(20,35,55,.08);
+  --bg:#eef3f7;--card:#fff;--text:#172033;--muted:#687386;--line:#dfe6ee;
+  --accent:#1f5f8b;--accent2:#174b6d;--ok:#2d7a4b;--warn:#ad7218;--risk:#bd4b32;
+  --open:#b83a3a;--soft:#f6f8fb;--shadow:0 8px 24px rgba(20,35,55,.08)
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.app{max-width:760px;margin:auto;min-height:100vh;padding:18px 14px 90px}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.brand{display:flex;gap:10px;align-items:center}
-.logo{width:42px;height:42px;border-radius:14px;background:#dcecf6;display:grid;place-items:center;font-size:23px}
-h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px}
-.langs{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.lang{border:0;background:transparent;color:var(--muted);padding:5px 6px;border-radius:7px;font-size:12px}.lang.active{background:#dce8f1;color:var(--accent);font-weight:700}
-.card{background:var(--card);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--shadow);border:1px solid rgba(217,225,235,.9)}
-.hero{padding:19px}
-.heroHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;background:#edf3f7}
-.badge.ok{color:var(--ok);background:#e9f5ee}.badge.warn{color:var(--warn);background:#fff4df}.badge.risk{color:var(--risk);background:#fdece8}
-.temp{font-size:34px;font-weight:800;line-height:1}.weatherText{color:var(--muted);font-size:13px;margin-top:4px}
-.sectionTitle{font-size:13px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#4f5b6f;margin:18px 2px 8px}
-.todayBox{display:grid;gap:8px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.muted{color:var(--muted)}
-.openItem,.dayItem{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}.openItem:first-child,.dayItem:first-child{border-top:0}
-.dateBox{font-weight:800}.dateBox small{display:block;color:var(--muted);font-weight:600;margin-top:2px}
-.openTxt{font-size:13px;color:var(--open);font-weight:800}.name{font-weight:750}.helperText{font-size:12px;color:var(--muted);margin-top:3px}
-.btn{border:0;border-radius:11px;padding:9px 12px;background:var(--accent);color:#fff;font-weight:750}.btn:hover{background:var(--accent2)}.btn.ghost{background:#edf3f7;color:var(--accent)}.btn.danger{background:#fff0ee;color:var(--risk)}.btn.small{padding:7px 9px;font-size:12px}
-.week{margin-top:12px}.weekHead{font-size:12px;color:var(--muted);font-weight:800;margin:4px 0 2px}.weekend{opacity:.78}
-.footerNav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10}
-.footerInner{width:min(760px,100%);display:grid;grid-template-columns:repeat(4,1fr);padding:7px 8px calc(7px + env(safe-area-inset-bottom))}
-.navBtn{border:0;background:none;padding:7px 3px;color:var(--muted);font-size:11px}.navBtn span{display:block;font-size:19px;margin-bottom:2px}.navBtn.active{color:var(--accent);font-weight:800}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.app{max-width:780px;margin:auto;min-height:100vh;padding:16px 12px 92px}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.brand{display:flex;gap:10px;align-items:center}.logo{width:42px;height:42px;border-radius:14px;background:#dcecf6;display:grid;place-items:center;font-size:23px}
+h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px}.langs{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.lang{border:0;background:transparent;color:var(--muted);padding:5px 6px;border-radius:7px;font-size:12px}.lang.active{background:#dce8f1;color:var(--accent);font-weight:800}
+.card{background:#fff;border:1px solid rgba(217,225,235,.9);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--shadow)}
+.heroHead,.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.sectionTitle{font-size:13px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:#4f5b6f;margin:18px 2px 8px}
+.temp{font-size:34px;font-weight:800}.weatherText,.muted{color:var(--muted)}.weatherText{font-size:13px;margin-top:4px}
+.badge,.pill{display:inline-flex;align-items:center;border-radius:999px;font-size:12px;font-weight:800}.badge{padding:7px 10px}.pill{padding:5px 8px}
+.badge.ok,.pill.covered{background:#e9f5ee;color:var(--ok)}.badge.warn{background:#fff4df;color:var(--warn)}.badge.risk{background:#fdece8;color:var(--risk)}.pill.open{background:#fdeaea;color:#a73f3f}
+.btn{border:0;border-radius:11px;padding:9px 12px;background:var(--accent);color:#fff;font-weight:750}.btn.ghost{background:#edf3f7;color:var(--accent)}.btn.small{padding:7px 9px;font-size:12px}
+.openItem,.dayItem,.personItem{display:grid;grid-template-columns:78px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}.openItem:first-child,.dayItem:first-child,.personItem:first-child{border-top:0}
+.dateBox{font-weight:800}.dateBox small{display:block;color:var(--muted);font-weight:600}.openTxt{font-size:13px;color:var(--open);font-weight:800}.name{font-weight:800}.helperText{font-size:12px;color:var(--muted);margin-top:3px}.weekHead{font-size:12px;color:var(--muted);font-weight:800;margin-top:12px}
+.adminStrip{background:#f3eafa;color:#6b3a89;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:800;margin:12px 0}.adminTools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.footerNav{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:20}
+.footerInner{width:min(780px,100%);display:grid;grid-template-columns:repeat(4,1fr);padding:7px 8px calc(7px + env(safe-area-inset-bottom))}.navBtn{border:0;background:none;padding:7px 3px;color:var(--muted);font-size:11px}.navBtn span{display:block;font-size:19px}.navBtn.active{color:var(--accent);font-weight:800}
 .overlay{position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}.overlay.show{display:flex}
-.modal{background:#fff;border-radius:20px;padding:20px;width:min(440px,100%);box-shadow:0 24px 70px rgba(0,0,0,.24)}.modal h2{margin:0 0 7px}.modal p{color:var(--muted);font-size:13px}
-.field{width:100%;border:1px solid #cfd8e3;border-radius:12px;padding:11px 12px;margin:6px 0 10px;background:#fff}.modalActions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-.login{max-width:420px;margin:8vh auto}.login .card{text-align:center;padding:26px}.pin{font-size:22px;text-align:center;letter-spacing:.22em}
-.notice{font-size:12px;color:var(--muted);margin-top:10px}.error{color:var(--risk);font-size:13px;margin-top:8px}.hidden{display:none!important}
-.adminStrip{background:#f3eafa;color:#6b3a89;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:750;margin-bottom:10px}
-.pill{font-size:11px;font-weight:800;border-radius:999px;padding:5px 8px;background:#eef2f6;color:#5f6978;white-space:nowrap}.pill.open{background:#fdeaea;color:#a73f3f}.pill.covered{background:#eaf5ef;color:#2d7a4b}
-.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.empty{padding:16px 4px;color:var(--muted);text-align:center}
-@media(max-width:520px){
-  .app{padding:12px 10px 88px}.card{border-radius:15px;padding:14px}.hero{padding:16px}
-  .openItem,.dayItem{grid-template-columns:64px 1fr}.openItem>*:last-child,.dayItem>*:last-child{grid-column:2;justify-self:start}
-  .topbar{align-items:flex-start}.langs{max-width:150px}
-}
+.modal{background:#fff;border-radius:20px;padding:20px;width:min(500px,100%);max-height:90vh;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.24)}.modal h2{margin:0 0 7px}.modal p{color:var(--muted);font-size:13px}
+.field{width:100%;border:1px solid #cfd8e3;border-radius:12px;padding:11px 12px;margin:6px 0 10px;background:#fff}.modalActions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}
+.login{max-width:420px;margin:8vh auto}.login .card{text-align:center;padding:26px}.pin{font-size:22px;text-align:center;letter-spacing:.2em}.notice{font-size:12px;color:var(--muted);margin-top:10px}.error{color:var(--risk);font-size:13px;margin-top:8px}
+.switchRow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.switchRow:first-child{border-top:0}
+.empty{text-align:center;color:var(--muted);padding:16px 4px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+@media(max-width:520px){.openItem,.dayItem,.personItem{grid-template-columns:64px 1fr}.openItem>*:last-child,.dayItem>*:last-child,.personItem>*:last-child{grid-column:2;justify-self:start}.adminTools{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -59,13 +43,13 @@ h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px
   <div class="login">
     <div class="card">
       <div class="logo" style="margin:0 auto 12px">❄️</div>
-      <h1 id="loginTitle">Winterdienst</h1>
-      <div class="sub">Königreichssaal · Hirblinger Str. 99 · Augsburg</div>
+      <h1 id="loginTitle"></h1>
+      <div class="sub">Kingdom Hall · Hirblinger Str. 99 · Augsburg</div>
       <div style="height:18px"></div>
-      <input id="pinInput" class="field pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="•••••">
-      <button id="loginBtn" class="btn" style="width:100%">Öffnen</button>
+      <input id="pinInput" class="field pin" type="password" autocomplete="current-password" placeholder="•••••">
+      <button id="loginBtn" class="btn" style="width:100%"></button>
       <div id="loginError" class="error hidden"></div>
-      <div class="notice">Zugang für Helfer und Verantwortliche. Admin-Zugang funktioniert mit dem separaten Admin-Passwort.</div>
+      <div id="loginNote" class="notice"></div>
       <div class="langs" id="loginLangs" style="justify-content:center;margin-top:14px"></div>
     </div>
   </div>
@@ -73,276 +57,121 @@ h1{font-size:21px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px
 
 <div id="mainView" class="app hidden">
   <div class="topbar">
-    <div class="brand">
-      <div class="logo">❄️</div>
-      <div><h1 id="brandTitle">Winterdienst</h1><div class="sub">Hirblinger Str. 99 · Augsburg</div></div>
-    </div>
+    <div class="brand"><div class="logo">❄️</div><div><h1 id="brandTitle"></h1><div class="sub">Hirblinger Str. 99 · Augsburg</div></div></div>
     <div class="langs" id="mainLangs"></div>
   </div>
 
-  <div id="adminStrip" class="adminStrip hidden">🔐 Admin mode</div>
+  <div id="adminStrip" class="adminStrip hidden">
+    <div class="row"><span id="adminModeLabel"></span><button class="btn ghost small" id="adminPeopleBtn"></button></div>
+  </div>
 
-  <div class="card hero">
+  <div class="card">
     <div class="heroHead">
-      <div>
-        <div class="sectionTitle" style="margin:0 0 8px" id="todayLabel">Heute</div>
-        <div id="todayDate" style="font-weight:850;font-size:18px"></div>
-        <div id="weatherText" class="weatherText">Wetter wird geladen …</div>
-      </div>
-      <div style="text-align:right">
-        <div id="weatherBadge" class="badge">…</div>
-        <div id="temperature" class="temp" style="margin-top:8px">--°</div>
-      </div>
+      <div><div class="sectionTitle" style="margin:0 0 8px" id="todayLabel"></div><div id="todayDate" style="font-weight:850;font-size:18px"></div><div id="weatherText" class="weatherText"></div></div>
+      <div style="text-align:right"><div id="weatherBadge" class="badge"></div><div id="temperature" class="temp" style="margin-top:8px">--°</div></div>
     </div>
   </div>
 
-  <div class="sectionTitle" id="todayServiceTitle">Heutiger Dienst</div>
-  <div class="card todayBox" id="todayService"></div>
-
-  <div class="sectionTitle" id="openTitle">Offene Termine · nächste 4 Wochen</div>
-  <div class="card" id="openAssignments"></div>
-
-  <div class="sectionTitle" id="scheduleTitle">Plan · nächste 4 Wochen</div>
-  <div class="card" id="schedule"></div>
+  <div class="sectionTitle" id="todayServiceTitle"></div><div class="card" id="todayService"></div>
+  <div class="sectionTitle" id="openTitle"></div><div class="card" id="openAssignments"></div>
+  <div class="sectionTitle" id="scheduleTitle"></div><div class="card" id="schedule"></div>
 </div>
 
 <div class="footerNav hidden" id="footerNav">
   <div class="footerInner">
-    <button class="navBtn active" data-scroll="top"><span>🏠</span><b id="navHome">Heute</b></button>
-    <button class="navBtn" data-scroll="open"><span>⚠️</span><b id="navOpen">Offen</b></button>
-    <button class="navBtn" data-scroll="plan"><span>📅</span><b id="navPlan">Plan</b></button>
-    <button class="navBtn" id="logoutBtn"><span>↩️</span><b id="navLogout">Abmelden</b></button>
+    <button class="navBtn active" data-scroll="top"><span>🏠</span><b id="navHome"></b></button>
+    <button class="navBtn" data-scroll="open"><span>⚠️</span><b id="navOpen"></b></button>
+    <button class="navBtn" data-scroll="plan"><span>📅</span><b id="navPlan"></b></button>
+    <button class="navBtn" id="logoutBtn"><span>↩️</span><b id="navLogout"></b></button>
   </div>
 </div>
 
-<div id="personModal" class="overlay">
-  <div class="modal">
-    <h2 id="personModalTitle">Wer bist du?</h2>
-    <p id="personModalText">Wähle deinen Namen aus.</p>
-    <select id="personSelect" class="field"></select>
-    <label style="font-size:13px"><input id="rememberPerson" type="checkbox" checked> <span id="rememberText">Auf diesem Gerät merken</span></label>
-    <div class="modalActions">
-      <button class="btn ghost" data-close="personModal" id="cancelPersonBtn">Abbrechen</button>
-      <button class="btn" id="confirmPersonBtn">Bestätigen</button>
-    </div>
-  </div>
-</div>
+<div id="personModal" class="overlay"><div class="modal">
+  <h2 id="personModalTitle"></h2><p id="personModalText"></p>
+  <select id="personSelect" class="field"></select>
+  <label><input id="rememberPerson" type="checkbox" checked> <span id="rememberText"></span></label>
+  <div class="modalActions"><button class="btn ghost" data-close="personModal" id="cancelPersonBtn"></button><button class="btn" id="confirmPersonBtn"></button></div>
+</div></div>
+
+<div id="editModal" class="overlay"><div class="modal">
+  <h2 id="editTitle"></h2><p id="editDate"></p>
+  <label id="coverageLabel"></label>
+  <select id="coverageType" class="field"></select>
+  <div id="personFieldWrap"><label id="responsibleLabel"></label><select id="adminPersonSelect" class="field"></select></div>
+  <div id="groupFieldWrap" class="hidden"><label id="groupLabel"></label><input id="groupName" class="field" type="text"></div>
+  <label id="noteLabel"></label><textarea id="assignmentNote" class="field" rows="3"></textarea>
+  <div class="modalActions"><button class="btn ghost" data-close="editModal" id="editCancelBtn"></button><button class="btn" id="editSaveBtn"></button></div>
+</div></div>
+
+<div id="peopleModal" class="overlay"><div class="modal">
+  <h2 id="peopleTitle"></h2>
+  <div class="adminTools"><input id="newPersonName" class="field" type="text"><input id="newPersonCong" class="field" type="text"></div>
+  <button id="addPersonBtn" class="btn" style="width:100%"></button>
+  <div id="peopleList" style="margin-top:12px"></div>
+  <div class="modalActions"><button class="btn ghost" data-close="peopleModal" id="peopleCloseBtn"></button></div>
+</div></div>
 
 <script>
-const API_URL = "https://avuimpwjslrgpdahyloa.supabase.co/functions/v1/winter-service-api";
-const STORAGE_TOKEN = "winter_service_token_v1";
-const STORAGE_LEVEL = "winter_service_level_v1";
-const STORAGE_LANG = "winter_service_lang_v1";
-const STORAGE_PERSON = "winter_service_person_v1";
+const API_URL="https://avuimpwjslrgpdahyloa.supabase.co/functions/v1/winter-service-api";
+const K={token:"winter_service_token_v2",level:"winter_service_level_v2",lang:"winter_service_lang_v2",person:"winter_service_person_v2"};
 
-const I18N = {
-  de:{title:"Winterdienst",open:"Öffnen",today:"Heute",service:"Heutiger Dienst",open4:"Offene Termine · nächste 4 Wochen",plan4:"Plan · nächste 4 Wochen",home:"Heute",openNav:"Offen",plan:"Plan",logout:"Abmelden",weatherLoading:"Wetter wird geladen …",noWeather:"Wetterdaten derzeit nicht verfügbar",low:"Kein Einsatz erwartet",watch:"Beobachten",likely:"Winterdienst möglich",action:"Winterdienst wahrscheinlich",responsible:"Verantwortlich",needed:"VERANTWORTLICHER GESUCHT",take:"Übernehmen",helper:"Helfer",join:"Als Helfer eintragen",coveredCleaning:"Cleaning Team",coveredSunday:"Morgenversammlungen",noAction:"Kein zusätzlicher Winterdienst geplant.",who:"Wer bist du?",choose:"Wähle deinen Namen aus.",remember:"Auf diesem Gerät merken",cancel:"Abbrechen",confirm:"Bestätigen",none:"Noch niemand eingetragen.",loginFailed:"PIN oder Passwort falsch.",serverError:"Verbindung zum Server fehlgeschlagen.",admin:"Admin-Modus",myAssignment:"Du bist verantwortlich",alreadyHelper:"Du bist als Helfer eingetragen",snow:"Schnee",frost:"Frostgefahr",rain:"Niederschlag"},
-  en:{title:"Winter Service",open:"Open",today:"Today",service:"Today's service",open4:"Open assignments · next 4 weeks",plan4:"Schedule · next 4 weeks",home:"Today",openNav:"Open",plan:"Plan",logout:"Log out",weatherLoading:"Loading weather …",noWeather:"Weather currently unavailable",low:"No action expected",watch:"Watch conditions",likely:"Winter service possible",action:"Winter service likely",responsible:"Responsible",needed:"RESPONSIBLE NEEDED",take:"Take assignment",helper:"Helper",join:"Join as helper",coveredCleaning:"Cleaning Team",coveredSunday:"Morning congregations",noAction:"No additional winter service planned.",who:"Who are you?",choose:"Select your name.",remember:"Remember me on this device",cancel:"Cancel",confirm:"Confirm",none:"Nobody assigned yet.",loginFailed:"Wrong PIN or password.",serverError:"Could not connect to server.",admin:"Admin mode",myAssignment:"You are responsible",alreadyHelper:"You are registered as helper",snow:"Snow",frost:"Frost risk",rain:"Precipitation"},
-  ru:{title:"Зимняя служба",open:"Открыть",today:"Сегодня",service:"Сегодняшняя служба",open4:"Свободные даты · 4 недели",plan4:"План · 4 недели",home:"Сегодня",openNav:"Свободно",plan:"План",logout:"Выйти",weatherLoading:"Загрузка погоды …",noWeather:"Погода недоступна",low:"Работы не ожидаются",watch:"Наблюдать",likely:"Возможна зимняя служба",action:"Вероятна зимняя служба",responsible:"Ответственный",needed:"НУЖЕН ОТВЕТСТВЕННЫЙ",take:"Взять дату",helper:"Помощник",join:"Стать помощником",coveredCleaning:"Команда уборки",coveredSunday:"Утренние собрания",noAction:"Дополнительная служба не запланирована.",who:"Кто вы?",choose:"Выберите свое имя.",remember:"Запомнить на этом устройстве",cancel:"Отмена",confirm:"Подтвердить",none:"Пока никто не назначен.",loginFailed:"Неверный PIN или пароль.",serverError:"Нет соединения с сервером.",admin:"Режим администратора",myAssignment:"Вы ответственный",alreadyHelper:"Вы записаны помощником",snow:"Снег",frost:"Риск гололеда",rain:"Осадки"},
-  it:{title:"Servizio invernale",open:"Apri",today:"Oggi",service:"Servizio di oggi",open4:"Turni liberi · prossime 4 settimane",plan4:"Piano · prossime 4 settimane",home:"Oggi",openNav:"Liberi",plan:"Piano",logout:"Esci",weatherLoading:"Caricamento meteo …",noWeather:"Meteo non disponibile",low:"Nessun intervento previsto",watch:"Controllare",likely:"Possibile servizio invernale",action:"Servizio invernale probabile",responsible:"Responsabile",needed:"SERVE UN RESPONSABILE",take:"Prendi il turno",helper:"Aiutante",join:"Aggiungiti come aiutante",coveredCleaning:"Team pulizie",coveredSunday:"Adunanze del mattino",noAction:"Nessun servizio aggiuntivo previsto.",who:"Chi sei?",choose:"Seleziona il tuo nome.",remember:"Ricordami su questo dispositivo",cancel:"Annulla",confirm:"Conferma",none:"Nessuno assegnato.",loginFailed:"PIN o password errati.",serverError:"Connessione al server non riuscita.",admin:"Modalità admin",myAssignment:"Sei responsabile",alreadyHelper:"Sei registrato come aiutante",snow:"Neve",frost:"Rischio gelo",rain:"Precipitazioni"},
-  hr:{title:"Zimska služba",open:"Otvori",today:"Danas",service:"Današnja služba",open4:"Otvoreni termini · sljedeća 4 tjedna",plan4:"Plan · sljedeća 4 tjedna",home:"Danas",openNav:"Otvoreno",plan:"Plan",logout:"Odjava",weatherLoading:"Učitavanje vremena …",noWeather:"Vrijeme trenutno nije dostupno",low:"Nije potrebna intervencija",watch:"Pratiti uvjete",likely:"Moguća zimska služba",action:"Zimska služba vjerojatna",responsible:"Odgovoran",needed:"POTREBAN ODGOVORNI",take:"Preuzmi termin",helper:"Pomoćnik",join:"Pridruži se kao pomoćnik",coveredCleaning:"Tim za čišćenje",coveredSunday:"Jutarnji sastanci",noAction:"Dodatna zimska služba nije planirana.",who:"Tko si?",choose:"Odaberi svoje ime.",remember:"Zapamti me na ovom uređaju",cancel:"Odustani",confirm:"Potvrdi",none:"Još nitko nije dodijeljen.",loginFailed:"Pogrešan PIN ili lozinka.",serverError:"Nije moguće spojiti se na poslužitelj.",admin:"Admin način",myAssignment:"Ti si odgovoran",alreadyHelper:"Prijavljen si kao pomoćnik",snow:"Snijeg",frost:"Opasnost od mraza",rain:"Oborine"}
+const I={
+de:{title:"Winterdienst",open:"Öffnen",loginNote:"Zugang für Helfer und Verantwortliche. Das Admin-Passwort öffnet zusätzliche Bearbeitungsfunktionen.",today:"Heute",todayService:"Heutiger Dienst",open4:"Offene Termine · nächste 4 Wochen",plan4:"Plan · nächste 4 Wochen",home:"Heute",openNav:"Offen",plan:"Plan",logout:"Abmelden",loadingWeather:"Wetter wird geladen …",noWeather:"Wetterdaten derzeit nicht verfügbar",low:"Kein Einsatz erwartet",watch:"Beobachten",likely:"Winterdienst möglich",action:"Winterdienst wahrscheinlich",responsible:"Verantwortlich",needed:"VERANTWORTLICHER GESUCHT",take:"Übernehmen",helper:"Helfer",join:"Als Helfer eintragen",cleaning:"Cleaning Team",morning:"Morgenversammlungen",covered:"Abgedeckt",who:"Wer bist du?",choose:"Wähle deinen Namen aus.",remember:"Auf diesem Gerät merken",cancel:"Abbrechen",confirm:"Bestätigen",none:"Noch niemand eingetragen.",wrong:"PIN oder Passwort falsch.",server:"Verbindung zum Server fehlgeschlagen.",adminMode:"🔐 Admin-Modus",people:"Personen verwalten",edit:"Bearbeiten",editDay:"Tag bearbeiten",coverage:"Abdeckung",person:"Person",group:"Gruppe / Versammlung",special:"Andere Abdeckung",openAssignment:"Offener Termin",groupName:"Bezeichnung",note:"Notiz",save:"Speichern",addPerson:"Person hinzufügen",name:"Name",congregation:"Versammlung / Gruppe",active:"Aktiv",inactive:"Inaktiv",close:"Schließen",allCovered:"Alle Termine sind besetzt.",snow:"Schnee",rain:"Niederschlag",chooseCoverage:"Bitte Abdeckung wählen"},
+en:{title:"Winter Service",open:"Open",loginNote:"Access for helpers and responsible persons. The admin password unlocks editing functions.",today:"Today",todayService:"Today's service",open4:"Open assignments · next 4 weeks",plan4:"Schedule · next 4 weeks",home:"Today",openNav:"Open",plan:"Plan",logout:"Log out",loadingWeather:"Loading weather …",noWeather:"Weather currently unavailable",low:"No action expected",watch:"Watch conditions",likely:"Winter service possible",action:"Winter service likely",responsible:"Responsible",needed:"RESPONSIBLE NEEDED",take:"Take assignment",helper:"Helper",join:"Join as helper",cleaning:"Cleaning Team",morning:"Morning congregations",covered:"Covered",who:"Who are you?",choose:"Select your name.",remember:"Remember me on this device",cancel:"Cancel",confirm:"Confirm",none:"Nobody assigned yet.",wrong:"Wrong PIN or password.",server:"Could not connect to server.",adminMode:"🔐 Admin mode",people:"Manage people",edit:"Edit",editDay:"Edit day",coverage:"Coverage",person:"Person",group:"Group / congregation",special:"Other coverage",openAssignment:"Open assignment",groupName:"Label",note:"Note",save:"Save",addPerson:"Add person",name:"Name",congregation:"Congregation / group",active:"Active",inactive:"Inactive",close:"Close",allCovered:"All assignments are covered.",snow:"Snow",rain:"Precipitation",chooseCoverage:"Choose coverage"},
+ru:{title:"Зимняя служба",open:"Открыть",loginNote:"Доступ для помощников и ответственных. Пароль администратора открывает функции редактирования.",today:"Сегодня",todayService:"Сегодняшняя служба",open4:"Свободные даты · 4 недели",plan4:"План · 4 недели",home:"Сегодня",openNav:"Свободно",plan:"План",logout:"Выйти",loadingWeather:"Загрузка погоды …",noWeather:"Погода недоступна",low:"Работы не ожидаются",watch:"Наблюдать",likely:"Возможна зимняя служба",action:"Вероятна зимняя служба",responsible:"Ответственный",needed:"НУЖЕН ОТВЕТСТВЕННЫЙ",take:"Взять дату",helper:"Помощник",join:"Стать помощником",cleaning:"Команда уборки",morning:"Утренние собрания",covered:"Закрыто",who:"Кто вы?",choose:"Выберите свое имя.",remember:"Запомнить на устройстве",cancel:"Отмена",confirm:"Подтвердить",none:"Никто не назначен.",wrong:"Неверный PIN или пароль.",server:"Нет соединения с сервером.",adminMode:"🔐 Режим администратора",people:"Управление людьми",edit:"Изменить",editDay:"Изменить день",coverage:"Покрытие",person:"Человек",group:"Группа / собрание",special:"Другое покрытие",openAssignment:"Свободная дата",groupName:"Название",note:"Заметка",save:"Сохранить",addPerson:"Добавить человека",name:"Имя",congregation:"Собрание / группа",active:"Активен",inactive:"Неактивен",close:"Закрыть",allCovered:"Все даты заняты.",snow:"Снег",rain:"Осадки",chooseCoverage:"Выберите покрытие"},
+it:{title:"Servizio invernale",open:"Apri",loginNote:"Accesso per aiutanti e responsabili. La password admin abilita le funzioni di modifica.",today:"Oggi",todayService:"Servizio di oggi",open4:"Turni liberi · 4 settimane",plan4:"Piano · 4 settimane",home:"Oggi",openNav:"Liberi",plan:"Piano",logout:"Esci",loadingWeather:"Caricamento meteo …",noWeather:"Meteo non disponibile",low:"Nessun intervento previsto",watch:"Controllare",likely:"Possibile servizio invernale",action:"Servizio invernale probabile",responsible:"Responsabile",needed:"SERVE UN RESPONSABILE",take:"Prendi il turno",helper:"Aiutante",join:"Aggiungiti come aiutante",cleaning:"Team pulizie",morning:"Adunanze del mattino",covered:"Coperto",who:"Chi sei?",choose:"Seleziona il tuo nome.",remember:"Ricordami su questo dispositivo",cancel:"Annulla",confirm:"Conferma",none:"Nessuno assegnato.",wrong:"PIN o password errati.",server:"Connessione al server non riuscita.",adminMode:"🔐 Modalità admin",people:"Gestisci persone",edit:"Modifica",editDay:"Modifica giorno",coverage:"Copertura",person:"Persona",group:"Gruppo / congregazione",special:"Altra copertura",openAssignment:"Turno libero",groupName:"Etichetta",note:"Nota",save:"Salva",addPerson:"Aggiungi persona",name:"Nome",congregation:"Congregazione / gruppo",active:"Attivo",inactive:"Inattivo",close:"Chiudi",allCovered:"Tutti i turni sono coperti.",snow:"Neve",rain:"Precipitazioni",chooseCoverage:"Scegli copertura"},
+hr:{title:"Zimska služba",open:"Otvori",loginNote:"Pristup za pomagače i odgovorne osobe. Admin lozinka otvara mogućnosti uređivanja.",today:"Danas",todayService:"Današnja služba",open4:"Otvoreni termini · 4 tjedna",plan4:"Plan · 4 tjedna",home:"Danas",openNav:"Otvoreno",plan:"Plan",logout:"Odjava",loadingWeather:"Učitavanje vremena …",noWeather:"Vrijeme nije dostupno",low:"Nije potrebna intervencija",watch:"Pratiti uvjete",likely:"Moguća zimska služba",action:"Zimska služba vjerojatna",responsible:"Odgovorna osoba",needed:"POTREBNA ODGOVORNA OSOBA",take:"Preuzmi termin",helper:"Pomoćnik",join:"Pridruži se kao pomoćnik",cleaning:"Tim za čišćenje",morning:"Jutarnji sastanci",covered:"Pokriveno",who:"Tko si?",choose:"Odaberi svoje ime.",remember:"Zapamti me na ovom uređaju",cancel:"Odustani",confirm:"Potvrdi",none:"Nitko nije dodijeljen.",wrong:"Pogrešan PIN ili lozinka.",server:"Nije moguće spojiti se na poslužitelj.",adminMode:"🔐 Admin način",people:"Upravljaj osobama",edit:"Uredi",editDay:"Uredi dan",coverage:"Pokrivanje",person:"Osoba",group:"Grupa / skupština",special:"Drugo pokrivanje",openAssignment:"Otvoren termin",groupName:"Naziv",note:"Bilješka",save:"Spremi",addPerson:"Dodaj osobu",name:"Ime",congregation:"Skupština / grupa",active:"Aktivan",inactive:"Neaktivan",close:"Zatvori",allCovered:"Svi termini su pokriveni.",snow:"Snijeg",rain:"Oborine",chooseCoverage:"Odaberi pokrivanje"}
 };
 
-let state = {
-  lang: localStorage.getItem(STORAGE_LANG) || "de",
-  token: localStorage.getItem(STORAGE_TOKEN) || "",
-  accessLevel: localStorage.getItem(STORAGE_LEVEL) || "user",
-  data: null,
-  pendingAction: null,
-  weather: null
-};
+let S={lang:localStorage.getItem(K.lang)||"de",token:localStorage.getItem(K.token)||"",level:localStorage.getItem(K.level)||"user",data:null,pending:null,weather:null,editId:null};
+const $=id=>document.getElementById(id),t=k=>I[S.lang]?.[k]||I.de[k]||k,esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const locale=()=>({de:"de-DE",en:"en-GB",ru:"ru-RU",it:"it-IT",hr:"hr-HR"}[S.lang]||"de-DE");
+const todayISO=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Berlin"});
+const fmt=(iso,o={weekday:"short",day:"2-digit",month:"short"})=>new Intl.DateTimeFormat(locale(),o).format(new Date(iso+"T12:00:00"));
 
-const $ = (id)=>document.getElementById(id);
-const t = (k)=>I18N[state.lang]?.[k] || I18N.de[k] || k;
-
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function fmtDate(iso, opts={weekday:"short",day:"2-digit",month:"short"}){return new Intl.DateTimeFormat(state.lang==="hr"?"hr-HR":state.lang==="ru"?"ru-RU":state.lang==="it"?"it-IT":state.lang==="en"?"en-GB":"de-DE",opts).format(new Date(iso+"T12:00:00"))}
-function todayISO(){return new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Berlin"})}
-
-function renderLangs(){
-  const labels={de:"DE",en:"EN",ru:"RU",it:"IT",hr:"HR"};
-  const html=Object.keys(labels).map(l=>`<button class="lang ${state.lang===l?"active":""}" data-lang="${l}">${labels[l]}</button>`).join("");
-  $("loginLangs").innerHTML=html;$("mainLangs").innerHTML=html;
-  document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{state.lang=b.dataset.lang;localStorage.setItem(STORAGE_LANG,state.lang);applyTranslations();renderAll()});
+async function api(action,payload={}){const h={"Content-Type":"application/json"};if(S.token)h.Authorization="Bearer "+S.token;const r=await fetch(API_URL,{method:"POST",headers:h,body:JSON.stringify({action,...payload})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(d.error||"API"),{status:r.status,data:d});return d}
+function renderLangs(){const L={de:"DE",en:"EN",ru:"RU",it:"IT",hr:"HR"};const h=Object.keys(L).map(x=>`<button class="lang ${S.lang===x?"active":""}" data-lang="${x}">${L[x]}</button>`).join("");$("loginLangs").innerHTML=h;$("mainLangs").innerHTML=h;document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{S.lang=b.dataset.lang;localStorage.setItem(K.lang,S.lang);translate();renderAll()})}
+function translate(){
+  $("loginTitle").textContent=t("title");$("brandTitle").textContent=t("title");$("loginBtn").textContent=t("open");$("loginNote").textContent=t("loginNote");
+  $("todayLabel").textContent=t("today");$("todayServiceTitle").textContent=t("todayService");$("openTitle").textContent=t("open4");$("scheduleTitle").textContent=t("plan4");
+  $("navHome").textContent=t("home");$("navOpen").textContent=t("openNav");$("navPlan").textContent=t("plan");$("navLogout").textContent=t("logout");
+  $("adminModeLabel").textContent=t("adminMode");$("adminPeopleBtn").textContent=t("people");
+  $("personModalTitle").textContent=t("who");$("personModalText").textContent=t("choose");$("rememberText").textContent=t("remember");$("cancelPersonBtn").textContent=t("cancel");$("confirmPersonBtn").textContent=t("confirm");
+  $("editTitle").textContent=t("editDay");$("coverageLabel").textContent=t("coverage");$("responsibleLabel").textContent=t("responsible");$("groupLabel").textContent=t("groupName");$("noteLabel").textContent=t("note");$("editCancelBtn").textContent=t("cancel");$("editSaveBtn").textContent=t("save");
+  $("peopleTitle").textContent=t("people");$("newPersonName").placeholder=t("name");$("newPersonCong").placeholder=t("congregation");$("addPersonBtn").textContent=t("addPerson");$("peopleCloseBtn").textContent=t("close");
+  $("coverageType").innerHTML=`<option value="regular">${t("person")} / ${t("openAssignment")}</option><option value="cleaning_team">${t("cleaning")}</option><option value="morning_congregations">${t("morning")}</option><option value="group">${t("group")}</option><option value="special">${t("special")}</option>`;
+  renderLangs()
 }
+async function login(){try{const r=await api("login",{secret:$("pinInput").value});S.token=r.token;S.level=r.access_level;localStorage.setItem(K.token,S.token);localStorage.setItem(K.level,S.level);await enter()}catch(e){$("loginError").textContent=e.status===401?t("wrong"):t("server");$("loginError").classList.remove("hidden")}}
+async function enter(){try{S.data=await api("bootstrap",{today:todayISO(),days:28});S.level=S.data.access_level||S.level;$("loginView").classList.add("hidden");$("mainView").classList.remove("hidden");$("footerNav").classList.remove("hidden");$("adminStrip").classList.toggle("hidden",S.level!=="admin");fillPeople();renderAll();loadWeather()}catch(e){if(e.status===401)logout(false);else alert(t("server"))}}
+function logout(call=true){if(call&&S.token)api("logout").catch(()=>{});S.token="";S.data=null;localStorage.removeItem(K.token);localStorage.removeItem(K.level);$("mainView").classList.add("hidden");$("footerNav").classList.add("hidden");$("loginView").classList.remove("hidden")}
+async function refresh(){S.data=await api("bootstrap",{today:todayISO(),days:28});fillPeople();renderAll()}
+function fillPeople(){const p=S.data?.people||[];$("personSelect").innerHTML=p.filter(x=>x.active!==false).map(x=>`<option value="${x.id}">${esc(x.name)}${x.congregation?" · "+esc(x.congregation):""}</option>`).join("");$("adminPersonSelect").innerHTML=`<option value="">— ${t("openAssignment")} —</option>`+p.filter(x=>x.active!==false).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");const r=localStorage.getItem(K.person);if(r)$("personSelect").value=r}
+function aByDate(d){return(S.data?.assignments||[]).find(a=>a.service_date===d)}
+function coverageText(a){if(a.coverage_type==="cleaning_team")return a.coverage_label||t("cleaning");if(a.coverage_type==="morning_congregations")return a.coverage_label||t("morning");if(a.coverage_type==="group"||a.coverage_type==="special")return a.coverage_label||t("covered");return a.responsible?.name||""}
+function renderAll(){if(!S.data)return;$("todayDate").textContent=fmt(todayISO(),{weekday:"long",day:"2-digit",month:"long"});renderToday();renderOpen();renderSchedule();renderWeather();if(S.level==="admin")renderPeople()}
+function editBtn(a){return S.level==="admin"?`<button class="btn ghost small" onclick="openEdit(${a.id})">✏️ ${t("edit")}</button>`:""}
+function renderToday(){const a=aByDate(todayISO());if(!a){$("todayService").innerHTML=`<div class="empty">${t("none")}</div>`;return}let h="";if(a.coverage_type!=="regular"){h=`<div class="row"><div><div class="name">${esc(coverageText(a))}</div><div class="helperText">${a.note?esc(a.note):t("covered")}</div></div><span class="pill covered">${t("covered")}</span></div><div class="actions">${editBtn(a)}</div>`}else{h=`<div class="row"><div><div class="muted" style="font-size:12px">${t("responsible")}</div><div class="name">${a.responsible?esc(a.responsible.name):t("none")}</div></div><span class="pill ${a.responsible?"covered":"open"}">${a.responsible?t("covered"):t("openNav")}</span></div>`;if(!a.responsible)h+=`<div class="actions"><button class="btn" onclick="startPerson('take',${a.id})">🙋 ${t("take")}</button>${editBtn(a)}</div>`;else h+=`<div class="actions">${editBtn(a)}</div>`;h+=`<div style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><div class="muted" style="font-size:12px">${t("helper")}</div><div class="helperText">${a.helpers?.length?a.helpers.map(x=>esc(x.name)).join(" · "):t("none")}</div><div class="actions"><button class="btn ghost small" onclick="startPerson('helper',${a.id})">+ ${t("join")}</button></div></div>`}$("todayService").innerHTML=h}
+function renderOpen(){const o=(S.data.assignments||[]).filter(a=>a.coverage_type==="regular"&&!a.responsible);$("openAssignments").innerHTML=o.length?o.map(a=>`<div class="openItem"><div class="dateBox">${fmt(a.service_date,{weekday:"short"})}<small>${fmt(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div><div class="openTxt">${t("needed")}</div><div class="actions"><button class="btn small" onclick="startPerson('take',${a.id})">${t("take")}</button>${editBtn(a)}</div></div>`).join(""):`<div class="empty">✅ ${t("allCovered")}</div>`}
+function renderSchedule(){let wk="",h="";for(const a of S.data.assignments||[]){const d=new Date(a.service_date+"T12:00:00");const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));const k=m.toISOString().slice(0,10);if(k!==wk){wk=k;h+=`<div class="weekHead">${fmt(k,{day:"2-digit",month:"long"})}</div>`}let c="",r="";if(a.coverage_type==="regular"){c=a.responsible?`<div class="name">${esc(a.responsible.name)}</div><div class="helperText">${a.helpers?.length?"🤝 "+a.helpers.map(x=>esc(x.name)).join(", "):""}</div>`:`<div class="openTxt">${t("needed")}</div>`;r=a.responsible?`<div class="actions"><button class="btn ghost small" onclick="startPerson('helper',${a.id})">+ ${t("helper")}</button>${editBtn(a)}</div>`:`<div class="actions"><button class="btn small" onclick="startPerson('take',${a.id})">${t("take")}</button>${editBtn(a)}</div>`}else{c=`<div class="name">${esc(coverageText(a))}</div>${a.note?`<div class="helperText">${esc(a.note)}</div>`:""}`;r=`<div class="actions"><span class="pill covered">${t("covered")}</span>${editBtn(a)}</div>`}h+=`<div class="dayItem"><div class="dateBox">${fmt(a.service_date,{weekday:"short"})}<small>${fmt(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div><div>${c}</div><div>${r}</div></div>`}$("schedule").innerHTML=h}
+function startPerson(type,id){S.pending={type,id};const r=localStorage.getItem(K.person);if(r)return performPerson(Number(r));$("personModal").classList.add("show")}
+async function performPerson(personId){try{if(S.pending.type==="take")await api("take_responsibility",{assignment_id:S.pending.id,person_id:personId});else await api("join_helper",{assignment_id:S.pending.id,person_id:personId});if($("rememberPerson").checked)localStorage.setItem(K.person,String(personId));$("personModal").classList.remove("show");await refresh()}catch(e){alert(e.data?.error||t("server"))}}
+function openEdit(id){const a=(S.data.assignments||[]).find(x=>x.id===id);if(!a)return;S.editId=id;$("editDate").textContent=fmt(a.service_date,{weekday:"long",day:"2-digit",month:"long",year:"numeric"});$("coverageType").value=a.coverage_type;$("adminPersonSelect").value=a.responsible_person_id||"";$("groupName").value=a.coverage_label||"";$("assignmentNote").value=a.note||"";syncCoverageFields();$("editModal").classList.add("show")}
+function syncCoverageFields(){const v=$("coverageType").value;$("personFieldWrap").classList.toggle("hidden",v!=="regular");$("groupFieldWrap").classList.toggle("hidden",!["group","special","cleaning_team","morning_congregations"].includes(v));if(v==="cleaning_team"&&!$("groupName").value)$("groupName").value=t("cleaning");if(v==="morning_congregations"&&!$("groupName").value)$("groupName").value=t("morning")}
+async function saveEdit(){try{await api("admin_update_assignment",{assignment_id:S.editId,coverage_type:$("coverageType").value,person_id:$("adminPersonSelect").value||null,coverage_label:$("groupName").value||null,note:$("assignmentNote").value||null});$("editModal").classList.remove("show");await refresh()}catch(e){alert(e.data?.error||t("server"))}}
+function renderPeople(){const p=S.data?.people||[];$("peopleList").innerHTML=p.map(x=>`<div class="personItem"><div></div><div><div class="name">${esc(x.name)}</div><div class="helperText">${esc(x.congregation||"")}</div></div><button class="btn ghost small" onclick="togglePerson(${x.id},${x.active!==false})">${x.active!==false?t("active"):t("inactive")}</button></div>`).join("")||`<div class="empty">${t("none")}</div>`}
+async function togglePerson(id,active){await api("admin_set_person_active",{person_id:id,active:!active});await refresh()}
+async function addPerson(){const n=$("newPersonName").value.trim();if(!n)return;await api("admin_save_person",{name:n,congregation:$("newPersonCong").value.trim(),active:true});$("newPersonName").value="";$("newPersonCong").value="";await refresh()}
+function risk(d){const min=d?.temperature_2m_min?.[0],snow=d?.snowfall_sum?.[0]||0,pr=d?.precipitation_sum?.[0]||0;if(snow>=2||(min<=-1&&pr>1))return["risk","action"];if(snow>0||min<=0)return["warn","likely"];if(min<=2)return["warn","watch"];return["ok","low"]}
+async function loadWeather(){try{const lat=48.3896,lon=10.8588;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,snowfall_sum&timezone=Europe%2FBerlin&forecast_days=2`);S.weather=await r.json();renderWeather()}catch(e){S.weather=null;renderWeather()}}
+function renderWeather(){if(!S.weather){$("weatherText").textContent=t("loadingWeather");return}const c=S.weather.current||{},d=S.weather.daily||{},q=risk(d);$("temperature").textContent=Math.round(c.temperature_2m??0)+"°";$("weatherBadge").className="badge "+q[0];$("weatherBadge").textContent=(q[0]==="ok"?"🟢 ":q[0]==="warn"?"🟡 ":"🔴 ")+t(q[1]);const a=[];if((d.snowfall_sum?.[0]||0)>0)a.push(`${t("snow")}: ${d.snowfall_sum[0]} cm`);if(d.temperature_2m_min?.[0]!=null)a.push(`Min ${Math.round(d.temperature_2m_min[0])}°`);if((d.precipitation_sum?.[0]||0)>0)a.push(`${t("rain")}: ${d.precipitation_sum[0]} mm`);$("weatherText").textContent=a.join(" · ")||t("low")}
 
-function applyTranslations(){
-  document.documentElement.lang=state.lang;
-  $("loginTitle").textContent=t("title"); $("brandTitle").textContent=t("title"); $("loginBtn").textContent=t("open");
-  $("todayLabel").textContent=t("today"); $("todayServiceTitle").textContent=t("service"); $("openTitle").textContent=t("open4"); $("scheduleTitle").textContent=t("plan4");
-  $("navHome").textContent=t("home"); $("navOpen").textContent=t("openNav"); $("navPlan").textContent=t("plan"); $("navLogout").textContent=t("logout");
-  $("personModalTitle").textContent=t("who"); $("personModalText").textContent=t("choose"); $("rememberText").textContent=t("remember"); $("cancelPersonBtn").textContent=t("cancel"); $("confirmPersonBtn").textContent=t("confirm");
-  $("adminStrip").textContent="🔐 "+t("admin"); renderLangs();
-}
-
-async function api(action,payload={}){
-  const headers={"Content-Type":"application/json"};
-  if(state.token) headers.Authorization="Bearer "+state.token;
-  const r=await fetch(API_URL,{method:"POST",headers,body:JSON.stringify({action,...payload})});
-  const data=await r.json().catch(()=>({}));
-  if(!r.ok) throw Object.assign(new Error(data.error||"API error"),{status:r.status,data});
-  return data;
-}
-
-async function login(){
-  $("loginError").classList.add("hidden");
-  try{
-    const res=await api("login",{secret:$("pinInput").value});
-    state.token=res.token; state.accessLevel=res.access_level;
-    localStorage.setItem(STORAGE_TOKEN,state.token); localStorage.setItem(STORAGE_LEVEL,state.accessLevel);
-    await enterApp();
-  }catch(e){
-    $("loginError").textContent=e.status===401?t("loginFailed"):t("serverError");
-    $("loginError").classList.remove("hidden");
-  }
-}
-
-async function enterApp(){
-  try{
-    const data=await api("bootstrap",{today:todayISO(),days:28});
-    state.data=data; state.accessLevel=data.access_level || state.accessLevel;
-    $("loginView").classList.add("hidden"); $("mainView").classList.remove("hidden"); $("footerNav").classList.remove("hidden");
-    $("adminStrip").classList.toggle("hidden",state.accessLevel!=="admin");
-    fillPeople(); renderAll(); loadWeather();
-  }catch(e){
-    if(e.status===401){logout(false)} else alert(t("serverError"));
-  }
-}
-
-function logout(callApi=true){
-  if(callApi && state.token) api("logout").catch(()=>{});
-  state.token=""; state.data=null;
-  localStorage.removeItem(STORAGE_TOKEN);localStorage.removeItem(STORAGE_LEVEL);
-  $("mainView").classList.add("hidden");$("footerNav").classList.add("hidden");$("loginView").classList.remove("hidden");
-}
-
-function fillPeople(){
-  const people=state.data?.people||[];
-  $("personSelect").innerHTML=people.length?people.map(p=>`<option value="${p.id}">${esc(p.name)}${p.congregation?" · "+esc(p.congregation):""}</option>`).join(""):`<option value="">${t("none")}</option>`;
-  const remembered=localStorage.getItem(STORAGE_PERSON); if(remembered) $("personSelect").value=remembered;
-}
-
-function assignmentByDate(date){return (state.data?.assignments||[]).find(a=>a.service_date===date)}
-function weekdayNum(iso){return new Date(iso+"T12:00:00").getDay()}
-
-function renderAll(){
-  if(!state.data) return;
-  $("todayDate").textContent=fmtDate(todayISO(),{weekday:"long",day:"2-digit",month:"long"});
-  renderToday(); renderOpen(); renderSchedule(); renderWeather(); fillPeople();
-}
-
-function renderToday(){
-  const a=assignmentByDate(todayISO());
-  if(!a){$("todayService").innerHTML=`<div class="empty">${t("none")}</div>`;return}
-  if(a.coverage_type==="cleaning_team"){
-    $("todayService").innerHTML=`<div class="row"><div><div class="name">🧹 ${t("coveredCleaning")}</div><div class="helperText">${t("noAction")}</div></div><span class="pill covered">COVERED</span></div>`;
-    return;
-  }
-  if(a.coverage_type==="morning_congregations"){
-    $("todayService").innerHTML=`<div class="row"><div><div class="name">🏛 ${t("coveredSunday")}</div><div class="helperText">${t("noAction")}</div></div><span class="pill covered">COVERED</span></div>`;
-    return;
-  }
-  let h=`<div class="row"><div><div class="muted" style="font-size:12px">${t("responsible")}</div><div class="name">${a.responsible?esc(a.responsible.name):t("none")}</div></div><span class="pill ${a.responsible?"covered":"open"}">${a.responsible?"ASSIGNED":"OPEN"}</span></div>`;
-  if(!a.responsible) h+=`<div class="actions"><button class="btn" onclick="startPersonAction('take',${a.id})">🙋 ${t("take")}</button></div>`;
-  h+=`<div style="border-top:1px solid var(--line);padding-top:10px"><div class="muted" style="font-size:12px">${t("helper")}</div><div class="helperText">${a.helpers?.length?a.helpers.map(x=>esc(x.name)).join(" · "):t("none")}</div><div class="actions"><button class="btn ghost small" onclick="startPersonAction('helper',${a.id})">+ ${t("join")}</button></div></div>`;
-  $("todayService").innerHTML=h;
-}
-
-function renderOpen(){
-  const open=(state.data.assignments||[]).filter(a=>a.coverage_type==="regular"&&!a.responsible);
-  if(!open.length){$("openAssignments").innerHTML=`<div class="empty">✅ ${state.lang==="de"?"Alle Termine sind besetzt.":"All assignments are covered."}</div>`;return}
-  $("openAssignments").innerHTML=open.map(a=>`<div class="openItem">
-    <div class="dateBox">${fmtDate(a.service_date,{weekday:"short"})}<small>${fmtDate(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div>
-    <div><div class="openTxt">${t("needed")}</div></div>
-    <button class="btn small" onclick="startPersonAction('take',${a.id})">${t("take")}</button>
-  </div>`).join("");
-}
-
-function renderSchedule(){
-  const items=state.data.assignments||[];
-  let currentWeek="",html="";
-  for(const a of items){
-    const d=new Date(a.service_date+"T12:00:00");
-    const monday=new Date(d); const shift=(d.getDay()+6)%7; monday.setDate(d.getDate()-shift);
-    const key=monday.toISOString().slice(0,10);
-    if(key!==currentWeek){currentWeek=key;html+=`<div class="weekHead">WEEK · ${fmtDate(key,{day:"2-digit",month:"short"})}</div>`}
-    let center="",right="";
-    if(a.coverage_type==="cleaning_team"){center=`<div class="name">🧹 ${t("coveredCleaning")}</div>`;right=`<span class="pill covered">COVERED</span>`}
-    else if(a.coverage_type==="morning_congregations"){center=`<div class="name">🏛 ${t("coveredSunday")}</div>`;right=`<span class="pill covered">COVERED</span>`}
-    else if(a.responsible){center=`<div class="name">${esc(a.responsible.name)}</div><div class="helperText">${a.helpers?.length?"🤝 "+a.helpers.map(x=>esc(x.name)).join(", "):""}</div>`;right=`<button class="btn ghost small" onclick="startPersonAction('helper',${a.id})">+ ${t("helper")}</button>`}
-    else {center=`<div class="openTxt">${t("needed")}</div>`;right=`<button class="btn small" onclick="startPersonAction('take',${a.id})">${t("take")}</button>`}
-    html+=`<div class="dayItem ${a.coverage_type!=="regular"?"weekend":""}">
-      <div class="dateBox">${fmtDate(a.service_date,{weekday:"short"})}<small>${fmtDate(a.service_date,{day:"2-digit",month:"2-digit"})}</small></div>
-      <div>${center}</div><div>${right}</div></div>`;
-  }
-  $("schedule").innerHTML=html||`<div class="empty">${t("none")}</div>`;
-}
-
-function startPersonAction(type,assignmentId){
-  state.pendingAction={type,assignmentId};
-  const remembered=localStorage.getItem(STORAGE_PERSON);
-  if(remembered){performPersonAction(Number(remembered));return}
-  $("personModal").classList.add("show");
-}
-
-async function performPersonAction(personId){
-  try{
-    if(state.pendingAction.type==="take") await api("take_responsibility",{assignment_id:state.pendingAction.assignmentId,person_id:personId});
-    else await api("join_helper",{assignment_id:state.pendingAction.assignmentId,person_id:personId});
-    if($("rememberPerson").checked) localStorage.setItem(STORAGE_PERSON,String(personId));
-    $("personModal").classList.remove("show");
-    await refresh();
-  }catch(e){alert(e.data?.error||t("serverError"))}
-}
-
-async function refresh(){
-  const d=await api("bootstrap",{today:todayISO(),days:28});state.data=d;fillPeople();renderAll();
-}
-
-function weatherRisk(current,daily){
-  const min=daily?.temperature_2m_min?.[0];
-  const snow=daily?.snowfall_sum?.[0]||0;
-  const precip=daily?.precipitation_sum?.[0]||0;
-  if(snow>=2 || (min<=-1 && precip>1)) return {cls:"risk",key:"action"};
-  if(snow>0 || min<=0) return {cls:"warn",key:"likely"};
-  if(min<=2) return {cls:"warn",key:"watch"};
-  return {cls:"ok",key:"low"};
-}
-
-async function loadWeather(){
-  try{
-    // Augsburg/Hirblinger Straße area. Can be fine-tuned later if desired.
-    const lat=48.3896, lon=10.8588;
-    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,rain,snowfall&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,snowfall_sum&timezone=Europe%2FBerlin&forecast_days=2`;
-    const r=await fetch(url); state.weather=await r.json(); renderWeather();
-  }catch(e){state.weather=null;renderWeather()}
-}
-
-function renderWeather(){
-  if(!state.weather){$("weatherText").textContent=t("weatherLoading");return}
-  const c=state.weather.current||{}, d=state.weather.daily||{}, risk=weatherRisk(c,d);
-  $("temperature").textContent=Math.round(c.temperature_2m??0)+"°";
-  $("weatherBadge").className="badge "+risk.cls;$("weatherBadge").textContent=(risk.cls==="ok"?"🟢 ":risk.cls==="warn"?"🟡 ":"🔴 ")+t(risk.key);
-  const parts=[];
-  if((d.snowfall_sum?.[0]||0)>0) parts.push(`${t("snow")}: ${d.snowfall_sum[0]} cm`);
-  if(d.temperature_2m_min?.[0]!=null) parts.push(`Min ${Math.round(d.temperature_2m_min[0])}°`);
-  if((d.precipitation_sum?.[0]||0)>0) parts.push(`${t("rain")}: ${d.precipitation_sum[0]} mm`);
-  $("weatherText").textContent=parts.join(" · ")||t("low");
-}
-
-$("loginBtn").onclick=login;
-$("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
-$("logoutBtn").onclick=()=>logout(true);
-$("confirmPersonBtn").onclick=()=>{const id=Number($("personSelect").value);if(id)performPersonAction(id)};
+$("loginBtn").onclick=login;$("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")login()});$("logoutBtn").onclick=()=>logout(true);
+$("confirmPersonBtn").onclick=()=>{const id=Number($("personSelect").value);if(id)performPerson(id)};$("coverageType").onchange=syncCoverageFields;$("editSaveBtn").onclick=saveEdit;
+$("adminPeopleBtn").onclick=()=>{$("peopleModal").classList.add("show");renderPeople()};$("addPersonBtn").onclick=addPerson;
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("show"));
-document.querySelectorAll(".navBtn[data-scroll]").forEach(b=>b.onclick=()=>{
-  const key=b.dataset.scroll; if(key==="top")scrollTo({top:0,behavior:"smooth"});
-  if(key==="open")$("openTitle").scrollIntoView({behavior:"smooth",block:"start"});
-  if(key==="plan")$("scheduleTitle").scrollIntoView({behavior:"smooth",block:"start"});
-});
-
-applyTranslations();
-if(state.token) enterApp(); else renderLangs();
+document.querySelectorAll(".navBtn[data-scroll]").forEach(b=>b.onclick=()=>{const x=b.dataset.scroll;if(x==="top")scrollTo({top:0,behavior:"smooth"});if(x==="open")$("openTitle").scrollIntoView({behavior:"smooth"});if(x==="plan")$("scheduleTitle").scrollIntoView({behavior:"smooth"})});
+translate();if(S.token)enter();else renderLangs();
 </script>
 </body>
 </html>
