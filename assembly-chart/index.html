@@ -17,10 +17,9 @@
 <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/assembly-chart/">
 <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/assembly-chart/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assembly Organization Chart v1.7.0</title>
+<title>Assembly Organization Chart</title>
 <style>
   :root{
     /* Assembly palette — evergreen + warm brass (distinct from the RC navy/teal) */
@@ -368,6 +367,8 @@
   }
   .status.show{opacity:1;transform:translate(-50%,0)}
   .hidden-file{display:none}
+  .btn.icon-btn#undoBtn{font-size:15px;line-height:1}
+  .btn#undoBtn:disabled{opacity:.4;cursor:default;pointer-events:none}
   .modal-backdrop{
     position:fixed;inset:0;z-index:120;display:none;place-items:center;
     padding:20px;background:rgba(20,34,29,.44);backdrop-filter:blur(3px)
@@ -604,6 +605,7 @@
   </div>
   <div class="toolbar">
     <button class="personnel-count" id="personnelCount" type="button" title="Open the personnel master / contacts">Personnel: 0</button>
+    <button class="btn icon-btn" id="undoBtn" type="button" title="Undo last change (Ctrl+Z)" aria-label="Undo last change" disabled>&#8630;</button>
     <button class="btn" id="toggleEditor">Edit data</button>
     <button class="btn" id="importBtn">Import</button>
     <button class="btn" id="exportBtn">Export personnel</button>
@@ -834,6 +836,8 @@
       <p><strong>Dates of birth</strong> accept a full date (e.g. 04.05.2001) or just a year (2001) &mdash; type it however you like.</p>
 
       <p><strong>Reordering:</strong> every assignment and every top-block responsibility has ↑/↓ buttons, so a newly added overseer can be moved above the assistants. Departments reorder the same way.</p>
+
+      <p><strong>Undo:</strong> the <span class="tag">&#8630;</span> button at the top (or <strong>Ctrl+Z</strong> / <strong>Cmd+Z</strong> outside a text field) reverses your last change &mdash; an edit, a reorder, a removal, even an import or reset. It steps back through the last several dozen changes. Note: undo history is not saved once you close the page.</p>
 
       <p><strong>Bold overseers</strong> in <em>Edit data &rarr; Document settings</em> toggles bold weight for overseer, crew captain and coordinator rows &mdash; assistants always stay regular. The choice is saved with your backup.</p>
 
@@ -1214,7 +1218,7 @@
     }));
   }
 
-  function saveData(){
+  function saveDataRaw(){
     try{
       localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
       return true;
@@ -1222,6 +1226,66 @@
       console.warn('Local autosave is unavailable:',err);
       return false;
     }
+  }
+
+  /* ---------------- Undo history ----------------
+     Every state change funnels through saveData(), so recording the
+     previous state here gives one reliable undo stack for the whole app
+     (edits, structural changes, modal actions, import, reset).
+     Consecutive edits to the same field coalesce into a single step via
+     __undoHint, so typing a name is one undo, not one-per-keystroke.     */
+  const UNDO_LIMIT=40;
+  const undoStack=[];
+  let lastSnapshot=JSON.stringify(data);   // state as of the last save
+  let undoInProgress=false;                 // don't record while undoing
+  let lastHint=null, lastHintTime=0;
+  const COALESCE_MS=900;
+  // set by callers right before saveData() to name the coalesce key
+  // (null = always a distinct undo step).
+  globalThis.__undoHint=null;
+
+  function updateUndoButton(){
+    const btn=document.getElementById('undoBtn');
+    if(!btn) return;
+    btn.disabled=undoStack.length===0;
+    btn.title=undoStack.length ? `Undo last change (${undoStack.length} step${undoStack.length===1?'':'s'}) · Ctrl+Z` : 'Nothing to undo';
+  }
+
+  function saveData(){
+    if(!undoInProgress){
+      const hint=globalThis.__undoHint;
+      const now=Date.now();
+      const coalesce = hint!==null && hint===lastHint && (now-lastHintTime)<COALESCE_MS;
+      if(!coalesce && lastSnapshot!==undefined){
+        undoStack.push(lastSnapshot);
+        if(undoStack.length>UNDO_LIMIT) undoStack.shift();
+      }
+      lastHint=hint; lastHintTime=now;
+      updateUndoButton();
+    }
+    lastSnapshot=JSON.stringify(data);
+    globalThis.__undoHint=null;
+    return saveDataRaw();
+  }
+
+  function performUndo(){
+    if(!undoStack.length) return;
+    const snapshot=undoStack.pop();
+    undoInProgress=true;
+    try{
+      data=migrate(JSON.parse(snapshot));
+      lastSnapshot=JSON.stringify(data);
+      saveDataRaw();
+      renderPreview();
+      renderEditor();
+      updatePersonnelCount();
+      if(typeof peopleIsOpen==='function' && peopleIsOpen()) renderPeopleTable();
+    }finally{
+      undoInProgress=false;
+      lastHint=null;
+    }
+    updateUndoButton();
+    toast('Undone');
   }
 
   function updatePersonnelCount(){
@@ -1782,6 +1846,7 @@
         ? Number(event.target.value)
         : event.target.value;
     setByPath(data,path,value);
+    globalThis.__undoHint='field:'+path;
     saveData();
     renderPreview();
     if(path.startsWith('people.')) refreshPersonOptionLabels();
@@ -1859,6 +1924,7 @@
       const normalized=normalizeDateInput(event.target.value);
       event.target.value=normalized;
       setByPath(data,path,normalized);
+      globalThis.__undoHint='date:'+path;
       saveData();
       renderPreview();
       return;
@@ -2236,6 +2302,19 @@
     editorContent.querySelectorAll('details').forEach(d => d.open = false);
   });
   document.getElementById('printBtn').addEventListener('click',()=>window.print());
+  document.getElementById('undoBtn').addEventListener('click',performUndo);
+  document.addEventListener('keydown',event=>{
+    const key=event.key.toLowerCase();
+    if((event.ctrlKey||event.metaKey) && key==='z' && !event.shiftKey && !event.altKey){
+      const tag=(event.target && event.target.tagName) || '';
+      const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (event.target && event.target.isContentEditable);
+      // While typing in a field, let the browser's native text undo work;
+      // our document-level undo kicks in everywhere else.
+      if(typing) return;
+      event.preventDefault();
+      performUndo();
+    }
+  });
 
   personnelCountEl.addEventListener('click',openPeopleModal);
   document.getElementById('openPeopleFromEditor').addEventListener('click',openPeopleModal);
@@ -2637,6 +2716,7 @@
   renderPreview();
   renderEditor();
   updatePersonnelCount();
+  updateUndoButton();
 })();
 </script>
 </body>
