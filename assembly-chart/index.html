@@ -17,9 +17,10 @@
 <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/assembly-chart/">
 <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/assembly-chart/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assembly Organization Chart</title>
+<title>Assembly Organization Chart v1.7.0</title>
 <style>
   :root{
     /* Assembly palette — evergreen + warm brass (distinct from the RC navy/teal) */
@@ -384,6 +385,42 @@
   .modal-head h3{margin:0;font-size:18px;color:var(--brand-deep)}
   .modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
   .modal-body{padding:15px 16px}
+  .modal.wide{width:min(980px,100%);max-height:min(88vh,860px)}
+  .people-toolbar{
+    display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:12px
+  }
+  .people-toolbar .people-search{flex:1 1 230px;min-width:0}
+  .people-toolbar .people-search input{
+    width:100%;border:1px solid #d3ddd7;border-radius:9px;padding:8px 11px;font-size:13px;color:var(--ink);background:#fff
+  }
+  .people-toolbar .spacer{flex:1 1 auto}
+  .people-count-note{color:var(--muted);font-size:12px;margin:0 0 10px}
+  .people-table-wrap{border:1px solid #e2e9e5;border-radius:12px;overflow:hidden}
+  table.people-table{width:100%;border-collapse:collapse;font-size:13px}
+  table.people-table thead th{
+    text-align:left;background:#f3f7f5;color:var(--brand-deep);font-size:11px;letter-spacing:.05em;
+    text-transform:uppercase;font-weight:700;padding:9px 12px;border-bottom:1px solid #e2e9e5;white-space:nowrap
+  }
+  table.people-table thead th.num{text-align:center}
+  table.people-table tbody td{padding:9px 12px;border-bottom:1px solid #eef3f0;vertical-align:middle}
+  table.people-table tbody tr{cursor:pointer;transition:background .12s ease}
+  table.people-table tbody tr:hover{background:#f2f8f5}
+  table.people-table tbody tr:last-child td{border-bottom:none}
+  .pt-name{font-weight:650;color:var(--ink)}
+  .pt-sub{color:var(--muted);font-size:11.5px;margin-top:1px}
+  .pt-muted{color:#9bb0a7}
+  .pt-roles{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 7px;border-radius:999px;
+    background:#eaf3ee;color:var(--brand-deep);font-weight:700;font-size:12px}
+  .pt-roles.zero{background:#f1f1ee;color:#a2a79f}
+  .pt-actions{text-align:right;white-space:nowrap}
+  .people-empty{padding:34px 16px;text-align:center;color:var(--muted);font-size:13px}
+  .people-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:14px;
+    padding-top:12px;border-top:1px solid var(--line)}
+  .people-foot .left{display:flex;gap:7px;flex-wrap:wrap}
+  .people-foot .helper{color:var(--muted);font-size:11.5px;margin:0;flex:1 1 180px;text-align:right}
+  @media(max-width:640px){
+    table.people-table .hide-sm{display:none}
+  }
   .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .detail{
     min-width:0;padding:9px 11px;border:1px solid #e2e9e5;border-radius:10px;background:#fafbfa
@@ -561,7 +598,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Assembly Organization Chart <span class="ver">v1.6.3</span></h1>
+      <h1>Assembly Organization Chart <span class="ver">v1.7.0</span></h1>
       <p>Circuit assembly · separate personnel master JSON · local autosave</p>
     </div>
   </div>
@@ -593,6 +630,7 @@
           <button class="btn icon-btn" id="closeEditor" aria-label="Close editor">×</button>
         </div>
         <div class="editor-toolbar">
+          <button class="btn small primary" id="openPeopleFromEditor" type="button" title="Open the personnel master">Personnel master…</button>
           <button class="btn small" id="expandAllBtn" type="button" title="Expand every section">Expand all</button>
           <button class="btn small" id="collapseAllBtn" type="button" title="Collapse every section">Collapse all</button>
         </div>
@@ -616,6 +654,34 @@
       <button class="btn icon-btn" id="closeDetails" aria-label="Close details">×</button>
     </div>
     <div class="modal-body" id="detailsBody"></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="peopleModal" aria-hidden="true">
+  <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="peopleTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="peopleTitle">Personnel master</h3>
+        <p>Everyone lives here once. Add a person, then assign them in any department &mdash; their details follow automatically.</p>
+      </div>
+      <button class="btn icon-btn" id="closePeopleModal" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="people-toolbar">
+        <span class="people-search"><input type="search" id="peopleSearch" placeholder="Search name, congregation or JW email…" autocomplete="off"></span>
+        <span class="spacer"></span>
+        <button class="btn small primary" id="peopleAddBtn" type="button">+ Person</button>
+      </div>
+      <p class="people-count-note" id="peopleCountNote"></p>
+      <div class="people-table-wrap" id="peopleTableWrap"></div>
+      <div class="people-foot">
+        <div class="left">
+          <button class="btn small" id="peopleImportBtn" type="button" title="Replace the roster from a personnel-master JSON file">Import roster…</button>
+          <button class="btn small" id="peopleExportBtn" type="button" title="Save the roster (people only) to a JSON file">Export roster</button>
+        </div>
+        <p class="helper">Stored only in this browser. Use &ldquo;Export backup&rdquo; in the toolbar to save assignments and settings too.</p>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -748,8 +814,10 @@
 
       <h4>Personnel master (contacts)</h4>
       <ul>
-        <li>Click <span class="tag">Personnel: n</span> at the top to jump straight to the contact list.</li>
-        <li>Use <span class="tag">+ Person</span> to add someone, or the search box to find them. The list is sorted A&ndash;Z by last name.</li>
+        <li>Click <span class="tag">Personnel: n</span> at the top (or <span class="tag">Personnel master&hellip;</span> inside the editor) to open the contact list &mdash; a full table in its own window, sorted A&ndash;Z by last name.</li>
+        <li>Use <span class="tag">+ Person</span> to add someone, the search box to find them, and <span class="tag">Edit</span> on any row to change their details. The <strong>Roles</strong> column shows how many positions each person holds.</li>
+        <li><span class="tag">Remove</span> deletes a contact &mdash; blocked while they are still assigned somewhere, so you never lose a name that is in use.</li>
+        <li><span class="tag">Import roster&hellip;</span> / <span class="tag">Export roster</span> at the bottom move the people list (no assignments) in and out as JSON.</li>
         <li>Tick <strong>Regular Pioneer</strong> where it applies. Phone numbers link to WhatsApp; e-mails open your mail app.</li>
       </ul>
 
@@ -1644,23 +1712,6 @@
         </div>
       </details>
 
-      <details class="panel-card primary-panel" data-details-key="personnel-master">
-        <summary>Personnel master (${data.people.length}) <span class="summary-chevron">›</span></summary>
-        <div class="panel-body">
-          <div class="search-row">
-            <label>Search personnel<input type="search" id="personSearch" placeholder="Name, congregation or JW email"></label>
-            <button class="btn small primary" data-action="add-person">+ Person</button>
-          </div>
-          <p class="helper">Stored locally in your browser. The roster export/import holds person records only — use “Export backup” in the toolbar to also save every assignment, department and setting to one file.</p>
-          <div id="personMasterList">
-            ${data.people
-              .map((person,index)=>({person,index}))
-              .sort((a,b)=>personSort(a.person,b.person))
-              .map(({person,index})=>personEditor(person,index)).join('')}
-          </div>
-        </div>
-      </details>
-
       <details class="panel-card" data-details-key="oversight-assignments" open>
         <summary>Oversight assignments <span class="summary-chevron">›</span></summary>
         <div class="panel-body">
@@ -1966,10 +2017,125 @@
   document.getElementById('closeDetails').addEventListener('click',closePersonDetails);
   detailsModal.addEventListener('click',event=>{if(event.target===detailsModal) closePersonDetails();});
 
+  /* ---------------- Personnel master modal (contacts table) ---------------- */
+  const peopleModal=document.getElementById('peopleModal');
+  const peopleTableWrap=document.getElementById('peopleTableWrap');
+  const peopleSearchEl=document.getElementById('peopleSearch');
+  const peopleCountNote=document.getElementById('peopleCountNote');
+  let peopleQuery='';
+
+  function peopleIsOpen(){ return peopleModal.classList.contains('open'); }
+
+  function renderPeopleTable(){
+    const q=peopleQuery.trim().toLowerCase();
+    const rows=[...data.people]
+      .map((person,index)=>({person,index}))
+      .sort((a,b)=>personSort(a.person,b.person))
+      .filter(({person})=>{
+        if(!q) return true;
+        return (personName(person)+' '+person.congregation+' '+person.jwEmail+' '+person.phone).toLowerCase().includes(q);
+      });
+
+    peopleCountNote.textContent = data.people.length
+      ? `${data.people.length} ${data.people.length===1?'person':'people'} in the master${q?` · ${rows.length} shown`:''}`
+      : '';
+
+    if(!data.people.length){
+      peopleTableWrap.innerHTML=`<div class="people-empty">No one in the personnel master yet.<br>Use <strong>+ Person</strong> to add the first contact.</div>`;
+      return;
+    }
+    if(!rows.length){
+      peopleTableWrap.innerHTML=`<div class="people-empty">No matches for &ldquo;${esc(peopleQuery)}&rdquo;.</div>`;
+      return;
+    }
+
+    const body=rows.map(({person,index})=>{
+      const count=assignedLabels(person.id).length;
+      const name=showValue(personName(person),'Unnamed person');
+      const cong=congregationLabel(person);
+      const phone=person.phone ? esc(person.phone) : '<span class="pt-muted">—</span>';
+      const email=person.jwEmail ? esc(person.jwEmail) : '<span class="pt-muted">—</span>';
+      return `<tr data-person-row="${esc(person.id)}" data-index="${index}">
+        <td>
+          <div class="pt-name">${esc(name)}</div>
+          ${cong?`<div class="pt-sub">${esc(cong)}</div>`:'<div class="pt-sub pt-muted">No congregation</div>'}
+        </td>
+        <td class="hide-sm">${phone}</td>
+        <td class="hide-sm">${email}</td>
+        <td class="num"><span class="pt-roles ${count?'':'zero'}" title="${count} assignment${count===1?'':'s'}">${count}</span></td>
+        <td class="pt-actions">
+          <button class="btn small" data-people-edit="${esc(person.id)}" type="button">Edit</button>
+          <button class="btn small danger" data-people-remove="${esc(person.id)}" type="button">Remove</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    peopleTableWrap.innerHTML=`<table class="people-table">
+      <thead><tr>
+        <th>Name &amp; congregation</th>
+        <th class="hide-sm">Phone</th>
+        <th class="hide-sm">JW email</th>
+        <th class="num">Roles</th>
+        <th></th>
+      </tr></thead>
+      <tbody>${body}</tbody>
+    </table>`;
+  }
+
+  function openPeopleModal(){
+    peopleQuery='';
+    if(peopleSearchEl) peopleSearchEl.value='';
+    renderPeopleTable();
+    peopleModal.classList.add('open');
+    peopleModal.setAttribute('aria-hidden','false');
+    requestAnimationFrame(()=>peopleSearchEl?.focus());
+  }
+  function closePeopleModal(){
+    peopleModal.classList.remove('open');
+    peopleModal.setAttribute('aria-hidden','true');
+  }
+
+  peopleSearchEl.addEventListener('input',()=>{peopleQuery=peopleSearchEl.value;renderPeopleTable();});
+  document.getElementById('closePeopleModal').addEventListener('click',closePeopleModal);
+  peopleModal.addEventListener('click',event=>{if(event.target===peopleModal) closePeopleModal();});
+  document.getElementById('peopleAddBtn').addEventListener('click',()=>{
+    openPersonModal({mode:'new', personId:'', targetPath:'', from:'people'});
+  });
+  document.getElementById('peopleExportBtn').addEventListener('click',()=>exportPersonnel());
+  document.getElementById('peopleImportBtn').addEventListener('click',()=>{importTarget='personnel';fileInput.click();});
+
+  peopleTableWrap.addEventListener('click',event=>{
+    const editBtn=event.target.closest('[data-people-edit]');
+    const removeBtn=event.target.closest('[data-people-remove]');
+    if(removeBtn){
+      event.stopPropagation();
+      removePersonById(removeBtn.dataset.peopleRemove);
+      return;
+    }
+    const id=editBtn ? editBtn.dataset.peopleEdit : (event.target.closest('[data-person-row]')||{}).dataset?.personRow;
+    if(id) openPersonModal({mode:'edit', personId:id, targetPath:'', from:'people'});
+  });
+
+  function removePersonById(id){
+    const idx=data.people.findIndex(p=>p.id===id);
+    if(idx<0) return;
+    const person=data.people[idx];
+    const assigned=assignedLabels(person.id);
+    if(assigned.length){
+      alert(`${personName(person) || 'This person'} is still assigned to:\n\n${assigned.join('\n')}\n\nClear those assignments first.`);
+      return;
+    }
+    if(!confirm(`Remove ${personName(person) || 'this person'} from the personnel master?`)) return;
+    data.people.splice(idx,1);
+    saveData();
+    renderPreview();
+    renderPeopleTable();
+  }
+
   const personModal=document.getElementById('personModal');
   const personModalTitle=document.getElementById('personModalTitle');
   const personModalSubtitle=document.getElementById('personModalSubtitle');
-  let personModalState={mode:'new',personId:'',targetPath:''};
+  let personModalState={mode:'new',personId:'',targetPath:'',from:''};
 
   function fillPersonModalFields(person){
     document.getElementById('pm-lastName').value=person?.lastName || '';
@@ -1984,8 +2150,8 @@
     document.getElementById('pm-notes').value=person?.notes || '';
   }
 
-  function openPersonModal({mode,personId,targetPath}){
-    personModalState={mode,personId,targetPath};
+  function openPersonModal({mode,personId,targetPath,from=''}){
+    personModalState={mode,personId,targetPath,from};
     if(mode==='edit'){
       const person=personById(personId);
       personModalTitle.textContent='Edit person';
@@ -2044,9 +2210,16 @@
     }
 
     closePersonModal();
-    updateAll({editorToo:true, editorState, focusSelector});
+    if(personModalState.from==='people'){
+      saveData();
+      renderPreview();
+      refreshPersonOptionLabels();
+      renderPeopleTable();
+    }else{
+      updateAll({editorToo:true, editorState, focusSelector});
+    }
   });
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'){closePersonDetails();closeHelp();closeCsvModal();toggleEditor(false);}});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){closePersonDetails();closeHelp();closeCsvModal();closePeopleModal();toggleEditor(false);}});
 
   function toggleEditor(open){
     const willOpen = open ?? !document.body.classList.contains('editor-open');
@@ -2064,14 +2237,8 @@
   });
   document.getElementById('printBtn').addEventListener('click',()=>window.print());
 
-  function openPersonnelPanel(){
-    toggleEditor(true);
-    requestAnimationFrame(()=>{
-      const panel=editorContent.querySelector('[data-details-key="personnel-master"]');
-      if(panel){ panel.open=true; panel.scrollIntoView({block:'start',behavior:'smooth'}); }
-    });
-  }
-  personnelCountEl.addEventListener('click',openPersonnelPanel);
+  personnelCountEl.addEventListener('click',openPeopleModal);
+  document.getElementById('openPeopleFromEditor').addEventListener('click',openPeopleModal);
 
   const helpModal=document.getElementById('helpModal');
   function openHelp(){ helpModal.classList.add('open'); helpModal.setAttribute('aria-hidden','false'); }
@@ -2085,7 +2252,7 @@
     fileInput.click();
   });
 
-  document.getElementById('exportBtn').addEventListener('click',()=>{
+  function exportPersonnel(){
     const personnelFile={
       type:'assembly-personnel-master',
       version:1,
@@ -2098,7 +2265,8 @@
     anchor.click();
     URL.revokeObjectURL(anchor.href);
     toast('Personnel master exported');
-  });
+  }
+  document.getElementById('exportBtn').addEventListener('click',exportPersonnel);
 
   document.getElementById('backupBtn').addEventListener('click',()=>{
     const backupFile={
@@ -2394,6 +2562,7 @@
     });
   }
 
+  let importTarget='auto'; // 'auto' = sniff file; 'personnel' = force roster import from the people modal
   fileInput.addEventListener('change',()=>{
     const file=fileInput.files && fileInput.files[0];
     if(!file) return;
@@ -2423,11 +2592,7 @@
       updateAll({editorToo:true});
       toggleEditor(true);
 
-      const personnelPanel=editorContent.querySelector('[data-details-key="personnel-master"]');
-      if(personnelPanel){
-        personnelPanel.open=true;
-        personnelPanel.scrollIntoView({block:'start',behavior:'smooth'});
-      }
+      if(peopleIsOpen()) renderPeopleTable(); else openPeopleModal();
 
       const persisted=saveData();
       const message=`Personnel master imported: ${data.people.length} people.`;
@@ -2440,6 +2605,7 @@
       alert('Personnel import failed. '+(err && err.message ? err.message : 'Please select a valid personnel-master JSON file.'));
     }).finally(()=>{
       fileInput.value='';
+      importTarget='auto';
     });
   });
 
