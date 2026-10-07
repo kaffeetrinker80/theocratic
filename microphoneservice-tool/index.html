@@ -381,7 +381,7 @@
  <div class="form-group">
  <label for="filterRange">View range</label>
  <select id="filterRange">
- <option value="focus">Focus (next free in middle)</option>
+ <option value="focus">Focus (last 4 + next free)</option>
  <option value="around90">Around today (~3 months)</option>
  <option value="next90">Next ~3 months</option>
  <option value="last90">Last ~3 months</option>
@@ -519,7 +519,7 @@
  </table>
  </div>
 
- <footer>Made with Love © – Microphone Service Tool V 3.4.0</footer>
+ <footer>Made with Love © – Microphone Service Tool V 3.4.1</footer>
  </div>
 </div>
 
@@ -1364,7 +1364,7 @@ const STORAGE_KEY = "micPlannerAugsburg";
 const THEME_KEY = "micPlannerTheme";
 let __lastSavedSnapshot = null;
 
-const APP_VERSION = "3.4.0";
+const APP_VERSION = "3.4.1";
 
 let appData = {
  brothers: [],
@@ -1646,14 +1646,22 @@ function servedInfoLine(brotherName, meetingDateISO){
  return `served ${total}× · last ${formatDate(s.last)} (${weeksAgo} weeks ago)`;
 }
 
-function heatClassForBrother(row, maxTotal, maxWeeks){
- const totalNorm = maxTotal ? (row.total/maxTotal) : 0;
- const w = (row.weeksAgo==="—"||row.weeksAgo==null) ? maxWeeks : Number(row.weeksAgo);
- const weeksCapped = Math.min(Math.max(0,w), maxWeeks);
- const recentScore = 1 - (weeksCapped/maxWeeks);
- const score = (0.65*totalNorm)+(0.35*recentScore);
- if(score<0.33) return "stat-green";
- if(score<0.66) return "stat-orange";
+/* Rotation cycle in weeks: how long it takes until every active brother
+   would have served once (2 meetings/week x 2 mics = 4 slots per week). */
+function rotationCycleWeeks(){
+ const active = appData.brothers.filter(b=>b.active).length;
+ return Math.max(2, active/4);
+}
+
+/* Color = recency only, measured against the rotation cycle:
+   red    = served within the last half cycle (just had it)
+   orange = served within the cycle
+   green  = cycle reached / overdue / never served */
+function heatClassForBrother(row, cycleWeeks){
+ if(row.weeksAgo==="—" || row.weeksAgo==null) return "stat-green";
+ const w = Number(row.weeksAgo);
+ if(isNaN(w) || w >= cycleWeeks) return "stat-green";
+ if(w >= cycleWeeks/2) return "stat-orange";
  return "stat-red";
 }
 
@@ -1705,7 +1713,7 @@ function populateSelect(sel, selected, meetingDateISO){
  })
  .sort((a,b)=>a.name.localeCompare(b.name));
 
- const maxTotal = Math.max(1, ...candidates.map(c=>c.total));
+ const cycleWeeks = rotationCycleWeeks();
 
  candidates.forEach(c=>{
  const opt=document.createElement("option");
@@ -1725,7 +1733,7 @@ function populateSelect(sel, selected, meetingDateISO){
  opt.dataset.fullLabel = fullLabel;
  opt.textContent = fullLabel;
 
- const heat = heatClassForBrother({ total:c.total, weeksAgo:c.weeksAgo }, maxTotal, 26);
+ const heat = heatClassForBrother({ weeksAgo:c.weeksAgo }, cycleWeeks);
  opt.classList.add(heat);
 
  if(c.name===selected) opt.selected=true;
@@ -1748,35 +1756,48 @@ function populateSelect(sel, selected, meetingDateISO){
  compactSelectSelectedLabel(sel);
 }
 
+const FOCUS_ROWS_BEFORE = 4;   // last meetings shown above the next free one
+const FOCUS_ROWS_AFTER  = 12;  // next free meeting + empty rows below it
+
+/* Next free meeting = first meeting from today on with an open mic slot.
+   Gaps in the past (e.g. a forgotten Sunday) are ignored. */
+function firstOpenIndex(list){
+ const todayISO = dateToISO(new Date());
+ let idx = list.findIndex(a=> a.dateISO>=todayISO && (!a.mic1 || !a.mic2));
+ if(idx<0) idx = list.findIndex(a=> a.dateISO>=todayISO);
+ if(idx<0) idx = list.length;
+ return idx;
+}
+
+/* Generates only as many future meetings as needed so that there are
+   always FOCUS_ROWS_AFTER rows from the next free meeting on. */
 let __focusExtending=false;
-function ensureFutureMeetingsForFocus(minVisibleAfter){
+function ensureFutureMeetingsForFocus(rowsAfter){
  if(__focusExtending) return;
+ if(!appData.assignments.length) return;
  __focusExtending=true;
  try{
- const sorted=[...appData.assignments].sort((a,b)=>a.dateISO.localeCompare(b.dateISO)||a.meetingType.localeCompare(b.meetingType));
- let idx = sorted.findIndex(a=>!a.mic1 || !a.mic2);
- if(idx<0) idx=sorted.length;
+ const sortedAll=()=>[...appData.assignments].sort((a,b)=>a.dateISO.localeCompare(b.dateISO)||a.meetingType.localeCompare(b.meetingType));
+ let sorted=sortedAll();
+ const idx=firstOpenIndex(sorted);
+ if(sorted.length >= idx + rowsAfter) return;
 
- const needUntil = idx + minVisibleAfter;
- if(sorted.length >= needUntil) return;
-
- if(!sorted.length) return;
- const latestISO = sorted.map(a=>a.dateISO).sort().slice(-1)[0];
+ const latestISO = sorted[sorted.length-1].dateISO;
  const latest = parseISODate(latestISO);
  if(!latest) return;
 
  const d = new Date(latest.getFullYear(), latest.getMonth(), latest.getDate());
  d.setDate(d.getDate()+1);
-
- const weeks = 8;
- const daysToScan = 7*weeks;
- for(let i=0;i<daysToScan;i++){
+ const m=getMeetings();
+ let missing = (idx + rowsAfter) - sorted.length;
+ let guard = 0;
+ while(missing>0 && guard<400){
  const day=d.getDay();
  const iso=dateToISO(d);
- const m=getMeetings();
- if(day===m.midweekDay) ensureAssignment(iso,"Midweek",m.midweekTime);
- if(day===m.weekendDay) ensureAssignment(iso,"Weekend",m.weekendTime);
+ if(day===m.midweekDay){ ensureAssignment(iso,"Midweek",m.midweekTime); missing--; }
+ if(missing>0 && day===m.weekendDay){ ensureAssignment(iso,"Weekend",m.weekendTime); missing--; }
  d.setDate(d.getDate()+1);
+ guard++;
  }
  saveLocal();
  updateFilterOptions();
@@ -1868,7 +1889,7 @@ function renderAssignments(){
  });
 
  if(filterRange==="focus"){
- ensureFutureMeetingsForFocus(16);
+ ensureFutureMeetingsForFocus(FOCUS_ROWS_AFTER);
 
  list=[...appData.assignments].sort((a,b)=>
  a.dateISO.localeCompare(b.dateISO) ||
@@ -1877,48 +1898,16 @@ function renderAssignments(){
 
  list = list.filter(a=>{
  if(filterYear!=="all" && a.dateISO.slice(0,4)!==filterYear) return false;
-
  if(filterMonth!=="all"){
  const month=parseInt(a.dateISO.slice(5,7),10);
  if(String(month)!==String(filterMonth)) return false;
  }
-
  return true;
  });
 
- let idx=list.findIndex(a=>!a.mic1 || !a.mic2);
- if(idx<0) idx=list.length;
-
- let visibleFree = list.slice(idx, idx + 12)
- .filter(a => !a.mic1 || !a.mic2).length;
-
- if(visibleFree < 8){
- ensureFutureMeetingsForFocus(24);
-
- list=[...appData.assignments].sort((a,b)=>
- a.dateISO.localeCompare(b.dateISO) ||
- a.meetingType.localeCompare(b.meetingType)
- );
-
- list = list.filter(a=>{
- if(filterYear!=="all" && a.dateISO.slice(0,4)!==filterYear) return false;
-
- if(filterMonth!=="all"){
- const month=parseInt(a.dateISO.slice(5,7),10);
- if(String(month)!==String(filterMonth)) return false;
- }
-
- return true;
- });
-
- idx=list.findIndex(a=>!a.mic1 || !a.mic2);
- if(idx<0) idx=list.length;
- }
-
- const start=Math.max(0, idx-6);
- const end=Math.min(list.length, idx+16);
-
- list=list.slice(start,end);
+ const idx=firstOpenIndex(list);
+ const start=Math.max(0, idx-FOCUS_ROWS_BEFORE);
+ list=list.slice(start, idx+FOCUS_ROWS_AFTER);
  }
 
  if(list.length===0){
@@ -2072,7 +2061,7 @@ function renderStats(){
  rows.forEach(r=>{
  const tr=document.createElement("tr");
  tr.classList.add("stat-heat");
- const heat=heatClassForBrother(r,maxTotal,26);
+ const heat=heatClassForBrother(r,rotationCycleWeeks());
  tr.classList.add(heat);
  const barPct=Math.round((r.total/maxTotal)*100);
 
