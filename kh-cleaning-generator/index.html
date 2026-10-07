@@ -46,6 +46,15 @@ body{ font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--fg)
 .brand b{ font-size:15px; color:var(--ink); }
 .badge{ font-size:10px; padding:2px 7px; border-radius:999px; background:var(--teal-s); color:var(--teal-d); border:1px solid #bfe6e1; font-weight:700; }
 
+.sidebar select.langpick{ margin-left:auto; width:auto; font-size:11.5px; font-weight:650; padding:4px 6px; border-radius:8px; color:var(--muted); }
+.sidebar select.langpick:hover{ background:#f0f4f8; color:var(--ink); }
+.helpdot{ margin-left:6px !important; }
+.langrow{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 14px; }
+.langrow button{ font:inherit; font-size:12.5px; font-weight:650; padding:6px 11px; border-radius:999px;
+  border:1px solid var(--edge); background:#fff; color:var(--muted); cursor:pointer; }
+.langrow button:hover{ background:#f0f4f8; color:var(--ink); }
+.langrow button.on{ border-color:var(--teal); background:var(--teal-s); color:var(--teal-d); }
+
 .navclose{ display:none; margin-left:6px; width:28px; height:28px; border-radius:8px; border:1px solid var(--edge);
   background:#fff; color:var(--muted); font:inherit; font-size:14px; line-height:1; cursor:pointer; }
 .navclose:hover{ background:#f0f4f8; color:var(--ink); }
@@ -217,6 +226,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
 <aside class="sidebar noprint">
   <div class="brand">
     <div class="dot"></div><b>Reinigungsplan</b><span class="badge">v2.6</span>
+    <select class="langpick" id="uiLang" aria-label="Sprache"></select>
     <button class="helpdot" id="helpBtn" aria-label="Hilfe" title="Hilfe">?</button>
     <button class="navclose" id="navClose" aria-label="Menü schließen">✕</button>
   </div>
@@ -232,10 +242,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
         <div class="congsel"><i id="congDot"></i><select id="cong"></select></div>
         <div class="conghint" data-i="congPickHint">Hier die Versammlung umstellen. Sprache und Farbe wechseln automatisch mit.</div>
       </div>
-      <div class="row2">
-        <div><label class="f" data-i="year">Jahr</label><select id="year"></select></div>
-        <div><label class="f" data-i="lang">Sprache</label><select id="uiLang"></select></div>
-      </div>
+      <div><label class="f" data-i="year">Jahr</label><select id="year"></select></div>
       <label class="switch"><input type="checkbox" id="monthChk" /><span data-i="showMonths">Monatstrenner anzeigen</span></label>
       <button class="btn" id="addYearBtn" data-i="addYear">+ Jahr anlegen</button>
       <div class="fitinfo" id="fitInfo"></div>
@@ -315,6 +322,7 @@ label.f{ font-size:11px; color:var(--muted); display:block; margin-bottom:3px; f
   <div class="hpanel" role="dialog" aria-modal="true">
     <div class="hhead"><b id="wTitle" data-i="welcomeTitle">Reinigungsplan öffnen</b></div>
     <div class="hbody">
+      <div class="langrow" id="langRow"></div>
       <p id="wText"></p>
       <div class="wrow">
         <input id="pinInput" inputmode="numeric" autocomplete="off" spellcheck="false" />
@@ -1192,7 +1200,10 @@ function applyTexts(){
 function fillSelectors(){
   const x=t();
   const lv=$('uiLang'); lv.innerHTML='';
-  LANGS.forEach(l=>{ const o=document.createElement('option'); o.value=l.code; o.textContent=l.label; if(l.code===state.lang) o.selected=true; lv.appendChild(o); });
+  LANGS.forEach(l=>{ const o=document.createElement('option'); o.value=l.code;
+    o.textContent=l.code.toUpperCase(); o.title=l.label;          // kompakt neben dem Fragezeichen
+    if(l.code===state.lang) o.selected=true; lv.appendChild(o); });
+  lv.title = langLabel(state.lang);
   const yv=$('year'); yv.innerHTML='';
   yearsAvailable().forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; if(+y===+state.selectedYear) o.selected=true; yv.appendChild(o); });
   const cv=$('cong'); cv.innerHTML='';
@@ -1228,6 +1239,17 @@ function fillSelectors(){
   const dl=$('taskList'); dl.innerHTML='';
   state.tasks.forEach(n=>{ const o=document.createElement('option'); o.value=translateNote(n,state.lang); dl.appendChild(o); });
 }
+/* Sprachwahl im Startdialog */
+function renderLangRow(){
+  const box=$('langRow'); box.innerHTML='';
+  LANGS.forEach(l=>{
+    const b=document.createElement('button');
+    b.type='button'; b.textContent=l.label; b.title=l.label;
+    if(l.code===state.lang) b.classList.add('on');
+    b.addEventListener('click',()=>{ state.lang=l.code; save(); renderAll(); });
+    box.appendChild(b);
+  });
+}
 function renderCongList(){
   const box=$('congList'); box.innerHTML='';
   state.congregations.forEach(c=>{
@@ -1259,7 +1281,7 @@ function renderStats(){
   msg.className = open?'warn':'ok';
   msg.textContent = open ? t().statOpen(open) : t().statAll;
 }
-function renderAll(){ applyTexts(); fillSelectors(); renderCongList(); renderStats(); renderSheet(); }
+function renderAll(){ applyTexts(); fillSelectors(); renderLangRow(); renderCongList(); renderStats(); renderSheet(); }
 
 /* Sprache an Modus/Versammlung koppeln (wie in v2.2) */
 function syncLangToMode(){
