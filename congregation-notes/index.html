@@ -112,6 +112,16 @@ input, select { font: inherit; color: inherit; }
   width: 36px; height: 40px; font-size: 24px; line-height: 1; font-weight: 700; color: #fff;
   flex-shrink: 0;
 }
+
+.hub-home {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 40px; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1);
+  border-radius: 11px; color: #fff; text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.hub-home svg { width: 19px; height: 19px; fill: currentColor; }
+.hub-home:active { background: rgba(255,255,255,.22); transform: scale(.96); }
 .app-icon {
   width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
   background: linear-gradient(145deg, #3d78d6, #2f8f63);
@@ -574,6 +584,14 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 
 <header class="app-header">
   <div class="hdr-in">
+    <a class="hub-home" href="https://kaffeetrinker80.github.io/" aria-label="Back to main page" title="Back to main page">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+      </svg>
+    </a>
     <button class="btn-back" id="btn-back" data-act="back" hidden aria-label="Back">‹</button>
     <div class="app-icon" id="hdr-icon" aria-hidden="true">📓</div>
     <div class="brand">
