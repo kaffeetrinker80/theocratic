@@ -198,12 +198,14 @@
     .list li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--primary); opacity: 0.6; position: absolute; left: 0; top: 0.6em; }
 
     .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .meta, .language {
+    .meta, .language, .data {
       font-size: .75rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
       display: inline-block; width: fit-content; margin: 0;
     }
     .meta { color: var(--c-theme); background: var(--c-soft); }
     .language { color: var(--text); background: rgba(255,255,255,.07); border: 1px solid var(--border); }
+    .data.local { color: #8fd6a8; background: rgba(76,175,110,.12); border: 1px solid rgba(76,175,110,.28); }
+    .data.shared { color: #8cc4f0; background: rgba(66,150,220,.12); border: 1px solid rgba(66,150,220,.30); }
 
     .btn-card { 
       width: 100%; text-align: center; text-decoration: none; font-weight: 600; padding: 12px; border-radius: 12px; 
@@ -306,7 +308,7 @@
         <div class="icon-wrap"><img src="./programs/android-chrome-192x192.png" alt="Programs"></div>
         <h2>Assembly & Convention Notes</h2>
         <p>Open current and archived assembly and regional convention programs with personal notes.</p>
-        <div class="meta-row"><div class="meta">Assembly & Convention · Programs</div><div class="language">DE / EN</div></div>
+        <div class="meta-row"><div class="meta">Assembly & Convention · Programs</div><div class="language">DE / EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./programs/">Open Programs</a></div>
      
             </article>
@@ -315,7 +317,7 @@
         <div class="icon-wrap"><img src="./cleaning-planner/android-chrome-192x192.png" alt="Cleaning Planner"></div>
         <h2>Cleaning Planner</h2>
         <p>Plan cleaning teams, schedules and shift coordination for circuit assemblies and regional conventions.</p>
-        <div class="meta-row"><div class="meta">Assembly & Convention · Cleaning</div><div class="language">DE / EN</div></div>
+        <div class="meta-row"><div class="meta">Assembly & Convention · Cleaning</div><div class="language">DE / EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./cleaning-planner/">Open Tool</a></div>
       </article>
 
@@ -323,7 +325,7 @@
         <div class="icon-wrap"><img src="./attendance-counting/android-chrome-192x192.png" alt="Attendance Counting"></div>
         <h2>Attendance Counting</h2>
         <p>Count and summarize attendance for circuit assemblies and regional conventions in one tool.</p>
-        <div class="meta-row"><div class="meta">Assembly & Convention · Attendance</div><div class="language">EN</div></div>
+        <div class="meta-row"><div class="meta">Assembly & Convention · Attendance</div><div class="language">EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./attendance-counting/">Open Tool</a></div>
       </article>
 
@@ -331,7 +333,7 @@
         <div class="icon-wrap"><img src="./attendant-tool/favicon.ico" alt="Icon"></div>
         <h2>Attendant Tool</h2>
         <p>Prepare attendants for assemblies and regional conventions: contact congregations, manage volunteers and hand teams over to the Team Captain Manager.</p>
-        <div class="meta-row"><div class="meta">Assembly · Attendants</div><div class="language">EN</div></div>
+        <div class="meta-row"><div class="meta">Assembly · Attendants</div><div class="language">EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./attendant-tool/">Open Tool</a></div>
       </article>
 
@@ -339,7 +341,7 @@
         <div class="icon-wrap"><img src="./av-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Regional Convention A/V Planner</h2>
         <p>Plan and coordinate audio and video assignments for regional conventions.</p>
-        <div class="meta-row"><div class="meta">Regional Convention · A/V</div><div class="language">EN</div></div>
+        <div class="meta-row"><div class="meta">Regional Convention · A/V</div><div class="language">EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./av-planner/">Open Tool</a></div>
       </article>
 
@@ -347,7 +349,7 @@
         <div class="icon-wrap"><img src="./rc-attendant-assignment-tool/favicon.ico" alt="Icon"></div>
         <h2>Regional Convention Attendant Scheduler</h2>
         <p>German-only shift-plan overview for attendants at regional conventions.</p>
-        <div class="meta-row"><div class="meta">Regional Convention · Attendants</div><div class="language">DE</div></div>
+        <div class="meta-row"><div class="meta">Regional Convention · Attendants</div><div class="language">DE</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./rc-attendant-assignment-tool/">Open Tool</a></div>
       </article>
 
@@ -355,7 +357,7 @@
         <div class="icon-wrap"><img src="./rc-volunteers-management/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Regional Convention Volunteers</h2>
         <p>Manage volunteers, availability and communication for regional conventions.</p>
-        <div class="meta-row"><div class="meta">Regional Convention · Volunteers</div><div class="language">EN</div></div>
+        <div class="meta-row"><div class="meta">Regional Convention · Volunteers</div><div class="language">EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./rc-volunteers-management/">Open Tool</a></div>
       </article>
 
@@ -368,7 +370,7 @@
         <div class="icon-wrap"><img src="./congregation-notes/android-chrome-192x192.png" alt="Congregation Notes"></div>
         <h2>Congregation Notes</h2>
         <p>Take personal notes during congregation meetings, with child-friendly activities and a glossary explaining important terms.</p>
-        <div class="meta-row"><div class="meta">Congregation · Notes</div><div class="language">DE / EN</div></div>
+        <div class="meta-row"><div class="meta">Congregation · Notes</div><div class="language">DE / EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./congregation-notes/">Open Notes</a></div>
       </article>
 
@@ -376,7 +378,7 @@
         <div class="icon-wrap"><img src="./microphoneservice-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Microphone Service</h2>
         <p>Plan microphone assignments and service during congregation meetings.</p>
-        <div class="meta-row"><div class="meta">Congregation · Microphones</div><div class="language">EN</div></div>
+        <div class="meta-row"><div class="meta">Congregation · Microphones</div><div class="language">EN</div><div class="data shared" title="Shared data in a secured EU database (only minimal data)">☁️ Shared data</div></div>
         <div class="card-actions"><a class="btn-card" href="./microphoneservice-tool/">Open Tool</a></div>
       </article>
 
@@ -384,7 +386,7 @@
         <div class="icon-wrap"><img src="./congregation-volunteers/android-chrome-192x192.png" alt="Icon"></div>
         <h2>Congregation Volunteers</h2>
         <p>Manage congregation volunteers, details and availability.</p>
-        <div class="meta-row"><div class="meta">Congregation · Volunteers</div><div class="language">DE / EN</div></div>
+        <div class="meta-row"><div class="meta">Congregation · Volunteers</div><div class="language">DE / EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./congregation-volunteers/">Open Tool</a></div>
       </article>
 
@@ -392,7 +394,7 @@
         <div class="icon-wrap"><img src="./ptc-tool/android-chrome-192x192.png" alt="Icon"></div>
         <h2>PTC Tool</h2>
         <p>Browse and coordinate public talks, speakers and outlines.</p>
-        <div class="meta-row"><div class="meta">Congregation · Public Talks</div><div class="language">EN</div></div>
+        <div class="meta-row"><div class="meta">Congregation · Public Talks</div><div class="language">EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./ptc-tool/">Open Tool</a></div>
       </article>
 
@@ -405,7 +407,7 @@
         <div class="icon-wrap"><img src="./kh-cleaning-planner/android-chrome-192x192.png" alt="Icon"></div>
         <h2>KH Cleaning Planner</h2>
         <p>Plan annual deep cleaning for Kingdom Halls shared by multiple congregations.</p>
-        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN</div></div>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./kh-cleaning-planner/">Open Tool</a></div>
       </article>
 
@@ -413,7 +415,7 @@
         <div class="icon-wrap"><img src="./kh-cleaning-generator/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
         <h2>KH Cleaning Generator</h2>
         <p>Generate printable annual congregation cleaning schedules from planner data.</p>
-        <div class="meta-row"><div class="meta">Kingdom Hall · Annual Schedule</div><div class="language">DE / EN / IT / RU / SH</div></div>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Annual Schedule</div><div class="language">DE / EN / IT / RU / SH</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./kh-cleaning-generator/">Open Tool</a></div>
       </article>
 
@@ -421,7 +423,7 @@
         <div class="icon-wrap"><img src="./intermediate-cleaning/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
         <h2>Intermediate Cleaning Planner</h2>
         <p>Create rotating intermediate-cleaning schedules for shared Kingdom Halls.</p>
-        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN / RU</div></div>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Cleaning</div><div class="language">DE / EN / RU</div><div class="data local" title="Your data stays in your browser">🔒 Local data</div></div>
         <div class="card-actions"><a class="btn-card" href="./intermediate-cleaning/">Open Tool</a></div>
       </article>
 
@@ -429,7 +431,7 @@
         <div class="icon-wrap"><img src="./kh-winterservice/android-chrome-192x192.png" alt="Icon" onerror="this.src='./kh-cleaning-planner/android-chrome-192x192.png'"></div>
         <h2>KH Winter Service</h2>
         <p>Coordinate snow clearing and gritting at the Kingdom Hall: take open days, join an area and check the weather.</p>
-        <div class="meta-row"><div class="meta">Kingdom Hall · Winter Service</div><div class="language">DE / EN / IT / RU / SH</div></div>
+        <div class="meta-row"><div class="meta">Kingdom Hall · Winter Service</div><div class="language">DE / EN / IT / RU / SH</div><div class="data shared" title="Shared data in a secured EU database (only minimal data)">☁️ Shared data</div></div>
         <div class="card-actions"><a class="btn-card" href="./kh-winterservice/">Open Tool</a></div>
       </article>
 
