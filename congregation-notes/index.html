@@ -112,16 +112,6 @@ input, select { font: inherit; color: inherit; }
   width: 36px; height: 40px; font-size: 24px; line-height: 1; font-weight: 700; color: #fff;
   flex-shrink: 0;
 }
-
-.hub-home {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 36px; height: 40px; flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.1);
-  border-radius: 11px; color: #fff; text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.hub-home svg { width: 19px; height: 19px; fill: currentColor; }
-.hub-home:active { background: rgba(255,255,255,.22); transform: scale(.96); }
 .app-icon {
   width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
   background: linear-gradient(145deg, #3d78d6, #2f8f63);
@@ -577,37 +567,18 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 .song-row { flex-wrap:wrap; }
 .mid-part .sec-actions { margin-top: 6px; }
 .add-part { margin: 2px 0 12px; }
+/* inline assignment timers */
+.meeting-timer{margin-top:13px;padding:12px;background:var(--bg);border-radius:12px}
+.part-timer{padding:10px;margin:12px 0;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+.timer-top,.timer-bottom,.timer-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.timer-top .timer-digits{margin-left:auto}.timer-digits{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.timer-over{color:var(--danger)}.timer-done{border-color:var(--wt)}.timer-bottom{justify-content:space-between;margin-top:7px;color:var(--sub);font-size:13px}.timer-complete{color:var(--wt);font-weight:800}.timer-plan{width:62px;padding:5px;border:1px solid var(--border);border-radius:8px;background:var(--field)}.timer-stats{justify-content:space-between;margin:9px 0;font-size:12px;color:var(--sub)}.timer-bar{height:6px;background:var(--border);border-radius:8px;overflow:hidden}.timer-bar div{height:100%;background:var(--wt)}@media(max-width:430px){.timer-top .timer-digits{margin-left:0}.timer-top{gap:6px}.timer-top button{padding:7px 9px}}
+@media print {.meeting-timer,.part-timer{display:none!important}}
 @media print { .meeting-help, [data-act="addPart"], [data-act="removePart"], select[data-assign] { display:none !important; } }
-
-/* Meeting timer */
-.meeting-tracker summary{cursor:pointer;font-weight:800;display:flex;justify-content:space-between;gap:12px;list-style:none;align-items:center}
-.meeting-tracker summary::-webkit-details-marker{display:none}
-.meeting-tracker summary span{font-size:12px;color:var(--sub)}
-.tracker-body{margin-top:15px}.tracker-overall{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bg);padding:12px;border-radius:12px}
-.tracker-overall small{color:var(--sub)}.tracker-clock{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}
-.tracker-buttons{display:flex;flex-wrap:wrap;gap:6px}.tracker-buttons .btn{padding:7px 10px;font-size:12px}
-.tracker-progress{font-size:12px;color:var(--sub);margin:13px 0}.tracker-bar{height:8px;background:var(--bg);border-radius:8px;overflow:hidden;margin-bottom:6px}.tracker-bar span{display:block;background:var(--wt);height:100%}
-.tracker-item{border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:9px}.tracker-done{background:color-mix(in srgb,var(--wt) 8%,var(--card))}
-.tracker-label{display:flex;align-items:flex-start;gap:9px;font-weight:700}.tracker-label input{width:19px;height:19px;accent-color:var(--wt);flex-shrink:0}
-.tracker-item-controls{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:9px 0}.tracker-item-controls label{font-size:12px;color:var(--sub)}
-.tracker-item-controls input{width:67px;min-height:36px;padding:5px;border-radius:8px;border:1px solid var(--border);background:var(--field);color:var(--ink);margin-left:4px}
-.timer-display{font-size:20px;font-variant-numeric:tabular-nums;margin-left:auto}.timer-display.over{color:var(--danger)}
-.tracker-item-controls small{min-width:55px;font-variant-numeric:tabular-nums;color:var(--sub)}
-@media print{.meeting-tracker{display:none!important}}
 </style>
 </head>
 <body class="kid">
 
 <header class="app-header">
   <div class="hdr-in">
-    <a class="hub-home" href="https://kaffeetrinker80.github.io/" aria-label="Back to main page" title="Back to main page">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-      </svg>
-    </a>
     <button class="btn-back" id="btn-back" data-act="back" hidden aria-label="Back">‹</button>
     <div class="app-icon" id="hdr-icon" aria-hidden="true">📓</div>
     <div class="brand">
@@ -640,7 +611,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="to-top" id="to-top" data-act="toTop" aria-label="Top" hidden>↑</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.19 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.20 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -709,7 +680,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.19';
+const APP_VERSION = '1.2.20';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -1166,7 +1137,7 @@ const MID_KEYS = ['treasures', 'apply', 'living'];
 const MID_PARTS = {treasures:['treasureTalk','spiritualGems','bibleReading'],apply:['ministryPart','ministryPart','ministryPart'],living:['christianLifePart','bibleStudy']};
 function meetingForDate(date) { const day = parseISO(date).getDay(); return day === 0 || day === 6 ? 'weekend' : 'midweek'; }
 function partBlock() { const b = mkBlock(); if (b.type === 'ink') b.h = 320; return b; }
-function newPart(kind) { return {timer:{planned:({treasureTalk:10,spiritualGems:10,bibleReading:4,bibleStudy:30}[kind]||0),elapsed:0,started:null,done:false},kind,assign:'',title:'',person:'',assistant:'',blocks:[partBlock()]}; }
+function newPart(kind) { return {timer:{planned:0,elapsed:0,started:null,done:false},kind,assign:'',title:'',person:'',assistant:'',blocks:[partBlock()]}; }
 function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(newPart)}; }
 // "Apply Yourself to the Field Ministry" – assignment types from the workbook
 const APPLY_TYPES = ['startConv','explainBeliefs','followUp','whatSay','talkPart','makeDisciples'];
@@ -1187,8 +1158,19 @@ function partNumber(e, key, index) { return 1 + index + MID_KEYS.slice(0, MID_KE
 function fieldHtml(path,label,value,wide=false) { return `<label class="fld${wide?' wide':''}"><span>${esc(t(label))}</span><input type="text" data-f="${path}" value="${esc(value||'')}" autocomplete="off"></label>`; }
 function meetingControls(e) {
   return `<section class="card"><div class="card-top"><button class="share-mini" data-act="shareEntry" data-mode="share" title="${esc(t('shareEntry'))}">⤴ PDF</button></div><div class="meta-grid"><label class="fld"><span>${esc(t('date'))}</span><input type="date" value="${esc(e.date)}" data-f="date"></label>
-  <label class="fld"><span>${esc(t('meetingType'))}</span><select id="meeting-type"><option value="weekend"${e.meetingType==='weekend'?' selected':''}>${esc(t('weekend'))}</option><option value="midweek"${e.meetingType==='midweek'?' selected':''}>${esc(t('midweek'))}</option></select></label></div><p class="meeting-help">${esc(t('meetingHint'))}</p></section>`;
+  <label class="fld"><span>${esc(t('meetingType'))}</span><select id="meeting-type"><option value="weekend"${e.meetingType==='weekend'?' selected':''}>${esc(t('weekend'))}</option><option value="midweek"${e.meetingType==='midweek'?' selected':''}>${esc(t('midweek'))}</option></select></label></div>${e.meetingType==='midweek'?timerProgressHtml():''}<p class="meeting-help">${esc(t('meetingHint'))}</p></section>`;
 }
+// Timers use wall-clock timestamps so app backgrounding does not lose elapsed time.
+function normTimer(v,part) { const a=v&&typeof v==='object'?v:{};return {elapsed:Math.max(0,Math.min(86400000,num(a.elapsed,0))),started:Number.isFinite(a.started)&&a.started>0&&a.started<Date.now()+60000?a.started:null,...(part?{planned:Math.max(0,Math.min(300,num(a.planned,0))),done:!!a.done}:{})}; }
+function timerMs(v){return Math.max(0,(v?.elapsed||0)+(v?.started?Math.max(0,Date.now()-v.started):0));}
+function timerFmt(ms){const sec=Math.floor(ms/1000);return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;}
+function timerText(en,de){return settings.lang==='de'?de:en;}
+function allTimedParts(){return MID_KEYS.flatMap(k=>cur[k].parts.map((p,i)=>({k,i,p})));}
+function timerProgressHtml(){const parts=allTimedParts(),done=parts.filter(x=>x.p.timer?.done).length,planned=parts.reduce((a,x)=>a+(x.p.timer?.planned||0)*60000,0),actual=parts.reduce((a,x)=>a+(x.p.timer?.done?timerMs(x.p.timer):0),0),tm=cur.midweek.timer||{elapsed:0,started:null};return `<div class="meeting-timer"><div class="timer-top"><strong>⏱ ${timerText('Meeting timer','Gesamtstoppuhr')}</strong><span class="timer-digits" id="meeting-clock">${timerFmt(timerMs(tm))}</span><button class="btn" data-act="timerMeeting">${tm.started?'⏸':'▶'} ${tm.started?timerText('Pause','Pause'):timerText('Start','Start')}</button><button class="btn" data-act="timerMeetingReset" title="Reset">↺</button></div><div class="timer-stats"><span>${done}/${parts.length} ✓</span><span>${timerText('Planned','Soll')}: ${timerFmt(planned)}</span><span>${timerText('Completed actual','Ist erledigt')}: ${timerFmt(actual)}</span><span>${timerText('Difference','Differenz')}: ${actual>=parts.filter(x=>x.p.timer?.done).reduce((a,x)=>a+(x.p.timer?.planned||0)*60000,0)?'+':''}${timerFmt(Math.abs(actual-parts.filter(x=>x.p.timer?.done).reduce((a,x)=>a+(x.p.timer?.planned||0)*60000,0)))}</span></div><div class="timer-bar"><div style="width:${parts.length?Math.round(done/parts.length*100):0}%"></div></div></div>`;}
+function partTimerHtml(key,p,i){const tm=p.timer||(p.timer=normTimer(null,true));const ms=timerMs(tm),over=tm.planned>0&&ms>tm.planned*60000;return `<div class="part-timer${tm.done?' timer-done':''}" data-timer-sec="${key}" data-timer-i="${i}"><div class="timer-top"><label>${timerText('Planned (min)','Soll (Min.)')} <input class="timer-plan" type="number" min="0" max="300" step="0.5" inputmode="decimal" data-timer-plan="${key}:${i}" value="${tm.planned||''}" placeholder="—"></label><strong class="timer-digits${over?' timer-over':''}" data-timer-clock="${key}:${i}">${timerFmt(ms)}</strong><button class="btn" data-act="timerPart" data-sec="${key}" data-i="${i}">${tm.started?'⏸':'▶'} ${tm.started?timerText('Pause','Pause'):timerText('Start','Start')}</button><button class="btn" data-act="timerPartReset" data-sec="${key}" data-i="${i}" title="Reset">↺</button></div><div class="timer-bottom"><span data-timer-delta="${key}:${i}">${tm.planned?`${over?'+':'−'}${timerFmt(Math.abs(tm.planned*60000-ms))}`:timerText('Set planned time','Sollzeit eingeben')}</span><button class="btn timer-complete" data-act="timerDone" data-sec="${key}" data-i="${i}">${tm.done?'✓ '+timerText('Completed','Erledigt'):'✓ '+timerText('Done & Next','Erledigt & Weiter')}</button></div></div>`;}
+function refreshTimerClocks(){if(!cur||cur.meetingType!=='midweek')return;const mc=document.getElementById('meeting-clock');if(mc)mc.textContent=timerFmt(timerMs(cur.midweek.timer));for(const {k,i,p} of allTimedParts()){const c=document.querySelector(`[data-timer-clock="${k}:${i}"]`),d=document.querySelector(`[data-timer-delta="${k}:${i}"]`);if(!c)continue;const ms=timerMs(p.timer),pl=p.timer.planned*60000,over=pl>0&&ms>pl;c.textContent=timerFmt(ms);c.classList.toggle('timer-over',over);if(d)d.textContent=pl?`${over?'+':'−'}${timerFmt(Math.abs(pl-ms))}`:timerText('Set planned time','Sollzeit eingeben');}}
+setInterval(refreshTimerClocks,350);
+document.addEventListener('change',ev=>{if(!cur||!ev.target.dataset.timerPlan)return;const [k,i]=ev.target.dataset.timerPlan.split(':');const p=cur[k]?.parts[+i];if(!p)return;p.timer.planned=Math.max(0,Math.min(300,Number(ev.target.value)||0));dirty();refreshTimerClocks();});
 function midweekTop(e) {
   return `<section class="card"><div class="meta-grid">${fieldHtml('midweek.reading','weeklyReading',e.midweek.reading,true)}${fieldHtml('midweek.chairman','chairman',e.midweek.chairman)}${fieldHtml('midweek.openPrayer','openingPrayer',e.midweek.openPrayer)}${fieldHtml('midweek.closePrayer','closingPrayer',e.midweek.closePrayer)}</div></section>`;
 }
@@ -1204,6 +1186,7 @@ function partHtml(key, p, i) {
   return `<div class="mid-part">
     <div class="blk-top"><strong>${partNumber(cur,key,i)}. ${esc(partLabel(key, p))}</strong><button class="x-btn" data-act="removePart" data-sec="${key}" data-i="${i}" aria-label="${esc(t('removePart'))}" title="${esc(t('removePart'))}">×</button></div>
     <div class="meta-grid">${assign}${fieldHtml(`${key}.parts.${i}.title`,'partTopic',p.title,true)}${key==='living'&&p.kind!=='bibleStudy'?'':fieldHtml(`${key}.parts.${i}.person`,p.kind==='bibleStudy'?'conductor':'participant',p.person)}${key==='apply'||p.kind==='bibleStudy'?fieldHtml(`${key}.parts.${i}.assistant`,p.kind==='bibleStudy'?'reader':'assistant',p.assistant):''}</div>
+    ${partTimerHtml(key,p,i)}
     <div class="blocks">${p.blocks.map((b, j) => renderBlock(sec, b, j, p.blocks.length)).join('')}</div>
     <div class="sec-actions">
       <button class="btn-soft" data-act="addRef" data-sec="${sec}">${esc(t('addRef'))}</button>
@@ -1222,63 +1205,6 @@ function midweekParts(key) {
   if (study < 0) h += addBtn;
   return h + `<div class="sub-label">${esc(t('sectionNotes'))}</div>`;
 }
-// Timers store accumulated milliseconds and a wall-clock start stamp so Android/PWA
-// background throttling and screen locks do not corrupt elapsed time.
-const timerText = ms => { const n=Math.floor(Math.max(0,ms)/1000); return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`; };
-function normTimer(t, meeting=false, kind='') {
-  t=t&&typeof t==='object'?t:{};
-  const defaultMin=({treasureTalk:10,spiritualGems:10,bibleReading:4,bibleStudy:30})[kind]||0;
-  const out={elapsed:Math.max(0,Math.min(86400000,Number(t.elapsed)||0)),started:Number.isFinite(+t.started)&&+t.started>0?+t.started:null};
-  if(!meeting){out.planned=t.planned===undefined?defaultMin:Math.max(0,Math.min(240,Number(t.planned)||0));out.done=!!t.done;}
-  return out;
-}
-function liveElapsed(t){return Math.max(0,(t.elapsed||0)+(t.started?Math.max(0,Date.now()-t.started):0));}
-function timerParts(){return MID_KEYS.flatMap(k=>cur[k].parts.map((p,i)=>({p,k,i})));}
-function timerLabel(k,p,i){return `${partNumber(cur,k,i)}. ${partLabel(k,p)}${p.title?' · '+p.title:''}`;}
-function timerStop(t){if(t.started){t.elapsed=liveElapsed(t);t.started=null;}dirty();}
-function timerPanel(){
-  const m=cur.midweek.meetingTimer||(cur.midweek.meetingTimer=normTimer(null,true));
-  const pts=timerParts(), plan=pts.reduce((n,x)=>n+(+x.p.timer?.planned||0),0), done=pts.filter(x=>x.p.timer?.done);
-  const actual=done.reduce((n,x)=>n+liveElapsed(x.p.timer),0);
-  const de=settings.lang==='de';
-  return `<details class="card meeting-tracker" id="meeting-tracker" ${trackerExpanded?'open':''}>
-    <summary>⏱️ ${de?'Zeitplan & Fortschritt':'Timing & Progress'} <span id="tracker-short">${done.length}/${pts.length} ✓</span></summary>
-    <div class="tracker-body">
-      <div class="tracker-overall"><div><small>${de?'Gesamtstoppuhr':'Entire meeting'}</small><div class="tracker-clock" id="meeting-clock">${timerText(liveElapsed(m))}</div></div><div class="tracker-buttons">
-      <button class="btn primary" data-act="timerMeetingToggle">${m.started?'⏸ '+(de?'Pause':'Pause'):'▶ Start'}</button><button class="btn" data-act="timerMeetingReset">↺</button></div></div>
-      <div class="tracker-progress"><div class="tracker-bar"><span style="width:${pts.length?100*done.length/pts.length:0}%"></span></div><div id="tracker-totals">${done.length}/${pts.length} ✓ · ${de?'Plan':'Planned'} ${plan}m · ${de?'Ist (erledigt)':'Actual (done)'} ${timerText(actual)} · ${de?'Abweichung':'Difference'} ${actual>=done.reduce((n,x)=>n+x.p.timer.planned*60000,0)?'+':'−'}${timerText(Math.abs(actual-done.reduce((n,x)=>n+x.p.timer.planned*60000,0)))}</div></div>
-      ${pts.map(({p,k,i})=>{const t=p.timer||(p.timer=normTimer(null,false,p.kind)),ms=liveElapsed(t),max=t.planned*60000;return `<div class="tracker-item ${t.done?'tracker-done':''}" data-timer-key="${k}" data-timer-i="${i}">
-        <label class="tracker-label"><input type="checkbox" data-timer-done="${k}:${i}" ${t.done?'checked':''}><span>${esc(timerLabel(k,p,i))}</span></label>
-        <div class="tracker-item-controls"><label>${de?'Soll (Min.)':'Planned (min)'} <input aria-label="${de?'Sollzeit in Minuten':'Planned minutes'}" type="number" min="0" max="240" step="0.5" data-timer-plan="${k}:${i}" value="${t.planned}"></label><strong class="timer-display ${max&&ms>max?'over':''}" data-timer-display="${k}:${i}">${timerText(ms)}</strong><small data-timer-remaining="${k}:${i}">${max? (ms>max?'+':'−')+timerText(Math.abs(ms-max)):'—'}</small></div>
-        <div class="tracker-buttons"><button class="btn ${t.started?'':'primary'}" data-act="timerPartToggle" data-key="${k}" data-i="${i}">${t.started?'⏸ Pause':'▶ Start'}</button><button class="btn" data-act="timerPartReset" data-key="${k}" data-i="${i}">↺</button><button class="btn" data-act="timerPartDone" data-key="${k}" data-i="${i}">✓ ${de?'Fertig & Nächste':'Done & Next'}</button></div></div>`;}).join('')}
-    </div></details>`;
-}
-let trackerExpanded=false;
-function trackerRefresh(){
-  if(!cur||cur.meetingType!=='midweek')return;
-  const clock=document.getElementById('meeting-clock');if(!clock)return;
-  clock.textContent=timerText(liveElapsed(cur.midweek.meetingTimer||{}));
-  const pts=timerParts(),done=pts.filter(x=>x.p.timer?.done),actual=done.reduce((n,x)=>n+liveElapsed(x.p.timer),0),expected=done.reduce((n,x)=>n+(x.p.timer.planned||0)*60000,0);
-  const sh=document.getElementById('tracker-short');if(sh)sh.textContent=`${done.length}/${pts.length} ✓`;
-  const totals=document.getElementById('tracker-totals');if(totals)totals.textContent=`${done.length}/${pts.length} ✓ · ${settings.lang==='de'?'Plan':'Planned'} ${pts.reduce((n,x)=>n+(x.p.timer?.planned||0),0)}m · ${settings.lang==='de'?'Ist (erledigt)':'Actual (done)'} ${timerText(actual)} · ${settings.lang==='de'?'Abweichung':'Difference'} ${actual>=expected?'+':'−'}${timerText(Math.abs(actual-expected))}`;
-  const bar=document.querySelector('.tracker-bar span');if(bar)bar.style.width=(pts.length?100*done.length/pts.length:0)+'%';
-  for(const {p,k,i} of pts){const t=p.timer;if(!t)continue;const ms=liveElapsed(t),max=t.planned*60000;
-    const disp=document.querySelector(`[data-timer-display="${k}:${i}"]`),remain=document.querySelector(`[data-timer-remaining="${k}:${i}"]`);
-    if(disp){disp.textContent=timerText(ms);disp.classList.toggle('over',!!max&&ms>max);}
-    if(remain)remain.textContent=max?(ms>max?'+':'−')+timerText(Math.abs(max-ms)):'—';
-  }
-}
-setInterval(trackerRefresh,500);
-document.addEventListener('toggle',ev=>{if(ev.target?.id==='meeting-tracker')trackerExpanded=ev.target.open;},true);
-document.addEventListener('change',ev=>{
-  if(!cur||cur.meetingType!=='midweek')return;
-  const el=ev.target,ref=el.dataset.timerPlan||el.dataset.timerDone;if(!ref)return;
-  const [k,i]=ref.split(':'),p=cur[k]?.parts[+i];if(!p)return;
-  const t=p.timer||(p.timer=normTimer(null,false,p.kind));
-  if(el.dataset.timerPlan)t.planned=Math.max(0,Math.min(240,Number(el.value)||0));
-  else {t.done=el.checked;if(t.done)timerStop(t);}
-  dirty();keepScroll(renderEntry);
-});
 function renderMidweek() {
   let h=songRow(0);
   for(const key of MID_KEYS) {
@@ -1307,7 +1233,7 @@ function newEntry() {
   const now = Date.now();
   return {
     id: uid(), createdAt: now, updatedAt: now, date: isoLocal(new Date()), meetingType: meetingForDate(isoLocal(new Date())), autoMeetingType: true,
-    midweek: {reading:'',chairman:'',openPrayer:'',closePrayer:'',meetingTimer:{elapsed:0,started:null}},
+    midweek: {reading:'',chairman:'',openPrayer:'',closePrayer:'',timer:{elapsed:0,started:null}},
     treasures: newMidSection('treasures'), apply: newMidSection('apply'), living: newMidSection('living'),
     speaker: '', speakerCong: '', talkTitle: '',
     songs: ['', '', ''],
@@ -1352,13 +1278,13 @@ function normalizeEntry(r) {
   e.meetingType = r.meetingType === 'midweek' ? 'midweek' : 'weekend';
   e.autoMeetingType = false;
   const mw = r.midweek || {};
-  e.midweek = {reading:str(mw.reading,300),chairman:str(mw.chairman,200),openPrayer:str(mw.openPrayer,200),closePrayer:str(mw.closePrayer,200),meetingTimer:normTimer(mw.meetingTimer,true)};
+  e.midweek = {reading:str(mw.reading,300),chairman:str(mw.chairman,200),openPrayer:str(mw.openPrayer,200),closePrayer:str(mw.closePrayer,200),timer:normTimer(mw.timer,false)};
   for (const key of MID_KEYS) {
     const source = r[key];
     if (source && typeof source === 'object') e[key] = {
       blocks:normBlocks(source.blocks),
       parts:Array.isArray(source.parts) ? source.parts.filter(p=>p && typeof p==='object').map(p=>({
-        kind:[...MID_PARTS[key],'customPart'].includes(p.kind)?p.kind:'customPart',timer:normTimer(p.timer,false,p.kind),
+        timer:normTimer(p.timer,true),kind:[...MID_PARTS[key],'customPart'].includes(p.kind)?p.kind:'customPart',
         assign:APPLY_TYPES.includes(p.assign)?p.assign:'',
         title:str(p.title,300),person:str(p.person,200),assistant:str(p.assistant,200),
         blocks:Array.isArray(p.blocks) ? normBlocks(p.blocks) : [{type:'text',html:sanitize(str(p.notes,200000)),refs:normRefs(p.refs)}]
@@ -1506,7 +1432,7 @@ function renderEntry() {
   let h = `<div class="print-head"><h1>${esc(e.meetingType==='midweek'?t('midweek'):(e.talkTitle || t('publicTalk')))}</h1><div>${esc(fmtDate(e.date))}${e.speaker ? ' · ' + esc(e.speaker) : ''}</div></div>`;
 
   h += meetingControls(e);
-  if(e.meetingType==='midweek') h += midweekTop(e)+timerPanel();
+  if(e.meetingType==='midweek') h += midweekTop(e);
   else {
   h += `<section class="card"><div class="meta-grid">
     <label class="fld"><span>${esc(t('speaker'))}</span><input type="text" list="dl-speakers" value="${esc(e.speaker)}" data-f="speaker" placeholder="${esc(t('phSpeaker'))}" autocomplete="off"></label>
@@ -2120,12 +2046,6 @@ function inkOf(el) { const ink = el.closest('.ink'); return ink && ink._ink; }
 //  ACTIONS  (delegated clicks)
 // ═══════════════════════════════════════════
 const ACTIONS = {
-  timerMeetingToggle:()=>{const t=cur.midweek.meetingTimer||(cur.midweek.meetingTimer=normTimer(null,true));if(t.started)timerStop(t);else {t.started=Date.now();dirty();}keepScroll(renderEntry);},
-  timerMeetingReset:()=>{if(!confirm(settings.lang==='de'?'Gesamtstoppuhr zurücksetzen?':'Reset meeting stopwatch?'))return;cur.midweek.meetingTimer=normTimer(null,true);dirty();keepScroll(renderEntry);},
-  timerPartToggle:el=>{const p=cur[el.dataset.key]?.parts[+el.dataset.i];if(!p)return;const t=p.timer||(p.timer=normTimer(null,false,p.kind));if(t.started)timerStop(t);else{t.started=Date.now();t.done=false;dirty();}keepScroll(renderEntry);},
-  timerPartReset:el=>{const p=cur[el.dataset.key]?.parts[+el.dataset.i];if(!p||!confirm(settings.lang==='de'?'Zeit dieses Assignments zurücksetzen?':'Reset this assignment timer?'))return;p.timer.elapsed=0;p.timer.started=null;p.timer.done=false;dirty();keepScroll(renderEntry);},
-  timerPartDone:el=>{const parts=timerParts(),idx=parts.findIndex(x=>x.k===el.dataset.key&&x.i===+el.dataset.i);if(idx<0)return;const t=parts[idx].p.timer;timerStop(t);t.done=true;const next=parts.slice(idx+1).find(x=>!x.p.timer?.done);dirty();keepScroll(renderEntry);if(next){const node=document.querySelector(`[data-timer-key="${next.k}"][data-timer-i="${next.i}"]`);node?.scrollIntoView({block:'center',behavior:'smooth'});}},
-
   reloadSongs: () => { void loadSongs(settings.lang,true); },
   open: el => { location.hash = '#e=' + encodeURIComponent(el.dataset.id); },
   back: () => { location.hash = ''; },
@@ -2136,6 +2056,11 @@ const ACTIONS = {
     location.hash = '#e=' + encodeURIComponent(e.id);
   },
 
+  timerMeeting: () => {const m=cur?.midweek.timer;if(!m)return;if(m.started){m.elapsed=timerMs(m);m.started=null;}else m.started=Date.now();dirty();keepScroll(renderEntry);},
+  timerMeetingReset: () => {const m=cur?.midweek.timer;if(!m||!confirm(timerText('Reset meeting stopwatch?','Gesamtstoppuhr zurücksetzen?')))return;m.elapsed=0;m.started=null;dirty();keepScroll(renderEntry);},
+  timerPart: el => {const p=cur?.[el.dataset.sec]?.parts[+el.dataset.i],m=p?.timer;if(!m)return;if(m.started){m.elapsed=timerMs(m);m.started=null;}else{m.started=Date.now();m.done=false;}dirty();keepScroll(renderEntry);},
+  timerPartReset: el => {const m=cur?.[el.dataset.sec]?.parts[+el.dataset.i]?.timer;if(!m||!confirm(timerText('Reset assignment timer?','Aufgabenstoppuhr zurücksetzen?')))return;m.elapsed=0;m.started=null;m.done=false;dirty();keepScroll(renderEntry);},
+  timerDone: el => {const k=el.dataset.sec,i=+el.dataset.i,p=cur?.[k]?.parts[i];if(!p)return;const m=p.timer;if(m.done){m.done=false;}else{m.elapsed=timerMs(m);m.started=null;m.done=true;}dirty();keepScroll(renderEntry);},
   addPart: el => {
     const key=el.dataset.sec;if(!MID_KEYS.includes(key))return;
     const part=newPart('customPart');
