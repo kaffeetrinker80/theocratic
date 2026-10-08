@@ -611,7 +611,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="to-top" id="to-top" data-act="toTop" aria-label="Top" hidden>↑</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.22 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.23 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -680,7 +680,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.22';
+const APP_VERSION = '1.2.23';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -1168,9 +1168,8 @@ function timerText(en,de){return settings.lang==='de'?de:en;}
 function allTimedParts(){return MID_KEYS.flatMap(k=>cur[k].parts.map((p,i)=>({k,i,p})));}
 // Manual total stopwatch, with a fixed 100-minute target regardless of assignments.
 function meetingClockState(){
-  const weekend=cur.meetingType==='weekend', start=weekend?'13:00':'19:00', end=weekend?'14:40':'20:40';
   const elapsed=timerMs(cur.meetingTimer), target=100*60000;
-  return {start,end,elapsed,remaining:Math.max(0,target-elapsed),percent:Math.min(100,elapsed/target*100),over:elapsed>target,running:!!cur.meetingTimer.started};
+  return {elapsed,remaining:Math.max(0,target-elapsed),percent:Math.min(100,elapsed/target*100),over:elapsed>target,running:!!cur.meetingTimer.started};
 }
 function meetingClockText(m){
   return m.over ? timerText('Over schedule','Über dem Zeitplan')+': +'+timerFmt(m.elapsed-100*60000)
@@ -1185,7 +1184,7 @@ function timerProgressHtml(){
       <span class="timer-digits${m.over?' timer-over':''}" id="meeting-clock">${timerFmt(m.elapsed)}</span>
       <button class="btn" data-act="timerMeeting" id="meeting-timer-toggle">${m.running?'⏸':'▶'} ${m.running?timerText('Pause','Pause'):timerText('Start','Start')}</button>
       <button class="btn" data-act="timerMeetingReset" title="Reset">↺</button></div>
-    <div class="timer-stats"><span>${m.start}–${m.end} · 100 min ${timerText('planned','geplant')}</span>
+    <div class="timer-stats"><span>100 min ${timerText('planned','geplant')}</span>
       <span id="meeting-remaining">${meetingClockText(m)}</span>
       ${cur.meetingType==='midweek'?`<span>${done}/${parts.length} ${timerText('assignments done','Aufgaben erledigt')} ✓</span>`:''}</div>
     <div class="timer-bar"><div id="meeting-progress-fill" style="width:${m.percent}%"></div></div>
