@@ -249,6 +249,7 @@ textarea.flags-wrap{min-height:76px;line-height:1.35;white-space:pre-wrap}
 .cdot.c.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
 .cdot.a.on{background:#e3f2fd;border-color:#42a5f5;color:#1565c0}
 .cdot.t{cursor:default}
+.cdot.t.ext{outline:2px dashed #78909c;outline-offset:1px}
 .cdot.t.on{background:#fff8e1;border-color:#ffb300;color:#a45c00}
 .conf-mini{font-size:10px;color:var(--muted);font-weight:700;margin-top:2px}
 .conf-mini .c{color:#2e7d32}
@@ -616,6 +617,7 @@ Loving greetings,
           <option value="all">All</option>
           <option value="unconfirmed">Waiting for his reply (no A)</option>
           <option value="available">Available: confirmed, not planned (A, no T)</option>
+          <option value="availfree">Available, not in another team either (best picks)</option>
           <option value="planned">Planned (T)</option>
         </select></div>
       <div class="sf btn">
@@ -637,7 +639,7 @@ Loving greetings,
         <col class="c-mob"><col class="c-rem"><col class="c-act2"><col class="c-del">
         <thead><tr>
           <th title="On the list: is he taking part at all? Inactive = dropped out / not available. This is what the congregations see in the request mail.">●</th>
-          <th title="A = attendant confirmed himself · T = planned (lights up automatically once he is on a team)">A&nbsp;T</th>
+          <th title="A = attendant confirmed himself · T = planned (lights up automatically once he is on Welcome, Lobby, Cafeteria or Auditorium)">A&nbsp;T</th>
           <th>ID</th>
           <th class="left">Name</th>
           <th class="left">First name</th>
@@ -720,7 +722,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.8.0</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.8.2</div>
 </div>
 
 <script>
@@ -845,7 +847,7 @@ function normalizeAttendant(r){
     flags = [flags, 'has children'].filter(Boolean).join(' | ');
   }
   return {
-    id:String(r.id||''),name:r.name||'',firstName:r.firstName||'',
+    id:normId(r.id),name:r.name||'',firstName:r.firstName||'',
     congregation:r.congregation||'',email:r.email||'',jwpub:r.jwpub||'',mobile:r.mobile||'',
     privilege:DEFAULT_PRIVILEGES.includes(r.privilege)?r.privilege:'Publisher',
     active:r.active===undefined?true:!!r.active,children:!!r.children,sister:!!r.sister,
@@ -1064,7 +1066,9 @@ function renderMiniStats(){
   const sisters=state.attendants.filter(a=>a.sister).length;
   const confirmedN=state.attendants.filter(a=>a.confirmed&&a.active!==false).length;
   const plannedN=state.attendants.filter(a=>isPlanned(a)&&a.active!==false).length;
-  const availableN=state.attendants.filter(a=>a.active!==false&&a.confirmed&&!isPlanned(a)).length;
+  const availList=state.attendants.filter(a=>a.active!==false&&a.confirmed&&!isPlanned(a));
+  const availableN=availList.length;
+  const availElsewhere=availList.filter(a=>otherTeamsOf(a).length).length;
   const ms=el('miniStats');
   if(!ms)return;
   ms.innerHTML=`
@@ -1074,7 +1078,7 @@ function renderMiniStats(){
     <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
     <div class="stat"><span class="label">Confirmed (A)</span><span class="val" style="color:#1565c0">${confirmedN}</span></div>
     <div class="stat"><span class="label">Planned (T)</span><span class="val" style="color:#a45c00">${plannedN}</span></div>
-    <div class="stat"><span class="label">Still available</span><span class="val" style="color:#00796b">${availableN}</span></div>
+    <div class="stat"><span class="label">Still available</span><span class="val" style="color:#00796b">${availableN}${availElsewhere?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Already on a team of another department – you can leave them for last">(${availElsewhere} elsewhere)</span>`:''}</span></div>
     <div class="divider"></div>
     <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
     <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
@@ -1102,6 +1106,7 @@ function attMatchesFilters(row){
   const stFil=el('filterStatus')?el('filterStatus').value:'all';
   if(stFil==='unconfirmed'&&row.confirmed)return false;
   if(stFil==='available'&&!(row.confirmed&&!isPlanned(row)&&row.active!==false))return false;
+  if(stFil==='availfree'&&!(row.confirmed&&!isPlanned(row)&&row.active!==false&&!otherTeamsOf(row).length))return false;
   if(stFil==='planned'&&!isPlanned(row))return false;
   if(teamFil!=='all'&&!(row.teams||[]).includes(teamFil))return false;
   if(shiftFil!=='all'&&!(row.shifts||[]).includes(shiftFil))return false;
@@ -1126,8 +1131,8 @@ function renderAttendantTable(){
     const confHtml=`<div class="conf-cell">
       <div class="cdot a ${row.confirmed?'on':''}" onclick="toggleApproval(${index},'confirmed')"
         title="${row.confirmed?'Attendant confirmed himself'+(row.confirmedAt?' · '+esc(formatStamp(row.confirmedAt)):''):'No reply from the attendant yet – click when he confirms'}">A</div>
-      <div class="cdot t ${isPlanned(row)?'on':''}" id="tdot-${index}"
-        title="${isPlanned(row)?'Planned – on '+(row.teams||[]).length+' team(s). Set automatically by the team selection.':'Not planned yet – lights up as soon as you tick a team'}">T</div>
+      <div class="cdot t ${isPlanned(row)?'on':''}${otherTeamsOf(row).length?' ext':''}" id="tdot-${index}"
+        title="${esc(plannedTitle(row))}">T</div>
     </div>`;
 
     /* id cell */
@@ -1312,7 +1317,16 @@ function setSister(index,val){
 }
 /* "planned" is derived, never stored: an attendant counts as planned
    as soon as he is on at least one team (main or extra) */
-function isPlanned(a){return !!(a&&(a.teams||[]).length);}
+function mainTeamsOf(a){return (a&&a.teams||[]).filter(t=>MAIN_TEAMS.some(m=>m.key===t));}
+function otherTeamsOf(a){return (a&&a.teams||[]).filter(t=>!MAIN_TEAMS.some(m=>m.key===t));}
+function teamLabel(k){const t=ALL_TEAMS.find(x=>x.key===k);return t?t.label:k;}
+function isPlanned(a){return mainTeamsOf(a).length>0;}
+function plannedTitle(a){
+  const main=mainTeamsOf(a),other=otherTeamsOf(a);
+  if(main.length)return`Planned – ${main.map(teamLabel).join(', ')}`+(other.length?` (also: ${other.map(teamLabel).join(', ')})`:'');
+  if(other.length)return`Not planned by you – already on other team(s): ${other.map(teamLabel).join(', ')} (info only, still counted as available)`;
+  return'Not planned yet – lights up as soon as you tick Welcome, Lobby, Cafeteria or Auditorium';
+}
 function toggleApproval(index,key){
   const a=state.attendants[index];if(!a)return;
   a[key]=!a[key];
@@ -1347,8 +1361,8 @@ function refreshPlannedDot(index){
   const dot=el('tdot-'+index);if(!dot)return;
   const a=state.attendants[index],on=isPlanned(a);
   dot.classList.toggle('on',on);
-  dot.title=on?`Planned – on ${(a.teams||[]).length} team(s). Set automatically by the team selection.`
-              :'Not planned yet – lights up as soon as you tick a team';
+  dot.classList.toggle('ext',otherTeamsOf(a).length>0);
+  dot.title=plannedTitle(a);
 }
 function toggleCustomTag(index,tag,cbEl){
   const checked=cbEl.checked;
@@ -1441,9 +1455,14 @@ function deleteAttRow(index){
   pushUndo({kind:'att',index,row:structuredClone(state.attendants[index]),label:dispName(state.attendants[index])});
   state.attendants.splice(index,1);saveState();renderAttendantTable();renderCongTable();
 }
+/* IDs are plain numbers (1, 18, 105) – no leading zeros. Non-numeric IDs stay untouched. */
+function normId(v){
+  const t=String(v==null?'':v).trim();
+  return /^\d+$/.test(t)?String(parseInt(t,10)):t;
+}
 function nextId(){
   const nums=state.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n)&&n>0);
-  return String(nums.length?Math.max(...nums)+1:1).padStart(3,'0');
+  return String(nums.length?Math.max(...nums)+1:1);
 }
 
 /* ── Fill IDs: sort A-Z, renumber all (active first, then inactive) ── */
@@ -1452,7 +1471,7 @@ function fillAndRenumberIds(){
   const active=sortByName(state.attendants.filter(a=>a.active!==false));
   const inactive=sortByName(state.attendants.filter(a=>a.active===false));
   const sorted=[...active,...inactive];
-  sorted.forEach((a,i)=>{a.id=String(i+1).padStart(3,'0');});
+  sorted.forEach((a,i)=>{a.id=String(i+1);});
   // reorder attendants array to match sorted
   state.attendants=sorted;
   saveState();renderAttendantTable();renderCongTable();
@@ -1555,7 +1574,7 @@ function copyToOtherEvent(index){
   }else{
     // Add as new attendant (assign new ID in target context)
     const targetIds=targetState.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(n=>Number.isFinite(n)&&n>0);
-    const newId=String(targetIds.length?Math.max(...targetIds)+1:1).padStart(3,'0');
+    const newId=String(targetIds.length?Math.max(...targetIds)+1:1);
     targetState.attendants.push(normalizeAttendant({...att,id:newId}));
   }
   
@@ -2112,6 +2131,7 @@ function saveAttendantModal(addAnother){
     teams:picks('teams'),roles:picks('roles'),shifts:picks('shifts'),customTags:custom,
     flags:v('amFlags'),remarks:v('amRemarks')};
   if(attModalIndex===null){
+    obj.id=normId(obj.id);
     const clash=state.attendants.some(a=>String(a.id)===String(obj.id));
     if(!obj.id||clash)obj.id=nextId();
     const dup=state.attendants.find(a=>
@@ -2392,7 +2412,7 @@ function missingSets(){
   state.attendants.forEach((a,i)=>{
     if(!String(a.id||'').trim())noId.push(i);
     if(a.active===false)return;
-    if(!(a.teams||[]).length)noTeam.push(i);
+    if(!isPlanned(a))noTeam.push(i);
     if(!(a.shifts||[]).length)noShift.push(i);
     if(!a.confirmed)waitingReply.push(i);
   });
@@ -2401,7 +2421,7 @@ function missingSets(){
 }
 const MISS_DEFS={
   waitingReply:{title:'Waiting for his reply',  sub:'active, not confirmed',clear:'Every active attendant has confirmed'},
-  noTeam :{title:'Not planned yet',     sub:'active attendants, no team',clear:'Every active attendant is on a team'},
+  noTeam :{title:'Not planned yet',     sub:'active, none of the 4 main teams',clear:'Every active attendant is on one of the 4 main teams'},
   noShift:{title:'No shift set',       sub:'active attendants',        clear:'All active attendants have a shift'},
   noId   :{title:'No ID',              sub:'attendants',               clear:'Every attendant has an ID'},
   noMail :{title:'No coordinator mail',sub:'congregations / groups',   clear:'Every congregation has a coordinator mail'}
