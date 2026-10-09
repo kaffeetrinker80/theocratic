@@ -158,8 +158,8 @@
   }
   .page-head .page-head-updated{font-weight:400;text-transform:none;letter-spacing:.01em;opacity:.9}
   .column-head,.person-row{
-    display:grid;grid-template-columns:1.2fr 1.2fr 2.3fr 1.7fr 2.5fr 32px;
-    align-items:center;column-gap:10px
+    display:grid;grid-template-columns:var(--cols-screen,1.55fr 1fr 1.4fr .85fr 1.3fr 1.95fr 32px);
+    align-items:center;column-gap:12px
   }
   .column-head{
     background:var(--header);color:#3c3524;font-weight:600;padding:8px 14px;
@@ -187,15 +187,17 @@
     border-left:4px solid transparent
   }
   .person-row:nth-of-type(even){background:rgba(37,65,95,.018)}
+  .person-row{align-items:baseline}
+  .person-row .screen-only{align-self:center}
   .person-row.lead{font-weight:600}
   body.no-bold-leads .person-row.lead{font-weight:inherit}
   .person-row.marker{border-left-color:var(--row-accent,transparent);padding-left:11px}
   .cell{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .letter-chip{
     display:inline-flex;align-items:center;justify-content:center;
-    min-width:19px;height:19px;padding:0 5px;margin-right:6px;
+    min-width:19px;line-height:1.3;padding:0 5px;margin-right:6px;
     border-radius:6px;border:1px solid currentColor;background:rgba(0,0,0,.02);
-    font-size:.76em;font-weight:700;vertical-align:middle
+    font-size:.76em;font-weight:700;vertical-align:baseline
   }
   .contact-link{color:inherit;text-decoration:none}
   .contact-link:hover,.contact-link:focus{text-decoration:underline;text-decoration-color:var(--navy-soft)}
@@ -439,7 +441,8 @@
   .modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
   .modal-body{padding:15px 16px}
   #personModal,#detailsModal{z-index:140}
-  select.autofilled{border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,138,76,.22)}
+  #printModal{backdrop-filter:none;background:rgba(20,28,38,.18);place-items:end center;padding-bottom:28px}
+  select.autofilled,input.autofilled{border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,138,76,.22)}
   .modal.wide{width:min(1060px,100%);max-height:min(88vh,880px);display:flex;flex-direction:column;overflow:hidden}
   .modal.wide .modal-body{overflow:auto;flex:1;min-height:0}
   .people-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
@@ -546,11 +549,12 @@
     .doc-subtitle{font-size:10.5pt;margin-top:3px}
     .updated{font-size:11pt}
     .page-head{font-size:9.5pt;padding:5px 12px}
-    .column-head{font-size:11.5pt;padding:7px 23px;grid-template-columns:1.2fr 1.2fr 2.3fr 1.7fr 2.5fr}
+    .column-head{font-size:10.6pt;padding:7px 14px 7px 18px;grid-template-columns:var(--cols-print);column-gap:10px}
     .person-row{
-      font-size:10.4pt;min-height:23px;padding-top:3px;padding-bottom:3px;
-      grid-template-columns:1.2fr 1.2fr 2.3fr 1.7fr 2.5fr
+      font-size:9.8pt;min-height:23px;padding-top:3px;padding-bottom:3px;
+      grid-template-columns:var(--cols-print);column-gap:10px
     }
+    .letter-chip{min-width:16px;padding:0 4px;margin-right:5px}
     .group-title,.department-title{font-size:11.5pt}
     .portfolio-heading{font-size:12.5pt;padding:7px 9px}
     .portfolio-section{margin-bottom:11px}
@@ -581,7 +585,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.9.3</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.9.4</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -701,6 +705,33 @@
   </section>
 </div>
 
+<div class="modal-backdrop" id="printModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="printModalTitle" style="width:min(640px,100%)">
+    <div class="modal-head">
+      <div>
+        <h3 id="printModalTitle">Print / PDF</h3>
+        <p>Choose the columns and options — the preview behind updates live.</p>
+      </div>
+      <button class="btn icon-btn" id="closePrintModal" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="csv-group">
+        <h4>Columns</h4>
+        <div class="chip-grid" id="printColumns"></div>
+      </div>
+      <div class="csv-group">
+        <h4>Options</h4>
+        <div class="chip-grid" id="printOptions"></div>
+      </div>
+      <p class="helper" style="margin:0 0 12px">A4 landscape. In the print dialog, switch off “Headers and footers” and set margins to “Default” or “None”.</p>
+      <div class="inline-actions" style="justify-content:flex-end">
+        <button class="btn small" type="button" id="printCancel">Close</button>
+        <button class="btn small primary" type="button" id="printGo">Print / PDF</button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <div class="modal-backdrop" id="csvModal" aria-hidden="true">
   <section class="modal" role="dialog" aria-modal="true" aria-labelledby="csvModalTitle" style="width:min(720px,100%)">
     <div class="modal-head">
@@ -778,7 +809,7 @@
       <ul>
         <li>Click <span class="tag">Personnel: n</span> in the toolbar to open the contact table in its own window: search, sort by clicking a column header, click a row to edit, add or remove people.</li>
         <li>Each person is stored once and can be assigned to any number of roles &mdash; editing them updates every assignment.</li>
-        <li><strong>Congregation / group</strong>: mark a person as belonging to a group &mdash; the chart then shows e.g. &ldquo;Munich-English (Group)&rdquo;. If you change it for one person, the tool offers to change everyone else with the same congregation name too; for a new person it pre-selects the type that the others with that name already have.</li>
+        <li><strong>Congregation / group</strong>: mark a person as belonging to a group &mdash; the chart then shows e.g. &ldquo;Munich-English (Group)&rdquo;. If you change it for one person, the tool offers to change everyone else with the same congregation name too; for a new person it pre-selects the type that the others with that name already have. <strong>Circuit</strong> works the same way.</li>
         <li>Date of birth accepts a bare year (<em>2001</em>) or a full date (<em>14.03.2001</em> or <em>2001-03-14</em>).</li>
       </ul>
 
@@ -792,7 +823,7 @@
 
       <h4>Printing</h4>
       <ul>
-        <li><span class="tag">Print / PDF</span> prints one A4 landscape sheet per page; the cover sheet carries the title, the following sheets are colour-coded by committee member.</li>
+        <li><span class="tag">Print / PDF</span> first opens a small dialog: pick which columns appear (e.g. switch Circuit on for a regional convention) and the print options; the preview updates live. It then prints one A4 landscape sheet per page; the cover sheet carries the title, the following sheets are colour-coded by committee member.</li>
         <li><strong>Compact print</strong> squeezes more rows onto each page.</li>
         <li><strong>Print with all details</strong> adds private e-mail, birth date, pioneer status and notes as a second line under each name.</li>
         <li><strong>Repeat title and column header on every page</strong> is off by default (a plain page, like the cover-only layout). Switch it on if you'd rather see the title and column names repeated on every sheet.</li>
@@ -816,6 +847,27 @@
     return Array.from({length:count},() => ({id:uid('slot'), personId:''}));
   }
 
+  // Chart columns: fixed order, each can be switched on/off for screen + print.
+  // weight = share of the row width; email gets the most, names/congregation a little less.
+  const COLUMN_DEFS = [
+    {key:'lastName',     weight:1.55, label:s=>s.columns[0], placeholder:'Last name'},
+    {key:'firstName',    weight:1.0,  label:s=>s.columns[1], placeholder:'First name'},
+    {key:'congregation', weight:1.4,  label:s=>s.columns[2], placeholder:'Congregation'},
+    {key:'circuit',      weight:0.85, label:s=>s.circuitLabel, placeholder:'—'},
+    {key:'phone',        weight:1.3,  label:s=>s.columns[3], placeholder:'—'},
+    {key:'email',        weight:1.95, label:s=>s.columns[4], placeholder:'—'}
+  ];
+  function visibleColumns(){
+    const keys = (data && data.settings && data.settings.printColumns) || COLUMN_DEFS.map(c=>c.key);
+    const cols = COLUMN_DEFS.filter(c => keys.includes(c.key));
+    return cols.length ? cols : COLUMN_DEFS;
+  }
+  function applyColumnTemplate(){
+    const tpl = visibleColumns().map(c => `minmax(0,${c.weight}fr)`).join(' ');
+    document.documentElement.style.setProperty('--cols-print', tpl);
+    document.documentElement.style.setProperty('--cols-screen', tpl+' 32px');
+  }
+
   const ORIGINAL_DATA = {
     settings:{
       title:'REGIONAL CONVENTION — ORGANIZATION CHART',
@@ -827,6 +879,8 @@
       committeeTitle:'1.1  CONVENTION COMMITTEE',
       assistantsTitle:'1.2  CONVENTION COMMITTEE ASSISTANTS',
       columns:['Last name','First name','Congregation','Phone','Email'],
+      circuitLabel:'Circuit',
+      printColumns:['lastName','firstName','congregation','circuit','phone','email'],
       compactPrint:false,
       printAllInfo:false,
       repeatPageHeader:false,
@@ -912,6 +966,9 @@
     input.settings = {...base.settings, ...(input.settings || {})};
     input.settings.columns = Array.isArray(input.settings.columns) && input.settings.columns.length === 5
       ? input.settings.columns : base.settings.columns;
+    input.settings.printColumns = Array.isArray(input.settings.printColumns)
+      ? COLUMN_DEFS.map(c=>c.key).filter(k => input.settings.printColumns.includes(k)) : base.settings.printColumns.slice();
+    if(!input.settings.printColumns.length) input.settings.printColumns = base.settings.printColumns.slice();
 
     input.people = Array.isArray(input.people) ? input.people.map(normalizePerson) : base.people;
 
@@ -1075,7 +1132,7 @@
   function personExtra(person){
     if(!person) return '';
     const bits = [];
-    if(String(person.circuit||'').trim()) bits.push(`<span><span class="k">Circuit</span>${esc(person.circuit)}</span>`);
+    if(String(person.circuit||'').trim() && !visibleColumns().some(c=>c.key==='circuit')) bits.push(`<span><span class="k">Circuit</span>${esc(person.circuit)}</span>`);
     if(person.privateEmail) bits.push(`<span><span class="k">Private</span>${emailLink(person.privateEmail)}</span>`);
     const dob = formatDate(person.birthDate); if(dob) bits.push(`<span><span class="k">DOB</span>${esc(dob)}</span>`);
     if(String(person.pioneer||'').trim()) bits.push(`<span><span class="k">Reg. Pioneer</span></span>`);
@@ -1083,6 +1140,22 @@
     if(String(person.notes||'').trim()) bits.push(`<span><span class="k">Notes</span>${esc(person.notes)}</span>`);
     if(!bits.length) return '';
     return `<div class="person-extra">${bits.join('')}</div>`;
+  }
+
+  function personCell(person,col,chip=''){
+    const ph = `<span class="placeholder">${esc(col.placeholder)}</span>`;
+    if(!person) return `<div class="cell">${chip}${ph}</div>`;
+    let raw = '', html = '';
+    switch(col.key){
+      case 'lastName': raw=person.lastName; html=showValue(raw,col.placeholder); break;
+      case 'firstName': raw=person.firstName; html=showValue(raw,col.placeholder); break;
+      case 'congregation': raw=congregationLabel(person); html=showValue(raw,col.placeholder); break;
+      case 'circuit': raw=person.circuit; html=showValue(raw,'—'); break;
+      case 'phone': raw=person.phone; html=phoneLink(raw,'—'); break;
+      case 'email': raw=person.jwEmail; html=emailLink(raw,'—'); break;
+    }
+    // full text as tooltip, in case a narrow column has to shorten it with "…"
+    return `<div class="cell"${raw?` title="${esc(raw)}"`:''}>${chip}${html}</div>`;
   }
 
   function personRow(personId,{prefix='',markerColor=null,forceLead=null}={}){
@@ -1094,11 +1167,7 @@
     const chip = prefix ? `<span class="letter-chip"${markerColor?` style="color:${esc(markerColor)};border-color:${esc(markerColor)}"`:''}>${esc(prefix)}</span>` : '';
     return `
       <div class="${classes.join(' ')}"${rowStyle}>
-        <div class="cell">${chip}${person?showValue(person.lastName,'Last name'):'<span class="placeholder">Last name</span>'}</div>
-        <div class="cell">${person?showValue(person.firstName,'First name'):'<span class="placeholder">First name</span>'}</div>
-        <div class="cell">${person?showValue(congregationLabel(person),'Congregation'):'<span class="placeholder">Congregation</span>'}</div>
-        <div class="cell">${person?phoneLink(person.phone,'—'):'<span class="placeholder">—</span>'}</div>
-        <div class="cell">${person?emailLink(person.jwEmail,'—'):'<span class="placeholder">—</span>'}</div>
+        ${visibleColumns().map((c,i)=>personCell(person,c,i===0?chip:'')).join('')}
         <div class="screen-only">${person?`<button class="info-btn" data-person-details="${esc(person.id)}" title="Show stored details">i</button>`:''}</div>
         ${personExtra(person)}
       </div>`;
@@ -1107,7 +1176,7 @@
   function columnHeadBlock(){
     return `
       <div class="column-head">
-        ${data.settings.columns.map(c=>`<div>${showValue(c,'Column')}</div>`).join('')}
+        ${visibleColumns().map(c=>`<div class="cell">${showValue(c.label(data.settings),'Column')}</div>`).join('')}
         <div class="screen-only">Info</div>
       </div>`;
   }
@@ -1228,6 +1297,7 @@
   function renderPreview(){
     document.body.classList.toggle('compact-print', !!(data.settings && data.settings.compactPrint));
     document.body.classList.toggle('show-all-info', !!(data.settings && data.settings.printAllInfo));
+    applyColumnTemplate();
     document.body.classList.toggle('no-bold-leads', !(data.settings && data.settings.boldLeads!==false));
 
     const overviewPages = paginateOverviewSections(data.overviewSections);
@@ -1599,7 +1669,12 @@
             ${textField('Assistants heading','settings.assistantsTitle',data.settings.assistantsTitle)}
           </div>
           <div class="field-grid" style="margin-top:9px">
-            ${data.settings.columns.map((column,index)=>textField('Column '+(index+1),`settings.columns.${index}`,column)).join('')}
+            ${textField('Column label: last name','settings.columns.0',data.settings.columns[0])}
+            ${textField('Column label: first name','settings.columns.1',data.settings.columns[1])}
+            ${textField('Column label: congregation','settings.columns.2',data.settings.columns[2])}
+            ${textField('Column label: circuit','settings.circuitLabel',data.settings.circuitLabel)}
+            ${textField('Column label: phone','settings.columns.3',data.settings.columns[3])}
+            ${textField('Column label: email','settings.columns.4',data.settings.columns[4])}
           </div>
           <label style="margin-top:10px;flex-direction:row;align-items:center;gap:8px">
             <input style="width:auto" type="checkbox" data-path="settings.compactPrint" ${data.settings.compactPrint?'checked':''}>
@@ -2012,8 +2087,10 @@
     let focusSelector = '';
 
     let savedId = '';
+    let before = {};
     if(personModalState.mode==='edit'){
       const person = personById(personModalState.personId);
+      before = person ? {congType:person.congType, circuit:person.circuit, congregation:person.congregation} : {};
       if(person) Object.assign(person, normalizePerson({...fields, id:person.id}));
       savedId = person ? person.id : '';
       focusSelector = personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
@@ -2026,7 +2103,7 @@
     }
 
     closePersonModal();
-    const synced = syncCongTypeForSameCongregation(savedId);
+    const synced = syncSameCongregation(savedId,before);
     // Without a target slot (opened from the personnel window) the sidebar must not jump anywhere.
     updateAll({editorToo:true, editorState, focusSelector});
     if(isOpen(peopleModal)) renderPeopleTable();
@@ -2042,34 +2119,51 @@
     return data.people.filter(p => p.id!==excludeId && congKey(p.congregation)===key);
   }
   function congTypeName(t){ return t==='Group' ? 'Group' : t==='Congregation' ? 'Congregation' : 'not set'; }
+  const SYNC_FIELDS = [
+    {key:'congType', label:'Congregation / group', show:v => congTypeName(v)},
+    {key:'circuit',  label:'Circuit',              show:v => String(v||'').trim() || 'not set'}
+  ];
+  const sameVal = (a,b) => String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();
 
-  // After saving: offer to bring everyone else with the same congregation name in line.
-  function syncCongTypeForSameCongregation(personId){
+  // After saving: if Congregation/group or Circuit was set or changed (or the congregation name itself
+  // changed), offer to bring everyone else with the same congregation name in line — one question per field.
+  function syncSameCongregation(personId,before={}){
     const person = personById(personId);
-    if(!person || !person.congType) return 0;
-    const others = peopleWithCongregation(person.congregation,person.id).filter(p => p.congType!==person.congType);
-    if(!others.length) return 0;
-    const list = others.slice(0,12).map(p => `• ${[p.lastName,p.firstName].filter(Boolean).join(', ') || 'Unnamed'} (${congTypeName(p.congType)})`).join('\n')
-      + (others.length>12 ? `\n… and ${others.length-12} more` : '');
-    const ok = confirm(`${others.length} other ${others.length===1?'person has':'people have'} "${person.congregation.trim()}" as congregation, but a different type:\n\n${list}\n\nSet ${others.length===1?'this person':'all of them'} to "${person.congType}" as well?`);
-    if(!ok) return 0;
-    others.forEach(p => { p.congType = person.congType; });
-    updateAll({editorToo:true, editorState:captureEditorState()});
-    if(isOpen(peopleModal)) renderPeopleTable();
-    return others.length;
+    if(!person || !String(person.congregation||'').trim()) return 0;
+    const congChanged = !sameVal(before.congregation,person.congregation);
+    const touched = new Set();
+    SYNC_FIELDS.forEach(f => {
+      const value = String(person[f.key]||'').trim();
+      if(!value) return;
+      if(!congChanged && sameVal(before[f.key],value)) return;   // field untouched -> don't nag
+      const others = peopleWithCongregation(person.congregation,person.id).filter(p => !sameVal(p[f.key],value));
+      if(!others.length) return;
+      const list = others.slice(0,12).map(p => `• ${[p.lastName,p.firstName].filter(Boolean).join(', ') || 'Unnamed'} (${f.show(p[f.key])})`).join('\n')
+        + (others.length>12 ? `\n… and ${others.length-12} more` : '');
+      const ok = confirm(`${f.label}: ${others.length} other ${others.length===1?'person has':'people have'} "${person.congregation.trim()}" as congregation, but a different value:\n\n${list}\n\nSet ${others.length===1?'this person':'all of them'} to "${f.show(value)}" as well?`);
+      if(!ok) return;
+      others.forEach(p => { p[f.key] = value; touched.add(p.id); });
+    });
+    if(touched.size){
+      updateAll({editorToo:true, editorState:captureEditorState()});
+      if(isOpen(peopleModal)) renderPeopleTable();
+    }
+    return touched.size;
   }
 
   // While typing a congregation in the person dialog: if the type is still empty and everybody
   // else with that name already shares one type, pre-select it (the user can still change it).
   document.getElementById('pm-congregation').addEventListener('change', e => {
-    const typeEl = document.getElementById('pm-congType');
-    if(typeEl.value) return;
-    const types = new Set(peopleWithCongregation(e.target.value,personModalState.personId).map(p=>p.congType).filter(Boolean));
-    if(types.size===1){
-      typeEl.value = [...types][0];
-      typeEl.classList.add('autofilled');
-      setTimeout(()=>typeEl.classList.remove('autofilled'),1400);
-    }
+    const others = peopleWithCongregation(e.target.value,personModalState.personId);
+    [['pm-congType','congType'],['pm-circuit','circuit']].forEach(([id,key]) => {
+      const el = document.getElementById(id);
+      if(String(el.value||'').trim()) return;
+      const values = [...new Set(others.map(p=>String(p[key]||'').trim()).filter(Boolean))];
+      if(values.length!==1) return;
+      el.value = values[0];
+      el.classList.add('autofilled');
+      setTimeout(()=>el.classList.remove('autofilled'),1400);
+    });
   });
 
   const helpModal = document.getElementById('helpModal');
@@ -2085,6 +2179,7 @@
     if(isOpen(personModal)){ closePersonModal(); return; }
     if(isOpen(detailsModal)){ closePersonDetails(); return; }
     if(isOpen(csvModal)){ closeModal(csvModal); return; }
+    if(isOpen(printModal)){ closeModal(printModal); return; }
     if(isOpen(peopleModal)){ closeModal(peopleModal); return; }
     if(isOpen(helpModal)){ closeHelp(); return; }
     toggleEditor(false);
@@ -2104,7 +2199,46 @@
   document.getElementById('collapseAllBtn').addEventListener('click',()=>{
     editorContent.querySelectorAll('details').forEach(d => d.open = false);
   });
-  document.getElementById('printBtn').addEventListener('click',()=>window.print());
+  // ================= Print dialog =================
+  const printModal = document.getElementById('printModal');
+  const PRINT_OPTIONS = [
+    {key:'compactPrint', label:'Compact — more rows per page'},
+    {key:'printAllInfo', label:'All details (private email, DOB, pioneer, notes)'},
+    {key:'repeatPageHeader', label:'Repeat title + column header on every page'},
+    {key:'boldLeads', label:'Overseers / leads in bold', invertDefault:true}
+  ];
+  function renderPrintModal(){
+    const st = data.settings;
+    document.getElementById('printColumns').innerHTML = COLUMN_DEFS.map(c =>
+      `<label><input type="checkbox" data-print-col="${c.key}" ${st.printColumns.includes(c.key)?'checked':''}> ${esc(c.label(st) || c.key)}</label>`).join('');
+    document.getElementById('printOptions').innerHTML = PRINT_OPTIONS.map(o => {
+      const on = o.invertDefault ? st[o.key]!==false : !!st[o.key];
+      return `<label><input type="checkbox" data-print-opt="${o.key}" ${on?'checked':''}> ${esc(o.label)}</label>`;
+    }).join('');
+  }
+  printModal.addEventListener('change', e => {
+    const t = e.target;
+    if(t.dataset.printCol){
+      const set = new Set(data.settings.printColumns);
+      t.checked ? set.add(t.dataset.printCol) : set.delete(t.dataset.printCol);
+      if(!set.size){ t.checked = true; toast('At least one column is needed'); return; }
+      data.settings.printColumns = COLUMN_DEFS.map(c=>c.key).filter(k=>set.has(k));
+    }else if(t.dataset.printOpt){
+      data.settings[t.dataset.printOpt] = t.checked;
+    }else return;
+    // keep the sidebar checkboxes in sync without losing its scroll position
+    updateAll({editorToo:true, editorState:captureEditorState()});
+  });
+  document.getElementById('printBtn').addEventListener('click',()=>{ renderPrintModal(); openModal(printModal); });
+  document.getElementById('closePrintModal').addEventListener('click',()=>closeModal(printModal));
+  document.getElementById('printCancel').addEventListener('click',()=>closeModal(printModal));
+  printModal.addEventListener('click', e => { if(e.target===printModal) closeModal(printModal); });
+  document.getElementById('printGo').addEventListener('click',()=>{
+    closeModal(printModal);
+    closeComboList();
+    // let the browser repaint the (now final) layout before the print dialog takes over
+    setTimeout(()=>{ flagTallSheets(); window.print(); },80);
+  });
 
   // ================= Personnel master window =================
   const peopleModal = document.getElementById('peopleModal');
