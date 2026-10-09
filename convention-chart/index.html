@@ -441,6 +441,23 @@
   .modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
   .modal-body{padding:15px 16px}
   #personModal,#detailsModal{z-index:140}
+  .qs-modal{width:min(780px,100%)}
+  .qs-hero{display:flex;gap:14px;align-items:center;margin:0 0 14px}
+  .qs-hero .qs-badge{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:#fff;box-shadow:0 6px 16px rgba(26,47,71,.25)}
+  .qs-hero p{margin:0;color:#4b5563;font-size:13px;line-height:1.45}
+  .qs-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .qs-card{border:1px solid #dfe4ea;border-radius:13px;padding:13px 14px;background:#fff;display:flex;flex-direction:column;gap:9px}
+  .qs-card h4{margin:0;font-size:13.5px;color:#1f2f44}
+  .qs-card p{margin:0;font-size:12.3px;color:#56616e;line-height:1.45}
+  .qs-card .inline-actions{margin-top:auto}
+  .qs-drop{border:2px dashed #c9d2dc;border-radius:11px;padding:12px;text-align:center;font-size:12px;color:#6b7684;transition:.15s ease}
+  .qs-drop.over{border-color:var(--accent);background:#fbf6ec;color:#7b5d27}
+  .qs-steps{margin:14px 0 0;padding:12px 14px;border-radius:13px;background:#f5f7fa;border:1px solid #e4e9ef}
+  .qs-steps h4{margin:0 0 7px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#56616e}
+  .qs-steps ol{margin:0;padding-left:19px;font-size:12.5px;color:#3a4350;line-height:1.55}
+  .qs-privacy{margin:12px 0 0;font-size:11.8px;color:#5c6672;line-height:1.45;display:flex;gap:8px;align-items:flex-start}
+  .qs-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  @media (max-width:640px){ .qs-cards{grid-template-columns:1fr} }
   #printModal{backdrop-filter:none;background:rgba(20,28,38,.18);place-items:end center;padding-bottom:28px}
   select.autofilled,input.autofilled{border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,138,76,.22)}
   .modal.wide{width:min(1060px,100%);max-height:min(88vh,880px);display:flex;flex-direction:column;overflow:hidden}
@@ -585,7 +602,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.9.4</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.9.5</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -774,6 +791,54 @@
   </section>
 </div>
 
+<div class="modal-backdrop" id="quickModal" aria-hidden="true">
+  <section class="modal qs-modal" role="dialog" aria-modal="true" aria-labelledby="quickTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="quickTitle">Quick start</h3>
+        <p>The chart is empty in this browser — here is how to get going.</p>
+      </div>
+      <button class="btn icon-btn" id="closeQuick" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="qs-hero">
+        <div class="qs-badge">🗂️</div>
+        <p>This tool keeps one <strong>personnel master</strong> (everyone stored once) and builds the organization chart from it. People can stay in the list without an assignment, so it keeps growing and can be reused for the next convention.</p>
+      </div>
+      <div class="qs-cards">
+        <div class="qs-card">
+          <h4>📦 I have a backup file</h4>
+          <p>Someone sent you a <code>…_backup_….json</code> (or a personnel file)? Import it and you are on the current state immediately.</p>
+          <div class="qs-drop" id="qsDrop">Drop the JSON file here</div>
+          <div class="inline-actions"><button class="btn small primary" type="button" id="qsImport">Choose backup file…</button></div>
+        </div>
+        <div class="qs-card">
+          <h4>✏️ Start from scratch</h4>
+          <p>Add the brothers to the personnel master first, then set title, committee and departments and assign people with the search fields.</p>
+          <div class="inline-actions">
+            <button class="btn small primary" type="button" id="qsPeople">Add people</button>
+            <button class="btn small" type="button" id="qsEdit">Edit structure</button>
+          </div>
+        </div>
+      </div>
+      <div class="qs-steps">
+        <h4>In four steps</h4>
+        <ol>
+          <li><strong>Personnel</strong> (toolbar) — add, search and edit contacts. Circuit and “Group” can be copied to everyone from the same congregation.</li>
+          <li><strong>Edit data</strong> — title, committee members, departments; assign people by typing a name.</li>
+          <li><strong>Print / PDF</strong> — choose the columns (e.g. Circuit) and print A4 landscape.</li>
+          <li><strong>Export backup</strong> — save regularly and use it to share the current state.</li>
+        </ol>
+      </div>
+      <p class="qs-privacy"><span>🔒</span><span><strong>Privacy:</strong> the online tool contains no personal data. Everything you enter stays only in this browser on this device — nothing is sent to a server. A backup file does contain contact details, so only share it with brothers who need it. “Reset” clears the browser again.</span></p>
+      <div class="qs-foot">
+        <button class="btn small" type="button" id="qsHelp">Open full help</button>
+        <button class="btn small" type="button" id="qsLater">Not now</button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <div class="modal-backdrop" id="helpModal" aria-hidden="true">
   <section class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <div class="modal-head">
@@ -784,6 +849,7 @@
       <button class="btn icon-btn" id="closeHelp" type="button" aria-label="Close help">&times;</button>
     </div>
     <div class="modal-body help-body">
+      <p style="margin-top:0"><button class="btn small" type="button" id="helpQuickBtn">Show quick start</button></p>
       <h4>Two separate things</h4>
       <p>The <strong>personnel master</strong> is your list of people (the contacts). <strong>Assignments</strong> only point to a person &mdash; so editing someone once updates every position they hold.</p>
 
@@ -2181,6 +2247,7 @@
     if(isOpen(csvModal)){ closeModal(csvModal); return; }
     if(isOpen(printModal)){ closeModal(printModal); return; }
     if(isOpen(peopleModal)){ closeModal(peopleModal); return; }
+    if(isOpen(quickModal)){ closeModal(quickModal); return; }
     if(isOpen(helpModal)){ closeHelp(); return; }
     toggleEditor(false);
   });
@@ -2565,9 +2632,11 @@
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files && fileInput.files[0];
-    if(!file) return;
+    if(file) importJsonFile(file).finally(() => { fileInput.value = ''; });
+  });
 
-    readFileAsText(file).then(rawText => {
+  function importJsonFile(file){
+    return readFileAsText(file).then(rawText => {
       const cleanText = rawText.replace(/^﻿/,'').trim();
       if(!cleanText) throw new Error('The selected JSON file is empty.');
       const parsed = JSON.parse(cleanText);
@@ -2576,6 +2645,7 @@
         data = migrate(parsed);
         updateAll({editorToo:true});
         if(isOpen(peopleModal)) renderPeopleTable();
+        closeModal(document.getElementById('quickModal'));
         toggleEditor(true);
         const persisted = saveData();
         const message = `Full configuration imported: ${data.people.length} people, ${data.portfolios.length} committee roles.`;
@@ -2591,6 +2661,7 @@
       data.people = normalizedPeople;
       cleanBrokenAssignments(data);
       updateAll({editorToo:true});
+      closeModal(document.getElementById('quickModal'));
       peopleSearchEl.value = '';
       openPeopleModal();
 
@@ -2601,10 +2672,8 @@
     }).catch(err => {
       console.error('Import failed:',err);
       alert('Import failed. '+(err && err.message ? err.message : 'Please select a valid organization chart or personnel-master JSON file.'));
-    }).finally(() => {
-      fileInput.value = '';
     });
-  });
+  }
 
   document.getElementById('resetBtn').addEventListener('click',()=>{
     if(!confirm('Reset the complete organization chart and clear the locally stored personnel master?')) return;
@@ -2612,7 +2681,37 @@
     updateAll({editorToo:true});
     if(isOpen(peopleModal)) renderPeopleTable();
     toast('Blank template restored');
+    openQuickStart();
   });
+
+  // ================= Quick start (shown when the chart is empty) =================
+  const quickModal = document.getElementById('quickModal');
+  function chartIsEmpty(){
+    if(data.people.length) return false;
+    const st = data.settings || {};
+    return !data.portfolios.some(p => p.memberId || p.assistantId || p.departments.some(d => d.people.some(x => x.personId)))
+      && !data.overviewSections.some(s => s.people.some(x => x.personId));
+  }
+  function openQuickStart(){ closeComboList(); openModal(quickModal); }
+  document.getElementById('closeQuick').addEventListener('click',()=>closeModal(quickModal));
+  document.getElementById('qsLater').addEventListener('click',()=>closeModal(quickModal));
+  quickModal.addEventListener('click', e => { if(e.target===quickModal) closeModal(quickModal); });
+  document.getElementById('qsImport').addEventListener('click',()=>{ fileInput.value=''; fileInput.click(); });
+  document.getElementById('qsPeople').addEventListener('click',()=>{ closeModal(quickModal); openPeopleModal(); });
+  document.getElementById('qsEdit').addEventListener('click',()=>{ closeModal(quickModal); toggleEditor(true); });
+  document.getElementById('qsHelp').addEventListener('click',()=>{ closeModal(quickModal); openHelp(); });
+  document.getElementById('helpQuickBtn').addEventListener('click',()=>{ closeHelp(); openQuickStart(); });
+  const qsDrop = document.getElementById('qsDrop');
+  ['dragenter','dragover'].forEach(ev => qsDrop.addEventListener(ev, e => { e.preventDefault(); qsDrop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => qsDrop.addEventListener(ev, e => { e.preventDefault(); qsDrop.classList.remove('over'); }));
+  qsDrop.addEventListener('drop', e => {
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) importJsonFile(file);
+  });
+  // a file dropped next to the drop zone must not make the browser navigate away
+  quickModal.addEventListener('dragover', e => e.preventDefault());
+  quickModal.addEventListener('drop', e => e.preventDefault());
+  if(chartIsEmpty()) setTimeout(openQuickStart, 250);
 
   function toast(message){
     statusEl.textContent = message;
