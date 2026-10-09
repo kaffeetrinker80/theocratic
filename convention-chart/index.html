@@ -439,6 +439,7 @@
   .modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
   .modal-body{padding:15px 16px}
   #personModal,#detailsModal{z-index:140}
+  select.autofilled{border-color:var(--accent);box-shadow:0 0 0 3px rgba(176,138,76,.22)}
   .modal.wide{width:min(1060px,100%);max-height:min(88vh,880px);display:flex;flex-direction:column;overflow:hidden}
   .modal.wide .modal-body{overflow:auto;flex:1;min-height:0}
   .people-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
@@ -580,7 +581,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.9.2</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.9.3</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -777,7 +778,7 @@
       <ul>
         <li>Click <span class="tag">Personnel: n</span> in the toolbar to open the contact table in its own window: search, sort by clicking a column header, click a row to edit, add or remove people.</li>
         <li>Each person is stored once and can be assigned to any number of roles &mdash; editing them updates every assignment.</li>
-        <li><strong>Congregation / group</strong>: mark a person as belonging to a group &mdash; the chart then shows e.g. &ldquo;Munich-English (Group)&rdquo;.</li>
+        <li><strong>Congregation / group</strong>: mark a person as belonging to a group &mdash; the chart then shows e.g. &ldquo;Munich-English (Group)&rdquo;. If you change it for one person, the tool offers to change everyone else with the same congregation name too; for a new person it pre-selects the type that the others with that name already have.</li>
         <li>Date of birth accepts a bare year (<em>2001</em>) or a full date (<em>14.03.2001</em> or <em>2001-03-14</em>).</li>
       </ul>
 
@@ -2010,22 +2011,65 @@
     const editorState = captureEditorState();
     let focusSelector = '';
 
+    let savedId = '';
     if(personModalState.mode==='edit'){
       const person = personById(personModalState.personId);
       if(person) Object.assign(person, normalizePerson({...fields, id:person.id}));
+      savedId = person ? person.id : '';
       focusSelector = personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
     }else{
       const person = normalizePerson({id:uid('person'), ...fields});
       data.people.push(person);
+      savedId = person.id;
       if(personModalState.targetPath) setByPath(data,personModalState.targetPath,person.id);
       focusSelector = personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
     }
 
     closePersonModal();
+    const synced = syncCongTypeForSameCongregation(savedId);
     // Without a target slot (opened from the personnel window) the sidebar must not jump anywhere.
     updateAll({editorToo:true, editorState, focusSelector});
     if(isOpen(peopleModal)) renderPeopleTable();
-    toast(personModalState.mode==='edit' ? 'Person updated' : 'Person added');
+    toast((personModalState.mode==='edit' ? 'Person updated' : 'Person added') + (synced ? ` · ${synced} more updated` : ''));
+  });
+
+  // ---- Congregation / group consistency ----
+  // Same congregation name (case/space-insensitive) should carry the same type for everyone.
+  function congKey(value){ return String(value||'').trim().replace(/\s+/g,' ').toLowerCase(); }
+  function peopleWithCongregation(name,excludeId=''){
+    const key = congKey(name);
+    if(!key) return [];
+    return data.people.filter(p => p.id!==excludeId && congKey(p.congregation)===key);
+  }
+  function congTypeName(t){ return t==='Group' ? 'Group' : t==='Congregation' ? 'Congregation' : 'not set'; }
+
+  // After saving: offer to bring everyone else with the same congregation name in line.
+  function syncCongTypeForSameCongregation(personId){
+    const person = personById(personId);
+    if(!person || !person.congType) return 0;
+    const others = peopleWithCongregation(person.congregation,person.id).filter(p => p.congType!==person.congType);
+    if(!others.length) return 0;
+    const list = others.slice(0,12).map(p => `• ${[p.lastName,p.firstName].filter(Boolean).join(', ') || 'Unnamed'} (${congTypeName(p.congType)})`).join('\n')
+      + (others.length>12 ? `\n… and ${others.length-12} more` : '');
+    const ok = confirm(`${others.length} other ${others.length===1?'person has':'people have'} "${person.congregation.trim()}" as congregation, but a different type:\n\n${list}\n\nSet ${others.length===1?'this person':'all of them'} to "${person.congType}" as well?`);
+    if(!ok) return 0;
+    others.forEach(p => { p.congType = person.congType; });
+    updateAll({editorToo:true, editorState:captureEditorState()});
+    if(isOpen(peopleModal)) renderPeopleTable();
+    return others.length;
+  }
+
+  // While typing a congregation in the person dialog: if the type is still empty and everybody
+  // else with that name already shares one type, pre-select it (the user can still change it).
+  document.getElementById('pm-congregation').addEventListener('change', e => {
+    const typeEl = document.getElementById('pm-congType');
+    if(typeEl.value) return;
+    const types = new Set(peopleWithCongregation(e.target.value,personModalState.personId).map(p=>p.congType).filter(Boolean));
+    if(types.size===1){
+      typeEl.value = [...types][0];
+      typeEl.classList.add('autofilled');
+      setTimeout(()=>typeEl.classList.remove('autofilled'),1400);
+    }
   });
 
   const helpModal = document.getElementById('helpModal');
