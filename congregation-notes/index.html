@@ -574,7 +574,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 @media print {.meeting-timer,.part-timer{display:none!important}}
 @media print { .meeting-help, [data-act="addPart"], [data-act="removePart"], select[data-assign] { display:none !important; } }
 
-.weekly-reading-control{display:flex;gap:8px;align-items:center}.weekly-reading-control input{flex:1;min-width:0}.weekly-reading-control button{white-space:nowrap}.weekly-chapters{margin-top:7px}.weekly-range{font-size:12.5px;font-weight:700;color:var(--sub)}.weekly-chapters .chips{margin-top:5px}@media(max-width:430px){.weekly-reading-control{flex-wrap:wrap}.weekly-reading-control button{width:100%}}@media print{.weekly-reading-control button{display:none!important}}
+.weekly-reading-control{display:flex;gap:8px;align-items:center}.weekly-reading-control input{flex:1;min-width:0}.weekly-reading-control button{white-space:nowrap}.weekly-chapters{margin-top:7px}.weekly-range{font-size:12.5px;font-weight:700;color:var(--sub)}.weekly-range-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.weekly-clear{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--danger);font-size:17px;line-height:1}.weekly-clear:focus-visible{outline:2px solid var(--primary)}.weekly-chapters .chips{margin-top:5px}@media(max-width:430px){.weekly-reading-control{flex-wrap:wrap}.weekly-reading-control button{width:100%}}@media print{.weekly-reading-control button{display:none!important}}
 </style>
 </head>
 <body class="kid">
@@ -613,7 +613,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="to-top" id="to-top" data-act="toTop" aria-label="Top" hidden>↑</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.24 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.25 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -694,7 +694,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.24';
+const APP_VERSION = '1.2.25';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -1215,7 +1215,7 @@ function weeklyReadingLinks(r){
  const b=books().find(x=>x.n===+r.book);if(!b)return '';
  const from=+r.from,to=+r.to;
  if(!Number.isInteger(from)||!Number.isInteger(to)||from<1||to<from||to>150)return '';
- return `<div class="weekly-chapters"><span class="weekly-range">📖 ${esc(b.name)} ${from}${to>from?'–'+to:''}</span><div class="chips">${Array.from({length:to-from+1},(_,i)=>{const ch=from+i;return `<span class="chip"><a href="${esc(`https://www.jw.org/finder?wtlocale=${settings.lang==='de'?'X':'E'}&pub=nwtsty&bible=${String(r.book).padStart(2,'0')}${String(ch).padStart(3,'0')}`)}" data-act="openRef" target="_blank" rel="noopener">${esc(b.name)} ${ch} ↗</a></span>`;}).join('')}</div></div>`;
+ return `<div class="weekly-chapters"><div class="weekly-range-head"><span class="weekly-range">📖 ${esc(b.name)} ${from}${to>from?'–'+to:''}</span><button type="button" class="weekly-clear" data-act="clearWeeklyReading" aria-label="${settings.lang==='de'?'Bibellese-Auswahl löschen':'Clear Bible reading selection'}" title="${settings.lang==='de'?'Auswahl löschen':'Clear selection'}">×</button></div><div class="chips">${Array.from({length:to-from+1},(_,i)=>{const ch=from+i;return `<span class="chip"><a href="${esc(`https://www.jw.org/finder?wtlocale=${settings.lang==='de'?'X':'E'}&pub=nwtsty&bible=${String(r.book).padStart(2,'0')}${String(ch).padStart(3,'0')}`)}" data-act="openRef" target="_blank" rel="noopener">${esc(b.name)} ${ch} ↗</a></span>`;}).join('')}</div></div>`;
 }
 function openWeeklyReading(){
  const sel=$('wr-book');sel.innerHTML=books().map(b=>`<option value="${b.n}">${esc(b.name)}</option>`).join('');
@@ -1231,7 +1231,7 @@ function openWeeklyReading(){
  updateWeeklyPreview();openModal('modal-weekreading');
 }
 function weeklySelection(){const book=+$('wr-book').value,from=+$('wr-from').value,to=+$('wr-to').value||from;return books().some(b=>b.n===book)&&Number.isInteger(from)&&Number.isInteger(to)&&from>=1&&to>=from&&to<=150?{book,from,to}:null;}
-function updateWeeklyPreview(){const r=weeklySelection();$('wr-preview').innerHTML=r?weeklyReadingLinks(r):esc(settings.lang==='de'?'Bitte gültige Kapitel auswählen':'Select valid chapters');}
+function updateWeeklyPreview(){const r=weeklySelection();$('wr-preview').innerHTML=r?weeklyReadingLinks(r).replace(/<button type="button" class="weekly-clear"[^>]*>×<\/button>/,''):esc(settings.lang==='de'?'Bitte gültige Kapitel auswählen':'Select valid chapters');}
 ['wr-book','wr-from','wr-to'].forEach(id=>document.getElementById(id).addEventListener('input',updateWeeklyPreview));
 function midweekTop(e) {
   return `<section class="card"><div class="meta-grid"><div class="fld wide"><span>${esc(t('weeklyReading'))}</span><div class="weekly-reading-control"><input type="text" data-f="midweek.reading" value="${esc(e.midweek.reading||'')}" autocomplete="off" placeholder="${esc(settings.lang==='de'?'Bibelbuch und Kapitel auswählen':'Choose Bible book and chapters')}"><button type="button" class="btn" data-act="openWeeklyReading">📖 ${esc(settings.lang==='de'?'Auswählen':'Select')}</button></div>${weeklyReadingLinks(e.midweek.readingRange)}</div>${fieldHtml('midweek.chairman','chairman',e.midweek.chairman)}${fieldHtml('midweek.openPrayer','openingPrayer',e.midweek.openPrayer)}${fieldHtml('midweek.closePrayer','closingPrayer',e.midweek.closePrayer)}</div></section>`;
@@ -2112,6 +2112,7 @@ function inkOf(el) { const ink = el.closest('.ink'); return ink && ink._ink; }
 // ═══════════════════════════════════════════
 const ACTIONS = {
   openWeeklyReading: () => openWeeklyReading(),
+  clearWeeklyReading: () => {if(!cur?.midweek)return;cur.midweek.readingRange=null;cur.midweek.reading='';dirty();keepScroll(renderEntry);},
   saveWeeklyReading: () => {const r=weeklySelection();if(!r){toast(settings.lang==='de'?'Ungültiger Kapitelbereich':'Invalid chapter range');return;}const b=books().find(b=>b.n===r.book);cur.midweek.readingRange=r;cur.midweek.reading=`${b.name} ${r.from}${r.to>r.from?'–'+r.to:''}`;dirty();closeModal('modal-weekreading');keepScroll(renderEntry);},
   reloadSongs: () => { void loadSongs(settings.lang,true); },
   open: el => { location.hash = '#e=' + encodeURIComponent(el.dataset.id); },
