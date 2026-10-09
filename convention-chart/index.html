@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convention Organization Chart v1.9.0</title>
+<style>
+  :root{
+    --navy:#25415f;
+    --navy-deep:#1a2f47;
+    --navy-soft:#3d668f;
+    --accent:#b08a4c;
+    --accent-soft:#cca86a;
+    --paper:#ffffff;
+    --ink:#20242b;
+    --muted:#747b86;
+    --section:#e2e6ec;
+    --subsection:#eef1f5;
+    --header:#efe9d8;
+    --workspace:#eef1f4;
+    --panel:#ffffff;
+    --line:#dfe3e8;
+    --shadow:0 12px 34px rgba(20,34,53,.10);
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--workspace);
+    color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+    font-size:13.5px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .appbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:10px 18px;
+    background:rgba(255,255,255,.94);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 1px 0 rgba(26,47,71,.04);
+    backdrop-filter:blur(12px);
+  }
+  .appbar::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:3px;
+    background:linear-gradient(90deg,var(--navy-deep),var(--navy-soft) 55%,var(--accent));
+  }
+  .brand{min-width:0;display:flex;align-items:center;gap:10px}
+  .brand-dot{
+    flex:none;width:11px;height:11px;border-radius:50%;
+    background:linear-gradient(150deg,var(--navy-soft),var(--navy-deep));
+    box-shadow:0 0 0 3px rgba(37,65,95,.10)
+  }
+  .brand h1{
+    margin:0;font-size:16px;line-height:1.2;font-weight:600;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px
+  }
+  .brand h1 .ver{
+    font-size:10.5px;font-weight:700;letter-spacing:.02em;color:var(--navy);
+    background:rgba(37,65,95,.09);border:1px solid rgba(37,65,95,.18);
+    border-radius:999px;padding:1px 7px
+  }
+  .brand p{margin:2px 0 0;color:var(--muted);font-size:11px;letter-spacing:.005em}
+  .toolbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+  .personnel-count{
+    display:inline-flex;align-items:center;min-height:30px;padding:0 11px;
+    border:1px solid rgba(37,65,95,.22);border-radius:999px;background:rgba(37,65,95,.07);
+    color:var(--navy);font-size:11.5px;font-weight:700;white-space:nowrap;letter-spacing:.01em;
+    cursor:pointer;transition:background .14s ease,border-color .14s ease,box-shadow .14s ease;
+  }
+  .personnel-count.loaded{background:#eaf0f7;border-color:#bcd0e6;color:#1d3a5c}
+  .personnel-count:hover{box-shadow:0 2px 7px rgba(20,34,53,.12);border-color:rgba(37,65,95,.4)}
+  .personnel-count:focus-visible{outline:2px solid var(--navy-soft);outline-offset:2px}
+  .btn{
+    border:1px solid #d4d9df;border-radius:9px;padding:7px 11px;
+    background:#fff;color:#344052;font-size:12.5px;font-weight:600;line-height:1.2;
+    box-shadow:0 1px 1px rgba(20,34,53,.03);
+    transition:background .14s ease,border-color .14s ease,box-shadow .14s ease,transform .12s ease,color .14s ease;
+  }
+  .btn:hover{background:#f7f8fa;border-color:#c5ccd4;box-shadow:0 2px 6px rgba(20,34,53,.07)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{
+    background:linear-gradient(180deg,var(--navy),var(--navy-deep));
+    border-color:var(--navy-deep);color:#fff;box-shadow:0 2px 8px rgba(26,47,71,.22)
+  }
+  .btn.primary:hover{background:linear-gradient(180deg,#2c4c6f,#17293e);border-color:var(--navy-deep)}
+  .btn.danger{color:#a01f2c}
+  .btn.danger:hover{background:#fbf1f2;border-color:#e6c3c7}
+  .btn.small{padding:5px 8px;border-radius:8px;font-size:11.5px}
+  .icon-btn{width:30px;height:30px;padding:0;display:inline-grid;place-items:center}
+  .workspace{
+    display:grid;grid-template-columns:minmax(0,1fr) 0;
+    min-height:calc(100vh - 58px);
+    transition:grid-template-columns .25s ease;
+  }
+  body.editor-open .workspace{grid-template-columns:minmax(0,1fr) 470px}
+  .preview-area{padding:20px}
+  .sheets{display:flex;flex-direction:column;gap:20px;align-items:center}
+  .sheet{
+    position:relative;
+    width:min(100%,1400px);
+    background:var(--paper);box-shadow:var(--shadow);
+    border:1px solid rgba(37,65,95,.08);border-radius:10px;
+    padding:18px 20px 16px;overflow:visible;
+  }
+  /* The A4 landscape height is reserved by a zero-width float (cleared by
+     ::after) instead of aspect-ratio + overflow:hidden. Auto-pagination should
+     keep every page inside the page box, but if an estimate is ever off, the
+     sheet now grows and says so rather than silently cutting rows away. */
+  .sheet::before{content:"";display:block;float:left;width:0;padding-top:max(760px,70.7071%)}
+  .sheet::after{content:"";display:block;clear:both}
+  .sheet-overflow-note{
+    display:none;margin:12px -20px -16px;padding:7px 20px;
+    border-top:1px dashed var(--accent-soft);border-radius:0 0 10px 10px;
+    background:rgba(176,138,76,.08);color:#77602f;
+    font-size:11.5px;line-height:1.4;font-style:italic
+  }
+  .sheet.is-taller-than-a4 .sheet-overflow-note{display:block}
+  .doc-title{
+    background:linear-gradient(180deg,var(--navy),var(--navy-deep));
+    color:#fff;text-align:center;padding:13px 16px 12px;
+    border-bottom:2px solid var(--accent)
+  }
+  .doc-title-main{
+    font-size:clamp(18px,2vw,30px);font-weight:600;letter-spacing:.015em;
+    line-height:1.1;text-transform:uppercase
+  }
+  .doc-subtitle{
+    margin-top:5px;font-size:clamp(12px,1.1vw,17px);line-height:1.25;
+    font-weight:400;letter-spacing:.01em;opacity:.95
+  }
+  .updated{text-align:right;margin:5px 4px 3px 0;font-size:clamp(11px,1.1vw,17px);color:#4b5460}
+  .page-head{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    background:linear-gradient(180deg,var(--navy),var(--navy-deep));
+    color:#fff;padding:7px 14px;border-bottom:2px solid var(--accent);
+    font-size:clamp(11px,1.1vw,15px);letter-spacing:.03em;text-transform:uppercase;font-weight:600;
+  }
+  .page-head .page-head-updated{font-weight:400;text-transform:none;letter-spacing:.01em;opacity:.9}
+  .column-head,.person-row{
+    display:grid;grid-template-columns:1.2fr 1.2fr 2.3fr 1.7fr 2.5fr 32px;
+    align-items:center;column-gap:10px
+  }
+  .column-head{
+    background:var(--header);color:#3c3524;font-weight:600;padding:8px 14px;
+    font-size:clamp(11px,1.25vw,19px);letter-spacing:.01em;
+    border-bottom:1px solid rgba(176,138,76,.28)
+  }
+  .column-head .screen-only{text-align:center}
+  .group-title{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    margin-top:14px;padding:8px 12px;background:var(--section);
+    font-size:clamp(12px,1.3vw,20px);font-weight:600;letter-spacing:.01em;
+    border-left:3px solid var(--navy-soft)
+  }
+  .group-title.major{
+    background:linear-gradient(180deg,var(--navy-deep),#142337);
+    color:#fff;border-left-color:var(--accent)
+  }
+  .group-title.sub{margin-top:6px;background:var(--subsection);border-left-color:var(--navy);font-size:clamp(11.5px,1.22vw,19px)}
+  .group-title .office-email{font-weight:400;white-space:nowrap}
+  .hierarchy-note{margin:6px 2px 0;color:#6b756f;font-size:clamp(9px,.8vw,12px);font-style:italic}
+  .person-row{
+    position:relative;min-height:30px;padding:4px 14px;
+    font-size:clamp(10.5px,1.1vw,16px);line-height:1.16;
+    border-bottom:1px solid #eef1f5;
+    border-left:4px solid transparent
+  }
+  .person-row:nth-of-type(even){background:rgba(37,65,95,.018)}
+  .person-row.lead{font-weight:600}
+  body.no-bold-leads .person-row.lead{font-weight:inherit}
+  .person-row.marker{border-left-color:var(--row-accent,transparent);padding-left:11px}
+  .cell{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .letter-chip{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:19px;height:19px;padding:0 5px;margin-right:6px;
+    border-radius:6px;border:1px solid currentColor;background:rgba(0,0,0,.02);
+    font-size:.76em;font-weight:700;vertical-align:middle
+  }
+  .contact-link{color:inherit;text-decoration:none}
+  .contact-link:hover,.contact-link:focus{text-decoration:underline;text-decoration-color:var(--navy-soft)}
+  .contact-link:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:2px}
+  .info-btn{
+    width:25px;height:25px;padding:0;border:1px solid rgba(37,65,95,.28);border-radius:999px;
+    background:#fff;color:var(--navy);font-weight:700;line-height:1;
+    transition:background .14s ease,border-color .14s ease
+  }
+  .info-btn:hover{background:rgba(37,65,95,.08);border-color:var(--navy-soft)}
+  .placeholder{color:#9ba1aa;font-style:italic;font-weight:400}
+  .portfolio-section{position:relative;margin-bottom:16px;padding-left:0}
+  .portfolio-bar{width:100%;height:4px;border-radius:2px 2px 0 0}
+  .portfolio-heading{
+    color:white;font-size:clamp(13px,1.4vw,21px);font-weight:600;
+    text-transform:uppercase;padding:9px 12px;letter-spacing:.01em
+  }
+  .department{margin-top:9px}
+  .department-title{
+    display:flex;align-items:center;gap:10px;background:var(--section);
+    padding:6px 11px;font-weight:600;font-size:clamp(11px,1.2vw,18px);
+    letter-spacing:.01em;border-left:3px solid var(--navy-soft)
+  }
+  .department-title.sub{margin-left:24px;background:var(--subsection);border-left:3px solid var(--accent-soft)}
+  .department-title .number{
+    display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;
+    padding:0 6px;border-radius:7px;background:#fff;border:1px solid rgba(37,65,95,.18);
+    color:var(--navy);font-size:.78em;font-weight:700
+  }
+  .department.subdepartment .person-row{margin-left:24px}
+  .empty-note{padding:16px;color:var(--muted);font-size:14px}
+  .editor{
+    position:sticky;top:58px;height:calc(100vh - 58px);overflow:auto;
+    background:var(--panel);border-left:1px solid var(--line);
+    transform:translateX(100%);transition:transform .25s ease
+  }
+  body.editor-open .editor{transform:translateX(0)}
+  .editor{scrollbar-width:thin;scrollbar-color:#c4cbd4 transparent}
+  .editor-inner{padding:15px}
+  .editor-head{
+    position:sticky;top:-15px;z-index:5;
+    margin:-15px -15px 12px;padding:15px 15px 12px;
+    background:var(--panel);border-bottom:1px solid var(--line);
+  }
+  .editor-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+  .editor-head h2{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em;color:var(--navy-deep)}
+  .editor-head p{margin:2px 0 0;color:var(--muted);font-size:11px}
+  .editor-toolbar{display:flex;gap:6px;margin-top:10px}
+  .editor-toolbar .btn{flex:1}
+  .panel-card{
+    border:1px solid #d8dfe6;border-radius:11px;margin-bottom:10px;
+    overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(20,34,53,.03)
+  }
+  .panel-card>summary{
+    list-style:none;display:flex;align-items:center;justify-content:space-between;gap:9px;
+    padding:10px 12px;border-left:3px solid #aab8c8;
+    font-size:12.5px;font-weight:650;cursor:pointer;color:#27384d;background:#eef2f6
+  }
+  .panel-card>summary:hover{background:#e5ebf2;border-left-color:var(--navy);color:#173b61}
+  .panel-card[open]>summary{background:#e4ebf3;border-left-color:var(--navy);color:#173b61}
+  .panel-card>summary::-webkit-details-marker{display:none}
+  .panel-card.primary-panel>summary{
+    background:linear-gradient(180deg,#f2ede1,#eee6d4);
+    border-left-color:var(--accent);color:#6f5a2b
+  }
+  .panel-card.primary-panel>summary:hover,
+  .panel-card.primary-panel[open]>summary{background:#efe7d6;border-left-color:var(--accent);color:#5f4d24}
+  .panel-card.primary-panel .summary-chevron{border-color:var(--accent-soft);color:var(--accent)}
+  .summary-chevron{
+    display:grid;place-items:center;width:21px;height:21px;border:1px solid #b7c4d2;
+    border-radius:999px;background:#fff;color:var(--navy);font-size:17px;line-height:1;
+    transition:transform .18s ease
+  }
+  .panel-card[open]>summary .summary-chevron{transform:rotate(90deg)}
+  .item-card>.panel-card{border-color:#aec2d5;background:#f8fbfe;box-shadow:0 1px 5px rgba(37,65,95,.055)}
+  .item-card>.panel-card>summary{padding:9px 10px;border-left-color:var(--navy);background:#dfeaf4;color:#173b61}
+  .item-card>.panel-card>summary:hover{background:#d4e2ef}
+  .item-card>.panel-card[open]>summary{background:#d4e2ef}
+  .item-card>.panel-card>.panel-body{background:#fbfdff}
+  .panel-body{padding:11px;min-width:0}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .field-grid.one{grid-template-columns:1fr}
+  label{display:flex;flex-direction:column;gap:4px;font-size:10.5px;font-weight:650;color:#5a6472;letter-spacing:.005em}
+  input,select,textarea{
+    width:100%;border:1px solid #d5dae1;border-radius:8px;padding:7px 9px;
+    color:#2d3542;font-size:13px;line-height:1.25;background:#fff;
+    transition:border-color .14s ease,box-shadow .14s ease
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy-soft);box-shadow:0 0 0 3px rgba(37,65,95,.10)}
+  input[type=color]{height:34px;padding:3px}
+  textarea{min-height:64px;resize:vertical}
+  input[type=checkbox]{accent-color:var(--navy)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+  .inline-actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .item-card{min-width:0;border:1px solid #e0e4e9;border-radius:10px;padding:9px;margin-top:8px;background:#fbfcfd}
+  .item-card.accent{border-color:#cdd8c2;background:#f7fbf9}
+
+  /* Editor cards pick up the same colour coding as the printed chart: each
+     portfolio card is tinted with its own --pf-accent (the committee colour),
+     and its department cards inherit that hue so it always stays obvious which
+     committee member a department belongs to. Neighbouring department cards
+     alternate their tint slightly so they still read as separate tiles. */
+  .item-card.portfolio-card{
+    --pf-accent:var(--navy-soft);
+    margin-top:14px;padding-left:11px;
+    border-color:color-mix(in srgb,var(--pf-accent) 32%,#e0e4e9);
+    border-left:4px solid var(--pf-accent);
+    background:
+      linear-gradient(180deg,color-mix(in srgb,var(--pf-accent) 8%,#fff),
+                              color-mix(in srgb,var(--pf-accent) 2.5%,#fff))
+  }
+  .item-card.portfolio-card:first-of-type{margin-top:4px}
+  .item-card.portfolio-card>.item-head{
+    margin:-9px -9px 9px -11px;padding:8px 9px 8px 11px;
+    border-bottom:1px solid color-mix(in srgb,var(--pf-accent) 24%,#e4e8ed);
+    border-radius:6px 9px 0 0;
+    background:color-mix(in srgb,var(--pf-accent) 13%,#fff)
+  }
+  .pf-letter{
+    display:inline-grid;place-items:center;flex:none;
+    min-width:24px;height:22px;padding:0 5px;border-radius:6px;
+    background:#fff;border:1px solid color-mix(in srgb,var(--pf-accent) 50%,#dfe3e8);
+    color:color-mix(in srgb,var(--pf-accent) 80%,#1c2733);
+    font-size:11px;font-weight:700
+  }
+  .pf-page{
+    flex:none;padding:1px 7px;border-radius:999px;
+    background:#fff;border:1px solid color-mix(in srgb,var(--pf-accent) 40%,#dfe3e8);
+    color:color-mix(in srgb,var(--pf-accent) 78%,#1c2733);
+    font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap
+  }
+  .item-card.portfolio-card>.panel-card{
+    border-color:color-mix(in srgb,var(--pf-accent) 26%,#aec2d5)
+  }
+  .item-card.portfolio-card>.panel-card>summary{
+    border-left-color:var(--pf-accent);
+    background:color-mix(in srgb,var(--pf-accent) 12%,#fff);
+    color:color-mix(in srgb,var(--pf-accent) 72%,#16202b)
+  }
+  .item-card.portfolio-card>.panel-card>summary:hover,
+  .item-card.portfolio-card>.panel-card[open]>summary{
+    background:color-mix(in srgb,var(--pf-accent) 19%,#fff)
+  }
+
+  .item-card.department-card{
+    --dept-accent:var(--pf-accent,var(--navy-soft));
+    margin-top:12px;padding-left:11px;
+    border-color:color-mix(in srgb,var(--dept-accent) 30%,#e0e4e9);
+    border-left:4px solid color-mix(in srgb,var(--dept-accent) 72%,#fff);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--dept-accent) 7%,#fff),#fff)
+  }
+  /* Every second tile sits a shade deeper — enough contrast to see the seam
+     between two cards without introducing a second colour. */
+  .item-card.department-card:nth-of-type(even){
+    border-left-color:var(--dept-accent);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--dept-accent) 13%,#fff),
+                                      color-mix(in srgb,var(--dept-accent) 3%,#fff))
+  }
+  .item-card.department-card:first-of-type{margin-top:2px}
+  .item-card.department-card>.item-head{
+    margin:-9px -9px 8px -11px;padding:7px 9px 7px 11px;
+    border-bottom:1px solid color-mix(in srgb,var(--dept-accent) 22%,#e4e8ed);
+    border-radius:6px 9px 0 0;
+    background:color-mix(in srgb,var(--dept-accent) 11%,#fff)
+  }
+  .dept-number{
+    display:inline-grid;place-items:center;flex:none;
+    min-width:26px;height:21px;padding:0 5px;border-radius:6px;
+    background:#fff;border:1px solid color-mix(in srgb,var(--dept-accent) 45%,#dfe3e8);
+    color:color-mix(in srgb,var(--dept-accent) 78%,#1c2733);
+    font-size:11px;font-weight:700
+  }
+  .dept-sub-tag{
+    flex:none;padding:1px 7px;border-radius:999px;
+    background:#fff;border:1px dashed color-mix(in srgb,var(--dept-accent) 40%,#dfe3e8);
+    color:color-mix(in srgb,var(--dept-accent) 70%,#1c2733);
+    font-size:10px;font-weight:600;white-space:nowrap
+  }
+  .item-card.department-card.is-sub>.item-head strong{font-style:italic}
+
+  .item-card.overview-card{
+    margin-top:12px;padding-left:11px;
+    border-left:4px solid var(--accent-soft);
+    border-color:#e0dbcd;
+    background:linear-gradient(180deg,#fdfaf3,#fff)
+  }
+  .item-card.overview-card>.item-head{
+    margin:-9px -9px 8px -11px;padding:7px 9px 7px 11px;
+    border-bottom:1px solid #ece5d5;border-radius:6px 9px 0 0;background:#f7f1e3
+  }
+  .item-head{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:7px;min-width:0}
+  .item-head strong{font-size:12.5px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;color:#334052}
+  .slot-editor{min-width:0;border-top:1px dashed #d6dbe2;margin-top:8px;padding-top:8px}
+  .slot-editor:first-of-type{border-top:0;margin-top:0;padding-top:0}
+  .slot-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .slot-head strong{font-size:11.5px;color:#465264}
+  .helper{font-size:10.5px;color:var(--muted);line-height:1.45}
+  .search-row{display:flex;gap:7px;align-items:end;margin-bottom:8px}
+  .search-row label{flex:1}
+  .person-master-card>summary{background:#f5f8fb;border-left-color:#c3cfda}
+  .person-master-card[open]>summary{background:#e9eff6}
+  .assignment-count{padding:2px 8px;border-radius:999px;background:#e6ecf2;color:#57626e;font-size:10px;font-weight:700}
+  .person-field-row{display:flex;gap:6px;align-items:center}
+  .person-field-row .icon-btn{flex:none;width:28px;height:28px;font-size:13px}
+  .person-combo{position:relative;flex:1;min-width:0}
+  .person-combo-input{width:100%}
+  .person-combo-input::placeholder{color:#9aa3ad;font-style:italic}
+  .person-combo-list{
+    position:fixed;z-index:9999;
+    max-height:230px;overflow:auto;background:#fff;
+    border:1px solid #c7d0da;border-radius:9px;
+    box-shadow:0 12px 28px rgba(20,34,53,.18);
+    padding:4px;
+  }
+  .combo-option{padding:6px 9px;border-radius:6px;font-size:12.5px;color:#2d3542;cursor:pointer}
+  .combo-option:hover,.combo-option.active{background:#eaf0f7;color:#173b61}
+  .combo-option.empty-option{color:var(--muted);font-style:italic;cursor:default}
+  .status{
+    position:fixed;left:50%;bottom:18px;z-index:200;
+    transform:translate(-50%,20px);opacity:0;pointer-events:none;
+    background:#1d2736;color:#fff;border-radius:999px;padding:9px 15px;
+    font-size:13px;box-shadow:0 10px 26px rgba(20,34,53,.32);transition:.2s ease
+  }
+  .status.show{opacity:1;transform:translate(-50%,0)}
+  .hidden-file{display:none}
+  .modal-backdrop{
+    position:fixed;inset:0;z-index:120;display:none;place-items:center;
+    padding:20px;background:rgba(20,28,38,.44);backdrop-filter:blur(3px)
+  }
+  .modal-backdrop.open{display:grid}
+  .modal{
+    width:min(620px,100%);max-height:min(82vh,720px);overflow:auto;
+    background:#fff;border-radius:15px;box-shadow:0 24px 70px rgba(0,0,0,.24);
+    border:1px solid rgba(255,255,255,.7)
+  }
+  .modal-head{
+    position:sticky;top:0;display:flex;align-items:flex-start;justify-content:space-between;
+    gap:12px;padding:15px 16px;background:#fff;border-bottom:2px solid var(--accent)
+  }
+  .modal-head h3{margin:0;font-size:18px;color:var(--navy-deep)}
+  .modal-head p{margin:3px 0 0;color:var(--muted);font-size:12px}
+  .modal-body{padding:15px 16px}
+  #personModal,#detailsModal{z-index:140}
+  .modal.wide{width:min(1060px,100%);max-height:min(88vh,880px);display:flex;flex-direction:column;overflow:hidden}
+  .modal.wide .modal-body{overflow:auto;flex:1;min-height:0}
+  .people-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+  .people-toolbar .people-search{flex:1 1 240px;min-width:0}
+  .people-toolbar .spacer{flex:1}
+  .people-meta{font-size:11px;color:var(--muted);margin:0 0 8px}
+  .table-wrap{overflow-x:auto;border:1px solid #e1e6ec;border-radius:11px}
+  table.people-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:820px}
+  .people-table th{
+    position:sticky;top:0;background:#f3f6f9;text-align:left;font-size:10.5px;font-weight:700;
+    color:#56616e;letter-spacing:.03em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid #dfe4ea;white-space:nowrap
+  }
+  .people-table th[data-sort]{cursor:pointer;user-select:none}
+  .people-table th[data-sort]:hover{color:var(--navy)}
+  .people-table th .arrow{opacity:.35;margin-left:3px}
+  .people-table th.sorted .arrow{opacity:1;color:var(--accent)}
+  .people-table td{padding:7px 10px;border-bottom:1px solid #eef1f4;vertical-align:middle;color:#2d3542;overflow-wrap:anywhere}
+  .people-table tbody tr{cursor:pointer;transition:background .12s ease}
+  .people-table tbody tr:hover{background:#f6f8fb}
+  .people-table tbody tr:last-child td{border-bottom:0}
+  .people-table td.name{font-weight:600;color:#1f2f44}
+  .people-table td.muted{color:#8a929c}
+  .people-table td.actions{white-space:nowrap;text-align:right;width:1%}
+  .people-table .pioneer-dot{display:inline-block;margin-left:6px;padding:0 6px;border-radius:999px;font-size:9.5px;font-weight:700;color:#7b5d27;background:#f4ead4;border:1px solid #e3d2ab;vertical-align:middle}
+  .role-pill{display:inline-block;min-width:22px;text-align:center;padding:1px 8px;border-radius:999px;background:#e6ecf2;color:#57626e;font-size:10.5px;font-weight:700}
+  .role-pill.zero{background:#f6eeee;color:#a0525a}
+  .people-empty{padding:26px;text-align:center;color:var(--muted);font-style:italic}
+  .csv-group{margin:0 0 14px}
+  .csv-group h4{margin:0 0 7px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#56616e}
+  .chip-grid{display:flex;flex-wrap:wrap;gap:6px}
+  .chip-grid label{
+    flex-direction:row;align-items:center;gap:6px;padding:5px 10px;border:1px solid #d5dae1;border-radius:999px;
+    font-size:12px;font-weight:550;color:#3d4756;cursor:pointer;background:#fff;transition:.12s ease
+  }
+  .chip-grid label:hover{border-color:var(--navy-soft)}
+  .chip-grid label:has(input:checked){background:#eaf0f7;border-color:var(--navy-soft);color:#173b61}
+  .chip-grid input{width:auto;margin:0}
+  .csv-preview{font-family:ui-monospace,Consolas,monospace;font-size:11px;background:#f6f8fa;border:1px solid #e1e6ec;border-radius:9px;padding:9px 10px;white-space:pre;overflow:auto;max-height:150px;color:#3a4350}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .detail{min-width:0;padding:9px 11px;border:1px solid #e2e7ec;border-radius:10px;background:#fafbfc}
+  .detail.wide{grid-column:1/-1}
+  .detail span{display:block;color:var(--muted);font-size:10.5px;font-weight:650;margin-bottom:3px}
+  .detail strong{display:block;font-size:13px;overflow-wrap:anywhere}
+  .person-extra{
+    grid-column:1/-1;display:none;flex-wrap:wrap;gap:3px 22px;
+    margin-top:3px;padding-left:2px;font-size:.82em;color:#5c665f;line-height:1.3
+  }
+  body.show-all-info .person-extra{display:flex}
+  .person-extra .k{color:#8b948f;font-weight:700;margin-right:4px}
+  .help-body{font-size:13px;color:#38423d;line-height:1.5}
+  .help-body h4{margin:15px 0 4px;font-size:13px;color:var(--navy-deep);letter-spacing:.01em}
+  .help-body h4:first-child{margin-top:0}
+  .help-body p{margin:0 0 6px}
+  .help-body ul{margin:0 0 6px;padding-left:18px}
+  .help-body li{margin:3px 0}
+  .help-body .tag{
+    display:inline-block;font-weight:700;color:var(--navy);
+    background:rgba(37,65,95,.08);border:1px solid rgba(37,65,95,.2);
+    border-radius:6px;padding:0 6px;font-size:11.5px;white-space:nowrap
+  }
+  .help-note{
+    margin-top:12px;border-left:3px solid var(--accent);background:#f6efdf;
+    border-radius:8px;padding:9px 11px;font-size:12px;color:#6a5729;line-height:1.5
+  }
+  @media(min-width:1001px){
+    body.editor-open{overflow:hidden}
+    body.editor-open .workspace{height:calc(100dvh - 58px);min-height:0}
+    body.editor-open .preview-area{
+      height:100%;min-width:0;min-height:0;overflow:auto;padding-bottom:88px;
+      scrollbar-gutter:stable;overscroll-behavior:contain
+    }
+    body.editor-open .sheets{align-items:flex-start}
+    body.editor-open .sheet{min-width:1050px}
+    body.editor-open .editor{position:relative;top:auto;height:100%;min-height:0}
+  }
+  @media(max-width:1000px){
+    body.editor-open .workspace{grid-template-columns:1fr}
+    .editor{
+      position:fixed;right:0;top:0;z-index:90;width:min(94vw,470px);
+      height:100vh;box-shadow:-12px 0 30px rgba(0,0,0,.18)
+    }
+    .preview-area{padding:12px}
+    .sheet{min-width:1050px}
+    .detail-grid{grid-template-columns:1fr}
+  }
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body{background:#fff}
+    .appbar,.editor,.status,.screen-only,.modal-backdrop{display:none!important}
+    .workspace{display:block}
+    .preview-area{padding:0;overflow:visible}
+    .sheets{display:block;gap:0}
+    .sheet{
+      width:auto;height:194mm;min-height:194mm;aspect-ratio:auto;box-shadow:none;
+      border:0;border-radius:0;padding:0;margin:0;overflow:hidden;
+      break-after:page;page-break-after:always
+    }
+    .sheet:last-child{break-after:auto;page-break-after:auto}
+    .sheet::before,.sheet::after{content:none}
+    .sheet-overflow-note{display:none!important}
+    .person-row:nth-of-type(even){background:transparent}
+    .doc-title{padding:9px 12px 8px;border-bottom-width:2px}
+    .doc-title-main{font-size:23pt}
+    .doc-subtitle{font-size:10.5pt;margin-top:3px}
+    .updated{font-size:11pt}
+    .page-head{font-size:9.5pt;padding:5px 12px}
+    .column-head{font-size:11.5pt;padding:7px 23px;grid-template-columns:1.2fr 1.2fr 2.3fr 1.7fr 2.5fr}
+    .person-row{
+      font-size:10.4pt;min-height:23px;padding-top:3px;padding-bottom:3px;
+      grid-template-columns:1.2fr 1.2fr 2.3fr 1.7fr 2.5fr
+    }
+    .group-title,.department-title{font-size:11.5pt}
+    .portfolio-heading{font-size:12.5pt;padding:7px 9px}
+    .portfolio-section{margin-bottom:11px}
+    .department{margin-top:5px}
+    .hierarchy-note{font-size:7.6pt;margin-top:3px}
+    .contact-link{color:inherit!important;text-decoration:none!important}
+    body.compact-print .doc-title{padding:5px 12px 5px}
+    body.compact-print .doc-title-main{font-size:17pt}
+    body.compact-print .doc-subtitle{font-size:8.4pt;margin-top:1px}
+    body.compact-print .updated{font-size:8.4pt;margin:1px 3px 1px 0}
+    body.compact-print .page-head{font-size:8pt;padding:3px 11px}
+    body.compact-print .column-head{font-size:8.8pt;padding:3px 11px}
+    body.compact-print .person-row{font-size:8.3pt;min-height:16px;padding-top:1.1px;padding-bottom:1.1px}
+    body.compact-print .group-title,
+    body.compact-print .department-title{font-size:8.8pt;padding-top:2.5px;padding-bottom:2.5px}
+    body.compact-print .department{margin-top:3px}
+    body.compact-print .hierarchy-note{font-size:6.8pt;margin-top:2px}
+    body.show-all-info .person-extra{display:flex}
+    .person-extra{font-size:7.6pt;color:#333!important;gap:1px 12px;margin-top:1px}
+    .person-extra .k{color:#555!important}
+    .person-extra a{color:inherit!important;text-decoration:none!important}
+    body.compact-print .person-extra{font-size:7pt;gap:0 10px}
+  }
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand">
+    <span class="brand-dot" aria-hidden="true"></span>
+    <div style="min-width:0">
+      <h1>Convention Organization Chart <span class="ver">v1.9.0</span></h1>
+      <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="personnel-count" id="personnelCount" type="button" title="Open the personnel master (contact table)">Personnel: 0</button>
+    <button class="btn" id="toggleEditor">Edit data</button>
+    <button class="btn" id="importBtn">Import</button>
+    <button class="btn" id="exportBtn">Export personnel</button>
+    <button class="btn" id="backupBtn">Export backup</button>
+    <button class="btn" id="csvBtn" type="button" title="Export assignments or the roster as CSV">Export CSV</button>
+    <button class="btn danger" id="resetBtn">Reset</button>
+    <button class="btn icon-btn" id="helpBtn" type="button" title="How this tool works" aria-label="Help">?</button>
+    <button class="btn primary" id="printBtn">Print / PDF</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <main class="preview-area">
+    <div class="sheets" id="preview"></div>
+  </main>
+  <aside class="editor" id="editor">
+    <div class="editor-inner">
+      <div class="editor-head">
+        <div class="editor-head-top">
+          <div>
+            <h2>Edit organization chart</h2>
+            <p>The HTML holds no personal records. People are managed in the personnel window (toolbar “Personnel”). “Export backup” saves everything in one file.</p>
+          </div>
+          <button class="btn icon-btn" id="closeEditor" aria-label="Close editor">×</button>
+        </div>
+        <div class="editor-toolbar">
+          <button class="btn small" id="expandAllBtn" type="button" title="Expand every section">Expand all</button>
+          <button class="btn small" id="collapseAllBtn" type="button" title="Collapse every section">Collapse all</button>
+        </div>
+      </div>
+      <div id="editorContent"></div>
+    </div>
+  </aside>
+</div>
+
+<input class="hidden-file" type="file" id="fileInput" accept="application/json,.json">
+<div class="status" id="status"></div>
+<div class="person-combo-list" id="personComboList" hidden></div>
+
+<div class="modal-backdrop" id="detailsModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="detailsTitle">Person details</h3>
+        <p id="detailsSubtitle"></p>
+      </div>
+      <button class="btn icon-btn" id="closeDetails" aria-label="Close details">×</button>
+    </div>
+    <div class="modal-body" id="detailsBody"></div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="personModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="personModalTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="personModalTitle">New person</h3>
+        <p id="personModalSubtitle">Added to the personnel master and assigned here.</p>
+      </div>
+      <button class="btn icon-btn" id="closePersonModal" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-grid">
+        <label>Last name<input type="text" id="pm-lastName"></label>
+        <label>First name<input type="text" id="pm-firstName"></label>
+        <label>Congregation<input type="text" id="pm-congregation"></label>
+        <label>Circuit<input type="text" id="pm-circuit"></label>
+        <label>Phone<input type="text" id="pm-phone"></label>
+        <label>JW email<input type="text" id="pm-jwEmail"></label>
+        <label>Private email<input type="text" id="pm-privateEmail"></label>
+        <label>Date of birth<input type="text" id="pm-birthDate" placeholder="e.g. 2001 or 14.03.2001" inputmode="numeric"></label>
+      </div>
+      <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+        <input style="width:auto" type="checkbox" id="pm-pioneer">
+        Regular Pioneer
+      </label>
+      <label style="margin-top:8px">Notes<textarea id="pm-notes"></textarea></label>
+      <div class="inline-actions" style="margin-top:12px;justify-content:flex-end">
+        <button class="btn small" type="button" id="personModalCancel">Cancel</button>
+        <button class="btn small primary" type="button" id="personModalSave">Save person</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="peopleModal" aria-hidden="true">
+  <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="peopleModalTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="peopleModalTitle">Personnel master</h3>
+        <p>Everyone is stored once here and assigned by reference. Click a row to edit.</p>
+      </div>
+      <button class="btn icon-btn" id="closePeopleModal" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="people-toolbar">
+        <input type="search" class="people-search" id="peopleSearch" placeholder="Search name, congregation, circuit, phone, email …" autocomplete="off">
+        <button class="btn small primary" type="button" id="peopleAddBtn">+ Person</button>
+        <button class="btn small" type="button" id="peopleImportBtn" title="Import a roster JSON (or a full backup)">Import</button>
+        <button class="btn small" type="button" id="peopleExportBtn" title="Export the roster only">Export personnel</button>
+      </div>
+      <p class="people-meta" id="peopleMeta"></p>
+      <div class="table-wrap" id="peopleTableWrap"></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="csvModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="csvModalTitle" style="width:min(720px,100%)">
+    <div class="modal-head">
+      <div>
+        <h3 id="csvModalTitle">Export CSV</h3>
+        <p>Pick the layout and columns. Your choice is remembered in this browser.</p>
+      </div>
+      <button class="btn icon-btn" id="closeCsvModal" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="csv-group">
+        <h4>Layout</h4>
+        <div class="chip-grid">
+          <label><input type="radio" name="csvMode" value="assignment"> One row per assignment</label>
+          <label><input type="radio" name="csvMode" value="person"> One row per person</label>
+        </div>
+      </div>
+      <div class="csv-group">
+        <h4>Columns</h4>
+        <div class="chip-grid" id="csvColumns"></div>
+      </div>
+      <div class="csv-group">
+        <h4>Options</h4>
+        <div class="chip-grid">
+          <label><input type="radio" name="csvDelim" value=";"> Semicolon ; (Excel DE)</label>
+          <label><input type="radio" name="csvDelim" value=","> Comma ,</label>
+          <label><input type="checkbox" id="csvBom"> UTF-8 BOM (umlauts in Excel)</label>
+          <label><input type="checkbox" id="csvEmpty"> Include empty slots</label>
+        </div>
+      </div>
+      <div class="csv-group">
+        <h4>Preview <span id="csvCount" style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted)"></span></h4>
+        <div class="csv-preview" id="csvPreview"></div>
+      </div>
+      <div class="inline-actions" style="justify-content:flex-end">
+        <button class="btn small" type="button" id="csvCancel">Cancel</button>
+        <button class="btn small primary" type="button" id="csvDownload">Download CSV</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="helpModal" aria-hidden="true">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal-head">
+      <div>
+        <h3 id="helpTitle">How this tool works</h3>
+        <p>A quick guide to the convention organization chart</p>
+      </div>
+      <button class="btn icon-btn" id="closeHelp" type="button" aria-label="Close help">&times;</button>
+    </div>
+    <div class="modal-body help-body">
+      <h4>Two separate things</h4>
+      <p>The <strong>personnel master</strong> is your list of people (the contacts). <strong>Assignments</strong> only point to a person &mdash; so editing someone once updates every position they hold.</p>
+
+      <h4>Personnel master (contacts)</h4>
+      <ul>
+        <li>Click <span class="tag">Personnel: n</span> at the top to jump straight to the contact list.</li>
+        <li>Use <span class="tag">+ Person</span> to add someone, or the search box to find them. The list is sorted A&ndash;Z by last name.</li>
+        <li>Tick <strong>Regular Pioneer</strong> where it applies. Phone numbers link to WhatsApp; e-mails open your mail app.</li>
+        <li><span class="tag">Expand all</span> / <span class="tag">Collapse all</span> at the top of this panel open or close every section &mdash; top-level tabs and nested ones &mdash; in one click.</li>
+      </ul>
+
+      <h4>Hierarchy &amp; assignments</h4>
+      <ul>
+        <li>Open <span class="tag">Edit data</span>. Under <strong>Convention committee</strong>, each committee role (coordinator, program overseer, rooming overseer, &hellip;) has its own colour and its own <strong>Departments</strong> list &mdash; expand a role to assign its departments.</li>
+        <li>The colour and letter (a., b., c.) shown for each committee member also mark that department group on its print page, so it stays clear which department reports to which committee member.</li>
+        <li><strong>Other overview sections</strong> (contract representative, convention chairman, &hellip;) are assigned the same way, independently of the coloured departments.</li>
+        <li>Every assignment field is a single search-and-pick box: click it to see everyone, or type a few letters to narrow it down, then click a match (or press Enter to take the top one).</li>
+        <li>Next to it, <span class="tag">+</span> creates a brand-new person and assigns them right there, and <span class="tag">&#9998;</span> edits the currently assigned person &mdash; no detour through the personnel master needed.</li>
+        <li>The small <strong>i</strong> button on any row in the preview shows that person&rsquo;s full stored details.</li>
+      </ul>
+
+      <h4>Personnel master</h4>
+      <ul>
+        <li>Click <span class="tag">Personnel: n</span> in the toolbar to open the contact table in its own window: search, sort by clicking a column header, click a row to edit, add or remove people.</li>
+        <li>Each person is stored once and can be assigned to any number of roles &mdash; editing them updates every assignment.</li>
+        <li>Date of birth accepts a bare year (<em>2001</em>) or a full date (<em>14.03.2001</em> or <em>2001-03-14</em>).</li>
+      </ul>
+
+      <h4>Saving &amp; sharing (JSON)</h4>
+      <ul>
+        <li><span class="tag">Import</span> &mdash; one button; it auto-detects a roster file or a full backup.</li>
+        <li><span class="tag">Export personnel</span> &mdash; the roster only (no assignments or settings). Safe to share.</li>
+        <li><span class="tag">Export backup</span> &mdash; <strong>everything</strong>: settings, committee structure, departments and people. This is your complete save file. The file name carries the chart title and a time stamp, so several saves never overwrite each other.</li>
+        <li><span class="tag">Export CSV</span> &mdash; a spreadsheet of all assignments (or one row per person) with the columns you choose.</li>
+      </ul>
+
+      <h4>Printing</h4>
+      <ul>
+        <li><span class="tag">Print / PDF</span> prints one A4 landscape sheet per page; the cover sheet carries the title, the following sheets are colour-coded by committee member.</li>
+        <li><strong>Compact print</strong> squeezes more rows onto each page.</li>
+        <li><strong>Print with all details</strong> adds private e-mail, birth date, pioneer status and notes as a second line under each name.</li>
+        <li><strong>Repeat title and column header on every page</strong> is off by default (a plain page, like the cover-only layout). Switch it on if you'd rather see the title and column names repeated on every sheet.</li>
+        <li>If a committee member's departments don't fit on one page, the tool automatically continues them on an extra page (marked &ldquo;continued&rdquo;) instead of cutting anything off.</li>
+      </ul>
+
+      <p class="help-note"><strong>Privacy:</strong> private e-mail, birth date, pioneer status and notes are never printed unless you switch on &ldquo;Print with all details&rdquo;. A full backup <em>does</em> contain this private data &mdash; keep that file to yourself.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'convention-org-chart-clean-v1';
+  const uid = prefix => prefix + '-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(16).slice(2));
+  const clone = value => JSON.parse(JSON.stringify(value));
+
+  function blankSlots(count){
+    return Array.from({length:count},() => ({id:uid('slot'), personId:''}));
+  }
+
+  const ORIGINAL_DATA = {
+    settings:{
+      title:'REGIONAL CONVENTION — ORGANIZATION CHART',
+      subtitle:'Munich-English — June 12–14 · Kongresssaal München (Riesstraße 5, 80992 München)',
+      updatedLabel:'Updated',
+      updatedDate:'',
+      officeTitle:'1  CONVENTION COMMITTEE INBOX',
+      officeEmail:'CONV00000000000@jwpub.org',
+      committeeTitle:'1.1  CONVENTION COMMITTEE',
+      assistantsTitle:'1.2  CONVENTION COMMITTEE ASSISTANTS',
+      columns:['Last name','First name','Congregation','Phone','Email'],
+      compactPrint:false,
+      printAllInfo:false,
+      repeatPageHeader:false,
+      boldLeads:true
+    },
+    portfolios:[
+      {
+        id:uid('portfolio'), overviewLetter:'a.', role:'Convention Committee Coordinator',
+        sectionHeading:'DEPARTMENTS UNDER THE DIRECTION OF THE CONVENTION COMMITTEE COORDINATOR',
+        color:'#3a8fa2', printPage:2, memberId:'', assistantId:'',
+        departments:[
+          {id:uid('department'),number:'4',name:'Accounting',sub:false,people:blankSlots(2)},
+          {id:uid('department'),number:'5',name:'Attendants',sub:false,people:blankSlots(2)},
+          {id:uid('department'),number:'6',name:'First Aid / Mother and Child',sub:false,people:blankSlots(2)},
+          {id:uid('department'),number:'7',name:'Parking',sub:false,people:blankSlots(2)},
+          {id:uid('department'),number:'8',name:'Media / Regional Spokesperson',sub:false,people:blankSlots(1)},
+          {id:uid('department'),number:'9',name:'Safety and Fire Protection',sub:false,people:blankSlots(2)}
+        ]
+      },
+      {
+        id:uid('portfolio'), overviewLetter:'b.', role:'Program Overseer',
+        sectionHeading:'DEPARTMENTS UNDER THE DIRECTION OF THE PROGRAM OVERSEER',
+        color:'#cf0000', printPage:3, memberId:'', assistantId:'',
+        departments:[
+          {id:uid('department'),number:'10',name:'Audio / Video',sub:false,people:blankSlots(1)},
+          {id:uid('department'),number:'10.1',name:'Audio Team',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.2',name:'Video Team',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.3',name:'Stage Team',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.4',name:'IT Overseer',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'11',name:'Baptism',sub:false,people:blankSlots(2)}
+        ]
+      },
+      {
+        id:uid('portfolio'), overviewLetter:'c.', role:'Rooming Overseer',
+        sectionHeading:'DEPARTMENTS UNDER THE DIRECTION OF THE ROOMING OVERSEER',
+        color:'#ec7600', printPage:3, memberId:'', assistantId:'',
+        departments:[
+          {id:uid('department'),number:'12',name:'Information and Volunteer Service, Lost and Found and Cloakroom',sub:false,people:blankSlots(2)},
+          {id:uid('department'),number:'13',name:'Cleaning',sub:false,people:blankSlots(2)},
+          {id:uid('department'),number:'14',name:'Rooming',sub:false,people:blankSlots(2)}
+        ]
+      }
+    ],
+    overviewSections:[
+      {id:uid('overview'), title:'2  CONTRACT REPRESENTATIVE', people:blankSlots(2)},
+      {id:uid('overview'), title:'3  CONVENTION CHAIRMAN', people:blankSlots(2)}
+    ],
+    people:[]
+  };
+
+  let data = loadData();
+
+  const preview = document.getElementById('preview');
+  const editor = document.getElementById('editor');
+  const editorContent = document.getElementById('editorContent');
+  const fileInput = document.getElementById('fileInput');
+  const statusEl = document.getElementById('status');
+  const personnelCountEl = document.getElementById('personnelCount');
+  const detailsModal = document.getElementById('detailsModal');
+  const detailsBody = document.getElementById('detailsBody');
+  const detailsTitle = document.getElementById('detailsTitle');
+  const detailsSubtitle = document.getElementById('detailsSubtitle');
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? migrate(JSON.parse(raw)) : clone(ORIGINAL_DATA);
+    }catch(err){
+      console.warn(err);
+      return clone(ORIGINAL_DATA);
+    }
+  }
+
+  function normalizeSlots(list,fallbackCount=1){
+    const arr = Array.isArray(list) && list.length ? list : blankSlots(fallbackCount);
+    return arr.map(slot => ({id:(slot && slot.id) || uid('slot'), personId:(slot && slot.personId) || ''}));
+  }
+
+  function migrate(input){
+    const base = clone(ORIGINAL_DATA);
+    if(!input || typeof input !== 'object') return base;
+
+    input.settings = {...base.settings, ...(input.settings || {})};
+    input.settings.columns = Array.isArray(input.settings.columns) && input.settings.columns.length === 5
+      ? input.settings.columns : base.settings.columns;
+
+    input.people = Array.isArray(input.people) ? input.people.map(normalizePerson) : base.people;
+
+    input.portfolios = Array.isArray(input.portfolios) && input.portfolios.length ? input.portfolios.map((p,idx) => ({
+      id:p.id || uid('portfolio'),
+      overviewLetter:p.overviewLetter || String.fromCharCode(97+idx)+'.',
+      role:p.role || 'Committee role',
+      sectionHeading:p.sectionHeading || 'DEPARTMENTS UNDER THIS COMMITTEE MEMBER',
+      color:p.color || ['#3a8fa2','#cf0000','#ec7600'][idx%3],
+      printPage:Math.max(2,Number(p.printPage) || (idx===0?2:3)),
+      memberId:p.memberId || '',
+      assistantId:p.assistantId || '',
+      departments:Array.isArray(p.departments) ? p.departments.map(d => ({
+        id:d.id || uid('department'),
+        number:d.number ?? '',
+        name:d.name || 'Department',
+        sub:!!d.sub,
+        people:normalizeSlots(d.people,1)
+      })) : []
+    })) : base.portfolios;
+
+    input.overviewSections = Array.isArray(input.overviewSections) ? input.overviewSections.map(s => ({
+      id:s.id || uid('overview'),
+      title:s.title || 'OVERVIEW SECTION',
+      people:normalizeSlots(s.people,1)
+    })) : base.overviewSections;
+
+    cleanBrokenAssignments(input);
+    return input;
+  }
+
+  function normalizePerson(person){
+    const source = (person && typeof person === 'object') ? person : {};
+    return {
+      id:source.id || uid('person'),
+      lastName:source.lastName || '',
+      firstName:source.firstName || '',
+      congregation:source.congregation || '',
+      circuit:source.circuit || '',
+      phone:source.phone || '',
+      jwEmail:source.jwEmail || '',
+      privateEmail:source.privateEmail || '',
+      birthDate:source.birthDate || '',
+      pioneer:(source.pioneer && String(source.pioneer).trim()) ? 'Regular Pioneer' : '',
+      dataUpdated:source.dataUpdated || '',
+      notes:source.notes || ''
+    };
+  }
+
+  function cleanBrokenAssignments(target){
+    const ids = new Set(target.people.map(person => person.id));
+    target.portfolios.forEach(p => {
+      if(p.memberId && !ids.has(p.memberId)) p.memberId='';
+      if(p.assistantId && !ids.has(p.assistantId)) p.assistantId='';
+      p.departments.forEach(d => d.people.forEach(slot => {
+        if(slot.personId && !ids.has(slot.personId)) slot.personId='';
+      }));
+    });
+    target.overviewSections.forEach(s => s.people.forEach(slot => {
+      if(slot.personId && !ids.has(slot.personId)) slot.personId='';
+    }));
+  }
+
+  function saveData(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+      return true;
+    }catch(err){
+      console.warn('Local autosave is unavailable:',err);
+      return false;
+    }
+  }
+
+  function updatePersonnelCount(){
+    if(!personnelCountEl) return;
+    const count = Array.isArray(data.people) ? data.people.length : 0;
+    personnelCountEl.textContent = `Personnel: ${count}`;
+    personnelCountEl.classList.toggle('loaded', count>0);
+  }
+
+  function esc(value){
+    return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  }
+
+  function showValue(value, placeholder='—'){
+    const text = String(value ?? '').trim();
+    return text ? esc(text) : `<span class="placeholder">${esc(placeholder)}</span>`;
+  }
+
+  function personById(id){ return data.people.find(person => person.id===id) || null; }
+  function personSort(a,b){
+    return [a.lastName,a.firstName].join(', ').localeCompare([b.lastName,b.firstName].join(', '),'en',{sensitivity:'base'});
+  }
+
+  function emailLink(value, placeholder='—'){
+    const text = String(value ?? '').trim();
+    if(!text) return `<span class="placeholder">${esc(placeholder)}</span>`;
+    return `<a class="contact-link" href="${esc('mailto:'+text)}" title="Write email">${esc(text)}</a>`;
+  }
+
+  function phoneToWhatsApp(value){
+    const original = String(value ?? '').trim();
+    if(!original) return '';
+    let digits = original.replace(/\D/g,'');
+    if(digits.startsWith('00')) digits = digits.slice(2);
+    // This template is intended for German conventions: convert local 0… numbers to +49…
+    if(digits.startsWith('0')) digits = '49' + digits.slice(1);
+    return digits.length >= 8 ? digits : '';
+  }
+
+  function phoneLink(value, placeholder='—'){
+    const text = String(value ?? '').trim();
+    if(!text) return `<span class="placeholder">${esc(placeholder)}</span>`;
+    const number = phoneToWhatsApp(text);
+    return number
+      ? `<a class="contact-link" href="https://wa.me/${esc(number)}" target="_blank" rel="noopener noreferrer" title="Open WhatsApp chat">${esc(text)}</a>`
+      : esc(text);
+  }
+
+  // Accepts "2001", "14.03.2001", "14/03/2001", "2001-03-14" (and 2-digit day/month variants).
+  // Returns {ok,value} with value as "YYYY" or "YYYY-MM-DD"; empty input is ok and empty.
+  function parseFlexDate(raw){
+    const t = String(raw ?? '').trim();
+    if(!t) return {ok:true,value:''};
+    let y,m,d,match;
+    if((match=/^(\d{4})$/.exec(t))){
+      y=+match[1];
+      return (y>=1900 && y<=2100) ? {ok:true,value:String(y)} : {ok:false,value:t};
+    }
+    if((match=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(t))){ y=+match[1]; m=+match[2]; d=+match[3]; }
+    else if((match=/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/.exec(t))){ d=+match[1]; m=+match[2]; y=+match[3]; }
+    else return {ok:false,value:t};
+    const dt = new Date(Date.UTC(y,m-1,d));
+    if(dt.getUTCFullYear()!==y || dt.getUTCMonth()!==m-1 || dt.getUTCDate()!==d) return {ok:false,value:t};
+    return {ok:true,value:`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
+  }
+
+  function formatDate(value){
+    if(!value) return '';
+    if(/^\d{4}$/.test(String(value).trim())) return String(value).trim();
+    const d = new Date(value + 'T00:00:00');
+    if(Number.isNaN(d.getTime())) return value;
+    return new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d);
+  }
+
+  function personExtra(person){
+    if(!person) return '';
+    const bits = [];
+    if(String(person.circuit||'').trim()) bits.push(`<span><span class="k">Circuit</span>${esc(person.circuit)}</span>`);
+    if(person.privateEmail) bits.push(`<span><span class="k">Private</span>${emailLink(person.privateEmail)}</span>`);
+    const dob = formatDate(person.birthDate); if(dob) bits.push(`<span><span class="k">DOB</span>${esc(dob)}</span>`);
+    if(String(person.pioneer||'').trim()) bits.push(`<span><span class="k">Reg. Pioneer</span></span>`);
+    const upd = formatDate(person.dataUpdated); if(upd) bits.push(`<span><span class="k">Updated</span>${esc(upd)}</span>`);
+    if(String(person.notes||'').trim()) bits.push(`<span><span class="k">Notes</span>${esc(person.notes)}</span>`);
+    if(!bits.length) return '';
+    return `<div class="person-extra">${bits.join('')}</div>`;
+  }
+
+  function personRow(personId,{prefix='',markerColor=null,forceLead=null}={}){
+    const person = personById(personId);
+    const classes = ['person-row'];
+    if(forceLead) classes.push('lead');
+    if(markerColor) classes.push('marker');
+    const rowStyle = markerColor ? ` style="--row-accent:${esc(markerColor)}"` : '';
+    const chip = prefix ? `<span class="letter-chip"${markerColor?` style="color:${esc(markerColor)};border-color:${esc(markerColor)}"`:''}>${esc(prefix)}</span>` : '';
+    return `
+      <div class="${classes.join(' ')}"${rowStyle}>
+        <div class="cell">${chip}${person?showValue(person.lastName,'Last name'):'<span class="placeholder">Last name</span>'}</div>
+        <div class="cell">${person?showValue(person.firstName,'First name'):'<span class="placeholder">First name</span>'}</div>
+        <div class="cell">${person?showValue(person.congregation,'Congregation'):'<span class="placeholder">Congregation</span>'}</div>
+        <div class="cell">${person?phoneLink(person.phone,'—'):'<span class="placeholder">—</span>'}</div>
+        <div class="cell">${person?emailLink(person.jwEmail,'—'):'<span class="placeholder">—</span>'}</div>
+        <div class="screen-only">${person?`<button class="info-btn" data-person-details="${esc(person.id)}" title="Show stored details">i</button>`:''}</div>
+        ${personExtra(person)}
+      </div>`;
+  }
+
+  function columnHeadBlock(){
+    return `
+      <div class="column-head">
+        ${data.settings.columns.map(c=>`<div>${showValue(c,'Column')}</div>`).join('')}
+        <div class="screen-only">Info</div>
+      </div>`;
+  }
+
+  function pageHeadBlock(){
+    return `
+      <div class="page-head">
+        <span>${showValue(data.settings.title,'CONVENTION ORGANIZATION CHART')}</span>
+        <span class="page-head-updated">${esc(data.settings.updatedLabel || 'Updated')} ${esc(formatDate(data.settings.updatedDate))}</span>
+      </div>
+      ${columnHeadBlock()}`;
+  }
+
+  function titleBlock(){
+    return `
+      <div class="doc-title">
+        <div class="doc-title-main">${showValue(data.settings.title,'CONVENTION ORGANIZATION CHART')}</div>
+        ${String(data.settings.subtitle || '').trim() ? `<div class="doc-subtitle">${esc(data.settings.subtitle)}</div>` : ''}
+      </div>
+      <div class="updated">${esc(data.settings.updatedLabel || 'Updated')} ${esc(formatDate(data.settings.updatedDate))}</div>
+      ${columnHeadBlock()}`;
+  }
+
+  // --- Automatic pagination -------------------------------------------------
+  // Every row/heading has a near-fixed rendered height (single line, no wrap),
+  // so we can budget pages in "units" (1 unit = one person row) and split
+  // content across as many physical sheets as needed. This guarantees nothing
+  // is ever clipped or spills out of the printed page frame.
+  function pageCapacityUnits(){
+    return data.settings.compactPrint ? 34 : 24;
+  }
+  function headerReserveUnits(){
+    return data.settings.repeatPageHeader ? 3 : 0;
+  }
+  function departmentUnits(d){
+    return 1.3 + d.people.length;
+  }
+  function overviewSectionUnits(s){
+    return 1.4 + s.people.length;
+  }
+  const PORTFOLIO_HEADING_UNITS = 1.4;
+
+  function paginateOverviewSections(sections){
+    const maxUnits = pageCapacityUnits() - headerReserveUnits();
+    const pages = [[]];
+    let units = 0;
+    sections.forEach(section => {
+      const cost = overviewSectionUnits(section);
+      if(units > 0 && units + cost > maxUnits){
+        pages.push([]);
+        units = 0;
+      }
+      pages[pages.length-1].push(section);
+      units += cost;
+    });
+    return pages;
+  }
+
+  function paginatePortfolioGroup(portfolios){
+    const maxUnits = pageCapacityUnits() - headerReserveUnits();
+    const pages = [];
+    let current;
+    const newPage = () => { current = {segments:[], units:0}; pages.push(current); };
+    newPage();
+
+    portfolios.forEach(portfolio => {
+      const departments = portfolio.departments;
+      let index = 0;
+      let continued = false;
+      do{
+        const firstCost = index < departments.length ? departmentUnits(departments[index]) : 0;
+        if(current.units > 0 && current.units + PORTFOLIO_HEADING_UNITS + firstCost > maxUnits) newPage();
+        const segment = {portfolio, departments:[], continued};
+        current.units += PORTFOLIO_HEADING_UNITS;
+        current.segments.push(segment);
+        while(index < departments.length){
+          const cost = departmentUnits(departments[index]);
+          if(segment.departments.length > 0 && current.units + cost > maxUnits) break;
+          segment.departments.push(departments[index]);
+          current.units += cost;
+          index++;
+        }
+        continued = index < departments.length;
+        if(continued) newPage();
+      } while(index < departments.length);
+    });
+
+    return pages.filter(p => p.segments.length);
+  }
+
+  function renderOverviewSection(section){
+    return `
+      <div class="group-title major"><span>${showValue(section.title,'OVERVIEW SECTION')}</span></div>
+      ${section.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0})).join('')}
+    `;
+  }
+
+  function renderPortfolioSegment(segment){
+    const {portfolio, departments, continued} = segment;
+    const headingBase = showValue(portfolio.sectionHeading,'DEPARTMENTS UNDER THIS COMMITTEE MEMBER');
+    const heading = headingBase + (continued ? ' <span style="opacity:.75;font-weight:400;text-transform:none">(continued)</span>' : '');
+    return `
+      <div class="portfolio-section">
+        <div class="portfolio-bar" style="background:${esc(portfolio.color)}"></div>
+        <div class="portfolio-heading" style="background:${esc(portfolio.color)}">${heading}</div>
+        ${departments.length ? departments.map(d=>`
+          <section class="department ${d.sub?'subdepartment':''}">
+            <div class="department-title ${d.sub?'sub':''}">
+              <span class="number">${showValue(d.number,'—')}</span>
+              <span>${showValue(d.name,'Department')}</span>
+            </div>
+            ${d.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0})).join('')}
+          </section>
+        `).join('') : (portfolio.departments.length===0 ? '<div class="empty-note">No departments yet.</div>' : '')}
+      </div>`;
+  }
+
+  function renderPreview(){
+    document.body.classList.toggle('compact-print', !!(data.settings && data.settings.compactPrint));
+    document.body.classList.toggle('show-all-info', !!(data.settings && data.settings.printAllInfo));
+    document.body.classList.toggle('no-bold-leads', !(data.settings && data.settings.boldLeads!==false));
+
+    const overviewPages = paginateOverviewSections(data.overviewSections);
+
+    const firstPage = `
+      <section class="sheet" data-page="1">
+        ${titleBlock()}
+        <div class="group-title major">
+          <span>${showValue(data.settings.officeTitle,'CONVENTION COMMITTEE OFFICE')}</span>
+          <span class="office-email">${emailLink(data.settings.officeEmail,'Office email')}</span>
+        </div>
+        <div class="hierarchy-note">Each committee member below has their own colour and letter; departments on the following pages are grouped under the matching committee member.</div>
+
+        <div class="group-title sub">${showValue(data.settings.committeeTitle,'CONVENTION COMMITTEE')}</div>
+        ${data.portfolios.map(p=>personRow(p.memberId,{prefix:p.overviewLetter,markerColor:p.color,forceLead:false})).join('')}
+
+        <div class="group-title sub">${showValue(data.settings.assistantsTitle,'CONVENTION COMMITTEE ASSISTANTS')}</div>
+        ${data.portfolios.map(p=>personRow(p.assistantId,{prefix:p.overviewLetter,markerColor:p.color,forceLead:false})).join('')}
+
+        ${(overviewPages[0]||[]).map(renderOverviewSection).join('')}
+      </section>`;
+
+    const extraOverviewPages = overviewPages.slice(1).map((sections,idx)=>`
+      <section class="sheet" data-page="1-${idx+2}">
+        ${data.settings.repeatPageHeader ? pageHeadBlock() : ''}
+        ${sections.map(renderOverviewSection).join('')}
+      </section>`).join('');
+
+    const pageGroups = new Map();
+    data.portfolios.forEach(p => {
+      const page = Math.max(2, Number(p.printPage) || 2);
+      if(!pageGroups.has(page)) pageGroups.set(page,[]);
+      pageGroups.get(page).push(p);
+    });
+
+    const otherPages = [...pageGroups.entries()]
+      .sort((a,b)=>a[0]-b[0])
+      .map(([page,portfolios]) => paginatePortfolioGroup(portfolios).map((pageContent,idx)=>`
+        <section class="sheet" data-page="${page}${idx>0?'-'+(idx+1):''}">
+          ${data.settings.repeatPageHeader ? pageHeadBlock() : ''}
+          ${pageContent.segments.map(renderPortfolioSegment).join('')}
+        </section>`).join('')
+      ).join('');
+
+    preview.innerHTML = firstPage + extraOverviewPages + otherPages;
+    preview.querySelectorAll('.sheet').forEach(sheet=>{
+      sheet.insertAdjacentHTML('beforeend','<div class="sheet-overflow-note screen-only">This page carries more rows than one A4 sheet — it is stretched here so nothing is hidden. Check the print preview, or switch on “Compact print”.</div>');
+    });
+    flagTallSheets();
+  }
+
+  // Compares each sheet against the reserved A4 landscape height and flags the
+  // ones that had to stretch, so an overlong page is visible on screen.
+  function flagTallSheets(){
+    preview.querySelectorAll('.sheet').forEach(sheet=>{
+      const style=getComputedStyle(sheet);
+      const padX=parseFloat(style.paddingLeft)+parseFloat(style.paddingRight);
+      const padY=parseFloat(style.paddingTop)+parseFloat(style.paddingBottom);
+      const pageHeight=Math.max(760,(sheet.clientWidth-padX)*210/297)+padY;
+      sheet.classList.toggle('is-taller-than-a4',sheet.clientHeight>pageHeight+4);
+    });
+  }
+
+  function personDisplayLabel(person){
+    return `${[person.lastName,person.firstName].filter(Boolean).join(', ') || 'Unnamed person'} · ${person.congregation || 'No congregation'}`;
+  }
+
+  function matchingPeople(query){
+    const q = String(query||'').trim().toLowerCase();
+    return [...data.people].sort(personSort).filter(person => {
+      if(!q) return true;
+      return (person.lastName+' '+person.firstName+' '+person.congregation+' '+person.jwEmail).toLowerCase().includes(q);
+    });
+  }
+
+  // The dropdown list lives once, at the very end of <body> (see #personComboList),
+  // instead of nested inside each field. .editor has a CSS transform for its slide
+  // animation, and any transformed ancestor turns position:fixed descendants into
+  // something that behaves like position:absolute relative to THAT ancestor (and can
+  // then get clipped by overflow:hidden panels in between again). Appending the list
+  // to <body> sidesteps both problems: it is always positioned against the real
+  // viewport and never sits inside anything that clips it.
+  const personComboList = document.getElementById('personComboList');
+  let activeComboEl = null;
+
+  function positionComboList(comboEl){
+    const inputEl = comboEl.querySelector('.person-combo-input');
+    const rect = inputEl.getBoundingClientRect();
+    personComboList.style.left = rect.left + 'px';
+    personComboList.style.top = (rect.bottom + 4) + 'px';
+    personComboList.style.width = rect.width + 'px';
+  }
+
+  function renderComboList(comboEl,query){
+    activeComboEl = comboEl;
+    const q = String(query||'').trim();
+    const matches = matchingPeople(q).slice(0,60);
+    const rows = [];
+    if(!q) rows.push(`<div class="combo-option" data-person-id="">— Unassigned —</div>`);
+    if(!data.people.length){
+      rows.push(`<div class="combo-option empty-option">No people yet — use + to add one.</div>`);
+    }else if(!matches.length){
+      rows.push(`<div class="combo-option empty-option">No matches.</div>`);
+    }else{
+      rows.push(...matches.map(person=>`<div class="combo-option" data-person-id="${esc(person.id)}">${esc(personDisplayLabel(person))}</div>`));
+    }
+    personComboList.innerHTML = rows.join('');
+    positionComboList(comboEl);
+    personComboList.hidden = false;
+  }
+
+  function resetComboDisplay(comboEl){
+    const inputEl = comboEl.querySelector('.person-combo-input');
+    const person = personById(inputEl.dataset.currentId);
+    inputEl.value = person ? personDisplayLabel(person) : '';
+  }
+
+  function closeComboList(){
+    if(personComboList.hidden) return;
+    personComboList.hidden = true;
+    if(activeComboEl) resetComboDisplay(activeComboEl);
+    activeComboEl = null;
+  }
+
+  function textField(label,path,value){
+    return `<label>${esc(label)}<input type="text" data-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function numberField(label,path,value,min=1){
+    return `<label>${esc(label)}<input type="number" min="${min}" step="1" data-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function dateField(label,path,value){
+    return `<label>${esc(label)}<input type="date" data-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function colorField(label,path,value){
+    return `<label>${esc(label)}<input type="color" data-path="${esc(path)}" value="${esc(value)}"></label>`;
+  }
+  function selectPersonField(label,path,value){
+    const person = personById(value);
+    const displayValue = person ? personDisplayLabel(person) : '';
+    return `<label>${esc(label)}
+      <span class="person-field-row">
+        <span class="person-combo" data-path="${esc(path)}">
+          <input type="text" class="person-combo-input" autocomplete="off" role="combobox" aria-expanded="false"
+                 placeholder="Type to search or pick…" value="${esc(displayValue)}" data-current-id="${esc(value||'')}">
+        </span>
+        <button type="button" class="btn small icon-btn" data-action="new-person-for" data-target-path="${esc(path)}" title="Create a new person and assign here">+</button>
+        <button type="button" class="btn small icon-btn" data-action="edit-person-for" data-target-path="${esc(path)}" title="Edit this person" ${value?'':'disabled'}>✎</button>
+      </span>
+    </label>`;
+  }
+
+  function assignedLabels(personId){
+    const labels = [];
+    data.portfolios.forEach(p => {
+      if(p.memberId===personId) labels.push(`${p.role} — Committee member`);
+      if(p.assistantId===personId) labels.push(`${p.role} — Committee assistant`);
+      p.departments.forEach(d => d.people.forEach((slot,i) => {
+        if(slot.personId===personId) labels.push(`${d.name} — ${i===0?'Department overseer':'Assistant '+i}`);
+      }));
+    });
+    data.overviewSections.forEach(s => s.people.forEach((slot,i) => {
+      if(slot.personId===personId) labels.push(`${s.title} — ${i===0?'Lead':'Assistant '+i}`);
+    }));
+    return labels;
+  }
+
+  function personEditor(person,index){
+    const assignments = assignedLabels(person.id);
+    const name = [person.lastName,person.firstName].filter(Boolean).join(', ');
+    return `
+      <details class="panel-card person-master-card" data-details-key="person-${esc(person.id)}" data-person-master-id="${esc(person.id)}" data-search="${esc((name+' '+person.congregation+' '+person.jwEmail).toLowerCase())}">
+        <summary>
+          <span class="person-summary-name">${showValue(name,'Unnamed person')} ${person.congregation?`· ${esc(person.congregation)}`:''}</span>
+          <span style="display:flex;align-items:center;gap:7px">
+            <span class="assignment-count">${assignments.length} role${assignments.length===1?'':'s'}</span>
+            <span class="summary-chevron">›</span>
+          </span>
+        </summary>
+        <div class="panel-body">
+          ${assignments.length?`<p class="helper"><strong>Currently assigned:</strong> ${esc(assignments.join(' · '))}</p>`:'<p class="helper">Currently not assigned. The person remains available in all dropdowns.</p>'}
+          <div class="field-grid">
+            ${textField('Last name',`people.${index}.lastName`,person.lastName)}
+            ${textField('First name',`people.${index}.firstName`,person.firstName)}
+            ${textField('Congregation',`people.${index}.congregation`,person.congregation)}
+            ${textField('Circuit',`people.${index}.circuit`,person.circuit)}
+            ${textField('Phone',`people.${index}.phone`,person.phone)}
+            ${textField('JW email',`people.${index}.jwEmail`,person.jwEmail)}
+            ${textField('Private email',`people.${index}.privateEmail`,person.privateEmail)}
+            ${dateField('Date of birth',`people.${index}.birthDate`,person.birthDate)}
+            ${dateField('Data updated',`people.${index}.dataUpdated`,person.dataUpdated)}
+          </div>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-pioneer="${index}" ${String(person.pioneer||'').trim()?'checked':''}>
+            Regular Pioneer
+          </label>
+          <label style="margin-top:8px">Notes<textarea data-path="people.${index}.notes">${esc(person.notes)}</textarea></label>
+          <div class="inline-actions" style="margin-top:9px">
+            <button class="btn small danger" data-action="remove-person" data-index="${index}">Remove from personnel master</button>
+          </div>
+        </div>
+      </details>`;
+  }
+
+  function departmentEditor(d,pIndex,dIndex){
+    return `
+      <div class="item-card department-card ${d.sub?'is-sub':''}" data-department-id="${esc(d.id)}">
+        <div class="item-head">
+          <span class="dept-number">${esc(d.number || '—')}</span>
+          <strong>${esc(d.name || 'Department')}</strong>
+          ${d.sub?'<span class="dept-sub-tag">Sub</span>':''}
+          <div class="inline-actions">
+            <button class="btn small icon-btn" data-action="move-department-up" data-pindex="${pIndex}" data-dindex="${dIndex}" title="Move up">↑</button>
+            <button class="btn small icon-btn" data-action="move-department-down" data-pindex="${pIndex}" data-dindex="${dIndex}" title="Move down">↓</button>
+            <button class="btn small danger" data-action="remove-department" data-pindex="${pIndex}" data-dindex="${dIndex}">Remove</button>
+          </div>
+        </div>
+        <div class="field-grid">
+          ${textField('Number',`portfolios.${pIndex}.departments.${dIndex}.number`,d.number)}
+          ${textField('Department name',`portfolios.${pIndex}.departments.${dIndex}.name`,d.name)}
+        </div>
+        <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+          <input style="width:auto" type="checkbox" data-path="portfolios.${pIndex}.departments.${dIndex}.sub" ${d.sub?'checked':''}>
+          Show as a lighter subdepartment
+        </label>
+        ${d.people.map((slot,slotIndex)=>`
+          <div class="slot-editor" data-slot-id="${esc(slot.id)}">
+            <div class="slot-head">
+              <strong>${slotIndex===0?'Department overseer':'Assistant '+slotIndex}</strong>
+              <span class="inline-actions">
+                <button class="btn small icon-btn" data-action="move-department-person-up" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" title="Move up" ${slotIndex===0?'disabled':''}>↑</button>
+                <button class="btn small icon-btn" data-action="move-department-person-down" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" title="Move down" ${slotIndex===d.people.length-1?'disabled':''}>↓</button>
+                <button class="btn small danger" data-action="remove-department-person" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" ${d.people.length===1?'disabled':''}>Remove</button>
+              </span>
+            </div>
+            ${selectPersonField('Person',`portfolios.${pIndex}.departments.${dIndex}.people.${slotIndex}.personId`,slot.personId)}
+          </div>
+        `).join('')}
+        <button class="btn small" style="margin-top:8px" data-action="add-department-person" data-pindex="${pIndex}" data-dindex="${dIndex}">+ Add person</button>
+      </div>`;
+  }
+
+  function portfolioEditor(p,pIndex){
+    const accent=/^#[0-9a-f]{3,8}$/i.test(String(p.color||'').trim()) ? p.color.trim() : '#3d668f';
+    return `
+      <div class="item-card portfolio-card" data-portfolio-id="${esc(p.id)}" style="--pf-accent:${esc(accent)}">
+        <div class="item-head">
+          <span class="pf-letter">${esc(p.overviewLetter || '—')}</span>
+          <strong>${esc(p.role || 'Committee role')}</strong>
+          <span class="pf-page">Page ${Math.max(2,Number(p.printPage)||2)}</span>
+          <div class="inline-actions">
+            <button class="btn small icon-btn" data-action="move-portfolio-up" data-index="${pIndex}" title="Move up">↑</button>
+            <button class="btn small icon-btn" data-action="move-portfolio-down" data-index="${pIndex}" title="Move down">↓</button>
+            <button class="btn small danger" data-action="remove-portfolio" data-index="${pIndex}">Remove</button>
+          </div>
+        </div>
+        <div class="field-grid">
+          ${textField('Letter',`portfolios.${pIndex}.overviewLetter`,p.overviewLetter)}
+          ${textField('Role',`portfolios.${pIndex}.role`,p.role)}
+          ${colorField('Colour',`portfolios.${pIndex}.color`,p.color)}
+          ${numberField('Print page',`portfolios.${pIndex}.printPage`,p.printPage,2)}
+        </div>
+        <div class="field-grid one">
+          ${textField('Portfolio heading',`portfolios.${pIndex}.sectionHeading`,p.sectionHeading)}
+        </div>
+
+        <div class="slot-editor">
+          <div class="slot-head"><strong>Committee member</strong></div>
+          ${selectPersonField('Person',`portfolios.${pIndex}.memberId`,p.memberId)}
+        </div>
+        <div class="slot-editor">
+          <div class="slot-head"><strong>Committee assistant</strong></div>
+          ${selectPersonField('Person',`portfolios.${pIndex}.assistantId`,p.assistantId)}
+        </div>
+
+        <details class="panel-card" data-details-key="portfolio-departments-${esc(p.id)}" style="margin:12px 0 0">
+          <summary>Departments (${p.departments.length}) <span class="summary-chevron">›</span></summary>
+          <div class="panel-body">
+            ${p.departments.map((d,dIndex)=>departmentEditor(d,pIndex,dIndex)).join('')}
+            <button class="btn small" data-action="add-department" data-pindex="${pIndex}">+ Add department</button>
+          </div>
+        </details>
+      </div>`;
+  }
+
+  function overviewSectionEditor(s,sIndex){
+    return `
+      <div class="item-card overview-card" data-overview-id="${esc(s.id)}">
+        <div class="item-head">
+          <strong>${esc(s.title || 'Overview section')}</strong>
+          <div class="inline-actions">
+            <button class="btn small icon-btn" data-action="move-overview-section-up" data-sindex="${sIndex}" title="Move up">↑</button>
+            <button class="btn small icon-btn" data-action="move-overview-section-down" data-sindex="${sIndex}" title="Move down">↓</button>
+            <button class="btn small danger" data-action="remove-overview-section" data-sindex="${sIndex}">Remove</button>
+          </div>
+        </div>
+        <div class="field-grid one">${textField('Section heading',`overviewSections.${sIndex}.title`,s.title)}</div>
+        ${s.people.map((slot,slotIndex)=>`
+          <div class="slot-editor" data-slot-id="${esc(slot.id)}">
+            <div class="slot-head">
+              <strong>${slotIndex===0?'Lead':'Assistant '+slotIndex}</strong>
+              <span class="inline-actions">
+                <button class="btn small icon-btn" data-action="move-overview-person-up" data-sindex="${sIndex}" data-slotindex="${slotIndex}" title="Move up" ${slotIndex===0?'disabled':''}>↑</button>
+                <button class="btn small icon-btn" data-action="move-overview-person-down" data-sindex="${sIndex}" data-slotindex="${slotIndex}" title="Move down" ${slotIndex===s.people.length-1?'disabled':''}>↓</button>
+                <button class="btn small danger" data-action="remove-overview-person" data-sindex="${sIndex}" data-slotindex="${slotIndex}" ${s.people.length===1?'disabled':''}>Remove</button>
+              </span>
+            </div>
+            ${selectPersonField('Person',`overviewSections.${sIndex}.people.${slotIndex}.personId`,slot.personId)}
+          </div>
+        `).join('')}
+        <button class="btn small" style="margin-top:8px" data-action="add-overview-person" data-sindex="${sIndex}">+ Add person</button>
+      </div>`;
+  }
+
+  function captureEditorState(){
+    const details = {};
+    editorContent.querySelectorAll('details[data-details-key]').forEach(el => {
+      details[el.dataset.detailsKey] = el.open;
+    });
+    return {scrollTop:editor.scrollTop, details, search:document.getElementById('personSearch')?.value || ''};
+  }
+
+  function restoreEditorState(state,focusSelector=''){
+    if(state){
+      editorContent.querySelectorAll('details[data-details-key]').forEach(el => {
+        const key=el.dataset.detailsKey;
+        if(Object.prototype.hasOwnProperty.call(state.details,key)) el.open=state.details[key];
+      });
+      editor.scrollTop=state.scrollTop;
+      const search=document.getElementById('personSearch');
+      if(search){ search.value=state.search || ''; filterPersonnel(search.value); }
+    }
+    if(focusSelector){
+      requestAnimationFrame(()=>{
+        const target=editorContent.querySelector(focusSelector);
+        if(!target) return;
+        target.scrollIntoView({block:'center',inline:'nearest'});
+        if(target.tagName==='DETAILS') target.open=true;
+        const input=target.matches('input,select,textarea,button') ? target : target.querySelector('input,select,textarea,button');
+        input?.focus({preventScroll:true});
+      });
+    }
+  }
+
+  function filterPersonnel(query){
+    const needle=String(query || '').trim().toLowerCase();
+    editorContent.querySelectorAll('[data-person-master-id]').forEach(card=>{
+      card.hidden = needle && !card.dataset.search.includes(needle);
+    });
+  }
+
+  function renderEditor({state=null,focusSelector=''}={}){
+    closeComboList();
+    editorContent.innerHTML = `
+      <details class="panel-card" data-details-key="document-settings" open>
+        <summary>Document settings <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          <div class="field-grid one">
+            ${textField('Title','settings.title',data.settings.title)}
+            ${textField('Subtitle / where and when','settings.subtitle',data.settings.subtitle)}
+          </div>
+          <div class="field-grid">
+            ${textField('Updated label','settings.updatedLabel',data.settings.updatedLabel)}
+            ${dateField('Updated date','settings.updatedDate',data.settings.updatedDate)}
+          </div>
+          <div class="field-grid one">
+            ${textField('Office heading','settings.officeTitle',data.settings.officeTitle)}
+            ${textField('Office email','settings.officeEmail',data.settings.officeEmail)}
+            ${textField('Committee heading','settings.committeeTitle',data.settings.committeeTitle)}
+            ${textField('Assistants heading','settings.assistantsTitle',data.settings.assistantsTitle)}
+          </div>
+          <div class="field-grid" style="margin-top:9px">
+            ${data.settings.columns.map((column,index)=>textField('Column '+(index+1),`settings.columns.${index}`,column)).join('')}
+          </div>
+          <label style="margin-top:10px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.compactPrint" ${data.settings.compactPrint?'checked':''}>
+            Compact print — fit more rows on each page
+          </label>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.printAllInfo" ${data.settings.printAllInfo?'checked':''}>
+            Print with all details — private email, DOB, pioneer, notes
+          </label>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.repeatPageHeader" ${data.settings.repeatPageHeader?'checked':''}>
+            Repeat title and column header on every page (off = plain pages, like the cover-only layout)
+          </label>
+          <label style="margin-top:8px;flex-direction:row;align-items:center;gap:8px">
+            <input style="width:auto" type="checkbox" data-path="settings.boldLeads" ${data.settings.boldLeads!==false?'checked':''}>
+            Show overseers / leads in bold (first person of each department or section)
+          </label>
+          <p class="helper" style="margin-top:9px">The preview follows the landscape multi-page structure of the reference: overview first, then colour-coded committee-member pages. If a committee member's departments don't fit on one page, the tool automatically continues them on an extra page.</p>
+        </div>
+      </details>
+
+      <div class="panel-card" style="padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <span class="helper" style="margin:0">Personnel master: <strong>${data.people.length}</strong> people — managed in its own window.</span>
+        <button class="btn small primary" type="button" data-action="open-people">Open personnel</button>
+      </div>
+
+      <details class="panel-card" data-details-key="convention-committee" open>
+        <summary>Convention committee <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          ${data.portfolios.map((p,pIndex)=>portfolioEditor(p,pIndex)).join('')}
+          <button class="btn small" data-action="add-portfolio">+ Add committee role</button>
+        </div>
+      </details>
+
+      <details class="panel-card" data-details-key="other-overview-sections">
+        <summary>Other overview sections <span class="summary-chevron">›</span></summary>
+        <div class="panel-body">
+          ${data.overviewSections.map((s,sIndex)=>overviewSectionEditor(s,sIndex)).join('')}
+          <button class="btn small" data-action="add-overview-section">+ Add overview section</button>
+        </div>
+      </details>
+    `;
+    restoreEditorState(state,focusSelector);
+  }
+
+  function setByPath(object,path,value){
+    const parts = path.split('.');
+    let current = object;
+    for(let i=0;i<parts.length-1;i++) current = current[parts[i]];
+    current[parts.at(-1)] = value;
+  }
+
+  function getByPath(object,path){
+    return path.split('.').reduce((cur,key) => (cur == null ? cur : cur[key]), object);
+  }
+
+  function updateAll({editorToo=false,editorState=null,focusSelector=''}={}){
+    saveData();
+    renderPreview();
+    if(editorToo) renderEditor({state:editorState,focusSelector});
+    updatePersonnelCount();
+  }
+
+  function refreshPersonOptionLabels(){
+    editorContent.querySelectorAll('.person-combo-input').forEach(inputEl=>{
+      const pid = inputEl.dataset.currentId;
+      if(!pid) return;
+      const person = personById(pid);
+      if(person) inputEl.value = personDisplayLabel(person);
+    });
+    editorContent.querySelectorAll('[data-person-master-id]').forEach(card=>{
+      const person = personById(card.dataset.personMasterId);
+      if(!person) return;
+      card.dataset.search = ([person.lastName,person.firstName].join(' ')+' '+person.congregation+' '+person.jwEmail).toLowerCase();
+      const nameEl = card.querySelector('.person-summary-name');
+      if(nameEl){
+        const name = [person.lastName,person.firstName].filter(Boolean).join(', ');
+        nameEl.innerHTML = `${showValue(name,'Unnamed person')} ${person.congregation?'· '+esc(person.congregation):''}`;
+      }
+    });
+  }
+
+  editorContent.addEventListener('input', e => {
+    if(e.target.id==='personSearch'){
+      filterPersonnel(e.target.value);
+      return;
+    }
+    if(e.target.classList.contains('person-combo-input')){
+      renderComboList(e.target.closest('.person-combo'), e.target.value);
+      return;
+    }
+    if(e.target.dataset.pioneer !== undefined){
+      const personIndex = Number(e.target.dataset.pioneer);
+      if(data.people[personIndex]){
+        data.people[personIndex].pioneer = e.target.checked ? 'Regular Pioneer' : '';
+        saveData();
+        renderPreview();
+      }
+      return;
+    }
+    const path = e.target.dataset.path;
+    if(!path) return;
+    const value = e.target.type==='checkbox' ? e.target.checked : (e.target.type==='number' ? Number(e.target.value) : e.target.value);
+    setByPath(data,path,value);
+    saveData();
+    renderPreview();
+    if(path.startsWith('people.')) refreshPersonOptionLabels();
+    refreshCardHead(path);
+  });
+
+  // Typing must not re-render the editor (that would move the caret), so the
+  // card headers and the portfolio colour are patched in place instead.
+  function refreshCardHead(path){
+    const pf=/^portfolios\.(\d+)\.(overviewLetter|role|color|printPage)$/.exec(path||'');
+    if(pf){
+      const portfolio=data.portfolios[Number(pf[1])];
+      if(!portfolio) return;
+      const card=editorContent.querySelector(`.portfolio-card[data-portfolio-id="${CSS.escape(portfolio.id)}"]`);
+      if(!card) return;
+      const accent=/^#[0-9a-f]{3,8}$/i.test(String(portfolio.color||'').trim()) ? portfolio.color.trim() : '#3d668f';
+      card.style.setProperty('--pf-accent',accent);
+      const letterEl=card.querySelector('.pf-letter');
+      if(letterEl) letterEl.textContent=portfolio.overviewLetter || '—';
+      const roleEl=card.querySelector(':scope > .item-head > strong');
+      if(roleEl) roleEl.textContent=portfolio.role || 'Committee role';
+      const pageEl=card.querySelector('.pf-page');
+      if(pageEl) pageEl.textContent='Page '+Math.max(2,Number(portfolio.printPage)||2);
+      return;
+    }
+    const dept=/^portfolios\.(\d+)\.departments\.(\d+)\.(number|name|sub)$/.exec(path||'');
+    if(!dept) return;
+    const department=(data.portfolios[Number(dept[1])]||{departments:[]}).departments[Number(dept[2])];
+    if(!department) return;
+    const card=editorContent.querySelector(`.department-card[data-department-id="${CSS.escape(department.id)}"]`);
+    if(!card) return;
+    const numberEl=card.querySelector('.dept-number');
+    if(numberEl) numberEl.textContent=department.number || '—';
+    const nameEl=card.querySelector(':scope > .item-head > strong');
+    if(nameEl) nameEl.textContent=department.name || 'Department';
+    card.classList.toggle('is-sub',!!department.sub);
+    const head=card.querySelector(':scope > .item-head');
+    const tag=head.querySelector('.dept-sub-tag');
+    if(department.sub && !tag) nameEl.insertAdjacentHTML('afterend','<span class="dept-sub-tag">Sub</span>');
+    if(!department.sub && tag) tag.remove();
+  }
+
+  // Opening the suggestion list on focus (rather than only while typing) is what
+  // makes this feel like "search and dropdown in one" instead of a plain text box.
+  editorContent.addEventListener('focusin', e => {
+    if(!e.target.classList.contains('person-combo-input')) return;
+    renderComboList(e.target.closest('.person-combo'), '');
+    e.target.select();
+  });
+
+  editorContent.addEventListener('keydown', e => {
+    if(!e.target.classList.contains('person-combo-input')) return;
+    const comboEl = e.target.closest('.person-combo');
+    if(e.key==='Escape'){
+      closeComboList();
+      e.target.blur();
+    }else if(e.key==='Enter'){
+      e.preventDefault();
+      if(!personComboList.hidden && activeComboEl===comboEl){
+        const first = personComboList.querySelector('.combo-option:not(.empty-option)');
+        if(first) first.click();
+      }
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if(personComboList.hidden) return;
+    const insideInput = activeComboEl && activeComboEl.contains(e.target);
+    const insideList = personComboList.contains(e.target);
+    if(!insideInput && !insideList) closeComboList();
+  });
+
+  editor.addEventListener('scroll', closeComboList, {passive:true});
+  window.addEventListener('resize', closeComboList);
+
+  personComboList.addEventListener('click', e => {
+    const option = e.target.closest('.combo-option');
+    if(!option || option.classList.contains('empty-option')) return;
+    const comboEl = activeComboEl;
+    if(!comboEl) return;
+    const inputEl = comboEl.querySelector('.person-combo-input');
+    const personId = option.dataset.personId || '';
+    const path = comboEl.dataset.path;
+
+    setByPath(data,path,personId);
+    saveData();
+    renderPreview();
+    inputEl.dataset.currentId = personId;
+    const person = personById(personId);
+    inputEl.value = person ? personDisplayLabel(person) : '';
+    personComboList.hidden = true;
+    activeComboEl = null;
+
+    const row = comboEl.closest('.person-field-row');
+    const editBtn = row?.querySelector('[data-action="edit-person-for"]');
+    if(editBtn) editBtn.disabled = !personId;
+  });
+
+  editorContent.addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    const action = btn.dataset.action;
+
+    if(action==='open-people'){ openPeopleModal(); return; }
+    if(action==='new-person-for'){
+      openPersonModal({mode:'new', personId:'', targetPath:btn.dataset.targetPath});
+      return;
+    }
+    if(action==='edit-person-for'){
+      const targetPath = btn.dataset.targetPath;
+      const currentId = getByPath(data,targetPath);
+      if(currentId) openPersonModal({mode:'edit', personId:currentId, targetPath});
+      return;
+    }
+
+    const pIndex = Number(btn.dataset.pindex ?? btn.dataset.index);
+    const dIndex = Number(btn.dataset.dindex);
+    const slotIndex = Number(btn.dataset.slotindex);
+    const sIndex = Number(btn.dataset.sindex);
+    const index = Number(btn.dataset.index);
+    const editorState = captureEditorState();
+    let focusSelector = '';
+
+    if(action==='add-portfolio'){
+      const idx = data.portfolios.length;
+      const portfolio = {
+        id:uid('portfolio'), overviewLetter:String.fromCharCode(97+idx)+'.', role:'Committee role',
+        sectionHeading:'DEPARTMENTS UNDER THE DIRECTION OF THIS COMMITTEE MEMBER',
+        color:'#6d7480', printPage:Math.max(2,...data.portfolios.map(p=>Number(p.printPage)||2)),
+        memberId:'', assistantId:'', departments:[]
+      };
+      data.portfolios.push(portfolio);
+      focusSelector = `[data-portfolio-id="${portfolio.id}"]`;
+    }
+    if(action==='remove-portfolio' && data.portfolios.length>1) data.portfolios.splice(pIndex,1);
+    if(action==='move-portfolio-up') move(data.portfolios,pIndex,pIndex-1);
+    if(action==='move-portfolio-down') move(data.portfolios,pIndex,pIndex+1);
+    if(action==='add-department'){
+      const department = {id:uid('department'),number:'',name:'New department',sub:false,people:blankSlots(1)};
+      data.portfolios[pIndex].departments.push(department);
+      focusSelector = `[data-department-id="${department.id}"]`;
+    }
+    if(action==='remove-department'){
+      if(confirm(`Remove "${data.portfolios[pIndex].departments[dIndex]?.name || 'this department'}" and its assignments?`)) data.portfolios[pIndex].departments.splice(dIndex,1);
+    }
+    if(action==='move-department-up') move(data.portfolios[pIndex].departments,dIndex,dIndex-1);
+    if(action==='move-department-down') move(data.portfolios[pIndex].departments,dIndex,dIndex+1);
+    if(action==='add-department-person'){
+      const slot = {id:uid('slot'),personId:''};
+      data.portfolios[pIndex].departments[dIndex].people.push(slot);
+      focusSelector = `[data-slot-id="${slot.id}"]`;
+    }
+    if(action==='remove-department-person' && data.portfolios[pIndex].departments[dIndex].people.length>1){
+      data.portfolios[pIndex].departments[dIndex].people.splice(slotIndex,1);
+    }
+    if(action==='add-overview-section'){
+      const section = {id:uid('overview'),title:'NEW OVERVIEW SECTION',people:blankSlots(1)};
+      data.overviewSections.push(section);
+      focusSelector = `[data-overview-id="${section.id}"]`;
+    }
+    if(action==='remove-overview-section'){
+      if(confirm(`Remove "${data.overviewSections[sIndex]?.title || 'this section'}" and its assignments?`)) data.overviewSections.splice(sIndex,1);
+    }
+    if(action==='move-overview-section-up') move(data.overviewSections,sIndex,sIndex-1);
+    if(action==='move-overview-section-down') move(data.overviewSections,sIndex,sIndex+1);
+    if(action==='move-department-person-up') move(data.portfolios[pIndex].departments[dIndex].people,slotIndex,slotIndex-1);
+    if(action==='move-department-person-down') move(data.portfolios[pIndex].departments[dIndex].people,slotIndex,slotIndex+1);
+    if(action==='move-overview-person-up') move(data.overviewSections[sIndex].people,slotIndex,slotIndex-1);
+    if(action==='move-overview-person-down') move(data.overviewSections[sIndex].people,slotIndex,slotIndex+1);
+    if(action==='add-overview-person'){
+      const slot = {id:uid('slot'),personId:''};
+      data.overviewSections[sIndex].people.push(slot);
+      focusSelector = `[data-slot-id="${slot.id}"]`;
+    }
+    if(action==='remove-overview-person' && data.overviewSections[sIndex].people.length>1){
+      data.overviewSections[sIndex].people.splice(slotIndex,1);
+    }
+    updateAll({editorToo:true,editorState,focusSelector});
+  });
+
+  function move(array,from,to){
+    if(from<0 || to<0 || from>=array.length || to>=array.length || from===to) return;
+    const [item] = array.splice(from,1);
+    array.splice(to,0,item);
+  }
+
+  preview.addEventListener('click', e => {
+    const btn = e.target.closest('[data-person-details]');
+    if(!btn) return;
+    openPersonDetails(btn.dataset.personDetails);
+  });
+
+  function openPersonDetails(personId){
+    const person = personById(personId);
+    if(!person) return;
+    const name = [person.lastName,person.firstName].filter(Boolean).join(', ');
+    detailsTitle.textContent = name || 'Person details';
+    detailsSubtitle.textContent = assignedLabels(person.id).join(' · ') || 'Currently unassigned';
+    const detail = (label,value,{wide=false,link=''}={}) => {
+      const text = String(value || '').trim();
+      let shown = text ? esc(text) : '<span class="placeholder">Not stored</span>';
+      if(text && link==='email') shown = `<a class="contact-link" href="${esc('mailto:'+text)}">${esc(text)}</a>`;
+      if(text && link==='phone'){
+        const number = phoneToWhatsApp(text);
+        shown = number ? `<a class="contact-link" href="https://wa.me/${esc(number)}" target="_blank" rel="noopener noreferrer">${esc(text)}</a>` : esc(text);
+      }
+      return `<div class="detail ${wide?'wide':''}"><span>${esc(label)}</span><strong>${shown}</strong></div>`;
+    };
+    detailsBody.innerHTML = `
+      <div class="detail-grid">
+        ${detail('Congregation',person.congregation)}
+        ${detail('Circuit',person.circuit)}
+        ${detail('Phone',person.phone,{link:'phone'})}
+        ${detail('JW email',person.jwEmail,{link:'email'})}
+        ${detail('Private email',person.privateEmail,{link:'email'})}
+        ${detail('Date of birth',formatDate(person.birthDate))}
+        ${detail('Regular pioneer',String(person.pioneer||'').trim()?'Yes':'No')}
+        ${detail('Data updated',formatDate(person.dataUpdated))}
+        ${detail('Notes',person.notes,{wide:true})}
+      </div>`;
+    detailsModal.classList.add('open');
+    detailsModal.setAttribute('aria-hidden','false');
+  }
+
+  function closePersonDetails(){
+    detailsModal.classList.remove('open');
+    detailsModal.setAttribute('aria-hidden','true');
+  }
+
+  document.getElementById('closeDetails').addEventListener('click',closePersonDetails);
+  detailsModal.addEventListener('click', e => { if(e.target===detailsModal) closePersonDetails(); });
+
+  const personModal = document.getElementById('personModal');
+  const personModalTitle = document.getElementById('personModalTitle');
+  const personModalSubtitle = document.getElementById('personModalSubtitle');
+  let personModalState = {mode:'new', personId:'', targetPath:''};
+
+  function fillPersonModalFields(person){
+    document.getElementById('pm-lastName').value = person?.lastName || '';
+    document.getElementById('pm-firstName').value = person?.firstName || '';
+    document.getElementById('pm-congregation').value = person?.congregation || '';
+    document.getElementById('pm-circuit').value = person?.circuit || '';
+    document.getElementById('pm-phone').value = person?.phone || '';
+    document.getElementById('pm-jwEmail').value = person?.jwEmail || '';
+    document.getElementById('pm-privateEmail').value = person?.privateEmail || '';
+    document.getElementById('pm-birthDate').value = person?.birthDate ? formatDate(person.birthDate) : '';
+    document.getElementById('pm-pioneer').checked = !!String(person?.pioneer||'').trim();
+    document.getElementById('pm-notes').value = person?.notes || '';
+  }
+
+  function openPersonModal({mode,personId,targetPath}){
+    personModalState = {mode,personId,targetPath};
+    if(mode==='edit'){
+      const person = personById(personId);
+      personModalTitle.textContent = 'Edit person';
+      personModalSubtitle.textContent = 'Saved changes update every assignment for this person.';
+      fillPersonModalFields(person);
+    }else{
+      personModalTitle.textContent = 'New person';
+      personModalSubtitle.textContent = targetPath ? 'Added to the personnel master and assigned here.' : 'Added to the personnel master — assign later in the editor.';
+      fillPersonModalFields(null);
+    }
+    personModal.classList.add('open');
+    personModal.setAttribute('aria-hidden','false');
+    requestAnimationFrame(()=>document.getElementById('pm-lastName')?.focus());
+  }
+
+  function closePersonModal(){
+    personModal.classList.remove('open');
+    personModal.setAttribute('aria-hidden','true');
+  }
+
+  document.getElementById('closePersonModal').addEventListener('click',closePersonModal);
+  document.getElementById('personModalCancel').addEventListener('click',closePersonModal);
+  personModal.addEventListener('click', e => { if(e.target===personModal) closePersonModal(); });
+
+  document.getElementById('personModalSave').addEventListener('click', () => {
+    const dob = parseFlexDate(document.getElementById('pm-birthDate').value);
+    if(!dob.ok){
+      alert('Date of birth: please enter a year (e.g. 2001) or a full date (e.g. 14.03.2001).');
+      document.getElementById('pm-birthDate').focus();
+      return;
+    }
+    const fields = {
+      lastName:document.getElementById('pm-lastName').value.trim(),
+      firstName:document.getElementById('pm-firstName').value.trim(),
+      congregation:document.getElementById('pm-congregation').value.trim(),
+      circuit:document.getElementById('pm-circuit').value.trim(),
+      phone:document.getElementById('pm-phone').value.trim(),
+      jwEmail:document.getElementById('pm-jwEmail').value.trim(),
+      privateEmail:document.getElementById('pm-privateEmail').value.trim(),
+      birthDate:dob.value,
+      pioneer:document.getElementById('pm-pioneer').checked ? 'Regular Pioneer' : '',
+      dataUpdated:new Date().toISOString().slice(0,10),
+      notes:document.getElementById('pm-notes').value.trim()
+    };
+    if(!fields.lastName && !fields.firstName){
+      alert('Please enter at least a last or first name.');
+      return;
+    }
+
+    const editorState = captureEditorState();
+    let focusSelector = '';
+
+    if(personModalState.mode==='edit'){
+      const person = personById(personModalState.personId);
+      if(person) Object.assign(person, normalizePerson({...fields, id:person.id}));
+      focusSelector = personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
+    }else{
+      const person = normalizePerson({id:uid('person'), ...fields});
+      data.people.push(person);
+      if(personModalState.targetPath) setByPath(data,personModalState.targetPath,person.id);
+      focusSelector = personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
+    }
+
+    closePersonModal();
+    // Without a target slot (opened from the personnel window) the sidebar must not jump anywhere.
+    updateAll({editorToo:true, editorState, focusSelector});
+    if(isOpen(peopleModal)) renderPeopleTable();
+    toast(personModalState.mode==='edit' ? 'Person updated' : 'Person added');
+  });
+
+  const helpModal = document.getElementById('helpModal');
+  function openHelp(){ helpModal.classList.add('open'); helpModal.setAttribute('aria-hidden','false'); }
+  function closeHelp(){ helpModal.classList.remove('open'); helpModal.setAttribute('aria-hidden','true'); }
+  document.getElementById('helpBtn').addEventListener('click',openHelp);
+  document.getElementById('closeHelp').addEventListener('click',closeHelp);
+  helpModal.addEventListener('click', e => { if(e.target===helpModal) closeHelp(); });
+  function isOpen(el){ return !!el && el.classList.contains('open'); }
+  document.addEventListener('keydown', e => {
+    if(e.key!=='Escape') return;
+    if(!personComboList.hidden){ closeComboList(); return; }
+    if(isOpen(personModal)){ closePersonModal(); return; }
+    if(isOpen(detailsModal)){ closePersonDetails(); return; }
+    if(isOpen(csvModal)){ closeModal(csvModal); return; }
+    if(isOpen(peopleModal)){ closeModal(peopleModal); return; }
+    if(isOpen(helpModal)){ closeHelp(); return; }
+    toggleEditor(false);
+  });
+
+  function toggleEditor(open){
+    const willOpen = open ?? !document.body.classList.contains('editor-open');
+    if(!willOpen) closeComboList();
+    document.body.classList.toggle('editor-open', willOpen);
+  }
+
+  document.getElementById('toggleEditor').addEventListener('click',()=>toggleEditor());
+  document.getElementById('closeEditor').addEventListener('click',()=>toggleEditor(false));
+  document.getElementById('expandAllBtn').addEventListener('click',()=>{
+    editorContent.querySelectorAll('details').forEach(d => d.open = true);
+  });
+  document.getElementById('collapseAllBtn').addEventListener('click',()=>{
+    editorContent.querySelectorAll('details').forEach(d => d.open = false);
+  });
+  document.getElementById('printBtn').addEventListener('click',()=>window.print());
+
+  // ================= Personnel master window =================
+  const peopleModal = document.getElementById('peopleModal');
+  const peopleSearchEl = document.getElementById('peopleSearch');
+  const peopleTableWrap = document.getElementById('peopleTableWrap');
+  const peopleMeta = document.getElementById('peopleMeta');
+  let peopleSort = {key:'name',dir:1};
+
+  function openModal(el){ el.classList.add('open'); el.setAttribute('aria-hidden','false'); }
+  function closeModal(el){ el.classList.remove('open'); el.setAttribute('aria-hidden','true'); }
+
+  function openPeopleModal(){
+    closeComboList();
+    renderPeopleTable();
+    openModal(peopleModal);
+    requestAnimationFrame(()=>peopleSearchEl.focus());
+  }
+
+  const PEOPLE_COLS = [
+    {key:'name', label:'Name', get:p=>[p.lastName,p.firstName].filter(Boolean).join(', ')},
+    {key:'congregation', label:'Congregation', get:p=>p.congregation},
+    {key:'circuit', label:'Circuit', get:p=>p.circuit},
+    {key:'phone', label:'Phone', get:p=>p.phone},
+    {key:'jwEmail', label:'JW email', get:p=>p.jwEmail},
+    {key:'roles', label:'Roles', get:p=>assignedLabels(p.id).length}
+  ];
+
+  function renderPeopleTable(){
+    const needle = peopleSearchEl.value.trim().toLowerCase();
+    const col = PEOPLE_COLS.find(c=>c.key===peopleSort.key) || PEOPLE_COLS[0];
+    const rows = data.people
+      .map((p,index)=>({p,index,roles:assignedLabels(p.id)}))
+      .filter(({p}) => !needle || [p.lastName,p.firstName,p.congregation,p.circuit,p.phone,p.jwEmail,p.privateEmail,p.notes].join(' ').toLowerCase().includes(needle))
+      .sort((a,b)=>{
+        const va=col.get(a.p), vb=col.get(b.p);
+        let r = (typeof va==='number') ? va-vb : String(va||'').localeCompare(String(vb||''),'de',{sensitivity:'base'});
+        if(!r) r = personSort(a.p,b.p);
+        // empty values always sink to the bottom, whatever the direction
+        if(typeof va!=='number'){ const ea=!String(va||'').trim(), eb=!String(vb||'').trim(); if(ea!==eb) return ea?1:-1; }
+        return r*peopleSort.dir;
+      });
+    const unassigned = data.people.filter(p=>!assignedLabels(p.id).length).length;
+    peopleMeta.textContent = `${data.people.length} people · ${data.people.length-unassigned} assigned · ${unassigned} unassigned`
+      + (needle ? ` · ${rows.length} match${rows.length===1?'':'es'}` : '');
+    if(!data.people.length){
+      peopleTableWrap.innerHTML = '<div class="people-empty">No people yet. Use “+ Person” or import a roster JSON.</div>';
+      return;
+    }
+    const head = PEOPLE_COLS.map(c=>{
+      const sorted = c.key===peopleSort.key;
+      return `<th data-sort="${c.key}" class="${sorted?'sorted':''}">${esc(c.label)}<span class="arrow">${sorted?(peopleSort.dir>0?'▲':'▼'):'↕'}</span></th>`;
+    }).join('') + '<th></th>';
+    const body = rows.length ? rows.map(({p,roles})=>{
+      const name = [p.lastName,p.firstName].filter(Boolean).join(', ');
+      const cell = v => String(v||'').trim() ? `<td>${esc(v)}</td>` : '<td class="muted">—</td>';
+      return `<tr data-person-row="${esc(p.id)}" title="${esc(roles.join('\n') || 'Not assigned')}">
+        <td class="name">${name?esc(name):'<span class="placeholder">Unnamed person</span>'}${String(p.pioneer||'').trim()?'<span class="pioneer-dot">RP</span>':''}</td>
+        ${cell(p.congregation)}${cell(p.circuit)}${cell(p.phone)}${cell(p.jwEmail)}
+        <td><span class="role-pill ${roles.length?'':'zero'}">${roles.length}</span></td>
+        <td class="actions">
+          <button class="btn small icon-btn" type="button" data-people-action="details" data-id="${esc(p.id)}" title="Show all details">i</button>
+          <button class="btn small icon-btn" type="button" data-people-action="edit" data-id="${esc(p.id)}" title="Edit">✎</button>
+          <button class="btn small icon-btn danger" type="button" data-people-action="remove" data-id="${esc(p.id)}" title="Remove from personnel master">×</button>
+        </td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="7" class="people-empty">No match for “${esc(needle)}”.</td></tr>`;
+    peopleTableWrap.innerHTML = `<table class="people-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  }
+
+  peopleSearchEl.addEventListener('input', renderPeopleTable);
+  peopleTableWrap.addEventListener('click', e => {
+    const th = e.target.closest('th[data-sort]');
+    if(th){
+      const key = th.dataset.sort;
+      peopleSort = peopleSort.key===key ? {key,dir:-peopleSort.dir} : {key,dir:key==='roles'?-1:1};
+      renderPeopleTable();
+      return;
+    }
+    const btn = e.target.closest('[data-people-action]');
+    const row = e.target.closest('tr[data-person-row]');
+    if(!btn && !row) return;
+    const id = btn ? btn.dataset.id : row.dataset.personRow;
+    const action = btn ? btn.dataset.peopleAction : 'edit';
+    if(action==='details'){ openPersonDetails(id); return; }
+    if(action==='edit'){ openPersonModal({mode:'edit', personId:id, targetPath:''}); return; }
+    if(action==='remove'){
+      const index = data.people.findIndex(p=>p.id===id);
+      const person = data.people[index];
+      if(!person) return;
+      const assigned = assignedLabels(person.id);
+      const name = [person.lastName,person.firstName].filter(Boolean).join(', ') || 'this person';
+      if(assigned.length){
+        if(!confirm(`${name} is still assigned to:\n\n${assigned.join('\n')}\n\nRemove anyway? These slots will become empty.`)) return;
+      }else if(!confirm(`Remove ${name} from the personnel master?`)) return;
+      const editorState = captureEditorState();
+      data.people.splice(index,1);
+      cleanBrokenAssignments(data);
+      updateAll({editorToo:true, editorState});
+      renderPeopleTable();
+      toast('Person removed');
+    }
+  });
+  document.getElementById('closePeopleModal').addEventListener('click',()=>closeModal(peopleModal));
+  peopleModal.addEventListener('click', e => { if(e.target===peopleModal) closeModal(peopleModal); });
+  document.getElementById('peopleAddBtn').addEventListener('click',()=>openPersonModal({mode:'new', personId:'', targetPath:''}));
+  document.getElementById('peopleImportBtn').addEventListener('click',()=>{ fileInput.value=''; fileInput.click(); });
+  document.getElementById('peopleExportBtn').addEventListener('click',()=>document.getElementById('exportBtn').click());
+  personnelCountEl.addEventListener('click',openPeopleModal);
+
+  // ================= File names: title + time stamp =================
+  function titleSlug(){
+    const raw = String(data.settings?.title || 'Convention Organization Chart');
+    const slug = raw.normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/ß/g,'ss').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/,'');
+    return slug || 'Convention-Organization-Chart';
+  }
+  function fileStamp(d=new Date()){
+    const p = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+  }
+  function downloadText(text,filename,type){
+    const blob = new Blob([text],{type});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+
+  // ================= CSV export =================
+  const csvModal = document.getElementById('csvModal');
+  const CSV_PREF_KEY = 'convention-org-chart-csv-prefs-v1';
+  const CSV_COLS = [
+    {key:'section', label:'Section', modes:['assignment']},
+    {key:'number', label:'Dept. no.', modes:['assignment']},
+    {key:'unit', label:'Department / role', modes:['assignment']},
+    {key:'position', label:'Position', modes:['assignment']},
+    {key:'roles', label:'All roles', modes:['person']},
+    {key:'lastName', label:'Last name'},
+    {key:'firstName', label:'First name'},
+    {key:'congregation', label:'Congregation'},
+    {key:'circuit', label:'Circuit'},
+    {key:'phone', label:'Phone'},
+    {key:'jwEmail', label:'JW email'},
+    {key:'privateEmail', label:'Private email'},
+    {key:'birthDate', label:'Date of birth'},
+    {key:'pioneer', label:'Regular pioneer'},
+    {key:'notes', label:'Notes'}
+  ];
+  const CSV_DEFAULT = {mode:'assignment', delim:';', bom:true, empty:false,
+    cols:['section','number','unit','position','roles','lastName','firstName','congregation','phone','jwEmail']};
+  function loadCsvPrefs(){
+    try{ return {...CSV_DEFAULT, ...(JSON.parse(localStorage.getItem(CSV_PREF_KEY)||'{}'))}; }
+    catch{ return {...CSV_DEFAULT}; }
+  }
+  function saveCsvPrefs(p){ try{ localStorage.setItem(CSV_PREF_KEY,JSON.stringify(p)); }catch{} }
+  let csvPrefs = loadCsvPrefs();
+
+  function allAssignments(){
+    const out = [];
+    const st = data.settings;
+    data.portfolios.forEach(p => {
+      out.push({section:st.committeeTitle, number:p.overviewLetter, unit:p.role, position:'Committee member', personId:p.memberId});
+      out.push({section:st.assistantsTitle, number:p.overviewLetter, unit:p.role, position:'Committee assistant', personId:p.assistantId});
+    });
+    data.overviewSections.forEach(s => s.people.forEach((slot,i) =>
+      out.push({section:s.title, number:'', unit:s.title, position:i===0?'Lead':'Assistant '+i, personId:slot.personId})));
+    data.portfolios.forEach(p => p.departments.forEach(d => d.people.forEach((slot,i) =>
+      out.push({section:p.role, number:d.number, unit:d.name, position:i===0?'Department overseer':'Assistant '+i, personId:slot.personId}))));
+    return out;
+  }
+  function personField(person,key){
+    if(!person) return '';
+    if(key==='birthDate') return formatDate(person.birthDate);
+    if(key==='pioneer') return String(person.pioneer||'').trim() ? 'Yes' : '';
+    return person[key] ?? '';
+  }
+  function buildCsvRows(){
+    const cols = CSV_COLS.filter(c => csvPrefs.cols.includes(c.key) && (!c.modes || c.modes.includes(csvPrefs.mode)));
+    const rows = [cols.map(c=>c.label)];
+    if(csvPrefs.mode==='person'){
+      [...data.people].sort(personSort).forEach(person => {
+        rows.push(cols.map(c => c.key==='roles' ? assignedLabels(person.id).join(' | ') : personField(person,c.key)));
+      });
+    }else{
+      allAssignments().forEach(a => {
+        const person = personById(a.personId);
+        if(!person && !csvPrefs.empty) return;
+        rows.push(cols.map(c => ['section','number','unit','position'].includes(c.key) ? (a[c.key] ?? '') : personField(person,c.key)));
+      });
+    }
+    return rows;
+  }
+  function toCsv(rows,delim){
+    return rows.map(r => r.map(v => {
+      const t = String(v ?? '');
+      return /["\r\n]/.test(t) || t.includes(delim) ? '"'+t.replace(/"/g,'""')+'"' : t;
+    }).join(delim)).join('\r\n');
+  }
+  function renderCsvModal(){
+    csvModal.querySelectorAll('input[name="csvMode"]').forEach(r => r.checked = r.value===csvPrefs.mode);
+    csvModal.querySelectorAll('input[name="csvDelim"]').forEach(r => r.checked = r.value===csvPrefs.delim);
+    document.getElementById('csvBom').checked = !!csvPrefs.bom;
+    const emptyEl = document.getElementById('csvEmpty');
+    emptyEl.checked = !!csvPrefs.empty;
+    emptyEl.closest('label').style.display = csvPrefs.mode==='assignment' ? '' : 'none';
+    document.getElementById('csvColumns').innerHTML = CSV_COLS
+      .filter(c => !c.modes || c.modes.includes(csvPrefs.mode))
+      .map(c => `<label><input type="checkbox" data-csv-col="${c.key}" ${csvPrefs.cols.includes(c.key)?'checked':''}> ${esc(c.label)}</label>`).join('');
+    const rows = buildCsvRows();
+    document.getElementById('csvCount').textContent = `· ${rows.length-1} row${rows.length===2?'':'s'}`;
+    document.getElementById('csvPreview').textContent = toCsv(rows.slice(0,6),csvPrefs.delim) + (rows.length>6 ? '\n…' : '');
+  }
+  csvModal.addEventListener('change', e => {
+    const t = e.target;
+    if(t.name==='csvMode') csvPrefs.mode = t.value;
+    else if(t.name==='csvDelim') csvPrefs.delim = t.value;
+    else if(t.id==='csvBom') csvPrefs.bom = t.checked;
+    else if(t.id==='csvEmpty') csvPrefs.empty = t.checked;
+    else if(t.dataset.csvCol){
+      const set = new Set(csvPrefs.cols);
+      t.checked ? set.add(t.dataset.csvCol) : set.delete(t.dataset.csvCol);
+      csvPrefs.cols = CSV_COLS.map(c=>c.key).filter(k=>set.has(k));
+    }else return;
+    saveCsvPrefs(csvPrefs);
+    renderCsvModal();
+  });
+  document.getElementById('csvBtn').addEventListener('click',()=>{ renderCsvModal(); openModal(csvModal); });
+  document.getElementById('closeCsvModal').addEventListener('click',()=>closeModal(csvModal));
+  document.getElementById('csvCancel').addEventListener('click',()=>closeModal(csvModal));
+  csvModal.addEventListener('click', e => { if(e.target===csvModal) closeModal(csvModal); });
+  document.getElementById('csvDownload').addEventListener('click',()=>{
+    const rows = buildCsvRows();
+    if(rows[0].length===0){ alert('Please select at least one column.'); return; }
+    const text = (csvPrefs.bom?'\uFEFF':'') + toCsv(rows,csvPrefs.delim);
+    const kind = csvPrefs.mode==='person' ? 'personnel' : 'assignments';
+    downloadText(text,`${titleSlug()}_${kind}_${fileStamp()}.csv`,'text/csv;charset=utf-8');
+    closeModal(csvModal);
+    toast(`CSV exported (${rows.length-1} rows)`);
+  });
+
+  document.getElementById('importBtn').addEventListener('click',()=>{
+    fileInput.value = '';
+    fileInput.click();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click',()=>{
+    const personnelFile = {
+      type:'convention-personnel-master',
+      version:1,
+      title:data.settings.title || '',
+      savedAt:new Date().toISOString(),
+      people:data.people.map(normalizePerson)
+    };
+    downloadText(JSON.stringify(personnelFile,null,2),`${titleSlug()}_personnel_${fileStamp()}.json`,'application/json');
+    toast('Personnel master exported');
+  });
+
+  document.getElementById('backupBtn').addEventListener('click',()=>{
+    const backupFile = {
+      type:'convention-org-chart',
+      version:1,
+      title:data.settings.title || '',
+      savedAt:new Date().toISOString(),
+      settings:data.settings,
+      portfolios:data.portfolios,
+      overviewSections:data.overviewSections,
+      people:data.people.map(normalizePerson)
+    };
+    downloadText(JSON.stringify(backupFile,null,2),`${titleSlug()}_backup_${fileStamp()}.json`,'application/json');
+    toast('Full backup exported');
+  });
+
+  function readFileAsText(file){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(reader.error || new Error('The file could not be read.'));
+      reader.readAsText(file,'utf-8');
+    });
+  }
+
+  function isFullConfig(parsed){
+    if(!parsed || typeof parsed !== 'object') return false;
+    if(parsed.type==='convention-org-chart') return true;
+    return !!(parsed.settings && Array.isArray(parsed.portfolios) && Array.isArray(parsed.overviewSections));
+  }
+
+  function extractImportedPeople(parsed){
+    if(Array.isArray(parsed)) return parsed;
+    if(parsed && Array.isArray(parsed.people)) return parsed.people;
+    if(parsed && Array.isArray(parsed.persons)) return parsed.persons;
+    if(parsed && parsed.personnel && Array.isArray(parsed.personnel.people)) return parsed.personnel.people;
+    throw new Error('No people array was found in the JSON file.');
+  }
+
+  function normalizeImportedPeople(records){
+    const usedIds = new Set();
+    return records.map(record => {
+      const source = (record && typeof record==='object') ? record : {};
+      const person = normalizePerson({
+        id:source.id || source.personId || '',
+        lastName:source.lastName ?? source.surname ?? '',
+        firstName:source.firstName ?? source.givenName ?? '',
+        congregation:source.congregation ?? source.congregationName ?? '',
+        circuit:source.circuit ?? source.circuitName ?? '',
+        phone:source.phone ?? source.phoneNumber ?? '',
+        jwEmail:source.jwEmail ?? source.jw_email ?? source.email ?? '',
+        privateEmail:source.privateEmail ?? source.private_email ?? '',
+        birthDate:source.birthDate ?? source.dateOfBirth ?? '',
+        pioneer:source.pioneer ?? source.pioneerStatus ?? '',
+        dataUpdated:source.dataUpdated ?? source.updated ?? '',
+        notes:source.notes ?? ''
+      });
+      while(!person.id || usedIds.has(person.id)) person.id = uid('person');
+      usedIds.add(person.id);
+      return person;
+    });
+  }
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if(!file) return;
+
+    readFileAsText(file).then(rawText => {
+      const cleanText = rawText.replace(/^﻿/,'').trim();
+      if(!cleanText) throw new Error('The selected JSON file is empty.');
+      const parsed = JSON.parse(cleanText);
+
+      if(isFullConfig(parsed)){
+        data = migrate(parsed);
+        updateAll({editorToo:true});
+        if(isOpen(peopleModal)) renderPeopleTable();
+        toggleEditor(true);
+        const persisted = saveData();
+        const message = `Full configuration imported: ${data.people.length} people, ${data.portfolios.length} committee roles.`;
+        toast(message);
+        if(!persisted) alert(message+' The data is visible now, but this browser did not allow local autosave.');
+        return;
+      }
+
+      const importedPeople = extractImportedPeople(parsed);
+      const normalizedPeople = normalizeImportedPeople(importedPeople);
+      if(!normalizedPeople.length) throw new Error('The personnel master contains no people.');
+
+      data.people = normalizedPeople;
+      cleanBrokenAssignments(data);
+      updateAll({editorToo:true});
+      peopleSearchEl.value = '';
+      openPeopleModal();
+
+      const persisted = saveData();
+      const message = `Personnel master imported: ${data.people.length} people.`;
+      toast(message);
+      if(!persisted) alert(message+' The data is visible now, but this browser did not allow local autosave.');
+    }).catch(err => {
+      console.error('Import failed:',err);
+      alert('Import failed. '+(err && err.message ? err.message : 'Please select a valid organization chart or personnel-master JSON file.'));
+    }).finally(() => {
+      fileInput.value = '';
+    });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    if(!confirm('Reset the complete organization chart and clear the locally stored personnel master?')) return;
+    data = clone(ORIGINAL_DATA);
+    updateAll({editorToo:true});
+    if(isOpen(peopleModal)) renderPeopleTable();
+    toast('Blank template restored');
+  });
+
+  function toast(message){
+    statusEl.textContent = message;
+    statusEl.classList.add('show');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(()=>statusEl.classList.remove('show'),1800);
+  }
+
+  // The sheet width changes on resize and when the editor slides in or out,
+  // so the A4 comparison has to run again afterwards.
+  let tallSheetTimer=null;
+  window.addEventListener('resize',()=>{
+    clearTimeout(tallSheetTimer);
+    tallSheetTimer=setTimeout(flagTallSheets,150);
+  });
+  editor.addEventListener('transitionend',e=>{
+    if(e.propertyName==='transform') flagTallSheets();
+  });
+
+  renderPreview();
+  renderEditor();
+  updatePersonnelCount();
+})();
+</script>
+</body>
+</html>
