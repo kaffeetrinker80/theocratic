@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Icons + Manifest -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#172f4d">
+<meta name="apple-mobile-web-app-title" content="Chart-Tool">
+<meta name="application-name" content="Assembly Chart">
+
+<!-- Link-Vorschau -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Assembly Chart">
+<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/assembly-chart/">
+<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/assembly-chart/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Convention Organization Chart</title>
@@ -564,7 +580,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.9.0</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.9.1</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -636,6 +652,13 @@
         <label>Last name<input type="text" id="pm-lastName"></label>
         <label>First name<input type="text" id="pm-firstName"></label>
         <label>Congregation<input type="text" id="pm-congregation"></label>
+        <label>Congregation / group
+          <select id="pm-congType">
+            <option value="">—</option>
+            <option value="Congregation">Congregation</option>
+            <option value="Group">Group</option>
+          </select>
+        </label>
         <label>Circuit<input type="text" id="pm-circuit"></label>
         <label>Phone<input type="text" id="pm-phone"></label>
         <label>JW email<input type="text" id="pm-jwEmail"></label>
@@ -754,6 +777,7 @@
       <ul>
         <li>Click <span class="tag">Personnel: n</span> in the toolbar to open the contact table in its own window: search, sort by clicking a column header, click a row to edit, add or remove people.</li>
         <li>Each person is stored once and can be assigned to any number of roles &mdash; editing them updates every assignment.</li>
+        <li><strong>Congregation / group</strong>: mark a person as belonging to a group &mdash; the chart then shows e.g. &ldquo;Munich-English (Group)&rdquo;.</li>
         <li>Date of birth accepts a bare year (<em>2001</em>) or a full date (<em>14.03.2001</em> or <em>2001-03-14</em>).</li>
       </ul>
 
@@ -918,6 +942,20 @@
     return input;
   }
 
+  function normalizeCongType(value){
+    const t = String(value ?? '').trim().toLowerCase();
+    if(!t) return '';
+    if(t==='group' || t==='gruppe') return 'Group';
+    if(t==='congregation' || t==='versammlung') return 'Congregation';
+    return '';
+  }
+  // "Munich-English (Group)" wherever a congregation is shown; plain name for congregations.
+  function congregationLabel(person){
+    const cong = String(person?.congregation || '').trim();
+    if(!cong) return '';
+    return person.congType==='Group' ? `${cong} (Group)` : cong;
+  }
+
   function normalizePerson(person){
     const source = (person && typeof person === 'object') ? person : {};
     return {
@@ -925,6 +963,7 @@
       lastName:source.lastName || '',
       firstName:source.firstName || '',
       congregation:source.congregation || '',
+      congType:normalizeCongType(source.congType ?? source.congregationType),
       circuit:source.circuit || '',
       phone:source.phone || '',
       jwEmail:source.jwEmail || '',
@@ -1056,7 +1095,7 @@
       <div class="${classes.join(' ')}"${rowStyle}>
         <div class="cell">${chip}${person?showValue(person.lastName,'Last name'):'<span class="placeholder">Last name</span>'}</div>
         <div class="cell">${person?showValue(person.firstName,'First name'):'<span class="placeholder">First name</span>'}</div>
-        <div class="cell">${person?showValue(person.congregation,'Congregation'):'<span class="placeholder">Congregation</span>'}</div>
+        <div class="cell">${person?showValue(congregationLabel(person),'Congregation'):'<span class="placeholder">Congregation</span>'}</div>
         <div class="cell">${person?phoneLink(person.phone,'—'):'<span class="placeholder">—</span>'}</div>
         <div class="cell">${person?emailLink(person.jwEmail,'—'):'<span class="placeholder">—</span>'}</div>
         <div class="screen-only">${person?`<button class="info-btn" data-person-details="${esc(person.id)}" title="Show stored details">i</button>`:''}</div>
@@ -1252,7 +1291,7 @@
   }
 
   function personDisplayLabel(person){
-    return `${[person.lastName,person.firstName].filter(Boolean).join(', ') || 'Unnamed person'} · ${person.congregation || 'No congregation'}`;
+    return `${[person.lastName,person.firstName].filter(Boolean).join(', ') || 'Unnamed person'} · ${congregationLabel(person) || 'No congregation'}`;
   }
 
   function matchingPeople(query){
@@ -1874,7 +1913,8 @@
     };
     detailsBody.innerHTML = `
       <div class="detail-grid">
-        ${detail('Congregation',person.congregation)}
+        ${detail('Congregation',congregationLabel(person))}
+        ${detail('Congregation / group',person.congType)}
         ${detail('Circuit',person.circuit)}
         ${detail('Phone',person.phone,{link:'phone'})}
         ${detail('JW email',person.jwEmail,{link:'email'})}
@@ -1905,6 +1945,7 @@
     document.getElementById('pm-lastName').value = person?.lastName || '';
     document.getElementById('pm-firstName').value = person?.firstName || '';
     document.getElementById('pm-congregation').value = person?.congregation || '';
+    document.getElementById('pm-congType').value = person?.congType || '';
     document.getElementById('pm-circuit').value = person?.circuit || '';
     document.getElementById('pm-phone').value = person?.phone || '';
     document.getElementById('pm-jwEmail').value = person?.jwEmail || '';
@@ -1951,6 +1992,7 @@
       lastName:document.getElementById('pm-lastName').value.trim(),
       firstName:document.getElementById('pm-firstName').value.trim(),
       congregation:document.getElementById('pm-congregation').value.trim(),
+      congType:document.getElementById('pm-congType').value,
       circuit:document.getElementById('pm-circuit').value.trim(),
       phone:document.getElementById('pm-phone').value.trim(),
       jwEmail:document.getElementById('pm-jwEmail').value.trim(),
@@ -2039,7 +2081,7 @@
 
   const PEOPLE_COLS = [
     {key:'name', label:'Name', get:p=>[p.lastName,p.firstName].filter(Boolean).join(', ')},
-    {key:'congregation', label:'Congregation', get:p=>p.congregation},
+    {key:'congregation', label:'Congregation', get:p=>congregationLabel(p)},
     {key:'circuit', label:'Circuit', get:p=>p.circuit},
     {key:'phone', label:'Phone', get:p=>p.phone},
     {key:'jwEmail', label:'JW email', get:p=>p.jwEmail},
@@ -2051,7 +2093,7 @@
     const col = PEOPLE_COLS.find(c=>c.key===peopleSort.key) || PEOPLE_COLS[0];
     const rows = data.people
       .map((p,index)=>({p,index,roles:assignedLabels(p.id)}))
-      .filter(({p}) => !needle || [p.lastName,p.firstName,p.congregation,p.circuit,p.phone,p.jwEmail,p.privateEmail,p.notes].join(' ').toLowerCase().includes(needle))
+      .filter(({p}) => !needle || [p.lastName,p.firstName,congregationLabel(p),p.circuit,p.phone,p.jwEmail,p.privateEmail,p.notes].join(' ').toLowerCase().includes(needle))
       .sort((a,b)=>{
         const va=col.get(a.p), vb=col.get(b.p);
         let r = (typeof va==='number') ? va-vb : String(va||'').localeCompare(String(vb||''),'de',{sensitivity:'base'});
@@ -2076,7 +2118,7 @@
       const cell = v => String(v||'').trim() ? `<td>${esc(v)}</td>` : '<td class="muted">—</td>';
       return `<tr data-person-row="${esc(p.id)}" title="${esc(roles.join('\n') || 'Not assigned')}">
         <td class="name">${name?esc(name):'<span class="placeholder">Unnamed person</span>'}${String(p.pioneer||'').trim()?'<span class="pioneer-dot">RP</span>':''}</td>
-        ${cell(p.congregation)}${cell(p.circuit)}${cell(p.phone)}${cell(p.jwEmail)}
+        ${cell(congregationLabel(p))}${cell(p.circuit)}${cell(p.phone)}${cell(p.jwEmail)}
         <td><span class="role-pill ${roles.length?'':'zero'}">${roles.length}</span></td>
         <td class="actions">
           <button class="btn small icon-btn" type="button" data-people-action="details" data-id="${esc(p.id)}" title="Show all details">i</button>
@@ -2162,6 +2204,7 @@
     {key:'lastName', label:'Last name'},
     {key:'firstName', label:'First name'},
     {key:'congregation', label:'Congregation'},
+    {key:'congType', label:'Congregation type'},
     {key:'circuit', label:'Circuit'},
     {key:'phone', label:'Phone'},
     {key:'jwEmail', label:'JW email'},
@@ -2326,6 +2369,7 @@
         lastName:source.lastName ?? source.surname ?? '',
         firstName:source.firstName ?? source.givenName ?? '',
         congregation:source.congregation ?? source.congregationName ?? '',
+        congType:source.congType ?? source.congregationType ?? '',
         circuit:source.circuit ?? source.circuitName ?? '',
         phone:source.phone ?? source.phoneNumber ?? '',
         jwEmail:source.jwEmail ?? source.jw_email ?? source.email ?? '',
