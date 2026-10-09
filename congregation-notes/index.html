@@ -613,7 +613,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="to-top" id="to-top" data-act="toTop" aria-label="Top" hidden>↑</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.26 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.27 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -694,7 +694,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.26';
+const APP_VERSION = '1.2.27';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -1151,7 +1151,7 @@ const MID_KEYS = ['treasures', 'apply', 'living'];
 const MID_PARTS = {treasures:['treasureTalk','spiritualGems','bibleReading'],apply:['ministryPart','ministryPart','ministryPart'],living:['christianLifePart','bibleStudy']};
 function meetingForDate(date) { const day = parseISO(date).getDay(); return day === 0 || day === 6 ? 'weekend' : 'midweek'; }
 function partBlock() { const b = mkBlock(); if (b.type === 'ink') b.h = 320; return b; }
-function newPart(kind) { return {timer:{planned:0,elapsed:0,started:null,done:false},kind,assign:'',title:'',person:'',assistant:'',blocks:[partBlock()]}; }
+function newPart(kind) { return {timer:{planned:['treasureTalk','spiritualGems'].includes(kind)?10:0,elapsed:0,started:null,done:false},kind,assign:'',title:'',person:'',assistant:'',blocks:[partBlock()]}; }
 function newMidSection(key) { return {blocks:[mkBlock('text')],parts:MID_PARTS[key].map(newPart)}; }
 // "Apply Yourself to the Field Ministry" – assignment types from the workbook
 const APPLY_TYPES = ['startConv','explainBeliefs','followUp','whatSay','talkPart','makeDisciples'];
