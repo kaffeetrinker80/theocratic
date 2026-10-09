@@ -573,6 +573,8 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 .timer-top,.timer-bottom,.timer-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.timer-top .timer-digits{margin-left:auto}.timer-digits{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.timer-over{color:var(--danger)}.timer-done{border-color:var(--wt)}.timer-bottom{justify-content:space-between;margin-top:7px;color:var(--sub);font-size:13px}.timer-complete{color:var(--wt);font-weight:800}.timer-plan{width:62px;padding:5px;border:1px solid var(--border);border-radius:8px;background:var(--field)}.timer-stats{justify-content:space-between;margin:9px 0;font-size:12px;color:var(--sub)}.timer-bar{height:6px;background:var(--border);border-radius:8px;overflow:hidden}.timer-bar div{height:100%;background:var(--wt)}.meeting-clock-note{margin-top:7px;color:var(--sub);font-size:11px}@media(max-width:430px){.timer-top .timer-digits{margin-left:0}.timer-top{gap:6px}.timer-top button{padding:7px 9px}}
 @media print {.meeting-timer,.part-timer{display:none!important}}
 @media print { .meeting-help, [data-act="addPart"], [data-act="removePart"], select[data-assign] { display:none !important; } }
+
+.weekly-reading-control{display:flex;gap:8px;align-items:center}.weekly-reading-control input{flex:1;min-width:0}.weekly-reading-control button{white-space:nowrap}.weekly-chapters{margin-top:7px}.weekly-range{font-size:12.5px;font-weight:700;color:var(--sub)}.weekly-chapters .chips{margin-top:5px}@media(max-width:430px){.weekly-reading-control{flex-wrap:wrap}.weekly-reading-control button{width:100%}}@media print{.weekly-reading-control button{display:none!important}}
 </style>
 </head>
 <body class="kid">
@@ -611,7 +613,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 <button class="to-top" id="to-top" data-act="toTop" aria-label="Top" hidden>↑</button>
 
 <footer class="app-footer" id="app-footer">
-  <span id="footer-text">Congregation Notes · V1.2.23 · Made with Love ©</span>
+  <span id="footer-text">Congregation Notes · V1.2.24 · Made with Love ©</span>
 </footer>
 
 <!-- format bar for typed notes -->
@@ -645,6 +647,18 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
     </div>
   </div>
 </div>
+
+<!-- Whole-chapter weekly reading picker -->
+<div class="modal-bg" id="modal-weekreading" hidden><div class="modal">
+  <h3 id="wr-heading">📖 Weekly Bible reading</h3>
+  <label class="fld"><span id="wr-book-label">Bible book</span><select id="wr-book"></select></label>
+  <div class="row">
+    <label class="fld"><span id="wr-from-label">From chapter</span><input type="number" min="1" max="150" step="1" inputmode="numeric" id="wr-from"></label>
+    <label class="fld"><span id="wr-to-label">To chapter</span><input type="number" min="1" max="150" step="1" inputmode="numeric" id="wr-to"></label>
+  </div>
+  <div class="preview" id="wr-preview"></div>
+  <div class="modal-btns"><button class="btn" data-act="closeModal" data-m="modal-weekreading" id="wr-cancel">Cancel</button><button class="btn primary" data-act="saveWeeklyReading" id="wr-save">Save</button></div>
+</div></div>
 
 <!-- Glossary -->
 <div class="modal-bg" id="modal-gloss" hidden>
@@ -680,7 +694,7 @@ details.counter[open] > summary .sec-head { margin-bottom: 10px; }
 // ═══════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════
-const APP_VERSION = '1.2.23';
+const APP_VERSION = '1.2.24';
 const TOOL_ID = 'congregation-notes';
 const DB_NAME = 'congregation-notes';
 const LS_KEY = 'congregation-notes-v1';
@@ -1195,8 +1209,32 @@ function partTimerHtml(key,p,i){const tm=p.timer||(p.timer=normTimer(null,true))
 function refreshTimerClocks(){if(!cur)return;const m=meetingClockState(),mc=document.getElementById('meeting-clock'),mr=document.getElementById('meeting-remaining'),mb=document.getElementById('meeting-progress-fill');if(mc){mc.textContent=timerFmt(m.elapsed);mc.classList.toggle('timer-over',m.over);}if(mr)mr.textContent=meetingClockText(m);if(mb)mb.style.width=m.percent+'%';if(cur.meetingType!=='midweek')return;for(const {k,i,p} of allTimedParts()){const c=document.querySelector(`[data-timer-clock="${k}:${i}"]`),d=document.querySelector(`[data-timer-delta="${k}:${i}"]`);if(!c)continue;const ms=timerMs(p.timer),pl=p.timer.planned*60000,over=pl>0&&ms>pl;c.textContent=timerFmt(ms);c.classList.toggle('timer-over',over);if(d)d.textContent=pl?`${over?'+':'−'}${timerFmt(Math.abs(pl-ms))}`:timerText('Set planned time','Sollzeit eingeben');}}
 setInterval(refreshTimerClocks,350);
 document.addEventListener('change',ev=>{if(!cur||!ev.target.dataset.timerPlan)return;const [k,i]=ev.target.dataset.timerPlan.split(':');const p=cur[k]?.parts[+i];if(!p)return;p.timer.planned=Math.max(0,Math.min(300,Number(ev.target.value)||0));dirty();refreshTimerClocks();});
+// Whole-chapter selections reuse the existing JW.ORG finder links, which can open JW Library.
+function weeklyReadingLinks(r){
+ if(!r || !Number.isInteger(+r.book))return '';
+ const b=books().find(x=>x.n===+r.book);if(!b)return '';
+ const from=+r.from,to=+r.to;
+ if(!Number.isInteger(from)||!Number.isInteger(to)||from<1||to<from||to>150)return '';
+ return `<div class="weekly-chapters"><span class="weekly-range">📖 ${esc(b.name)} ${from}${to>from?'–'+to:''}</span><div class="chips">${Array.from({length:to-from+1},(_,i)=>{const ch=from+i;return `<span class="chip"><a href="${esc(`https://www.jw.org/finder?wtlocale=${settings.lang==='de'?'X':'E'}&pub=nwtsty&bible=${String(r.book).padStart(2,'0')}${String(ch).padStart(3,'0')}`)}" data-act="openRef" target="_blank" rel="noopener">${esc(b.name)} ${ch} ↗</a></span>`;}).join('')}</div></div>`;
+}
+function openWeeklyReading(){
+ const sel=$('wr-book');sel.innerHTML=books().map(b=>`<option value="${b.n}">${esc(b.name)}</option>`).join('');
+ const r=cur.midweek.readingRange;
+ if(r){sel.value=String(r.book);$('wr-from').value=r.from;$('wr-to').value=r.to;}
+ else {$('wr-from').value='';$('wr-to').value='';}
+ const de=settings.lang==='de';
+ $('wr-heading').textContent=de?'📖 Bibelleseprogramm':'📖 Weekly Bible reading';
+ $('wr-book-label').textContent=de?'Bibelbuch':'Bible book';
+ $('wr-from-label').textContent=de?'Von Kapitel':'From chapter';
+ $('wr-to-label').textContent=de?'Bis Kapitel':'To chapter';
+ $('wr-cancel').textContent=de?'Abbrechen':'Cancel';$('wr-save').textContent=de?'Übernehmen':'Save';
+ updateWeeklyPreview();openModal('modal-weekreading');
+}
+function weeklySelection(){const book=+$('wr-book').value,from=+$('wr-from').value,to=+$('wr-to').value||from;return books().some(b=>b.n===book)&&Number.isInteger(from)&&Number.isInteger(to)&&from>=1&&to>=from&&to<=150?{book,from,to}:null;}
+function updateWeeklyPreview(){const r=weeklySelection();$('wr-preview').innerHTML=r?weeklyReadingLinks(r):esc(settings.lang==='de'?'Bitte gültige Kapitel auswählen':'Select valid chapters');}
+['wr-book','wr-from','wr-to'].forEach(id=>document.getElementById(id).addEventListener('input',updateWeeklyPreview));
 function midweekTop(e) {
-  return `<section class="card"><div class="meta-grid">${fieldHtml('midweek.reading','weeklyReading',e.midweek.reading,true)}${fieldHtml('midweek.chairman','chairman',e.midweek.chairman)}${fieldHtml('midweek.openPrayer','openingPrayer',e.midweek.openPrayer)}${fieldHtml('midweek.closePrayer','closingPrayer',e.midweek.closePrayer)}</div></section>`;
+  return `<section class="card"><div class="meta-grid"><div class="fld wide"><span>${esc(t('weeklyReading'))}</span><div class="weekly-reading-control"><input type="text" data-f="midweek.reading" value="${esc(e.midweek.reading||'')}" autocomplete="off" placeholder="${esc(settings.lang==='de'?'Bibelbuch und Kapitel auswählen':'Choose Bible book and chapters')}"><button type="button" class="btn" data-act="openWeeklyReading">📖 ${esc(settings.lang==='de'?'Auswählen':'Select')}</button></div>${weeklyReadingLinks(e.midweek.readingRange)}</div>${fieldHtml('midweek.chairman','chairman',e.midweek.chairman)}${fieldHtml('midweek.openPrayer','openingPrayer',e.midweek.openPrayer)}${fieldHtml('midweek.closePrayer','closingPrayer',e.midweek.closePrayer)}</div></section>`;
 }
 function partChipsHtml(key,i,refs) {
   return refs.map((r,ri)=>`<span class="chip"><a href="${esc(r.url)}" data-act="openRef" target="_blank" rel="noopener">📖 ${esc(r.label)}</a><button data-act="partDelRef" data-sec="${key}" data-i="${i}" data-r="${ri}" aria-label="${esc(t('del'))}">×</button></span>`).join('');
@@ -1258,7 +1296,7 @@ function newEntry() {
   return {
     id: uid(), createdAt: now, updatedAt: now, date: isoLocal(new Date()), meetingType: meetingForDate(isoLocal(new Date())), autoMeetingType: true,
     meetingTimer: {elapsed:0,started:null},
-    midweek: {reading:'',chairman:'',openPrayer:'',closePrayer:'',timer:{elapsed:0,started:null}},
+    midweek: {reading:'',readingRange:null,chairman:'',openPrayer:'',closePrayer:'',timer:{elapsed:0,started:null}},
     treasures: newMidSection('treasures'), apply: newMidSection('apply'), living: newMidSection('living'),
     speaker: '', speakerCong: '', talkTitle: '',
     songs: ['', '', ''],
@@ -1304,7 +1342,7 @@ function normalizeEntry(r) {
   e.autoMeetingType = false;
   e.meetingTimer = normTimer(r.meetingTimer || (r.midweek && r.midweek.timer),false);
   const mw = r.midweek || {};
-  e.midweek = {reading:str(mw.reading,300),chairman:str(mw.chairman,200),openPrayer:str(mw.openPrayer,200),closePrayer:str(mw.closePrayer,200),timer:normTimer(mw.timer,false)};
+  e.midweek = {reading:str(mw.reading,300),readingRange:(mw.readingRange && Number.isInteger(+mw.readingRange.book) && +mw.readingRange.book>=1 && +mw.readingRange.book<=66 && Number.isInteger(+mw.readingRange.from) && +mw.readingRange.from>=1 && Number.isInteger(+mw.readingRange.to) && +mw.readingRange.to>=+mw.readingRange.from && +mw.readingRange.to<=150)?{book:+mw.readingRange.book,from:+mw.readingRange.from,to:+mw.readingRange.to}:null,chairman:str(mw.chairman,200),openPrayer:str(mw.openPrayer,200),closePrayer:str(mw.closePrayer,200),timer:normTimer(mw.timer,false)};
   for (const key of MID_KEYS) {
     const source = r[key];
     if (source && typeof source === 'object') e[key] = {
@@ -1707,6 +1745,7 @@ document.addEventListener('input', ev => {
   if (el.dataset.f && cur && el.closest('#entry')) {
     if (el.dataset.f === 'date') { if (!el.value) return; cur.date = el.value; }
     else setPath(cur, el.dataset.f, el.value);
+    if(el.dataset.f==='midweek.reading'){cur.midweek.readingRange=null;el.closest('.fld')?.querySelector('.weekly-chapters')?.remove();}
     dirty();
     if (el.dataset.f === 'date' || el.dataset.f === 'talkTitle') updateHeader();
   }
@@ -2072,6 +2111,8 @@ function inkOf(el) { const ink = el.closest('.ink'); return ink && ink._ink; }
 //  ACTIONS  (delegated clicks)
 // ═══════════════════════════════════════════
 const ACTIONS = {
+  openWeeklyReading: () => openWeeklyReading(),
+  saveWeeklyReading: () => {const r=weeklySelection();if(!r){toast(settings.lang==='de'?'Ungültiger Kapitelbereich':'Invalid chapter range');return;}const b=books().find(b=>b.n===r.book);cur.midweek.readingRange=r;cur.midweek.reading=`${b.name} ${r.from}${r.to>r.from?'–'+r.to:''}`;dirty();closeModal('modal-weekreading');keepScroll(renderEntry);},
   reloadSongs: () => { void loadSongs(settings.lang,true); },
   open: el => { location.hash = '#e=' + encodeURIComponent(el.dataset.id); },
   back: () => { location.hash = ''; },
