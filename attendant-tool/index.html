@@ -76,6 +76,14 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .import-radio-opt input[type=radio]{width:18px;height:18px;margin:0;cursor:pointer}
 .import-radio-opt label{font-size:14px;font-weight:700;color:#1f2937;cursor:pointer;flex:1}
 
+/* ── print list ── */
+.pr-opt{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1.5px solid var(--line);border-radius:11px;
+  cursor:pointer;background:#fff;font-size:13px;line-height:1.4;text-transform:none;letter-spacing:0;font-weight:600;color:var(--text);margin:0}
+.pr-opt:hover{border-color:#90caf9;background:#f3f9ff}
+.pr-opt input{width:auto;flex:0 0 auto;margin:3px 0 0}
+.pr-opt.sel{border-color:#1565c0;background:#eef6ff}
+.pr-opt small{display:block;font-weight:600;color:var(--muted);font-size:11px;margin-top:1px}
+
 /* ── positions overview (maps) ── */
 .tab-btn.maps-btn{background:#fff;border:1px dashed #90a4ae;color:#37474f}
 .tab-btn.maps-btn:hover{background:#e8f4fb;border-style:solid;border-color:#42a5f5}
@@ -369,8 +377,27 @@ table.dash-table tbody tr:hover td{background:#fafcff}
 .hero-title-input:focus{box-shadow:none;border-color:#90caf9}
 .event-stack{display:grid;grid-template-columns:1.2fr .9fr;gap:9px}
 .event-stack input{font-size:14px;font-weight:700;padding:9px 11px}
-.global-search-wrap{position:relative;padding:7px 9px;border:1px solid #d9dee2;border-radius:11px;background:rgba(255,255,255,.72)}
-.global-search-wrap input{padding-right:36px;font-size:13px;background:#fff;border-color:#cfd6dc}
+.global-search-wrap{position:relative;padding:9px 11px 11px;border:2px solid #1976d2;border-radius:14px;
+  background:linear-gradient(135deg,#e7f1fc 0%,#f5f9ff 100%);box-shadow:0 4px 12px rgba(25,118,210,.18);
+  transition:box-shadow .15s,border-color .15s,background .15s}
+.global-search-wrap:focus-within{border-color:#0d47a1;box-shadow:0 0 0 4px rgba(66,165,245,.30),0 4px 12px rgba(25,118,210,.22)}
+.global-search-wrap label{color:#0d47a1;font-weight:800}
+.global-search-wrap .gs-hint{font-weight:600;color:#5c7fa3;text-transform:none;letter-spacing:0;margin-left:6px;font-size:10px}
+.gs-field{position:relative}
+.gs-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;opacity:.8}
+.global-search-wrap input{padding:11px 38px 11px 34px;font-size:14px;font-weight:600;background:#fff;
+  border:1.5px solid #8fb6e3;border-radius:11px}
+.global-search-wrap input:focus{border-color:#1565c0}
+.gs-clear{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:24px;height:24px;min-width:0;padding:0;
+  border-radius:50%;border:0;background:#cfd8dc;color:#37474f;font-size:12px;font-weight:900;line-height:1;cursor:pointer;
+  display:none;align-items:center;justify-content:center;box-shadow:none}
+.gs-clear:hover{background:#ef5350;color:#fff}
+/* a filter is active -> orange, so nobody wonders why rows are missing */
+.global-search-wrap.has-text{border-color:#ef6c00;background:linear-gradient(135deg,#fff3e0 0%,#fffaf2 100%);
+  box-shadow:0 4px 12px rgba(239,108,0,.2)}
+.global-search-wrap.has-text label{color:#bf5b00}
+.global-search-wrap.has-text input{border-color:#ffb74d}
+.global-search-wrap.has-text .gs-clear{display:flex}
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .contact-grid .span-2{grid-column:span 2}
 .contact-card{padding:11px;border:1px solid var(--line);border-radius:14px;background:rgba(248,250,252,.9)}
@@ -418,7 +445,27 @@ table.dash-table tbody tr:hover td{background:#fafcff}
   .hero-top,.hero-grid,.event-stack,.contact-grid,.split,.grid-2,.summary{grid-template-columns:1fr}
   body{padding:8px}
 }
+#printSheet{display:none}
+.ps-title{font-size:19px;font-weight:800;margin:0}
+.ps-meta{font-size:11px;color:#444;margin:2px 0 6px}
+.ps-sum{font-size:12px;font-weight:700;margin:0 0 9px;padding:6px 9px;border:1.5px solid #333;border-radius:6px;display:inline-block}
+.ps-table{width:100%;border-collapse:collapse;font-size:11px}
+.ps-table th,.ps-table td{border:1px solid #777;padding:4px 6px;vertical-align:top;text-align:left}
+.ps-table thead{display:table-header-group}
+.ps-table th{background:#e6e6e6;font-size:10px;text-transform:uppercase;letter-spacing:.03em;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ps-table tr{break-inside:avoid;page-break-inside:avoid}
+.ps-table td.c,.ps-table th.c{text-align:center;width:26px;font-size:13px}
+.ps-table td.id,.ps-table th.id{width:32px;text-align:right}
+.ps-table td.notes{min-width:110px;height:24px}
+.ps-table tr.ps-group td{background:#d9d9d9;font-weight:800;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ps-table tr.ps-group span{font-weight:600;color:#444}
+.ps-sr{font-size:9px;border:1px solid #777;border-radius:3px;padding:0 3px;margin-left:3px}
+.ps-foot{margin-top:8px;font-size:10px;color:#555}
 @media print{
+  html{background:#fff!important}
+  body.print-sheet-mode{background:#fff!important;padding:0!important}
+  body.print-sheet-mode .app,body.print-sheet-mode .modal-ov,body.print-sheet-mode .import-modal{display:none!important}
+  body.print-sheet-mode #printSheet{display:block!important;color:#000}
   body{background:#fff;padding:0}
   .card{box-shadow:none}.toolbar,.no-print,.footer-note,.footer-bar{display:none!important}
   .att-table{font-size:10px}.att-table thead th{position:static}
@@ -448,9 +495,15 @@ table.dash-table tbody tr:hover td{background:#fafcff}
           <div><label for="eventDate">Date</label><input id="eventDate" value="Sample date / location"></div>
         </div>
       </div>
-      <div class="global-search-wrap no-print">
-        <label for="globalSearch">Global search</label>
-        <input id="globalSearch" placeholder="Name, congregation, team, shift, flags, remarks..." oninput="applyGlobalSearch()">
+      <div class="global-search-wrap no-print" id="gsWrap">
+        <label for="globalSearch">Global search <span class="gs-hint"><span class="kbd">/</span> jumps here · <span class="kbd">Esc</span> clears</span></label>
+        <div class="gs-field">
+          <span class="gs-icon" aria-hidden="true">🔍</span>
+          <input id="globalSearch" placeholder="Name, congregation, team, shift, flags, remarks..." oninput="applyGlobalSearch()" autocomplete="off"
+            onkeydown="if(event.key==='Escape'&&this.value){clearGlobalSearch();event.stopPropagation();}">
+          <button class="gs-clear" id="gsClear" type="button" title="Clear search (Esc)" aria-label="Clear search"
+            onclick="clearGlobalSearch();el('globalSearch').focus()">✕</button>
+        </div>
       </div>
     </div>
     <div class="contact-card">
@@ -642,6 +695,7 @@ Loving greetings,
       </div>
     </div>
     <div class="toolbar no-print" style="margin-bottom:10px">
+      <button class="primary small-btn" onclick="openPrintModal()" title="Print a follow-up list: who is available (✔) and who has answered (A)">🖨 Print list…</button>
       <button class="success small-btn" onclick="exportFilteredJson()" title="Export currently visible attendants as JSON">📥 Export filtered (JSON)</button>
       <button class="success small-btn" onclick="exportFilteredCsv()" title="Export currently visible attendants as CSV">📥 Export filtered (CSV)</button>
       <span style="font-size:11px;color:var(--muted);margin-left:4px" id="filteredExportHint"></span>
@@ -737,7 +791,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.0</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.1</div>
 </div>
 
 <script>
@@ -1533,13 +1587,17 @@ function updateDatalist(){
 }
 
 /* ── global search ── */
+function syncSearchState(){
+  const w=el('gsWrap');if(w)w.classList.toggle('has-text',!!String(el('globalSearch')?.value||'').trim());
+}
 function applyGlobalSearch(){
   globalSearchTerm=String(el('globalSearch')?.value||'').trim().toLowerCase();
+  syncSearchState();
   renderCongTable();renderAttendantTable();
 }
 function clearGlobalSearch(){
   if(el('globalSearch'))el('globalSearch').value='';
-  globalSearchTerm='';renderCongTable();renderAttendantTable();
+  globalSearchTerm='';syncSearchState();renderCongTable();renderAttendantTable();
 }
 
 /* ── Copy attendant to other event ── */
@@ -2170,6 +2228,152 @@ function deleteFromModal(index){
   state.attendants.splice(index,1);
   saveState();renderAttendantTable();renderCongTable();
   closeOverlay('attModal');flash('Attendant deleted');
+}
+
+/* ══════════ PRINT LIST ══════════
+   ✔ = he is available (active)   A = he answered himself   → "who do I have to chase?" */
+let printOpts={mode:'waiting',cong:'__all__',sort:'name',mobile:true,mail:true,teams:false,remarks:false,notes:true,landscape:false};
+let printCleanupTimer=null;
+
+function printSelection(o){
+  let list=state.attendants.filter(a=>{
+    if(o.cong!=='__all__'&&!matchCong(a.congregation,o.cong))return false;
+    const active=a.active!==false;
+    if(o.mode==='waiting')return active&&!a.confirmed;
+    if(o.mode==='available')return active;
+    return true;
+  });
+  if(o.sort==='cong'){
+    list.sort((a,b)=>String(a.congregation||'').trim().localeCompare(String(b.congregation||'').trim(),'de')
+      ||sortKey(a).localeCompare(sortKey(b),'de'));
+  }else list=sortByName(list);
+  return list;
+}
+function printOverall(){
+  const act=state.attendants.filter(a=>a.active!==false);
+  const replied=act.filter(a=>a.confirmed).length;
+  return{available:act.length,replied,waiting:act.length-replied};
+}
+function readPrintOpts(){
+  const mode=(document.querySelector('#printModal input[name="prMode"]:checked')||{}).value||'waiting';
+  const chk=id=>!!el(id)?.checked;
+  return{mode,cong:el('prCong').value,sort:el('prSort').value,
+    mobile:chk('prMobile'),mail:chk('prMail'),teams:chk('prTeams'),remarks:chk('prRemarks'),notes:chk('prNotes'),landscape:chk('prLand')};
+}
+function updatePrintPreview(){
+  if(!el('printModal'))return;
+  const o=readPrintOpts(),list=printSelection(o),ov=printOverall();
+  document.querySelectorAll('#printModal .pr-opt[data-mode]').forEach(l=>l.classList.toggle('sel',l.dataset.mode===o.mode));
+  const box=el('prCount');
+  box.innerHTML=list.length
+    ?`<b>${list.length}</b> ${list.length===1?'person':'people'} will be printed.<br>
+       <span class="mini">Overall: ${ov.available} available (✔) · ${ov.replied} answered (A) · <b>${ov.waiting} still waiting</b></span>`
+    :`<b>Nothing matches these settings.</b><br><span class="mini">Overall: ${ov.available} available (✔) · ${ov.replied} answered (A) · ${ov.waiting} still waiting</span>`;
+  const b=el('prGo');if(b){b.disabled=!list.length;b.style.opacity=list.length?'':'.45';}
+}
+function openPrintModal(){
+  const o=printOpts;
+  const congs=state.congregations.map(c=>c.congregation).filter(Boolean);
+  const radio=(val,title,sub)=>`<label class="pr-opt" data-mode="${val}">
+      <input type="radio" name="prMode" value="${val}" ${o.mode===val?'checked':''} onchange="updatePrintPreview()">
+      <span>${title}<small>${sub}</small></span></label>`;
+  const cb=(id,label,on)=>`<label><input type="checkbox" id="${id}" ${on?'checked':''}> ${label}</label>`;
+  openOverlay('printModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>Print list</h3>
+        <div class="sub">Independent of the table filters – choose what goes on the paper</div></div>
+      <button class="modal-x" onclick="closeOverlay('printModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-sub">Who</div>
+        <div style="display:grid;gap:7px">
+          ${radio('waiting','Follow-up list: available, no answer yet','✔ yes, A no – the people your assistant has to chase')}
+          ${radio('available','Everyone available, with answer status','All with ✔, A filled in for those who answered')}
+          ${radio('all','Everyone, including inactive','Complete list, inactive ones marked with –')}
+        </div>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field"><label for="prCong">Congregation</label>
+          <select id="prCong" onchange="updatePrintPreview()">
+            <option value="__all__">All congregations</option>
+            ${congs.map(c=>`<option value="${esc(c)}" ${o.cong===c?'selected':''}>${esc(c)}</option>`).join('')}
+          </select></div>
+        <div class="modal-field"><label for="prSort">Order</label>
+          <select id="prSort">
+            <option value="name" ${o.sort==='name'?'selected':''}>Alphabetical by name</option>
+            <option value="cong" ${o.sort==='cong'?'selected':''}>Grouped by congregation</option>
+          </select></div>
+      </div>
+      <div>
+        <div class="modal-sub">Columns (Name, ✔ and A are always printed)</div>
+        <div class="check-row">
+          ${cb('prMobile','Mobile',o.mobile)}${cb('prMail','JWPub / Email',o.mail)}${cb('prTeams','Teams',o.teams)}
+          ${cb('prRemarks','Remarks',o.remarks)}${cb('prNotes','Empty notes column',o.notes)}${cb('prLand','Landscape',o.landscape)}
+        </div>
+      </div>
+      <div class="wc-box" id="prCount"></div>
+    </div>
+    <div class="modal-foot">
+      <div class="left"><span class="mini">Tip: choose “Save as PDF” in the print dialog to send it digitally.</span></div>
+      <button class="secondary" onclick="closeOverlay('printModal')">Cancel</button>
+      <button class="primary" id="prGo" onclick="doPrintList()">🖨 Print</button>
+    </div>`);
+  updatePrintPreview();
+}
+function buildPrintSheetHtml(o,list){
+  const ov=printOverall();
+  const titles={waiting:'Follow-up list – waiting for answer',available:'Available attendants – answer status',all:'All attendants'};
+  const when=new Date().toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'});
+  const event=[el('eventName')?.value,el('eventDate')?.value].filter(Boolean).join(' – ');
+  const grouped=o.sort==='cong';
+  const cols=[
+    {h:'ID',cls:'id',f:a=>esc(a.id||'')},
+    {h:'Name',f:a=>esc(dispName(a))+(a.sister?'<span class="ps-sr">Sr.</span>':'')},
+    ...(grouped?[]:[{h:'Congregation',f:a=>esc(shortCong(a.congregation)||a.congregation||'')}]),
+    {h:'✔',cls:'c',f:a=>a.active!==false?'✔':'–'},
+    {h:'A',cls:'c',f:a=>a.confirmed?'✔':'☐'},
+    ...(o.mobile?[{h:'Mobile',f:a=>esc(a.mobile||'')}]:[]),
+    ...(o.mail?[{h:'JWPub / Email',f:a=>[a.jwpub,a.email].filter(Boolean).map(esc).join('<br>')}]:[]),
+    ...(o.teams?[{h:'Teams',f:a=>esc(mainTeamsOf(a).map(teamLabel).join(', '))}]:[]),
+    ...(o.remarks?[{h:'Remarks',f:a=>esc(a.remarks||'')}]:[]),
+    ...(o.notes?[{h:'Notes',cls:'notes',f:()=>''}]:[]),
+  ];
+  const counts={};list.forEach(a=>{const k=String(a.congregation||'').trim();counts[k]=(counts[k]||0)+1;});
+  let body='',last=null;
+  list.forEach(a=>{
+    if(grouped){
+      const k=String(a.congregation||'').trim();
+      if(k!==last){body+=`<tr class="ps-group"><td colspan="${cols.length}">${esc(k||'(no congregation)')} <span>(${counts[k]})</span></td></tr>`;last=k;}
+    }
+    body+=`<tr>${cols.map(c=>`<td class="${c.cls||''}">${c.f(a)}</td>`).join('')}</tr>`;
+  });
+  return`<div class="ps-head"><h1 class="ps-title">${esc(titles[o.mode])}</h1>
+      <div class="ps-meta">${esc(state.meta.eventType||'')}${event?' · '+esc(event):''} · printed ${esc(when)}${o.cong!=='__all__'?' · '+esc(o.cong):''}</div></div>
+    <div class="ps-sum">${list.length} on this list &nbsp;|&nbsp; overall: ${ov.available} available (✔) · ${ov.replied} answered (A) · ${ov.waiting} still waiting</div>
+    <table class="ps-table"><thead><tr>${cols.map(c=>`<th class="${c.cls||''}">${c.h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>
+    <div class="ps-foot">✔ = available (inactive: –) · A = has answered himself (☐ = still open)</div>`;
+}
+function cleanupPrintSheet(){
+  clearTimeout(printCleanupTimer);
+  document.body.classList.remove('print-sheet-mode');
+  ['printSheet','printPageStyle'].forEach(id=>{const n=el(id);if(n)n.remove();});
+}
+function doPrintList(){
+  const o=readPrintOpts();printOpts=o;
+  const list=printSelection(o);
+  if(!list.length){updatePrintPreview();return;}
+  cleanupPrintSheet();
+  const sheet=document.createElement('div');sheet.id='printSheet';sheet.innerHTML=buildPrintSheetHtml(o,list);
+  document.body.appendChild(sheet);
+  const st=document.createElement('style');st.id='printPageStyle';
+  st.textContent=`@page{size:A4 ${o.landscape?'landscape':'portrait'};margin:12mm}`;
+  document.head.appendChild(st);
+  document.body.classList.add('print-sheet-mode');
+  const done=()=>{cleanupPrintSheet();window.removeEventListener('afterprint',done);};
+  window.addEventListener('afterprint',done);
+  printCleanupTimer=setTimeout(done,180000);
+  setTimeout(()=>window.print(),60);
 }
 
 /* ══════════ POSITIONS OVERVIEW (Munich floor plans) ══════════
