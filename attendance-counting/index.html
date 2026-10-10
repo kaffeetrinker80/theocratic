@@ -4,23 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Counting Munich</title>
-  <!-- Icons + Manifest -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#dcebf9">
-<meta name="apple-mobile-web-app-title" content="Counting Tool">
-<meta name="application-name" content="Attendance Counting Tool">
-
-<!-- Link-Vorschau -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="Attendance Counting Tool">
-<meta property="og:description" content="Attendance counting at Assemblies and Regional Conventions in the Munich Assembly Hall">
-<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/attendance-counting/index.html/">
-<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/attendance-counting/index.html/og-image.png">
-<meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="rc-counting-manifest.json" />
+  <link rel="icon" type="image/png" sizes="16x16" href="RC-counting-icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="RC-counting-icon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="RC-counting-icon-180.png" />
+  <meta name="theme-color" content="#1e3a8a" />
   <style>
     :root {
       --bg: #f3f5f7;
@@ -1202,6 +1190,59 @@
       .mode-switch { display: none !important; }
     }
 
+    /* ---------- v1.41: positions overview (Munich floor plans) ---------- */
+    .mini-btn.maps-btn {
+      background: #fff;
+      border: 1px dashed #90a4ae;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .mini-btn.maps-btn:hover { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+
+    .modal.maps-modal {
+      width: min(1400px, 100%);
+      max-height: calc(100vh - 36px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .maps-head { display: flex; align-items: flex-start; gap: 10px; }
+    .maps-head h3 { margin: 0; font-size: 20px; }
+    .maps-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .maps-x { margin-left: auto; min-height: 34px; padding: 4px 12px; font-size: 16px; }
+    .maps-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .map-tab {
+      min-height: 34px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      background: #e7eef3;
+      color: var(--muted);
+      border: 1px solid #d3dee6;
+    }
+    .map-tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .maps-bar .spacer { flex: 1; }
+    .maps-bar a.mini-btn {
+      display: inline-flex; align-items: center;
+      border: 1px solid var(--line); border-radius: 10px;
+      background: #fff; color: var(--accent); text-decoration: none; font-weight: 700;
+    }
+    .map-view {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: auto;
+      flex: 1 1 auto;
+      min-height: 200px;
+      text-align: center;
+    }
+    .map-view img { display: block; margin: 0 auto; width: 100%; height: auto; }
+    .map-view.full img { width: auto; max-width: none; }
+    .map-err { padding: 26px 18px; font-size: 13px; line-height: 1.6; color: var(--danger); text-align: left; }
+    .map-err code { background: #f3f5f7; padding: 1px 5px; border-radius: 5px; color: var(--ink); word-break: break-all; }
+    .maps-hint { font-size: 11px; color: var(--muted); }
+
   </style>
 </head>
 <body>
@@ -1226,6 +1267,7 @@
             </div>
             <div class="headline-tools screen-only">
               <button type="button" class="mini-btn" id="toggleAdvancedBtn">Hide setup</button>
+              <button type="button" class="mini-btn maps-btn" id="openMapsBtn" title="Floor plans of the Munich Assembly Hall with all position numbers">🗺 Positions overview</button>
               <button type="button" class="mini-btn primary" id="jumpToCountsBtn">↓ Go to counts</button>
             </div>
           </div>
@@ -1271,7 +1313,7 @@
   </div>
 
   <div id="summaryPrintView" class="summary-print-view"></div>
-  <div class="app-footer screen-only">Counting Munich · V1.40 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.40">✉ Feedback</a></div>
+  <div class="app-footer screen-only">Counting Munich · V1.41 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.41">✉ Feedback</a></div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1284,9 +1326,29 @@
     </div>
   </div>
 
+  <div id="mapsModal" class="modal-backdrop screen-only" aria-hidden="true">
+    <div class="modal maps-modal" role="dialog" aria-modal="true" aria-labelledby="mapsTitle">
+      <div class="maps-head">
+        <div>
+          <h3 id="mapsTitle">Positions overview – Munich Assembly Hall</h3>
+          <div class="maps-sub" id="mapsSub"></div>
+        </div>
+        <button type="button" class="maps-x" id="closeMapsBtn" title="Close (Esc)">✕</button>
+      </div>
+      <div class="maps-bar">
+        <span id="mapTabs" style="display:contents"></span>
+        <span class="spacer"></span>
+        <button type="button" class="mini-btn" id="mapZoomBtn">⤢ Full size</button>
+        <a class="mini-btn" id="mapNewTab" target="_blank" rel="noopener">↗ Open in new tab</a>
+      </div>
+      <div class="map-view" id="mapView"></div>
+      <div class="maps-hint">Keys while open: 1 / 2 / 3 switch floor · Esc closes</div>
+    </div>
+  </div>
+
   <script>
     /* ------------------------------------------------------------------
-       Counting Munich v1.40
+       Counting Munich v1.41
        One tool, two independent event slots:
          - assembly   : 1 day
          - convention : 3 days
@@ -1296,7 +1358,7 @@
     ------------------------------------------------------------------ */
 
     const MODE_KEY = 'counting-munich:mode';
-    const APP_VERSION = '1.40';
+    const APP_VERSION = '1.41';
 
     const defaultGuidelineText = 'Attendance count: Please take the count at the exact assigned time so the figures remain as accurate and synchronized as possible. Count without causing unnecessary distraction to those attending. All adults should be counted, as should young children who are listening and benefiting, even to a limited extent.';
     const defaultGuidelineRef = 'Reference: CO-23 ¶12';
@@ -2372,6 +2434,90 @@
     });
     window.addEventListener('afterprint', () => setTimeout(clearPrintMode, 250));
     window.addEventListener('resize', updateAutoToolbarMode);
+
+    /* ---------- v1.41: positions overview (Munich floor plans) ----------
+       The JPGs sit in the GitHub repo right next to this tool, so the
+       relative path is tried first. If that fails (e.g. the file is opened
+       locally), the copies in the attendant-tool folder are used.        */
+    const MAPS_FALLBACK_BASE = 'https://kaffeetrinker80.github.io/theocratic/attendant-tool/';
+    const MAPS = [
+      { file: 'munich-ug.jpg', floor: 'UG', label: 'Cafeteria level · positions 33–41' },
+      { file: 'munich-eg.jpg', floor: 'EG', label: 'Lobby & auditorium · positions 1–32, 38' },
+      { file: 'munich-og.jpg', floor: 'OG', label: 'Balcony (Empore) · positions 42–44' }
+    ];
+    let mapsIndex = 1;
+    let mapsFull = false;
+
+    function mapsCandidates(file) {
+      const list = [];
+      if (/^https?:$/.test(location.protocol)) list.push(new URL(file, location.href).href);
+      list.push(MAPS_FALLBACK_BASE + file);
+      return list;
+    }
+
+    function renderMaps() {
+      const m = MAPS[mapsIndex];
+      const urls = mapsCandidates(m.file);
+      document.getElementById('mapsSub').textContent = m.floor + ' · ' + m.label;
+      document.getElementById('mapTabs').innerHTML = MAPS.map((x, k) =>
+        `<button type="button" class="map-tab ${k === mapsIndex ? 'on' : ''}" onclick="openMaps(${k})">${k + 1} · ${x.floor}</button>`
+      ).join('');
+      document.getElementById('mapZoomBtn').textContent = mapsFull ? '⤡ Fit to window' : '⤢ Full size';
+      const view = document.getElementById('mapView');
+      view.className = 'map-view' + (mapsFull ? ' full' : '');
+      view.innerHTML = '';
+      const link = document.getElementById('mapNewTab');
+      link.href = urls[0];
+
+      const img = new Image();
+      img.alt = 'Floor plan ' + m.floor;
+      let attempt = 0;
+      img.onload = () => { link.href = img.src; };
+      img.onerror = () => {
+        attempt += 1;
+        if (attempt < urls.length) { img.src = urls[attempt]; return; }
+        view.innerHTML = '<div class="map-err"><strong>Image could not be loaded.</strong><br>Tried:<br>' +
+          urls.map(u => '<code>' + escapeHtmlMaps(u) + '</code>').join('<br>') +
+          '<br>Check that <code>' + escapeHtmlMaps(m.file) + '</code> is uploaded next to the tool (lower case, .jpg) and that you are online.</div>';
+      };
+      view.appendChild(img);
+      img.src = urls[0];
+    }
+
+    function escapeHtmlMaps(t) {
+      return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function openMaps(i) {
+      if (typeof i === 'number') mapsIndex = i;
+      renderMaps();
+      const modal = document.getElementById('mapsModal');
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeMaps() {
+      const modal = document.getElementById('mapsModal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function toggleMapZoom() {
+      mapsFull = !mapsFull;
+      renderMaps();
+    }
+
+    document.getElementById('openMapsBtn').addEventListener('click', () => openMaps());
+    document.getElementById('closeMapsBtn').addEventListener('click', closeMaps);
+    document.getElementById('mapZoomBtn').addEventListener('click', toggleMapZoom);
+    document.getElementById('mapsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'mapsModal') closeMaps();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!document.getElementById('mapsModal').classList.contains('open')) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeMaps(); }
+      else if (['1', '2', '3'].includes(e.key)) { e.preventDefault(); openMaps(Number(e.key) - 1); }
+    });
 
     updateAutoToolbarMode();
     render();
