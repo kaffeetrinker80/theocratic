@@ -684,7 +684,7 @@ Loving greetings,
       <div class="sf"><label>Confirmation</label>
         <select id="filterStatus" onchange="renderAttendantTable()" title="A = his own reply · T = planned (on a team)">
           <option value="all">All</option>
-          <option value="unconfirmed">Waiting for his reply (no A)</option>
+          <option value="unconfirmed">Waiting for his reply (✔, no A)</option>
           <option value="available">Available: confirmed, not planned (A, no T)</option>
           <option value="availfree">Available, not in another team either (best picks)</option>
           <option value="planned">Planned (T)</option>
@@ -792,7 +792,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.2</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.3</div>
 </div>
 
 <script>
@@ -1127,6 +1127,7 @@ function renderMiniStats(){
   const total=state.attendants.length;
   const active=state.attendants.filter(a=>a.active!==false).length;
   const inactive=total-active;
+  const noReplyNeeded=state.attendants.filter(a=>a.active===false&&!a.confirmed).length;
   const block=state.attendants.filter(a=>(a.teams||[]).includes('blockatt')).length;
   const aud=state.attendants.filter(a=>(a.teams||[]).includes('auditorium')).length;
   const caf=state.attendants.filter(a=>(a.teams||[]).includes('cafeteria')).length;
@@ -1145,7 +1146,7 @@ function renderMiniStats(){
   ms.innerHTML=`
     <div class="stat"><span class="label">Total</span><span class="val">${total}</span></div>
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
-    <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
+    <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}${noReplyNeeded?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Not available and no answer needed (e.g. the congregation said not this time). The rest of the inactive ones answered and declined themselves.">(${noReplyNeeded} no reply needed)</span>`:''}</span></div>
     <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
     <div class="stat"><span class="label">Confirmed (A)</span><span class="val" style="color:#1565c0">${confirmedN}${declinedN?` <span style="font-size:10px;font-weight:700;color:#c62828" title="Answered, but ✔ is off – they declined and cannot be used">(+${declinedN} declined)</span>`:''}</span></div>
     <div class="stat"><span class="label">Planned (T)</span><span class="val" style="color:#a45c00">${plannedN}</span></div>
@@ -1175,7 +1176,7 @@ function attMatchesFilters(row){
   if(actFil==='active'&&row.active===false)return false;
   if(actFil==='inactive'&&row.active!==false)return false;
   const stFil=el('filterStatus')?el('filterStatus').value:'all';
-  if(stFil==='unconfirmed'&&row.confirmed)return false;
+  if(stFil==='unconfirmed'&&(row.confirmed||row.active===false))return false;
   if(stFil==='available'&&!(row.confirmed&&!isPlanned(row)&&row.active!==false))return false;
   if(stFil==='availfree'&&!(row.confirmed&&!isPlanned(row)&&row.active!==false&&!otherTeamsOf(row).length))return false;
   if(stFil==='planned'&&!isPlanned(row))return false;
@@ -1196,7 +1197,7 @@ function renderAttendantTable(){
     const isExp=allExpanded||expandedRows.has(index);
 
     /* active dot */
-    const dotHtml=`<div class="act-dot ${row.active!==false?'on':'off'}" onclick="toggleActive(${index})" title="${row.active!==false?'Active – click to deactivate':'Inactive – click to activate'}">${row.active!==false?'✔':'✕'}</div>`;
+    const dotHtml=`<div class="act-dot ${row.active!==false?'on':'off'}" onclick="toggleActive(${index})" title="${esc(row.active!==false?'Available – click if he cannot be used this time (congregation said no, vacation, other team …)':(row.confirmed?'Not available – he declined himself. Click to make him available again.':'Not available – no answer needed (e.g. the congregation said not this time). Click to make him available again.'))}">${row.active!==false?'✔':'✕'}</div>`;
 
     /* status dots: A = he confirmed himself, T = planned (derived from the teams) */
     const confHtml=`<div class="conf-cell">
@@ -1434,6 +1435,7 @@ function confTitle(a){
   const st=a.confirmedAt?' · '+formatStamp(a.confirmedAt):'';
   if(a.confirmed&&a.active!==false)return'Answered – available'+st;
   if(a.confirmed)return'Answered – declined (✔ is off, cannot be used)'+st;
+  if(a.active===false)return'No answer needed – not available (e.g. the congregation said not this time)';
   return'No answer yet – click when he answers. Entering his possible shifts sets A automatically.';
 }
 function refreshConfDot(index){
