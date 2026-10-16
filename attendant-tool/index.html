@@ -270,6 +270,8 @@ textarea.flags-wrap{min-height:76px;line-height:1.35;white-space:pre-wrap}
 .cdot:hover{transform:scale(1.1)}
 .cdot.c.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
 .cdot.a.on{background:#e3f2fd;border-color:#42a5f5;color:#1565c0}
+.lk-a{color:#1565c0;font-weight:900}
+.lk-t{color:#a45c00;font-weight:900}
 .cdot.a.on.decl{background:#fdecea;border-color:#ef9a9a;color:#c62828}
 .cdot.t{cursor:default}
 .cdot.t.ext{outline:2px dashed #78909c;outline-offset:1px}
@@ -681,11 +683,11 @@ Loving greetings,
         <select id="filterActive" onchange="renderAttendantTable()">
           <option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option>
         </select></div>
-      <div class="sf"><label>Confirmation</label>
+      <div class="sf"><label><span class="lk-a">A</span>nswered</label>
         <select id="filterStatus" onchange="renderAttendantTable()" title="A = his own reply · T = planned (on a team)">
           <option value="all">All</option>
           <option value="unconfirmed">Waiting for his reply (✔, no A)</option>
-          <option value="available">Available: confirmed, not planned (A, no T)</option>
+          <option value="available">Available: answered, not planned (A, no T)</option>
           <option value="availfree">Available, not in another team either (best picks)</option>
           <option value="planned">Planned (T)</option>
         </select></div>
@@ -709,13 +711,13 @@ Loving greetings,
         <col class="c-mob"><col class="c-rem"><col class="c-act2"><col class="c-del">
         <thead><tr>
           <th title="On the list: is he taking part at all? Inactive = dropped out / not available. This is what the congregations see in the request mail.">●</th>
-          <th title="A = he answered (red = answered but declined, ✔ is off; set automatically when you enter his possible shifts) · T = planned (lights up automatically once he is on Welcome, Lobby, Cafeteria or Auditorium)">A&nbsp;T</th>
+          <th title="A = he answered (red = answered but declined, ✔ is off; set automatically when you enter his possible shifts) · T = planned (lights up automatically once he is on Welcome, Lobby, Cafeteria or Auditorium)"><span class="lk-a">A</span>&nbsp;<span class="lk-t">T</span></th>
           <th>ID</th>
           <th class="left">Name</th>
           <th class="left">First name</th>
           <th class="left">Congregation</th>
           <th class="left">Privilege</th>
-          <th>Main Teams</th>
+          <th>Main <span class="lk-t">T</span>eams</th>
           <th>Possible Shifts</th>
           <th class="left">Mobile</th>
           <th class="left">Remarks / Flags</th>
@@ -792,7 +794,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.3</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.4</div>
 </div>
 
 <script>
@@ -1137,6 +1139,11 @@ function renderMiniStats(){
   const sisters=state.attendants.filter(a=>a.sister).length;
   const confirmedN=state.attendants.filter(a=>a.confirmed&&a.active!==false).length;
   const declinedN=state.attendants.filter(a=>a.confirmed&&a.active===false).length;
+  /* everybody who has to answer = all except those who are out without needing an answer */
+  const askedN=state.attendants.filter(a=>!(a.active===false&&!a.confirmed)).length;
+  const answeredN=state.attendants.filter(a=>a.confirmed).length;
+  const pctN=askedN?Math.round(answeredN/askedN*100):0;
+  const answeredTip=`${answeredN} of ${askedN} have answered (yes or no). ${askedN-answeredN} still waiting (✔ without A). ${confirmedN} said yes and can be used (A + ✔).`+(noReplyNeeded?` ${noReplyNeeded} are out without needing an answer.`:'');
   const plannedN=state.attendants.filter(a=>isPlanned(a)&&a.active!==false).length;
   const availList=state.attendants.filter(a=>a.active!==false&&a.confirmed&&!isPlanned(a));
   const availableN=availList.length;
@@ -1148,8 +1155,8 @@ function renderMiniStats(){
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
     <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}${noReplyNeeded?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Not available and no answer needed (e.g. the congregation said not this time). The rest of the inactive ones answered and declined themselves.">(${noReplyNeeded} no reply needed)</span>`:''}</span></div>
     <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
-    <div class="stat"><span class="label">Confirmed (A)</span><span class="val" style="color:#1565c0">${confirmedN}${declinedN?` <span style="font-size:10px;font-weight:700;color:#c62828" title="Answered, but ✔ is off – they declined and cannot be used">(+${declinedN} declined)</span>`:''}</span></div>
-    <div class="stat"><span class="label">Planned (T)</span><span class="val" style="color:#a45c00">${plannedN}</span></div>
+    <div class="stat" title="${esc(answeredTip)}"><span class="label"><span class="lk-a">A</span>nswered</span><span class="val" style="color:${(answeredN===askedN&&askedN)?'#2e7d32':'#1565c0'}">${answeredN} / ${askedN} <span style="font-size:11px;font-weight:800">${pctN}%</span>${declinedN?` <span style="font-size:10px;font-weight:700;color:#c62828">(${declinedN} declined)</span>`:''}</span></div>
+    <div class="stat"><span class="label">Planned <span class="lk-t">(T)</span></span><span class="val" style="color:#a45c00">${plannedN}</span></div>
     <div class="stat"><span class="label">Still available</span><span class="val" style="color:#00796b">${availableN}${availElsewhere?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Already on a team of another department – you can leave them for last">(${availElsewhere} elsewhere)</span>`:''}</span></div>
     <div class="divider"></div>
     <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
@@ -1199,7 +1206,7 @@ function renderAttendantTable(){
     /* active dot */
     const dotHtml=`<div class="act-dot ${row.active!==false?'on':'off'}" onclick="toggleActive(${index})" title="${esc(row.active!==false?'Available – click if he cannot be used this time (congregation said no, vacation, other team …)':(row.confirmed?'Not available – he declined himself. Click to make him available again.':'Not available – no answer needed (e.g. the congregation said not this time). Click to make him available again.'))}">${row.active!==false?'✔':'✕'}</div>`;
 
-    /* status dots: A = he confirmed himself, T = planned (derived from the teams) */
+    /* status dots: A = he answered, T = planned (derived from the teams) */
     const confHtml=`<div class="conf-cell">
       <div class="cdot a ${row.confirmed?'on':''}${row.confirmed&&row.active===false?' decl':''}" id="adot-${index}" onclick="toggleApproval(${index},'confirmed')"
         title="${esc(confTitle(row))}">A</div>
@@ -1901,7 +1908,7 @@ function exportFilteredJson(){
 function exportFilteredCsv(){
   const filtered=getFilteredAttendants();
   if(!filtered.length){alert('No attendants match current filters.');return;}
-  const header=['ID','Name','First name','Congregation','Privilege','Sister','Confirmed','Planned','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
+  const header=['ID','Name','First name','Congregation','Privilege','Sister','Answered','Planned','Teams','Roles','Shifts','Mobile','Email','JWPub-Mail','Flags','Remarks','Active','Other Dept.'];
   const rows=[header,...filtered.map(a=>[
     a.id,a.name,a.firstName,a.congregation,a.privilege,a.sister?'Yes':'',a.confirmed?'Yes':'',isPlanned(a)?'Yes':'',
     (a.teams||[]).map(k=>ALL_TEAMS.find(t=>t.key===k)?.label||k).join('/'),
@@ -2194,10 +2201,10 @@ function openAttendantModal(index,prefillCong){
               <input type="checkbox" id="amSister" ${row.sister?'checked':''} onchange="amSisterChanged(this.checked)"> Sister
             </label>
             <label class="tch aconf${row.confirmed?'':' off'}" id="amConfirmedChip" style="text-transform:none;letter-spacing:0;padding:6px 11px;font-size:12px;gap:6px">
-              <input type="checkbox" id="amConfirmed" ${row.confirmed?'checked':''} onchange="el('amConfirmedChip').classList.toggle('off',!this.checked)"> Confirmed himself
+              <input type="checkbox" id="amConfirmed" ${row.confirmed?'checked':''} onchange="el('amConfirmedChip').classList.toggle('off',!this.checked)">  Answered (A)
             </label>
           </div>
-          ${row.confirmedAt?`<div class="mini" style="margin-top:4px">Confirmed ${esc(formatStamp(row.confirmedAt))}</div>`:''}
+          ${row.confirmedAt?`<div class="mini" style="margin-top:4px">Answered ${esc(formatStamp(row.confirmedAt))}</div>`:''}
         </div>
         <div class="modal-field"><label for="amMobile">Mobile</label><input id="amMobile" value="${esc(row.mobile||'')}"></div>
         <div class="modal-field"><label for="amEmail">Email</label><input id="amEmail" value="${esc(row.email||'')}"></div>
@@ -2756,7 +2763,7 @@ function missingSets(){
   return{waitingReply,noTeam,noShift,noId,noMail};
 }
 const MISS_DEFS={
-  waitingReply:{title:'Waiting for his reply',  sub:'active, not confirmed',clear:'Every active attendant has confirmed'},
+  waitingReply:{title:'Waiting for his reply',  sub:'available, no answer yet',clear:'Everybody available has answered'},
   noTeam :{title:'Not planned yet',     sub:'active, none of the 4 main teams',clear:'Every active attendant is on one of the 4 main teams'},
   noShift:{title:'No shift set',       sub:'active attendants',        clear:'All active attendants have a shift'},
   noId   :{title:'No ID',              sub:'attendants',               clear:'Every attendant has an ID'},
@@ -2784,7 +2791,7 @@ function openMissingModal(key){
     }
     const a=state.attendants[i];
     const dots=(key==='waitingReply')?`<div class="conf-cell">
-        <div class="cdot a ${a.confirmed?'on':''}" onclick="toggleApproval(${i},'confirmed');openMissingModal('${key}')" title="He confirmed himself">A</div>
+        <div class="cdot a ${a.confirmed?'on':''}" onclick="toggleApproval(${i},'confirmed');openMissingModal('${key}')" title="He answered">A</div>
       </div>`:'';
     return`<div class="miss-row"><div class="grow"><b>${esc(dispName(a))}</b>
       <div class="sub">${esc(shortCong(a.congregation)||'no congregation')} · ${esc(a.privilege||'')}${a.active===false?' · inactive':''}</div></div>
