@@ -270,6 +270,7 @@ textarea.flags-wrap{min-height:76px;line-height:1.35;white-space:pre-wrap}
 .cdot:hover{transform:scale(1.1)}
 .cdot.c.on{background:#e8f5e9;border-color:#4caf50;color:#2e7d32}
 .cdot.a.on{background:#e3f2fd;border-color:#42a5f5;color:#1565c0}
+.cdot.a.on.decl{background:#fdecea;border-color:#ef9a9a;color:#c62828}
 .cdot.t{cursor:default}
 .cdot.t.ext{outline:2px dashed #78909c;outline-offset:1px}
 .cdot.t.on{background:#fff8e1;border-color:#ffb300;color:#a45c00}
@@ -691,7 +692,7 @@ Loving greetings,
       <div class="sf btn">
         <button class="secondary small-btn" onclick="fillAndRenumberIds()" title="Sort A–Z, renumber IDs 1,2,3... (active first)">Fill IDs</button>
         <button class="secondary small-btn" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
-        <button class="warn-btn small-btn" onclick="resetMainTeamsAndShifts()" title="Reset Block Att./Auditorium/Cafeteria/Lobby/Welcome + Shifts for all attendants. Roles/extra teams stay.">Reset Teams &amp; Shifts</button>
+        <button class="warn-btn small-btn" onclick="openResetModal()" title="Start a new round: choose what to clear (A, teams, possible shifts …). Can be undone.">Reset for new round…</button>
       </div>
     </div>
     <div class="toolbar no-print" style="margin-bottom:10px">
@@ -708,7 +709,7 @@ Loving greetings,
         <col class="c-mob"><col class="c-rem"><col class="c-act2"><col class="c-del">
         <thead><tr>
           <th title="On the list: is he taking part at all? Inactive = dropped out / not available. This is what the congregations see in the request mail.">●</th>
-          <th title="A = attendant confirmed himself · T = planned (lights up automatically once he is on Welcome, Lobby, Cafeteria or Auditorium)">A&nbsp;T</th>
+          <th title="A = he answered (red = answered but declined, ✔ is off; set automatically when you enter his possible shifts) · T = planned (lights up automatically once he is on Welcome, Lobby, Cafeteria or Auditorium)">A&nbsp;T</th>
           <th>ID</th>
           <th class="left">Name</th>
           <th class="left">First name</th>
@@ -791,7 +792,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.1</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.2</div>
 </div>
 
 <script>
@@ -1077,8 +1078,8 @@ function renderCongTable(){
           <div class="field-actions">${row.congJwpub?`<span class="mini-copy" onclick="copyText('${js(row.congJwpub)}',false,this)">⧉</span>`:''}</div></div>
       </div></td>
       <td><div class="att-cell">
-        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${a.confirmed?'<span class="cdot a on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">A</span> ':''}${isPlanned(a)?'<span class="cdot t on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">T</span> ':''}${a.sister?'<span class="pill sis">Sr.</span> ':''}${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
-        ${names.length?`<div class="conf-mini"><span class="a">A ${names.filter(a=>a.confirmed).length}</span> · <span class="t">T ${names.filter(isPlanned).length}</span> of ${names.length}</div>`:''}
+        ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${a.confirmed&&a.active!==false?'<span class="cdot a on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">A</span> ':''}${isPlanned(a)?'<span class="cdot t on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">T</span> ':''}${a.sister?'<span class="pill sis">Sr.</span> ':''}${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
+        ${names.length?`<div class="conf-mini"><span class="a">A ${names.filter(a=>a.confirmed&&a.active!==false).length}</span> · <span class="t">T ${names.filter(isPlanned).length}</span> of ${names.length}</div>`:''}
         <button class="quick-add no-print" onclick="openAttendantModal(null,'${js(row.congregation||'')}')" title="Add an attendant to this congregation">+ Attendant</button>
       </div></td>
       <td><div class="compact-stack">${followLabel(row)}
@@ -1134,6 +1135,7 @@ function renderMiniStats(){
   const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
   const sisters=state.attendants.filter(a=>a.sister).length;
   const confirmedN=state.attendants.filter(a=>a.confirmed&&a.active!==false).length;
+  const declinedN=state.attendants.filter(a=>a.confirmed&&a.active===false).length;
   const plannedN=state.attendants.filter(a=>isPlanned(a)&&a.active!==false).length;
   const availList=state.attendants.filter(a=>a.active!==false&&a.confirmed&&!isPlanned(a));
   const availableN=availList.length;
@@ -1145,7 +1147,7 @@ function renderMiniStats(){
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
     <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}</span></div>
     <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
-    <div class="stat"><span class="label">Confirmed (A)</span><span class="val" style="color:#1565c0">${confirmedN}</span></div>
+    <div class="stat"><span class="label">Confirmed (A)</span><span class="val" style="color:#1565c0">${confirmedN}${declinedN?` <span style="font-size:10px;font-weight:700;color:#c62828" title="Answered, but ✔ is off – they declined and cannot be used">(+${declinedN} declined)</span>`:''}</span></div>
     <div class="stat"><span class="label">Planned (T)</span><span class="val" style="color:#a45c00">${plannedN}</span></div>
     <div class="stat"><span class="label">Still available</span><span class="val" style="color:#00796b">${availableN}${availElsewhere?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Already on a team of another department – you can leave them for last">(${availElsewhere} elsewhere)</span>`:''}</span></div>
     <div class="divider"></div>
@@ -1198,8 +1200,8 @@ function renderAttendantTable(){
 
     /* status dots: A = he confirmed himself, T = planned (derived from the teams) */
     const confHtml=`<div class="conf-cell">
-      <div class="cdot a ${row.confirmed?'on':''}" onclick="toggleApproval(${index},'confirmed')"
-        title="${row.confirmed?'Attendant confirmed himself'+(row.confirmedAt?' · '+esc(formatStamp(row.confirmedAt)):''):'No reply from the attendant yet – click when he confirms'}">A</div>
+      <div class="cdot a ${row.confirmed?'on':''}${row.confirmed&&row.active===false?' decl':''}" id="adot-${index}" onclick="toggleApproval(${index},'confirmed')"
+        title="${esc(confTitle(row))}">A</div>
       <div class="cdot t ${isPlanned(row)?'on':''}${otherTeamsOf(row).length?' ext':''}" id="tdot-${index}"
         title="${esc(plannedTitle(row))}">T</div>
     </div>`;
@@ -1415,16 +1417,36 @@ function updAttField(index,key,value){
 }
 function toggleArrLive(index,field,key,cbEl){
   const checked=cbEl.checked;
+  const hadShifts=(state.attendants[index].shifts||[]).length>0;
   let arr=Array.isArray(state.attendants[index][field])?[...state.attendants[index][field]]:[];
   if(checked){if(!arr.includes(key))arr.push(key);}else{arr=arr.filter(k=>k!==key);}
   state.attendants[index][field]=arr;
+  if(field==='shifts'&&autoConfirmOnShifts(state.attendants[index],hadShifts))refreshConfDot(index);
   if(field==='teams'){
     const otherKeys=['av','stage','baptism','parking','cleaning','safety'];
     state.attendants[index].otherDepartment=arr.some(t=>otherKeys.includes(t));
     refreshPlannedDot(index);
   }
-  saveState();updateMetrics();renderCongSummary();renderCongTable();
+  saveState();updateMetrics();renderMiniStats();renderCongSummary();renderCongTable();
   const label=cbEl.closest('label');if(label)label.classList.toggle('off',!checked);
+}
+function confTitle(a){
+  const st=a.confirmedAt?' · '+formatStamp(a.confirmedAt):'';
+  if(a.confirmed&&a.active!==false)return'Answered – available'+st;
+  if(a.confirmed)return'Answered – declined (✔ is off, cannot be used)'+st;
+  return'No answer yet – click when he answers. Entering his possible shifts sets A automatically.';
+}
+function refreshConfDot(index){
+  const dot=el('adot-'+index);if(!dot)return;
+  const a=state.attendants[index];
+  dot.classList.toggle('on',!!a.confirmed);
+  dot.classList.toggle('decl',!!a.confirmed&&a.active===false);
+  dot.title=confTitle(a);
+}
+/* first possible shift entered (list was empty) = he has answered -> set A automatically */
+function autoConfirmOnShifts(a,hadShifts){
+  if(!hadShifts&&(a.shifts||[]).length&&!a.confirmed){a.confirmed=true;a.confirmedAt=new Date().toISOString();return true;}
+  return false;
 }
 function refreshPlannedDot(index){
   const dot=el('tdot-'+index);if(!dot)return;
@@ -1547,13 +1569,60 @@ function fillAndRenumberIds(){
 }
 
 /* ── Reset main teams + shifts after congress ── */
-function resetMainTeamsAndShifts(){
-  if(!confirm('Reset Lobby / Cafeteria / Auditorium / Welcome teams AND all Possible Shifts for every attendant?\n\nExtra teams (A/V, Stage etc.), roles, and all other data stay unchanged.'))return;
+function resetCounts(){
+  const at=state.attendants;
+  return{confirmed:at.filter(a=>a.confirmed).length,
+    teams:at.filter(a=>mainTeamsOf(a).length).length,
+    shifts:at.filter(a=>(a.shifts||[]).length).length,
+    inactive:at.filter(a=>a.active===false).length,
+    extra:at.filter(a=>otherTeamsOf(a).length).length};
+}
+function openResetModal(){
+  const c=resetCounts();
+  const row=(id,on,title,sub)=>`<label class="pr-opt"><input type="checkbox" id="${id}" ${on?'checked':''} onchange="updateResetBtn()">
+    <span>${title}<small>${sub}</small></span></label>`;
+  openOverlay('resetModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>Reset for a new round</h3>
+        <div class="sub">Choose what should be cleared for <b>all</b> attendants</div></div>
+      <button class="modal-x" onclick="closeOverlay('resetModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;gap:7px">
+        ${row('rsA',true,`<b>A</b> – answered <b>(${c.confirmed})</b>`,'Removes the answer, including the red ones who declined.')}
+        ${row('rsTeams',true,`<b>Teams</b>: Auditorium, Cafeteria, Lobby, Welcome <b>(${c.teams})</b>`,'T goes off together with the teams.')}
+        ${row('rsShifts',true,`<b>Possible shifts</b> <b>(${c.shifts})</b>`,'Entering a shift again sets A automatically.')}
+        ${row('rsActive',false,`<b>✔</b> – make everyone available again <b>(${c.inactive} inactive)</b>`,'Only tick this if the ✔ should start fresh as well.')}
+        ${row('rsExtra',false,`<b>Extra teams</b>: Stage, A/V, Parking … <b>(${c.extra})</b>`,'Other departments (info only). Roles and all other data always stay.')}
+      </div>
+      <div class="mini">Not happy with the result? <b>↩ Undo reset</b> (or Ctrl+Z) brings everything back.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="secondary" onclick="closeOverlay('resetModal')">Cancel</button>
+      <button class="danger" id="rsGo" onclick="doReset()">Reset selected</button>
+    </div>`);
+  updateResetBtn();
+}
+function updateResetBtn(){
+  const any=['rsA','rsTeams','rsShifts','rsActive','rsExtra'].some(id=>el(id)?.checked);
+  const b=el('rsGo');if(b){b.disabled=!any;b.style.opacity=any?'':'.45';}
+  document.querySelectorAll('#resetModal .pr-opt').forEach(l=>l.classList.toggle('sel',!!l.querySelector('input')?.checked));
+}
+function doReset(){
+  const g=id=>!!el(id)?.checked;
+  const o={a:g('rsA'),teams:g('rsTeams'),shifts:g('rsShifts'),active:g('rsActive'),extra:g('rsExtra')};
+  if(!Object.values(o).some(Boolean))return;
+  pushUndo({kind:'attAll',rows:structuredClone(state.attendants),label:'list before the reset',btn:'reset'});
   state.attendants.forEach(a=>{
-    a.teams=(a.teams||[]).filter(t=>!RESET_TEAM_KEYS.includes(t));
-    a.shifts=[];
+    if(o.a){a.confirmed=false;a.confirmedAt='';}
+    if(o.teams)a.teams=(a.teams||[]).filter(t=>!RESET_TEAM_KEYS.includes(t));
+    if(o.shifts)a.shifts=[];
+    if(o.active)a.active=true;
+    if(o.extra){a.teams=(a.teams||[]).filter(t=>!EXTRA_TEAMS.some(x=>x.key===t));a.otherDepartment=false;}
   });
-  saveState();renderAttendantTable();
+  saveState();closeOverlay('resetModal');
+  renderAttendantTable();renderCongTable();updateMetrics();
+  flash('Reset done');
 }
 
 function applyBulkFollowup(){
@@ -2203,6 +2272,7 @@ function saveAttendantModal(addAnother){
     mobile:v('amMobile'),email:v('amEmail'),jwpub:v('amJwpub'),active:!!el('amActive').checked,
     teams:picks('teams'),roles:picks('roles'),shifts:picks('shifts'),customTags:custom,
     flags:v('amFlags'),remarks:v('amRemarks')};
+  if(!obj.confirmed&&!(prev.shifts||[]).length&&obj.shifts.length){obj.confirmed=true;obj.confirmedAt=new Date().toISOString();}
   if(attModalIndex===null){
     obj.id=normId(obj.id);
     const clash=state.attendants.some(a=>String(a.id)===String(obj.id));
@@ -2649,7 +2719,7 @@ let undoItem=null;
 function pushUndo(item){undoItem=item;updateUndoBtn();}
 function updateUndoBtn(){
   const b=el('undoBtn');if(!b)return;
-  if(undoItem){b.style.display='';b.textContent=`↩ Undo delete: ${undoItem.label||''}`.trim();}
+  if(undoItem){b.style.display='';b.textContent=(undoItem.btn?`↩ Undo ${undoItem.btn}`:`↩ Undo delete: ${undoItem.label||''}`).trim();}
   else b.style.display='none';
 }
 function undoDelete(){
