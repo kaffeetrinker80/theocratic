@@ -190,10 +190,12 @@ tr.row-flash>td{animation:rowflash 1.8s ease-out}
 @media(max-width:700px){.modal-line{grid-template-columns:minmax(0,1fr) 30px}.modal-line .lbl{display:none}}
 
 /* mini stats bar */
-.mini-stats{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 14px;
+.mini-stats{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:10px 14px;
   background:linear-gradient(135deg,#f8fafc 0%,#f3f6fb 100%);border:1px solid #e3e8f0;
   border-radius:12px;margin-bottom:12px;font-size:11px;color:#5c6c7d}
 .mini-stats .stat{display:flex;align-items:center;gap:5px}
+.mini-stats .stat-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.mini-stats .stat-row.teams{width:100%;border-top:1px dashed #d0d9e3;padding-top:7px}
 .mini-stats .stat .label{font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#6b7888}
 .mini-stats .stat .val{font-weight:800;font-size:13px;color:#1f2937}
 .mini-stats .divider{width:1px;height:18px;background:#d0d9e3}
@@ -794,7 +796,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.4</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.5</div>
 </div>
 
 <script>
@@ -1130,13 +1132,7 @@ function renderMiniStats(){
   const active=state.attendants.filter(a=>a.active!==false).length;
   const inactive=total-active;
   const noReplyNeeded=state.attendants.filter(a=>a.active===false&&!a.confirmed).length;
-  const block=state.attendants.filter(a=>(a.teams||[]).includes('blockatt')).length;
-  const aud=state.attendants.filter(a=>(a.teams||[]).includes('auditorium')).length;
-  const caf=state.attendants.filter(a=>(a.teams||[]).includes('cafeteria')).length;
-  const lobby=state.attendants.filter(a=>(a.teams||[]).includes('lobby')).length;
-  const wel=state.attendants.filter(a=>(a.teams||[]).includes('welcome')).length;
-  const shiftsSet=state.attendants.filter(a=>a.shifts&&a.shifts.length).length;
-  const sisters=state.attendants.filter(a=>a.sister).length;
+  const teamStats=MAIN_TEAMS.map(t=>({label:'Team '+t.label,n:state.attendants.filter(a=>(a.teams||[]).includes(t.key)).length}));
   const confirmedN=state.attendants.filter(a=>a.confirmed&&a.active!==false).length;
   const declinedN=state.attendants.filter(a=>a.confirmed&&a.active===false).length;
   /* everybody who has to answer = all except those who are out without needing an answer */
@@ -1150,22 +1146,17 @@ function renderMiniStats(){
   const availElsewhere=availList.filter(a=>otherTeamsOf(a).length).length;
   const ms=el('miniStats');
   if(!ms)return;
-  ms.innerHTML=`
+  ms.innerHTML=`<div class="stat-row">
     <div class="stat"><span class="label">Total</span><span class="val">${total}</span></div>
     <div class="stat"><span class="label">Active</span><span class="val" style="color:#2e7d32">${active}</span></div>
     <div class="stat"><span class="label">Inactive</span><span class="val" style="color:#999">${inactive}${noReplyNeeded?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Not available and no answer needed (e.g. the congregation said not this time). The rest of the inactive ones answered and declined themselves.">(${noReplyNeeded} no reply needed)</span>`:''}</span></div>
-    <div class="stat"><span class="label">Sisters</span><span class="val" style="color:#6a1b9a">${sisters}</span></div>
     <div class="stat" title="${esc(answeredTip)}"><span class="label"><span class="lk-a">A</span>nswered</span><span class="val" style="color:${(answeredN===askedN&&askedN)?'#2e7d32':'#1565c0'}">${answeredN} / ${askedN} <span style="font-size:11px;font-weight:800">${pctN}%</span>${declinedN?` <span style="font-size:10px;font-weight:700;color:#c62828">(${declinedN} declined)</span>`:''}</span></div>
     <div class="stat"><span class="label">Planned <span class="lk-t">(T)</span></span><span class="val" style="color:#a45c00">${plannedN}</span></div>
     <div class="stat"><span class="label">Still available</span><span class="val" style="color:#00796b">${availableN}${availElsewhere?` <span style="font-size:10px;font-weight:700;color:#78909c" title="Already on a team of another department – you can leave them for last">(${availElsewhere} elsewhere)</span>`:''}</span></div>
-    <div class="divider"></div>
-    <div class="stat"><span class="label">Block Att.</span><span class="val">${block}</span></div>
-    <div class="stat"><span class="label">Auditorium</span><span class="val">${aud}</span></div>
-    <div class="stat"><span class="label">Cafeteria</span><span class="val">${caf}</span></div>
-    <div class="stat"><span class="label">Lobby</span><span class="val">${lobby}</span></div>
-    <div class="stat"><span class="label">Welcome</span><span class="val">${wel}</span></div>
-    <div class="divider"></div>
-    <div class="stat"><span class="label">Shifts set</span><span class="val">${shiftsSet}</span></div>
+  </div>
+  <div class="stat-row teams">
+    ${teamStats.map(t=>`<div class="stat"><span class="label">${esc(t.label)}</span><span class="val">${t.n}</span></div>`).join('')}
+  </div>
   `;
 }
 
