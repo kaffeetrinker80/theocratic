@@ -68,8 +68,8 @@
     },
     {
       "date": "2027-03-20",
-      "versammlungId": "6.0",
-      "versammlungName": "Italienisch",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
       "hinweise": ""
     },
     {
@@ -92,8 +92,8 @@
     },
     {
       "date": "2027-04-17",
-      "versammlungId": "7.0",
-      "versammlungName": "Oberhausen",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
       "hinweise": "Fensterreinigung; 2. Ausweichtermin"
     },
     {
@@ -212,8 +212,8 @@
     },
     {
       "date": "2027-09-04",
-      "versammlungId": "6.0",
-      "versammlungName": "Italienisch",
+      "versammlungId": "7.0",
+      "versammlungName": "Oberhausen",
       "hinweise": ""
     },
     {
@@ -236,8 +236,8 @@
     },
     {
       "date": "2027-10-02",
-      "versammlungId": "7.0",
-      "versammlungName": "Oberhausen",
+      "versammlungId": "1.0",
+      "versammlungName": "Russisch-Nord",
       "hinweise": "Fensterreinigung"
     },
     {
@@ -317,7 +317,7 @@
     {
       "id": "1.0",
       "name": "Russisch-Nord",
-      "groups": 4,
+      "groups": 5,
       "color": "#3f6b57",
       "contact": "Vitalii Oparko",
       "email": "vitalijoparko@gmail.com"
@@ -353,7 +353,7 @@
     {
       "id": "6.0",
       "name": "Italienisch",
-      "groups": 4,
+      "groups": 3,
       "color": "#ece3a7",
       "contact": "Vito Matera",
       "email": "vitomatera@hotmail.de"
@@ -491,8 +491,8 @@
       },
       {
         "date": "2027-03-20",
-        "versammlungId": "6.0",
-        "versammlungName": "Italienisch",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
         "hinweise": ""
       },
       {
@@ -515,8 +515,8 @@
       },
       {
         "date": "2027-04-17",
-        "versammlungId": "7.0",
-        "versammlungName": "Oberhausen",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
         "hinweise": "Fensterreinigung; 2. Ausweichtermin"
       },
       {
@@ -635,8 +635,8 @@
       },
       {
         "date": "2027-09-04",
-        "versammlungId": "6.0",
-        "versammlungName": "Italienisch",
+        "versammlungId": "7.0",
+        "versammlungName": "Oberhausen",
         "hinweise": ""
       },
       {
@@ -659,8 +659,8 @@
       },
       {
         "date": "2027-10-02",
-        "versammlungId": "7.0",
-        "versammlungName": "Oberhausen",
+        "versammlungId": "1.0",
+        "versammlungName": "Russisch-Nord",
         "hinweise": "Fensterreinigung"
       },
       {
@@ -743,7 +743,7 @@
     "location": "Hirblinger Str. 99, 86156 Augsburg"
   },
   "appVersion": "2.4.2-planner",
-  "exportDate": "2026-09-05T18:09:23.574Z",
-  "exportTimestampGerman": "05.09.2026 20:09:23",
+  "exportDate": "2026-10-17T13:35:15.823Z",
+  "exportTimestampGerman": "17.10.2026 15:35:15",
   "exportYear": 2027
 }
