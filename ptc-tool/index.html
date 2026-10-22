@@ -863,7 +863,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
     <div class="toolbar-block">
     <span class="row-label">Distance from home congregation</span>
     <div class="toolbar-grid toolbar-grid-distance">
-      <div><select id="distanceMode"><option value="air">Air-line</option><option value="drive_est">Estimated drive × 1.25</option></select></div>
+      <div><select id="distanceMode"><option value="air">Air-line</option><option value="drive_est">Estimated drive × 1.35</option></select></div>
       <div><select id="distanceFilter"><option value="">Any distance</option><option value="50">within 50 km</option><option value="100">within 100 km</option><option value="150">within 150 km</option><option value="200">within 200 km</option></select></div>
       <div><select id="sortMode"><option value="name">Sort: Name</option><option value="outline">Sort: Outline</option><option value="distance">Sort: Distance</option></select></div>
       <div class="distance-row-info" id="distanceRowInfo">Distance tools are inactive until a home congregation with coordinates is available.</div>
@@ -976,7 +976,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.8.0</span>
+      <span class="footer-version" id="footerVersion">v.2.8.1</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1022,7 +1022,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.8.0';
+const APP_VERSION = '2.8.1';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -2522,8 +2522,13 @@ function currentSortMode() {
   return document.getElementById('sortMode')?.value || 'name';
 }
 
+/* v2.8.1: road-distance factor raised from 1.25 to 1.35. Checked against real routes
+   (Google Maps), the old estimate came out 5–10 % too short almost every time;
+   1.25 × ~1.08 ≈ 1.35. Single constant so it can be fine-tuned in one place. */
+const DRIVE_DISTANCE_FACTOR = 1.35;
+
 function distanceModeMultiplier(mode) {
-  return mode === 'drive_est' ? 1.25 : 1;
+  return mode === 'drive_est' ? DRIVE_DISTANCE_FACTOR : 1;
 }
 
 function distanceUnitSuffix(mode) {
@@ -2748,7 +2753,7 @@ function refreshDistanceRowInfo() {
     el.innerHTML = `<strong>Home congregation:</strong> ${escapeHtml(home.name)} · no coordinates available yet in the current dataset.`;
     return;
   }
-  const modeLabel = currentDistanceMode() === 'drive_est' ? 'Estimated drive × 1.25' : 'Air-line';
+  const modeLabel = currentDistanceMode() === 'drive_est' ? 'Estimated drive × ' + DRIVE_DISTANCE_FACTOR.toFixed(2) : 'Air-line';
   el.innerHTML = `<strong>Home congregation:</strong> ${escapeHtml(home.name)} · <strong>Mode:</strong> ${escapeHtml(modeLabel)}`;
 }
 
@@ -5808,7 +5813,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.8.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.8.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5913,7 +5918,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <h3><span class="help-num">03</span> Distance tools</h3>
           <p>The second toolbar row handles distance only:</p>
           <ul class="mini-list">
-            <li><b>Distance mode</b> – air-line or estimated drive × 1.25</li>
+            <li><b>Distance mode</b> – air-line or estimated drive × 1.35 (road distance is usually about a third longer than the straight line)</li>
             <li><b>Max distance</b> – for example within 50 / 100 / 150 / 200 km</li>
             <li><b>Sort</b> – by name, by outline, or by distance. Distance and outline sorting also reorder the congregation list on the left into a flat ranking.</li>
           </ul>
