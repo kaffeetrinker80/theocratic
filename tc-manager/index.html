@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#234f5d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager v2.4.2</title>
+<title>Team Captain Manager v2.5.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -187,7 +187,7 @@ a{color:inherit}
 
 /* ── Stats ────────────────────────────────────────────── */
 .stats{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px;
 }
 .stat{
   background:var(--surface);border:1px solid var(--line);
@@ -326,6 +326,7 @@ tbody tr.flash{animation:flash 1.6s ease}
 .chip.t-cafeteria{background:var(--caf-bg);color:var(--caf-t);border-color:var(--caf-b)}
 .chip.t-auditorium{background:var(--aud-bg);color:var(--aud-t);border-color:var(--aud-b)}
 .chip.t-welcome{background:var(--wel-bg);color:var(--wel-t);border-color:var(--wel-b)}
+.sis-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:650;vertical-align:1px;background:var(--wel-bg);color:var(--wel-t);border:1px solid var(--wel-b)}
 .chip.t-other{background:var(--oth-bg);color:var(--oth-t);border-color:var(--oth-b)}
 .chip.remark{background:var(--warn-soft);color:var(--warn);border-color:#f0c877;font-size:11px;margin-top:8px}
 
@@ -494,7 +495,7 @@ tbody tr.flash{animation:flash 1.6s ease}
       </div>
     </div>
     <div class="top-right">
-      <span class="ver-badge">v2.4.2</span>
+      <span class="ver-badge">v2.5.0</span>
       <button class="help-btn" id="helpBtn" title="How to use this tool" aria-label="Help">
         <svg viewBox="0 0 24 24" class="stroke"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.5-2.8 4"/><path d="M12 17.4h.01"/></svg>
         <span>Help</span>
@@ -529,6 +530,7 @@ tbody tr.flash{animation:flash 1.6s ease}
           <span class="token">{team}</span>
           <span class="token">{chatLink}</span>
           <span class="token">{captainName}</span>
+          <span class="token">{brotherSister}</span>
           <button class="link-reset" type="button" id="resetTemplateBtn">Reset to default</button>
         </div>
       </div>
@@ -541,6 +543,7 @@ tbody tr.flash{animation:flash 1.6s ease}
     <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg></div><div><div class="num" id="statCongregations">0</div><div class="lbl">Congregations</div></div></div>
     <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8L12 2z"/></svg></div><div><div class="num" id="statElders">0</div><div class="lbl">Elders</div></div></div>
     <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><div><div class="num" id="statMs">0</div><div class="lbl">Ministerial servants</div></div></div>
+    <div class="stat"><div class="glyph"><svg class="icon stroke" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></div><div><div class="num" id="statSisters">0</div><div class="lbl">Sisters</div></div></div>
   </section>
 
   <!-- Team tabs -->
@@ -612,7 +615,7 @@ tbody tr.flash{animation:flash 1.6s ease}
   </div>
 
   <div class="footer">
-    <b>Team Captain Manager v2.4.2</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
+    <b>Team Captain Manager v2.5.0</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
     All data stays in this browser &middot; export JSON regularly for backup<br>
     Made with Love &copy;
   </div>
@@ -680,7 +683,7 @@ tbody tr.flash{animation:flash 1.6s ease}
 
       <div class="help-lead">
         You have received a ready-made contact list for your team. Nothing needs to be set up — just open the tool
-        and start contacting the brothers on your team.
+        and start contacting the brothers and sisters on your team.
       </div>
 
       <div class="help-step">
@@ -696,9 +699,9 @@ tbody tr.flash{animation:flash 1.6s ease}
         <div class="hs-num">2</div>
         <div class="hs-txt">
           <strong>Pick your team</strong>
-          <p>Use the coloured tabs — <b>Lobby</b>, <b>Cafeteria</b>, <b>Auditorium</b>. The number on each tab shows how many
+          <p>Use the coloured tabs — <b>Lobby</b>, <b>Cafeteria</b>, <b>Auditorium</b>, <b>Welcome</b>. The number on each tab shows how many
           people are in it. <b>All</b> shows everybody.
-          A tag such as <span class="chip t-other chip-dept">Welcome</span> on a row means that person also serves in another department;
+          A <span class="sis-badge" style="margin-left:0">Sister</span> tag next to a name marks a sister. A tag such as <span class="chip t-other chip-dept">Parking</span> on a row means that person also serves in another department;
           a <span class="multi-badge">⚑ 2 teams</span> mark means they are assigned to more than one team — worth keeping in mind when you plan.</p>
         </div>
       </div>
@@ -724,8 +727,8 @@ tbody tr.flash{animation:flash 1.6s ease}
         <div class="hs-txt">
           <strong>Adjust the welcome message</strong>
           <p>The template under <b>Captain setup</b> can be edited freely. The placeholders
-          <span class="token">{firstName}</span> <span class="token">{team}</span> <span class="token">{chatLink}</span> <span class="token">{captainName}</span>
-          are replaced automatically for each person. <b>Reset to default</b> restores the original wording.</p>
+          <span class="token">{firstName}</span> <span class="token">{team}</span> <span class="token">{chatLink}</span> <span class="token">{captainName}</span> <span class="token">{brotherSister}</span>
+          are replaced automatically for each person — <span class="token">{brotherSister}</span> becomes “Brother” or “Sister”. <b>Reset to default</b> restores the original wording.</p>
         </div>
       </div>
 
@@ -1057,9 +1060,9 @@ var CAPTAIN_KEY  = 'teamCaptainCaptainName_v2_4';
 var CHAT_KEY     = 'teamCaptainChatLink_v2_4';
 var TEMPLATE_KEY = 'teamCaptainMessageTemplate_v2_5';
 
-// Assembly team captain uses THREE main teams as tabs. Every other department name
-// (Welcome, A/V, Safety, …) is kept on the record and shown as a badge, not a tab.
-var MAIN_TEAMS = ['Lobby','Cafeteria','Auditorium'];
+// Assembly team captain uses FOUR main teams as tabs. Every other department name
+// (A/V, Safety, …) is kept on the record and shown as a badge, not a tab.
+var MAIN_TEAMS = ['Lobby','Cafeteria','Auditorium','Welcome'];
 var TEAMS = MAIN_TEAMS;   // tab set
 var TEAM_MAP = {
   lobby:'Lobby', cafeteria:'Cafeteria', auditorium:'Auditorium', welcome:'Welcome',
@@ -1152,6 +1155,7 @@ var ALIAS = {
   privilege:   ['privilege','privileg','role','amt','appointment','function','ernennung','title'],
   teams:       ['teams','team'],
   children:    ['children','kids','kinder','haskids'],
+  sister:      ['sister','issister','schwester','female'],
   remarks:     ['remarks','notes','note','flags','bemerkung','bemerkungen','anmerkung','anmerkungen','comment','comments']
 };
 
@@ -1160,15 +1164,20 @@ function aliasRecord(raw){
   Object.keys(raw||{}).forEach(function(k){ src[k] = { norm: normKey(k), val: raw[k] }; });
   var consumed = {};
   var out = { id:'', lastName:'', firstName:'', congregation:'', privilege:'',
-              teams:[], children:false, remarks:'', emailJwpub:'', emailPersonal:'', mobile:'' };
+              teams:[], children:false, sister:false, remarks:'', emailJwpub:'', emailPersonal:'', mobile:'' };
 
   // 1) exact-name aliases
   Object.keys(ALIAS).forEach(function(target){
-    var list = ALIAS[target];
+    var list = ALIAS[target], emptyHit = null;
     for (var k in src){
       if (consumed[k]) continue;
-      if (list.indexOf(src[k].norm) !== -1){ out[target] = src[k].val; consumed[k] = true; break; }
+      if (list.indexOf(src[k].norm) !== -1){
+        // prefer a filled field (e.g. empty "flags" must not hide filled "remarks")
+        if (nonEmpty(src[k].val) && !(Array.isArray(src[k].val) && !src[k].val.length)){ out[target] = src[k].val; consumed[k] = true; emptyHit = null; break; }
+        if (emptyHit === null) emptyHit = k;
+      }
     }
+    if (emptyHit !== null){ out[target] = src[emptyHit].val; consumed[emptyHit] = true; }
   });
 
   // 2) JW email — any remaining key containing "jw"
@@ -1221,6 +1230,12 @@ function toTeams(value){
     return TEAM_MAP[t.toLowerCase()] || t;
   }).filter(Boolean));
 }
+// sister flag: own field, or from older saves where it sat in .extra
+function isSisterVal(v, ex){
+  var s = truthy(v);
+  if (ex && Object.prototype.hasOwnProperty.call(ex,'sister')){ s = s || truthy(ex.sister); delete ex.sister; }
+  return s;
+}
 function truthy(v){
   if (v === true) return true;
   var s = String(v).toLowerCase();
@@ -1250,6 +1265,7 @@ function normalize(raw){
     mobileDigits:  digits,
     hasWa:         digits.length >= 10,
     children:      truthy(a.children),
+    sister:        isSisterVal(a.sister, ex),
     remarks:       clean(a.remarks),
     inMerge:       raw && (raw.inMerge === true || raw.inMerge === 'true'),
     extra:         ex
@@ -1314,6 +1330,7 @@ function mergeRecords(cur, inc, strategy){
 
   out.teams    = unionTeams(cur.teams || [], inc.teams || []);
   out.children = cur.children || inc.children;
+  out.sister   = !!(cur.sister || inc.sister);
   out.id       = cur.id || inc.id;
   out.inMerge  = !!(cur.inMerge || inc.inMerge);
   // merge preserved extras (fill missing)
@@ -1603,11 +1620,13 @@ function applyTemplate(tpl, data){
     .replace(/\{team\}/g, data.team)
     .replace(/\{chatLink\}/g, data.chatLink)
     .replace(/\{captainName\}/g, data.captainName)
+    .replace(/\{brotherSister\}/g, data.brotherSister || '')
     .replace(/\n{3,}/g, '\n\n').trim();
 }
 function contactFirstName(rec){
-  return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || 'Brother';
+  return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || brotherSister(rec);
 }
+function brotherSister(rec){ return rec && rec.sister ? 'Sister' : 'Brother'; }
 function buildChatMessage(rec){
   var isReal = currentTeam && currentTeam !== ALL_TEAM && currentTeam !== MERGE;
   var teamName = isReal ? currentTeam : ((rec.teams && rec.teams[0]) || 'your assigned');
@@ -1615,7 +1634,8 @@ function buildChatMessage(rec){
     firstName: contactFirstName(rec),
     team: teamName,
     chatLink: (elChatLink.value || '').trim() || 'I will send you the link separately.',
-    captainName: (elCaptain.value || '').trim() || 'your team captain'
+    captainName: (elCaptain.value || '').trim() || 'your team captain',
+    brotherSister: brotherSister(rec)
   });
 }
 function copyText(text, btn){
@@ -1782,7 +1802,7 @@ function filtered(){
     })
     .filter(function(r){
       if (!q) return true;
-      var s = [r.displayName, r.congregation, r.emailJwpub, r.emailPersonal, r.mobile, getNote(r)].join(' ').toLowerCase();
+      var s = [r.displayName, r.congregation, r.emailJwpub, r.emailPersonal, r.mobile, getNote(r), r.sister ? 'sister' : 'brother'].join(' ').toLowerCase();
       return s.indexOf(q) !== -1;
     })
     .sort(function(a, b){
@@ -1869,7 +1889,7 @@ function normalRow(rec){
 
   var tr = document.createElement('tr');
   tr.innerHTML =
-    '<td><div class="name">' + esc(rec.displayName) + '</div><div class="sub">ID ' + esc(rec.id || '—') + (rec.privilege ? ' · ' + esc(rec.privilege) : '') + '</div></td>' +
+    '<td><div class="name">' + esc(rec.displayName) + (rec.sister ? '<span class="sis-badge">Sister</span>' : '') + '</div><div class="sub">ID ' + esc(rec.id || '—') + (rec.privilege ? ' · ' + esc(rec.privilege) : '') + '</div></td>' +
     '<td>' + (rec.congregation ? esc(rec.congregation) : '<span class="dash">—</span>') + '</td>' +
     '<td>' + chips + multi + '</td>' +
     '<td>' + mailCell(rec.emailJwpub) + '</td>' +
@@ -1887,7 +1907,7 @@ function mergeRow(rec){
   var tr = document.createElement('tr');
   tr.innerHTML =
     '<td><label class="cbx"><input type="checkbox" class="mm-cbx" data-rkey="' + key + '"' + checked + '><span></span></label></td>' +
-    '<td><div class="name">' + esc(rec.displayName) + '</div><div class="sub">ID ' + esc(rec.id || '—') + (src ? ' · ' + esc(src) : '') + '</div></td>' +
+    '<td><div class="name">' + esc(rec.displayName) + (rec.sister ? '<span class="sis-badge">Sister</span>' : '') + '</div><div class="sub">ID ' + esc(rec.id || '—') + (src ? ' · ' + esc(src) : '') + '</div></td>' +
     '<td>' + (rec.congregation ? esc(rec.congregation) : '<span class="dash">—</span>') + '</td>' +
     '<td>' + mailCell(rec.emailJwpub) + '</td>' +
     '<td>' + mailCell(rec.emailPersonal) + '</td>' +
@@ -2012,6 +2032,7 @@ function toMergeExport(r){
     birthDate:    ex.birthDate || '',
     pioneer:      ex.pioneer || '',
     dataUpdated:  ex.dataUpdated || '',
+    sister:       !!r.sister,
     notes:        r.remarks || ''
   };
   // carry through any other preserved source fields (e.g. circuit) without team-captain internals
@@ -2034,11 +2055,12 @@ function mergeExport(){
 }
 
 function updateStats(rows, merge){
-  var congs = {}, elders = 0, ms = 0;
+  var congs = {}, elders = 0, ms = 0, sisters = 0;
   rows.forEach(function(r){
     if (r.congregation) congs[r.congregation.trim().toLowerCase()] = true;
     if (isElder(r)) elders++;
     if (isMS(r)) ms++;
+    if (r.sister) sisters++;
   });
   $('statCount').textContent = rows.length;
   var lbl = merge ? 'In MergeMaster'
@@ -2047,6 +2069,7 @@ function updateStats(rows, merge){
   $('statCongregations').textContent = Object.keys(congs).length;
   $('statElders').textContent = elders;
   $('statMs').textContent = ms;
+  $('statSisters').textContent = sisters;
 }
 
 // ── Export / reset ────────────────────────────────────────────────────────────
