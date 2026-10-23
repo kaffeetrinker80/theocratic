@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#234f5d">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Team Captain Manager</title>
+<title>Team Captain Manager v2.5.1</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -109,6 +109,23 @@ a{color:inherit}
 .help-box strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:13.5px;margin-bottom:4px}
 .help-box p{font-size:12.5px;line-height:1.6;color:var(--muted)}
 .qr-modal{max-width:420px}
+/* ── Template preview ── */
+.pv-modal{max-width:520px}
+.pv-controls{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-bottom:14px}
+.pv-controls label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;margin-bottom:5px}
+.pv-controls select{width:100%;padding:9px 10px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface-2);font-size:13.5px;outline:none}
+.pv-phone{background:#efe7dd;background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1px);background-size:14px 14px;border-radius:14px;padding:18px 14px;border:1px solid var(--line-strong)}
+.pv-bubble{position:relative;margin-left:auto;max-width:88%;background:#d9fdd3;color:#111b21;border-radius:10px 2px 10px 10px;padding:8px 10px 20px;font-size:14px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;box-shadow:0 1px 1px rgba(0,0,0,.13);font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+.pv-bubble a{color:#027eb5;text-decoration:underline}
+.pv-bubble code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:rgba(0,0,0,.05);padding:0 3px;border-radius:3px}
+.pv-bubble .pv-time{position:absolute;right:8px;bottom:4px;font-size:10.5px;color:#667781}
+.pv-bubble .pv-fill{background:rgba(250,204,21,.35);border-radius:3px}
+.pv-bubble .pv-unknown{background:#fde2e1;color:#b42318;border-radius:3px;padding:0 2px}
+.pv-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.pv-legend .pv-fill{background:rgba(250,204,21,.35);border-radius:3px;padding:0 4px}
+.pv-warn{margin-top:10px;font-size:12.5px;color:var(--warn);background:var(--warn-soft);border:1px solid #f0c877;border-radius:10px;padding:8px 11px;display:none}
+.pv-warn.show{display:block}
+@media (max-width:560px){ .pv-controls{grid-template-columns:1fr} }
 .qr-body{text-align:center}
 .qr-person strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:17px;color:var(--ink)}
 .qr-person span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
@@ -495,7 +512,7 @@ tbody tr.flash{animation:flash 1.6s ease}
       </div>
     </div>
     <div class="top-right">
-      <span class="ver-badge">v2.5.0</span>
+      <span class="ver-badge">v2.5.1</span>
       <button class="help-btn" id="helpBtn" title="How to use this tool" aria-label="Help">
         <svg viewBox="0 0 24 24" class="stroke"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.3a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.5-2.8 4"/><path d="M12 17.4h.01"/></svg>
         <span>Help</span>
@@ -531,7 +548,8 @@ tbody tr.flash{animation:flash 1.6s ease}
           <span class="token">{chatLink}</span>
           <span class="token">{captainName}</span>
           <span class="token">{brotherSister}</span>
-          <button class="link-reset" type="button" id="resetTemplateBtn">Reset to default</button>
+          <button class="link-reset" type="button" id="previewTemplateBtn"><svg class="icon stroke" viewBox="0 0 24 24" style="width:14px;height:14px;vertical-align:-2px;margin-right:3px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>Preview</button>
+          <button class="link-reset" type="button" id="resetTemplateBtn" style="margin-left:0">Reset to default</button>
         </div>
       </div>
     </div>
@@ -615,7 +633,7 @@ tbody tr.flash{animation:flash 1.6s ease}
   </div>
 
   <div class="footer">
-    <b>Team Captain Manager v2.5.0</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
+    <b>Team Captain Manager v2.5.1</b> &middot; assembly roster + MergeMaster pool for RC &amp; Assembly charts<br>
     All data stays in this browser &middot; export JSON regularly for backup<br>
     Made with Love &copy;
   </div>
@@ -667,6 +685,33 @@ tbody tr.flash{animation:flash 1.6s ease}
     <div class="modal-foot">
       <button class="btn" id="qrPngBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M12 21V9m0 0l-4 4m4-4l4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>Save as PNG</button>
       <button class="btn primary" data-close="qrOverlay">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Template preview modal ── -->
+<div class="overlay" id="previewOverlay">
+  <div class="modal pv-modal">
+    <div class="modal-head">
+      <div class="mh-ic"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/></svg></div>
+      <div><h2>Message preview</h2><p>How the welcome message will look in WhatsApp.</p></div>
+      <button class="modal-close" data-close="previewOverlay"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="pv-controls">
+        <div><label for="pvPerson">Preview for</label><select id="pvPerson"></select></div>
+        <div><label for="pvTeam">Team</label><select id="pvTeam"></select></div>
+      </div>
+      <div class="pv-phone"><div class="pv-bubble" id="pvBubble"></div></div>
+      <div class="pv-meta">
+        <span class="pv-legend"><span class="pv-fill">highlighted</span> = filled in from a placeholder</span>
+        <span id="pvCount">0 characters</span>
+      </div>
+      <div class="pv-warn" id="pvWarn"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="pvCopyBtn"><svg class="icon stroke" viewBox="0 0 24 24"><path d="M9 3h9a2 2 0 0 1 2 2v9M13 21H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2z"/></svg><span class="lbltxt">Copy text</span></button>
+      <button class="btn primary" data-close="previewOverlay">Done</button>
     </div>
   </div>
 </div>
@@ -728,7 +773,7 @@ tbody tr.flash{animation:flash 1.6s ease}
           <strong>Adjust the welcome message</strong>
           <p>The template under <b>Captain setup</b> can be edited freely. The placeholders
           <span class="token">{firstName}</span> <span class="token">{team}</span> <span class="token">{chatLink}</span> <span class="token">{captainName}</span> <span class="token">{brotherSister}</span>
-          are replaced automatically for each person — <span class="token">{brotherSister}</span> becomes “Brother” or “Sister”. <b>Reset to default</b> restores the original wording.</p>
+          are replaced automatically for each person — <span class="token">{brotherSister}</span> becomes “Brother” or “Sister”. <b>Preview</b> shows the finished message as a WhatsApp bubble, for any person and team; WhatsApp formatting like <code>*bold*</code> and <code>_italic_</code> is shown too. <b>Reset to default</b> restores the original wording.</p>
         </div>
       </div>
 
@@ -1627,16 +1672,19 @@ function contactFirstName(rec){
   return (rec.firstName || rec.displayName || '').split(',').pop().trim() || rec.displayName || brotherSister(rec);
 }
 function brotherSister(rec){ return rec && rec.sister ? 'Sister' : 'Brother'; }
-function buildChatMessage(rec){
+function messageData(rec, teamOverride){
   var isReal = currentTeam && currentTeam !== ALL_TEAM && currentTeam !== MERGE;
-  var teamName = isReal ? currentTeam : ((rec.teams && rec.teams[0]) || 'your assigned');
-  return applyTemplate((elTemplate.value || '').trim() || defaultTemplateText(), {
+  var teamName = teamOverride || (isReal ? currentTeam : ((rec.teams && rec.teams[0]) || 'your assigned'));
+  return {
     firstName: contactFirstName(rec),
     team: teamName,
     chatLink: (elChatLink.value || '').trim() || 'I will send you the link separately.',
     captainName: (elCaptain.value || '').trim() || 'your team captain',
     brotherSister: brotherSister(rec)
-  });
+  };
+}
+function buildChatMessage(rec, teamOverride){
+  return applyTemplate((elTemplate.value || '').trim() || defaultTemplateText(), messageData(rec, teamOverride));
 }
 function copyText(text, btn){
   function done(){
@@ -1662,6 +1710,80 @@ function fallbackCopy(text, cb){
   document.body.appendChild(ta); ta.focus(); ta.select();
   try { document.execCommand('copy'); } catch(e){}
   document.body.removeChild(ta); if (cb) cb();
+}
+
+// ── Template preview ──────────────────────────────────────────────────────────
+var PV_KNOWN = ['firstName','team','chatLink','captainName','brotherSister'];
+var PV_SAMPLES = [
+  { key:'__sb', label:'Sample brother (John)', rec:{ firstName:'John', lastName:'Sample', displayName:'Sample, John', sister:false, teams:[] } },
+  { key:'__ss', label:'Sample sister (Anna)',  rec:{ firstName:'Anna', lastName:'Sample', displayName:'Sample, Anna', sister:true,  teams:[] } }
+];
+var pvPeople = {};
+// WhatsApp-style formatting on already-escaped text
+function waFormat(h){
+  h = h.replace(/```([\s\S]+?)```/g, '<code>$1</code>');
+  h = h.replace(/(^|[\s(>\uE000-\uE003])\*(?!\s)([^*\n]+?)\*(?=$|[\s.,!?:;)<\uE000-\uE003])/g, '$1<b>$2</b>');
+  h = h.replace(/(^|[\s(>\uE000-\uE003])_(?!\s)([^_\n]+?)_(?=$|[\s.,!?:;)<\uE000-\uE003])/g, '$1<i>$2</i>');
+  h = h.replace(/(^|[\s(>\uE000-\uE003])~(?!\s)([^~\n]+?)~(?=$|[\s.,!?:;)<\uE000-\uE003])/g, '$1<s>$2</s>');
+  h = h.replace(/(https?:\/\/[^\s<\uE000-\uE003]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return h;
+}
+function previewHTML(tpl, data){
+  // mark filled values with private-use delimiters, escape, then turn them into spans
+  var A = '\uE000', B = '\uE001', C = '\uE002', D = '\uE003';
+  var t = String(tpl).replace(/\{(\w+)\}/g, function(m, k){
+    if (PV_KNOWN.indexOf(k) !== -1) return A + (data[k] == null ? '' : data[k]) + B;
+    return C + m + D;
+  }).replace(/\n{3,}/g, '\n\n').trim();
+  var h = waFormat(esc(t));
+  return h.split(A).join('<span class="pv-fill">').split(B).join('</span>')
+          .split(C).join('<span class="pv-unknown" title="Unknown placeholder — it will be sent as typed">').split(D).join('</span>');
+}
+function openPreview(){
+  var selP = $('pvPerson'), selT = $('pvTeam');
+  var list = filtered();
+  if (inMergeView() || !list.length) list = records.slice();
+  pvPeople = {};
+  var opts = '';
+  PV_SAMPLES.forEach(function(s){ pvPeople[s.key] = s.rec; });
+  if (list.length){
+    opts += '<optgroup label="' + esc(currentTeam === ALL_TEAM || inMergeView() ? 'All contacts' : currentTeam) + '">';
+    list.forEach(function(r, i){
+      var k = 'r' + i; pvPeople[k] = r;
+      opts += '<option value="' + k + '">' + esc(r.displayName) + (r.sister ? ' · Sister' : '') + '</option>';
+    });
+    opts += '</optgroup>';
+  }
+  opts += '<optgroup label="Examples">' + PV_SAMPLES.map(function(s){ return '<option value="' + s.key + '">' + esc(s.label) + '</option>'; }).join('') + '</optgroup>';
+  selP.innerHTML = opts;
+  selP.value = list.length ? 'r0' : '__sb';
+  var isReal = currentTeam && currentTeam !== ALL_TEAM && currentTeam !== MERGE;
+  selT.innerHTML = '<option value="">As in the list</option>' + MAIN_TEAMS.map(function(t){ return '<option value="' + esc(t) + '">' + esc(t) + '</option>'; }).join('');
+  selT.value = isReal ? currentTeam : '';
+  renderPreview();
+  openModal('previewOverlay');
+}
+function pvCurrent(){
+  var rec = pvPeople[$('pvPerson').value] || PV_SAMPLES[0].rec;
+  var team = $('pvTeam').value || ((rec.teams && rec.teams[0]) || '');
+  return { rec: rec, team: team || null };
+}
+function renderPreview(){
+  var c = pvCurrent();
+  var tpl = (elTemplate.value || '').trim() || defaultTemplateText();
+  var data = messageData(c.rec, c.team);
+  var now = new Date();
+  $('pvBubble').innerHTML = previewHTML(tpl, data) +
+    '<span class="pv-time">' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ' ✓✓</span>';
+  var text = buildChatMessage(c.rec, c.team);
+  $('pvCount').textContent = text.length + ' characters';
+  var warn = [];
+  if (!(elCaptain.value || '').trim() && tpl.indexOf('{captainName}') !== -1) warn.push('No captain name yet — “your team captain” is used instead.');
+  if (!(elChatLink.value || '').trim() && tpl.indexOf('{chatLink}') !== -1) warn.push('No chat link yet — “I will send you the link separately.” is used instead.');
+  var unk = (tpl.match(/\{(\w+)\}/g) || []).filter(function(m){ return PV_KNOWN.indexOf(m.slice(1,-1)) === -1; });
+  if (unk.length) warn.push('Unknown placeholder: ' + unk.filter(function(v,i,a){ return a.indexOf(v) === i; }).join(', ') + ' — check the spelling.');
+  if (/\*\*[^*]+\*\*/.test(tpl)) warn.push('Double asterisks (**text**) don’t work in WhatsApp — use single ones: *text*.');
+  var w = $('pvWarn'); w.innerHTML = warn.map(esc).join('<br>'); w.classList.toggle('show', warn.length > 0);
 }
 
 // ── Privilege detection ───────────────────────────────────────────────────────
@@ -2130,6 +2252,10 @@ var dz = $('dropzone');
 dz.addEventListener('drop', function(e){ if (e.dataTransfer.files.length) readFiles(e.dataTransfer.files); });
 
 $('qrPngBtn').addEventListener('click', downloadQR);
+$('previewTemplateBtn').addEventListener('click', openPreview);
+$('pvPerson').addEventListener('change', renderPreview);
+$('pvTeam').addEventListener('change', renderPreview);
+$('pvCopyBtn').addEventListener('click', function(){ var c = pvCurrent(); copyText(buildChatMessage(c.rec, c.team), this); });
 $('helpBtn').addEventListener('click', function(){ openModal('helpOverlay'); });
 $('dupBtn').addEventListener('click', function(){ renderDuplicates(); openModal('dupOverlay'); });
 $('exportBtn').addEventListener('click', exportJSON);
