@@ -526,13 +526,13 @@ table.dash-table tbody tr:hover td{background:#fafcff}
   <div class="toolbar no-print">
     <button class="primary" onclick="openCongModal()">+ Congregation / Group</button>
     <button class="primary" onclick="openAttendantModal()">+ Attendant</button>
-    <button class="success" onclick="copyActiveAttendantsSummary(this)" style="display:inline-flex;align-items:center;gap:7px">
+    <button class="success" onclick="copyActiveAttendantsSummary(this)" title="Copies everyone with ✔ and A (available and answered), alphabetical – without the ones who never answered" style="display:inline-flex;align-items:center;gap:7px">
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;flex:0 0 auto">
         <path fill="currentColor" d="M6 2h8l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" opacity=".95"/>
         <path fill="#fff" d="M14 2v5h5v1h-6V2h1Z" opacity=".9"/>
         <path fill="#fff" d="M7 10h8v8H7v-8Zm1.2 1.2v1.6h2.4v-1.6H8.2Zm3.6 0v1.6h2v-1.6h-2Zm-3.6 2.8v1.6h2.4V14H8.2Zm3.6 0v1.6h2V14h-2Z"/>
       </svg>
-      <span>Copy active A–Z</span>
+      <span>Copy answered A–Z</span>
     </button>
     <button class="warn-btn" onclick="resetStatuses()">Reset contacted / replied</button>
 
@@ -796,7 +796,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.5</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.6</div>
 </div>
 
 <script>
@@ -1823,10 +1823,11 @@ async function copyCongMessage(index){selectedCongIndex=index;await copyRichText
 async function copySelectedMessage(){if(selectedCongIndex===null){alert('Preview a congregation first.');return;}await copyRichText(buildCongMessage(selectedCongIndex),true);}
 async function copyTemplateOnly(){await copyRichText(state.meta.messageTemplate||'',true);}
 async function copyActiveAttendantsSummary(triggerEl){
-  const lines=sortByName(state.attendants).filter(a=>a.active!==false)
+  /* only people who are available (✔) AND have answered (A) – the unanswered ones are of no use at the end */
+  const lines=sortByName(state.attendants).filter(a=>a.active!==false&&a.confirmed)
     .map(a=>[String(a?.name||'').trim(),String(a?.firstName||'').trim()].filter(Boolean).join(' ')+', '+shortCong(a?.congregation||''))
     .filter(Boolean);
-  if(!lines.length){alert('No active attendants.');return;}
+  if(!lines.length){alert('Nobody with ✔ and A yet.');return;}
   copyText(lines.join('\n'),true,triggerEl);
 }
 async function copyRichText(text,silent,triggerEl){
