@@ -453,9 +453,14 @@ function outlineLang(){const c=localStorage.getItem(LS_OUTLANG)||'en';return OUT
 function outlineLangInfo(code=outlineLang()){return OUTLINE_LANGS.find(x=>x.code===code)||OUTLINE_LANGS[0]}
 /* English keeps the original key so nothing existing is lost on upgrade */
 function outlineStoreKey(code=outlineLang()){return code==='en'?LS_OUT:LS_OUT+'_'+code}
-function saveOutlinesLocal(){if(!state.outlines)return;try{localStorage.setItem(outlineStoreKey(),JSON.stringify(state.outlines))}catch(e){console.warn(e)}}
+/* v0.8.9: every outline dataset carries its language ("language":"de"; English files have none).
+   Working copies are only ever stored under — and read from — the key of their own language,
+   so an English copy can no longer end up in the German slot (or vice versa). */
+function outLangOf(o){return String(o?.language||'en').trim().toLowerCase()||'en'}
+function saveOutlinesLocal(){if(!state.outlines)return;try{localStorage.setItem(outlineStoreKey(outLangOf(state.outlines)),JSON.stringify(state.outlines))}catch(e){console.warn(e)}}
+function readCachedOutlines(code=outlineLang()){try{const raw=localStorage.getItem(outlineStoreKey(code));if(!raw)return null;const o=normalizeOut(JSON.parse(raw));if(outLangOf(o)!==code){localStorage.removeItem(outlineStoreKey(code));console.warn('PTC Organizer: discarded outline working copy in the '+code+' slot (it contained '+outLangOf(o)+' data)');return null}return o}catch(e){return null}}
 function outlineLog(outline,action,detail){if(!state.outlines)return;state.outlines.maintenanceHistory=state.outlines.maintenanceHistory||[];state.outlines.maintenanceHistory.unshift({id:uuid(),at:new Date().toISOString(),by:editor(),outline:outline==null?'':safeText(outline),action:safeText(action),detail:safeText(detail)});if(state.outlines.maintenanceHistory.length>2000)state.outlines.maintenanceHistory.length=2000;saveOutlinesLocal()}
-function setOutlines(o){state.outlines=normalizeOut(o);state.outlineBaseline=clone(state.outlines);saveOutlinesLocal();renderFacts();if(state.tab==='outlines')renderOutlines()}
+function setOutlines(o){state.outlines=normalizeOut(o);state.outlineBaseline=clone(state.outlines);{const l=outLangOf(state.outlines);if(OUTLINE_LANGS.some(x=>x.code===l))localStorage.setItem(LS_OUTLANG,l)}saveOutlinesLocal();renderFacts();if(state.tab==='outlines')renderOutlines()}
 function revisionSortKey(r){const m=/^(\d{1,2})\/(\d{2})$/.exec(String(r||'').trim());if(!m)return null;const yy=+m[2];return(yy>=70?1900+yy:2000+yy)*100+ +m[1]}
 const LS_OUT_SORT='ptcOrganizerOutlineSort';
 function outSortMode(){try{const v=localStorage.getItem(LS_OUT_SORT);return['num','rev_new','rev_old'].includes(v)?v:'num'}catch(e){return'num'}}
@@ -1389,7 +1394,7 @@ function restoreCompleteBackup(obj,fileName='backup'){
     state.master=restored;
     state.outlines=hasOut?normalizeOut(clone(obj.outlineData)):null;
     state.outlineBaseline=hasOut?clone(state.outlines):null;
-    try{if(hasOut)localStorage.setItem(LS_OUT,JSON.stringify(state.outlines));else localStorage.removeItem(LS_OUT)}catch(e){}
+    try{if(hasOut){localStorage.setItem(outlineStoreKey(outLangOf(state.outlines)),JSON.stringify(state.outlines));localStorage.setItem(LS_OUTLANG,outLangOf(state.outlines))}else localStorage.removeItem(outlineStoreKey())}catch(e){}
     state.selected=state.master.congregations[0]?.id||null;state.tab='home';state.saveMode='local';state.dirty=false;
     try{localStorage.setItem(LS_MASTER,JSON.stringify(state.master))}catch(e){}
     log('restore_complete_backup',`Complete backup restored from ${fileName}${hasOut?' · master + outline data':' · master only'}`,{name:fileName});
@@ -1416,10 +1421,8 @@ async function switchOutlineLang(code){
   if(state.outlines)saveOutlinesLocal();           // keep the language we are leaving
   localStorage.setItem(LS_OUTLANG,info.code);
   state.outlines=null;state.outlineBaseline=null;
-  const cached=localStorage.getItem(outlineStoreKey());
-  if(cached){
-    try{state.outlines=normalizeOut(JSON.parse(cached));state.outlineBaseline=clone(state.outlines)}catch(e){state.outlines=null}
-  }
+  const cached=readCachedOutlines(info.code);
+  if(cached){state.outlines=cached;state.outlineBaseline=clone(cached)}
   const loaded=await loadPublishedOutlines();
   if(!loaded&&!state.outlines){
     alert(`Could not load ${info.file}. It is expected next to this HTML file. You can still open a JSON by hand.`);
@@ -1434,30 +1437,32 @@ async function loadPublishedOutlines(){
   // A browser working copy is kept when present; the published file becomes its comparison baseline.
   if(location.protocol!=='http:'&&location.protocol!=='https:')return false;
   try{
-    const url=new URL(outlineLangInfo().file,location.href);
+    const lang=outlineLang();
+    const url=new URL(outlineLangInfo(lang).file,location.href);
     url.searchParams.set('_ptc',Date.now());
     const res=await fetch(url,{cache:'no-store'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const published=normalizeOut(await res.json());
-    const cachedRaw=localStorage.getItem(outlineStoreKey());
-    if(cachedRaw){
+    if(lang!==outlineLang())return false; // language was switched while this file was loading
+    if(lang!=='en'&&!published.language)published.language=lang;
+    const cached=readCachedOutlines(lang);
+    if(cached){
       try{
-        const cached=normalizeOut(JSON.parse(cachedRaw));
         // v0.8.9: take over revisions from the published file where the working copy has none yet
         let revFilled=0;
         for(const[k,pv]of Object.entries(published.outlines||{})){const cv=cached.outlines?.[k];if(cv&&!cv.revision&&pv.revision){cv.revision=pv.revision;revFilled++}}
-        if(revFilled)localStorage.setItem(outlineStoreKey(),JSON.stringify(cached));
+        if(revFilled)localStorage.setItem(outlineStoreKey(lang),JSON.stringify(cached));
         state.outlines=cached;
         state.outlineBaseline=clone(published);
       }catch(e){
         state.outlines=published;
         state.outlineBaseline=clone(published);
-        localStorage.setItem(outlineStoreKey(),JSON.stringify(published));
+        localStorage.setItem(outlineStoreKey(lang),JSON.stringify(published));
       }
     }else{
       state.outlines=published;
       state.outlineBaseline=clone(published);
-      localStorage.setItem(outlineStoreKey(),JSON.stringify(published));
+      localStorage.setItem(outlineStoreKey(lang),JSON.stringify(published));
     }
     renderFacts();
     if(state.tab==='outlines')renderOutlines();
@@ -1473,7 +1478,7 @@ async function loadPublishedOutlines(){
   $('editorName').value=localStorage.getItem(LS_EDITOR)||'';
   try{state.openCountries=new Set(JSON.parse(localStorage.getItem(LS_OPEN)||'[]'))}catch(e){}
   // Restore the local outline working copy immediately, then check for the published Git/HTTP file.
-  try{const o=JSON.parse(localStorage.getItem(LS_OUT)||'null');if(o)setOutlines(o)}catch(e){}
+  try{const o=readCachedOutlines();if(o){state.outlines=o;state.outlineBaseline=clone(o);renderFacts()}}catch(e){}
   try{const m=JSON.parse(localStorage.getItem(LS_MASTER)||'null');if(m)loadMaster(m)}catch(e){}
   await loadPublishedOutlines();
   if(!state.master){const b=document.createElement('button');b.className='primary';b.textContent='Create new master';b.onclick=()=>loadMaster(freshMaster());$('workspaceEmpty').append(document.createElement('br'),document.createElement('br'),b)}
