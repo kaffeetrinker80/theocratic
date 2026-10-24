@@ -1,46 +1,53 @@
 # 🏛️ Theocratic Tools
 
-A collection of browser-based tools designed to assist with planning, organizing, and coordinating various theocratic activities and congregational assignments.
+Browser-based tools for planning, scheduling and coordination – for congregations, Kingdom Halls, circuit assemblies and regional conventions.
 
-These tools are optimized for mobile use, making them ideal for use directly at the Kingdom Hall or Assembly Hall.
+**▶ Open the tools: [kaffeetrinker80.github.io/theocratic](https://kaffeetrinker80.github.io/theocratic/)**
 
-## 📋 Planning & Coordination
+## Overview
 
-Tools for managing assignments and coordinating speaker data efficiently.
+### Assembly & Regional Convention
 
-### [Microphone Service](./microphoneservice-tool.html)
-* **Purpose:** Planning microphone assignments and attendant shifts during meetings.
-* **Features:** Helps organize schedules and support roles to ensure meetings run smoothly.
+| Tool | Purpose | Languages |
+|---|---|---|
+| [Assembly & Convention Notes](./programs/) | Current and archived programs with personal notes | DE / EN |
+| [Cleaning Planner](./cleaning-planner/) | Cleaning teams, schedules and shifts | DE / EN |
+| [Attendance Counting](./attendance-counting/) | Count and summarize attendance (1-day and 3-day events) | EN |
+| [Attendant Tool](./attendant-tool/) | Contact congregations, manage attendant volunteers, hand over teams | EN |
+| [A/V Planner](./av-planner/) | Audio and video assignments for regional conventions | EN |
+| [Attendant Scheduler](./rc-attendant-assignment-tool/) | Shift-plan overview for attendants at regional conventions | DE |
+| [RC Volunteers](./rc-volunteers-management/) | Volunteers, availability and communication | EN |
 
-### [PTC Tool (Public Talks Coordination)](./PTC-tool.html)
-* **Purpose:** Coordination of public talks and speaker data.
-* **Features:** Search through congregations, speakers, and talk outlines based on imported data.
+### Congregation
+
+| Tool | Purpose | Languages |
+|---|---|---|
+| [Congregation Notes](./congregation-notes/) | Meeting notes with child-friendly activities and glossary | DE / EN |
+| [Microphone Service](./microphoneservice-tool/) ☁️ | Microphone assignments for meetings | EN |
+| [Congregation Volunteers](./congregation-volunteers/) | Volunteer details and availability | DE / EN |
+| [PTC Tool](./ptc-tool/) | Public talks, speakers and outlines | EN |
+
+### Kingdom Hall
+
+| Tool | Purpose | Languages |
+|---|---|---|
+| [KH Cleaning Planner](./kh-cleaning-planner/) | Annual deep cleaning for shared Kingdom Halls | DE / EN |
+| [KH Cleaning Generator](./kh-cleaning-generator/) | Printable annual cleaning schedules from planner data | DE / EN / IT / RU / SH |
+| [Intermediate Cleaning](./intermediate-cleaning/) | Rotating intermediate-cleaning schedules | DE / EN / RU |
+| [KH Winter Service](./kh-winterservice/) ☁️ | Snow clearing and gritting: take days, join an area, check the weather | DE / EN / IT / RU / SH |
+
+Further folders (`assembly-chart`, `convention-chart`, `attendant-assignments`, `ptc-organizer`, `tc-manager`) contain supporting or internal tools that are not listed on the start page.
+
+## 🔒 Privacy
+
+- Most tools run **entirely in the browser** – data stays on your device (local storage or files you export/import).
+- Tools marked ☁️ use **shared data** so several people can work together (e.g. Microphone Service, KH Winter Service).
+
+## 📱 Tips
+
+- Add the page to your home screen to use it like an app.
+- On tablets, browser zoom at 75–80% fits the layouts best.
 
 ---
 
-## 📊 Assembly & Convention Support
-
-Specialized counting tools specifically designed for use during large gatherings (e.g., at the Munich Assembly Hall).
-
-### [Assembly Counting (1-Day)](./Assembly-counting.html)
-* **Usage:** Optimized for one-day events like Circuit Assemblies.
-* **Features:** Digital counting slips and printable forms to generate a compact attendance summary.
-
-### [RC Counting (3-Day)](./RC-counting.html)
-* **Usage:** Designed for three-day Regional Conventions.
-* **Features:** Comprehensive tracking across all days with daily overviews and attendance summaries.
-
----
-
-## 🔒 Privacy & Data Security
-
-* **Local Processing:** All tools run directly in your browser.
-* **No Server Storage:** This website does not collect, store, or upload personal data to any server.
-* **Data Ownership:** Information entered (such as names or assignments) stays only in your device's local browser storage or within files you explicitly export or import.
-
-## 🚀 How to Use
-
-All tools are accessible as static web pages. For the best experience on mobile devices, it is recommended to use the **"Add to Home Screen"** function in your browser to use them like a standalone app.
-
----
-*Created by [kaffeetrinker80](https://github.com/kaffeetrinker80)*
+Made by [kaffeetrinker80](https://github.com/kaffeetrinker80)
