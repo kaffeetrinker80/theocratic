@@ -937,7 +937,7 @@
    "title": "",
    "revision": null,
    "status": "do_not_use",
-   "effectiveDate": "",
+   "effectiveDate": "2025-06-01",
    "replacement": null,
    "note": "Nicht verwenden",
    "history": [],
@@ -1336,11 +1336,19 @@
   "84": {
    "title": "Dem entgehen, was dieser Welt bevorsteht",
    "revision": "11/03",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Dem entgehen, was dieser Welt bevorsteht",
     "status": "active",
@@ -1352,11 +1360,19 @@
   "85": {
    "title": "Eine gute Botschaft in einer gewalttätigen Welt",
    "revision": "09/01",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Eine gute Botschaft in einer gewalttätigen Welt",
     "status": "active",
@@ -1384,11 +1400,19 @@
   "87": {
    "title": "Was für ein Verhältnis habe ich zu Gott?",
    "revision": "01/95",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Was für ein Verhältnis habe ich zu Gott?",
     "status": "active",
@@ -1464,11 +1488,19 @@
   "92": {
    "title": "Die Rolle der Religion im Weltgeschehen",
    "revision": "11/95",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Die Rolle der Religion im Weltgeschehen",
     "status": "active",
@@ -1496,11 +1528,19 @@
   "94": {
    "title": "Die wahre Religion stillt die Bedürfnisse der menschlichen Gesellschaft",
    "revision": "12/93",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Die wahre Religion stillt die Bedürfnisse der menschlichen Gesellschaft",
     "status": "active",
@@ -1544,11 +1584,19 @@
   "97": {
    "title": "Sich in einer schlechten Welt nichts zuschulden kommen lassen",
    "revision": "01/96",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Sich in einer schlechten Welt nichts zuschulden kommen lassen",
     "status": "active",
@@ -1672,11 +1720,19 @@
   "105": {
    "title": "In allen unseren Prüfungen Trost finden",
    "revision": "05/95",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "In allen unseren Prüfungen Trost finden",
     "status": "active",
@@ -1688,11 +1744,19 @@
   "106": {
    "title": "Die Zerstörung der Erde wird von Gott bestraft",
    "revision": "05/95",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Die Zerstörung der Erde wird von Gott bestraft",
     "status": "active",
@@ -1736,11 +1800,19 @@
   "109": {
    "title": "Das Königreich Gottes ist nah",
    "revision": "01/96",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Das Königreich Gottes ist nah",
     "status": "active",
@@ -1864,11 +1936,19 @@
   "117": {
    "title": "Wie man das Böse mit dem Guten besiegen kann",
    "revision": "11/06",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Wie man das Böse mit dem Guten besiegen kann",
     "status": "active",
@@ -1880,11 +1960,19 @@
   "118": {
    "title": "Jugendlichen gegenüber so eingestellt sein wie Jehova",
    "revision": "08/98",
-   "status": "active",
+   "status": "do_not_use",
    "effectiveDate": "",
    "replacement": null,
-   "note": "",
-   "history": [],
+   "note": "Einer der Vorträge des Kreisaufsehers im Dienstjahr 2027 wird eine überarbeitete Fassung des aktuellen öffentlichen Vortrags „Jugendlichen gegenüber so eingestellt sein wie Jehova“ (Nr. 118) sein.",
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "do_not_use",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Jugendlichen gegenüber so eingestellt sein wie Jehova",
     "status": "active",
@@ -1896,11 +1984,19 @@
   "119": {
    "title": "Warum es gut ist, als Christ kein Teil der Welt zu sein",
    "revision": "05/97",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Warum es gut ist, als Christ kein Teil der Welt zu sein",
     "status": "active",
@@ -1912,11 +2008,19 @@
   "120": {
    "title": "Warum man sich jetzt Gottes Herrschaft unterordnen sollte",
    "revision": "06/97",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Warum man sich jetzt Gottes Herrschaft unterordnen sollte",
     "status": "active",
@@ -1945,7 +2049,7 @@
    "title": "",
    "revision": null,
    "status": "do_not_use",
-   "effectiveDate": "",
+   "effectiveDate": "2025-06-01",
    "replacement": null,
    "note": "Nicht verwenden",
    "history": [],
@@ -1976,11 +2080,19 @@
   "124": {
    "title": "Stammt die Bibel wirklich von Gott?",
    "revision": "05/97",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Stammt die Bibel wirklich von Gott?",
     "status": "active",
@@ -2008,11 +2120,19 @@
   "126": {
    "title": "Wer kann gerettet werden?",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Wer kann gerettet werden?",
     "status": "active",
@@ -2216,11 +2336,19 @@
   "139": {
    "title": "Göttliche Weisheit in einer wissenschaftlich orientierten Welt",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Göttliche Weisheit in einer wissenschaftlich orientierten Welt",
     "status": "active",
@@ -2248,11 +2376,19 @@
   "141": {
    "title": "Das Seufzen der Menschheit – wann wird es enden?",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Das Seufzen der Menschheit – wann wird es enden?",
     "status": "active",
@@ -2296,11 +2432,19 @@
   "144": {
    "title": "Eine loyale Versammlung unter der Führung Christi",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Eine loyale Versammlung unter der Führung Christi",
     "status": "active",
@@ -2312,11 +2456,19 @@
   "145": {
    "title": "Wer ist wie Jehova, unser Gott?",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Wer ist wie Jehova, unser Gott?",
     "status": "active",
@@ -2360,11 +2512,19 @@
   "148": {
    "title": "Das Leben so sehen, wie Gott es sieht",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Das Leben so sehen, wie Gott es sieht",
     "status": "active",
@@ -2376,11 +2536,19 @@
   "149": {
    "title": "Unseren Weg mit Gott gehen",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Unseren Weg mit Gott gehen",
     "status": "active",
@@ -2408,11 +2576,19 @@
   "151": {
    "title": "Jehova ist seinem Volk „eine sichere Zuflucht“",
    "revision": "11/00",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Jehova ist seinem Volk „eine sichere Zuflucht“",
     "status": "active",
@@ -2456,11 +2632,19 @@
   "154": {
    "title": "Die Menschenherrschaft – auf der Waage gewogen",
    "revision": "03/02",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Die Menschenherrschaft – auf der Waage gewogen",
     "status": "active",
@@ -2472,11 +2656,19 @@
   "155": {
    "title": "Ist für Babylon die Stunde der Urteilsvollstreckung gekommen?",
    "revision": "12/02",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Ist für Babylon die Stunde der Urteilsvollstreckung gekommen?",
     "status": "active",
@@ -2504,11 +2696,19 @@
   "157": {
    "title": "Wahre Christen lassen Gottes Lehren anziehend wirken",
    "revision": "05/03",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Wahre Christen lassen Gottes Lehren anziehend wirken",
     "status": "active",
@@ -2520,11 +2720,19 @@
   "158": {
    "title": "Seien wir mutig und vertrauen wir auf Jehova",
    "revision": "11/03",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Seien wir mutig und vertrauen wir auf Jehova",
     "status": "active",
@@ -2600,11 +2808,19 @@
   "163": {
    "title": "Warum sollten wir Ehrfurcht vor dem wahren Gott haben?",
    "revision": "06/05",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Warum sollten wir Ehrfurcht vor dem wahren Gott haben?",
     "status": "active",
@@ -2616,11 +2832,19 @@
   "164": {
    "title": "Ist Gott noch Herr der Lage?",
    "revision": "11/05",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Ist Gott noch Herr der Lage?",
     "status": "active",
@@ -2632,11 +2856,19 @@
   "165": {
    "title": "Wessen Wertvorstellungen teilen wir?",
    "revision": "11/05",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Wessen Wertvorstellungen teilen wir?",
     "status": "active",
@@ -2664,11 +2896,19 @@
   "167": {
    "title": "Vernünftig handeln in einer unvernünftigen Welt",
    "revision": "12/06",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Vernünftig handeln in einer unvernünftigen Welt",
     "status": "active",
@@ -2680,11 +2920,19 @@
   "168": {
    "title": "Sicherheit in einer unruhigen Welt",
    "revision": "11/06",
-   "status": "active",
-   "effectiveDate": "",
+   "status": "retiring",
+   "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
-   "history": [],
+   "history": [
+    {
+     "date": "2026-10-24",
+     "type": "status",
+     "from": "active",
+     "to": "retiring",
+     "note": "angeglichen an outline-data.json (EN)"
+    }
+   ],
    "origin": {
     "title": "Sicherheit in einer unruhigen Welt",
     "status": "active",
