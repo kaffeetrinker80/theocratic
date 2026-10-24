@@ -796,7 +796,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.6</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.7</div>
 </div>
 
 <script>
@@ -2303,7 +2303,7 @@ function deleteFromModal(index){
 
 /* ══════════ PRINT LIST ══════════
    ✔ = he is available (active)   A = he answered himself   → "who do I have to chase?" */
-let printOpts={mode:'waiting',cong:'__all__',sort:'name',mobile:true,mail:true,teams:false,remarks:false,notes:true,landscape:false};
+let printOpts={mode:'waiting',cong:'__all__',sort:'name',mobile:true,mail:true,shifts:true,teams:false,remarks:false,notes:true,landscape:false};
 let printCleanupTimer=null;
 
 function printSelection(o){
@@ -2329,7 +2329,7 @@ function readPrintOpts(){
   const mode=(document.querySelector('#printModal input[name="prMode"]:checked')||{}).value||'waiting';
   const chk=id=>!!el(id)?.checked;
   return{mode,cong:el('prCong').value,sort:el('prSort').value,
-    mobile:chk('prMobile'),mail:chk('prMail'),teams:chk('prTeams'),remarks:chk('prRemarks'),notes:chk('prNotes'),landscape:chk('prLand')};
+    mobile:chk('prMobile'),mail:chk('prMail'),shifts:chk('prShifts'),teams:chk('prTeams'),remarks:chk('prRemarks'),notes:chk('prNotes'),landscape:chk('prLand')};
 }
 function updatePrintPreview(){
   if(!el('printModal'))return;
@@ -2379,7 +2379,7 @@ function openPrintModal(){
       <div>
         <div class="modal-sub">Columns (Name, ✔ and A are always printed)</div>
         <div class="check-row">
-          ${cb('prMobile','Mobile',o.mobile)}${cb('prMail','JWPub / Email',o.mail)}${cb('prTeams','Teams',o.teams)}
+          ${cb('prMobile','Mobile',o.mobile)}${cb('prMail','JWPub / Email',o.mail)}${cb('prShifts','Possible shifts',o.shifts)}${cb('prTeams','Teams',o.teams)}
           ${cb('prRemarks','Remarks',o.remarks)}${cb('prNotes','Empty notes column',o.notes)}${cb('prLand','Landscape',o.landscape)}
         </div>
       </div>
@@ -2406,6 +2406,7 @@ function buildPrintSheetHtml(o,list){
     {h:'A',cls:'c',f:a=>a.confirmed?'✔':'☐'},
     ...(o.mobile?[{h:'Mobile',f:a=>esc(a.mobile||'')}]:[]),
     ...(o.mail?[{h:'JWPub / Email',f:a=>[a.jwpub,a.email].filter(Boolean).map(esc).join('<br>')}]:[]),
+    ...(o.shifts?[{h:'Possible shifts',f:a=>esc(SHIFTS.filter(x=>(a.shifts||[]).includes(x.key)).map(x=>x.label).join(', '))}]:[]),
     ...(o.teams?[{h:'Teams',f:a=>esc(mainTeamsOf(a).map(teamLabel).join(', '))}]:[]),
     ...(o.remarks?[{h:'Remarks',f:a=>esc(a.remarks||'')}]:[]),
     ...(o.notes?[{h:'Notes',cls:'notes',f:()=>''}]:[]),
