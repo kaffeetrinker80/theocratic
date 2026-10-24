@@ -484,7 +484,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   max-height:calc(100dvh - 48px - var(--bottom-safe));
 }
 .ol-controls{
-  display:grid; grid-template-columns:1fr 190px auto; gap:9px; align-items:center;
+  display:grid; grid-template-columns:1fr 170px 190px auto; gap:9px; align-items:center;
   padding:13px 18px; border-bottom:1px solid var(--line); background:#faf6ef;
 }
 .ol-controls input[type="text"], .ol-controls select{ padding:8px 11px; border-radius:10px; }
@@ -532,6 +532,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 .ol-pill.retiring{ background:#faf0da; color:#8a5a14; }
 .ol-pill.retired, .ol-pill.do_not_use{ background:#fae6e1; color:#8b3a28; }
 .ol-when{ font-size:11.5px; color:var(--muted); }
+.ol-rev{ font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
 .ol-speakers{ font-size:11.5px; color:#52463a; background:#f3ebdf; border-radius:999px; padding:2px 9px; }
 .ol-speakers.none{ background:transparent; color:var(--muted); padding-left:0; }
 .ol-repl{ font-size:11.5px; color:var(--accent2); font-weight:600; }
@@ -976,7 +977,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.8.1</span>
+      <span class="footer-version" id="footerVersion">v.2.8.2</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1022,7 +1023,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.8.1';
+const APP_VERSION = '2.8.2';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1709,6 +1710,7 @@ function applyOutlineConfig(config) {
     if (!/^\d+$/.test(String(no)) || !item || typeof item !== 'object' || Array.isArray(item)) return;
     OUTLINE_DATA[String(Number(no))] = {
       title: typeof item.title === 'string' ? item.title.trim() : '',
+      revision: typeof item.revision === 'string' ? item.revision.trim() : '',
       status: typeof item.status === 'string' && item.status.trim() ? item.status.trim() : 'active',
       effectiveDate: typeof item.effectiveDate === 'string' ? item.effectiveDate.trim() : '',
       replacement: item.replacement == null || item.replacement === '' ? null : Number(item.replacement),
@@ -1754,6 +1756,20 @@ function outlineTitle(no) {
   return OUTLINE_DATA[String(no)]?.title || '';
 }
 
+/* v2.8.2: revision of the outline as printed on its last line (e.g. "09/15"). */
+function outlineRevision(no) {
+  return OUTLINE_DATA[String(no)]?.revision || '';
+}
+
+/* Sortable key for "MM/YY". Two-digit years: 70–99 → 19xx, 00–69 → 20xx
+   (oldest outlines are from 1993). Returns null when there is no usable revision. */
+function revisionSortKey(rev) {
+  const m = /^(\d{1,2})\/(\d{2})$/.exec(String(rev || '').trim());
+  if (!m) return null;
+  const yy = Number(m[2]);
+  return (yy >= 70 ? 1900 + yy : 2000 + yy) * 100 + Number(m[1]);
+}
+
 function outlineEffectiveState(no, now = new Date()) {
   const meta = OUTLINE_DATA[String(no)] || {};
   let status = meta.status || 'active';
@@ -1792,6 +1808,7 @@ function renderOutline(no) {
   const label = outlineLabel(no);
   const extra = [];
   if (!outlineConfigInfo.loaded) extra.push('Outline data unavailable');
+  if (meta.revision) extra.push('Rev. ' + meta.revision);
   if (meta.note) extra.push(meta.note);
   if (meta.replacement) extra.push('Replacement: #' + meta.replacement);
   const tip = extra.length ? extra.join(' · ') + ' · Click for details' : 'Click for details';
@@ -5758,6 +5775,11 @@ document.addEventListener('DOMContentLoaded', function () {
         <option value="retired">Retired</option>
         <option value="do_not_use">Do not use</option>
       </select>
+      <select id="outlineModalSort" title="Sort order of the outline directory">
+        <option value="num">Sort: number</option>
+        <option value="rev_new">Revision: newest first</option>
+        <option value="rev_old">Revision: oldest first</option>
+      </select>
       <label class="ol-check"><input type="checkbox" id="outlineModalUsed"> Only with speakers</label>
     </div>
 
@@ -5813,7 +5835,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.8.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.8.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5949,7 +5971,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <h3><span class="help-num">07</span> Outline search</h3>
           <p>The outline filter works two ways: by number, for example <b>76</b>, or by words from the title, for example <b>family</b>, <b>hope</b>, or <b>hospitality</b>. That makes it easy to find brothers even when you only remember the subject but not the exact outline number.</p>
           <p><b>Sort: Outline</b> orders the current results by the lowest available outline number. With no outline filter active this naturally starts at 1, 2, 3 …; with an outline search active, the matching outline is used as the sort key.</p>
-          <p>The <b>≡</b> button in the outline field opens the <b>outline directory</b>: every outline from <b>outline-data.json</b> with its title, status, retiring date, and how many speakers in the current list offer it. Search it by number, title, or note, narrow it by status, or tick <b>Only with speakers</b> to hide outlines nobody covers. Clicking an entry filters the speaker list by that outline.</p>
+          <p>The <b>≡</b> button in the outline field opens the <b>outline directory</b>: every outline from <b>outline-data.json</b> with its title, revision (<i>Rev. 09/15</i> – as printed on the last line of the outline), status, retiring date, and how many speakers in the current list offer it. Search it by number, title, or note, narrow it by status, sort it by number or by revision (<i>newest</i> / <i>oldest first</i>), or tick <b>Only with speakers</b> to hide outlines nobody covers. Clicking an entry filters the speaker list by that outline.</p>
           <p>Where an outline carries a note, an <b>i</b> marker appears. The note is shortened in the row and shown in full when you hover or tap the marker, so a long note never pushes the list apart. Outline chips on the result cards and in the speaker details are clickable too and open the directory at that outline.</p>
         </section>
 
@@ -6209,7 +6231,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `<div class="pout-sp"><span>${esc(sp.name)} <span class="prole">(${esc(sp.role)})</span></span><span class="w">${esc(extra.filter(Boolean).join(' · '))}</span></div>`;
       }).join('');
       return `<div class="pout-block">
-        <div class="pout-head">#${no}${on('prTitles') && meta.title ? ' – ' + esc(meta.title) : ''}${mark}</div>
+        <div class="pout-head">#${no}${on('prTitles') && meta.title ? ' – ' + esc(meta.title) : ''}${on('prTitles') && meta.revision ? ` <span class="rt">(Rev. ${esc(meta.revision)})</span>` : ''}${mark}</div>
         ${speakers}
       </div>`;
     }).join('');
@@ -6339,6 +6361,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const searchEl  = document.getElementById('outlineModalSearch');
   const statusEl  = document.getElementById('outlineModalStatus');
   const usedEl    = document.getElementById('outlineModalUsed');
+  const sortEl    = document.getElementById('outlineModalSort');
+  const SORT_KEY  = 'ptcToolOutlineSort';
+  if (sortEl) {
+    try {
+      const saved = localStorage.getItem(SORT_KEY);
+      if (saved && [...sortEl.options].some(o => o.value === saved)) sortEl.value = saved;
+    } catch (e) {}
+  }
   const statsEl   = document.getElementById('outlineModalStats');
   const metaEl    = document.getElementById('outlineModalMeta');
   const tip       = document.getElementById('olTip');
@@ -6390,7 +6420,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let lastSig = null;
   function render(force) {
     const sig = [
-      searchEl.value, statusEl.value, usedEl.checked,
+      searchEl.value, statusEl.value, usedEl.checked, sortEl ? sortEl.value : 'num',
       Object.keys(OUTLINE_DATA).length,
       state.dataset ? state.dataset.speakers.length : 0
     ].join('\u0001');
@@ -6408,8 +6438,21 @@ document.addEventListener('DOMContentLoaded', function () {
       if (wantStatus && meta.status !== wantStatus) return false;
       if (onlyUsed && !counts.get(no)) return false;
       if (!q) return true;
-      return normalizeText([no, meta.title, meta.note, statusLabel(meta.status), meta.replacement ? '#' + meta.replacement : ''].join(' ')).includes(q);
+      return normalizeText([no, meta.title, meta.revision ? 'rev ' + meta.revision : '', meta.note, statusLabel(meta.status), meta.replacement ? '#' + meta.replacement : ''].join(' ')).includes(q);
     });
+
+    const sortMode = sortEl ? sortEl.value : 'num';
+    if (sortMode === 'rev_new' || sortMode === 'rev_old') {
+      const dir = sortMode === 'rev_new' ? -1 : 1;
+      rows.sort((a, b) => {
+        const ka = revisionSortKey(OUTLINE_DATA[String(a)]?.revision);
+        const kb = revisionSortKey(OUTLINE_DATA[String(b)]?.revision);
+        if (ka == null && kb == null) return a - b;
+        if (ka == null) return 1;   // outlines without revision always at the end
+        if (kb == null) return -1;
+        return (ka - kb) * dir || a - b;
+      });
+    }
 
     renderStats(rows.length, all.length);
 
@@ -6434,6 +6477,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <span>
           <span class="ol-title">${escapeHtml(meta.title || '(no title in outline-data.json)')}</span>
           <span class="ol-meta">
+            ${meta.revision ? `<span class="ol-rev" title="Revision of the outline">Rev. ${escapeHtml(meta.revision)}</span>` : ''}
             ${meta.status === 'active' ? '' : `<span class="ol-pill ${escapeHtml(meta.status)}">${escapeHtml(statusLabel(meta.status))}</span>`}
             ${whenLabel ? `<span class="ol-when">${escapeHtml(whenLabel)}</span>` : ''}
             ${state.dataset ? `<span class="ol-speakers ${n ? '' : 'none'}">${n ? n + (n === 1 ? ' speaker' : ' speakers') : 'no speaker in list'}</span>` : ''}
@@ -6523,6 +6567,11 @@ document.addEventListener('DOMContentLoaded', function () {
   searchEl.addEventListener('input', () => render());
   statusEl.addEventListener('change', () => render());
   usedEl.addEventListener('change', () => render());
+  if (sortEl) sortEl.addEventListener('change', () => {
+    try { localStorage.setItem(SORT_KEY, sortEl.value); } catch (e) {}
+    render();
+    listEl.scrollTop = 0;
+  });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && overlay.style.display === 'block') close();
   });
