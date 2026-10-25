@@ -701,7 +701,7 @@ Loving greetings,
     </div>
     <div class="toolbar no-print" style="margin-bottom:10px">
       <button class="primary small-btn" onclick="openPrintModal()" title="Print a follow-up list: who is available (✔) and who has answered (A)">🖨 Print list…</button>
-      <button class="success small-btn" onclick="exportFilteredJson()" title="Export currently visible attendants as JSON">📥 Export filtered (JSON)</button>
+      <button class="success small-btn" onclick="exportFilteredJson()" title="For the Team Captain Manager. No team in the filter: everyone assigned to Auditorium, Cafeteria, Lobby or Welcome, grouped by team. One team selected: only that team.">📥 Export filtered (JSON)</button>
       <button class="success small-btn" onclick="exportFilteredCsv()" title="Export currently visible attendants as CSV">📥 Export filtered (CSV)</button>
       <span style="font-size:11px;color:var(--muted);margin-left:4px" id="filteredExportHint"></span>
     </div>
@@ -796,7 +796,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.7</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.8</div>
 </div>
 
 <script>
@@ -1883,19 +1883,33 @@ function getFilteredAttendants(){
   return sortByName(state.attendants).filter(attMatchesFilters);
 }
 function exportFilteredJson(){
-  const filtered=getFilteredAttendants();
-  if(!filtered.length){alert('No attendants match current filters.');return;}
+  const teamSel=el('filterTeam').value;
+  const allTeams=teamSel==='all';
+  let list=getFilteredAttendants();
+  /* no team chosen -> everybody who is assigned to one of the 4 main teams, grouped by team
+     (the Team Captain Manager sorts them into its Lobby / Cafeteria / Auditorium / Welcome tabs) */
+  if(allTeams){
+    const rank=a=>{const m=mainTeamsOf(a);return Math.min(...m.map(k=>MAIN_TEAMS.findIndex(t=>t.key===k)));};
+    list=list.filter(a=>mainTeamsOf(a).length).sort((a,b)=>rank(a)-rank(b));   /* stable: name order stays inside a team */
+  }
+  if(!list.length){alert(allTeams?'Nobody is assigned to Auditorium, Cafeteria, Lobby or Welcome (with the current filters).':'No attendants match current filters.');return;}
+  const counts=MAIN_TEAMS.map(t=>({label:t.label,n:list.filter(a=>(a.teams||[]).includes(t.key)).length}));
   const now=new Date();
-  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+  const localStamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
   const typePrefix=state.meta.eventType==='Regional Convention'?'RC':'Assembly';
-  const teamFilter=el('filterTeam').value!=='all'?`-${el('filterTeam').value}`:'';
+  const scope=allTeams?'all-teams':teamSel;
+  const note=allTeams
+    ?`All teams export: ${list.length} assigned attendants (${counts.map(c=>c.label+' '+c.n).join(' · ')})`
+    :`Filtered export: ${list.length} attendants (team ${teamLabel(teamSel)})`;
   const payload={exportedAt:now.toISOString(),app:'Attendant Department Planner',version:'2.3',
-    meta:state.meta,congregations:state.congregations,attendants:filtered,
-    exportNote:`Filtered export: ${filtered.length} attendants`};
+    meta:state.meta,congregations:state.congregations,attendants:list,
+    exportScope:allTeams?'all-teams':'team:'+teamSel,
+    teamCounts:Object.fromEntries(counts.map(c=>[c.label,c.n])),
+    exportNote:note};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`${typePrefix}${teamFilter}-filtered-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
-  flash(`Exported ${filtered.length} attendants`);
+  a.download=allTeams?`${typePrefix}-all-teams-${localStamp}.json`:`${typePrefix}-${teamSel}-filtered-${localStamp}.json`;a.click();URL.revokeObjectURL(a.href);
+  flash(allTeams?`Exported ${list.length} assigned attendants`:`Exported ${list.length} attendants`);
 }
 function exportFilteredCsv(){
   const filtered=getFilteredAttendants();
