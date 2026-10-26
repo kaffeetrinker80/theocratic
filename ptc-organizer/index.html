@@ -549,7 +549,7 @@ function showObsoleteOutlineCleanup(){
   });
 }
 function showAffected(n){const arr=state.master.people.filter(p=>!p.deleted_at&&p.talks.includes(n));modal(`<h3>Outline #${n} — affected speakers</h3><p class="small muted">${esc(outlineInfo(n)?.title||'')}</p>${arr.map(p=>{const c=state.master.congregations.find(x=>x.id===p.congregation_id);return`<div class="meeting"><b>${esc(p.name)}</b><div class="small muted">${esc(c?.name||'unassigned')}</div></div>`}).join('')||'<div class="empty">No speaker uses this outline.</div>'}`)}
-function exportOutlines(){const blob=new Blob([JSON.stringify(state.outlines,null,2)+'\n'],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='outline-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);state.outlineBaseline=clone(state.outlines);renderOutlines()}
+function exportOutlines(){const blob=new Blob([JSON.stringify(state.outlines,null,2)+'\n'],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=outlineLangInfo(outLangOf(state.outlines)).file||'outline-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);state.outlineBaseline=clone(state.outlines);renderOutlines()}
 async function ensurePdf(){if(window.pdfjsLib)return window.pdfjsLib;await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=res;s.onerror=()=>rej(new Error('Could not load PDF.js'));document.head.appendChild(s)});window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';return window.pdfjsLib}
 function linesFrom(items){const rows=[];for(const it of items){const x=it.transform?.[4]||0,y=it.transform?.[5]||0;let r=rows.find(z=>Math.abs(z.y-y)<2.2);if(!r){r={y,items:[]};rows.push(r)}r.items.push({x,s:it.str||''})}return rows.sort((a,b)=>b.y-a.y).map(r=>r.items.sort((a,b)=>a.x-b.x).map(x=>x.s).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean)}
 function parseS99(lines){const e={};let cur=null,b=[];const fin=()=>{if(cur!=null)e[String(cur)]=b.join(' ').replace(/\s+/g,' ').replace(/\s+([,;:.!?])/g,'$1').trim()};for(let l of lines){l=l.trim();if(!l||/^S-99-E\b/i.test(l)||/^Public Talk Titles$/i.test(l))continue;const m=l.match(/^(\d{1,3})\.\s+(.*)$/);if(m){fin();cur=+m[1];b=[m[2]]}else if(cur!=null&&!/^\d+$/.test(l))b.push(l)}fin();return e}
@@ -1585,4 +1585,15 @@ function initWelcome(){
 (async function init(){
   $('editorName').value=localStorage.getItem(LS_EDITOR)||'';
   try{state.openCountries=new Set(JSON.parse(localStorage.getItem(LS_OPEN)||'[]'))}catch(e){}
-  // Restore the local outline working copy immediately, then check for t
+  // Restore the local outline working copy immediately, then check for the published Git/HTTP file.
+  try{const o=readCachedOutlines();if(o){state.outlines=o;state.outlineBaseline=clone(o);renderFacts()}}catch(e){}
+  try{const m=JSON.parse(localStorage.getItem(LS_MASTER)||'null');if(m)loadMaster(m)}catch(e){}
+  initWelcome();
+  $('exportPillBtn').onclick=()=>showUnexportedReminder(false);renderExportPill();
+  await loadPublishedOutlines();
+  maybeShowWelcome();
+  if(!state.master){const b=document.createElement('button');b.className='primary';b.textContent='Create new master';b.onclick=()=>loadMaster(freshMaster());$('workspaceEmpty').append(document.createElement('br'),document.createElement('br'),b)}
+  renderSave();
+})();
+</script>
+</body></html>
