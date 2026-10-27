@@ -135,7 +135,7 @@ select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:fo
 .unexp-choice button{width:100%}
 @media(max-width:600px){.unexp-choice{grid-template-columns:1fr;gap:4px}}
 
-/* v0.10.0: datasets · v0.10.1: Pidgin (West Africa) outline titles (outline-data-pgw.json) */
+/* v0.10.0: datasets · v0.10.1: Pidgin (West Africa) outline titles (outline-data-pgw.json); master.dataset carries outlineLang so the PTC Tool loads the matching titles */
 :root{--ds-color:#c2603f}
 .ds-switch{display:inline-flex;align-items:center;gap:7px;padding:3px 4px 3px 10px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28)}
 .ds-switch .ds-dot{width:11px;height:11px;border-radius:50%;background:var(--ds-color);box-shadow:0 0 0 2px rgba(255,255,255,.85);flex:none}
@@ -225,7 +225,7 @@ function normalizeMaster(m){if(!m||typeof m!=='object')throw new Error('Invalid 
  m.circuits=Array.isArray(m.circuits)?m.circuits.map(x=>safeText(typeof x==='string'?x:(x?.name||x?.code||'')).trim()).filter(Boolean):[];for(const c of m.congregations){const val=safeText(c.circuit||'').trim();if(val&&!m.circuits.some(x=>x.toLowerCase()===val.toLowerCase()))m.circuits.push(val)}m.circuits=[...new Map(m.circuits.map(x=>[x.toLowerCase(),x])).values()].sort(safeCompare);
  // rebuild speaker_ids from people; IDs remain stable and a person belongs to one congregation only
  m.congregations.forEach(c=>c.speaker_ids=[]);m.people.forEach(p=>{if(p.deleted_at)return;const c=m.congregations.find(x=>x.id===p.congregation_id);if(c&&!c.speaker_ids.includes(p.id))c.speaker_ids.push(p.id)});return m}
-function loadMaster(obj){if(typeof welcomeIsOpen==='function'&&welcomeIsOpen())closeWelcome();let normalized;try{normalized=normalizeMaster(obj)}catch(err){throw new Error('Master migration failed: '+(err?.message||err))}normalized.dataset={code:activeCode(),label:activeDataset().label};state.master=normalized;state.selected=state.master.congregations.some(c=>c.id===state.selected)?state.selected:(state.master.congregations[0]?.id||null);state.tab='home';state.saveMode='local';state.dirty=false;try{renderAll()}catch(err){console.error('Master render failed',err);throw new Error('Master loaded, but the view could not be built: '+(err?.message||err))}save()}
+function loadMaster(obj){if(typeof welcomeIsOpen==='function'&&welcomeIsOpen())closeWelcome();let normalized;try{normalized=normalizeMaster(obj)}catch(err){throw new Error('Master migration failed: '+(err?.message||err))}normalized.dataset={code:activeCode(),label:activeDataset().label,outlineLang:outlineLang()};state.master=normalized;state.selected=state.master.congregations.some(c=>c.id===state.selected)?state.selected:(state.master.congregations[0]?.id||null);state.tab='home';state.saveMode='local';state.dirty=false;try{renderAll()}catch(err){console.error('Master render failed',err);throw new Error('Master loaded, but the view could not be built: '+(err?.message||err))}save()}
 function mergeComparable(x,type){const c=clone(x||{});delete c.speaker_ids;if(type==='person'){delete c.raw_block}return c}
 function mergeVal(v){if(v==null||v==='')return '—';if(Array.isArray(v))return v.length?v.join(', '):'—';if(typeof v==='object')return JSON.stringify(v);return String(v)}
 function mergeFlatten(obj,prefix='',out={}){if(obj==null){if(prefix)out[prefix]='';return out}if(Array.isArray(obj)){out[prefix]=obj;return out}if(typeof obj!=='object'){out[prefix]=obj;return out}for(const[k,v]of Object.entries(obj)){const key=prefix?prefix+'.'+k:k;if(v&&typeof v==='object'&&!Array.isArray(v))mergeFlatten(v,key,out);else out[key]=v}return out}
@@ -1293,12 +1293,12 @@ function showHelp(){
 }
 function modal(html,bind){$('overlay').innerHTML=`<div class="overlay"><div class="modal"><div style="display:flex;justify-content:space-between;gap:10px"><div>${html}</div><button class="ghost tiny" data-close style="align-self:flex-start">Close</button></div></div></div>`;const m=$('overlay').querySelector('.modal');$('overlay').querySelector('[data-close]').onclick=closeModal;$('overlay').querySelector('.overlay').onclick=e=>{if(e.target.classList.contains('overlay'))closeModal()};if(bind)bind(m);return m}function closeModal(){$('overlay').innerHTML=''}
 function download(name,text,type='text/plain;charset=utf-8'){name=dsTagFile(name);const b=new Blob([text],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
-function exportMaster(){if(state.master)state.master.dataset={code:activeCode(),label:activeDataset().label};download('ptc-master_'+today()+'.json',JSON.stringify(state.master,null,2),'application/json')}
-function exportCompleteBackup(){if(state.master)state.master.dataset={code:activeCode(),label:activeDataset().label};
+function exportMaster(){if(state.master)state.master.dataset={code:activeCode(),label:activeDataset().label,outlineLang:outlineLang()};download('ptc-master_'+today()+'.json',JSON.stringify(state.master,null,2),'application/json')}
+function exportCompleteBackup(){if(state.master)state.master.dataset={code:activeCode(),label:activeDataset().label,outlineLang:outlineLang()};
   const backup={
     backupType:'ptc-organizer-complete-backup',
     backupVersion:1,
-    dataset:{code:activeCode(),label:activeDataset().label},
+    dataset:{code:activeCode(),label:activeDataset().label,outlineLang:outlineLang()},
     createdAt:new Date().toISOString(),
     ptcMaster:state.master,
     outlineData:state.outlines||null
