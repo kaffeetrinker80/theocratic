@@ -977,7 +977,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.8.2</span>
+      <span class="footer-version" id="footerVersion">v.2.9.0</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1023,7 +1023,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.8.2';
+const APP_VERSION = '2.9.0';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1681,19 +1681,40 @@ function parseCsvDataset(text) {
 }
 
 const OUTLINE_CONFIG_URL = 'outline-data.json';
+/* v2.9.0: outline titles follow the language of the imported master. The PTC Organizer
+   writes it into master.dataset (outlineLang); older masters only carry the dataset code.
+   Talk numbers, revisions and statuses are the same in every language. */
+const OUTLINE_LANGS = {
+  en:  { label:'English',              file:'outline-data.json' },
+  de:  { label:'Deutsch',              file:'outline-data-de.json' },
+  pgw: { label:'Pidgin (West Africa)', file:'outline-data-pgw.json' }
+};
+const OUTLINE_LANG_BY_DATASET = { EN:'en', DE:'de', PGW:'pgw' };
+function masterOutlineLang(obj) {
+  const ds = obj && obj.dataset;
+  const lang = String(ds?.outlineLang || '').trim().toLowerCase();
+  if (OUTLINE_LANGS[lang]) return lang;
+  return OUTLINE_LANG_BY_DATASET[String(ds?.code || '').trim().toUpperCase()] || 'en';
+}
+function wantedOutlineLang() {
+  const l = state.dataset?.outlineLang;
+  return OUTLINE_LANGS[l] ? l : 'en';
+}
 const OUTLINE_DATA = {};
-let outlineConfigInfo = { loaded:false, source:'outline-data.json', updatedAt:'', error:'' };
+let outlineConfigInfo = { loaded:false, source:'outline-data.json', updatedAt:'', error:'', lang:'en', file:'outline-data.json' };
 
 function refreshOutlineDataInfo() {
   const el = document.getElementById('outlineDataInfo');
   if (!el) return;
+  const file = outlineConfigInfo.file || 'outline-data.json';
   if (!outlineConfigInfo.loaded) {
-    el.textContent = outlineConfigInfo.error ? 'outline-data.json unavailable' : 'Loading outline-data.json…';
+    el.textContent = outlineConfigInfo.error ? file + ' unavailable' : 'Loading ' + file + '…';
     el.title = outlineConfigInfo.error || '';
     return;
   }
-  const parts = ['outline-data.json loaded'];
-  if (outlineConfigInfo.source && outlineConfigInfo.source !== 'outline-data.json') parts.push(outlineConfigInfo.source);
+  const parts = [file + ' loaded · ' + (OUTLINE_LANGS[outlineConfigInfo.lang]?.label || 'English')];
+  if (outlineConfigInfo.fallback) parts.push(outlineConfigInfo.fallback);
+  if (outlineConfigInfo.source && outlineConfigInfo.source !== file) parts.push(outlineConfigInfo.source);
   if (outlineConfigInfo.updatedAt) parts.push('updated ' + outlineConfigInfo.updatedAt);
   el.textContent = parts.join(' · ');
   el.title = '';
@@ -1719,26 +1740,51 @@ function applyOutlineConfig(config) {
   });
 
   outlineConfigInfo = {
+    ...outlineConfigInfo,
     loaded: true,
-    source: typeof config.source === 'string' && config.source.trim() ? config.source.trim() : 'outline-data.json',
-    updatedAt: typeof config.updatedAt === 'string' ? config.updatedAt.trim() : '',
+    source: typeof config.source === 'string' && config.source.trim() ? config.source.trim() : (outlineConfigInfo.file || 'outline-data.json'),
+    updatedAt: typeof config.updatedAt === 'string' ? config.updatedAt.trim() : (typeof config.generatedAt === 'string' ? config.generatedAt.trim() : ''),
     error: ''
   };
   refreshOutlineDataInfo();
 }
 
+let outlineLoadSeq = 0;
 async function loadOutlineConfig() {
+  const seq = ++outlineLoadSeq;
+  const lang = wantedOutlineLang();
+  const fetchConfig = async file => {
+    const response = await fetch(file, { cache:'no-store' });
+    if (!response.ok) throw new Error(file + ': HTTP ' + response.status);
+    return response.json();
+  };
+  const file = OUTLINE_LANGS[lang].file;
+  outlineConfigInfo = { loaded:false, source:file, updatedAt:'', error:'', lang, file };
+  refreshOutlineDataInfo();
   try {
-    const response = await fetch(OUTLINE_CONFIG_URL, { cache:'no-store' });
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-    const config = await response.json();
+    let config, fallback = '';
+    try {
+      config = await fetchConfig(file);
+    } catch (err) {
+      if (lang === 'en') throw err;
+      /* a missing language file must not leave the tool without titles */
+      console.warn(err);
+      config = await fetchConfig(OUTLINE_CONFIG_URL);
+      fallback = OUTLINE_LANGS[lang].label + ' titles unavailable – English used';
+      outlineConfigInfo = { ...outlineConfigInfo, lang:'en', file:OUTLINE_CONFIG_URL };
+    }
+    if (seq !== outlineLoadSeq) return; // a newer import asked for another language meanwhile
+    outlineConfigInfo.fallback = fallback;
     applyOutlineConfig(config);
   } catch (err) {
+    if (seq !== outlineLoadSeq) return;
     outlineConfigInfo = {
       loaded: false,
-      source: 'outline-data.json',
+      source: file,
       updatedAt: '',
-      error: 'Outline data could not be loaded: ' + (err?.message || String(err))
+      error: 'Outline data could not be loaded: ' + (err?.message || String(err)),
+      lang,
+      file
     };
     refreshOutlineDataInfo();
     console.warn(outlineConfigInfo.error);
@@ -2481,6 +2527,8 @@ function parseMasterJsonDataset(obj, fileName = '') {
     importedAt: new Date().toISOString(),
     sourceFileName: fileName,
     masterRevision: obj.revision ?? null,
+    outlineLang: masterOutlineLang(obj),
+    masterDatasetLabel: String(obj.dataset?.label || ''),
     masterGeneratedAt: obj.generated_at || '',
     masterOrigin: (obj.origin && obj.origin.imported_from) || '',
     congregations,
@@ -4789,6 +4837,7 @@ function persistDataset() {
     importedAt: state.dataset.importedAt,
     source: state.dataset.source,
     sourceFileName: state.dataset.sourceFileName || '',
+    outlineLang: state.dataset.outlineLang || 'en',
     congregations: state.dataset.congregations,
     notes: state.notes,
     geoCache: state.geoCache,
@@ -4809,6 +4858,7 @@ function restoreDataset() {
       source: obj.source || 'json',
       importedAt: obj.importedAt || new Date().toISOString(),
       sourceFileName: obj.sourceFileName || '',
+      outlineLang: OUTLINE_LANGS[obj.outlineLang] ? obj.outlineLang : 'en',
       congregations: obj.congregations,
       speakers,
       warnings: []
@@ -5081,6 +5131,8 @@ function importJsonObject(obj) {
     saveNotes();
   }
   persistDataset();
+  /* v2.9.0: another master language → load the matching outline titles */
+  if (wantedOutlineLang() !== outlineConfigInfo.lang || !outlineConfigInfo.loaded) loadOutlineConfig();
   populateFilters();
   refreshStats();
   state.selectedKey = null;
@@ -5242,6 +5294,8 @@ function applyImportedDataset(dataset, previousHome, previousNotes) {
     saveHomeCongregationId();
   }
   persistDataset();
+  /* v2.9.0: another master language → load the matching outline titles */
+  if (wantedOutlineLang() !== outlineConfigInfo.lang || !outlineConfigInfo.loaded) loadOutlineConfig();
   populateFilters();
   refreshStats();
   state.selectedKey = null;
@@ -5835,7 +5889,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.8.2</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.9.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
