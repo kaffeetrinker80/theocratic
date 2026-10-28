@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<script>document.documentElement.className+=" js"+(location.protocol==="file:"?" local":"")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Winterdienst · Königreichssaal Augsburg-Oberhausen – Info</title>
+<meta name="theme-color" content="#172f4d">
+<style>
+/* ===== Einstellungen ===== */
+:root{
+  --bg:#eef3f7;--card:#fff;--text:#172033;--muted:#5f6b7e;--line:#dfe6ee;
+  --accent:#1f5f8b;--accent2:#172f4d;--soft:#f4f7fa;--ok:#2d7a4b;
+  --red:#c0392b;--blue:#1f6fc4;--green:#2d8a4e;--wa:#1f9e57;
+  --pinbg:#172f4d;--pintext:#fff;--shadow:0 8px 24px rgba(20,35,55,.08);
+  --lawbg:#fdecea;--lawtext:#8a241b;--lawline:#f5c6c0;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1722;--card:#18222f;--text:#e8eef5;--muted:#9aa7b8;--line:#263445;
+    --accent:#6fb3e6;--accent2:#0b1420;--soft:#1d2938;--ok:#5fc287;
+    --red:#ff7a6b;--blue:#6aaeff;--green:#5fc287;--wa:#2bbd6c;
+    --pinbg:#0b1420;--pintext:#fff;--shadow:0 8px 24px rgba(0,0,0,.35);
+    --lawbg:#3a1d1b;--lawtext:#ffc9c2;--lawline:#5c2b27;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+    --bg:#0f1722;--card:#18222f;--text:#e8eef5;--muted:#9aa7b8;--line:#263445;
+    --accent:#6fb3e6;--accent2:#0b1420;--soft:#1d2938;--ok:#5fc287;
+    --red:#ff7a6b;--blue:#6aaeff;--green:#5fc287;--wa:#2bbd6c;
+    --pinbg:#0b1420;--pintext:#fff;--shadow:0 8px 24px rgba(0,0,0,.35);
+    --lawbg:#3a1d1b;--lawtext:#ffc9c2;--lawline:#5c2b27;
+    color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:640px;margin:0 auto;padding:14px 14px 40px}
+a{color:var(--accent)}
+.topbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.langs{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+.themeBtn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;width:36px;height:32px;font-size:16px;cursor:pointer;padding:0}
+.langs button{border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.langs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.hero{background:var(--accent2);color:#fff;border-radius:22px;padding:22px 20px 20px;box-shadow:var(--shadow)}
+.hero .snow{font-size:30px;line-height:1}
+.hero h1{font-size:26px;line-height:1.15;margin:10px 0 8px;letter-spacing:-.01em}
+.hero .place{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 12px;margin:0 0 12px;font-weight:700;font-size:15px;line-height:1.35}
+.hero .place .addr{font-weight:400;color:#d5e3f0;font-size:14px;padding-left:1.4em}
+.hero p{margin:0;color:#d5e3f0;font-size:15.5px}
+
+.pin{margin-top:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+  border-radius:18px;padding:16px;text-align:center}
+.pin .lbl{font-size:14px;color:#cfe0ef;font-weight:600}
+.pin .num{font-size:52px;font-weight:800;letter-spacing:.14em;margin:2px 0 10px;
+  font-variant-numeric:tabular-nums;color:var(--pintext)}
+.pin .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:12px;
+  padding:12px 16px;font:inherit;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer}
+.btn.light{background:#fff;color:#172f4d}
+.btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45)}
+.btn.wa{background:var(--wa);color:#fff;width:100%;font-size:16px;padding:14px}
+.pin .hint{font-size:12.5px;color:#b9cde0;margin-top:10px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px;box-shadow:var(--shadow)}
+.card h2{font-size:18px;margin:0 0 10px;line-height:1.25}
+.card p{margin:0 0 8px}.card p:last-child{margin-bottom:0}
+.muted{color:var(--muted)}
+
+.goal{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.goal li{display:flex;gap:12px;align-items:flex-start}
+.goal .ic{flex:0 0 36px;height:36px;border-radius:11px;background:var(--soft);display:grid;place-items:center;font-size:19px}
+
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.roles{grid-template-columns:1fr}}
+.role{background:var(--soft);border-radius:14px;padding:14px}
+.role h3{margin:0 0 6px;font-size:16px}
+.role p{margin:0;font-size:14.5px}
+
+.steps{counter-reset:s;list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start}
+.steps li::before{content:counter(s);flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent);
+  color:#fff;font-weight:800;display:grid;place-items:center;font-size:14px;margin-top:1px}
+
+.areas{display:grid;gap:8px}
+.area{border-left:5px solid;border-radius:10px;background:var(--soft);padding:10px 12px}
+.area b{display:block}
+.area span{font-size:14.5px}
+.area.blue{border-color:var(--blue)}.area.red{border-color:var(--red)}.area.green{border-color:var(--green)}
+.law{font-size:14px;margin:12px 0 0;padding:11px 13px;border-radius:12px;background:var(--lawbg);color:var(--lawtext);border:1px solid var(--lawline)}
+
+.verse{border-left:4px solid var(--accent);padding:4px 0 4px 14px;margin:4px 0 12px}
+.verse q{font-size:18px;font-style:italic;quotes:none}
+.verse small{display:block;color:var(--muted);margin-top:4px;font-size:13px}
+
+footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:22px}
+.appLink{margin-top:10px;background:none;border:0;color:#fff;font:inherit;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:4px}
+.modal{position:fixed;inset:0;background:rgba(10,18,30,.55);display:none;align-items:flex-end;justify-content:center;z-index:20;padding:12px}
+.modal.show{display:flex}
+@media (min-width:600px){.modal{align-items:center}}
+.sheet{background:var(--card);color:var(--text);border-radius:20px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0));box-shadow:var(--shadow)}
+.sheet h2{margin:0 0 8px;font-size:19px}.sheet p{margin:0 0 10px}
+.os{background:var(--soft);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.os h3{margin:0 0 4px;font-size:15.5px}.os p{margin:0;font-size:14.5px}
+.btn.close{width:100%;background:var(--accent);color:#fff;margin-top:4px}
+.sr{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.t{display:none}
+#r-de:checked ~ * .t[data-l="de"],
+#r-en:checked ~ * .t[data-l="en"],
+#r-ru:checked ~ * .t[data-l="ru"],
+#r-it:checked ~ * .t[data-l="it"],
+#r-hr:checked ~ * .t[data-l="hr"]{display:inline}
+.langs label{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer}
+#r-de:checked ~ .wrap .langs label[data-l="de"],
+#r-en:checked ~ .wrap .langs label[data-l="en"],
+#r-ru:checked ~ .wrap .langs label[data-l="ru"],
+#r-it:checked ~ .wrap .langs label[data-l="it"],
+#r-hr:checked ~ .wrap .langs label[data-l="hr"]{background:var(--accent);border-color:var(--accent);color:#fff}
+#appToggle:checked ~ .modal{display:flex}
+label.appLink{display:inline-block}label.btn.close{box-sizing:border-box}
+#copyBtn,.themeBtn{display:none}
+html.js #copyBtn{display:inline-flex}html.js .themeBtn{display:inline-block}
+.urlbox{display:none;margin-top:10px;font-size:12.5px;text-align:center}
+.urlbox .url{display:block;word-break:break-all;-webkit-user-select:all;user-select:all;font-family:ui-monospace,Menlo,Consolas,monospace;padding:6px 8px;border-radius:8px}
+.urlbox.dark .url{background:rgba(255,255,255,.1);color:#e3eef8}
+.urlbox.light .url{background:var(--soft);color:var(--text)}
+.copyLink{display:none;margin:6px auto 0;border:0;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+html.js .copyLink{display:inline-block}
+.urlbox.dark .copyLink{background:rgba(255,255,255,.18);color:#fff}
+.urlbox.light .copyLink{background:var(--accent);color:#fff}
+.urlhint{margin-top:5px;opacity:.75}
+.urlbox.dark .urlhint{color:#b9cde0}.urlbox.light .urlhint{color:var(--muted)}
+html.local .urlbox,html:not(.js) .urlbox{display:block}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0));transform:translateX(-50%);
+  background:#172033;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<input type="radio" name="lng" id="r-de" class="sr" checked><input type="radio" name="lng" id="r-en" class="sr"><input type="radio" name="lng" id="r-ru" class="sr"><input type="radio" name="lng" id="r-it" class="sr"><input type="radio" name="lng" id="r-hr" class="sr"><input type="checkbox" id="appToggle" class="sr">
+<div class="wrap">
+  <div class="topbar"><div class="langs" id="langs"><label for="r-de" data-l="de">DE</label><label for="r-en" data-l="en">EN</label><label for="r-ru" data-l="ru">RU</label><label for="r-it" data-l="it">IT</label><label for="r-hr" data-l="hr">HR</label></div><button type="button" class="themeBtn" id="themeBtn"></button></div>
+
+  <header class="hero">
+    <div class="snow" aria-hidden="true">❄️</div>
+    <h1><span class="t" data-l="de">Winterdienst am Königreichssaal – mach mit!</span><span class="t" data-l="en">Winter service at the Kingdom Hall – join in!</span><span class="t" data-l="ru">Зимняя служба у Зала Царства — присоединяйтесь!</span><span class="t" data-l="it">Servizio invernale alla Sala del Regno – partecipa anche tu!</span><span class="t" data-l="hr">Zimska služba kod Dvorane Kraljevstva – pridruži se!</span></h1>
+    <div class="place">📍 <span><span class="t" data-l="de">Königreichssaal Augsburg-Oberhausen</span><span class="t" data-l="en">Kingdom Hall Augsburg-Oberhausen</span><span class="t" data-l="ru">Зал Царства Аугсбург-Оберхаузен</span><span class="t" data-l="it">Sala del Regno Augusta-Oberhausen</span><span class="t" data-l="hr">Dvorana Kraljevstva Augsburg-Oberhausen</span></span><br><span class="addr">Hirblinger Str. 99, Augsburg</span></div>
+    <p><span class="t" data-l="de">Diesen Winter soll jeder Tag von November bis März einen festen Verantwortlichen haben – und ein paar Helfer, die fest zugesagt haben.</span><span class="t" data-l="en">This winter, every day from November to March should have one responsible person – and a few helpers who have firmly signed up.</span><span class="t" data-l="ru">Этой зимой у каждого дня с ноября по март должен быть свой ответственный — и несколько помощников, которые твёрдо пообещали прийти.</span><span class="t" data-l="it">Quest’inverno ogni giorno da novembre a marzo dovrebbe avere un responsabile – e alcuni aiutanti che si sono impegnati a venire.</span><span class="t" data-l="hr">Ove zime svaki dan od studenoga do ožujka trebao bi imati jednu odgovornu osobu – i nekoliko pomagača koji su se čvrsto prijavili.</span></p>
+
+    <div class="pin">
+      <div class="lbl"><span class="t" data-l="de">Helfer-PIN zum Einloggen</span><span class="t" data-l="en">Helper PIN to log in</span><span class="t" data-l="ru">PIN для входа помощников</span><span class="t" data-l="it">PIN aiutanti per accedere</span><span class="t" data-l="hr">PIN za prijavu pomagača</span></div>
+      <div class="num" id="pinNum">86156</div>
+      <div class="row">
+        <button class="btn light" id="copyBtn" type="button">📋 <span><span class="t" data-l="de">PIN kopieren</span><span class="t" data-l="en">Copy PIN</span><span class="t" data-l="ru">Скопировать PIN</span><span class="t" data-l="it">Copia PIN</span><span class="t" data-l="hr">Kopiraj PIN</span></span></button>
+        <a class="btn ghost" id="toolBtn" href="https://kaffeetrinker80.github.io/theocratic/kh-winterservice/">➜ <span><span class="t" data-l="de">Zum Tool</span><span class="t" data-l="en">Open the tool</span><span class="t" data-l="ru">Открыть инструмент</span><span class="t" data-l="it">Apri lo strumento</span><span class="t" data-l="hr">Otvori alat</span></span></a>
+      </div>
+      <div class="urlbox dark"><span class="url">https://kaffeetrinker80.github.io/theocratic/kh-winterservice/</span><button type="button" class="copyLink" data-url="https://kaffeetrinker80.github.io/theocratic/kh-winterservice/">🔗 <span class="t" data-l="de">Link kopieren</span><span class="t" data-l="en">Copy link</span><span class="t" data-l="ru">Скопировать ссылку</span><span class="t" data-l="it">Copia link</span><span class="t" data-l="hr">Kopiraj poveznicu</span></button><div class="urlhint"><span class="t" data-l="de">Link geht nicht auf? Kopieren und im Browser einfügen.</span><span class="t" data-l="en">Link won’t open? Copy it and paste it into your browser.</span><span class="t" data-l="ru">Ссылка не открывается? Скопируйте её и вставьте в браузер.</span><span class="t" data-l="it">Il link non si apre? Copialo e incollalo nel browser.</span><span class="t" data-l="hr">Poveznica se ne otvara? Kopiraj je i zalijepi u preglednik.</span></div></div>
+      <div class="hint"><span class="t" data-l="de">Tool öffnen, PIN eingeben – fertig.</span><span class="t" data-l="en">Open the tool, enter the PIN – done.</span><span class="t" data-l="ru">Откройте инструмент, введите PIN — готово.</span><span class="t" data-l="it">Apri lo strumento, inserisci il PIN – fatto.</span><span class="t" data-l="hr">Otvori alat, upiši PIN – gotovo.</span></div>
+      <label for="appToggle" class="appLink" id="appLink">📲 <span><span class="t" data-l="de">Als App anlegen – so geht's</span><span class="t" data-l="en">Add as an app – here's how</span><span class="t" data-l="ru">Добавить как приложение — как это сделать</span><span class="t" data-l="it">Aggiungi come app – ecco come</span><span class="t" data-l="hr">Dodaj kao aplikaciju – ovako</span></span></label>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Das Ziel</span><span class="t" data-l="en">The goal</span><span class="t" data-l="ru">Цель</span><span class="t" data-l="it">L’obiettivo</span><span class="t" data-l="hr">Cilj</span></h2>
+    <ul class="goal">
+      <li><span class="ic">🙋</span><span><span class="t" data-l="de">Für jeden Tag der Saison ein Verantwortlicher – egal, wie das Wetter wird.</span><span class="t" data-l="en">One responsible person for every day of the season – whatever the weather.</span><span class="t" data-l="ru">На каждый день сезона — один ответственный, какой бы ни была погода.</span><span class="t" data-l="it">Un responsabile per ogni giorno della stagione – con qualsiasi tempo.</span><span class="t" data-l="hr">Za svaki dan sezone jedna odgovorna osoba – bez obzira na vrijeme.</span></span></li>
+      <li><span class="ic">👥</span><span><span class="t" data-l="de">Dazu am besten 4 Helfer, also rund 5 Personen pro Tag.</span><span class="t" data-l="en">Ideally 4 helpers as well, so about 5 people per day.</span><span class="t" data-l="ru">И ещё желательно 4 помощника, то есть около 5 человек в день.</span><span class="t" data-l="it">In più, possibilmente 4 aiutanti: circa 5 persone al giorno.</span><span class="t" data-l="hr">Uz to po mogućnosti 4 pomagača, dakle oko 5 osoba dnevno.</span></span></li>
+      <li><span class="ic">☀️</span><span><span class="t" data-l="de">Und wenn es am Tag dann 10 Grad hat? Glück gehabt – du hast frei.</span><span class="t" data-l="en">And if it's 10 degrees on the day? Lucky you – you have the day off.</span><span class="t" data-l="ru">А если в этот день +10? Вам повезло — у вас выходной.</span><span class="t" data-l="it">E se quel giorno ci sono 10 gradi? Che fortuna – hai la giornata libera.</span><span class="t" data-l="hr">A ako tog dana bude 10 stupnjeva? Imao si sreće – slobodan si.</span></span></li>
+    </ul>
+    <p class="muted" style="margin-top:12px"><span class="t" data-l="de">Nur in der Gruppe mitzulesen räumt keinen Schnee. Deshalb bitten wir dich: Sag im Tool aktiv für einen Tag zu.</span><span class="t" data-l="en">Just reading along in the group doesn't clear any snow. So we ask you: actively sign up for a day in the tool.</span><span class="t" data-l="ru">Если просто читать сообщения в группе, снег сам не исчезнет. Поэтому просим: запишитесь на конкретный день в инструменте.</span><span class="t" data-l="it">Leggere i messaggi nel gruppo non toglie la neve. Per questo ti chiediamo di iscriverti attivamente a un giorno nello strumento.</span><span class="t" data-l="hr">Samo čitanje poruka u grupi ne čisti snijeg. Zato te molimo: aktivno se prijavi za neki dan u alatu.</span></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Zwei Rollen</span><span class="t" data-l="en">Two roles</span><span class="t" data-l="ru">Две роли</span><span class="t" data-l="it">Due ruoli</span><span class="t" data-l="hr">Dvije uloge</span></h2>
+    <div class="roles">
+      <div class="role"><h3>⭐ <span><span class="t" data-l="de">Verantwortlicher</span><span class="t" data-l="en">Responsible person</span><span class="t" data-l="ru">Ответственный</span><span class="t" data-l="it">Responsabile</span><span class="t" data-l="hr">Odgovorna osoba</span></span></h3><p><span class="t" data-l="de">Du übernimmst einen ganzen Tag. Du behältst das Wetter im Blick, packst selbst mit an und koordinierst bei Bedarf eine kleine Gruppe. Danach meldest du „Erledigt“ oder „Kein Einsatz nötig“.</span><span class="t" data-l="en">You take a whole day. You keep an eye on the weather, lend a hand yourself and coordinate a small group if needed. Afterwards you mark it “Done” or “No action needed”.</span><span class="t" data-l="ru">Вы берёте на себя целый день: следите за погодой, сами помогаете и при необходимости координируете небольшую группу. Потом отмечаете «Выполнено» или «Не требуется».</span><span class="t" data-l="it">Ti occupi di un’intera giornata: tieni d’occhio il meteo, dai una mano tu stesso e, se serve, coordini un piccolo gruppo. Alla fine segni «Fatto» o «Nessun intervento necessario».</span><span class="t" data-l="hr">Preuzimaš cijeli dan: pratiš vrijeme, sam pomažeš i po potrebi koordiniraš malu grupu. Nakon toga označiš „Gotovo” ili „Nije potrebno”.</span></p></div>
+      <div class="role"><h3>🤝 <span><span class="t" data-l="de">Helfer</span><span class="t" data-l="en">Helper</span><span class="t" data-l="ru">Помощник</span><span class="t" data-l="it">Aiutante</span><span class="t" data-l="hr">Pomoćnik</span></span></h3><p><span class="t" data-l="de">Du sagst für einen Tag zu und wählst einen Bereich. Wird es glatt oder schneit es, kommst du und hilfst mit. Bleibt es mild, hast du frei.</span><span class="t" data-l="en">You sign up for a day and choose an area. If it gets icy or snows, you come and help. If it stays mild, you have the day off.</span><span class="t" data-l="ru">Вы записываетесь на день и выбираете зону. Если будет гололёд или снег, вы приходите и помогаете. Если тепло — у вас выходной.</span><span class="t" data-l="it">Ti iscrivi a un giorno e scegli un’area. Se ghiaccia o nevica, vieni ad aiutare. Se resta mite, hai la giornata libera.</span><span class="t" data-l="hr">Prijaviš se za dan i odabereš područje. Ako bude poledice ili snijega, dođeš i pomogneš. Ako ostane toplo, slobodan si.</span></p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">So geht's</span><span class="t" data-l="en">How it works</span><span class="t" data-l="ru">Как это работает</span><span class="t" data-l="it">Come funziona</span><span class="t" data-l="hr">Kako funkcionira</span></h2>
+    <ol class="steps">
+      <li><span class="t" data-l="de">Tool öffnen und die PIN 86156 eingeben.</span><span class="t" data-l="en">Open the tool and enter the PIN 86156.</span><span class="t" data-l="ru">Откройте инструмент и введите PIN 86156.</span><span class="t" data-l="it">Apri lo strumento e inserisci il PIN 86156.</span><span class="t" data-l="hr">Otvori alat i upiši PIN 86156.</span></li><li><span class="t" data-l="de">Einmal Namen und Versammlung eintragen.</span><span class="t" data-l="en">Enter your name and congregation once.</span><span class="t" data-l="ru">Один раз укажите имя и собрание.</span><span class="t" data-l="it">Inserisci una volta il tuo nome e la tua congregazione.</span><span class="t" data-l="hr">Jednom upiši svoje ime i skupštinu.</span></li><li><span class="t" data-l="de">Unter „Offen“ einen Tag übernehmen – oder bei einem Tag auf einen Bereich tippen und als Helfer mitmachen.</span><span class="t" data-l="en">Under “Open”, take a day – or tap an area on a day and join as a helper.</span><span class="t" data-l="ru">В разделе «Свободно» возьмите день — или нажмите на зону в нужном дне и запишитесь помощником.</span><span class="t" data-l="it">In «Liberi» prendi un giorno – oppure tocca un’area in un giorno e partecipa come aiutante.</span><span class="t" data-l="hr">Pod „Otvoreno” preuzmi dan – ili dodirni područje u nekom danu i pridruži se kao pomoćnik.</span></li><li><span class="t" data-l="de">Den Termin mit „In meinen Kalender“ übernehmen, damit du ihn nicht vergisst.</span><span class="t" data-l="en">Use “Add to my calendar” so you don't forget.</span><span class="t" data-l="ru">Нажмите «Добавить в календарь», чтобы не забыть.</span><span class="t" data-l="it">Usa «Aggiungi al calendario» per non dimenticarlo.</span><span class="t" data-l="hr">Pomoću „Dodaj u moj kalendar” spremi termin da ga ne zaboraviš.</span></li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Die Bereiche</span><span class="t" data-l="en">The areas</span><span class="t" data-l="ru">Зоны</span><span class="t" data-l="it">Le aree</span><span class="t" data-l="hr">Područja</span></h2>
+    <div class="areas">
+      <div class="area blue"><b><span class="t" data-l="de">🔵 Blau · Öffentlicher Gehweg</span><span class="t" data-l="en">🔵 Blue · Public sidewalk</span><span class="t" data-l="ru">🔵 Синяя · Общественный тротуар</span><span class="t" data-l="it">🔵 Blu · Marciapiede pubblico</span><span class="t" data-l="hr">🔵 Plavo · Javni pločnik</span></b><span><span class="t" data-l="de">Hat Vorrang – der Gehweg entlang des Grundstücks, hier gilt die gesetzliche Räumpflicht.</span><span class="t" data-l="en">Comes first – the sidewalk along the property, where the legal clearing duty applies.</span><span class="t" data-l="ru">В первую очередь — тротуар вдоль участка, здесь действует обязанность уборки по закону.</span><span class="t" data-l="it">Ha la precedenza – il marciapiede lungo la proprietà, dove vale l’obbligo di sgombero per legge.</span><span class="t" data-l="hr">Ima prednost – pločnik uz zemljište, ovdje vrijedi zakonska obveza čišćenja.</span></span></div>
+      <div class="area red"><b><span class="t" data-l="de">🔴 Rot · Gehweg &amp; Zugang auf dem Grundstück</span><span class="t" data-l="en">🔴 Red · Path &amp; entrance on the property</span><span class="t" data-l="ru">🔴 Красная · Дорожка и вход на участке</span><span class="t" data-l="it">🔴 Rosso · Vialetto e accesso nella proprietà</span><span class="t" data-l="hr">🔴 Crveno · Staza i ulaz na zemljištu</span></b><span><span class="t" data-l="de">Danach wichtig – der Weg zum Eingang muss sicher sein.</span><span class="t" data-l="en">Next in importance – the way to the entrance must be safe.</span><span class="t" data-l="ru">Затем — путь ко входу должен быть безопасным.</span><span class="t" data-l="it">Subito dopo – il percorso verso l’ingresso deve essere sicuro.</span><span class="t" data-l="hr">Odmah zatim – put do ulaza mora biti siguran.</span></span></div>
+      <div class="area green"><b><span class="t" data-l="de">🟢 Grün · Parkplatz</span><span class="t" data-l="en">🟢 Green · Parking lot</span><span class="t" data-l="ru">🟢 Зелёная · Парковка</span><span class="t" data-l="it">🟢 Verde · Parcheggio</span><span class="t" data-l="hr">🟢 Zeleno · Parkiralište</span></b><span><span class="t" data-l="de">Fahrwege und Wege vom Auto zum Fußweg – wenn genug Helfer da sind.</span><span class="t" data-l="en">Driving lanes and paths from the cars to the walkway – if there are enough helpers.</span><span class="t" data-l="ru">Проезды и дорожки от машин к тротуару — если помощников достаточно.</span><span class="t" data-l="it">Corsie e percorsi dall’auto al marciapiede – se ci sono abbastanza aiutanti.</span><span class="t" data-l="hr">Prometnice i putevi od auta do pločnika – ako ima dovoljno pomagača.</span></span></div>
+    </div>
+    <p class="law"><span class="t" data-l="de">⚖️ Räumpflicht in Augsburg (Blau): werktags bis 7:00 Uhr, sonn- und feiertags bis 8:00 Uhr geräumt und gestreut, bei weiterem Schneefall bis 20:00 Uhr wiederholen. Den Räumplan mit Bild findest du im Tool.</span><span class="t" data-l="en">⚖️ Clearing duty in Augsburg (blue): cleared and gritted by 7:00 on weekdays and by 8:00 on Sundays and holidays; if snow keeps falling, repeat until 20:00. The clearing plan with a picture is in the tool.</span><span class="t" data-l="ru">⚖️ Обязанность уборки в Аугсбурге (синяя зона): в будни очищено и посыпано до 7:00, в воскресенье и праздники — до 8:00; если снег продолжается, повторять до 20:00. План уборки с картинкой есть в инструменте.</span><span class="t" data-l="it">⚖️ Obbligo di sgombero ad Augusta (blu): sgomberato e cosparso entro le 7:00 nei feriali ed entro le 8:00 la domenica e nei festivi; se continua a nevicare, ripetere fino alle 20:00. La piantina con l’immagine è nello strumento.</span><span class="t" data-l="hr">⚖️ Obveza čišćenja u Augsburgu (plavo): radnim danom očišćeno i posuto do 7:00, nedjeljom i blagdanom do 8:00; ako i dalje pada snijeg, ponavljati do 20:00. Plan čišćenja sa slikom nalazi se u alatu.</span></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Am Wochenende</span><span class="t" data-l="en">At the weekend</span><span class="t" data-l="ru">В выходные</span><span class="t" data-l="it">Nel fine settimana</span><span class="t" data-l="hr">Vikendom</span></h2>
+    <p><span class="t" data-l="de">Samstags zur Reinigung oder sonntags zur Zusammenkunft bist du ohnehin da? Dann pack einfach zusätzlich zum Verantwortlichen mit an – trag dich dafür gern auch im Tool als Helfer ein.</span><span class="t" data-l="en">Coming anyway for cleaning on Saturday or for the meeting on Sunday? Then simply lend a hand alongside the responsible person – feel free to sign up as a helper in the tool too.</span><span class="t" data-l="ru">Вы и так придёте в субботу на уборку или в воскресенье на встречу собрания? Тогда просто помогите ответственному — и по желанию запишитесь помощником в инструменте.</span><span class="t" data-l="it">Vieni comunque il sabato per le pulizie o la domenica per l’adunanza? Allora dai semplicemente una mano insieme al responsabile – se vuoi, iscriviti anche come aiutante nello strumento.</span><span class="t" data-l="hr">Ionako dolaziš subotom na čišćenje ili nedjeljom na sastanak? Onda jednostavno pomozi uz odgovornu osobu – slobodno se u alatu upiši i kao pomoćnik.</span></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Zu seinem Wort stehen</span><span class="t" data-l="en">Keep your word</span><span class="t" data-l="ru">Держать своё слово</span><span class="t" data-l="it">Mantenere la parola</span><span class="t" data-l="hr">Držati se svoje riječi</span></h2>
+    <blockquote class="verse"><q><span class="t" data-l="de">Euer Ja soll einfach Ja bedeuten und euer Nein Nein.</span><span class="t" data-l="en">Just let your word ‘Yes’ mean yes, your ‘No’, no.</span><span class="t" data-l="ru">Пусть ваше «да» означает «да», а «нет» — «нет».</span><span class="t" data-l="it">Il vostro «sì» significhi «sì», e il vostro «no», «no».</span><span class="t" data-l="hr">Neka vaše „da” znači „da”, a vaše „ne” „ne”.</span></q><small><span class="t" data-l="de">Matthäus 5:37 (sinngemäß)</span><span class="t" data-l="en">Matthew 5:37 (paraphrased)</span><span class="t" data-l="ru">Матфея 5:37 (по смыслу)</span><span class="t" data-l="it">Matteo 5:37 (in sostanza)</span><span class="t" data-l="hr">Matej 5:37 (po smislu)</span></small></blockquote>
+    <p><span class="t" data-l="de">Wenn du zusagst, verlassen sich andere darauf. Kommt doch etwas dazwischen, gib den Tag bitte rechtzeitig im Tool zurück und sag kurz in der Gruppe Bescheid – dann kann jemand einspringen.</span><span class="t" data-l="en">When you sign up, others rely on you. If something comes up after all, please release the day in the tool in good time and let the group know – then someone can step in.</span><span class="t" data-l="ru">Когда вы записываетесь, другие на вас рассчитывают. Если всё же что-то помешает, пожалуйста, заранее освободите день в инструменте и сообщите в группе — тогда кто-то сможет вас заменить.</span><span class="t" data-l="it">Quando ti iscrivi, gli altri contano su di te. Se poi dovesse capitare un imprevisto, libera per tempo il giorno nello strumento e avvisa nel gruppo – così qualcuno potrà sostituirti.</span><span class="t" data-l="hr">Kad se prijaviš, drugi računaju na tebe. Ako ti ipak nešto iskrsne, molimo te da na vrijeme oslobodiš dan u alatu i javiš u grupi – tako netko može uskočiti.</span></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Material</span><span class="t" data-l="en">Equipment</span><span class="t" data-l="ru">Инвентарь</span><span class="t" data-l="it">Attrezzatura</span><span class="t" data-l="hr">Oprema</span></h2>
+    <p><span class="t" data-l="de">Streugut, Schneeschaufeln und weiteres Material liegen in der Gartengarage (links). Der Schlüssel ist im Keysafe – den Code findest du im Tool.</span><span class="t" data-l="en">Grit, snow shovels and other equipment are in the garden garage (left). The key is in the key safe – you'll find the code in the tool.</span><span class="t" data-l="ru">Посыпочный материал, лопаты и другой инвентарь — в садовом гараже (слева). Ключ — в сейфе для ключей, код есть в инструменте.</span><span class="t" data-l="it">Materiale antighiaccio, pale da neve e altra attrezzatura sono nel garage del giardino (a sinistra). La chiave è nella cassetta portachiavi – il codice lo trovi nello strumento.</span><span class="t" data-l="hr">Posipni materijal, lopate za snijeg i ostala oprema nalaze se u vrtnoj garaži (lijevo). Ključ je u sefu za ključeve – kod nalaziš u alatu.</span></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">WhatsApp-Gruppe</span><span class="t" data-l="en">WhatsApp group</span><span class="t" data-l="ru">Группа в WhatsApp</span><span class="t" data-l="it">Gruppo WhatsApp</span><span class="t" data-l="hr">WhatsApp grupa</span></h2>
+    <p><span class="t" data-l="de">Du bist noch nicht in unserer Winterdienst-Gruppe? Tritt gerne bei! Und kennst du jemanden, der noch nicht dabei ist? Lade ihn ein mitzuhelfen. Dort stimmen wir uns kurzfristig ab, und dort wird gefragt, wenn schnell Helfer gebraucht werden.</span><span class="t" data-l="en">Not in our winter service group yet? Feel free to join! And do you know someone who isn't in it yet? Invite them to help too. That's where we coordinate at short notice and ask when helpers are needed quickly.</span><span class="t" data-l="ru">Вы ещё не в нашей группе зимней службы? Присоединяйтесь! А если знаете кого-то, кого ещё нет в группе, пригласите его помочь. Там мы быстро договариваемся и ищем помощников, когда они срочно нужны.</span><span class="t" data-l="it">Non sei ancora nel nostro gruppo del servizio invernale? Unisciti pure! E se conosci qualcuno che non c’è ancora, invitalo a dare una mano. Lì ci accordiamo all’ultimo minuto e chiediamo aiuto quando servono aiutanti in fretta.</span><span class="t" data-l="hr">Još nisi u našoj grupi zimske službe? Slobodno se pridruži! A znaš li nekoga tko još nije u grupi? Pozovi ga da pomogne. Tamo se brzo dogovaramo i javljamo kad hitno trebaju pomagači.</span></p>
+    <a class="btn wa" id="waBtn" href="https://chat.whatsapp.com/IM07JPtcuK419hfgKqcxPK" style="margin-top:6px">💬 <span><span class="t" data-l="de">WhatsApp-Gruppe beitreten</span><span class="t" data-l="en">Join the WhatsApp group</span><span class="t" data-l="ru">Вступить в группу WhatsApp</span><span class="t" data-l="it">Unisciti al gruppo WhatsApp</span><span class="t" data-l="hr">Pridruži se WhatsApp grupi</span></span></a>
+    <div class="urlbox light"><span class="url">https://chat.whatsapp.com/IM07JPtcuK419hfgKqcxPK</span><button type="button" class="copyLink" data-url="https://chat.whatsapp.com/IM07JPtcuK419hfgKqcxPK">🔗 <span class="t" data-l="de">Link kopieren</span><span class="t" data-l="en">Copy link</span><span class="t" data-l="ru">Скопировать ссылку</span><span class="t" data-l="it">Copia link</span><span class="t" data-l="hr">Kopiraj poveznicu</span></button><div class="urlhint"><span class="t" data-l="de">Link geht nicht auf? Kopieren und im Browser einfügen.</span><span class="t" data-l="en">Link won’t open? Copy it and paste it into your browser.</span><span class="t" data-l="ru">Ссылка не открывается? Скопируйте её и вставьте в браузер.</span><span class="t" data-l="it">Il link non si apre? Copialo e incollalo nel browser.</span><span class="t" data-l="hr">Poveznica se ne otvara? Kopiraj je i zalijepi u preglednik.</span></div></div>
+    <p class="muted" style="margin-top:12px;font-size:14px"><span class="t" data-l="de">Teile diese Seite gerne weiter – je mehr Helfer, desto besser.</span><span class="t" data-l="en">Feel free to pass this page on – the more helpers, the better.</span><span class="t" data-l="ru">Смело пересылайте эту страницу — чем больше помощников, тем лучше.</span><span class="t" data-l="it">Inoltra pure questa pagina – più aiutanti ci sono, meglio è.</span><span class="t" data-l="hr">Slobodno proslijedi ovu stranicu – što više pomagača, to bolje.</span></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="t" data-l="de">Datenschutz</span><span class="t" data-l="en">Privacy</span><span class="t" data-l="ru">Защита данных</span><span class="t" data-l="it">Privacy</span><span class="t" data-l="hr">Zaštita podataka</span></h2>
+    <p class="muted"><span class="t" data-l="de">Im Tool werden nur dein Name und deine Versammlung gespeichert – auf einem Server in der EU.</span><span class="t" data-l="en">The tool only stores your name and congregation – on a server in the EU.</span><span class="t" data-l="ru">В инструменте хранятся только ваше имя и собрание — на сервере в ЕС.</span><span class="t" data-l="it">Lo strumento salva solo il tuo nome e la tua congregazione – su un server nell’UE.</span><span class="t" data-l="hr">Alat sprema samo tvoje ime i skupštinu – na poslužitelju u EU.</span></p>
+  </section>
+
+  <footer>Winterdienst · Info V1.0.9 · Made with ☕ &amp; ❄️</footer>
+</div>
+<div class="modal" id="appModal" role="dialog" aria-modal="true" aria-labelledby="appTitleEl">
+  <div class="sheet">
+    <h2 id="appTitleEl">📲 <span><span class="t" data-l="de">Als App aufs Handy</span><span class="t" data-l="en">Add it as an app</span><span class="t" data-l="ru">Как приложение на телефоне</span><span class="t" data-l="it">Come app sul telefono</span><span class="t" data-l="hr">Kao aplikacija na mobitelu</span></span></h2>
+    <p><span class="t" data-l="de">Das Tool lässt sich wie eine App auf den Startbildschirm legen. Dann ist es mit einem Tipp da – ganz ohne App Store.</span><span class="t" data-l="en">You can put the tool on your home screen like an app. Then it's just one tap away – no app store needed.</span><span class="t" data-l="ru">Инструмент можно добавить на главный экран, как приложение. Тогда он открывается одним нажатием — без магазина приложений.</span><span class="t" data-l="it">Puoi mettere lo strumento sulla schermata Home come un’app. Così è a portata di un tocco – senza app store.</span><span class="t" data-l="hr">Alat možeš staviti na početni zaslon kao aplikaciju. Tada ti je udaljen samo jedan dodir – bez trgovine aplikacija.</span></p>
+    <div class="os"><h3>🤖 Android</h3><p><span class="t" data-l="de">Tool in Chrome öffnen → oben rechts auf ⋮ tippen → „App installieren“ oder „Zum Startbildschirm hinzufügen“.</span><span class="t" data-l="en">Open the tool in Chrome → tap ⋮ at the top right → “Install app” or “Add to Home screen”.</span><span class="t" data-l="ru">Откройте инструмент в Chrome → нажмите ⋮ вверху справа → «Установить приложение» или «Добавить на главный экран».</span><span class="t" data-l="it">Apri lo strumento in Chrome → tocca ⋮ in alto a destra → «Installa app» o «Aggiungi a schermata Home».</span><span class="t" data-l="hr">Otvori alat u Chromeu → dodirni ⋮ gore desno → „Instaliraj aplikaciju” ili „Dodaj na početni zaslon”.</span></p></div>
+    <div class="os"><h3>🍏 iPhone</h3><p><span class="t" data-l="de">Tool in Safari öffnen → unten auf Teilen (□↑) tippen → „Zum Home-Bildschirm“ → „Hinzufügen“.</span><span class="t" data-l="en">Open the tool in Safari → tap Share (□↑) at the bottom → “Add to Home Screen” → “Add”.</span><span class="t" data-l="ru">Откройте инструмент в Safari → внизу нажмите «Поделиться» (□↑) → «На экран „Домой“» → «Добавить».</span><span class="t" data-l="it">Apri lo strumento in Safari → tocca Condividi (□↑) in basso → «Aggiungi alla schermata Home» → «Aggiungi».</span><span class="t" data-l="hr">Otvori alat u Safariju → dolje dodirni Dijeli (□↑) → „Dodaj na početni zaslon” → „Dodaj”.</span></p></div>
+    <p class="muted" style="font-size:14px"><span class="t" data-l="de">Wichtig: Öffnet sich das Tool zuerst in WhatsApp, über das Menü „Im Browser öffnen“ wählen. Auf dem iPhone funktioniert es nur aus Safari.</span><span class="t" data-l="en">Important: if the tool opens inside WhatsApp first, choose “Open in browser” from the menu. On iPhone it only works from Safari.</span><span class="t" data-l="ru">Важно: если инструмент сначала открылся внутри WhatsApp, выберите в меню «Открыть в браузере». На iPhone это работает только из Safari.</span><span class="t" data-l="it">Importante: se lo strumento si apre prima dentro WhatsApp, scegli «Apri nel browser» dal menu. Su iPhone funziona solo da Safari.</span><span class="t" data-l="hr">Važno: ako se alat najprije otvori unutar WhatsAppa, u izborniku odaberi „Otvori u pregledniku”. Na iPhoneu radi samo iz Safarija.</span></p>
+    <label for="appToggle" class="btn close" id="appClose"><span class="t" data-l="de">Schließen</span><span class="t" data-l="en">Close</span><span class="t" data-l="ru">Закрыть</span><span class="t" data-l="it">Chiudi</span><span class="t" data-l="hr">Zatvori</span></label>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Hier anpassen ===== */
+const PIN = "86156";
+const TOOL_URL = "https://kaffeetrinker80.github.io/theocratic/kh-winterservice/";
+const WA_LINK = "https://chat.whatsapp.com/IM07JPtcuK419hfgKqcxPK";
+
+const LANGS = {de:"DE",en:"EN",ru:"RU",it:"IT",hr:"HR"};
+const T = {
+de:{
+toLight:"Helle Ansicht",toDark:"Dunkle Ansicht",
+place:"Königreichssaal Augsburg-Oberhausen",
+title:"Winterdienst am Königreichssaal – mach mit!",
+lead:"Diesen Winter soll jeder Tag von November bis März einen festen Verantwortlichen haben – und ein paar Helfer, die fest zugesagt haben.",
+pinLabel:"Helfer-PIN zum Einloggen",copy:"PIN kopieren",copied:"PIN kopiert",openTool:"Zum Tool",
+pinHint:"Tool öffnen, PIN eingeben – fertig.",appLink:"Als App anlegen – so geht's",close:"Schließen",
+goalTitle:"Das Ziel",
+goal1:"Für jeden Tag der Saison ein Verantwortlicher – egal, wie das Wetter wird.",
+goal2:"Dazu am besten 4 Helfer, also rund 5 Personen pro Tag.",
+goal3:"Und wenn es am Tag dann 10 Grad hat? Glück gehabt – du hast frei.",
+why:"Nur in der Gruppe mitzulesen räumt keinen Schnee. Deshalb bitten wir dich: Sag im Tool aktiv für einen Tag zu.",
+rolesTitle:"Zwei Rollen",
+respTitle:"Verantwortlicher",
+respText:"Du übernimmst einen ganzen Tag. Du behältst das Wetter im Blick, packst selbst mit an und koordinierst bei Bedarf eine kleine Gruppe. Danach meldest du „Erledigt“ oder „Kein Einsatz nötig“.",
+helpTitle:"Helfer",
+helpText:"Du sagst für einen Tag zu und wählst einen Bereich. Wird es glatt oder schneit es, kommst du und hilfst mit. Bleibt es mild, hast du frei.",
+stepsTitle:"So geht's",
+s1:"Tool öffnen und die PIN 86156 eingeben.",
+s2:"Einmal Namen und Versammlung eintragen.",
+s3:"Unter „Offen“ einen Tag übernehmen – oder bei einem Tag auf einen Bereich tippen und als Helfer mitmachen.",
+s4:"Den Termin mit „In meinen Kalender“ übernehmen, damit du ihn nicht vergisst.",
+appTitle:"Als App aufs Handy",appIntro:"Das Tool lässt sich wie eine App auf den Startbildschirm legen. Dann ist es mit einem Tipp da – ganz ohne App Store.",appAndroid:"Tool in Chrome öffnen → oben rechts auf ⋮ tippen → „App installieren“ oder „Zum Startbildschirm hinzufügen“.",appIos:"Tool in Safari öffnen → unten auf Teilen (□↑) tippen → „Zum Home-Bildschirm“ → „Hinzufügen“.",appNote:"Wichtig: Öffnet sich das Tool zuerst in WhatsApp, über das Menü „Im Browser öffnen“ wählen. Auf dem iPhone funktioniert es nur aus Safari.",
+areasTitle:"Die Bereiche",
+redT:"🔴 Rot · Gehweg & Zugang auf dem Grundstück",redX:"Danach wichtig – der Weg zum Eingang muss sicher sein.",
+blueT:"🔵 Blau · Öffentlicher Gehweg",blueX:"Hat Vorrang – der Gehweg entlang des Grundstücks, hier gilt die gesetzliche Räumpflicht.",
+greenT:"🟢 Grün · Parkplatz",greenX:"Fahrwege und Wege vom Auto zum Fußweg – wenn genug Helfer da sind.",
+law:"⚖️ Räumpflicht in Augsburg (Blau): werktags bis 7:00 Uhr, sonn- und feiertags bis 8:00 Uhr geräumt und gestreut, bei weiterem Schneefall bis 20:00 Uhr wiederholen. Den Räumplan mit Bild findest du im Tool.",
+wkTitle:"Am Wochenende",
+wkText:"Samstags zur Reinigung oder sonntags zur Zusammenkunft bist du ohnehin da? Dann pack einfach zusätzlich zum Verantwortlichen mit an – trag dich dafür gern auch im Tool als Helfer ein.",
+wordTitle:"Zu seinem Wort stehen",
+verse:"Euer Ja soll einfach Ja bedeuten und euer Nein Nein.",verseRef:"Matthäus 5:37 (sinngemäß)",
+wordText:"Wenn du zusagst, verlassen sich andere darauf. Kommt doch etwas dazwischen, gib den Tag bitte rechtzeitig im Tool zurück und sag kurz in der Gruppe Bescheid – dann kann jemand einspringen.",
+matTitle:"Material",
+matText:"Streugut, Schneeschaufeln und weiteres Material liegen in der Gartengarage (links). Der Schlüssel ist im Keysafe – den Code findest du im Tool.",
+grpTitle:"WhatsApp-Gruppe",
+grpText:"Du bist noch nicht in unserer Winterdienst-Gruppe? Tritt gerne bei! Und kennst du jemanden, der noch nicht dabei ist? Lade ihn ein mitzuhelfen. Dort stimmen wir uns kurzfristig ab, und dort wird gefragt, wenn schnell Helfer gebraucht werden.",
+grpBtn:"WhatsApp-Gruppe beitreten",
+share:"Teile diese Seite gerne weiter – je mehr Helfer, desto besser.",
+privTitle:"Datenschutz",
+privText:"Im Tool werden nur dein Name und deine Versammlung gespeichert – auf einem Server in der EU."
+},
+en:{
+toLight:"Light view",toDark:"Dark view",
+place:"Kingdom Hall Augsburg-Oberhausen",
+title:"Winter service at the Kingdom Hall – join in!",
+lead:"This winter, every day from November to March should have one responsible person – and a few helpers who have firmly signed up.",
+pinLabel:"Helper PIN to log in",copy:"Copy PIN",copied:"PIN copied",openTool:"Open the tool",
+pinHint:"Open the tool, enter the PIN – done.",appLink:"Add as an app – here's how",close:"Close",
+goalTitle:"The goal",
+goal1:"One responsible person for every day of the season – whatever the weather.",
+goal2:"Ideally 4 helpers as well, so about 5 people per day.",
+goal3:"And if it's 10 degrees on the day? Lucky you – you have the day off.",
+why:"Just reading along in the group doesn't clear any snow. So we ask you: actively sign up for a day in the tool.",
+rolesTitle:"Two roles",
+respTitle:"Responsible person",
+respText:"You take a whole day. You keep an eye on the weather, lend a hand yourself and coordinate a small group if needed. Afterwards you mark it “Done” or “No action needed”.",
+helpTitle:"Helper",
+helpText:"You sign up for a day and choose an area. If it gets icy or snows, you come and help. If it stays mild, you have the day off.",
+stepsTitle:"How it works",
+s1:"Open the tool and enter the PIN 86156.",
+s2:"Enter your name and congregation once.",
+s3:"Under “Open”, take a day – or tap an area on a day and join as a helper.",
+s4:"Use “Add to my calendar” so you don't forget.",
+appTitle:"Add it as an app",appIntro:"You can put the tool on your home screen like an app. Then it's just one tap away – no app store needed.",appAndroid:"Open the tool in Chrome → tap ⋮ at the top right → “Install app” or “Add to Home screen”.",appIos:"Open the tool in Safari → tap Share (□↑) at the bottom → “Add to Home Screen” → “Add”.",appNote:"Important: if the tool opens inside WhatsApp first, choose “Open in browser” from the menu. On iPhone it only works from Safari.",
+areasTitle:"The areas",
+redT:"🔴 Red · Path & entrance on the property",redX:"Next in importance – the way to the entrance must be safe.",
+blueT:"🔵 Blue · Public sidewalk",blueX:"Comes first – the sidewalk along the property, where the legal clearing duty applies.",
+greenT:"🟢 Green · Parking lot",greenX:"Driving lanes and paths from the cars to the walkway – if there are enough helpers.",
+law:"⚖️ Clearing duty in Augsburg (blue): cleared and gritted by 7:00 on weekdays and by 8:00 on Sundays and holidays; if snow keeps falling, repeat until 20:00. The clearing plan with a picture is in the tool.",
+wkTitle:"At the weekend",
+wkText:"Coming anyway for cleaning on Saturday or for the meeting on Sunday? Then simply lend a hand alongside the responsible person – feel free to sign up as a helper in the tool too.",
+wordTitle:"Keep your word",
+verse:"Just let your word ‘Yes’ mean yes, your ‘No’, no.",verseRef:"Matthew 5:37 (paraphrased)",
+wordText:"When you sign up, others rely on you. If something comes up after all, please release the day in the tool in good time and let the group know – then someone can step in.",
+matTitle:"Equipment",
+matText:"Grit, snow shovels and other equipment are in the garden garage (left). The key is in the key safe – you'll find the code in the tool.",
+grpTitle:"WhatsApp group",
+grpText:"Not in our winter service group yet? Feel free to join! And do you know someone who isn't in it yet? Invite them to help too. That's where we coordinate at short notice and ask when helpers are needed quickly.",
+grpBtn:"Join the WhatsApp group",
+share:"Feel free to pass this page on – the more helpers, the better.",
+privTitle:"Privacy",
+privText:"The tool only stores your name and congregation – on a server in the EU."
+},
+ru:{
+toLight:"Светлая тема",toDark:"Тёмная тема",
+place:"Зал Царства Аугсбург-Оберхаузен",
+title:"Зимняя служба у Зала Царства — присоединяйтесь!",
+lead:"Этой зимой у каждого дня с ноября по март должен быть свой ответственный — и несколько помощников, которые твёрдо пообещали прийти.",
+pinLabel:"PIN для входа помощников",copy:"Скопировать PIN",copied:"PIN скопирован",openTool:"Открыть инструмент",
+pinHint:"Откройте инструмент, введите PIN — готово.",appLink:"Добавить как приложение — как это сделать",close:"Закрыть",
+goalTitle:"Цель",
+goal1:"На каждый день сезона — один ответственный, какой бы ни была погода.",
+goal2:"И ещё желательно 4 помощника, то есть около 5 человек в день.",
+goal3:"А если в этот день +10? Вам повезло — у вас выходной.",
+why:"Если просто читать сообщения в группе, снег сам не исчезнет. Поэтому просим: запишитесь на конкретный день в инструменте.",
+rolesTitle:"Две роли",
+respTitle:"Ответственный",
+respText:"Вы берёте на себя целый день: следите за погодой, сами помогаете и при необходимости координируете небольшую группу. Потом отмечаете «Выполнено» или «Не требуется».",
+helpTitle:"Помощник",
+helpText:"Вы записываетесь на день и выбираете зону. Если будет гололёд или снег, вы приходите и помогаете. Если тепло — у вас выходной.",
+stepsTitle:"Как это работает",
+s1:"Откройте инструмент и введите PIN 86156.",
+s2:"Один раз укажите имя и собрание.",
+s3:"В разделе «Свободно» возьмите день — или нажмите на зону в нужном дне и запишитесь помощником.",
+s4:"Нажмите «Добавить в календарь», чтобы не забыть.",
+appTitle:"Как приложение на телефоне",appIntro:"Инструмент можно добавить на главный экран, как приложение. Тогда он открывается одним нажатием — без магазина приложений.",appAndroid:"Откройте инструмент в Chrome → нажмите ⋮ вверху справа → «Установить приложение» или «Добавить на главный экран».",appIos:"Откройте инструмент в Safari → внизу нажмите «Поделиться» (□↑) → «На экран „Домой“» → «Добавить».",appNote:"Важно: если инструмент сначала открылся внутри WhatsApp, выберите в меню «Открыть в браузере». На iPhone это работает только из Safari.",
+areasTitle:"Зоны",
+redT:"🔴 Красная · Дорожка и вход на участке",redX:"Затем — путь ко входу должен быть безопасным.",
+blueT:"🔵 Синяя · Общественный тротуар",blueX:"В первую очередь — тротуар вдоль участка, здесь действует обязанность уборки по закону.",
+greenT:"🟢 Зелёная · Парковка",greenX:"Проезды и дорожки от машин к тротуару — если помощников достаточно.",
+law:"⚖️ Обязанность уборки в Аугсбурге (синяя зона): в будни очищено и посыпано до 7:00, в воскресенье и праздники — до 8:00; если снег продолжается, повторять до 20:00. План уборки с картинкой есть в инструменте.",
+wkTitle:"В выходные",
+wkText:"Вы и так придёте в субботу на уборку или в воскресенье на встречу собрания? Тогда просто помогите ответственному — и по желанию запишитесь помощником в инструменте.",
+wordTitle:"Держать своё слово",
+verse:"Пусть ваше «да» означает «да», а «нет» — «нет».",verseRef:"Матфея 5:37 (по смыслу)",
+wordText:"Когда вы записываетесь, другие на вас рассчитывают. Если всё же что-то помешает, пожалуйста, заранее освободите день в инструменте и сообщите в группе — тогда кто-то сможет вас заменить.",
+matTitle:"Инвентарь",
+matText:"Посыпочный материал, лопаты и другой инвентарь — в садовом гараже (слева). Ключ — в сейфе для ключей, код есть в инструменте.",
+grpTitle:"Группа в WhatsApp",
+grpText:"Вы ещё не в нашей группе зимней службы? Присоединяйтесь! А если знаете кого-то, кого ещё нет в группе, пригласите его помочь. Там мы быстро договариваемся и ищем помощников, когда они срочно нужны.",
+grpBtn:"Вступить в группу WhatsApp",
+share:"Смело пересылайте эту страницу — чем больше помощников, тем лучше.",
+privTitle:"Защита данных",
+privText:"В инструменте хранятся только ваше имя и собрание — на сервере в ЕС."
+},
+it:{
+toLight:"Vista chiara",toDark:"Vista scura",
+place:"Sala del Regno Augusta-Oberhausen",
+title:"Servizio invernale alla Sala del Regno – partecipa anche tu!",
+lead:"Quest’inverno ogni giorno da novembre a marzo dovrebbe avere un responsabile – e alcuni aiutanti che si sono impegnati a venire.",
+pinLabel:"PIN aiutanti per accedere",copy:"Copia PIN",copied:"PIN copiato",openTool:"Apri lo strumento",
+pinHint:"Apri lo strumento, inserisci il PIN – fatto.",appLink:"Aggiungi come app – ecco come",close:"Chiudi",
+goalTitle:"L’obiettivo",
+goal1:"Un responsabile per ogni giorno della stagione – con qualsiasi tempo.",
+goal2:"In più, possibilmente 4 aiutanti: circa 5 persone al giorno.",
+goal3:"E se quel giorno ci sono 10 gradi? Che fortuna – hai la giornata libera.",
+why:"Leggere i messaggi nel gruppo non toglie la neve. Per questo ti chiediamo di iscriverti attivamente a un giorno nello strumento.",
+rolesTitle:"Due ruoli",
+respTitle:"Responsabile",
+respText:"Ti occupi di un’intera giornata: tieni d’occhio il meteo, dai una mano tu stesso e, se serve, coordini un piccolo gruppo. Alla fine segni «Fatto» o «Nessun intervento necessario».",
+helpTitle:"Aiutante",
+helpText:"Ti iscrivi a un giorno e scegli un’area. Se ghiaccia o nevica, vieni ad aiutare. Se resta mite, hai la giornata libera.",
+stepsTitle:"Come funziona",
+s1:"Apri lo strumento e inserisci il PIN 86156.",
+s2:"Inserisci una volta il tuo nome e la tua congregazione.",
+s3:"In «Liberi» prendi un giorno – oppure tocca un’area in un giorno e partecipa come aiutante.",
+s4:"Usa «Aggiungi al calendario» per non dimenticarlo.",
+appTitle:"Come app sul telefono",appIntro:"Puoi mettere lo strumento sulla schermata Home come un’app. Così è a portata di un tocco – senza app store.",appAndroid:"Apri lo strumento in Chrome → tocca ⋮ in alto a destra → «Installa app» o «Aggiungi a schermata Home».",appIos:"Apri lo strumento in Safari → tocca Condividi (□↑) in basso → «Aggiungi alla schermata Home» → «Aggiungi».",appNote:"Importante: se lo strumento si apre prima dentro WhatsApp, scegli «Apri nel browser» dal menu. Su iPhone funziona solo da Safari.",
+areasTitle:"Le aree",
+redT:"🔴 Rosso · Vialetto e accesso nella proprietà",redX:"Subito dopo – il percorso verso l’ingresso deve essere sicuro.",
+blueT:"🔵 Blu · Marciapiede pubblico",blueX:"Ha la precedenza – il marciapiede lungo la proprietà, dove vale l’obbligo di sgombero per legge.",
+greenT:"🟢 Verde · Parcheggio",greenX:"Corsie e percorsi dall’auto al marciapiede – se ci sono abbastanza aiutanti.",
+law:"⚖️ Obbligo di sgombero ad Augusta (blu): sgomberato e cosparso entro le 7:00 nei feriali ed entro le 8:00 la domenica e nei festivi; se continua a nevicare, ripetere fino alle 20:00. La piantina con l’immagine è nello strumento.",
+wkTitle:"Nel fine settimana",
+wkText:"Vieni comunque il sabato per le pulizie o la domenica per l’adunanza? Allora dai semplicemente una mano insieme al responsabile – se vuoi, iscriviti anche come aiutante nello strumento.",
+wordTitle:"Mantenere la parola",
+verse:"Il vostro «sì» significhi «sì», e il vostro «no», «no».",verseRef:"Matteo 5:37 (in sostanza)",
+wordText:"Quando ti iscrivi, gli altri contano su di te. Se poi dovesse capitare un imprevisto, libera per tempo il giorno nello strumento e avvisa nel gruppo – così qualcuno potrà sostituirti.",
+matTitle:"Attrezzatura",
+matText:"Materiale antighiaccio, pale da neve e altra attrezzatura sono nel garage del giardino (a sinistra). La chiave è nella cassetta portachiavi – il codice lo trovi nello strumento.",
+grpTitle:"Gruppo WhatsApp",
+grpText:"Non sei ancora nel nostro gruppo del servizio invernale? Unisciti pure! E se conosci qualcuno che non c’è ancora, invitalo a dare una mano. Lì ci accordiamo all’ultimo minuto e chiediamo aiuto quando servono aiutanti in fretta.",
+grpBtn:"Unisciti al gruppo WhatsApp",
+share:"Inoltra pure questa pagina – più aiutanti ci sono, meglio è.",
+privTitle:"Privacy",
+privText:"Lo strumento salva solo il tuo nome e la tua congregazione – su un server nell’UE."
+},
+hr:{
+toLight:"Svijetli prikaz",toDark:"Tamni prikaz",
+place:"Dvorana Kraljevstva Augsburg-Oberhausen",
+title:"Zimska služba kod Dvorane Kraljevstva – pridruži se!",
+lead:"Ove zime svaki dan od studenoga do ožujka trebao bi imati jednu odgovornu osobu – i nekoliko pomagača koji su se čvrsto prijavili.",
+pinLabel:"PIN za prijavu pomagača",copy:"Kopiraj PIN",copied:"PIN kopiran",openTool:"Otvori alat",
+pinHint:"Otvori alat, upiši PIN – gotovo.",appLink:"Dodaj kao aplikaciju – ovako",close:"Zatvori",
+goalTitle:"Cilj",
+goal1:"Za svaki dan sezone jedna odgovorna osoba – bez obzira na vrijeme.",
+goal2:"Uz to po mogućnosti 4 pomagača, dakle oko 5 osoba dnevno.",
+goal3:"A ako tog dana bude 10 stupnjeva? Imao si sreće – slobodan si.",
+why:"Samo čitanje poruka u grupi ne čisti snijeg. Zato te molimo: aktivno se prijavi za neki dan u alatu.",
+rolesTitle:"Dvije uloge",
+respTitle:"Odgovorna osoba",
+respText:"Preuzimaš cijeli dan: pratiš vrijeme, sam pomažeš i po potrebi koordiniraš malu grupu. Nakon toga označiš „Gotovo” ili „Nije potrebno”.",
+helpTitle:"Pomoćnik",
+helpText:"Prijaviš se za dan i odabereš područje. Ako bude poledice ili snijega, dođeš i pomogneš. Ako ostane toplo, slobodan si.",
+stepsTitle:"Kako funkcionira",
+s1:"Otvori alat i upiši PIN 86156.",
+s2:"Jednom upiši svoje ime i skupštinu.",
+s3:"Pod „Otvoreno” preuzmi dan – ili dodirni područje u nekom danu i pridruži se kao pomoćnik.",
+s4:"Pomoću „Dodaj u moj kalendar” spremi termin da ga ne zaboraviš.",
+appTitle:"Kao aplikacija na mobitelu",appIntro:"Alat možeš staviti na početni zaslon kao aplikaciju. Tada ti je udaljen samo jedan dodir – bez trgovine aplikacija.",appAndroid:"Otvori alat u Chromeu → dodirni ⋮ gore desno → „Instaliraj aplikaciju” ili „Dodaj na početni zaslon”.",appIos:"Otvori alat u Safariju → dolje dodirni Dijeli (□↑) → „Dodaj na početni zaslon” → „Dodaj”.",appNote:"Važno: ako se alat najprije otvori unutar WhatsAppa, u izborniku odaberi „Otvori u pregledniku”. Na iPhoneu radi samo iz Safarija.",
+areasTitle:"Područja",
+redT:"🔴 Crveno · Staza i ulaz na zemljištu",redX:"Odmah zatim – put do ulaza mora biti siguran.",
+blueT:"🔵 Plavo · Javni pločnik",blueX:"Ima prednost – pločnik uz zemljište, ovdje vrijedi zakonska obveza čišćenja.",
+greenT:"🟢 Zeleno · Parkiralište",greenX:"Prometnice i putevi od auta do pločnika – ako ima dovoljno pomagača.",
+law:"⚖️ Obveza čišćenja u Augsburgu (plavo): radnim danom očišćeno i posuto do 7:00, nedjeljom i blagdanom do 8:00; ako i dalje pada snijeg, ponavljati do 20:00. Plan čišćenja sa slikom nalazi se u alatu.",
+wkTitle:"Vikendom",
+wkText:"Ionako dolaziš subotom na čišćenje ili nedjeljom na sastanak? Onda jednostavno pomozi uz odgovornu osobu – slobodno se u alatu upiši i kao pomoćnik.",
+wordTitle:"Držati se svoje riječi",
+verse:"Neka vaše „da” znači „da”, a vaše „ne” „ne”.",verseRef:"Matej 5:37 (po smislu)",
+wordText:"Kad se prijaviš, drugi računaju na tebe. Ako ti ipak nešto iskrsne, molimo te da na vrijeme oslobodiš dan u alatu i javiš u grupi – tako netko može uskočiti.",
+matTitle:"Oprema",
+matText:"Posipni materijal, lopate za snijeg i ostala oprema nalaze se u vrtnoj garaži (lijevo). Ključ je u sefu za ključeve – kod nalaziš u alatu.",
+grpTitle:"WhatsApp grupa",
+grpText:"Još nisi u našoj grupi zimske službe? Slobodno se pridruži! A znaš li nekoga tko još nije u grupi? Pozovi ga da pomogne. Tamo se brzo dogovaramo i javljamo kad hitno trebaju pomagači.",
+grpBtn:"Pridruži se WhatsApp grupi",
+share:"Slobodno proslijedi ovu stranicu – što više pomagača, to bolje.",
+privTitle:"Zaštita podataka",
+privText:"Alat sprema samo tvoje ime i skupštinu – na poslužitelju u EU."
+}
+};
+
+/* ===== Logik ===== */
+const $=id=>document.getElementById(id);
+function detect(){
+  try{const s=localStorage.getItem("winter_info_lang");if(s&&T[s])return s}catch(e){}
+  const list=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||"de"]);
+  for(const l of list){const c=String(l).slice(0,2).toLowerCase();
+    if(T[c])return c;
+    if(c==="bs"||c==="sr")return "hr";
+    if(c==="uk"||c==="be")return "ru";}
+  return "de";
+}
+let lang=detect();
+function render(){
+  const d=T[lang];
+  document.documentElement.lang=lang;
+  document.title=d.title+" · "+d.place;
+  const r=$("r-"+lang);if(r)r.checked=true;
+  updThemeBtn();
+}
+document.querySelectorAll('input[name="lng"]').forEach(r=>r.addEventListener("change",()=>{lang=r.id.slice(2);try{localStorage.setItem("winter_info_lang",lang)}catch(e){}render()}));
+/* Hell/Dunkel: ohne gespeicherte Wahl wie das Handy */
+const mq=window.matchMedia?matchMedia("(prefers-color-scheme: dark)"):null;
+function savedTheme(){try{return localStorage.getItem("winter_info_theme")}catch(e){return null}}
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==="dark":!!(mq&&mq.matches)}
+function applyTheme(t){if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme;updThemeBtn()}
+function updThemeBtn(){const d=isDark();const b=$("themeBtn");b.textContent=d?"☀️":"🌙";b.title=b.ariaLabel=T[lang][d?"toLight":"toDark"];
+  document.querySelector('meta[name="theme-color"]').content=d?"#0b1420":"#172f4d"}
+$("themeBtn").onclick=()=>{const t=isDark()?"light":"dark";try{localStorage.setItem("winter_info_theme",t)}catch(e){}applyTheme(t)};
+if(mq&&mq.addEventListener)mq.addEventListener("change",()=>{if(!savedTheme())updThemeBtn()});
+$("appModal").onclick=e=>{if(e.target.id==="appModal")$("appToggle").checked=false};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("appToggle").checked=false});
+if(/^https:\/\//.test(WA_LINK)){$("waBtn").href=WA_LINK}else{$("waBtn").style.display="none"}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1800)}
+async function copyText(t){try{await navigator.clipboard.writeText(t);return}catch(e){}
+  const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+  try{document.execCommand("copy")}catch(_){}ta.remove()}
+const LINK_DONE={"de": "Link kopiert", "en": "Link copied", "ru": "Ссылка скопирована", "it": "Link copiato", "hr": "Poveznica kopirana"};
+document.querySelectorAll(".copyLink").forEach(b=>b.onclick=async()=>{await copyText(b.dataset.url);toast("✓ "+LINK_DONE[lang])});
+$("copyBtn").onclick=async()=>{
+  try{await navigator.clipboard.writeText(PIN)}catch(e){
+    const ta=document.createElement("textarea");ta.value=PIN;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy")}catch(_){}ta.remove();}
+  toast("✓ "+T[lang].copied);
+};
+applyTheme(savedTheme());
+render();
+</script>
+</body>
+</html>
