@@ -2,8 +2,9 @@
   "name": "PTC Tool",
   "short_name": "PTC Tool",
   "description": "Public Talks Coordination Tool for congregations and speakers.",
-  "start_url": "./",
-  "scope": "/PTC-tool/",
+"id": "/theocratic/ptc-tool/",
+ "start_url": "./",
+"scope": "./"
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f6f2ea",
