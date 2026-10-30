@@ -1,9 +1,9 @@
 {
   "name": "Congregation Volunteers",
-  "short_name": "Volunteers List",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
+  "short_name": "Congregation Volunteers",
+  "id": "/theocratic/congregation-volunteers/",
+  "start_url": "/theocratic/congregation-volunteers/",
+  "scope": "/theocratic/congregation-volunteers/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f6fa",
@@ -27,5 +27,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Organize helpers for larger theocratic gatherings."
 }
