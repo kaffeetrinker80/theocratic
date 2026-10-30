@@ -1,9 +1,9 @@
 {
-  "name": "Convention Chart",
-  "short_name": "Chart-Tool",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
+  "name": "Regional Convention Chart",
+  "short_name": "Convention Chart",
+  "id": "/theocratic/convention-chart/",
+  "start_url": "/theocratic/convention-chart/",
+  "scope": "/theocratic/convention-chart/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f6fa",
@@ -27,5 +27,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Professional overview of Convention departments and assignments"
 }
