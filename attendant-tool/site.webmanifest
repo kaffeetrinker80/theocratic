@@ -2,7 +2,7 @@
   "name": "Attendant Department Planner",
   "short_name": "Attendant Tool",
   "description": "Organizing Attendants during Assemblies & Regional Conventions",
-  "id": "./",
+  "id": "/theocratic/attendant-tool/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
