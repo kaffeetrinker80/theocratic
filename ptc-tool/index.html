@@ -977,7 +977,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.9.0</span>
+      <span class="footer-version" id="footerVersion">v.2.9.1</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1023,7 +1023,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.9.0';
+const APP_VERSION = '2.9.1';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1715,7 +1715,7 @@ function refreshOutlineDataInfo() {
   const parts = [file + ' loaded · ' + (OUTLINE_LANGS[outlineConfigInfo.lang]?.label || 'English')];
   if (outlineConfigInfo.fallback) parts.push(outlineConfigInfo.fallback);
   if (outlineConfigInfo.source && outlineConfigInfo.source !== file) parts.push(outlineConfigInfo.source);
-  if (outlineConfigInfo.updatedAt) parts.push('updated ' + outlineConfigInfo.updatedAt);
+  if (outlineConfigInfo.updatedAt) parts.push('updated ' + formatDateLabel(outlineConfigInfo.updatedAt));
   el.textContent = parts.join(' · ');
   el.title = '';
 }
@@ -2621,11 +2621,12 @@ function distanceLabelForCong(cong, mode = currentDistanceMode()) {
   return km === 0 ? 'Home congregation' : km.toFixed(1) + ' km' + distanceUnitSuffix(mode);
 }
 
+/* v2.9.1: dates are always shown as DD.MM.YYYY, as used in Germany. toLocaleDateString()
+   followed the browser language, so the same date read differently on every machine. */
 function formatDateLabel(value) {
   if (!value) return '';
-  const d = new Date(value + 'T00:00:00');
-  if (isNaN(d.getTime())) return value;
-  return d.toLocaleDateString();
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value).trim());
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : String(value);
 }
 
 function daysSince(value) {
@@ -3067,7 +3068,7 @@ function congFieldChanges(before, after) {
     ['COBE phone', c => String(c.cobePhone || '').replace(/^([mh])\s*:\s*/i, '')],
     ['COBE e-mail', c => c.cobeEmail || ''],
     ['Temporary venue', c => c.temporaryVenue
-      ? [c.temporaryVenue.address, c.temporaryVenue.validFrom, c.temporaryVenue.validTo, c.temporaryVenue.reason].filter(Boolean).join(' · ')
+      ? [c.temporaryVenue.address, c.temporaryVenue.validFrom && 'from ' + formatDateLabel(c.temporaryVenue.validFrom), c.temporaryVenue.validTo && 'until ' + formatDateLabel(c.temporaryVenue.validTo), c.temporaryVenue.reason].filter(Boolean).join(' · ')
       : '']
   ];
   const out = [];
@@ -4508,13 +4509,13 @@ function renderDetail() {
   const factStrip = `
     <div class="detail-section cong-strip">
       <div class="cong-strip-facts">
-        <div class="strip-fact"><span class="meta-label">Meeting</span><b>${escapeHtml(cong.meetingRaw || '&mdash;')}</b></div>
-        <div class="strip-fact"><span class="meta-label">Circuit</span><b>${escapeHtml(cong.circuit || '&mdash;')}</b></div>
-        <div class="strip-fact"><span class="meta-label">Distance</span><b>${escapeHtml(distanceLabelForCong(cong) || '&mdash;')}</b></div>
+        <div class="strip-fact"><span class="meta-label">Meeting</span><b>${((__v => __v ? escapeHtml(__v) : '&mdash;')(cong.meetingRaw))}</b></div>
+        <div class="strip-fact"><span class="meta-label">Circuit</span><b>${((__v => __v ? escapeHtml(__v) : '&mdash;')(cong.circuit))}</b></div>
+        <div class="strip-fact"><span class="meta-label">Distance</span><b>${((__v => __v ? escapeHtml(__v) : '&mdash;')(distanceLabelForCong(cong)))}</b></div>
         <div class="strip-fact"><span class="meta-label">Congregation</span><b>${elderCount} elders &middot; ${msCount} MS &middot; ${allOutlines.length} outlines</b></div>
-        <div class="strip-fact strip-address"><span class="meta-label">Address</span><b>${escapeHtml(address || '&mdash;')}</b></div>
+        <div class="strip-fact strip-address"><span class="meta-label">Address</span><b>${((__v => __v ? escapeHtml(__v) : '&mdash;')(address))}</b></div>
       </div>
-      ${cong.temporaryVenue ? `<div class="notice" style="margin-top:12px"><b>Temporary venue</b><br>${escapeHtml(cong.temporaryVenue.address || 'Address not set')}${(cong.temporaryVenue.validFrom || cong.temporaryVenue.validTo) ? `<br><span class="small subtle">${escapeHtml([cong.temporaryVenue.validFrom ? 'from ' + cong.temporaryVenue.validFrom : '', cong.temporaryVenue.validTo ? 'until ' + cong.temporaryVenue.validTo : ''].filter(Boolean).join(' &middot; '))}</span>` : ''}${cong.temporaryVenue.reason ? `<br><span class="small subtle">${escapeHtml(cong.temporaryVenue.reason)}</span>` : ''}</div>` : ''}
+      ${cong.temporaryVenue ? `<div class="notice" style="margin-top:12px"><b>Temporary venue</b><br>${escapeHtml(cong.temporaryVenue.address || 'Address not set')}${(cong.temporaryVenue.validFrom || cong.temporaryVenue.validTo) ? `<br><span class="small subtle">${escapeHtml([cong.temporaryVenue.validFrom ? 'from ' + formatDateLabel(cong.temporaryVenue.validFrom) : '', cong.temporaryVenue.validTo ? 'until ' + formatDateLabel(cong.temporaryVenue.validTo) : ''].filter(Boolean).join(' · '))}</span>` : ''}${cong.temporaryVenue.reason ? `<br><span class="small subtle">${escapeHtml(cong.temporaryVenue.reason)}</span>` : ''}</div>` : ''}
       <div class="links">
         <a class="chip" href="${mapUrl(cong)}" target="_blank" rel="noreferrer">Open hall in Google Maps</a>
         ${cong.hallPhone ? `<a class="chip" href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>Hall ${escapeHtml(cong.hallPhone)}</a>` : ''}
@@ -4552,10 +4553,10 @@ function renderDetail() {
       <div class="detail-section">
         <h3>Congregation data</h3>
         <div class="meta">
-          <div class="meta-item span-2"><div class="meta-label">Address</div><div>${escapeHtml(address || '&mdash;')}</div></div>
-          <div class="meta-item"><div class="meta-label">Meeting time</div><div>${escapeHtml(cong.meetingRaw || '&mdash;')}</div></div>
-          <div class="meta-item"><div class="meta-label">Circuit</div><div>${escapeHtml(cong.circuit || '&mdash;')}</div></div>
-          <div class="meta-item"><div class="meta-label">Distance</div><div>${escapeHtml(distanceLabelForCong(cong) || '&mdash;')}</div></div>
+          <div class="meta-item span-2"><div class="meta-label">Address</div><div>${((__v => __v ? escapeHtml(__v) : '&mdash;')(address))}</div></div>
+          <div class="meta-item"><div class="meta-label">Meeting time</div><div>${((__v => __v ? escapeHtml(__v) : '&mdash;')(cong.meetingRaw))}</div></div>
+          <div class="meta-item"><div class="meta-label">Circuit</div><div>${((__v => __v ? escapeHtml(__v) : '&mdash;')(cong.circuit))}</div></div>
+          <div class="meta-item"><div class="meta-label">Distance</div><div>${((__v => __v ? escapeHtml(__v) : '&mdash;')(distanceLabelForCong(cong)))}</div></div>
           <div class="meta-item"><div class="meta-label">Geo status</div><div>${escapeHtml(cong.geoStatus || (hasCongGeo(cong) ? 'ok' : 'no geo data'))}</div></div>
           <div class="meta-item"><div class="meta-label">Hall phone</div><div>${cong.hallPhone ? `<a href="${escapeHtml(phoneHref(cleanPhone(cong.hallPhone, cong.country)))}"${phoneTargetAttrs(cleanPhone(cong.hallPhone, cong.country))}>${escapeHtml(cong.hallPhone)}</a>` : '&mdash;'}</div></div>
           <div class="meta-item"><div class="meta-label">Home congregation</div><div>${isHome ? 'Yes' : 'No'}</div></div>
@@ -5889,7 +5890,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.9.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.9.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
