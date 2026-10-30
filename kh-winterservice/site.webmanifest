@@ -4,7 +4,7 @@
   "description": "Planungsseite für den Winterdienst am KRS",
   "id": "/theocratic/kh-winterservice/",
  "start_url": "/theocratic/kh-winterservice/",
-  "scope": "./",
+ "scope": "/theocratic/kh-winterservice/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f6fa",
