@@ -1,9 +1,9 @@
 {
   "name": "Microphone Service Tool",
   "short_name": "Microphone Service",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
+  "id": "/theocratic/microphoneservice-tool/",
+  "start_url": "/theocratic/microphoneservice-tool/",
+  "scope": "/theocratic/microphoneservice-tool/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f6fa",
@@ -27,5 +27,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Trace history of microphone assignments during congregation meetings"
 }
