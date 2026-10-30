@@ -3,7 +3,7 @@
   "short_name": "Winterservice",
   "description": "Planungsseite für den Winterdienst am KRS",
   "id": "/theocratic/kh-winterservice/",
-  "start_url": "./",
+ "start_url": "/theocratic/kh-winterservice/",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
