@@ -1,23 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Icons + Manifest -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="manifest" href="site.webmanifest">
-<meta name="theme-color" content="#4d372c">
-<meta name="apple-mobile-web-app-title" content="PTC Organizer">
-<meta name="application-name" content="PTC Organizer Tool">
-
-<!-- Link-Vorschau -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="PTC Organizer Tool">
-<meta property="og:description" content="Extended management tool for Public Talk Coordination. Organize speakers and circuits.">
-<meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/ptc-organizer/">
-<meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/ptc-organizer/og-image.png">
-<meta name="twitter:card" content="summary_large_image">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PTC Organizer – Master Data</title>
@@ -152,7 +135,7 @@ select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:fo
 .unexp-choice button{width:100%}
 @media(max-width:600px){.unexp-choice{grid-template-columns:1fr;gap:4px}}
 
-/* v0.10.0: datasets · v0.10.1: Pidgin (West Africa) outline titles (outline-data-pgw.json); master.dataset carries outlineLang so the PTC Tool loads the matching titles */
+/* v0.10.2: temporary venue — no silent wipe on a stray click, forgiving German dates · v0.10.0: datasets · v0.10.1: Pidgin (West Africa) outline titles (outline-data-pgw.json); master.dataset carries outlineLang so the PTC Tool loads the matching titles */
 :root{--ds-color:#c2603f}
 .ds-switch{display:inline-flex;align-items:center;gap:7px;padding:3px 4px 3px 10px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28)}
 .ds-switch .ds-dot{width:11px;height:11px;border-radius:50%;background:var(--ds-color);box-shadow:0 0 0 2px rgba(255,255,255,.85);flex:none}
@@ -179,7 +162,7 @@ select:-webkit-autofill,select:-webkit-autofill:hover,select:-webkit-autofill:fo
 <div class="app">
 <aside class="side"><div class="side-sticky-top"><span class="row-label">Search</span><input id="search" placeholder="Person, congregation, city, PTC, talk…"><div style="margin-top:8px"><select id="filter"><option value="">All congregations</option><option value="issues">With issues</option><option value="noptc">Without PTC</option><option value="paused">With paused speakers</option><option value="temporary">Temporary venue active/configured</option></select></div><div class="side-actions"><button class="ghost tiny" id="btnNewCong">+ Congregation</button><button class="ghost tiny" id="btnExpand">Expand all</button></div></div><div id="tree" style="margin-top:8px"></div><div id="unassignedNav" style="margin-top:10px"></div></aside>
 <main class="workspace"><div id="workspaceEmpty" class="empty">Open a master JSON, or create a new working master.</div><div id="workspaceMain" class="hidden"><div class="workspace-head"><div class="workspace-title"><div><h2 id="wsTitle"></h2><div id="wsSub" class="sub"></div></div><div class="actions" style="margin-top:0"><button class="ghost tiny" id="btnValidateCong">Validate</button></div></div></div><div class="tabs" id="mainTabs"><button class="tab active" data-tab="congregation">Congregation</button><button class="tab" data-tab="speakers">Speakers</button></div><div id="tabContent" class="tab-content"></div></div></main>
-</div><div class="footer">PTC Organizer v0.10.1 · Master Data Manager</div></div>
+</div><div class="footer">PTC Organizer v0.10.2 · Master Data Manager</div></div>
 <input id="masterFile" type="file" accept=".json,application/json" class="hidden"><input id="outlineFile" type="file" accept=".json,application/json" class="hidden"><input id="pdfFile" type="file" accept=".pdf,application/pdf" class="hidden"><input id="importPdfFile" type="file" accept=".pdf,application/pdf" multiple class="hidden"><div id="welcomeOverlay" aria-hidden="true"><div class="welcome-dialog" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
 <h2 id="welcomeTitle">Welcome — three steps and you are set up</h2>
 <p class="muted">The Organizer keeps its working copy in this browser. Files you open are never changed; you decide when to export an updated master.</p>
@@ -219,7 +202,7 @@ const LS_MASTER='ptcOrganizerMaster_v03',LS_OUT='ptcOrganizerOutlines_v03'
 ,OUTLINE_LANGS=[{code:'en',label:'English',file:'outline-data.json'},{code:'de',label:'Deutsch',file:'outline-data-de.json'},{code:'pgw',label:'Pidgin (West Africa)',file:'outline-data-pgw.json'}]
 ,LS_OUTLANG='ptcOrganizerOutlineLang',LS_EDITOR='ptcOrganizerEditor_v03',LS_OPEN='ptcOrganizerCountriesOpen_v03',LS_NWS_HOME='ptcOrganizerNwsHomeCong_v01';
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=x=>JSON.parse(JSON.stringify(x)),uuid=()=>crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)}),today=()=>new Date().toISOString().slice(0,10);
-const dateDE=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));return m?`${m[3]}.${m[2]}.${m[1]}`:String(v||'')},dateISO=v=>{const x=String(v||'').trim();let m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(x);if(m)return `${m[3]}-${m[2]}-${m[1]}`;m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(x);return m?x:''};
+const dateDE=v=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v||''));return m?`${m[3]}.${m[2]}.${m[1]}`:String(v||'')},dateISO=v=>{/* v0.10.2: German input is forgiving — 1.9.26, 01.09.2026, 1/9/2026, 1-9-2026 — and must be a real calendar day */const x=String(v||'').trim();let d,mo,y,m=/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2}|\d{4})$/.exec(x);if(m){d=+m[1];mo=+m[2];y=+m[3];if(m[3].length===2)y+=2000}else{m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(x);if(!m)return'';y=+m[1];mo=+m[2];d=+m[3]}const t=new Date(Date.UTC(y,mo-1,d));if(t.getUTCFullYear()!==y||t.getUTCMonth()!==mo-1||t.getUTCDate()!==d)return'';return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
 const DEFAULT_COUNTRIES=[['AT','Austria'],['BE','Belgium'],['CH','Switzerland'],['CZ','Czechia'],['DE','Germany'],['DK','Denmark'],['ES','Spain'],['FI','Finland'],['FR','France'],['GB','United Kingdom'],['IE','Ireland'],['IT','Italy'],['LU','Luxembourg'],['NL','Netherlands'],['NO','Norway'],['PL','Poland'],['PT','Portugal'],['SE','Sweden']];
 const DEFAULT_COUNTRY_NAMES=Object.fromEntries(DEFAULT_COUNTRIES);
 const safeText=v=>String(v??'');
@@ -472,13 +455,19 @@ function renderMeetings(c){
   c.meetings=Array.isArray(c.meetings)?c.meetings:[];
   if(!c.meetings.length)c.meetings=[{weekday:7,time:'',venue:null}];
   const m=c.meetings[0],h=$('meetings');
-  h.innerHTML=`<div class="meeting"><div class="grid2"><div class="field"><label>Day</label><select id="weekendDay">${DAYS.map((d,n)=>`<option value="${n}" ${Number(m.weekday)===n?'selected':''}>${d}</option>`).join('')}</select></div><div class="field"><label>Time</label><input id="weekendTime" type="time" value="${esc(m.time||'')}"></div></div><div class="venuebox"><label style="display:flex;gap:7px;align-items:center;font-weight:650"><input type="checkbox" style="width:auto" id="venueToggle" ${m.venue?.enabled?'checked':''}> Temporary / alternative venue</label>${m.venue?.enabled?`<div style="margin-top:10px"><div class="grid3"><div class="field"><label>Valid from</label><input id="venueFrom" inputmode="numeric" placeholder="20.08.2026" value="${esc(dateDE(m.venue.valid_from||''))}"></div><div class="field"><label>Valid until</label><input id="venueTo" inputmode="numeric" placeholder="20.08.2026" value="${esc(dateDE(m.venue.valid_to||''))}"></div><div class="field"><label>Reason / note</label><input id="venueReason" value="${esc(m.venue.reason||'')}" placeholder="e.g. Kingdom Hall renovation"></div></div><div style="margin-top:9px">${addressEditor('venue0',m.venue.address||{},m.venue.address?.country_code||c.country_code,m.venue.geo||{})}</div></div>`:''}</div></div>`;
+  h.innerHTML=`<div class="meeting"><div class="grid2"><div class="field"><label>Day</label><select id="weekendDay">${DAYS.map((d,n)=>`<option value="${n}" ${Number(m.weekday)===n?'selected':''}>${d}</option>`).join('')}</select></div><div class="field"><label>Time</label><input id="weekendTime" type="time" value="${esc(m.time||'')}"></div></div><div class="venuebox"><label style="display:inline-flex;gap:7px;align-items:center;font-weight:650;cursor:pointer"><input type="checkbox" style="width:auto" id="venueToggle" ${m.venue?.enabled?'checked':''}> Temporary / alternative venue</label>${m.venue?.enabled?`<div style="margin-top:10px"><div class="grid3"><div class="field"><label>Valid from</label><input id="venueFrom" autocomplete="off" placeholder="DD.MM.YYYY" value="${esc(dateDE(m.venue.valid_from||''))}"></div><div class="field"><label>Valid until</label><input id="venueTo" autocomplete="off" placeholder="DD.MM.YYYY" value="${esc(dateDE(m.venue.valid_to||''))}"></div><div class="field"><label>Reason / note</label><input id="venueReason" value="${esc(m.venue.reason||'')}" placeholder="e.g. Kingdom Hall renovation"></div></div><div style="margin-top:9px">${addressEditor('venue0',m.venue.address||{},m.venue.address?.country_code||c.country_code,m.venue.geo||{})}</div></div>`:''}</div></div>`;
   $('weekendDay').onchange=e=>{const old=m.weekday;m.weekday=Number(e.target.value);touch('edit_meeting',`Weekend Meeting day: "${DAYS[old]||old}" → "${DAYS[m.weekday]||m.weekday}"`,{cong:c.id,name:c.name});renderTree()};
   $('weekendTime').onchange=e=>{const old=m.time||'';m.time=e.target.value;touch('edit_meeting',`Weekend Meeting time: "${old}" → "${m.time}"`,{cong:c.id,name:c.name});renderTree()};
-  $('venueToggle').onchange=e=>{m.venue=e.target.checked?(m.venue||{enabled:true,address:{street:'',postal_code:'',city:'',country_code:c.country_code},geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},valid_from:'',valid_to:'',reason:''}):null;if(m.venue)m.venue.enabled=true;touch('edit_meeting',e.target.checked?'Temporary venue enabled':'Temporary venue removed',{cong:c.id,name:c.name});renderCongregation(c)};
+  $('venueToggle').onchange=e=>{
+    /* v0.10.2: unticking used to wipe the whole temporary venue without asking — and the
+       label spanned the full row right above the date fields, so a click next to "Valid from"
+       was enough. Now: ask first, and keep the removed venue so ticking again restores it. */
+    if(!e.target.checked&&m.venue){const v=m.venue,a=v.address||{},filled=[a.street,a.postal_code,a.city,v.valid_from,v.valid_to,v.reason].some(x=>String(x||'').trim())||v.geo?.lat!=null;if(filled&&!confirm(`Remove the temporary venue of ${c.name}?\n\n${[a.street,[a.postal_code,a.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')||'(no address)'}${v.valid_from||v.valid_to?`\n${dateDE(v.valid_from)||'…'} – ${dateDE(v.valid_to)||'…'}`:''}\n\nTicking the box again in this session restores it.`)){e.target.checked=true;return}renderMeetings.removed=renderMeetings.removed||{};renderMeetings.removed[c.id]=clone(v)}
+    if(e.target.checked&&!m.venue&&renderMeetings.removed?.[c.id]){m.venue=renderMeetings.removed[c.id];delete renderMeetings.removed[c.id];m.venue.enabled=true;touch('edit_meeting','Temporary venue restored',{cong:c.id,name:c.name});renderCongregation(c);return}
+    m.venue=e.target.checked?(m.venue||{enabled:true,address:{street:'',postal_code:'',city:'',country_code:c.country_code},geo:{lat:null,lon:null,resolved_address:'',status:'',source:''},valid_from:'',valid_to:'',reason:''}):null;if(m.venue)m.venue.enabled=true;touch('edit_meeting',e.target.checked?'Temporary venue enabled':'Temporary venue removed',{cong:c.id,name:c.name});renderCongregation(c)};
   if(m.venue?.enabled){
-    $('venueFrom').onchange=e=>{const iso=dateISO(e.target.value);if(e.target.value.trim()&&!iso){alert('Please use the date format DD.MM.YYYY, e.g. 20.08.2026.');e.target.value=dateDE(m.venue.valid_from||'');return}const old=m.venue.valid_from||'';m.venue.valid_from=iso;touch('edit_temporary_venue',`Valid from: "${dateDE(old)}" → "${dateDE(iso)}"`,{cong:c.id,name:c.name})};
-    $('venueTo').onchange=e=>{const iso=dateISO(e.target.value);if(e.target.value.trim()&&!iso){alert('Please use the date format DD.MM.YYYY, e.g. 20.08.2026.');e.target.value=dateDE(m.venue.valid_to||'');return}const old=m.venue.valid_to||'';m.venue.valid_to=iso;touch('edit_temporary_venue',`Valid until: "${dateDE(old)}" → "${dateDE(iso)}"`,{cong:c.id,name:c.name})};
+    $('venueFrom').onchange=e=>{const iso=dateISO(e.target.value);if(e.target.value.trim()&&!iso){alert('Please enter a valid date as DD.MM.YYYY, e.g. 20.08.2026 (1.9.26 works too).');e.target.value=dateDE(m.venue.valid_from||'');return}const old=m.venue.valid_from||'';m.venue.valid_from=iso;e.target.value=dateDE(iso);touch('edit_temporary_venue',`Valid from: "${dateDE(old)}" → "${dateDE(iso)}"`,{cong:c.id,name:c.name})};
+    $('venueTo').onchange=e=>{const iso=dateISO(e.target.value);if(e.target.value.trim()&&!iso){alert('Please enter a valid date as DD.MM.YYYY, e.g. 20.08.2026 (1.9.26 works too).');e.target.value=dateDE(m.venue.valid_to||'');return}const old=m.venue.valid_to||'';m.venue.valid_to=iso;e.target.value=dateDE(iso);touch('edit_temporary_venue',`Valid until: "${dateDE(old)}" → "${dateDE(iso)}"`,{cong:c.id,name:c.name})};
     $('venueReason').onchange=e=>{const old=m.venue.reason||'';m.venue.reason=e.target.value;touch('edit_temporary_venue',`Reason: "${old}" → "${e.target.value}"`,{cong:c.id,name:c.name})};
     /* v0.8.2: editing an address field no longer re-renders the whole congregation.
        The old version rebuilt the DOM on "change", which fires when you click the
