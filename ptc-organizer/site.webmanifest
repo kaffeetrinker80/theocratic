@@ -2,7 +2,7 @@
   "name": "PTC Organizer",
   "short_name": "PTC Organizer",
   "description": "Extended management tool for Public Talk Coordination. Organize speakers and circuits.",
-  "id": "./",
+ "id": "/theocratic/ptc-organizer/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
