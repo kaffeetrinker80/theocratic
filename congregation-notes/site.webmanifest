@@ -1,9 +1,9 @@
 {
   "name": "Congregation Notes",
   "short_name": "Notes",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
+  "id": "/theocratic/congregation-notes/",
+  "start_url": "/theocratic/congregation-notes/",
+  "scope": "/theocratic/congregation-notes/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f6fa",
@@ -27,5 +27,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Young & old taking notes during Christian meetings."
 }
