@@ -1,9 +1,9 @@
 {
   "name": "Assembly Chart",
   "short_name": "Chart-Tool",
-  "id": "./",
-  "start_url": "./",
-  "scope": "./",
+  "id": "/theocratic/assembly-chart/",
+  "start_url": "/theocratic/assembly-chart/",
+  "scope": "/theocratic/assembly-chart/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f3f6fa",
@@ -27,5 +27,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Overview of departments and assigments."
 }
