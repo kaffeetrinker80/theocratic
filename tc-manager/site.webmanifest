@@ -1,7 +1,7 @@
 {
   "name": "Team Captain Manager",
   "short_name": "TC Manager",
-  "start_url": "./index.html",
+  "start_url": "/theocratic/tc-manager/",
   "display": "standalone",
   "background_color": "#f3f6fa",
   "theme_color": "#172f4d",
@@ -22,5 +22,9 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Organizing teams at assemblies & conventions.",
+  "id": "/theocratic/tc-manager/",
+  "scope": "/theocratic/tc-manager/",
+  "orientation": "any"
 }
