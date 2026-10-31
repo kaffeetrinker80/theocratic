@@ -977,7 +977,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.9.1</span>
+      <span class="footer-version" id="footerVersion">v.2.9.2</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1023,7 +1023,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.9.1';
+const APP_VERSION = '2.9.2';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -2517,7 +2517,8 @@ function parseMasterJsonDataset(obj, fileName = '') {
 
   if (skippedDissolved) warnings.push(`${skippedDissolved} dissolved congregation(s) were not imported.`);
   if (skippedDeleted) warnings.push(`${skippedDeleted} deleted speaker(s) were not imported.`);
-  if (skippedInactive) warnings.push(`${skippedInactive} inactive speaker(s) were not imported.`);
+  /* v2.9.2: wording matches the code — paused speakers are skipped as well */
+  if (skippedInactive) warnings.push(`${skippedInactive} paused or inactive speaker(s) were not imported.`);
   if (orphanPeople) warnings.push(`${orphanPeople} speaker(s) had no matching congregation and were skipped.`);
   const empty = congregations.filter(c => !c.speakers.length).length;
   if (empty) warnings.push(`${empty} congregation(s) were imported without any speakers.`);
@@ -5890,7 +5891,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.9.1</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.9.2</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5980,7 +5981,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <li>a <b>tool backup JSON</b> — full backup or notes-only, as written by the export buttons.</li>
           </ul>
           <p>CSV and master JSON produce the <b>same data state</b>: congregations, speakers, contacts, outlines, meeting times and coordinates end up identical, because both routes build their keys from congregation and speaker names, never from internal ids. You can therefore switch between the two formats at any time without losing anything.</p>
-          <p>The master JSON additionally carries information the CSV has no columns for: Zoom availability, a maximum travel distance, notes from the source data, and the distinction between a congregation and a group. Where present, these appear as extra chips on the speaker card. <b>Source notes stay read-only and separate from your personal notes</b>; importing an updated master never writes them into your local note field. It also skips entries that should no longer be used — dissolved congregations, deleted and inactive speakers — and reports each of them under <b>Import warnings</b>.</p>
+          <p>The master JSON additionally carries information the CSV has no columns for: Zoom availability, a maximum travel distance, notes from the source data, and the distinction between a congregation and a group. Where present, these appear as extra chips on the speaker card. <b>Source notes stay read-only and separate from your personal notes</b>; importing an updated master never writes them into your local note field. It also skips entries that should no longer be used — dissolved congregations, deleted speakers and speakers who are paused or have left — and reports each of them under <b>Import warnings</b>.</p>
           <p>When you get an updated file, just import it again. Personal speaker data such as favorites, personal notes, <b>last invited</b>, and <b>last used</b> is matched again when the speaker is recognized, and your home congregation is re-selected by name.</p>
           <p>Use <b>Export JSON</b> from time to time so your personal work is backed up.</p>
         </section>
