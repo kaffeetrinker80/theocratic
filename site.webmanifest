@@ -1,7 +1,7 @@
 {
   "name": "Theocratic Tools",
   "short_name": "JW Tools",
-  "start_url": "./index.html",
+  "start_url": "/kaffeetrinker80/theocratic/",
   "display": "standalone",
   "background_color": "#f3f6fa",
   "theme_color": "#172f4d",
@@ -22,5 +22,9 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "description": "Theocratic landing page for kaffeetrinker80´s - Tool Hub",
+  "id": "/kaffeetrinker80/theocratic/",
+  "scope": "/kaffeetrinker80/theocratic/",
+  "orientation": "any"
 }
