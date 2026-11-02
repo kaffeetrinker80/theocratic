@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Icons + Manifest -->
+<!-- Icons + Manifest -->
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -20,7 +18,9 @@
 <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/attendance-counting/">
 <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/attendance-counting/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-    <title>Counting Munich</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Counting Munich</title>
   <link rel="manifest" href="rc-counting-manifest.json" />
   <link rel="icon" type="image/png" sizes="16x16" href="RC-counting-icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="RC-counting-icon-32.png" />
@@ -1260,6 +1260,200 @@
     .map-err code { background: #f3f5f7; padding: 1px 5px; border-radius: 5px; color: var(--ink); word-break: break-all; }
     .maps-hint { font-size: 11px; color: var(--muted); }
 
+    /* ---------- v1.42: finer controls, add form, shifts, JW Stream, count entry ---------- */
+    button {
+      min-height: 34px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background-color .12s, border-color .12s, color .12s;
+    }
+    button:not(.primary):not(.active):not(.on):hover:not(:disabled) { border-color: #b4c3cf; background: #f7fafc; }
+    button.primary:hover:not(:disabled) { background: #1a3d56; border-color: #1a3d56; }
+    button:disabled { opacity: .3; cursor: default; }
+    button:focus-visible,
+    input:focus-visible,
+    [contenteditable]:focus-visible { outline: 2px solid #5b8db0; outline-offset: 1px; }
+
+    .mini-btn { min-height: 30px; padding: 4px 10px; font-size: 12px; }
+    .mode-switch { padding: 3px; }
+    .mode-switch button { min-height: 30px; padding: 4px 13px; font-size: 12px; }
+    .day-top button { min-height: 30px; padding: 4px 12px; }
+    .copy-names-btn { min-height: 28px; padding: 4px 10px; font-weight: 600; }
+    .map-tab { min-height: 30px; padding: 4px 12px; }
+
+    .toolbar input[type="text"],
+    .toolbar textarea { padding: 7px 10px; border-radius: 8px; font-size: 14px; }
+    .toolbar input[type="text"].needs-value { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(138,47,47,.12); }
+
+    /* add position: No. · name · areas · 2 shifts · add */
+    .add-position {
+      display: grid;
+      grid-template-columns: 96px minmax(180px, 1fr) minmax(240px, 1.5fr) auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+    .add-split {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 6px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    .add-split input,
+    .flag-toggle input { margin: 0; width: 15px; height: 15px; accent-color: var(--accent); }
+    .toolbar-panel.advanced-collapsed .add-position { display: none; }
+
+    /* action row: everyday tools left, destructive ones right and quiet */
+    .control-row-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .action-btn,
+    .action-btn.add-btn { width: auto; min-width: 0; min-height: 34px; }
+    .btn-group-danger .action-btn { background: transparent; border-color: transparent; color: var(--danger); }
+    .btn-group-danger .action-btn:not(.primary):hover:not(:disabled) { background: #fbf3f3; border-color: #e6caca; }
+    .stream-toggle.on { background: #fff6e2; border-color: #e3bd68; color: #6b4d10; }
+    .stream-toggle.on:hover { background: #ffefcc; }
+
+    /* day cards */
+    .attendance-split.one { grid-template-columns: 1fr; }
+    .attendance-split.one .attendance-item-label { min-height: 0; margin-bottom: 2px; }
+    .day-progress { font-size: 12px; color: var(--muted); }
+    .day-progress b { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .day-progress b.done { color: #2f7a4f; }
+
+    /* list rows */
+    .list-head,
+    .list-row { grid-template-columns: minmax(280px, 2fr) 108px 108px minmax(200px, 1.1fr) 132px; }
+    .list-row { transition: background-color .15s; }
+    .list-row:focus-within { background: #f8fbfd; }
+
+    .col-progress {
+      margin-left: 6px;
+      font-weight: 700;
+      letter-spacing: 0;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .col-progress.done { color: #2f7a4f; }
+
+    .row-count .count-input {
+      width: 100%;
+      height: 52px;
+      padding: 4px 6px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .row-count .count-input::placeholder { color: #c4cfd8; font-weight: 400; }
+    .row-count .count-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(33,75,105,.16); }
+    .row-count .count-input.has-value { background: #f1f7fb; border-color: #a9bfce; color: var(--accent); }
+
+    .row-name .name-input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      text-align: left;
+    }
+    .row-name .name-input.auto-name { color: #6b7d8b; font-style: italic; }
+    .name-pair { display: grid; gap: 6px; }
+    .name-line { display: grid; grid-template-columns: 40px 1fr; gap: 6px; align-items: center; }
+    .name-tag { font-size: 11px; font-weight: 700; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+    .position-flags { margin-top: 6px; }
+    .flag-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .flag-toggle:not(.checked) { opacity: .55; }
+    .list-row:hover .flag-toggle,
+    .list-row:focus-within .flag-toggle { opacity: 1; }
+    .split-row .flag-toggle { color: var(--accent); font-weight: 600; opacity: 1; }
+    .time-chip { white-space: nowrap; }
+
+    .row-action { gap: 2px; align-items: center; }
+    .icon-btn {
+      min-height: 30px;
+      width: 30px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border-color: transparent;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .icon-btn.wide { width: auto; padding: 0 9px; font-size: 12px; }
+    .icon-btn:not(:disabled):hover { color: var(--ink); }
+    .icon-btn.danger:not(:disabled):hover { color: var(--danger); background: #fbf3f3 !important; border-color: #e6caca !important; }
+
+    .stream-row { background: linear-gradient(90deg, #fff7e6 0%, #fff 55%); box-shadow: inset 3px 0 0 #d9a33a; }
+    .stream-row .position-type { color: #8a5a00; }
+    .stream-flag { font-size: 12px; color: #8a5a00; }
+
+    .list-row.just-added { animation: row-flash 1.8s ease-out; }
+    @keyframes row-flash { from { background: #e2f1e8; } to { background: transparent; } }
+    @media (prefers-reduced-motion: reduce) {
+      .list-row.just-added { animation: none; }
+      button, .list-row { transition: none; }
+    }
+
+    /* slips */
+    .counters.single { grid-template-columns: 1fr; }
+    .slip-shift {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 8px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: .04em;
+      vertical-align: 1px;
+    }
+    .slip.stream-slip .slip-type { color: #8a5a00; }
+
+    @media (max-width: 1180px), (max-height: 820px) {
+      .add-position { grid-template-columns: 84px 1fr; }
+      .add-position #newPositionSubtitle { grid-column: 1 / -1; }
+      .add-position .add-split { justify-self: start; }
+      .add-position #addPositionBtn { justify-self: end; }
+    }
+
+    @media (max-width: 980px) {
+      .list-row { grid-template-columns: 1fr 1fr; position: relative; }
+      .position-cell { padding-right: 132px; }
+      .row-action { position: absolute; top: 8px; right: 8px; justify-content: flex-end; }
+      .row-action button { width: 34px; min-height: 34px; }
+      .row-action .icon-btn.wide { width: auto; }
+      .row-count .count-input { height: 56px; font-size: 28px; }
+      .control-row-actions { justify-content: flex-start; }
+    }
+
   </style>
 </head>
 <body>
@@ -1281,6 +1475,7 @@
               <div class="pill">Days: <strong id="daysCount">3</strong></div>
               <div class="pill" id="activeDayPill">Active day: <strong id="activeDayName">Friday</strong></div>
               <div class="pill">Positions: <strong id="positionsCount">0</strong></div>
+              <div class="pill">Slips: <strong id="slipsCount">0</strong></div>
             </div>
             <div class="headline-tools screen-only">
               <button type="button" class="mini-btn" id="toggleAdvancedBtn">Hide setup</button>
@@ -1301,20 +1496,27 @@
             <div class="days-grid" id="daysGrid"></div>
           </div>
 
-          <div class="control-row-secondary">
-            <input type="text" id="newPositionName" placeholder="New position" title="Enter a new position title" />
-            <input type="text" id="newPositionSubtitle" placeholder="Optional area / description" title="Enter an optional subtitle or area" />
-            <button class="primary action-btn add-btn" id="addPositionBtn" title="Add a new position">+ Add position</button>
+          <div class="add-position">
+            <input type="text" id="newPositionNo" class="add-no" placeholder="No." autocomplete="off" spellcheck="false" title="Position number, e.g. 37 – or a label such as TC Lobby" />
+            <input type="text" id="newPositionName" placeholder="Position name, e.g. Cafeteria" autocomplete="off" title="Shown large on the slip" />
+            <input type="text" id="newPositionSubtitle" placeholder="Areas covered, e.g. Cafeteria (main floor)" autocomplete="off" title="Shown small below the name" />
+            <label class="add-split" title="Morning and afternoon are counted by different brothers: two slips, two names"><input type="checkbox" id="newPositionSplit" /> 2 shifts</label>
+            <button class="primary" id="addPositionBtn" title="Add the position (Enter)">+ Add position</button>
           </div>
 
           <div class="control-row-actions">
-            <button class="action-btn" id="exportJsonBtn" title="Export positions and settings as JSON">💾 Export JSON</button>
-            <button class="action-btn" id="importJsonBtn" title="Import positions and settings from JSON">📂 Import JSON</button>
-            <button class="action-btn" id="printSlipsBtn" title="Print slips">🖨️ Print slips</button>
-            <button class="action-btn" id="printSummaryBtn" title="Print summary for filled days only">📊 Print summary</button>
-            <button class="action-btn danger" id="resetCountsBtn" title="Reset the counting values of the active day">⚠️ Reset counts</button>
-            <button class="action-btn danger" id="clearEventBtn" title="Clear counts and names of this event">🧹 Clear event</button>
-            <button class="action-btn danger" id="resetTemplateBtn" title="Reset this event to its default positions">↺ Reset to template</button>
+            <div class="btn-group">
+              <button class="action-btn" id="printSlipsBtn" title="Print all slips of a day">Print slips</button>
+              <button class="action-btn" id="printSummaryBtn" title="Print summary for filled days only">Print summary</button>
+              <button class="action-btn stream-toggle" id="streamToggleBtn" title="Switch the JW Stream position on or off for this event">JW Stream: off</button>
+              <button class="action-btn" id="exportJsonBtn" title="Export positions and settings as JSON">Export JSON</button>
+              <button class="action-btn" id="importJsonBtn" title="Import positions and settings from JSON">Import JSON</button>
+            </div>
+            <div class="btn-group btn-group-danger">
+              <button class="action-btn" id="resetCountsBtn" title="Reset the counting values of the active day">Reset counts</button>
+              <button class="action-btn" id="clearEventBtn" title="Clear counts and names of this event">Clear event</button>
+              <button class="action-btn" id="resetTemplateBtn" title="Reset this event to its default positions">Reset to template</button>
+            </div>
             <input type="file" id="jsonFileInput" accept=".json,application/json" hidden />
           </div>
         </div>
@@ -1330,7 +1532,7 @@
   </div>
 
   <div id="summaryPrintView" class="summary-print-view"></div>
-  <div class="app-footer screen-only">Counting Munich · V1.41 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.41">✉ Feedback</a></div>
+  <div class="app-footer screen-only">Counting Munich · V1.42 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.42">✉ Feedback</a></div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1365,7 +1567,7 @@
 
   <script>
     /* ------------------------------------------------------------------
-       Counting Munich v1.41
+       Counting Munich v1.42
        One tool, two independent event slots:
          - assembly   : 1 day
          - convention : 3 days
@@ -1375,7 +1577,10 @@
     ------------------------------------------------------------------ */
 
     const MODE_KEY = 'counting-munich:mode';
-    const APP_VERSION = '1.41';
+    const APP_VERSION = '1.42';
+    const STREAM_ID = 'jw-stream';
+    const LEGACY_STREAM_RE = /(^|\b)(jw\s*stream|live\s*stream|livestream|streaming|stream)(\b|$)/i;
+    const streamGuidelineText = 'JW Stream: Please enter the JW Stream figure at each counting time and return this slip to the Attendance Counting Department.';
 
     const defaultGuidelineText = 'Attendance count: Please take the count at the exact assigned time so the figures remain as accurate and synchronized as possible. Count without causing unnecessary distraction to those attending. All adults should be counted, as should young children who are listening and benefiting, even to a limited extent.';
     const defaultGuidelineRef = 'Reference: CO-23 ¶12';
@@ -1438,6 +1643,7 @@
     let currentMode = MODES[localStorage.getItem(MODE_KEY)] ? localStorage.getItem(MODE_KEY) : 'convention';
     let state = loadState(currentMode);
     let pendingPrintDayId = null;
+    let pendingPrintPositionId = null;
 
     function mode() { return MODES[currentMode]; }
 
@@ -1462,6 +1668,7 @@
           if (/^TC$/i.test(word)) return 'TC';
           if (/^AV$/i.test(word)) return 'AV';
           if (/^IT$/i.test(word)) return 'IT';
+          if (/^\(?A\/V\)?$/i.test(word)) return word.toUpperCase();
           if (/^CO-\d+/i.test(word)) return word.toUpperCase();
           if (/^[A-Z]{2,6}$/.test(word)) return word;
           if (word.includes('+')) {
@@ -1474,7 +1681,8 @@
           }
           if (/^[A-Za-z]$/.test(word)) return word.toUpperCase();
           if (/^\d+[A-Za-z]?$/.test(word)) return word.toUpperCase();
-          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+          // keep leading brackets/quotes: "(main" -> "(Main"
+          return word.replace(/^([^A-Za-zÄÖÜäöü]*)(.)(.*)$/, (m, lead, first, rest) => lead + first.toUpperCase() + rest.toLowerCase());
         })
         .join(' ')
         .replace(/\bAnd\b/g, '&')
@@ -1492,9 +1700,11 @@
     function createPositionDef(source = {}, i = 0) {
       return {
         id: source.id || makeId(i),
-        type: normalizePositionText('type', source.type || 'Additional Position'),
+        type: normalizePositionText('type', source.type || 'Position'),
         title: normalizePositionText('title', source.title || `Position ${i + 1}`),
-        subtitle: String(source.subtitle || '').trim()
+        subtitle: String(source.subtitle || '').trim(),
+        split: Boolean(source.split) && !source.stream,
+        stream: Boolean(source.stream)
       };
     }
 
@@ -1503,7 +1713,9 @@
         count1: clampNum(source.count1 !== undefined ? source.count1 : source.count1030),
         count2: clampNum(source.count2 !== undefined ? source.count2 : source.count1430),
         name: String(source.name || ''),
-        nameAuto: Boolean(source.nameAuto)
+        nameAuto: Boolean(source.nameAuto),
+        name2: String(source.name2 || ''),
+        name2Auto: Boolean(source.name2Auto)
       };
     }
 
@@ -1557,6 +1769,22 @@
 
       if (!defs.length) defs = modeDef.positions.map((p, i) => createPositionDef(p, i));
 
+      // JW Stream is its own switchable position (v1.42). Older files only
+      // recognised it by name — such a position is converted once.
+      let streamEnabled = Boolean(raw.streamEnabled);
+      if (!defs.some(d => d.stream)) {
+        const legacy = defs.find(d => LEGACY_STREAM_RE.test([d.type, d.title, d.subtitle].join(' ')));
+        if (legacy) {
+          legacy.stream = true;
+          legacy.split = false;
+          if (raw.streamEnabled === undefined) streamEnabled = true;
+        }
+      }
+      defs.filter(d => d.stream).slice(1).forEach(d => { d.stream = false; });
+      if (!defs.some(d => d.stream)) {
+        defs.unshift(createPositionDef({ id: STREAM_ID, type: 'JW Stream', title: 'JW Stream', subtitle: 'Figures from the A/V Department · own slip for A/V', stream: true }, 0));
+      }
+
       const days = [];
       for (let i = 0; i < modeDef.dayCount; i++) {
         days.push(createDay(dayList[i], i, modeDef, defs));
@@ -1570,6 +1798,7 @@
         subtitle: raw.subtitle || modeDef.subtitle,
         globalEvent: raw.globalEvent || modeDef.event,
         globalGuidelineText: raw.globalGuidelineText || defaultGuidelineText,
+        streamEnabled,
         activeDayId,
         positions: defs,
         days
@@ -1611,9 +1840,28 @@
       return day.entries[positionId];
     }
 
-    // Merged read-only view: position definition + that day's counts/name.
+    // Positions that take part in this event: JW Stream first (only when it
+    // is switched on), then the regular positions in their list order.
+    function streamDef() {
+      return state.positions.find(p => p.stream) || null;
+    }
+
+    function regularDefs() {
+      return state.positions.filter(p => !p.stream);
+    }
+
+    function visibleDefs() {
+      const s = streamDef();
+      return (state.streamEnabled && s ? [s] : []).concat(regularDefs());
+    }
+
+    // Merged read-only view: position definition + that day's counts/names.
     function dayPositions(day) {
-      return state.positions.map(def => Object.assign({}, def, entryFor(day, def.id)));
+      return visibleDefs().map(def => Object.assign({}, def, entryFor(day, def.id)));
+    }
+
+    function slipCount() {
+      return visibleDefs().reduce((n, d) => n + (d.split ? 2 : 1), 0);
     }
 
     function isMultiDay() {
@@ -1650,11 +1898,7 @@
     }
 
     function isStreamPosition(position) {
-      const searchText = [position && position.type, position && position.title, position && position.subtitle]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return /(^|\b)(jw\s*stream|live\s*stream|livestream|streaming|stream)(\b|$)/i.test(searchText);
+      return Boolean(position && position.stream);
     }
 
     function dayAttendanceBreakdown(day) {
@@ -1682,7 +1926,7 @@
     }
 
     function dayHasAnyData(day) {
-      return dayPositions(day).some(p => (Number(p.count1) || 0) > 0 || (Number(p.count2) || 0) > 0 || String(p.name || '').trim());
+      return dayPositions(day).some(p => (Number(p.count1) || 0) > 0 || (Number(p.count2) || 0) > 0 || String(p.name || '').trim() || String(p.name2 || '').trim());
     }
 
     function updateHeaderInfo() {
@@ -1690,7 +1934,8 @@
       document.getElementById('daysCount').textContent = state.days.length;
       document.getElementById('activeDayName').textContent = activeDay.label;
       document.getElementById('activeDayPill').style.display = isMultiDay() ? '' : 'none';
-      document.getElementById('positionsCount').textContent = state.positions.length;
+      document.getElementById('positionsCount').textContent = regularDefs().length + (state.streamEnabled ? 1 : 0);
+      document.getElementById('slipsCount').textContent = slipCount();
     }
 
     /* ---------- mode switching ---------- */
@@ -1758,23 +2003,74 @@
       entryFor(getActiveDay(), positionId)[field] = clampNum(value);
       saveState();
       renderDaysGrid();
+      updateListProgress();
+    }
+
+    // Count fields are plain text fields with a numeric keypad: no spinner,
+    // no accidental changes by mouse wheel, arrow keys move between rows.
+    function onCountInput(positionId, col, input) {
+      const clean = input.value.replace(/\D/g, '').slice(0, 5);
+      if (clean !== input.value) input.value = clean;
+      input.classList.toggle('has-value', Number(clean) > 0);
+      setCount(positionId, 'count' + col, clean);
+    }
+
+    function focusCount(col, row) {
+      const el = document.querySelector(`.count-input[data-col="${col}"][data-row="${row}"]`);
+      if (el) { el.focus(); el.select(); }
+      return Boolean(el);
+    }
+
+    function handleCountKey(event, input) {
+      const col = input.dataset.col;
+      const row = Number(input.dataset.row);
+      if ((event.key === 'Enter' && !event.shiftKey) || event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (!focusCount(col, row + 1)) input.blur();
+      } else if ((event.key === 'Enter' && event.shiftKey) || event.key === 'ArrowUp') {
+        event.preventDefault();
+        focusCount(col, row - 1);
+      } else if (event.key === 'Escape') {
+        input.blur();
+      }
+    }
+
+    function dayProgress(day) {
+      const list = dayPositions(day);
+      return {
+        total: list.length,
+        c1: list.filter(p => (Number(p.count1) || 0) > 0).length,
+        c2: list.filter(p => (Number(p.count2) || 0) > 0).length
+      };
+    }
+
+    function updateListProgress() {
+      const pr = dayProgress(getActiveDay());
+      [['progress1', pr.c1], ['progress2', pr.c2]].forEach(([id, n]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = `${n}/${pr.total}`;
+        el.classList.toggle('done', pr.total > 0 && n === pr.total);
+      });
     }
 
     // Names carry over to the other days as long as those were never edited
     // by hand. A name typed directly into a day is marked as manual and is
-    // never overwritten afterwards.
-    function setName(positionId, value) {
+    // never overwritten afterwards. field: 'name' (shift 1 / all day) or
+    // 'name2' (shift 2 of a split position).
+    function setName(positionId, field, value) {
+      const autoKey = field + 'Auto';
       const activeDay = getActiveDay();
       const source = entryFor(activeDay, positionId);
-      source.name = value;
-      source.nameAuto = false;
+      source[field] = value;
+      source[autoKey] = false;
 
       state.days.forEach(day => {
         if (day.id === activeDay.id) return;
         const entry = entryFor(day, positionId);
-        if (!String(entry.name || '').trim() || entry.nameAuto) {
-          entry.name = value;
-          entry.nameAuto = true;
+        if (!String(entry[field] || '').trim() || entry[autoKey]) {
+          entry[field] = value;
+          entry[autoKey] = true;
         }
       });
 
@@ -1788,8 +2084,11 @@
       if (!window.confirm(`Copy all names from ${first.label} to ${target.label}?\n\nExisting names on ${target.label} will be replaced.`)) return;
       state.positions.forEach(def => {
         const entry = entryFor(target, def.id);
-        entry.name = entryFor(first, def.id).name;
+        const src = entryFor(first, def.id);
+        entry.name = src.name;
         entry.nameAuto = false;
+        entry.name2 = src.name2;
+        entry.name2Auto = false;
       });
       render();
     }
@@ -1818,26 +2117,106 @@
       renderDaysGrid();
     }
 
+    // "37" or "Pos 37" -> "Position 37"; anything else is kept as a label.
+    function parsePositionNo(raw) {
+      const v = String(raw || '').trim();
+      if (!v) return 'Position';
+      const m = v.match(/^(?:pos(?:ition)?\.?\s*)?(\d+[a-z]?)$/i);
+      if (m) return `Position ${m[1].toUpperCase()}`;
+      return normalizePositionText('type', v);
+    }
+
+    function positionNumber(def) {
+      const m = String((def && def.type) || '').match(/\d+/);
+      return m ? Number(m[0]) : null;
+    }
+
     function addPosition() {
-      const title = document.getElementById('newPositionName').value.trim();
-      const subtitle = document.getElementById('newPositionSubtitle').value.trim();
-      if (!title) return;
-      const def = createPositionDef({ type: 'Additional Position', title, subtitle }, state.positions.length);
-      state.positions.push(def);
+      const noEl = document.getElementById('newPositionNo');
+      const titleEl = document.getElementById('newPositionName');
+      const subEl = document.getElementById('newPositionSubtitle');
+      const splitEl = document.getElementById('newPositionSplit');
+      const title = titleEl.value.trim();
+      if (!title) {
+        titleEl.focus();
+        titleEl.classList.add('needs-value');
+        setTimeout(() => titleEl.classList.remove('needs-value'), 1200);
+        return;
+      }
+      const def = createPositionDef({
+        type: parsePositionNo(noEl.value),
+        title,
+        subtitle: normalizePositionText('subtitle', subEl.value),
+        split: splitEl.checked
+      }, state.positions.length);
+
+      // Numbered positions are slotted in by number, everything else is appended.
+      const num = positionNumber(def);
+      const next = num === null ? null : regularDefs().find(d => {
+        const n = positionNumber(d);
+        return n !== null && n > num;
+      });
+      if (next) state.positions.splice(state.positions.indexOf(next), 0, def);
+      else state.positions.push(def);
       state.days.forEach(day => { day.entries[def.id] = createEntry({}); });
-      document.getElementById('newPositionName').value = '';
-      document.getElementById('newPositionSubtitle').value = '';
+
+      noEl.value = '';
+      titleEl.value = '';
+      subEl.value = '';
+      splitEl.checked = false;
       render();
+      flashRow(def.id);
+      noEl.focus();
+    }
+
+    function flashRow(positionId) {
+      const row = document.querySelector(`.list-row[data-id="${positionId}"]`);
+      if (!row) return;
+      row.classList.remove('just-added');
+      void row.offsetWidth;
+      row.classList.add('just-added');
     }
 
     function removePosition(positionId) {
       const def = state.positions.find(p => p.id === positionId);
-      const label = def ? `${def.type} – ${def.title}` : 'this position';
+      if (!def || def.stream) return;
+      const label = `${def.type} – ${def.title}`;
       const scope = isMultiDay() ? `\n\nThe position is removed from all ${state.days.length} days of this event.` : '';
       if (!window.confirm(`Remove ${label}?${scope}`)) return;
       state.positions = state.positions.filter(p => p.id !== positionId);
       state.days.forEach(day => { delete day.entries[positionId]; });
       render();
+    }
+
+    function movePosition(positionId, dir) {
+      const regs = regularDefs();
+      const i = regs.findIndex(p => p.id === positionId);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= regs.length) return;
+      [regs[i], regs[j]] = [regs[j], regs[i]];
+      state.positions = state.positions.filter(p => p.stream).concat(regs);
+      render();
+      const btn = document.querySelector(`[data-move="${positionId}:${dir}"]`);
+      if (btn && !btn.disabled) btn.focus();
+    }
+
+    function toggleSplit(positionId, on) {
+      const def = state.positions.find(p => p.id === positionId);
+      if (!def || def.stream) return;
+      def.split = Boolean(on);
+      render();
+    }
+
+    function setStreamEnabled(on) {
+      state.streamEnabled = Boolean(on);
+      render();
+    }
+
+    function updateStreamButton() {
+      const btn = document.getElementById('streamToggleBtn');
+      btn.textContent = state.streamEnabled ? 'JW Stream: on' : 'JW Stream: off';
+      btn.classList.toggle('on', state.streamEnabled);
+      btn.setAttribute('aria-pressed', state.streamEnabled ? 'true' : 'false');
     }
 
     /* ---------- clearing (always scoped to the current slot only) ---------- */
@@ -1952,19 +2331,35 @@
     function renderDaysGrid() {
       const host = document.getElementById('daysGrid');
       host.classList.toggle('single', !isMultiDay());
+      const withStream = state.streamEnabled;
+
+      const totalsBox = (time, a, key) => `
+        <div class="day-total-box">
+          <span class="day-total-label">${escapeHtml(time)}</span>
+          ${withStream ? `
+          <div class="attendance-split">
+            <div class="attendance-item"><span class="attendance-item-label">In person</span><span class="day-total-value">${a.inPerson[key]}</span></div>
+            <div class="attendance-item"><span class="attendance-item-label stream-marker">JW Stream</span><span class="day-total-value stream-marker">${a.stream[key]}</span></div>
+            <div class="attendance-item combined"><span class="attendance-item-label">Combined</span><span class="day-total-value">${a.combined[key]}</span></div>
+          </div>` : `
+          <div class="attendance-split one">
+            <div class="attendance-item"><span class="attendance-item-label">In person</span><span class="day-total-value">${a.inPerson[key]}</span></div>
+          </div>`}
+        </div>`;
 
       host.innerHTML = state.days.map((day, index) => {
         const attendance = dayAttendanceBreakdown(day);
+        const pr = dayProgress(day);
         const filled = dayHasAnyData(day) ? 'Filled day' : 'Empty day';
         const dayButton = isMultiDay()
           ? `<button type="button" onclick="setActiveDay('${day.id}')" class="${day.id === state.activeDayId ? 'primary' : ''}">${escapeHtml(day.label)}</button>`
           : `<span class="day-name">${escapeHtml(day.label)}</span>`;
         const copyBtn = (isMultiDay() && index > 0)
-          ? `<button type="button" class="copy-names-btn" onclick="copyNamesFromFirstDay('${day.id}')" title="Replace the names of this day with the names from ${escapeAttr(state.days[0].label)}">⇄ Copy names from ${escapeHtml(state.days[0].label)}</button>`
+          ? `<button type="button" class="copy-names-btn" onclick="copyNamesFromFirstDay('${day.id}')" title="Replace the names of this day with the names from ${escapeAttr(state.days[0].label)}">Copy names from ${escapeHtml(state.days[0].label)}</button>`
           : '';
         const hint = isMultiDay()
           ? `<div class="day-hint">Names entered on ${escapeHtml(state.days[0].label)} carry over to the other days automatically until you edit them there.</div>`
-          : `<div class="day-hint">JW Stream is detected automatically from the position name/type.</div>`;
+          : `<div class="day-hint">Enter or ↓ jumps to the next count, ↑ goes back.</div>`;
 
         return `
           <div class="day-card ${day.id === state.activeDayId ? 'active' : ''}">
@@ -1977,23 +2372,10 @@
               <span class="time-chip">Count 2 <input type="text" value="${escapeAttr(day.time2)}" spellcheck="false" oninput="setDayTimeDraft('${day.id}','time2',this.value)" onkeydown="handleDayTimeKey(event,'${day.id}','time2',this)" onblur="commitDayTime('${day.id}','time2',this)" /></span>
             </div>
             <div class="day-totals">
-              <div class="day-total-box">
-                <span class="day-total-label">${escapeHtml(day.time1)}</span>
-                <div class="attendance-split">
-                  <div class="attendance-item"><span class="attendance-item-label">In person</span><span class="day-total-value">${attendance.inPerson.count1}</span></div>
-                  <div class="attendance-item"><span class="attendance-item-label stream-marker">JW Stream</span><span class="day-total-value stream-marker">${attendance.stream.count1}</span></div>
-                  <div class="attendance-item combined"><span class="attendance-item-label">Combined</span><span class="day-total-value">${attendance.combined.count1}</span></div>
-                </div>
-              </div>
-              <div class="day-total-box">
-                <span class="day-total-label">${escapeHtml(day.time2)}</span>
-                <div class="attendance-split">
-                  <div class="attendance-item"><span class="attendance-item-label">In person</span><span class="day-total-value">${attendance.inPerson.count2}</span></div>
-                  <div class="attendance-item"><span class="attendance-item-label stream-marker">JW Stream</span><span class="day-total-value stream-marker">${attendance.stream.count2}</span></div>
-                  <div class="attendance-item combined"><span class="attendance-item-label">Combined</span><span class="day-total-value">${attendance.combined.count2}</span></div>
-                </div>
-              </div>
+              ${totalsBox(day.time1, attendance, 'count1')}
+              ${totalsBox(day.time2, attendance, 'count2')}
             </div>
+            <div class="day-progress">Entered: <b class="${pr.c1 === pr.total && pr.total ? 'done' : ''}">${pr.c1}/${pr.total}</b> at ${escapeHtml(day.time1)} · <b class="${pr.c2 === pr.total && pr.total ? 'done' : ''}">${pr.c2}/${pr.total}</b> at ${escapeHtml(day.time2)}</div>
             ${copyBtn}
             ${hint}
           </div>
@@ -2006,46 +2388,83 @@
       const day = getActiveDay();
       const time1 = day.time1 || '10.30';
       const time2 = day.time2 || '14.30';
+      const list = dayPositions(day);
 
-      if (!state.positions.length) {
-        wrap.innerHTML = `<div class="list-shell"><div class="screen-list-empty">No positions yet.</div></div>`;
+      if (!list.length) {
+        wrap.innerHTML = `<div class="list-shell"><div class="screen-list-empty">No positions yet – add the first one in the setup area above.</div></div>`;
         return;
       }
 
-      const rows = dayPositions(day).map((p) => `
-        <div class="list-row">
+      const regIds = regularDefs().map(p => p.id);
+      const firstLabel = escapeAttr(state.days[0].label);
+
+      const editable = (p, field, cls) =>
+        `<span class="${cls}" contenteditable="true" spellcheck="false" oninput="updateEditableField('${p.id}','${field}',this.innerText)" onblur="commitEditableField('${p.id}','${field}',this)">${escapeHtml(p[field])}</span>`;
+
+      const countInput = (p, col, idx, time) => {
+        const v = Number(p['count' + col]) || 0;
+        return `<input type="text" class="count-input ${v > 0 ? 'has-value' : ''}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-col="${col}" data-row="${idx}" value="${v > 0 ? v : ''}" placeholder="–" onfocus="this.select()" oninput="onCountInput('${p.id}',${col},this)" onkeydown="handleCountKey(event,this)" title="Count at ${escapeAttr(time)}" />`;
+      };
+
+      const nameInput = (p, field, placeholder) => {
+        const auto = p[field + 'Auto'] && String(p[field] || '').trim();
+        return `<input type="text" class="name-input ${auto ? 'auto-name' : ''}" value="${escapeAttr(p[field])}" oninput="this.classList.remove('auto-name');setName('${p.id}','${field}',this.value)" placeholder="${placeholder}" ${auto ? `title="Carried over from ${firstLabel}"` : ''} />`;
+      };
+
+      const icon = {
+        print: '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M4.5 6V2.5h7V6M4.5 11.5h-2v-5h11v5h-2M4.5 9.5h7v4h-7z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+        remove: '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+      };
+
+      const rows = list.map((p, idx) => {
+        const ri = regIds.indexOf(p.id);
+        const names = p.split
+          ? `<div class="name-pair">
+               <label class="name-line"><span class="name-tag">${escapeHtml(time1)}</span>${nameInput(p, 'name', 'Shift 1')}</label>
+               <label class="name-line"><span class="name-tag">${escapeHtml(time2)}</span>${nameInput(p, 'name2', 'Shift 2')}</label>
+             </div>`
+          : nameInput(p, 'name', p.stream ? 'A/V contact' : 'Brother name');
+        const flags = p.stream
+          ? ''
+          : `<div class="position-flags"><label class="flag-toggle ${p.split ? 'checked' : ''}"><input type="checkbox" ${p.split ? 'checked' : ''} onchange="toggleSplit('${p.id}',this.checked)" /> 2 shifts${p.split ? ` · separate slips for ${escapeHtml(time1)} and ${escapeHtml(time2)}` : ''}</label></div>`;
+        const moveBtns = p.stream ? '' : `
+            <button type="button" class="icon-btn" data-move="${p.id}:-1" title="Move up" onclick="movePosition('${p.id}',-1)" ${ri <= 0 ? 'disabled' : ''}>↑</button>
+            <button type="button" class="icon-btn" data-move="${p.id}:1" title="Move down" onclick="movePosition('${p.id}',1)" ${ri >= regIds.length - 1 ? 'disabled' : ''}>↓</button>`;
+        const lastBtn = p.stream
+          ? `<button type="button" class="icon-btn wide" title="Switch JW Stream off for this event (figures are kept)" onclick="setStreamEnabled(false)">Off</button>`
+          : `<button type="button" class="icon-btn danger" title="Remove position" onclick="removePosition('${p.id}')">${icon.remove}</button>`;
+
+        return `
+        <div class="list-row ${p.stream ? 'stream-row' : ''} ${p.split ? 'split-row' : ''}" data-id="${p.id}">
           <div class="position-cell">
             <div class="position-meta">
-              <span class="position-type" contenteditable="true" oninput="updateEditableField('${p.id}','type',this.innerText)" onblur="commitEditableField('${p.id}','type',this)">${escapeHtml(p.type)}</span>
-              <span class="position-title" contenteditable="true" oninput="updateEditableField('${p.id}','title',this.innerText)" onblur="commitEditableField('${p.id}','title',this)">${escapeHtml(p.title)}</span>
+              ${editable(p, 'type', 'position-type')}
+              ${editable(p, 'title', 'position-title')}
             </div>
-            <div class="position-subtitle" contenteditable="true" oninput="updateEditableField('${p.id}','subtitle',this.innerText)" onblur="commitEditableField('${p.id}','subtitle',this)">${escapeHtml(p.subtitle)}</div>
+            ${editable(p, 'subtitle', 'position-subtitle')}
+            ${flags}
           </div>
-          <div class="row-count" data-label="${escapeAttr(time1)}">
-            <input type="number" min="0" inputmode="numeric" value="${Number(p.count1) || 0}" oninput="setCount('${p.id}','count1',this.value)" title="Enter the count for ${escapeAttr(time1)}" />
-          </div>
-          <div class="row-count" data-label="${escapeAttr(time2)}">
-            <input type="number" min="0" inputmode="numeric" value="${Number(p.count2) || 0}" oninput="setCount('${p.id}','count2',this.value)" title="Enter the count for ${escapeAttr(time2)}" />
-          </div>
-          <div class="row-name" data-label="Name">
-            <input type="text" class="${p.nameAuto && String(p.name || '').trim() ? 'auto-name' : ''}" value="${escapeAttr(p.name)}" oninput="setName('${p.id}',this.value)" placeholder="Brother name" ${p.nameAuto && String(p.name || '').trim() ? `title="Carried over from ${escapeAttr(state.days[0].label)}"` : ''} />
-          </div>
+          <div class="row-count" data-label="${escapeAttr(time1)}">${countInput(p, 1, idx, time1)}</div>
+          <div class="row-count" data-label="${escapeAttr(time2)}">${countInput(p, 2, idx, time2)}</div>
+          <div class="row-name" data-label="${p.split ? 'Names' : (p.stream ? 'A/V contact' : 'Name')}">${names}</div>
           <div class="row-action">
-            <button class="danger" onclick="removePosition('${p.id}')">Remove</button>
+            ${moveBtns}
+            <button type="button" class="icon-btn" title="Print ${p.split ? 'both slips' : 'the slip'} of this position for ${escapeAttr(day.label)}" onclick="printPositionSlips('${p.id}')">${icon.print}</button>
+            ${lastBtn}
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
 
       const note = isMultiDay()
-        ? `<div class="list-note">Position, area and description are shared by all ${state.days.length} days. Counts and names belong to ${escapeHtml(day.label)}.</div>`
+        ? `<div class="list-note">Position, area, description and shifts are shared by all ${state.days.length} days. Counts and names belong to ${escapeHtml(day.label)}.</div>`
         : '';
 
       wrap.innerHTML = `
         <div class="list-shell">
           <div class="list-head">
             <div>${isMultiDay() ? escapeHtml(day.label) + ' · ' : ''}Position / area</div>
-            <div>${escapeHtml(time1)}</div>
-            <div>${escapeHtml(time2)}</div>
+            <div>${escapeHtml(time1)}<span class="col-progress" id="progress1"></span></div>
+            <div>${escapeHtml(time2)}<span class="col-progress" id="progress2"></span></div>
             <div>Name</div>
             <div></div>
           </div>
@@ -2053,6 +2472,7 @@
           ${note}
         </div>
       `;
+      updateListProgress();
     }
 
     function renderPrintSlips() {
@@ -2061,46 +2481,67 @@
       const guidelineText = state.globalGuidelineText || defaultGuidelineText;
       const eventText = [state.globalEvent || '', isMultiDay() ? day.label : ''].filter(Boolean).join(' · ');
 
-      wrap.innerHTML = dayPositions(day).map((p, index) => `
-        <section class="slip">
+      // One slip per position, two for split positions (one per shift).
+      const units = [];
+      dayPositions(day).forEach(p => {
+        if (pendingPrintPositionId && p.id !== pendingPrintPositionId) return;
+        if (p.split && !p.stream) {
+          units.push({ p, shift: 1 });
+          units.push({ p, shift: 2 });
+        } else {
+          units.push({ p, shift: 0 });
+        }
+      });
+
+      const counterBox = (time, value) => `
+                <div class="counter-box">
+                  <label class="counter-title">${escapeHtml(time)}</label>
+                  <input class="counter-value" type="number" min="0" inputmode="numeric" value="${Number(value) || 0}" />
+                </div>`;
+
+      const guideline = (text, ref) => `
+            <div class="guideline">
+              <strong>${escapeHtml(text.split(':')[0] || 'Attendance count')}</strong>${text.includes(':') ? escapeHtml(':' + text.split(':').slice(1).join(':')) : ''}
+              ${ref ? `<div class="guideline-ref">${escapeHtml(ref)}</div>` : ''}
+            </div>`;
+
+      wrap.innerHTML = units.map(({ p, shift }, index) => {
+        const counters = shift === 1 ? counterBox(day.time1, p.count1)
+          : shift === 2 ? counterBox(day.time2, p.count2)
+          : counterBox(day.time1, p.count1) + counterBox(day.time2, p.count2);
+        const name = shift === 2 ? p.name2 : p.name;
+        const shiftBadge = shift ? `<span class="slip-shift">Shift ${shift} of 2 · ${escapeHtml(shift === 1 ? day.time1 : day.time2)}</span>` : '';
+        const times = shift === 1 ? day.time1 : shift === 2 ? day.time2 : `${day.time1} / ${day.time2}`;
+        return `
+        <section class="slip ${p.stream ? 'stream-slip' : ''}">
           <div class="slip-head">
-            <div class="slip-type">${escapeHtml(p.type)}</div>
+            <div class="slip-type">${escapeHtml(p.type)}${p.stream ? ' · A/V Department' : ''}${shiftBadge}</div>
             ${isMultiDay() ? `<div class="slip-day">${escapeHtml(day.label)}</div>` : ''}
             <h2 class="slip-title">${escapeHtml(p.title)}</h2>
             <div class="slip-subtitle">${escapeHtml(p.subtitle)}</div>
           </div>
           <div class="slip-body">
-            <div class="counters">
-              <div class="counter-box">
-                <label class="counter-title">${escapeHtml(day.time1)}</label>
-                <input class="counter-value" type="number" min="0" inputmode="numeric" value="${Number(p.count1) || 0}" />
-              </div>
-              <div class="counter-box">
-                <label class="counter-title">${escapeHtml(day.time2)}</label>
-                <input class="counter-value" type="number" min="0" inputmode="numeric" value="${Number(p.count2) || 0}" />
-              </div>
+            <div class="counters ${shift ? 'single' : ''}">${counters}
             </div>
             <div class="meta">
               <div class="field">
-                <label>Name</label>
-                <input type="text" value="${escapeAttr(p.name)}" readonly />
+                <label>${p.stream ? 'Reported by' : 'Name'}</label>
+                <input type="text" value="${escapeAttr(name)}" readonly />
               </div>
               <div class="field">
                 <label>Event${isMultiDay() ? ' / day' : ''}</label>
                 <input type="text" value="${escapeAttr(eventText)}" readonly />
               </div>
             </div>
-            <div class="guideline">
-              <strong>${escapeHtml(guidelineText.split(':')[0] || 'Attendance count')}</strong>${guidelineText.includes(':') ? escapeHtml(':' + guidelineText.split(':').slice(1).join(':')) : ''}
-              <div class="guideline-ref">${escapeHtml(defaultGuidelineRef)}</div>
-            </div>
+            ${p.stream ? guideline(streamGuidelineText, '') : guideline(guidelineText, defaultGuidelineRef)}
           </div>
           <div class="slip-footer">
-            <div>${isMultiDay() ? escapeHtml(day.label) + ' · ' : ''}Slip ${index + 1}</div>
-            <div>${escapeHtml(day.time1)} / ${escapeHtml(day.time2)}</div>
+            <div>${isMultiDay() ? escapeHtml(day.label) + ' · ' : ''}Slip ${index + 1} of ${units.length}</div>
+            <div>${escapeHtml(times)}</div>
           </div>
         </section>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function buildAttendanceTrend(days) {
@@ -2151,7 +2592,9 @@
         const inPersonPeak = Math.max(attendance.inPerson.count1, attendance.inPerson.count2);
         const streamPeak = Math.max(attendance.stream.count1, attendance.stream.count2);
         const combinedPeak = Math.max(attendance.combined.count1, attendance.combined.count2);
-        return `${day.label}: in person ${inPersonPeak} · JW Stream ${streamPeak} · combined ${combinedPeak}`;
+        return state.streamEnabled
+          ? `${day.label}: in person ${inPersonPeak} · JW Stream ${streamPeak} · combined ${combinedPeak}`
+          : `${day.label}: in person ${inPersonPeak}`;
       });
       return `<div class="summary-peak-line"><strong>Peak overview:</strong> ${parts.join('<br>')}</div>`;
     }
@@ -2190,13 +2633,14 @@
                   <div class="summary-grid-value">${totals.inPerson.count1}</div>
                   <div class="summary-grid-value">${totals.inPerson.count2}</div>
 
+                  ${state.streamEnabled ? `
                   <div class="summary-grid-label">JW Stream</div>
                   <div class="summary-grid-value">${totals.stream.count1}</div>
                   <div class="summary-grid-value">${totals.stream.count2}</div>
 
                   <div class="summary-grid-label summary-grid-combined">Combined</div>
                   <div class="summary-grid-value summary-grid-combined">${totals.combined.count1}</div>
-                  <div class="summary-grid-value summary-grid-combined">${totals.combined.count2}</div>
+                  <div class="summary-grid-value summary-grid-combined">${totals.combined.count2}</div>` : ''}
                 </div>
               </section>
             `;
@@ -2267,8 +2711,7 @@
           <tbody>${rows}</tbody>
           <tfoot>
             ${footerRow('In-person total', t => t.inPerson)}
-            ${footerRow('JW Stream', t => t.stream)}
-            ${footerRow('Combined reach', t => t.combined)}
+            ${state.streamEnabled ? footerRow('JW Stream', t => t.stream) + footerRow('Combined reach', t => t.combined) : ''}
           </tfoot>
         </table>
       `;
@@ -2330,6 +2773,7 @@
       activePrintMode = null;
       document.body.classList.remove('summary-print-mode', 'slips-print-mode');
       pendingPrintDayId = null;
+      pendingPrintPositionId = null;
       renderPrintSlips();
     }
 
@@ -2353,7 +2797,7 @@
         return `
           <button type="button" class="modal-day-option" onclick="printSlipsForDay('${day.id}')">
             <span><strong>${escapeHtml(day.label)}</strong><br><span style="color: var(--muted);">${escapeHtml(day.time1)} / ${escapeHtml(day.time2)}</span></span>
-            <span style="color: var(--muted);">${totals.count1} / ${totals.count2}</span>
+            <span style="color: var(--muted);">${slipCount()} slips</span>
           </button>
         `;
       }).join('');
@@ -2364,8 +2808,20 @@
       document.getElementById('printDayModal').classList.remove('open');
     }
 
+    // Reprint the slip(s) of a single position for the active day,
+    // e.g. the JW Stream slip for the A/V Department or a lost slip.
+    function printPositionSlips(positionId) {
+      saveState();
+      pendingPrintDayId = getActiveDay().id;
+      pendingPrintPositionId = positionId;
+      renderPrintSlips();
+      applyPrintMode('slips');
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
     function printSlipsForDay(dayId) {
       pendingPrintDayId = dayId;
+      pendingPrintPositionId = null;
       closePrintDayModal();
       renderPrintSlips();
       applyPrintMode('slips');
@@ -2395,6 +2851,7 @@
       document.getElementById('subtitle').innerText = state.subtitle || mode().subtitle;
       document.getElementById('globalEvent').value = state.globalEvent || '';
       updateModeButtons();
+      updateStreamButton();
       renderDaysGrid();
       renderScreenList();
       renderPrintSlips();
@@ -2439,12 +2896,12 @@
       renderPrintSlips();
       renderSummaryView();
     });
-    document.getElementById('newPositionName').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') addPosition();
+    ['newPositionNo', 'newPositionName', 'newPositionSubtitle', 'newPositionSplit'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addPosition(); }
+      });
     });
-    document.getElementById('newPositionSubtitle').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') addPosition();
-    });
+    document.getElementById('streamToggleBtn').addEventListener('click', () => setStreamEnabled(!state.streamEnabled));
 
     window.addEventListener('beforeprint', () => {
       if (activePrintMode) applyPrintMode(activePrintMode);
