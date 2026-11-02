@@ -199,6 +199,13 @@ details summary span:last-child{transition:transform .2s ease}
 .idleNames{display:flex;flex-wrap:wrap;gap:5px}
 .idleNames span{font-size:12.5px;padding:4px 9px;border-radius:999px;background:#fff6f6;border:1px solid #f1d3d3}
 .statsCard{margin-top:0}
+.modalHead{position:sticky;top:-20px;z-index:5;background:#fff;margin:-20px -20px 10px;padding:16px 20px 10px;display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid transparent;transition:border-color .2s}
+.modalHead h2{margin:0}
+.modalHead.scrolled{border-bottom-color:var(--line);box-shadow:0 6px 14px -12px rgba(20,35,55,.35)}
+.modalX{width:36px;height:36px;padding:0;border-radius:12px;font-size:16px;flex:none}
+.modalTopWrap{position:sticky;bottom:6px;height:0;display:flex;justify-content:flex-end;z-index:5;pointer-events:none}
+.modalTopBtn{pointer-events:auto;transform:translateY(-100%) scale(.8);opacity:0;visibility:hidden;width:44px;height:44px;border-radius:999px;border:0;background:var(--accent);color:#fff;font-size:19px;font-weight:900;box-shadow:0 8px 20px rgba(20,35,55,.28);transition:opacity .2s,transform .2s,visibility .2s}
+.modalTopBtn.show{opacity:1;visibility:visible;transform:translateY(-100%) scale(1)}
 .myHist{margin-top:10px;border-top:1px solid var(--line);padding-top:4px}
 .myHist summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:13px;font-weight:850;color:var(--muted)}
 .myHist .dayItem{opacity:.72}.myHist .dayItem .dateBox{filter:grayscale(.6)}
@@ -481,8 +488,8 @@ details summary span:last-child{transition:transform .2s ease}
   <div class="modalActions"><button class="btn" id="helpCloseBtn"></button></div>
 </div></div>
 
-<div id="peopleModal" class="overlay"><div class="modal">
-  <h2 id="peopleTitle"></h2>
+<div id="peopleModal" class="overlay"><div class="modal" id="peopleModalBox">
+  <div class="modalHead"><h2 id="peopleTitle"></h2><button class="btn ghost small modalX" data-close="peopleModal" type="button" aria-label="✕">✕</button></div>
   <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center"><input id="newPersonGiven" class="field" type="text" style="margin:0"><button id="swapNamesBtn" class="btn ghost small" type="button" style="padding:8px 10px">⇄</button><input id="newPersonFamily" class="field" type="text" style="margin:0"></div>
   <select id="newPersonCong" class="field"></select>
   <div style="display:flex;gap:8px"><button id="cancelEditPersonBtn" class="btn ghost hidden" type="button"></button><button id="addPersonBtn" class="btn" style="flex:1"></button></div>
@@ -491,12 +498,13 @@ details summary span:last-child{transition:transform .2s ease}
     <div id="peopleSummary" class="peopleSummary"></div>
   </div>
   <div id="peopleList" style="margin-top:4px"></div>
+  <div class="modalTopWrap"><button id="peopleTopBtn" class="modalTopBtn" type="button" aria-label="↑">↑</button></div>
   <div class="modalActions"><button class="btn ghost" data-close="peopleModal" id="peopleCloseBtn"></button></div>
 </div></div>
 
 <script>
 const API_URL="https://avuimpwjslrgpdahyloa.supabase.co/functions/v1/winter-service-api";
-const APP_VERSION="0.16.3";
+const APP_VERSION="0.16.4";
 const APP_URL="https://kaffeetrinker80.github.io/theocratic/kh-winterservice/";
 const CREW_GOOD=4; // ab so vielen Personen gilt ein Tag als gut besetzt
 const APP_NAME="KRS Winterdienst";
@@ -1476,7 +1484,10 @@ function renderWeather(){
 
 $("loginBtn").onclick=login;$("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")login()});$("logoutBtn").onclick=()=>logout(true);
 $("mapBtn").onclick=openMap;$("topMapBtn").onclick=openMap;$("monthPrevBtn").onclick=()=>moveMonth(-1);$("monthNextBtn").onclick=()=>moveMonth(1);document.querySelectorAll("[data-area]").forEach(b=>b.onclick=()=>saveHelperArea(b.dataset.area));$("firstSaveBtn").onclick=saveFirstIdentity;$("confirmPersonBtn").onclick=()=>{const id=Number($("personSelect").value);if(id)performPerson(id)};$("coverageType").onchange=syncCoverageFields;$("editSaveBtn").onclick=saveEdit;
-$("adminMonthsBtn").onclick=()=>{renderMonthsAdmin();$("monthsModal").classList.add("show")};$("monthsSaveBtn").onclick=saveMonths;$("adminWeekendsBtn").onclick=()=>{renderWeekendsAdmin();$("weekendsModal").classList.add("show")};$("weekendsSaveBtn").onclick=saveWeekends;$("adminSeasonBtn").onclick=openSeasonAdmin;$("seasonSelect").onchange=renderSeasonInfo;$("seasonCreateBtn").onclick=createSeason;$("seasonActivateBtn").onclick=activateSeason;$("adminPeopleBtn").onclick=()=>{resetPersonForm();$("peopleModal").classList.add("show");renderPeople()};$("peopleCongFilter").onchange=()=>{S.peopleCong=$("peopleCongFilter").value;renderPeople()};$("addPersonBtn").onclick=addPerson;$("helpBtn").onclick=()=>openHelp(false);$("toTopBtn").onclick=()=>scrollTo({top:0,behavior:"smooth"});$("toTopBtn").title=t("toTop");$("toTopBtn").setAttribute("aria-label",t("toTop"));window.addEventListener("scroll",()=>$("toTopBtn").classList.toggle("show",scrollY>600),{passive:true});$("swapNamesBtn").onclick=swapNameFields;$("cancelEditPersonBtn").onclick=resetPersonForm;$("firstGivenInput").oninput=checkFirstDup;$("firstFamilyInput").oninput=checkFirstDup;$("mapFrame").onclick=toggleMapZoom;$("helpCloseBtn").onclick=closeHelp;
+$("adminMonthsBtn").onclick=()=>{renderMonthsAdmin();$("monthsModal").classList.add("show")};$("monthsSaveBtn").onclick=saveMonths;$("adminWeekendsBtn").onclick=()=>{renderWeekendsAdmin();$("weekendsModal").classList.add("show")};$("weekendsSaveBtn").onclick=saveWeekends;$("adminSeasonBtn").onclick=openSeasonAdmin;$("seasonSelect").onchange=renderSeasonInfo;$("seasonCreateBtn").onclick=createSeason;$("seasonActivateBtn").onclick=activateSeason;(()=>{const box=$("peopleModalBox"),head=box.querySelector(".modalHead"),btn=$("peopleTopBtn");
+  box.addEventListener("scroll",()=>{head.classList.toggle("scrolled",box.scrollTop>4);btn.classList.toggle("show",box.scrollTop>350)},{passive:true});
+  btn.onclick=()=>box.scrollTo({top:0,behavior:"smooth"});})();
+$("adminPeopleBtn").onclick=()=>{resetPersonForm();$("peopleModal").classList.add("show");renderPeople()};$("peopleCongFilter").onchange=()=>{S.peopleCong=$("peopleCongFilter").value;renderPeople()};$("addPersonBtn").onclick=addPerson;$("helpBtn").onclick=()=>openHelp(false);$("toTopBtn").onclick=()=>scrollTo({top:0,behavior:"smooth"});$("toTopBtn").title=t("toTop");$("toTopBtn").setAttribute("aria-label",t("toTop"));window.addEventListener("scroll",()=>$("toTopBtn").classList.toggle("show",scrollY>600),{passive:true});$("swapNamesBtn").onclick=swapNameFields;$("cancelEditPersonBtn").onclick=resetPersonForm;$("firstGivenInput").oninput=checkFirstDup;$("firstFamilyInput").oninput=checkFirstDup;$("mapFrame").onclick=toggleMapZoom;$("helpCloseBtn").onclick=closeHelp;
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("show"));
 $("adminMenuBtn").onclick=()=>{renderAdminMenu();$("adminMenuModal").classList.add("show")};
 document.querySelectorAll("#adminMenuModal .menuTile").forEach(b=>b.addEventListener("click",()=>$("adminMenuModal").classList.remove("show")));
