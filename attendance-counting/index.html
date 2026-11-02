@@ -1537,13 +1537,13 @@
     .cm-row.flash { animation: row-flash 1.4s ease-out; }
     .cm-row.cm-stream { box-shadow: inset 3px 0 0 #d9a33a; }
     .cm-badge { text-align: center; font-size: 26px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
-    .cm-badge.txt { font-size: 13px; letter-spacing: .02em; }
+    .cm-badge.txt { font-size: 16px; letter-spacing: .02em; }
     .cm-row.done .cm-badge { color: #2f7a4f; }
     .cm-stream .cm-badge { color: #8a5a00; }
-    .cm-line { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-    .cm-ptitle { font-size: 17px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cm-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; min-width: 0; }
+    .cm-ptitle { font-size: 17px; font-weight: 700; line-height: 1.2; min-width: 0; }
     .cm-shift { flex: none; padding: 1px 8px; border: 1px solid currentColor; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--accent); }
-    .cm-sub { margin-top: 3px; font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cm-sub { margin-top: 3px; font-size: 13px; line-height: 1.3; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .cm-who { color: var(--ink); font-weight: 600; }
     .cm-noname { font-style: italic; }
     .cm-count {
@@ -1597,7 +1597,7 @@
       line-height: 1.3;
     }
     .cm-chip-no { text-align: center; font-size: 18px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
-    .cm-chip-no.txt { font-size: 11px; }
+    .cm-chip-no.txt { font-size: 12px; }
     .cm-chip-text { min-width: 0; color: var(--muted); }
     .cm-chip-text b { color: var(--ink); }
     .cm-all-done { padding: 6px 0; color: #2f7a4f; font-weight: 700; font-size: 14px; }
@@ -1759,7 +1759,7 @@
       </aside>
     </div>
   </div>
-  <div class="app-footer screen-only">Counting Munich · V1.43 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.43">✉ Feedback</a></div>
+  <div class="app-footer screen-only">Counting Munich · V1.44 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.44">✉ Feedback</a></div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1794,7 +1794,7 @@
 
   <script>
     /* ------------------------------------------------------------------
-       Counting Munich v1.43
+       Counting Munich v1.44
        One tool, two independent event slots:
          - assembly   : 1 day
          - convention : 3 days
@@ -1804,7 +1804,7 @@
     ------------------------------------------------------------------ */
 
     const MODE_KEY = 'counting-munich:mode';
-    const APP_VERSION = '1.43';
+    const APP_VERSION = '1.44';
     const STREAM_ID = 'jw-stream';
     const LEGACY_STREAM_RE = /(^|\b)(jw\s*stream|live\s*stream|livestream|streaming|stream)(\b|$)/i;
     const streamGuidelineText = 'JW Stream: Please enter the JW Stream figure at each counting time and return this slip to the Attendance Counting Department.';
@@ -3242,7 +3242,13 @@
       const n = positionNumber(p);
       if (n !== null && !p.stream) return { text: String(n), num: true };
       if (p.stream) return { text: 'JW', num: false };
-      return { text: (String(p.type || '').trim().split(/\s+/)[0] || '•').slice(0, 6), num: false };
+      // Short labels as they are ("Block"), otherwise a short form:
+      // "TC Lobby" -> "TC", "Attendant Desk" -> "AD".
+      const label = String(p.type || '').trim() || '•';
+      const words = label.split(/\s+/);
+      if (label.length <= 6) return { text: label, num: false };
+      if (/^[A-Z]{1,4}$/.test(words[0])) return { text: words[0], num: false };
+      return { text: words.map(w => w.charAt(0)).join('').toUpperCase().slice(0, 3), num: false };
     }
 
     function cmUnits() {
