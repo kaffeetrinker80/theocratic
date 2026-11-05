@@ -1,8 +1,8 @@
 {
  "language": "de",
  "languageName": "Deutsch",
- "source": "S-99-X 2/26 — Themen der öffentlichen Vorträge",
- "revision": "2/26",
+ "source": "S-99a-X 11/26 — Themen der öffentlichen Vorträge – thematisch geordnet",
+ "revision": "11/26",
  "generatedAt": "2026-09-28",
  "outlines": {
   "1": {
@@ -902,12 +902,12 @@
    }
   },
   "57": {
-   "title": "Unter Verfolgung standhaft bleiben",
-   "revision": "12/93",
+   "title": "Werde ich mich für die wahre Anbetung entscheiden?",
+   "revision": null,
    "status": "active",
    "effectiveDate": "",
    "replacement": null,
-   "note": "",
+   "note": "Neues Thema in S-99a-X 11/26 (bisher „Unter Verfolgung standhaft bleiben“). Revision auf docs.jw.org prüfen.",
    "history": [],
    "origin": {
     "title": "Unter Verfolgung standhaft bleiben",
@@ -1336,7 +1336,7 @@
   "84": {
    "title": "Dem entgehen, was dieser Welt bevorsteht",
    "revision": "11/03",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1347,6 +1347,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1360,7 +1367,7 @@
   "85": {
    "title": "Eine gute Botschaft in einer gewalttätigen Welt",
    "revision": "09/01",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1371,6 +1378,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1400,7 +1414,7 @@
   "87": {
    "title": "Was für ein Verhältnis habe ich zu Gott?",
    "revision": "01/95",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1411,6 +1425,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1488,7 +1509,7 @@
   "92": {
    "title": "Die Rolle der Religion im Weltgeschehen",
    "revision": "11/95",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1499,6 +1520,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1528,7 +1556,7 @@
   "94": {
    "title": "Die wahre Religion stillt die Bedürfnisse der menschlichen Gesellschaft",
    "revision": "12/93",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1539,6 +1567,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1584,7 +1619,7 @@
   "97": {
    "title": "Sich in einer schlechten Welt nichts zuschulden kommen lassen",
    "revision": "01/96",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1595,6 +1630,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1654,7 +1696,7 @@
    }
   },
   "101": {
-   "title": "Jehova – der „große Schöpfer“",
+   "title": "Jehova – der große Schöpfer",
    "revision": "09/22",
    "status": "active",
    "effectiveDate": "",
@@ -1720,7 +1762,7 @@
   "105": {
    "title": "In allen unseren Prüfungen Trost finden",
    "revision": "05/95",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1731,6 +1773,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1744,7 +1793,7 @@
   "106": {
    "title": "Die Zerstörung der Erde wird von Gott bestraft",
    "revision": "05/95",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1755,6 +1804,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1800,7 +1856,7 @@
   "109": {
    "title": "Das Königreich Gottes ist nah",
    "revision": "01/96",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1811,6 +1867,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1936,7 +1999,7 @@
   "117": {
    "title": "Wie man das Böse mit dem Guten besiegen kann",
    "revision": "11/06",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1947,6 +2010,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1960,10 +2030,10 @@
   "118": {
    "title": "Jugendlichen gegenüber so eingestellt sein wie Jehova",
    "revision": "08/98",
-   "status": "do_not_use",
+   "status": "active",
    "effectiveDate": "",
    "replacement": null,
-   "note": "Einer der Vorträge des Kreisaufsehers im Dienstjahr 2027 wird eine überarbeitete Fassung des aktuellen öffentlichen Vortrags „Jugendlichen gegenüber so eingestellt sein wie Jehova“ (Nr. 118) sein.",
+   "note": "In S-99a-X 11/26 wieder aufgeführt. Der Vortrag des Kreisaufsehers war als überarbeitete Fassung angekündigt – prüfen, ob die Revision (08/98) noch aktuell ist.",
    "history": [
     {
      "date": "2026-10-24",
@@ -1971,6 +2041,13 @@
      "from": "active",
      "to": "do_not_use",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "do_not_use",
+     "to": "active",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -1984,7 +2061,7 @@
   "119": {
    "title": "Warum es gut ist, als Christ kein Teil der Welt zu sein",
    "revision": "05/97",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -1995,6 +2072,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2008,7 +2092,7 @@
   "120": {
    "title": "Warum man sich jetzt Gottes Herrschaft unterordnen sollte",
    "revision": "06/97",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2019,6 +2103,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2046,13 +2137,21 @@
    }
   },
   "122": {
-   "title": "",
+   "title": "Eine Welt ohne Krieg – Wie?",
    "revision": null,
-   "status": "do_not_use",
-   "effectiveDate": "2025-06-01",
+   "status": "active",
+   "effectiveDate": "",
    "replacement": null,
-   "note": "Nicht verwenden",
-   "history": [],
+   "note": "In S-99a-X 11/26 mit neuem Thema wieder freigegeben. Revision auf docs.jw.org prüfen.",
+   "history": [
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "do_not_use",
+     "to": "active",
+     "note": "S-99a-X 11/26"
+    }
+   ],
    "origin": {
     "title": "",
     "status": "do_not_use",
@@ -2062,13 +2161,21 @@
    }
   },
   "123": {
-   "title": "",
+   "title": "Warum echte Christen anders sein müssen",
    "revision": null,
-   "status": "do_not_use",
+   "status": "active",
    "effectiveDate": "",
    "replacement": null,
-   "note": "Nicht verwenden",
-   "history": [],
+   "note": "In S-99a-X 11/26 mit neuem Thema wieder freigegeben. Revision auf docs.jw.org prüfen.",
+   "history": [
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "do_not_use",
+     "to": "active",
+     "note": "S-99a-X 11/26"
+    }
+   ],
    "origin": {
     "title": "",
     "status": "do_not_use",
@@ -2080,7 +2187,7 @@
   "124": {
    "title": "Stammt die Bibel wirklich von Gott?",
    "revision": "05/97",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2091,6 +2198,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2120,7 +2234,7 @@
   "126": {
    "title": "Wer kann gerettet werden?",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2131,6 +2245,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2190,12 +2311,12 @@
    }
   },
   "130": {
-   "title": "Die Erde wird für immer bestehen",
-   "revision": "08/00",
+   "title": "Wer wird die Erde retten?",
+   "revision": null,
    "status": "active",
    "effectiveDate": "",
    "replacement": null,
-   "note": "",
+   "note": "Neues Thema in S-99a-X 11/26 (bisher „Die Erde wird für immer bestehen“). Revision auf docs.jw.org prüfen.",
    "history": [],
    "origin": {
     "title": "Die Erde wird für immer bestehen",
@@ -2336,7 +2457,7 @@
   "139": {
    "title": "Göttliche Weisheit in einer wissenschaftlich orientierten Welt",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2347,6 +2468,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2376,7 +2504,7 @@
   "141": {
    "title": "Das Seufzen der Menschheit – wann wird es enden?",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2387,6 +2515,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2432,7 +2567,7 @@
   "144": {
    "title": "Eine loyale Versammlung unter der Führung Christi",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2443,6 +2578,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2456,7 +2598,7 @@
   "145": {
    "title": "Wer ist wie Jehova, unser Gott?",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2467,6 +2609,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2512,7 +2661,7 @@
   "148": {
    "title": "Das Leben so sehen, wie Gott es sieht",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2523,6 +2672,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2536,7 +2692,7 @@
   "149": {
    "title": "Unseren Weg mit Gott gehen",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2547,6 +2703,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2576,7 +2739,7 @@
   "151": {
    "title": "Jehova ist seinem Volk „eine sichere Zuflucht“",
    "revision": "11/00",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2587,6 +2750,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2632,7 +2802,7 @@
   "154": {
    "title": "Die Menschenherrschaft – auf der Waage gewogen",
    "revision": "03/02",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2643,6 +2813,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2656,7 +2833,7 @@
   "155": {
    "title": "Ist für Babylon die Stunde der Urteilsvollstreckung gekommen?",
    "revision": "12/02",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2667,6 +2844,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2696,7 +2880,7 @@
   "157": {
    "title": "Wahre Christen lassen Gottes Lehren anziehend wirken",
    "revision": "05/03",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2707,6 +2891,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2720,7 +2911,7 @@
   "158": {
    "title": "Seien wir mutig und vertrauen wir auf Jehova",
    "revision": "11/03",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2731,6 +2922,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2808,7 +3006,7 @@
   "163": {
    "title": "Warum sollten wir Ehrfurcht vor dem wahren Gott haben?",
    "revision": "06/05",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2819,6 +3017,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2832,7 +3037,7 @@
   "164": {
    "title": "Ist Gott noch Herr der Lage?",
    "revision": "11/05",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2843,6 +3048,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2856,7 +3068,7 @@
   "165": {
    "title": "Wessen Wertvorstellungen teilen wir?",
    "revision": "11/05",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2867,6 +3079,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2896,7 +3115,7 @@
   "167": {
    "title": "Vernünftig handeln in einer unvernünftigen Welt",
    "revision": "12/06",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2907,6 +3126,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -2920,7 +3146,7 @@
   "168": {
    "title": "Sicherheit in einer unruhigen Welt",
    "revision": "11/06",
-   "status": "retiring",
+   "status": "do_not_use",
    "effectiveDate": "2026-09-01",
    "replacement": null,
    "note": "",
@@ -2931,6 +3157,13 @@
      "from": "active",
      "to": "retiring",
      "note": "angeglichen an outline-data.json (EN)"
+    },
+    {
+     "date": "2026-11-05",
+     "type": "status",
+     "from": "retiring",
+     "to": "do_not_use",
+     "note": "S-99a-X 11/26"
     }
    ],
    "origin": {
@@ -3358,5 +3591,312 @@
    }
   }
  },
- "maintenanceHistory": []
+ "maintenanceHistory": [
+  {
+   "id": "a9b3bce7-8ed7-4a43-a7c9-3ae276cd6ff0",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "167",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "42b4eb6b-a357-4f18-b326-e0bd4f03de91",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "123",
+   "action": "S-99",
+   "detail": "Title updated from S-99a-X 11/26: \"\" → \"Warum echte Christen anders sein müssen\""
+  },
+  {
+   "id": "f2485dfe-550f-4e90-93bb-027968a1b2b5",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "123",
+   "action": "S-99",
+   "detail": "status: \"do_not_use\" → \"active\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "1a150263-d01f-4caf-b98f-5588ec0c7401",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "119",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "df090214-69fb-4002-bf7e-9cf48f9aecb1",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "97",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "b87f1be1-1972-4420-adaf-84e487d64fdd",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "141",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "4b3e1d74-6845-4751-beaf-76f78d6fe77b",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "117",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "1df0cb91-6a9d-4706-bd69-8eb0e6cbadb9",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "105",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "180ae806-129c-4fce-ad91-0b489d427eb8",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "57",
+   "action": "S-99",
+   "detail": "Title updated from S-99a-X 11/26: \"Unter Verfolgung standhaft bleiben\" → \"Werde ich mich für die wahre Anbetung entscheiden?\""
+  },
+  {
+   "id": "cdd3b23a-6315-468f-8cda-2879a87c5221",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "163",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "faa6b946-d91c-45b1-9b53-698ddff93e27",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "155",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "f170f7b1-eaf1-4466-ac83-d2f7c92613a0",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "126",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "beef8208-a26d-49a1-aa9d-64157dd55879",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "94",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "5b7b932a-5e02-44a8-8098-fb3663cf8c66",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "92",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "083b2b38-9dfe-47ba-8dd8-d555b1bfd5e4",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "106",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "5c378693-36ed-4b6d-b29b-9366956f0666",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "84",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "35a02f0b-e065-40d8-a8bb-a3b7587a8f10",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "154",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "6f959efb-2916-4d67-9ace-72944c2be851",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "130",
+   "action": "S-99",
+   "detail": "Title updated from S-99a-X 11/26: \"Die Erde wird für immer bestehen\" → \"Wer wird die Erde retten?\""
+  },
+  {
+   "id": "203f8b53-389b-4a22-983b-06023f7295d7",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "122",
+   "action": "S-99",
+   "detail": "Title updated from S-99a-X 11/26: \"\" → \"Eine Welt ohne Krieg – Wie?\""
+  },
+  {
+   "id": "5a6607a0-e7e1-4808-a31d-a60ceeff8481",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "122",
+   "action": "S-99",
+   "detail": "status: \"do_not_use\" → \"active\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "386847c3-85f8-4ba2-a691-0f38e335f703",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "120",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "024c56fa-b484-4a2b-96d6-db71e3584cec",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "109",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "11d3cad6-0c90-4237-b9ae-5d04b42252af",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "85",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "342459e3-8228-4f12-9b61-3f1f7a0fb01a",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "118",
+   "action": "S-99",
+   "detail": "status: \"do_not_use\" → \"active\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "fa04406f-c217-4ff8-9d74-86ac2b274c7a",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "168",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "3bfff874-7115-4c43-9863-b0e26db9bc01",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "158",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "70fd8584-bcc6-4bba-a886-9d39df63f3e5",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "151",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "534e7fb1-438c-46b6-88b8-213cfc0d5b21",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "149",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "dbf78de1-43a3-4959-a9f1-0d84271ba61f",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "87",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "e6f10e13-098c-4561-8924-8c45e1829aef",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "165",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "6861bdef-db3d-4b35-94f4-afcc5b2b58ad",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "157",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "daf2b612-e180-4531-89b3-dc1650843e4b",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "148",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "6cbb35e7-008c-4e8b-be86-f5dd08c610d6",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "144",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "e32e3a28-87fd-441b-a45d-f454bb547b53",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "164",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "6103f12f-266d-4c8e-87bb-f512452ba120",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "145",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "b2a23e90-cefb-4bef-8b32-f1de2b7d6b68",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "139",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "1fcdbf21-4cbd-49e6-8f10-768e82668b3c",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "124",
+   "action": "S-99",
+   "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-X 11/26)"
+  },
+  {
+   "id": "6c19b2fa-2e2f-4453-90f7-59604fc43ae0",
+   "at": "2026-11-05T12:00:00.000Z",
+   "by": "Marco",
+   "outline": "101",
+   "action": "S-99",
+   "detail": "Title updated from S-99a-X 11/26: \"Jehova – der „große Schöpfer“\" → \"Jehova – der große Schöpfer\""
+  }
+ ],
+ "edition": "S-99a-X 11/26",
+ "updatedAt": "2026-11-05"
 }
