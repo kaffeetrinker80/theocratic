@@ -904,7 +904,7 @@
     },
     "57": {
       "title": "Will You Take Your Stand for True Worship?",
-      "revision": null,
+      "revision": "",
       "status": "active",
       "effectiveDate": "",
       "replacement": null,
@@ -936,7 +936,7 @@
     },
     "59": {
       "title": "You Will Reap What You Sow",
-      "revision": null,
+      "revision": "",
       "status": "do_not_use",
       "effectiveDate": "2025-06-01",
       "replacement": null,
@@ -1312,7 +1312,7 @@
     },
     "82": {
       "title": "(Do not use)",
-      "revision": null,
+      "revision": "",
       "status": "do_not_use",
       "effectiveDate": "",
       "replacement": null,
@@ -2071,7 +2071,7 @@
     },
     "122": {
       "title": "An End to War—How?",
-      "revision": null,
+      "revision": "03/25",
       "status": "active",
       "effectiveDate": "",
       "replacement": null,
@@ -2102,7 +2102,7 @@
     },
     "123": {
       "title": "Why Must True Christians Be Different?",
-      "revision": null,
+      "revision": "",
       "status": "active",
       "effectiveDate": "",
       "replacement": null,
@@ -2245,7 +2245,7 @@
     },
     "130": {
       "title": "Who Will Restore the Earth?",
-      "revision": null,
+      "revision": "",
       "status": "active",
       "effectiveDate": "",
       "replacement": null,
@@ -3413,6 +3413,14 @@
     }
   },
   "maintenanceHistory": [
+    {
+      "id": "f93c9239-486f-4792-b4df-1c8d3934036a",
+      "at": "2026-11-05T19:27:37.810Z",
+      "by": "Marco",
+      "outline": "122",
+      "action": "edit",
+      "detail": "revision: \"—\" → \"03/25\""
+    },
     {
       "id": "cf92bd75-f509-4862-bf9a-047447b75b80",
       "at": "2026-11-05T12:00:00.000Z",
