@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
-  "source": "S-99-E 2/26 + announced updates",
-  "edition": "S-99-E 2/26",
-  "updatedAt": "2026-10-24",
+  "source": "S-99a-E 11/26 (Public Talk Titles—Listed by Subject)",
+  "edition": "S-99a-E 11/26",
+  "updatedAt": "2026-11-05",
   "revisionsSource": "docs.jw.org S-34 (Public Talk Outlines)",
   "revisionsCheckedAt": "2026-10-24",
   "outlines": {
@@ -743,7 +743,7 @@
       "history": []
     },
     "47": {
-      "title": "”Have Faith in the Good News”",
+      "title": "“Have Faith in the Good News”",
       "revision": "10/25",
       "status": "active",
       "effectiveDate": "",
@@ -903,12 +903,12 @@
       "history": []
     },
     "57": {
-      "title": "Bearing Up Under Persecution",
-      "revision": "12/93",
+      "title": "Will You Take Your Stand for True Worship?",
+      "revision": null,
       "status": "active",
       "effectiveDate": "",
       "replacement": null,
-      "note": "",
+      "note": "New title in S-99a-E 11/26 (previously “Bearing Up Under Persecution”). Check the revision on docs.jw.org.",
       "origin": {
         "title": "Bearing Up Under Persecution",
         "status": "active",
@@ -1353,7 +1353,7 @@
     "84": {
       "title": "Will You Escape This World’s Destiny?",
       "revision": "11/03",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1364,12 +1364,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "85": {
       "title": "Good News in a Violent World",
       "revision": "09/01",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1380,7 +1388,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "86": {
       "title": "Prayers That Are Heard by God",
@@ -1401,7 +1417,7 @@
     "87": {
       "title": "What Is Your Relationship With God?",
       "revision": "01/95",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1412,7 +1428,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "88": {
       "title": "Why Live by Bible Standards?",
@@ -1481,7 +1505,7 @@
     "92": {
       "title": "Religion’s Role in World Affairs",
       "revision": "11/95",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1492,7 +1516,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "93": {
       "title": "Natural Disasters—When Will They End?",
@@ -1513,7 +1545,7 @@
     "94": {
       "title": "True Religion Meets the Needs of Human Society",
       "revision": "12/93",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1524,7 +1556,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "95": {
       "title": "Do Not Be Deceived by Spiritism!",
@@ -1561,7 +1601,7 @@
     "97": {
       "title": "Remaining Blameless Amid a Crooked Generation",
       "revision": "01/96",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1572,7 +1612,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "98": {
       "title": "“The Scene of This World Is Changing”",
@@ -1689,7 +1737,7 @@
     "105": {
       "title": "Gaining Comfort in All Our Tribulations",
       "revision": "05/95",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1700,12 +1748,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "106": {
       "title": "Ruining the Earth Brings Divine Retribution",
       "revision": "05/95",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1716,7 +1772,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "107": {
       "title": "Are You Benefiting From a Trained Conscience?",
@@ -1753,7 +1817,7 @@
     "109": {
       "title": "The Kingdom of God Is Near",
       "revision": "01/96",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1764,7 +1828,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "110": {
       "title": "God Comes First in Successful Family Life",
@@ -1881,7 +1953,7 @@
     "117": {
       "title": "How to Conquer Evil With Good",
       "revision": "11/06",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1892,15 +1964,23 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "118": {
       "title": "Looking at Youths From Jehovah’s Standpoint",
       "revision": "08/98",
-      "status": "do_not_use",
+      "status": "active",
       "effectiveDate": "",
       "replacement": null,
-      "note": "One of the circuit overseer’s public talks for the 2027 service year will be a revised version of the current public talk “Looking at Youths From Jehovah’s Standpoint” (No. 118).",
+      "note": "Listed again in S-99a-E 11/26. The circuit overseer’s talk was announced as a revised version — check whether the revision (08/98) is still current.",
       "origin": {
         "title": "Looking at Youths From Jehovah’s Standpoint",
         "status": "active",
@@ -1915,13 +1995,20 @@
           "from": "active",
           "to": "do_not_use",
           "note": ""
+        },
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "do_not_use",
+          "to": "active",
+          "note": "S-99a-E 11/26"
         }
       ]
     },
     "119": {
       "title": "Christian Separateness From the World—Why Beneficial",
       "revision": "05/97",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1932,12 +2019,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "120": {
       "title": "Why Submit to God’s Rulership Now",
       "revision": "06/97",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -1948,7 +2043,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "121": {
       "title": "A Worldwide Brotherhood Saved From Calamity",
@@ -1967,12 +2070,12 @@
       "history": []
     },
     "122": {
-      "title": "(Do not use)",
+      "title": "An End to War—How?",
       "revision": null,
-      "status": "do_not_use",
-      "effectiveDate": "2025-06-01",
+      "status": "active",
+      "effectiveDate": "",
       "replacement": null,
-      "note": "The special talk that will be given in all congregations in connection with \nthe special campaign in September 2025 will be a revised version of the current public talk \n“Global Peace—From What Source?” (No. 122).",
+      "note": "Released again in S-99a-E 11/26 with a new title. Check the revision on docs.jw.org.",
       "origin": {
         "title": "",
         "status": "active",
@@ -1987,16 +2090,23 @@
           "from": "active",
           "to": "do_not_use",
           "note": "Special Talk 9/25"
+        },
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "do_not_use",
+          "to": "active",
+          "note": "S-99a-E 11/26"
         }
       ]
     },
     "123": {
-      "title": "(Do not use)",
+      "title": "Why Must True Christians Be Different?",
       "revision": null,
-      "status": "do_not_use",
+      "status": "active",
       "effectiveDate": "",
       "replacement": null,
-      "note": "",
+      "note": "Released again in S-99a-E 11/26 with a new title. Check the revision on docs.jw.org.",
       "origin": {
         "title": "",
         "status": "active",
@@ -2011,13 +2121,20 @@
           "from": "active",
           "to": "do_not_use",
           "note": "CO 1st round 2025"
+        },
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "do_not_use",
+          "to": "active",
+          "note": "S-99a-E 11/26"
         }
       ]
     },
     "124": {
       "title": "Basis for Confidence in the Bible’s Divine Authorship",
       "revision": "05/97",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2028,7 +2145,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "125": {
       "title": "Why Mankind Needs a Ransom",
@@ -2049,7 +2174,7 @@
     "126": {
       "title": "Who Can Be Saved?",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2060,7 +2185,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "127": {
       "title": "What Happens When We Die?",
@@ -2111,12 +2244,12 @@
       "history": []
     },
     "130": {
-      "title": "The Earth Will Remain Forever",
-      "revision": "08/00",
+      "title": "Who Will Restore the Earth?",
+      "revision": null,
       "status": "active",
       "effectiveDate": "",
       "replacement": null,
-      "note": "",
+      "note": "New title in S-99a-E 11/26 (previously “The Earth Will Remain Forever”). Check the revision on docs.jw.org.",
       "origin": {
         "title": "The Earth Will Remain Forever",
         "status": "active",
@@ -2257,7 +2390,7 @@
     "139": {
       "title": "Godly Wisdom in a Scientific World",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "Scheduled to retire on 1 September 2026.",
@@ -2268,7 +2401,15 @@
         "replacement": null,
         "note": "Scheduled to retire on 1 September 2026."
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "140": {
       "title": "Who Really Is Jesus Christ?",
@@ -2289,7 +2430,7 @@
     "141": {
       "title": "Human Creation’s Groaning—When Will It End?",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2300,7 +2441,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "142": {
       "title": "Why Take Refuge in Jehovah",
@@ -2337,7 +2486,7 @@
     "144": {
       "title": "A Loyal Congregation Under Christ’s Leadership",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2348,12 +2497,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "145": {
       "title": "Who Is Like Jehovah Our God?",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2364,7 +2521,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "146": {
       "title": "Use Education to Praise Jehovah",
@@ -2401,7 +2566,7 @@
     "148": {
       "title": "Do You Share God’s View of Life?",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2412,12 +2577,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "149": {
       "title": "Are You Walking With God?",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2428,7 +2601,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "150": {
       "title": "Is This World Doomed to Ruin?",
@@ -2449,7 +2630,7 @@
     "151": {
       "title": "Jehovah Is “a Secure Height” for His People",
       "revision": "11/00",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2460,7 +2641,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "152": {
       "title": "The Real Armageddon—Why? When?",
@@ -2497,7 +2686,7 @@
     "154": {
       "title": "Human Rule—Weighed in the Balance",
       "revision": "03/02",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2508,12 +2697,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "155": {
       "title": "Has Babylon’s Judgment Hour Arrived?",
       "revision": "12/02",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2524,7 +2721,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "156": {
       "title": "Judgment Day—A Time of Fear or Hope?",
@@ -2545,7 +2750,7 @@
     "157": {
       "title": "How True Christians Adorn Divine Teaching",
       "revision": "05/03",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2556,12 +2761,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "158": {
       "title": "Be Courageous, and Trust in Jehovah",
       "revision": "11/03",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2572,7 +2785,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "159": {
       "title": "Finding Security in a Dangerous World",
@@ -2641,7 +2862,7 @@
     "163": {
       "title": "Why Fear the True God?",
       "revision": "06/05",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2652,12 +2873,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "164": {
       "title": "Is God Still in Control?",
       "revision": "11/05",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2668,12 +2897,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "165": {
       "title": "Whose Values Do You Cherish?",
       "revision": "11/05",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2684,7 +2921,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "166": {
       "title": "True Faith—What Is It, and How Is It Shown?",
@@ -2705,7 +2950,7 @@
     "167": {
       "title": "Act Wisely in a Senseless World",
       "revision": "12/06",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2716,12 +2961,20 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "168": {
       "title": "You Can Feel Safe in This Troubled World!",
       "revision": "11/06",
-      "status": "retiring",
+      "status": "do_not_use",
       "effectiveDate": "2026-09-01",
       "replacement": null,
       "note": "",
@@ -2732,7 +2985,15 @@
         "replacement": null,
         "note": ""
       },
-      "history": []
+      "history": [
+        {
+          "date": "2026-11-05",
+          "type": "status",
+          "from": "retiring",
+          "to": "do_not_use",
+          "note": "S-99a-E 11/26"
+        }
+      ]
     },
     "169": {
       "title": "Why Be Guided by the Bible?",
@@ -3150,5 +3411,311 @@
       },
       "history": []
     }
-  }
+  },
+  "maintenanceHistory": [
+    {
+      "id": "cf92bd75-f509-4862-bf9a-047447b75b80",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "167",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "08d1ff16-8c55-4bcf-a94d-a8c399bb4764",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "123",
+      "action": "S-99",
+      "detail": "Title updated from S-99a-E 11/26: \"(Do not use)\" → \"Why Must True Christians Be Different?\""
+    },
+    {
+      "id": "72bdd4a3-afa9-424c-ad37-ed830b0148e0",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "123",
+      "action": "S-99",
+      "detail": "status: \"do_not_use\" → \"active\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "7318a735-690c-43d2-b008-1ae050fe9c0f",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "119",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "5a1a594b-6751-4da5-b7d3-64c4e03552c8",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "97",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "625bb707-9066-4472-bdc1-7749ff359eed",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "141",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "17270220-4169-4cd1-a8e0-28a022ab6bc3",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "117",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "558651b8-ad6e-498b-948d-3a544eb562db",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "105",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "47db4799-7e74-4dd7-8edc-c0e6608e04c9",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "57",
+      "action": "S-99",
+      "detail": "Title updated from S-99a-E 11/26: \"Bearing Up Under Persecution\" → \"Will You Take Your Stand for True Worship?\""
+    },
+    {
+      "id": "5ecbe7cb-5d7c-49ec-b567-b1fdc04ce7e9",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "163",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "a1305771-f3ed-412d-9b72-3c2122e4e682",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "155",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "65d38ec1-67bb-464c-b190-bdc43432fd7d",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "126",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "a0aaf893-16c9-472e-98d9-faa99da6900c",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "94",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "0b2edc8a-3107-467b-96d3-ccc6d0f9f6ba",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "92",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "7311b27b-b6ee-4ea8-8597-2138fb5c5fd7",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "106",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "a7e6fd30-b1fa-45bd-99e6-55119c08171d",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "84",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "add0d3e3-d8d1-4446-952a-d8b3e6788847",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "154",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "8e13a243-399d-4c45-9d7b-0ea846a1803a",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "130",
+      "action": "S-99",
+      "detail": "Title updated from S-99a-E 11/26: \"The Earth Will Remain Forever\" → \"Who Will Restore the Earth?\""
+    },
+    {
+      "id": "06bc247a-0496-4ee6-aca1-57ceccd34740",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "122",
+      "action": "S-99",
+      "detail": "Title updated from S-99a-E 11/26: \"(Do not use)\" → \"An End to War—How?\""
+    },
+    {
+      "id": "abb9dba6-c2a9-4aa4-b628-717974975058",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "122",
+      "action": "S-99",
+      "detail": "status: \"do_not_use\" → \"active\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "d7509ffb-4c1f-4d38-b769-b362aa9b823e",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "120",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "81a31bc0-9ad8-4aa4-9f24-b46096379be3",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "109",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "4f6ee85b-7b1a-4e87-8c8f-f54381078429",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "85",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "1f71f83b-4e3b-4825-b669-b7c7c041b8f6",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "47",
+      "action": "S-99",
+      "detail": "Title updated from S-99a-E 11/26: \"”Have Faith in the Good News”\" → \"“Have Faith in the Good News”\""
+    },
+    {
+      "id": "4a47b313-9543-41b2-bca4-7da3f157147d",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "118",
+      "action": "S-99",
+      "detail": "status: \"do_not_use\" → \"active\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "7873c0fd-397a-4af9-89e1-738756f341a0",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "168",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "0e000b16-7f72-4be5-a129-e1eeef15e853",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "158",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "e3d40eae-9902-4c2b-980b-3d0f5428f378",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "151",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "521bfa65-02d5-4cc6-b8d8-0b309cd153e3",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "149",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "87b2fe46-9e17-4b7a-959a-44d42d145b10",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "87",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "42ed8b54-e1db-400c-a4ff-3f04dcb47457",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "165",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "29f695e2-1992-4e71-ae0b-2911fb6c014e",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "157",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "ff2737a9-e679-4078-91e0-1c7363a2ff99",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "148",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "89684002-08a9-4fcd-ad15-6f8860af0395",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "144",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "e0c5ec2c-cafb-4c68-8b1c-9a80ea2abcec",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "164",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "37f92b88-2ce5-4a5a-964a-cbc159f09691",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "145",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "07d49071-784e-45af-8178-c34cb14a3893",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "139",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    },
+    {
+      "id": "0eb71341-d95c-45e3-85f4-b545865a1d0b",
+      "at": "2026-11-05T12:00:00.000Z",
+      "by": "Marco",
+      "outline": "124",
+      "action": "S-99",
+      "detail": "status: \"retiring\" → \"do_not_use\" (S-99a-E 11/26)"
+    }
+  ]
 }
