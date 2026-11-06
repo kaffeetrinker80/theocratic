@@ -570,6 +570,10 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
 }
 .icon-browse:hover{ background:#e7dccb; border-color:#d8ccb9; }
 .icon-clear{ right:40px; }
+/* v3.0: the generic button:active rule (translateY(1px)) replaced the centring
+   translateY(-50%) of these two icons, so on every click they jumped half their height
+   upwards and slid back. Keep the centring and add the 1px press on top of it. */
+.icon-browse:active, .icon-clear:active{ transform:translateY(calc(-50% + 1px)); }
 
 /* outline chips are clickable and open the directory */
 .outline[data-outline-no]{ cursor:pointer; transition:border-color .15s ease, background .15s ease; }
@@ -801,6 +805,119 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   .pr-side{ border-right:0; border-bottom:1px solid var(--line); }
   .pr-sheet{ width:auto; padding:10mm; }
 }
+
+/* ===== v3.0 ===== */
+/* quick navigation: always visible above the search */
+.quick-nav{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; margin-bottom:12px; padding:3px; background:#f3ede2; border:1px solid var(--line); border-radius:12px; }
+.quick-nav button{ padding:7px 6px; font-size:12.5px; background:transparent; color:#52463a; border:1px solid transparent; border-radius:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.quick-nav button:hover{ background:#faf6ef; }
+.quick-nav button.active{ background:var(--card); border-color:var(--line); color:var(--accent2); box-shadow:var(--shadow-sm); }
+.quick-nav button.is-off{ opacity:.55; }
+.results-more{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; padding:14px 6px 4px; grid-column:1 / -1; }
+.chip.plan-chip{ background:#eef2f6; border-color:#d3dde8; color:#3d5e7b; }
+button.linkish{ background:none; border:0; padding:0; color:var(--accent2); font-weight:600; text-decoration:underline; cursor:pointer; font-size:inherit; }
+button.linkish:active{ transform:none; }
+
+/* talk plan tab */
+.plan-toolbar{ display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; }
+.plan-views{ display:inline-flex; gap:3px; padding:3px; background:#f3ede2; border:1px solid var(--line); border-radius:11px; }
+.plan-view{ background:transparent; padding:6px 12px; border-radius:8px; }
+.plan-view.active{ background:var(--card); color:var(--accent2); box-shadow:var(--shadow-sm); }
+.plan-year{ display:inline-flex; align-items:center; gap:6px; }
+.plan-year b{ font-family:var(--font-display); font-size:20px; min-width:52px; text-align:center; font-variant-numeric:tabular-nums; }
+.plan-year button{ padding:5px 10px; }
+.plan-day{ display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
+.plan-day select{ width:auto; padding:6px 9px; }
+.plan-past-opt{ padding:0; }
+.plan-history-search{ flex:1 1 280px; }
+.plan-backup{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; justify-content:space-between; margin-top:12px; padding:8px 11px; border-radius:11px; background:#faf6ef; border:1px solid #eadfce; font-size:12px; color:var(--muted); }
+.plan-backup.needs-backup{ background:#fbf0e2; border-color:#e8cfa6; color:#8a5a1c; }
+.plan-backup button{ padding:5px 10px; font-size:12px; }
+.plan-tiles{ display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:5px; margin-top:12px; }
+.plan-tile{ display:flex; flex-direction:column; align-items:center; gap:1px; padding:6px 2px; background:#fcf9f3; border:1px solid #e4daca; border-radius:10px; font-weight:400; }
+.plan-tile span{ font-size:11px; color:var(--muted); }
+.plan-tile b{ font-size:13px; font-variant-numeric:tabular-nums; }
+.plan-tile.is-full{ background:#edf2e7; border-color:#d8e4ce; }
+.plan-tile.is-full b{ color:#4b6b41; }
+.plan-tile.is-past{ opacity:.55; }
+.plan-hidden-note{ margin-top:10px; }
+.plan-list{ margin-top:12px; display:grid; gap:4px; }
+.plan-list h4, .plan-month h4{ margin:14px 0 6px; font-family:var(--font-display); font-size:15px; font-weight:600; color:var(--accent2); }
+.plan-month{ display:grid; gap:4px; scroll-margin-top:16px; }
+.plan-month:first-child h4{ margin-top:2px; }
+.plan-row{
+  display:grid; grid-template-columns:150px minmax(0,1.2fr) minmax(0,1.3fr) 104px; gap:12px; align-items:center;
+  width:100%; text-align:left; padding:9px 12px; background:var(--card); border:1px solid var(--line); border-radius:11px;
+  font-weight:400; color:var(--text);
+}
+.plan-row:hover{ background:#fcf6ee; border-color:#dfcfb8; }
+.plan-row.is-free{ background:#fdfbf7; border-style:dashed; }
+.plan-row.is-free .plan-free{ color:var(--muted); }
+.plan-row.is-free .plan-free{ display:block; }
+.plan-row.is-free:hover .plan-free::after{ content:' – click to plan'; }
+.plan-ed .sp-foot{ justify-content:flex-end; }
+.plan-ed .sp-foot .sp-foot-hint{ flex:1 1 100%; margin-right:0; }
+.plan-row.is-past{ opacity:.62; }
+.plan-row.is-next{ border-color:var(--accent); box-shadow:0 0 0 2px rgba(194,96,63,.14); opacity:1; }
+.plan-row:not(.kind-talk):not(.is-free){ background:#f6f1e8; }
+.plan-date{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+.plan-date b{ display:inline-block; width:32px; color:var(--muted); font-weight:600; }
+.plan-next{ display:inline-block; margin-left:4px; padding:1px 7px; border-radius:999px; background:var(--accent); color:#fff; font-size:10.5px; font-weight:700; }
+.plan-main{ display:flex; flex-direction:column; min-width:0; }
+.plan-main b{ overflow:hidden; text-overflow:ellipsis; }
+.plan-cong, .plan-note{ font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.plan-note{ font-style:italic; }
+.plan-kind{ font-size:11px; font-weight:700; color:#8a5a14; }
+.plan-outline{ font-size:13px; min-width:0; }
+.plan-flag{ display:inline-block; padding:0 6px; border-radius:6px; background:#fae6e1; color:#8b3a28; font-size:10.5px; font-weight:700; }
+.plan-state{ text-align:right; }
+.chip.plan-status{ padding:3px 9px; font-size:11px; }
+.chip.plan-status.st-confirmed{ background:#edf2e7; border-color:#d8e4ce; color:#4b6b41; }
+.chip.plan-status.st-requested{ background:#fbf0e2; border-color:#e8cfa6; color:#8a5a1c; }
+
+/* plan editor – sits above the speaker card */
+#planEditorOverlay{
+  display:none; position:fixed; inset:0; z-index:10005; background:rgba(44,32,24,.55); overflow:auto;
+  padding:24px; padding-bottom:calc(24px + var(--bottom-safe));
+}
+.plan-ed{ max-width:640px; }
+.pe-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:16px; }
+.pe-grid .field{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+.pe-grid .field.span-2{ grid-column:span 2; }
+.pe-grid label{ font-size:11px; font-weight:700; color:var(--muted); }
+.pe-grid textarea{ min-height:58px; }
+.pe-source{ font-size:11.5px; color:var(--muted); min-height:16px; }
+.pe-ac{ position:relative; }
+.pe-ac-list{ position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:5; background:var(--card); border:1px solid #dcd1c0; border-radius:11px; box-shadow:var(--shadow); overflow:hidden; }
+.pe-ac-item{ display:block; width:100%; text-align:left; background:transparent; border-radius:0; padding:8px 11px; font-weight:400; border-bottom:1px solid #f0e8dc; }
+.pe-ac-item:last-child{ border-bottom:0; }
+.pe-ac-item.active, .pe-ac-item:hover{ background:#f8ede4; }
+.pe-ac-item:active{ transform:none; }
+.pe-ac-meta{ display:block; font-size:11.5px; color:var(--muted); }
+.pe-warnings{ display:grid; gap:6px; margin-top:14px; }
+.pe-warn{ padding:8px 11px; border-radius:10px; font-size:12.5px; }
+.pe-warn.warn{ background:#fbf0e2; border:1px solid #e8cfa6; color:#7a4d12; }
+.pe-warn.info{ background:#eef2f6; border:1px solid #d3dde8; color:#3d5e7b; }
+
+/* speaker card: plan section */
+.sp-plan-list{ display:grid; gap:4px; }
+.sp-plan-row{ display:grid; grid-template-columns:140px minmax(0,1fr) auto; gap:10px; align-items:center; text-align:left; background:#fcf9f3; border:1px solid #e4daca; font-weight:400; padding:7px 10px; }
+.sp-plan-row.is-past{ opacity:.6; }
+
+@media (max-width:720px){
+  .plan-tiles{ grid-template-columns:repeat(6,minmax(0,1fr)); }
+  .plan-row{ grid-template-columns:1fr auto; gap:4px 10px; }
+  .plan-row .plan-main{ grid-column:1 / -1; grid-row:2; }
+  .plan-row .plan-outline{ grid-column:1 / -1; grid-row:3; }
+  .plan-row .plan-state{ grid-column:2; grid-row:1; }
+  #planEditorOverlay{ padding:0; }
+  .plan-ed{ max-width:none; }
+  .pe-grid{ grid-template-columns:1fr; }
+  .pe-grid .field.span-2{ grid-column:auto; }
+  .sp-plan-row{ grid-template-columns:1fr auto; }
+  .sp-plan-row span:not(.chip){ grid-column:1 / -1; grid-row:2; }
+}
+@media print{ #planEditorOverlay{ display:none !important; } }
 </style>
 
 <style id="ptc-v202-style-patch">
@@ -825,7 +942,8 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <div class="header-title-row">
           <h1>PTC Tool – English Public Speakers (EU)</h1>
           <div class="header-actions">
-            <button type="button" class="ghost" id="goHomeCongBtn">Home congregation</button>
+            <button type="button" class="ghost" id="goHomeCongBtn">My congregation</button>
+            <button type="button" class="ghost" id="goPlanBtn">Talk plan</button>
             <button type="button" class="ghost" id="openChangeLogBtn">Changes</button>
             <button type="button" class="ghost" id="openPrintBtn">Print</button>
             <button type="button" class="ghost" id="openHelpBtn">Help</button>
@@ -835,7 +953,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
         <div class="fact-row">
           <div class="fact"><span class="fact-label">Data source</span><span class="fact-value">CSV / Organizer Master</span></div>
           <div class="fact"><span class="fact-label">Outline data</span><span class="fact-value" id="outlineDataInfo">Loading outline-data.json…</span></div>
-          <div class="fact"><span class="fact-label">Backup</span><span class="fact-value">Complete local backup available</span></div>
+          <div class="fact"><span class="fact-label">Backup</span><span class="fact-value">Notes, talk plan &amp; complete backup</span></div>
         </div>
       </div>
       <div class="statbox">
@@ -910,6 +1028,11 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="app">
     <aside class="side">
       <div class="side-sticky-top">
+        <div class="quick-nav" id="quickNav" role="navigation" aria-label="Main views">
+          <button type="button" data-qn="all"><span aria-hidden="true">☰</span> All</button>
+          <button type="button" data-qn="home"><span aria-hidden="true">⌂</span> My Cong</button>
+          <button type="button" data-qn="plan"><span aria-hidden="true">▦</span> Talk plan</button>
+        </div>
         <span class="row-label">Search</span>
         <input id="searchInput" type="text" placeholder="Speaker, congregation, city, circuit, e-mail, phone, outline title…">
         <div class="side-field">
@@ -977,7 +1100,7 @@ hr.sep { border:none; border-top:1px solid var(--line); margin:12px 0; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.2.9.2</span>
+      <span class="footer-version" id="footerVersion">v.3.0.0</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1023,7 +1146,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '2.9.2';
+const APP_VERSION = '3.0.0';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -1130,6 +1253,7 @@ const state = {
   notes: loadNotes(),
   geoCache: loadGeoCache(),
   homeCongregationId: loadHomeCongregationId(),
+  plan: null,
   selectedKey: null,
   lastCongregationKey: null,
   modalSpeakerId: null,
@@ -1142,6 +1266,7 @@ const state = {
   changeLogOpenIds: new Set(),
   wsMode: 'list',
   detailTab: 'speakers',
+  resultLimit: 150,
   countryOpen: loadCountryOpen()
 };
 
@@ -1739,6 +1864,7 @@ function applyOutlineConfig(config) {
     };
   });
 
+  resetOutlineLabelCache();
   outlineConfigInfo = {
     ...outlineConfigInfo,
     loaded: true,
@@ -1826,11 +1952,11 @@ function outlineEffectiveState(no, now = new Date()) {
   return { ...meta, status };
 }
 
+/* v3.0: outline dates follow the same DD.MM.YYYY rule as every other date in the tool.
+   They used to be written as "1 Jan 2027" – the last English date format left. */
 function formatOutlineDate(iso) {
   if (!iso) return '';
-  const d = new Date(iso + 'T00:00:00');
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  return formatDateLabel(iso) || iso;
 }
 
 function outlineStatusText(no) {
@@ -1841,12 +1967,36 @@ function outlineStatusText(no) {
   return '';
 }
 
-function outlineLabel(no) {
-  const title = outlineTitle(no);
-  const base = title ? ('#' + no + ' – ' + title) : ('#' + no);
-  const stateText = outlineStatusText(no);
-  return stateText ? base + ' · ' + stateText : base;
+/* v3.0: outline labels are built once and cached. The search used to rebuild every
+   label of every speaker on each keystroke – including a date conversion – which is a
+   few hundred thousand string operations with a full master. The cache is dropped when
+   new outline data arrives and at midnight, because "retiring" turns into "retired". */
+const outlineLabelCache = new Map();
+let outlineCacheVersion = 0;
+let outlineCacheExpiry = 0;
+function resetOutlineLabelCache() {
+  outlineLabelCache.clear();
+  outlineCacheVersion++;
+  const next = new Date();
+  next.setHours(24, 0, 0, 0);
+  outlineCacheExpiry = next.getTime();
 }
+function outlineLabelEntry(no) {
+  if (Date.now() >= outlineCacheExpiry) resetOutlineLabelCache();
+  const key = String(no);
+  let entry = outlineLabelCache.get(key);
+  if (!entry) {
+    const title = outlineTitle(no);
+    const base = title ? ('#' + no + ' – ' + title) : ('#' + no);
+    const stateText = outlineStatusText(no);
+    const label = stateText ? base + ' · ' + stateText : base;
+    entry = { label, norm: normalizeText(label) };
+    outlineLabelCache.set(key, entry);
+  }
+  return entry;
+}
+function outlineLabel(no) { return outlineLabelEntry(no).label; }
+function outlineNormLabel(no) { return outlineLabelEntry(no).norm; }
 
 function renderOutline(no) {
   const meta = outlineEffectiveState(no);
@@ -2630,6 +2780,24 @@ function formatDateLabel(value) {
   return m ? `${m[3]}.${m[2]}.${m[1]}` : String(value);
 }
 
+/* v3.0: date + time, always DD.MM.YYYY HH:MM – never the browser's locale */
+function pad2(n) { return String(n).padStart(2, '0'); }
+function isoOf(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+function todayIso() { return isoOf(new Date()); }
+function dateFromIso(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(NaN);
+}
+function formatDateTimeLabel(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (!value || Number.isNaN(d.getTime())) return value ? String(value) : '';
+  return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+function formatDateOf(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? '' : formatDateLabel(isoOf(d));
+}
+
 function daysSince(value) {
   if (!value) return Number.POSITIVE_INFINITY;
   const d = new Date(value + 'T00:00:00');
@@ -2756,9 +2924,14 @@ function populateOutlineSuggestions() {
   const ds = state.dataset;
   const dl = document.getElementById('outlineSuggestions');
   if (!dl) return;
-  const used = ds ? [...new Set(ds.speakers.flatMap(s => s.outlines))].sort((a,b)=>a-b) : [];
+  /* v3.0: the list offers every outline of outline-data.json, not only the numbers some
+     speaker happens to hold. Outlines nobody in this list gives are marked, so a filter
+     that finds nobody explains itself instead of looking like a missing outline. */
+  const used = new Set(ds ? ds.speakers.flatMap(s => s.outlines).map(Number) : []);
+  const all = new Set([...used, ...Object.keys(OUTLINE_DATA).map(Number)]);
+  const numbers = [...all].filter(Number.isFinite).sort((a, b) => a - b);
   dl.innerHTML = ['<option value=""></option>'].concat(
-    used.map(no => `<option value="${escapeHtml(outlineLabel(no))}"></option>`)
+    numbers.map(no => `<option value="${escapeHtml(outlineLabel(no) + (used.has(no) ? '' : ' — no speaker in this list'))}"></option>`)
   ).join('');
   updateClearOutlineButton();
 }
@@ -2797,7 +2970,7 @@ function refreshStats() {
   const versionLabel = extractDatasetVersionLabel(fileName);
   const fileInfo = fileName ? ` · File: ${fileName}${versionLabel ? ' (' + versionLabel + ')' : ''}` : '';
   document.getElementById('datasetInfo').textContent = ds
-    ? `Imported ${new Date(ds.importedAt).toLocaleString()}${fileInfo}${home ? ' · Home: ' + home.name : ''}${home ? (homeGeo ? ' · Distance ready' : ' · Home has no geo data') : ''}`
+    ? `Imported ${formatDateTimeLabel(ds.importedAt)}${fileInfo}${home ? ' · Home: ' + home.name : ''}${home ? (homeGeo ? ' · Distance ready' : ' · Home has no geo data') : ''}`
     : 'No data loaded yet.';
   renderWarningsButton();
   refreshDistanceRowInfo();
@@ -2860,9 +3033,64 @@ function parseOutlineFilterValue(raw) {
 
 function outlineMatchesFilter(sp, filter) {
   if (!filter.raw) return true;
-  const labels = (sp.outlines || []).map(no => normalizeText(outlineLabel(no)));
-  if (filter.number != null && (sp.outlines || []).includes(filter.number)) return true;
-  return labels.some(label => label.includes(filter.text));
+  const outlines = sp.outlines || [];
+  if (filter.number != null && outlines.includes(filter.number)) return true;
+  for (const no of outlines) if (outlineNormLabel(no).includes(filter.text)) return true;
+  return false;
+}
+
+/* v3.0 search caches. Everything that comes from the imported data is normalized once
+   per speaker / congregation; only personal notes are looked up live, because they can
+   change at any time. Cache entries are tied to the outline cache version, so new outline
+   titles are picked up automatically. */
+const speakerHayCache = new WeakMap();
+const congHayCache = new WeakMap();
+const noteNormCache = new Map();
+function noteNormText(key) {
+  const raw = state.notes[key];
+  const text = raw && typeof raw === 'object' ? (raw.text || '') : (typeof raw === 'string' ? raw : '');
+  if (!text) return '';
+  let norm = noteNormCache.get(text);
+  if (norm == null) {
+    norm = normalizeText(text);
+    if (noteNormCache.size > 5000) noteNormCache.clear();
+    noteNormCache.set(text, norm);
+  }
+  return norm;
+}
+function speakerHaystack(sp, cong) {
+  let e = speakerHayCache.get(sp);
+  if (!e || e.v !== outlineCacheVersion || e.c !== cong) {
+    e = { v: outlineCacheVersion, c: cong, text: normalizeText([
+      sp.name, sp.role, (sp.phones || []).join(' '), (sp.emails || []).join(' '),
+      cong.name, cong.address, cong.city, cong.country, cong.circuit, cong.meetingRaw
+    ].join(' | ')) + ' | ' + (sp.outlines || []).map(outlineNormLabel).join(' ') };
+    speakerHayCache.set(sp, e);
+  }
+  return e.text;
+}
+function congHaystack(cong) {
+  let e = congHayCache.get(cong);
+  if (!e || e.v !== outlineCacheVersion) {
+    e = { v: outlineCacheVersion, text: normalizeText([
+      cong.name, cong.address, cong.city, cong.country, cong.circuit, cong.meetingRaw
+    ].join(' | ')) + ' | ' + cong.speakers.map(sp =>
+      normalizeText(sp.name + ' ' + sp.role) + ' ' + (sp.outlines || []).map(outlineNormLabel).join(' ')
+    ).join(' || ') };
+    congHayCache.set(cong, e);
+  }
+  return e.text;
+}
+const congMapCache = new WeakMap();
+function congById(id) {
+  const ds = state.dataset;
+  if (!ds) return null;
+  let map = congMapCache.get(ds.congregations);
+  if (!map) {
+    map = new Map(ds.congregations.map(c => [c.id, c]));
+    congMapCache.set(ds.congregations, map);
+  }
+  return map.get(id) || null;
 }
 
 function filterState() {
@@ -2894,16 +3122,8 @@ function speakerMatches(sp, fs, cong) {
   }
 
   if (!fs.q) return true;
-
-  const haystack = normalizeText([
-    sp.name, sp.role, sp.phones.join(' '), sp.emails.join(' '),
-    noteRecord(sp.notesKey).text || '',
-    cong.name, cong.address, cong.city, cong.country, cong.circuit,
-    cong.meetingRaw, noteRecord(cong.notesKey).text || '',
-    sp.outlines.map(no => outlineLabel(no)).join(' ')
-  ].join(' | '));
-
-  return haystack.includes(fs.q);
+  if (speakerHaystack(sp, cong).includes(fs.q)) return true;
+  return noteNormText(sp.notesKey).includes(fs.q) || noteNormText(cong.notesKey).includes(fs.q);
 }
 
 
@@ -2912,7 +3132,7 @@ function matchingOutlineNumbers(sp, outlineFilter){
   if(!outlineFilter?.raw)return nums;
   return nums.filter(no=>{
     if(outlineFilter.number!=null && no===outlineFilter.number)return true;
-    return normalizeText(outlineLabel(no)).includes(outlineFilter.text);
+    return outlineNormLabel(no).includes(outlineFilter.text);
   });
 }
 function speakerOutlineSortKey(sp, outlineFilter){
@@ -2939,17 +3159,9 @@ function congregationMatches(cong, fs) {
   }
 
   if (!fs.q) return true;
-  const haystack = normalizeText([
-    cong.name, cong.address, cong.city, cong.country, cong.circuit,
-    cong.meetingRaw, noteRecord(cong.notesKey).text || '',
-    cong.speakers.map(sp => [
-      sp.name,
-      sp.role,
-      noteRecord(sp.notesKey).text || '',
-      sp.outlines.map(no => outlineLabel(no)).join(' ')
-    ].join(' ')).join(' || ')
-  ].join(' | '));
-  return haystack.includes(fs.q);
+  if (congHaystack(cong).includes(fs.q)) return true;
+  if (noteNormText(cong.notesKey).includes(fs.q)) return true;
+  return cong.speakers.some(sp => noteNormText(sp.notesKey).includes(fs.q));
 }
 
 /* ===== v2.8 change log ===============================================================
@@ -3219,9 +3431,9 @@ function renderChangeReport(r) {
 function changeReportText(entry) {
   const r = entry.report, out = [];
   out.push('PTC Tool — change log');
-  out.push('Imported: ' + new Date(entry.createdAt).toLocaleString());
+  out.push('Imported: ' + formatDateTimeLabel(entry.createdAt));
   if (entry.sourceFileName) out.push('Source: ' + entry.sourceFileName);
-  out.push('Compared against the data imported on ' + (entry.previousImportedAt ? new Date(entry.previousImportedAt).toLocaleString() : 'an earlier date'));
+  out.push('Compared against the data imported on ' + (entry.previousImportedAt ? formatDateTimeLabel(entry.previousImportedAt) : 'an earlier date'));
   out.push('');
   if (!changeReportCount(r)) { out.push('No differences.'); return out.join('\n'); }
 
@@ -3554,14 +3766,15 @@ function showAllView(keepSelection = false) {
   renderDetail();
 }
 
-function selectCongregation(congId) {
+function selectCongregation(congId, opts = {}) {
   const ds = state.dataset;
   if (!ds) return;
-  const cong = ds.congregations.find(c => c.id === congId);
+  const cong = congById(congId);
   if (!cong) return;
   state.selectedKey = 'cong:' + congId;
   state.lastCongregationKey = null;
-  state.detailTab = 'speakers';
+  /* v3.0: the home congregation opens on the tab you used last there (speakers or plan) */
+  state.detailTab = opts.tab || (congId === state.homeCongregationId ? loadHomeTab() : 'speakers');
   /* opening a congregation reveals it in the list — but only as a one-off. The group
      can be collapsed again right afterwards and stays collapsed, which is exactly what
      was impossible before. */
@@ -3569,7 +3782,7 @@ function selectCongregation(congId) {
   setWsMode('detail');
   renderResults();
   renderDetail();
-  if (window.matchMedia && window.matchMedia('(max-width: 1100px)').matches) {
+  if (!opts.noScroll && window.matchMedia && window.matchMedia('(max-width: 1100px)').matches) {
     document.getElementById('detailPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
@@ -3626,21 +3839,9 @@ function renderCongNav() {
   const home = homeId ? ds.congregations.find(c => c.id === homeId) : null;
   const filters = navFilterSummary(fs);
 
-  /* 1 · start view, 2 · own congregation — then everything else */
-  let html = `<div class="nav-primary">
-    <button type="button" class="nav-entry ${state.wsMode === 'list' ? 'active' : ''}" data-nav="all">
-      <span class="nav-main"><b>All congregations</b><span class="nav-meta">${matches.length} of ${ds.congregations.length} shown${filters.length ? ' · ' + escapeHtml(filters.join(', ')) : ''}</span></span>
-      <span class="nav-icon">☰</span>
-    </button>`;
-  if (home) {
-    const counts = navSpeakerCounts(home, fs);
-    const homeFavorites = home.speakers.filter(sp => noteRecord(sp.notesKey).favorite).length;
-    html += `<button type="button" class="nav-entry home-entry ${activeCongId === home.id ? 'active' : ''}" data-nav-cong="${escapeHtml(home.id)}">
-      <span class="nav-main"><b>${escapeHtml(home.name)}${homeFavorites ? ' <span class="nav-star">★</span>' : ''}</b><span class="nav-meta">My congregation · ${counts.total} speaker${counts.total === 1 ? '' : 's'}</span></span>
-      <span class="nav-icon">⌂</span>
-    </button>`;
-  }
-  html += '</div>';
+  /* v3.0: "All", "My Cong" and "Talk plan" sit in the sticky quick navigation above the
+     search, so they stay visible however far the list is scrolled. */
+  const html = '';
 
   const rest = matches.filter(c => !homeId || c.id !== homeId);
   let body = '';
@@ -3686,7 +3887,6 @@ function renderCongNav() {
 
   nav.innerHTML = html + `<div class="nav-tree">${body}</div>`;
 
-  nav.querySelectorAll('[data-nav="all"]').forEach(btn => btn.addEventListener('click', () => showAllView()));
   nav.querySelectorAll('[data-nav-cong]').forEach(btn => btn.addEventListener('click', () => selectCongregation(btn.dataset.navCong)));
   nav.querySelectorAll('[data-nav-country]').forEach(btn => btn.addEventListener('click', () => {
     const key = btn.dataset.navCountry;
@@ -3699,12 +3899,14 @@ function renderCongNav() {
 
   const hint = document.getElementById('sideNavHint');
   if (hint) {
-    hint.innerHTML = fs.sortMode === 'distance'
-      ? 'Sorted by <b>distance</b> — nearest congregation first.'
+    const shown = `<b>${matches.length}</b> of ${ds.congregations.length} congregations${filters.length ? ' · ' + escapeHtml(filters.join(', ')) : ''}`;
+    hint.innerHTML = shown + ' · ' + (fs.sortMode === 'distance'
+      ? 'sorted by <b>distance</b>, nearest first.'
       : fs.sortMode === 'outline'
-        ? 'Sorted by <b>outline</b> — best matching congregation first.'
-        : 'Search, filters and sorting apply to this list as well.';
+        ? 'sorted by <b>outline</b>, best match first.'
+        : 'search and filters apply here too.');
   }
+  refreshQuickNav();
 }
 
 function updateWorkspaceHead() {
@@ -3753,6 +3955,7 @@ function updateWorkspaceHead() {
 function refreshNavAndHead() {
   renderCongNav();
   updateWorkspaceHead();
+  refreshQuickNav();
   if (typeof refreshSetupHint === 'function') refreshSetupHint();
 }
 
@@ -3774,7 +3977,7 @@ function renderResults() {
   let items = [];
   if (fs.view === 'speaker') {
     items = ds.speakers
-      .map(sp => { const cong = ds.congregations.find(c => c.id === sp.congregationId); return { sp, cong }; })
+      .map(sp => ({ sp, cong: congById(sp.congregationId) }))
       .filter(x => x.cong && speakerMatches(x.sp, fs, x.cong))
       .sort((a,b) => {
         if (fs.sortMode === 'outline') {
@@ -3792,9 +3995,9 @@ function renderResults() {
         if (byName !== 0) return byName;
         return (a.cong?.name || '').localeCompare(b.cong?.name || '');
       });
-    document.getElementById('resultsCount').textContent = `${items.length} speaker matches`;
+    document.getElementById('resultsCount').textContent = resultsCountText(items.length, 'speaker');
 
-    list.innerHTML = items.map(x => {
+    list.innerHTML = items.slice(0, state.resultLimit).map(x => {
       const key = 'speaker:' + x.sp.id;
       /* v2.7.4: same treatment as the speaker tiles inside a congregation — three rows
          measured after layout instead of a hard cut at eight, and the chip says how many
@@ -3819,6 +4022,7 @@ function renderResults() {
           ${isHome ? `<span class="chip home-chip">Home congregation</span>` : ''}
           ${meta.lastInvited ? `<span class="chip">Invited: ${escapeHtml(formatDateLabel(meta.lastInvited))}</span>` : ''}
           ${meta.lastUsed ? `<span class="chip">Used: ${escapeHtml(formatDateLabel(meta.lastUsed))}</span>` : ''}
+          ${planChipForSpeaker(x.sp, x.cong)}
           ${distanceLabel ? `<span class="chip">${escapeHtml(distanceLabel)}</span>` : ''}
         </div>
         ${outlineTotal
@@ -3841,8 +4045,8 @@ function renderResults() {
       }
       return a.name.localeCompare(b.name);
     });
-    document.getElementById('resultsCount').textContent = `${items.length} congregation matches`;
-    list.innerHTML = items.map(cong => {
+    document.getElementById('resultsCount').textContent = resultsCountText(items.length, 'congregation');
+    list.innerHTML = items.slice(0, state.resultLimit).map(cong => {
       const key = 'cong:' + cong.id;
       const elderCount = cong.speakers.filter(s => s.role === 'Elder').length;
       const msCount = cong.speakers.filter(s => s.role === 'MS').length;
@@ -3903,17 +4107,42 @@ function renderResults() {
     });
   });
 
+  if (items.length > state.resultLimit) {
+    const rest = items.length - state.resultLimit;
+    list.insertAdjacentHTML('beforeend', `<div class="results-more">
+      <span class="small subtle">${state.resultLimit} of ${items.length} shown – narrow the search, or</span>
+      <button type="button" class="ghost" data-results-more="page">Show ${Math.min(RESULTS_PAGE, rest)} more</button>
+      <button type="button" class="ghost" data-results-more="all">Show all ${items.length}</button>
+    </div>`);
+    list.querySelectorAll('[data-results-more]').forEach(btn => btn.addEventListener('click', () => {
+      state.resultLimit = btn.dataset.resultsMore === 'all' ? items.length : state.resultLimit + RESULTS_PAGE;
+      renderResults();
+    }));
+  }
+
   if (!items.length) {
-    list.innerHTML = `<div class="detail-section"><div class="subtle">No matches with the current filters.</div></div>`;
+    /* v3.0: an outline nobody in the list gives is not an error – say so */
+    const nobody = fs.outline.number != null && !ds.speakers.some(sp => (sp.outlines || []).includes(fs.outline.number));
+    list.innerHTML = `<div class="detail-section"><div class="subtle">${nobody
+      ? `No speaker in this list gives outline #${escapeHtml(String(fs.outline.number))}${outlineTitle(fs.outline.number) ? ' (' + escapeHtml(outlineTitle(fs.outline.number)) + ')' : ''}.`
+      : 'No matches with the current filters.'}</div></div>`;
   } else if (!state.selectedKey) {
     /* keeps the print scope "current congregation" usable without forcing the
-       workspace out of the start view */
+       workspace out of the start view. v3.0: no second full render of the list for it –
+       the cards look exactly the same either way. */
     state.selectedKey = fs.view === 'speaker' ? 'speaker:' + items[0].sp.id : 'cong:' + items[0].id;
-    renderResults();
     renderDetail();
-    return;
   }
+  fitOutlinePreviews(list);
   refreshNavAndHead();
+}
+
+/* v3.0: the result list draws a page of cards at a time. Thousands of cards with up to
+   thirty outline chips each were the other half of the slow search. */
+const RESULTS_PAGE = 150;
+function resultsCountText(total, kind) {
+  const base = `${total} ${kind} match${total === 1 ? '' : 'es'}`;
+  return total > state.resultLimit ? `${base} · first ${state.resultLimit} shown` : base;
 }
 
 function noteValue(key) {
@@ -4436,8 +4665,10 @@ function wireCorrectionBox(context, scope = 'pane') {
 }
 
 function detailTabs(cong) {
+  const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
   const tabs = [
     { key:'speakers', label:`Speakers (${cong.speakers.length})` },
+    ...(isHome ? [{ key:'plan', label:'Talk plan' }] : []),
     { key:'congregation', label:'Congregation & PTC' },
     { key:'correction', label:'Report a correction' }
   ];
@@ -4491,10 +4722,10 @@ function renderDetail() {
   if (kind === 'speaker') {
     const sp = ds.speakers.find(x => x.id === id);
     if (!sp) return;
-    cong = ds.congregations.find(c => c.id === sp.congregationId);
+    cong = congById(sp.congregationId);
     highlightSpeakerId = sp.id;
   } else {
-    cong = ds.congregations.find(x => x.id === id);
+    cong = congById(id);
   }
   if (!cong) return;
 
@@ -4503,7 +4734,7 @@ function renderDetail() {
   const allOutlines = [...new Set(cong.speakers.flatMap(s => s.outlines))].sort((a,b) => a-b);
   const isHome = state.homeCongregationId && cong.id === state.homeCongregationId;
   const address = [cong.address, (cong.postalCode ? cong.postalCode + ' ' : '') + cong.city, cong.country].filter(Boolean).join(', ');
-  if (!['speakers','congregation','correction'].includes(state.detailTab)) state.detailTab = 'speakers';
+  if (!['speakers','congregation','correction'].concat(isHome ? ['plan'] : []).includes(state.detailTab)) state.detailTab = 'speakers';
 
   /* v2.6.1: a slim always-visible fact strip carries what you need at a glance; the
      rest moved into tabs so the speaker list is the first thing on screen. */
@@ -4535,6 +4766,8 @@ function renderDetail() {
         <div class="small subtle" style="margin-bottom:10px;">Click a speaker to open his card with outlines, memory and correction form.</div>
         ${congSpeakerListHtml(cong, highlightSpeakerId)}
       </div>`;
+  } else if (state.detailTab === 'plan') {
+    tabBody = renderPlanTab(cong);
   } else if (state.detailTab === 'congregation') {
     tabBody = `
       <div class="detail-section">
@@ -4571,8 +4804,10 @@ function renderDetail() {
 
   pane.querySelectorAll('[data-detail-tab]').forEach(btn => btn.addEventListener('click', () => {
     state.detailTab = btn.dataset.detailTab;
+    if (isHome) saveHomeTab(state.detailTab);
     renderDetail();
   }));
+  if (state.detailTab === 'plan') wirePlanTab(pane, cong);
 
   /* wire only what the active tab actually rendered */
   if (state.detailTab === 'congregation') {
@@ -4589,7 +4824,7 @@ function renderDetail() {
 
   const setHomeBtn = document.getElementById('setHomeCongBtn');
   const clearHomeBtn = document.getElementById('clearHomeCongBtn');
-  if (setHomeBtn) setHomeBtn.addEventListener('click', () => { state.homeCongregationId = cong.id; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation saved'); });
+  if (setHomeBtn) setHomeBtn.addEventListener('click', () => { state.homeCongregationId = cong.id; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshQuickNav(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation saved'); });
   if (clearHomeBtn) clearHomeBtn.addEventListener('click', () => { state.homeCongregationId = ''; saveHomeCongregationId(); persistDataset(); renderResults(); renderDetail(); refreshDistanceRowInfo(); refreshSpeakerModal(); setStatus('Home congregation cleared'); });
 
   pane.querySelectorAll('[data-cong-speaker-id]').forEach(el => {
@@ -4602,8 +4837,667 @@ function renderDetail() {
       openSpeakerModal(speakerId);
     });
   });
-  if (state.detailTab === 'speakers') fitAllOutlinePreviews();
+  if (state.detailTab === 'speakers') fitOutlinePreviews(pane);
   updateWorkspaceHead();
+  refreshQuickNav();
+}
+
+/* ===== v3.0 talk plan =================================================================
+   The plan is the PTC's own calendar of public talks in the home congregation: every
+   meeting date of a year, filled by hand. It is personal data like the notes – it lives
+   only in this browser and travels in the Personal Notes backup. Nothing in it depends
+   on the master: speaker, congregation and outline title are stored as text at the moment
+   of saving, so a later import can never break or change a past entry. The link to the
+   master (speakerKey) is only used for hints – it is allowed to go stale. */
+const PLAN_KEY = 'ptcToolPlan';
+const PLAN_SHOW_PAST_KEY = 'ptcToolPlanShowPast';
+const HOME_TAB_KEY = 'ptcToolHomeTab';
+const LAST_BACKUP_KEY = 'ptcToolLastBackupAt';
+const PLAN_KINDS = {
+  talk: 'Public talk',
+  co: 'Circuit overseer visit',
+  assembly: 'Assembly / convention',
+  memorial: 'Memorial week',
+  none: 'No public talk',
+  other: 'Other'
+};
+const PLAN_STATUS = { requested: 'Requested', confirmed: 'Confirmed' };
+const WD_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function planText(v) { return typeof v === 'string' ? v.trim() : (v == null ? '' : String(v).trim()); }
+function normalizePlanEntry(date, e) {
+  const no = e && e.outlineNo !== null && e.outlineNo !== '' && Number.isFinite(Number(e.outlineNo)) ? Number(e.outlineNo) : null;
+  return {
+    date,
+    kind: PLAN_KINDS[e?.kind] ? e.kind : 'talk',
+    speakerName: planText(e?.speakerName),
+    congName: planText(e?.congName),
+    speakerKey: planText(e?.speakerKey),
+    outlineNo: no,
+    outlineTitle: planText(e?.outlineTitle),
+    status: PLAN_STATUS[e?.status] ? e.status : 'requested',
+    note: planText(e?.note),
+    createdAt: planText(e?.createdAt),
+    updatedAt: planText(e?.updatedAt)
+  };
+}
+function normalizePlanStore(o) {
+  const out = { version: 1, meetingDay: WEEKDAYS.includes(o?.meetingDay) ? o.meetingDay : '', entries: {} };
+  Object.entries(o?.entries || {}).forEach(([date, e]) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && e && typeof e === 'object') out.entries[date] = normalizePlanEntry(date, e);
+  });
+  return out;
+}
+function loadPlan() {
+  try { return normalizePlanStore(JSON.parse(localStorage.getItem(PLAN_KEY) || '{}')); }
+  catch (e) { return normalizePlanStore({}); }
+}
+function savePlan() {
+  try { localStorage.setItem(PLAN_KEY, JSON.stringify(state.plan)); }
+  catch (e) { alert('The talk plan could not be saved in this browser: ' + e.message); }
+}
+function mergePlanStore(incoming) {
+  const inc = normalizePlanStore(incoming);
+  let taken = 0;
+  Object.entries(inc.entries).forEach(([date, e]) => {
+    const local = state.plan.entries[date];
+    if (!local || (e.updatedAt || '') > (local.updatedAt || '')) { state.plan.entries[date] = e; taken++; }
+  });
+  if (!state.plan.meetingDay && inc.meetingDay) state.plan.meetingDay = inc.meetingDay;
+  return taken;
+}
+state.plan = loadPlan();
+state.planYear = new Date().getFullYear();
+state.planView = 'calendar';
+state.planHistoryQuery = '';
+state.planShowPast = (() => { try { return localStorage.getItem(PLAN_SHOW_PAST_KEY) === '1'; } catch (e) { return false; } })();
+
+function loadHomeTab() {
+  try { const t = localStorage.getItem(HOME_TAB_KEY); return ['speakers', 'plan', 'congregation'].includes(t) ? t : 'speakers'; }
+  catch (e) { return 'speakers'; }
+}
+function saveHomeTab(tab) {
+  if (!['speakers', 'plan', 'congregation'].includes(tab)) return;
+  try { localStorage.setItem(HOME_TAB_KEY, tab); } catch (e) {}
+}
+
+function planDateLabel(iso) {
+  const d = dateFromIso(iso);
+  return (Number.isNaN(d.getTime()) ? '' : WD_SHORT[d.getDay()] + ' ') + formatDateLabel(iso);
+}
+function planMeetingDay() {
+  return state.plan.meetingDay || homeCongregation()?.meetingDay || 'Sunday';
+}
+function planMeetingDaySource() {
+  if (state.plan.meetingDay) return 'set by you';
+  return homeCongregation()?.meetingDay ? 'from the master' : 'default';
+}
+/* JS getDay(): 0 = Sunday. WEEKDAYS starts on Monday. */
+function weekdayIndex(day) { return (WEEKDAYS.indexOf(day) + 1) % 7; }
+function planDatesBetween(fromIso, toIso) {
+  const target = weekdayIndex(planMeetingDay());
+  const out = new Set();
+  const d = dateFromIso(fromIso);
+  const end = dateFromIso(toIso);
+  while (d.getDay() !== target) d.setDate(d.getDate() + 1);
+  for (; d <= end; d.setDate(d.getDate() + 7)) out.add(isoOf(d));
+  /* entries on another weekday (meeting day changed, special date) are never lost */
+  Object.keys(state.plan.entries).forEach(k => { if (k >= fromIso && k <= toIso) out.add(k); });
+  return [...out].sort();
+}
+function planDatesForYear(y) { return planDatesBetween(`${y}-01-01`, `${y}-12-31`); }
+function nextPlanDate() {
+  const t = todayIso();
+  return planDatesBetween(t, isoOf(new Date(new Date().getFullYear() + 2, 11, 31)))[0] || '';
+}
+function nextFreePlanDate() {
+  const t = todayIso();
+  return planDatesBetween(t, isoOf(new Date(new Date().getFullYear() + 3, 11, 31))).find(d => !state.plan.entries[d]) || '';
+}
+
+/* --- links back to the master (hints only) --- */
+const speakerKeyMapCache = new WeakMap();
+function speakerByNotesKey(key) {
+  const ds = state.dataset;
+  if (!ds || !key) return null;
+  let map = speakerKeyMapCache.get(ds.speakers);
+  if (!map) {
+    map = new Map(ds.speakers.map(sp => [sp.notesKey, sp]));
+    speakerKeyMapCache.set(ds.speakers, map);
+  }
+  return map.get(key) || null;
+}
+function planPersonId(e) {
+  return e.speakerKey || ('text:' + normalizeText(e.speakerName) + '|' + normalizeText(e.congName));
+}
+function planEntryIsForSpeaker(e, sp, cong) {
+  if (!e.speakerName && !e.speakerKey) return false;
+  if (e.speakerKey && e.speakerKey === sp.notesKey) return true;
+  return normalizeText(e.speakerName) === normalizeText(sp.name) && normalizeText(e.congName) === normalizeText(cong?.name || '');
+}
+function planEntriesForSpeaker(sp, cong) {
+  return Object.values(state.plan.entries).filter(e => planEntryIsForSpeaker(e, sp, cong)).sort((a, b) => b.date.localeCompare(a.date));
+}
+function planChipForSpeaker(sp, cong) {
+  const t = todayIso();
+  const next = planEntriesForSpeaker(sp, cong).filter(e => e.date >= t).pop();
+  return next ? `<span class="chip plan-chip" title="In your talk plan">Planned: ${escapeHtml(formatDateLabel(next.date))}</span>` : '';
+}
+function planOutlineText(e) {
+  if (e.outlineNo != null) return '#' + e.outlineNo + (e.outlineTitle ? ' – ' + e.outlineTitle : '');
+  return e.outlineTitle || '';
+}
+function planEntryIsEmpty(e) {
+  return e.kind === 'talk' && !e.speakerName && e.outlineNo == null && !e.outlineTitle && !e.note;
+}
+
+/* --- hints shown while editing an entry --- */
+function planWarnings(draft, originalDate) {
+  const list = [];
+  const others = Object.values(state.plan.entries).filter(e => e.date !== originalDate && e.date !== draft.date);
+  const dayDiff = (a, b) => Math.round((dateFromIso(a) - dateFromIso(b)) / 86400000);
+  const when = e => `${planDateLabel(e.date)}${e.speakerName ? ' (' + e.speakerName + ')' : ''}`;
+  if (draft.outlineNo != null) {
+    const same = others.filter(e => e.outlineNo === draft.outlineNo)
+      .sort((a, b) => Math.abs(dayDiff(a.date, draft.date)) - Math.abs(dayDiff(b.date, draft.date)));
+    const near = same.filter(e => Math.abs(dayDiff(e.date, draft.date)) <= 730);
+    if (near.length) {
+      list.push({ level: 'warn', text: `Outline #${draft.outlineNo} is in your plan within two years of this date: ` + near.slice(0, 3).map(when).join(', ') + '.' });
+    } else if (same.length) {
+      list.push({ level: 'info', text: `Outline #${draft.outlineNo} was last in your plan on ${when(same[0])}.` });
+    }
+    if (outlineConfigInfo.loaded && !OUTLINE_DATA[String(draft.outlineNo)]) {
+      list.push({ level: 'warn', text: `Outline #${draft.outlineNo} is not in ${outlineConfigInfo.file || 'outline-data.json'}.` });
+    } else {
+      const st = outlineEffectiveState(draft.outlineNo, dateFromIso(draft.date));
+      if (st.status === 'retired') list.push({ level: 'warn', text: `Outline #${draft.outlineNo} is retired on this date${st.effectiveDate ? ' (since ' + formatDateLabel(st.effectiveDate) + ')' : ''}.` });
+      else if (st.status === 'do_not_use') list.push({ level: 'warn', text: `Outline #${draft.outlineNo} is marked “do not use”.` });
+      else if (st.status === 'retiring' && st.effectiveDate) list.push({ level: 'info', text: `Outline #${draft.outlineNo} retires on ${formatDateLabel(st.effectiveDate)}.` });
+    }
+    const sp = draft.speakerKey ? speakerByNotesKey(draft.speakerKey) : null;
+    if (sp && !(sp.outlines || []).includes(draft.outlineNo)) {
+      list.push({ level: 'warn', text: `${sp.name} does not have outline #${draft.outlineNo} in the master list.` });
+    }
+  }
+  if (draft.speakerName) {
+    const id = planPersonId(draft);
+    const mine = others.filter(e => planPersonId(e) === id && Math.abs(dayDiff(e.date, draft.date)) <= 365)
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (mine.length) list.push({ level: 'warn', text: `${draft.speakerName} is also in your plan on ` + mine.map(e => planDateLabel(e.date)).join(', ') + '.' });
+  }
+  if (draft.speakerKey && state.dataset && !speakerByNotesKey(draft.speakerKey)) {
+    list.push({ level: 'info', text: 'This speaker is no longer in the current master. The entry keeps the name as it was saved.' });
+  }
+  return list;
+}
+
+/* --- the tab --- */
+function lastBackupInfo() {
+  let at = '';
+  try { at = localStorage.getItem(LAST_BACKUP_KEY) || ''; } catch (e) {}
+  const newest = Object.values(state.plan.entries).reduce((m, e) => (e.updatedAt || '') > m ? e.updatedAt : m, '');
+  return { at, changedSince: !!newest && (!at || newest > at) };
+}
+
+function planRowHtml(date, t, nextDate) {
+  const e = state.plan.entries[date];
+  const past = date < t;
+  const cls = ['plan-row', past ? 'is-past' : '', date === nextDate ? 'is-next' : '', e ? 'kind-' + e.kind : 'is-free', e ? 'st-' + e.status : ''].filter(Boolean).join(' ');
+  const dateCell = `<span class="plan-date"><b>${escapeHtml(planDateLabel(date).split(' ')[0])}</b> ${escapeHtml(formatDateLabel(date))}${date === nextDate ? ' <span class="plan-next">Next</span>' : ''}</span>`;
+  if (!e) {
+    return `<button type="button" class="${cls}" data-plan-date="${date}">${dateCell}<span class="plan-main plan-free">${past ? '—' : 'Free'}</span><span class="plan-outline"></span><span class="plan-state"></span></button>`;
+  }
+  const stale = e.speakerKey && state.dataset && !speakerByNotesKey(e.speakerKey);
+  const kindLabel = e.kind !== 'talk' ? `<span class="plan-kind">${escapeHtml(PLAN_KINDS[e.kind])}</span>` : '';
+  const st = e.outlineNo != null ? outlineEffectiveState(e.outlineNo, dateFromIso(date)) : null;
+  const outlineWarn = st && (st.status === 'retired' || st.status === 'do_not_use') ? ' <span class="plan-flag" title="Outline retired on this date">retired</span>' : '';
+  return `<button type="button" class="${cls}" data-plan-date="${date}">
+    ${dateCell}
+    <span class="plan-main">${kindLabel}${e.speakerName ? `<b>${escapeHtml(e.speakerName)}</b>` : (e.kind === 'talk' ? '<span class="subtle">No speaker yet</span>' : '')}${e.congName ? `<span class="plan-cong">${escapeHtml(e.congName)}${stale ? ' · not in current master' : ''}</span>` : ''}${e.note ? `<span class="plan-note">${escapeHtml(e.note)}</span>` : ''}</span>
+    <span class="plan-outline">${escapeHtml(planOutlineText(e))}${outlineWarn}</span>
+    <span class="plan-state">${e.kind === 'talk' || e.speakerName ? `<span class="chip plan-status st-${e.status}">${escapeHtml(PLAN_STATUS[e.status])}</span>` : ''}</span>
+  </button>`;
+}
+
+function renderPlanCalendar(t) {
+  const y = state.planYear;
+  const currentYear = Number(t.slice(0, 4));
+  const hidePast = y === currentYear && !state.planShowPast;
+  const nextDate = nextPlanDate();
+  const dates = planDatesForYear(y);
+  const byMonth = Array.from({ length: 12 }, () => []);
+  dates.forEach(d => byMonth[Number(d.slice(5, 7)) - 1].push(d));
+  const tiles = byMonth.map((arr, m) => {
+    const filled = arr.filter(d => state.plan.entries[d]).length;
+    const monthPast = y < currentYear || (y === currentYear && m < Number(t.slice(5, 7)) - 1);
+    return `<button type="button" class="plan-tile ${monthPast ? 'is-past' : ''} ${filled === arr.length && arr.length ? 'is-full' : ''}" data-plan-jump="${m}" title="${MONTHS[m]} ${y}: ${filled} of ${arr.length} dates planned">
+      <span>${MONTHS[m].slice(0, 3)}</span><b>${filled}/${arr.length}</b></button>`;
+  }).join('');
+  const blocks = byMonth.map((arr, m) => {
+    const rows = arr.filter(d => !hidePast || d >= t);
+    if (!rows.length) return '';
+    return `<div class="plan-month" id="plan-month-${m}"><h4>${MONTHS[m]} ${y}</h4>${rows.map(d => planRowHtml(d, t, nextDate)).join('')}</div>`;
+  }).join('');
+  const hiddenCount = hidePast ? dates.filter(d => d < t).length : 0;
+  return `<div class="plan-tiles">${tiles}</div>
+    ${hiddenCount ? `<div class="plan-hidden-note small subtle">${hiddenCount} earlier date${hiddenCount === 1 ? '' : 's'} of ${y} hidden · <button type="button" class="linkish" data-plan-showpast="1">show them</button></div>` : ''}
+    <div class="plan-list">${blocks || '<div class="subtle">No meeting dates in this year.</div>'}</div>`;
+}
+
+function planHistoryRowsHtml(t) {
+  const q = normalizeText(state.planHistoryQuery);
+  const rows = Object.values(state.plan.entries).filter(e => e.date < t).sort((a, b) => b.date.localeCompare(a.date))
+    .filter(e => !q || normalizeText([formatDateLabel(e.date), e.speakerName, e.congName, planOutlineText(e), e.note, PLAN_KINDS[e.kind]].join(' ')).includes(q));
+  if (!rows.length) return `<div class="subtle">${q ? 'Nothing in your history matches this search.' : 'No past entries yet. Everything you plan becomes history once its date has passed.'}</div>`;
+  let year = '';
+  return rows.map(e => {
+    const y = e.date.slice(0, 4);
+    const head = y !== year ? `<h4>${y}</h4>` : '';
+    year = y;
+    return head + planRowHtml(e.date, t, '');
+  }).join('');
+}
+
+function renderPlanTab(cong) {
+  const t = todayIso();
+  const pastCount = Object.keys(state.plan.entries).filter(d => d < t).length;
+  const backup = lastBackupInfo();
+  const dayOptions = [`<option value="">Automatic – ${escapeHtml(cong.meetingDay || 'Sunday')}${cong.meetingDay ? ' (master)' : ''}</option>`]
+    .concat(WEEKDAYS.map(d => `<option value="${d}" ${state.plan.meetingDay === d ? 'selected' : ''}>${d}</option>`)).join('');
+  const isCal = state.planView !== 'history';
+  return `<div class="detail-section plan-section">
+    <div class="plan-toolbar">
+      <div class="plan-views" role="tablist">
+        <button type="button" class="plan-view ${isCal ? 'active' : ''}" data-plan-view="calendar" role="tab" aria-selected="${isCal}">Calendar</button>
+        <button type="button" class="plan-view ${!isCal ? 'active' : ''}" data-plan-view="history" role="tab" aria-selected="${!isCal}">History (${pastCount})</button>
+      </div>
+      ${isCal ? `<div class="plan-year">
+        <button type="button" class="ghost" data-plan-year="-1" aria-label="Previous year">‹</button>
+        <b>${state.planYear}</b>
+        <button type="button" class="ghost" data-plan-year="1" aria-label="Next year">›</button>
+        ${state.planYear !== new Date().getFullYear() ? '<button type="button" class="ghost" data-plan-year="0">This year</button>' : ''}
+      </div>
+      <label class="plan-day"><span>Meeting day</span><select id="planMeetingDay">${dayOptions}</select></label>
+      ${state.planYear === new Date().getFullYear() ? `<label class="pr-opt plan-past-opt"><input type="checkbox" id="planShowPast" ${state.planShowPast ? 'checked' : ''}> Show past dates</label>` : ''}
+      <button type="button" class="ghost" id="planPrintBtn">Print ${state.planYear}</button>`
+      : `<input type="text" id="planHistorySearch" class="plan-history-search" placeholder="Search history: speaker, congregation, outline number or title…" value="${escapeHtml(state.planHistoryQuery)}">`}
+    </div>
+    <div class="plan-backup ${backup.changedSince ? 'needs-backup' : ''}">
+      <span>Your plan is stored only in this browser and goes into <b>Backup → Personal Notes &amp; plan</b>. ${backup.at ? 'Last backup: ' + escapeHtml(formatDateTimeLabel(backup.at)) + '.' : 'No backup made in this browser yet.'}${backup.changedSince ? ' <b>There are changes since then.</b>' : ''}</span>
+      <button type="button" class="ghost" id="planBackupBtn">Backup now</button>
+    </div>
+    ${isCal ? renderPlanCalendar(t) : `<div class="plan-list" id="planHistoryList">${planHistoryRowsHtml(t)}</div>`}
+  </div>`;
+}
+
+function wirePlanTab(pane, cong) {
+  pane.querySelectorAll('[data-plan-view]').forEach(b => b.addEventListener('click', () => { state.planView = b.dataset.planView; renderDetail(); }));
+  pane.querySelectorAll('[data-plan-year]').forEach(b => b.addEventListener('click', () => {
+    const v = Number(b.dataset.planYear);
+    state.planYear = v === 0 ? new Date().getFullYear() : state.planYear + v;
+    renderDetail();
+  }));
+  const daySel = pane.querySelector('#planMeetingDay');
+  if (daySel) daySel.addEventListener('change', () => { state.plan.meetingDay = daySel.value; savePlan(); renderDetail(); setStatus('Meeting day for the plan: ' + planMeetingDay()); });
+  const pastBox = pane.querySelector('#planShowPast');
+  const setPast = on => { state.planShowPast = on; try { localStorage.setItem(PLAN_SHOW_PAST_KEY, on ? '1' : '0'); } catch (e) {} };
+  if (pastBox) pastBox.addEventListener('change', () => { setPast(pastBox.checked); renderDetail(); });
+  pane.querySelectorAll('[data-plan-showpast]').forEach(b => b.addEventListener('click', () => { setPast(true); renderDetail(); }));
+  pane.querySelectorAll('[data-plan-jump]').forEach(b => b.addEventListener('click', () => {
+    const m = Number(b.dataset.planJump);
+    const t = todayIso();
+    if (state.planYear === Number(t.slice(0, 4)) && !state.planShowPast && m < Number(t.slice(5, 7)) - 1) { setPast(true); renderDetail(); }
+    document.getElementById('plan-month-' + m)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+  pane.querySelectorAll('[data-plan-date]').forEach(b => b.addEventListener('click', () => openPlanEditor({ date: b.dataset.planDate })));
+  const printBtn = pane.querySelector('#planPrintBtn');
+  if (printBtn) printBtn.addEventListener('click', () => printPlan(state.planYear));
+  const backupBtn = pane.querySelector('#planBackupBtn');
+  if (backupBtn) backupBtn.addEventListener('click', () => openBackupChoice());
+  const hist = pane.querySelector('#planHistorySearch');
+  if (hist) {
+    hist.addEventListener('input', () => {
+      state.planHistoryQuery = hist.value;
+      const list = pane.querySelector('#planHistoryList');
+      if (!list) return;
+      list.innerHTML = planHistoryRowsHtml(todayIso());
+      list.querySelectorAll('[data-plan-date]').forEach(b => b.addEventListener('click', () => openPlanEditor({ date: b.dataset.planDate })));
+    });
+  }
+}
+
+function refreshPlanViews() {
+  if (state.wsMode === 'detail' && state.detailTab === 'plan') renderDetail();
+  if (typeof refreshSpeakerModal === 'function') refreshSpeakerModal();
+  if (state.wsMode === 'list') renderResults();
+}
+
+/* --- printing: a plain table of one year, through the same #printRoot as the print module --- */
+function printPlan(year) {
+  const root = document.getElementById('printRoot');
+  const home = homeCongregation();
+  if (!root || !home) return;
+  const t = todayIso();
+  const hidePast = year === new Date().getFullYear() && !state.planShowPast;
+  const dates = planDatesForYear(year).filter(d => !hidePast || d >= t);
+  const rows = dates.map(d => {
+    const e = state.plan.entries[d];
+    if (!e) return `<tr><td class="pnums">${escapeHtml(planDateLabel(d))}</td><td></td><td></td><td></td></tr>`;
+    const who = e.kind !== 'talk' ? PLAN_KINDS[e.kind] + (e.speakerName ? ': ' + e.speakerName : '') : e.speakerName;
+    return `<tr><td class="pnums">${escapeHtml(planDateLabel(d))}</td>
+      <td><span class="pname">${escapeHtml(who || '')}</span>${e.status === 'requested' && (e.speakerName || e.kind === 'talk') ? ' *' : ''}</td>
+      <td>${escapeHtml(e.congName)}</td>
+      <td>${escapeHtml(planOutlineText(e))}${e.note ? `<div class="pnote">${escapeHtml(e.note)}</div>` : ''}</td></tr>`;
+  }).join('');
+  root.innerHTML = `<div class="pdoc">
+    <div class="pdoc-head"><h1>Public talks ${year}</h1>
+      <div class="pdoc-sub">${escapeHtml([home.name, home.meetingRaw].filter(Boolean).join(' · '))}${hidePast ? ' · from ' + escapeHtml(formatDateLabel(t)) : ''}</div></div>
+    <table class="ptab"><thead><tr><th style="width:17%">Date</th><th style="width:25%">Speaker</th><th style="width:24%">Congregation</th><th>Talk</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="pdoc-foot"><span>* not yet confirmed</span><span>Printed ${escapeHtml(formatDateOf(new Date()))}</span></div>
+  </div>`;
+  window.print();
+}
+
+/* --- the editor --- */
+let planEditor = null;
+function planEditorOpen() { return !!planEditor && planEditor.overlay.style.display === 'block'; }
+
+function buildPlanEditor() {
+  const overlay = document.createElement('div');
+  overlay.id = 'planEditorOverlay';
+  overlay.setAttribute('aria-hidden', 'true');
+  overlay.innerHTML = `<div class="sp-dialog plan-ed" role="dialog" aria-modal="true" aria-labelledby="peTitle">
+    <div class="sp-head">
+      <div><h2 id="peTitle">Talk plan</h2><div class="sp-head-sub" id="peSub"></div></div>
+      <div class="sp-head-actions"><button type="button" class="ghost" id="peClose">Close</button></div>
+    </div>
+    <div class="sp-body">
+      <div class="pe-grid">
+        <div class="field"><label for="peDate">Date</label><select id="peDate"></select></div>
+        <div class="field"><label for="peKind">Type</label><select id="peKind">${Object.entries(PLAN_KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+        <div class="field span-2"><label for="peSpeaker">Speaker</label>
+          <div class="pe-ac"><input type="text" id="peSpeaker" autocomplete="off" placeholder="Type a name or congregation – or any name that is not in the list">
+          <div class="pe-ac-list" id="peSpeakerList" role="listbox" hidden></div></div>
+          <div class="pe-source" id="peSource"></div></div>
+        <div class="field span-2"><label for="peCong">Congregation</label><input type="text" id="peCong" autocomplete="off" placeholder="Congregation of the speaker"></div>
+        <div class="field span-2"><label for="peOutline">Outline</label><input type="text" id="peOutline" list="peOutlineList" autocomplete="off" placeholder="Number or title, e.g. 122"><datalist id="peOutlineList"></datalist>
+          <div class="pe-source" id="peOutlineInfo"></div></div>
+        <div class="field"><label for="peStatus">Status</label><select id="peStatus">${Object.entries(PLAN_STATUS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+        <div class="field span-2"><label for="peNote">Note</label><textarea id="peNote" rows="2" placeholder="Optional – travel, Zoom, who confirmed…"></textarea></div>
+      </div>
+      <div class="pe-warnings" id="peWarnings"></div>
+    </div>
+    <div class="sp-foot">
+      <span class="sp-foot-hint">Saved as text in your plan – a later master import never changes it.</span>
+      <button type="button" class="reset-danger" id="peDelete">Remove entry</button>
+      <button type="button" class="ghost" id="peCancel">Cancel</button>
+      <button type="button" class="good" id="peSave">Save</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  const q = id => overlay.querySelector('#' + id);
+  const ed = { overlay, picked: null, originalDate: '', acItems: [], acIndex: -1,
+    date: q('peDate'), kind: q('peKind'), speaker: q('peSpeaker'), list: q('peSpeakerList'), source: q('peSource'),
+    cong: q('peCong'), outline: q('peOutline'), outlineList: q('peOutlineList'), outlineInfo: q('peOutlineInfo'),
+    status: q('peStatus'), note: q('peNote'), warnings: q('peWarnings'), title: q('peTitle'), sub: q('peSub'), del: q('peDelete') };
+
+  const close = () => closePlanEditor();
+  q('peClose').addEventListener('click', close);
+  q('peCancel').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  overlay.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    if (!ed.list.hidden) { hideAc(); return; }
+    close();
+  });
+
+  const hideAc = () => { ed.list.hidden = true; ed.acIndex = -1; ed.speaker.setAttribute('aria-expanded', 'false'); };
+  const renderAc = () => {
+    ed.list.innerHTML = ed.acItems.map((x, i) => `<button type="button" class="pe-ac-item ${i === ed.acIndex ? 'active' : ''}" data-ac="${i}" role="option">
+      <b>${escapeHtml(x.sp.name)}</b> <span class="subtle">${escapeHtml(x.sp.role)}</span>
+      <span class="pe-ac-meta">${escapeHtml([x.cong.name, distanceLabelForCong(x.cong)].filter(Boolean).join(' · '))}</span></button>`).join('');
+    ed.list.hidden = !ed.acItems.length;
+    ed.speaker.setAttribute('aria-expanded', String(!ed.list.hidden));
+    ed.list.querySelectorAll('[data-ac]').forEach(b => b.addEventListener('mousedown', ev => { ev.preventDefault(); pick(ed.acItems[Number(b.dataset.ac)]); }));
+  };
+  const search = () => {
+    const ds = state.dataset;
+    const qv = normalizeText(ed.speaker.value);
+    if (!ds || qv.length < 2) { ed.acItems = []; hideAc(); return; }
+    const scored = [];
+    for (const sp of ds.speakers) {
+      const cong = congById(sp.congregationId);
+      if (!cong) continue;
+      const name = normalizeText(sp.name);
+      let score = -1;
+      if (name.startsWith(qv)) score = 0;
+      else if (name.split(' ').some(p => p.startsWith(qv))) score = 1;
+      else if (name.includes(qv)) score = 2;
+      else if (normalizeText(cong.name + ' ' + cong.city).includes(qv)) score = 3;
+      if (score >= 0) scored.push({ sp, cong, score });
+    }
+    scored.sort((a, b) => a.score - b.score || a.sp.name.localeCompare(b.sp.name));
+    ed.acItems = scored.slice(0, 8);
+    ed.acIndex = ed.acItems.length ? 0 : -1;
+    renderAc();
+  };
+  const pick = x => {
+    ed.picked = { key: x.sp.notesKey, name: x.sp.name };
+    ed.speaker.value = x.sp.name;
+    ed.cong.value = x.cong.name;
+    hideAc();
+    updateSource();
+    fillOutlineList();
+    refreshWarnings();
+    ed.outline.focus();
+  };
+  ed.speaker.addEventListener('input', () => {
+    if (ed.picked && ed.speaker.value.trim() !== ed.picked.name) { ed.picked = null; fillOutlineList(); }
+    updateSource();
+    search();
+    refreshWarnings();
+  });
+  ed.speaker.addEventListener('keydown', e => {
+    if (ed.list.hidden || !ed.acItems.length) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      ed.acIndex = (ed.acIndex + (e.key === 'ArrowDown' ? 1 : -1) + ed.acItems.length) % ed.acItems.length;
+      renderAc();
+    } else if (e.key === 'Enter' && ed.acIndex >= 0) {
+      e.preventDefault();
+      pick(ed.acItems[ed.acIndex]);
+    }
+  });
+  ed.speaker.addEventListener('blur', () => setTimeout(hideAc, 120));
+  const updateSource = () => {
+    const sp = ed.picked ? speakerByNotesKey(ed.picked.key) : null;
+    ed.source.innerHTML = sp
+      ? `From the master list · ${escapeHtml(sp.role)} · ${sp.outlines.length} outline${sp.outlines.length === 1 ? '' : 's'}`
+      : (ed.picked ? 'Linked to a speaker who is not in the current master.' : (ed.speaker.value.trim() ? 'Free text – not linked to the master list.' : 'Pick a brother from the master list, or write any name.'));
+  };
+  const fillOutlineList = () => {
+    const sp = ed.picked ? speakerByNotesKey(ed.picked.key) : null;
+    const numbers = sp ? sp.outlines.slice() : Object.keys(OUTLINE_DATA).map(Number).sort((a, b) => a - b);
+    ed.outlineList.innerHTML = numbers.map(no => `<option value="${escapeHtml('#' + no + (outlineTitle(no) ? ' – ' + outlineTitle(no) : ''))}"></option>`).join('');
+  };
+  ed.outline.addEventListener('input', () => { updateOutlineInfo(); refreshWarnings(); });
+  ed.date.addEventListener('change', () => { ed.title.textContent = 'Talk plan · ' + planDateLabel(ed.date.value); refreshWarnings(); });
+  ed.kind.addEventListener('change', refreshWarnings);
+  ed.cong.addEventListener('input', refreshWarnings);
+  const updateOutlineInfo = () => {
+    const o = parsePlanOutline(ed.outline.value);
+    const full = o.no != null && outlineTitle(o.no) ? `#${o.no} – ${outlineTitle(o.no)}` : '';
+    ed.outlineInfo.textContent = o.no != null
+      ? (full ? (ed.outline.value.trim() === full ? '' : full) : `#${o.no} – no title in the outline data`)
+      : (o.title ? 'Free text – stored as written.' : '');
+  };
+  function refreshWarnings() {
+    const draft = readDraft();
+    const w = planWarnings(draft, ed.originalDate);
+    ed.warnings.innerHTML = w.map(x => `<div class="pe-warn ${x.level}">${escapeHtml(x.text)}</div>`).join('');
+  }
+  const readDraft = () => {
+    const o = parsePlanOutline(ed.outline.value);
+    return normalizePlanEntry(ed.date.value, {
+      kind: ed.kind.value,
+      speakerName: ed.speaker.value,
+      congName: ed.cong.value,
+      speakerKey: ed.picked ? ed.picked.key : '',
+      outlineNo: o.no,
+      outlineTitle: o.no != null ? (outlineTitle(o.no) || o.title) : o.title,
+      status: ed.status.value,
+      note: ed.note.value
+    });
+  };
+  q('peSave').addEventListener('click', () => {
+    const draft = readDraft();
+    if (!draft.date) return;
+    const old = ed.originalDate ? state.plan.entries[ed.originalDate] : null;
+    if (ed.originalDate && ed.originalDate !== draft.date) delete state.plan.entries[ed.originalDate];
+    if (planEntryIsEmpty(draft)) {
+      delete state.plan.entries[draft.date];
+    } else {
+      const now = new Date().toISOString();
+      draft.createdAt = old?.createdAt || now;
+      draft.updatedAt = now;
+      state.plan.entries[draft.date] = draft;
+    }
+    savePlan();
+    closePlanEditor();
+    refreshPlanViews();
+    setStatus('Talk plan saved · ' + planDateLabel(draft.date));
+    showToast('Saved in your talk plan');
+  });
+  ed.del.addEventListener('click', () => {
+    if (!ed.originalDate || !state.plan.entries[ed.originalDate]) return;
+    if (!confirm(`Remove the entry for ${planDateLabel(ed.originalDate)} from your plan?`)) return;
+    delete state.plan.entries[ed.originalDate];
+    savePlan();
+    closePlanEditor();
+    refreshPlanViews();
+    setStatus('Plan entry removed');
+  });
+  ed.updateSource = updateSource;
+  ed.fillOutlineList = fillOutlineList;
+  ed.updateOutlineInfo = updateOutlineInfo;
+  ed.refreshWarnings = refreshWarnings;
+  ed.hideAc = hideAc;
+  planEditor = ed;
+  return ed;
+}
+
+function parsePlanOutline(raw) {
+  const v = String(raw || '').trim();
+  const m = /^#?\s*(\d{1,3})(?:\s*[–-]\s*(.*))?$/.exec(v);
+  if (m) return { no: Number(m[1]), title: (m[2] || '').trim() };
+  return { no: null, title: v };
+}
+
+function openPlanEditor(opts = {}) {
+  const home = homeCongregation();
+  if (!home) { alert('Please set your home congregation first – the plan belongs to it.'); return; }
+  const ed = planEditor || buildPlanEditor();
+  const date = opts.date || nextFreePlanDate() || todayIso();
+  const existing = state.plan.entries[date] || null;
+  ed.originalDate = existing ? date : '';
+  /* date choices: from the earlier of today and this date, 18 months ahead. Taken dates
+     are visible but cannot be chosen, so an entry can be moved without overwriting one. */
+  const t = todayIso();
+  const from = date < t ? date : t;
+  const until = isoOf(new Date(dateFromIso(date > t ? date : t).getFullYear() + 1, 11, 31));
+  const dates = planDatesBetween(from, until);
+  if (!dates.includes(date)) { dates.push(date); dates.sort(); }
+  ed.date.innerHTML = dates.map(d => {
+    const e = state.plan.entries[d];
+    const taken = e && d !== date;
+    const info = e ? (e.speakerName || PLAN_KINDS[e.kind]) : 'free';
+    return `<option value="${d}" ${d === date ? 'selected' : ''} ${taken ? 'disabled' : ''}>${escapeHtml(planDateLabel(d))} · ${escapeHtml(info)}</option>`;
+  }).join('');
+  const e = existing || {};
+  const pre = opts.speaker || null;
+  ed.kind.value = e.kind || 'talk';
+  ed.status.value = e.status || 'requested';
+  ed.note.value = e.note || '';
+  if (pre) {
+    ed.picked = { key: pre.sp.notesKey, name: pre.sp.name };
+    ed.speaker.value = pre.sp.name;
+    ed.cong.value = pre.cong.name;
+  } else {
+    ed.picked = e.speakerKey ? { key: e.speakerKey, name: e.speakerName } : null;
+    ed.speaker.value = e.speakerName || '';
+    ed.cong.value = e.congName || '';
+  }
+  ed.outline.value = e.outlineNo != null ? '#' + e.outlineNo + (e.outlineTitle ? ' – ' + e.outlineTitle : '') : (e.outlineTitle || '');
+  ed.title.textContent = 'Talk plan · ' + planDateLabel(date);
+  ed.sub.textContent = [home.name, existing ? 'edit entry' : 'new entry'].join(' · ');
+  ed.del.classList.toggle('hidden', !existing);
+  ed.hideAc();
+  ed.updateSource();
+  ed.fillOutlineList();
+  ed.updateOutlineInfo();
+  ed.refreshWarnings();
+  ed.overlay.style.display = 'block';
+  ed.overlay.setAttribute('aria-hidden', 'false');
+  syncBodyScrollLock();
+  setTimeout(() => (pre ? ed.outline : ed.speaker).focus(), 0);
+}
+
+function closePlanEditor() {
+  if (!planEditor) return;
+  planEditor.hideAc();
+  planEditor.overlay.style.display = 'none';
+  planEditor.overlay.setAttribute('aria-hidden', 'true');
+  syncBodyScrollLock();
+}
+
+/* --- the speaker card section --- */
+function renderSpeakerPlanSection(sp, cong) {
+  const entries = planEntriesForSpeaker(sp, cong);
+  const t = todayIso();
+  const home = homeCongregation();
+  return `<div class="detail-section">
+    <h3>Talk plan</h3>
+    ${entries.length ? `<div class="sp-plan-list">${entries.map(e => `<button type="button" class="sp-plan-row ${e.date < t ? 'is-past' : ''}" data-sp-plan-date="${e.date}">
+      <b>${escapeHtml(planDateLabel(e.date))}</b><span>${escapeHtml(planOutlineText(e) || PLAN_KINDS[e.kind])}</span><span class="chip plan-status st-${e.status}">${escapeHtml(PLAN_STATUS[e.status])}</span></button>`).join('')}</div>`
+      : `<div class="small subtle">${home ? 'Not in your talk plan yet.' : 'Set your home congregation to use the talk plan.'}</div>`}
+    ${home ? `<div class="note-save-row"><button type="button" class="blue" id="spPlanAddBtn">Add to talk plan</button><span class="small subtle">Opens the next free date of ${escapeHtml(home.name)}.</span></div>` : ''}
+  </div>`;
+}
+function wireSpeakerPlanSection(body, sp, cong) {
+  const add = body.querySelector('#spPlanAddBtn');
+  if (add) add.addEventListener('click', () => openPlanEditor({ speaker: { sp, cong } }));
+  body.querySelectorAll('[data-sp-plan-date]').forEach(b => b.addEventListener('click', () => openPlanEditor({ date: b.dataset.spPlanDate })));
+}
+
+/* --- My congregation as the start view --- */
+function openMyCongregation(tab, opts = {}) {
+  const home = homeCongregation();
+  if (!home) {
+    alert('Who are you? Please choose your home congregation first.');
+    return false;
+  }
+  if (tab) saveHomeTab(tab);
+  selectCongregation(home.id, { tab: tab || loadHomeTab(), noScroll: !!opts.noScroll });
+  if (!opts.noScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  return true;
+}
+
+function refreshQuickNav() {
+  const box = document.getElementById('quickNav');
+  if (!box) return;
+  const home = state.dataset ? homeCongregation() : null;
+  const onHome = state.wsMode === 'detail' && home && currentCongId() === home.id && state.selectedKey !== '__improve__';
+  box.querySelectorAll('[data-qn]').forEach(b => {
+    const k = b.dataset.qn;
+    const active = k === 'all' ? state.wsMode === 'list'
+      : k === 'home' ? onHome && state.detailTab !== 'plan'
+      : onHome && state.detailTab === 'plan';
+    b.classList.toggle('active', !!active);
+    b.classList.toggle('is-off', k !== 'all' && !home);
+    if (k !== 'all') b.title = home ? (k === 'home' ? home.name : 'Talk plan of ' + home.name) : 'Set a home congregation first';
+  });
 }
 
 /* ===== speaker modal (v2.4) =====
@@ -4614,7 +5508,7 @@ function currentModalSpeaker() {
   if (!state.modalSpeakerId || !state.dataset) return null;
   const sp = state.dataset.speakers.find(x => x.id === state.modalSpeakerId);
   if (!sp) return null;
-  const cong = state.dataset.congregations.find(c => c.id === sp.congregationId);
+  const cong = congById(sp.congregationId);
   if (!cong) return null;
   return { sp, cong };
 }
@@ -4625,7 +5519,7 @@ function isSpeakerModalOpen() {
 }
 
 function syncBodyScrollLock() {
-  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay', 'changeLogOverlay']
+  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay', 'changeLogOverlay', 'planEditorOverlay']
     .map(id => document.getElementById(id))
     .some(el => el && el.style.display === 'block');
   document.body.style.overflow = anyOpen ? 'hidden' : '';
@@ -4683,10 +5577,12 @@ function renderSpeakerModalBody() {
       </div>
     </div>
 
+    ${renderSpeakerPlanSection(sp, cong)}
     ${renderNoteEditor(noteKey)}
     ${renderCorrectionBox(buildCorrectionContext('speaker', sp, cong), 'modal')}
   `;
 
+  wireSpeakerPlanSection(body, sp, cong);
   wireNoteEditor(noteKey);
   wireCorrectionBox(buildCorrectionContext('speaker', sp, cong), 'modal');
 }
@@ -4744,6 +5640,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.key !== 'Escape') return;
     const outlineOpen = document.getElementById('outlineOverlay')?.style.display === 'block';
     if (outlineOpen) return;
+    /* v3.0: the plan editor can sit on top of the speaker card and handles its own Escape */
+    if (typeof planEditorOpen === 'function' && planEditorOpen()) return;
     if (isSpeakerModalOpen()) closeSpeakerModal();
   }, true);
 
@@ -4778,52 +5676,60 @@ document.addEventListener('DOMContentLoaded', function () {
    Falls back to the plain CSS clamp when no layout information is available. */
 const OUTLINE_PREVIEW_ROWS = 3;
 
-function fitOutlinePreview(box) {
-  const moreChip = box.querySelector('.outline-more');
-  if (!moreChip) return;
-  const chips = Array.from(box.querySelectorAll('.outline:not(.outline-more)'));
-  if (!chips.length) return;
-
-  const total = Number(box.dataset.total || chips.length);
-  const rendered = Number(box.dataset.rendered || chips.length);
-
-  /* start from a clean slate so re-fitting after a resize is idempotent */
-  chips.forEach(c => { c.hidden = false; });
-  moreChip.hidden = true;
-
-  const tops = [...new Set(chips.map(c => c.offsetTop))].sort((a, b) => a - b);
-  /* no layout yet (hidden pane, jsdom, print) – leave the CSS clamp in charge */
-  if (tops.length <= 1 && chips[0].offsetTop === 0 && chips[chips.length - 1].offsetTop === 0 && chips.length > 6) {
-    if (total > rendered) { moreChip.hidden = false; moreChip.textContent = `+${total - rendered} outlines`; }
-    return;
-  }
-
-  const fitsInRows = tops.length <= OUTLINE_PREVIEW_ROWS;
-  if (fitsInRows && total === rendered) return;   // everything is on screen already
-
-  const lastAllowedTop = tops[Math.min(OUTLINE_PREVIEW_ROWS, tops.length) - 1];
-  let visible = chips.filter(c => c.offsetTop <= lastAllowedTop);
-  chips.forEach(c => { c.hidden = c.offsetTop > lastAllowedTop; });
-
-  moreChip.hidden = false;
-  const update = () => {
-    const hiddenCount = total - visible.length;
-    moreChip.textContent = `+${hiddenCount} outline${hiddenCount === 1 ? '' : 's'}`;
+/* v3.0: all boxes are measured together. The old version measured one box, changed it,
+   and measured the next – every read after a change forces the browser to lay out the
+   whole page again, once per card. With a full master that froze the page for minutes.
+   Now there are a handful of layout passes in total, however many cards there are.
+   Boxes that are not on screen (hidden pane) are left to the CSS clamp. */
+function fitOutlinePreviews(root) {
+  const scope = root || document;
+  const boxes = [...scope.querySelectorAll('.outline-preview')];
+  if (!boxes.length) return;
+  const items = [];
+  boxes.forEach(box => {
+    const more = box.querySelector('.outline-more');
+    const chips = [...box.querySelectorAll('.outline:not(.outline-more)')];
+    if (!more || !chips.length) return;
+    items.push({ box, more, chips,
+      total: Number(box.dataset.total || chips.length),
+      rendered: Number(box.dataset.rendered || chips.length) });
+  });
+  /* write: start from a clean slate so re-fitting after a resize is idempotent */
+  items.forEach(it => { it.chips.forEach(c => { c.hidden = false; }); it.more.hidden = true; });
+  /* read: one layout for everything */
+  const visible = items.filter(it => it.box.offsetParent !== null);
+  visible.forEach(it => { it.tops = it.chips.map(c => c.offsetTop); });
+  const setMore = it => {
+    const hiddenCount = it.total - it.shown.length;
+    it.more.textContent = `+${hiddenCount} outline${hiddenCount === 1 ? '' : 's'}`;
   };
-  update();
-
-  /* the chip itself needs room in the last row – give way until it fits */
-  let guard = chips.length + 2;
-  while (guard-- > 0 && visible.length > 1 && moreChip.offsetTop > lastAllowedTop) {
-    const dropped = visible.pop();
-    dropped.hidden = true;
-    update();
+  const pending = [];
+  visible.forEach(it => {
+    const rows = [...new Set(it.tops)].sort((a, b) => a - b);
+    if (rows.length <= 1 && it.tops[0] === 0 && it.tops[it.tops.length - 1] === 0 && it.chips.length > 6) {
+      if (it.total > it.rendered) { it.more.hidden = false; it.more.textContent = `+${it.total - it.rendered} outlines`; }
+      return;
+    }
+    if (rows.length <= OUTLINE_PREVIEW_ROWS && it.total === it.rendered) return;
+    it.last = rows[Math.min(OUTLINE_PREVIEW_ROWS, rows.length) - 1];
+    it.shown = it.chips.filter((c, i) => it.tops[i] <= it.last);
+    it.chips.forEach((c, i) => { c.hidden = it.tops[i] > it.last; });
+    it.more.hidden = false;
+    setMore(it);
+    pending.push(it);
+  });
+  /* the "+N" chip itself needs room in the last row – give way, all boxes per pass */
+  let active = pending, guard = 40;
+  while (active.length && guard-- > 0) {
+    const over = active.filter(it => it.shown.length > 1 && it.more.offsetTop > it.last);
+    over.forEach(it => { it.shown.pop().hidden = true; setMore(it); });
+    active = over;
   }
-  if (total <= visible.length) moreChip.hidden = true;
+  pending.forEach(it => { if (it.total <= it.shown.length) it.more.hidden = true; });
 }
 
 function fitAllOutlinePreviews() {
-  document.querySelectorAll('.outline-preview').forEach(fitOutlinePreview);
+  fitOutlinePreviews(document);
 }
 
 let outlineFitTimer = null;
@@ -5101,14 +6007,17 @@ function mergePersonalNotesIntoStore(imported){
 function exportJson(kind = 'full') {
   if (!state.dataset) return;
   const payload = kind === 'notes'
-    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'personal-notes', includes:'personal speaker notes, favorites, last invited/used dates, congregation/PTC notes', notes: personalNotesSnapshot() }
-    : { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'full-backup', source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
+    ? { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'personal-notes', includes:'personal speaker notes, favorites, last invited/used dates, congregation/PTC notes, talk plan', notes: personalNotesSnapshot(), plan: state.plan }
+    : { version:APP_VERSION, exportedAt:new Date().toISOString(), exportType:'full-backup', source: state.dataset.source, sourceFileName: state.dataset.sourceFileName || '', congregations: state.dataset.congregations, notes: state.notes, plan: state.plan, geoCache: state.geoCache, homeCongregationId: state.homeCongregationId };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = kind === 'notes' ? `PTC_Tool_Personal_Notes_${fileDateStamp()}.json` : `PTC_Tool_Backup_${fileDateStamp()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
+  /* v3.0: remembered for the plan tab's "last backup" line */
+  try { localStorage.setItem(LAST_BACKUP_KEY, payload.exportedAt); } catch (e) {}
+  if (state.wsMode === 'detail' && state.detailTab === 'plan') renderDetail();
 }
 
 function importJsonObject(obj) {
@@ -5132,6 +6041,19 @@ function importJsonObject(obj) {
     else state.notes = obj.notes;
     saveNotes();
   }
+  /* v3.0: talk plan – a Personal Notes file is merged date by date (the newer entry
+     wins), a complete backup restores the plan as it was */
+  let planInfo = '';
+  if (obj.plan && typeof obj.plan === 'object') {
+    if (obj.exportType === 'personal-notes') {
+      const n = mergePlanStore(obj.plan);
+      planInfo = ` · talk plan: ${n} entr${n === 1 ? 'y' : 'ies'} taken over`;
+    } else {
+      state.plan = normalizePlanStore(obj.plan);
+      planInfo = ' · talk plan restored';
+    }
+    savePlan();
+  }
   persistDataset();
   /* v2.9.0: another master language → load the matching outline titles */
   if (wantedOutlineLang() !== outlineConfigInfo.lang || !outlineConfigInfo.loaded) loadOutlineConfig();
@@ -5143,8 +6065,9 @@ function importJsonObject(obj) {
   setWsMode('list');
   renderResults();
   renderDetail();
-  setStatus(obj.exportType === 'personal-notes' ? 'Personal notes imported' : 'Backup imported');
+  setStatus((obj.exportType === 'personal-notes' ? 'Personal notes imported' : 'Backup imported') + planInfo);
   updateAssistantImportState();
+  if (homeCongregation()) openMyCongregation('', { noScroll: true });
 }
 
 function clearFilters() {
@@ -5169,7 +6092,9 @@ function clearFilters() {
 }
 
 function resetAll() {
-  if (!confirm('Reset local dataset and notes in this browser?')) return;
+  if (!confirm('Reset the local dataset, your notes and your talk plan in this browser?\n\nMake a Backup first – this cannot be undone.')) return;
+  [PLAN_KEY, HOME_TAB_KEY, LAST_BACKUP_KEY, PLAN_SHOW_PAST_KEY].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+  state.plan = normalizePlanStore({});
   localStorage.removeItem('ptcToolDataset');
   localStorage.removeItem('ptcToolNotes');
   localStorage.removeItem('ptcToolGeoCache');
@@ -5213,8 +6138,8 @@ function openBackupChoice() {
     </div>
     <div style="margin-top:14px;border-top:1px solid var(--line)">
       <div style="display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr);gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)">
-        <button type="button" class="blue" id="backupNotesChoice">Personal Notes only</button>
-        <div class="small subtle">Favorites, personal speaker notes, last invited / used dates, and your congregation / PTC notes.</div>
+        <button type="button" class="blue" id="backupNotesChoice">Personal Notes &amp; plan</button>
+        <div class="small subtle">Favorites, personal speaker notes, last invited / used dates, your congregation / PTC notes and your talk plan.</div>
       </div>
       <div style="display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.4fr);gap:14px;align-items:center;padding:14px 0">
         <button type="button" class="good" id="backupFullChoice">Complete personal backup</button>
@@ -5423,14 +6348,56 @@ if (clearOutlineBtn) {
    selection away — otherwise the pane you are reading empties out under your hands.
    In the start view the old behaviour stays: clear the selection, re-render, done. */
 function resetSelectionForFilterChange() {
+  state.resultLimit = RESULTS_PAGE;
   if (state.wsMode === 'detail') return;
   state.selectedKey = null;
   state.lastCongregationKey = null;
 }
 
-['searchInput','countryFilter','circuitFilter','dayFilter','roleFilter','outlineFilter','favoriteFilter','viewMode','distanceMode','distanceFilter','sortMode'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => { resetSelectionForFilterChange(); renderResults(); renderDetail(); refreshDistanceRowInfo(); });
-  document.getElementById(id).addEventListener('change', () => { resetSelectionForFilterChange(); renderResults(); renderDetail(); refreshDistanceRowInfo(); });
+/* v3.0: typing waits for a short pause before the list is redrawn, instead of
+   redrawing after every single letter. Drop-downs react at once – and only once: they
+   used to fire both "input" and "change", so every selection rendered twice. */
+const FILTER_TEXT_IDS = ['searchInput', 'outlineFilter'];
+const FILTER_SELECT_IDS = ['countryFilter','circuitFilter','dayFilter','roleFilter','favoriteFilter','viewMode','distanceMode','distanceFilter','sortMode'];
+let filterRenderTimer = null;
+let filterRenderSource = '';
+function runFilterRender(sourceId) {
+  filterRenderTimer = null;
+  state.resultLimit = RESULTS_PAGE;
+  leaveHomeForSearch(sourceId);
+  resetSelectionForFilterChange();
+  renderResults();
+  renderDetail();
+  refreshDistanceRowInfo();
+}
+function scheduleFilterRender(sourceId, immediate) {
+  clearTimeout(filterRenderTimer);
+  filterRenderSource = sourceId;
+  if (immediate) { runFilterRender(sourceId); return; }
+  filterRenderTimer = setTimeout(() => runFilterRender(sourceId), 180);
+}
+function flushFilterRender() {
+  if (filterRenderTimer) { clearTimeout(filterRenderTimer); runFilterRender(filterRenderSource); }
+}
+/* the start view is the home congregation; searching from there means "find something",
+   so the workspace switches to the result list. Any other open congregation stays open. */
+function leaveHomeForSearch(sourceId) {
+  if (!FILTER_TEXT_IDS.includes(sourceId)) return;
+  if (state.wsMode !== 'detail' || state.selectedKey === '__improve__') return;
+  const value = (document.getElementById(sourceId)?.value || '').trim();
+  if (!value || !state.homeCongregationId || currentCongId() !== state.homeCongregationId) return;
+  setWsMode('list');
+  state.selectedKey = null;
+  state.lastCongregationKey = null;
+}
+FILTER_TEXT_IDS.forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', ev => scheduleFilterRender(id, ev.inputType === 'insertReplacementText' || !ev.inputType && id === 'outlineFilter'));
+  el.addEventListener('keydown', ev => { if (ev.key === 'Enter') flushFilterRender(); });
+  el.addEventListener('change', () => flushFilterRender());
+});
+FILTER_SELECT_IDS.forEach(id => {
+  document.getElementById(id).addEventListener('change', () => scheduleFilterRender(id, true));
 });
 
 /* ===== v2.7.5 first-run guidance =====================================================
@@ -5496,7 +6463,7 @@ function changeLogEntryHtml(entry) {
   return `<div class="cl-entry">
     <button type="button" class="cl-entry-head" data-cl-toggle="${escapeHtml(entry.id)}">
       <span>${open ? '▾' : '▸'}</span>
-      <b>${escapeHtml(when.toLocaleDateString())} ${escapeHtml(when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</b>
+      <b>${escapeHtml(formatDateTimeLabel(when))}</b>
       <span class="small subtle">${escapeHtml(entry.sourceFileName || 'import')}</span>
       <span class="spacer"></span>
       <span class="cl-pill">${escapeHtml(summary)}</span>
@@ -5623,6 +6590,8 @@ if (restoreDataset()) {
   refreshStats();
   renderResults();
   renderDetail();
+  /* v3.0: start in My congregation when one is set */
+  if (homeCongregation()) openMyCongregation('', { noScroll: true });
   const staleVersion = state.datasetVersion && state.datasetVersion !== APP_VERSION;
   setStatus(staleVersion
     ? `Loaded saved browser data (stored by v${state.datasetVersion}) · import your master again to pick up fields added since then`
@@ -5644,20 +6613,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const btn = document.getElementById('goHomeCongBtn');
   if (!btn) return;
 
-  btn.addEventListener('click', function () {
-    const homeId = localStorage.getItem('ptcToolHomeCongregationId') || '';
-    if (!homeId) {
-      alert('Who are you? Please choose your home congregation first.');
-      return;
-    }
-
-    /* v2.6: the home congregation is a fixed entry in the sidebar, so we can open it
-       directly instead of hunting for a card in the result list */
-    if (typeof selectCongregation === 'function') {
-      selectCongregation(String(homeId));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  });
+  /* v3.0: My congregation opens on its last used tab; Talk plan opens the plan tab */
+  btn.addEventListener('click', () => openMyCongregation(state.detailTab === 'plan' ? 'speakers' : ''));
+  const planBtn = document.getElementById('goPlanBtn');
+  if (planBtn) planBtn.addEventListener('click', () => openMyCongregation('plan'));
+  document.querySelectorAll('#quickNav [data-qn]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.qn === 'all') { showAllView(); return; }
+    if (!state.dataset) { alert('Import the speaker list first.'); return; }
+    openMyCongregation(b.dataset.qn === 'plan' ? 'plan' : (loadHomeTab() === 'plan' ? 'speakers' : loadHomeTab()), { noScroll: true });
+  }));
+  refreshQuickNav();
 });
 </script>
 
@@ -5891,7 +6856,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v2.9.2</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v3.0.0</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -5900,6 +6865,7 @@ document.addEventListener('DOMContentLoaded', function () {
       <nav class="help-nav" aria-label="Help sections">
         <span class="help-nav-label">On this page</span>
         <a href="#help-s0">Screen layout</a>
+        <a href="#help-splan">Talk plan</a>
         <a href="#help-s1">Import and updates</a>
         <a href="#help-snws">NW Scheduler handover</a>
         <a href="#help-scl">Change log</a>
@@ -5924,6 +6890,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </p>
         <div class="help-chips">
           <span class="chip">CSV import</span>
+          <span class="chip">Talk plan</span>
           <span class="chip">Change log</span>
           <span class="chip">NW Scheduler handover</span>
           <span class="chip">Sidebar navigation</span>
@@ -5937,14 +6904,31 @@ document.addEventListener('DOMContentLoaded', function () {
           <h3><span class="help-num">00</span> Screen layout</h3>
           <p>Since v2.6 the screen is split like the PTC Organizer: a permanent <b>congregation list on the left</b>, the <b>workspace on the right</b>.</p>
           <ul class="mini-list">
-            <li><b>All congregations</b> sits at the top of the list and is the start view. It shows the result cards — speakers or congregations, depending on the view selector.</li>
-            <li><b>Your own congregation</b> follows directly below it as soon as a home congregation is set, so it is always one click away.</li>
+            <li>Since v3.0 three buttons sit permanently above the search: <b>All</b>, <b>My Cong</b> and <b>Talk plan</b>. They stay visible however far you scroll the list.</li>
+            <li><b>My Cong</b> – your home congregation – is the start view as soon as one is set. It opens on the tab you used last there. Without a home congregation the tool starts in <b>All</b>, the result cards for every congregation.</li>
+            <li>When you are in My Cong and type into the search or the outline filter, the workspace switches to the result list by itself – searching means you are looking for someone else.</li>
             <li>Below a small gap, every other congregation is grouped by country. Click a country to fold it open or closed; the tool remembers that per browser.</li>
             <li>Clicking any congregation branches to the right. The workspace opens on a slim fact strip — meeting time, circuit, distance, address, Maps link — and then three tabs: <b>Speakers</b> (the default, so the brothers are the first thing you see), <b>Congregation &amp; PTC</b> for contacts, assistant and full master data, and <b>Report a correction</b>. <b>← All congregations</b> takes you back.</li>
           </ul>
           <p>The <b>search</b> and the <b>outline filter</b> now sit directly above the list. They act on both sides at once: the congregation list and the result cards always show the same selection. The country, circuit, meeting day, role, distance and sort controls in the toolbar do exactly the same as before.</p>
           <p>When you sort by <b>distance</b> or by <b>outline</b>, the list drops the country grouping and shows one flat ranking instead — nearest, or best matching, first. Sorting by name brings the country groups back.</p>
           <p>Nothing on this screen edits the data. The list, contacts and outlines come from the imported file and stay read-only; only your personal notes, favorites and the home congregation are yours to change.</p>
+        </section>
+
+        <section class="help-section" id="help-splan">
+          <h3><span class="help-num">PLAN</span> Talk plan</h3>
+          <p>Your own plan of public talks in your home congregation. Open it with <b>Talk plan</b> in the header or above the search, or with the <b>Talk plan</b> tab of your congregation.</p>
+          <ul class="mini-list">
+            <li><b>Calendar</b> shows every meeting date of a year, grouped by month. The tiles at the top show how many dates of each month are planned; click one to jump there. The next meeting date is marked <b>Next</b>.</li>
+            <li>The meeting day comes from the master. If it is wrong or your congregation changes its day, set it yourself next to the year. Entries on other days are never hidden.</li>
+            <li>Click a date to plan it. Start typing a name or congregation and pick a brother from the master list – or simply write any name that is not in the list. The outline field offers that brother’s outlines, or all outlines for a free-text name.</li>
+            <li>Everything is saved <b>as text</b>: name, congregation and outline title as they were at that moment. A later master import never changes or breaks an entry, even if the brother is no longer listed.</li>
+            <li>While you edit, the tool points out an outline that was already in your plan within two years, a brother planned twice within a year, an outline that is retired on that date, or an outline the brother does not hold according to the master.</li>
+            <li><b>History</b> lists every past entry, newest first, with its own search – for example by outline number.</li>
+            <li>In every speaker card you find <b>Add to talk plan</b> and the dates he is planned; result cards show a <b>Planned</b> chip.</li>
+            <li><b>Print</b> prints the year shown as a plain table for the notice board. Unconfirmed entries carry an asterisk.</li>
+          </ul>
+          <p>The plan is personal data like your notes: it exists only in this browser and is part of <b>Backup → Personal Notes &amp; plan</b>. Importing such a file merges it date by date, the newer entry wins. The plan tab tells you when you made your last backup.</p>
         </section>
 
         <section class="help-section" id="help-scl">
@@ -6005,7 +6989,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         <section class="help-section" id="help-s4">
           <h3><span class="help-num">04</span> Home congregation</h3>
-          <p>Open a congregation and click <b>Set as home congregation</b>. After that it gets a fixed place near the top of the left-hand list, the top button <b>Home congregation</b> jumps back to it, distances are calculated from that point, and result cards can show nearby congregations and speakers.</p>
+          <p>Open a congregation and click <b>Set as home congregation</b>. After that it becomes the start view, <b>My Cong</b> above the search and <b>My congregation</b> in the header jump back to it, it gets the <b>Talk plan</b> tab, distances are calculated from that point, and result cards can show nearby congregations and speakers.</p>
           <p>If no home congregation is set, the distance tools stay available but cannot calculate meaningful values yet.</p>
         </section>
 
@@ -6041,7 +7025,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <section class="help-section" id="help-s8">
           <h3><span class="help-num">09</span> Favorites and personal notes</h3>
           <p>For each speaker you can save favorite status, last invited, last used and personal notes. Congregation and PTC notes are part of the same local memory.</p>
-          <p>Open <b>Backup</b> and choose <b>Personal Notes only</b> to export only this personal memory. PTC Assistant contacts are source data and are intentionally not part of the personal-notes file; they come from the CSV or PTC Organizer Master.</p>
+          <p>Open <b>Backup</b> and choose <b>Personal Notes &amp; plan</b> to export only this personal memory, including your talk plan. PTC Assistant contacts are source data and are intentionally not part of the personal-notes file; they come from the CSV or PTC Organizer Master.</p>
         </section>
 
         <section class="help-section" id="help-s9">
@@ -6303,7 +7287,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }[el('prScope').value];
     const layout = el('prLayout').value;
     const home = homeCongregation();
-    const printed = new Date().toLocaleDateString();
+    const printed = formatDateOf(new Date());
     const headerNote = (el('prHeaderNote').value || '').trim();
 
     const subBits = [scopeLabel, `${data.congs.length} congregation${data.congs.length === 1 ? '' : 's'}`, `${data.speakerCount} speaker${data.speakerCount === 1 ? '' : 's'}`];
@@ -6358,7 +7342,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ds && ds.sourceFileName) bits.push(ds.sourceFileName.replace(/\.(csv|json)$/i, ''));
     if (ds && ds.importedAt) {
       const d = new Date(ds.importedAt);
-      if (!isNaN(d.getTime())) bits.push('data status ' + d.toLocaleDateString());
+      if (!isNaN(d.getTime())) bits.push('data status ' + formatDateOf(d));
     }
     return bits.join(' · ');
   }
@@ -6452,7 +7436,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const bits = [];
     if (outlineConfigInfo.loaded) {
       if (outlineConfigInfo.source) bits.push(outlineConfigInfo.source);
-      if (outlineConfigInfo.updatedAt) bits.push('updated ' + outlineConfigInfo.updatedAt);
+      if (outlineConfigInfo.updatedAt) bits.push('updated ' + formatDateLabel(outlineConfigInfo.updatedAt));
     } else {
       bits.push('outline-data.json unavailable');
     }
