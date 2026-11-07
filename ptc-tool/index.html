@@ -875,6 +875,32 @@ button.linkish:active{ transform:none; }
 .chip.plan-status.st-confirmed{ background:#edf2e7; border-color:#d8e4ce; color:#4b6b41; }
 .chip.plan-status.st-requested{ background:#fbf0e2; border-color:#e8cfa6; color:#8a5a1c; }
 
+/* v3.0.1 outline view + history import */
+.plan-ol-intro{ margin-top:12px; line-height:1.5; }
+.plan-ol-row{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) 96px 64px; gap:12px; align-items:center; padding:8px 12px; background:var(--card); border:1px solid var(--line); border-radius:11px; }
+.plan-ol-row.is-planned{ background:#f7f9fb; }
+.plan-ol-title{ min-width:0; }
+.plan-ol-last{ font-size:12.5px; }
+.plan-never{ color:var(--accent2); font-weight:600; }
+.plan-ol-holders{ font-size:12px; color:var(--muted); text-align:right; }
+.plan-ol-holders.none{ color:#a1866b; font-style:italic; }
+.plan-ol-act{ text-align:right; }
+.plan-ol-act button{ padding:5px 12px; }
+.plan-flag.soft{ background:#fbf0e2; color:#8a5a1c; }
+.pe-ac-head{ padding:6px 11px; font-size:11px; font-weight:700; color:var(--muted); background:#faf6ef; border-bottom:1px solid #f0e8dc; }
+.pe-has{ font-size:11px; font-weight:700; color:#4b6b41; }
+.pe-hasnt{ font-size:11px; color:#a1866b; }
+#planImportOverlay{ display:none; position:fixed; inset:0; z-index:10006; background:rgba(44,32,24,.55); overflow:auto; padding:24px; padding-bottom:calc(24px + var(--bottom-safe)); }
+#planImportOverlay textarea{ width:100%; font-family:ui-monospace, Menlo, Consolas, monospace; font-size:12.5px; }
+@media (max-width:720px){
+  .plan-ol-row{ grid-template-columns:1fr auto; gap:4px 10px; }
+  .plan-ol-row .plan-ol-last{ grid-column:1 / -1; grid-row:2; }
+  .plan-ol-row .plan-ol-holders{ grid-column:1; grid-row:3; text-align:left; }
+  .plan-ol-row .plan-ol-act{ grid-column:2; grid-row:1; }
+  #planImportOverlay{ padding:0; }
+}
+@media print{ #planImportOverlay{ display:none !important; } }
+
 /* plan editor – sits above the speaker card */
 #planEditorOverlay{
   display:none; position:fixed; inset:0; z-index:10005; background:rgba(44,32,24,.55); overflow:auto;
@@ -1100,7 +1126,7 @@ button.linkish:active{ transform:none; }
   <div class="footer">
     <div class="footer-line">
       <span>Made with love ©</span>
-      <span class="footer-version" id="footerVersion">v.3.0.0</span>
+      <span class="footer-version" id="footerVersion">v.3.0.1</span>
     </div>
     <div class="footer-line">
       <button type="button" class="ghost footer-btn" id="reportProblemBtn">Report a problem</button>
@@ -1146,7 +1172,7 @@ function countryDisplayLabel(country){
    It is deliberately separate from the correction boxes, which send data corrections
    to Ronald for the main database. Leave it empty to hide the e-mail button; the
    report can then still be copied and pasted anywhere. */
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const TOOL_FEEDBACK_EMAIL = 'cryptopower@outlook.de';
 const TOOL_FEEDBACK_NAME = 'Marco Neudecker';
 
@@ -4911,6 +4937,8 @@ state.plan = loadPlan();
 state.planYear = new Date().getFullYear();
 state.planView = 'calendar';
 state.planHistoryQuery = '';
+state.planOutlineQuery = '';
+state.planOutlineRetired = false;
 state.planShowPast = (() => { try { return localStorage.getItem(PLAN_SHOW_PAST_KEY) === '1'; } catch (e) { return false; } })();
 
 function loadHomeTab() {
@@ -5105,12 +5133,13 @@ function renderPlanTab(cong) {
   const backup = lastBackupInfo();
   const dayOptions = [`<option value="">Automatic – ${escapeHtml(cong.meetingDay || 'Sunday')}${cong.meetingDay ? ' (master)' : ''}</option>`]
     .concat(WEEKDAYS.map(d => `<option value="${d}" ${state.plan.meetingDay === d ? 'selected' : ''}>${d}</option>`)).join('');
-  const isCal = state.planView !== 'history';
+  const view = ['calendar', 'history', 'outlines'].includes(state.planView) ? state.planView : 'calendar';
+  const isCal = view === 'calendar';
+  const viewBtn = (key, label) => `<button type="button" class="plan-view ${view === key ? 'active' : ''}" data-plan-view="${key}" role="tab" aria-selected="${view === key}">${label}</button>`;
   return `<div class="detail-section plan-section">
     <div class="plan-toolbar">
       <div class="plan-views" role="tablist">
-        <button type="button" class="plan-view ${isCal ? 'active' : ''}" data-plan-view="calendar" role="tab" aria-selected="${isCal}">Calendar</button>
-        <button type="button" class="plan-view ${!isCal ? 'active' : ''}" data-plan-view="history" role="tab" aria-selected="${!isCal}">History (${pastCount})</button>
+        ${viewBtn('calendar', 'Calendar')}${viewBtn('history', `History (${pastCount})`)}${viewBtn('outlines', 'Outlines')}
       </div>
       ${isCal ? `<div class="plan-year">
         <button type="button" class="ghost" data-plan-year="-1" aria-label="Previous year">‹</button>
@@ -5121,14 +5150,201 @@ function renderPlanTab(cong) {
       <label class="plan-day"><span>Meeting day</span><select id="planMeetingDay">${dayOptions}</select></label>
       ${state.planYear === new Date().getFullYear() ? `<label class="pr-opt plan-past-opt"><input type="checkbox" id="planShowPast" ${state.planShowPast ? 'checked' : ''}> Show past dates</label>` : ''}
       <button type="button" class="ghost" id="planPrintBtn">Print ${state.planYear}</button>`
-      : `<input type="text" id="planHistorySearch" class="plan-history-search" placeholder="Search history: speaker, congregation, outline number or title…" value="${escapeHtml(state.planHistoryQuery)}">`}
+      : view === 'history'
+        ? `<input type="text" id="planHistorySearch" class="plan-history-search" placeholder="Search history: speaker, congregation, outline number or title…" value="${escapeHtml(state.planHistoryQuery)}">
+           <button type="button" class="ghost" id="planImportBtn">Add past talks…</button>`
+        : `<input type="text" id="planOutlineSearch" class="plan-history-search" placeholder="Outline number or title…" value="${escapeHtml(state.planOutlineQuery)}">
+           <label class="pr-opt plan-past-opt"><input type="checkbox" id="planOutlineRetired" ${state.planOutlineRetired ? 'checked' : ''}> Show retired</label>`}
     </div>
     <div class="plan-backup ${backup.changedSince ? 'needs-backup' : ''}">
       <span>Your plan is stored only in this browser and goes into <b>Backup → Personal Notes &amp; plan</b>. ${backup.at ? 'Last backup: ' + escapeHtml(formatDateTimeLabel(backup.at)) + '.' : 'No backup made in this browser yet.'}${backup.changedSince ? ' <b>There are changes since then.</b>' : ''}</span>
       <button type="button" class="ghost" id="planBackupBtn">Backup now</button>
     </div>
-    ${isCal ? renderPlanCalendar(t) : `<div class="plan-list" id="planHistoryList">${planHistoryRowsHtml(t)}</div>`}
+    ${isCal ? renderPlanCalendar(t)
+      : view === 'history' ? `<div class="plan-list" id="planHistoryList">${planHistoryRowsHtml(t)}</div>`
+      : `<div class="small subtle plan-ol-intro">Every outline of ${escapeHtml(outlineConfigInfo.file || 'the outline data')}${outlineConfigInfo.source && outlineConfigInfo.source !== outlineConfigInfo.file ? ' (' + escapeHtml(outlineConfigInfo.source) + ')' : ''}, sorted by when it was last given in your congregation – never given first, then the longest ago. Outlines already planned for a future date move to the end. “Last given” only knows what is in your plan: use <b>History → Add past talks</b> to fill in earlier years.</div>
+         <div class="plan-list" id="planOutlineList">${planOutlineRowsHtml(t)}</div>`}
   </div>`;
+}
+
+/* ===== v3.0.1 outline view =====
+   Thinks from the talk instead of the speaker: which outlines have we not heard for the
+   longest time, and who gives them? "Last given" and "planned" come from the plan only. */
+function planOutlineStats(t) {
+  const last = new Map(), next = new Map(), count = new Map();
+  Object.values(state.plan.entries).forEach(e => {
+    if (e.outlineNo == null) return;
+    const no = e.outlineNo;
+    if (e.date < t) {
+      count.set(no, (count.get(no) || 0) + 1);
+      if (!last.has(no) || e.date > last.get(no).date) last.set(no, e);
+    } else if (!next.has(no) || e.date < next.get(no).date) next.set(no, e);
+  });
+  return { last, next, count };
+}
+const outlineHolderCache = new WeakMap();
+function outlineHolders() {
+  const ds = state.dataset;
+  if (!ds) return new Map();
+  let map = outlineHolderCache.get(ds.speakers);
+  if (!map) {
+    map = new Map();
+    ds.speakers.forEach(sp => (sp.outlines || []).forEach(no => {
+      if (!map.has(no)) map.set(no, []);
+      map.get(no).push(sp);
+    }));
+    outlineHolderCache.set(ds.speakers, map);
+  }
+  return map;
+}
+function agoLabel(iso) {
+  const days = Math.round((dateFromIso(todayIso()) - dateFromIso(iso)) / 86400000);
+  if (days < 45) return days <= 1 ? 'recently' : days + ' days ago';
+  const months = Math.round(days / 30.44);
+  if (months < 24) return months + ' months ago';
+  const years = Math.floor(days / 365.25);
+  return years + ' years ago';
+}
+function planOutlineRowsHtml(t) {
+  const stats = planOutlineStats(t);
+  const holders = outlineHolders();
+  const q = normalizeText(state.planOutlineQuery);
+  const qNo = /^#?\s*(\d{1,3})$/.exec(state.planOutlineQuery.trim());
+  const nums = [...new Set([...Object.keys(OUTLINE_DATA).map(Number), ...stats.last.keys(), ...stats.next.keys()])].filter(Number.isFinite);
+  const rows = nums.map(no => {
+    const st = outlineEffectiveState(no);
+    return { no, st, last: stats.last.get(no) || null, next: stats.next.get(no) || null, count: stats.count.get(no) || 0, holders: (holders.get(no) || []).length };
+  }).filter(r => {
+    if (!state.planOutlineRetired && (r.st.status === 'retired' || r.st.status === 'do_not_use')) return false;
+    if (!q) return true;
+    if (qNo) return r.no === Number(qNo[1]);
+    return outlineNormLabel(r.no).includes(q);
+  });
+  /* never given → longest ago → recently given → already planned (by date) */
+  rows.sort((a, b) => {
+    const ga = a.next ? 2 : 1, gb = b.next ? 2 : 1;
+    if (ga !== gb) return ga - gb;
+    if (ga === 2) return a.next.date.localeCompare(b.next.date) || a.no - b.no;
+    const la = a.last ? a.last.date : '', lb = b.last ? b.last.date : '';
+    return la.localeCompare(lb) || a.no - b.no;
+  });
+  if (!rows.length) return '<div class="subtle">No outline matches.</div>';
+  return rows.map(r => {
+    const title = outlineTitle(r.no);
+    const flag = r.st.status === 'retiring' ? `<span class="plan-flag soft">retires ${escapeHtml(formatOutlineDate(r.st.effectiveDate))}</span>`
+      : (r.st.status === 'retired' || r.st.status === 'do_not_use') ? '<span class="plan-flag">retired</span>' : '';
+    const lastTxt = r.last
+      ? `<b>${escapeHtml(formatDateLabel(r.last.date))}</b> <span class="subtle">· ${escapeHtml(agoLabel(r.last.date))}${r.count > 1 ? ' · ' + r.count + '× in your plan' : ''}</span>`
+      : '<span class="plan-never">Never in your plan</span>';
+    const nextTxt = r.next ? `<span class="chip plan-chip">Planned ${escapeHtml(formatDateLabel(r.next.date))}</span>` : '';
+    return `<div class="plan-ol-row ${r.next ? 'is-planned' : ''}">
+      <span class="plan-ol-title"><b>#${r.no}</b> ${escapeHtml(title || '')} ${flag}</span>
+      <span class="plan-ol-last">${lastTxt} ${nextTxt}</span>
+      <span class="plan-ol-holders ${r.holders ? '' : 'none'}">${r.holders ? r.holders + ' speaker' + (r.holders === 1 ? '' : 's') : 'no speaker'}</span>
+      <span class="plan-ol-act"><button type="button" class="ghost" data-plan-outline="${r.no}" ${r.holders ? '' : 'title="Nobody in the list gives it – you can still plan it with a free-text name"'}>Plan</button></span>
+    </div>`;
+  }).join('');
+}
+function wirePlanOutlineRows(root) {
+  root.querySelectorAll('[data-plan-outline]').forEach(b => b.addEventListener('click', () => openPlanEditor({ outlineNo: Number(b.dataset.planOutline) })));
+}
+
+/* ===== v3.0.1 add past talks =====
+   Pasted lines – from a spreadsheet, NW Scheduler export or typed by hand:
+   date ; outline ; speaker ; congregation   (tab, semicolon or comma separated) */
+function parseHistoryDate(raw) {
+  const v = String(raw || '').trim();
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(v);
+  if (m) return isoOf(new Date(+m[1], +m[2] - 1, +m[3]));
+  m = /^(\d{1,2})[./](\d{1,2})[./](\d{2}|\d{4})$/.exec(v);
+  if (m) {
+    const y = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+    const d = new Date(y, +m[2] - 1, +m[1]);
+    if (d.getDate() !== +m[1] || d.getMonth() !== +m[2] - 1) return '';
+    return isoOf(d);
+  }
+  return '';
+}
+function parseHistoryText(text) {
+  const lines = String(text || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const out = { ok: [], errors: [], taken: [] };
+  const seen = new Set();
+  lines.forEach((line, i) => {
+    const sep = line.includes('\t') ? '\t' : (line.includes(';') ? ';' : ',');
+    const parts = line.split(sep).map(p => p.trim().replace(/^"|"$/g, ''));
+    const date = parseHistoryDate(parts[0]);
+    if (!date) {
+      if (i === 0 && !/\d/.test(parts[0])) return;   /* header line */
+      out.errors.push(`Line ${i + 1}: no date recognised in “${parts[0]}”`);
+      return;
+    }
+    const o = parsePlanOutline(parts[1] || '');
+    if (o.no == null && !o.title && !parts[2]) { out.errors.push(`Line ${i + 1}: neither outline nor speaker`); return; }
+    if (state.plan.entries[date] || seen.has(date)) { out.taken.push(formatDateLabel(date)); return; }
+    seen.add(date);
+    out.ok.push(normalizePlanEntry(date, {
+      kind: 'talk', speakerName: parts[2] || '', congName: parts[3] || '',
+      outlineNo: o.no, outlineTitle: o.no != null ? (outlineTitle(o.no) || o.title) : o.title,
+      status: 'confirmed', note: ''
+    }));
+  });
+  return out;
+}
+function openHistoryImport() {
+  let ov = document.getElementById('planImportOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'planImportOverlay';
+    ov.innerHTML = `<div class="sp-dialog plan-ed" role="dialog" aria-modal="true" aria-labelledby="piTitle">
+      <div class="sp-head"><div><h2 id="piTitle">Add past talks</h2><div class="sp-head-sub">Fill in earlier years so “last given” is right from the start</div></div>
+        <div class="sp-head-actions"><button type="button" class="ghost" id="piClose">Close</button></div></div>
+      <div class="sp-body">
+        <p class="small">One talk per line: <b>date ; outline ; speaker ; congregation</b>. Tabs (copied from a spreadsheet), semicolons or commas all work. Only date and outline are needed. Dates as 14.01.2024, 14.1.24 or 2024-01-14.</p>
+        <textarea id="piText" rows="9" placeholder="14.01.2024; 37; John Smith; Augsburg English&#10;21.01.2024; 122&#10;28.01.2024; 5; Peter Brown"></textarea>
+        <div class="pe-warnings" id="piPreview"></div>
+      </div>
+      <div class="sp-foot"><span class="sp-foot-hint">Dates that already have an entry are skipped – nothing is overwritten.</span>
+        <button type="button" class="ghost" id="piCancel">Cancel</button>
+        <button type="button" class="good" id="piImport" disabled>Add</button></div>
+    </div>`;
+    document.body.appendChild(ov);
+    const close = () => { ov.style.display = 'none'; syncBodyScrollLock(); };
+    ov.querySelector('#piClose').addEventListener('click', close);
+    ov.querySelector('#piCancel').addEventListener('click', close);
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    ov.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); close(); } });
+    const txt = ov.querySelector('#piText'), prev = ov.querySelector('#piPreview'), btn = ov.querySelector('#piImport');
+    const update = () => {
+      const r = parseHistoryText(txt.value);
+      const msgs = [];
+      if (r.ok.length) msgs.push({ level: 'info', text: `${r.ok.length} talk${r.ok.length === 1 ? '' : 's'} ready to add (${formatDateLabel(r.ok.map(e => e.date).sort()[0])} – ${formatDateLabel(r.ok.map(e => e.date).sort().pop())}).` });
+      if (r.taken.length) msgs.push({ level: 'warn', text: `Skipped, date already in your plan: ${r.taken.slice(0, 6).join(', ')}${r.taken.length > 6 ? ' …' : ''}` });
+      r.errors.slice(0, 5).forEach(t => msgs.push({ level: 'warn', text: t }));
+      if (r.errors.length > 5) msgs.push({ level: 'warn', text: `… and ${r.errors.length - 5} more lines not understood` });
+      prev.innerHTML = msgs.map(x => `<div class="pe-warn ${x.level}">${escapeHtml(x.text)}</div>`).join('');
+      btn.disabled = !r.ok.length;
+      return r;
+    };
+    txt.addEventListener('input', update);
+    btn.addEventListener('click', () => {
+      const r = update();
+      if (!r.ok.length) return;
+      const now = new Date().toISOString();
+      r.ok.forEach(e => { e.createdAt = now; e.updatedAt = now; state.plan.entries[e.date] = e; });
+      savePlan();
+      close();
+      state.planView = 'history';
+      refreshPlanViews();
+      setStatus(`${r.ok.length} past talk${r.ok.length === 1 ? '' : 's'} added to your plan`);
+      showToast(`${r.ok.length} added to your history`);
+    });
+    ov._update = update;
+  }
+  ov.querySelector('#piText').value = '';
+  ov._update();
+  ov.style.display = 'block';
+  syncBodyScrollLock();
+  setTimeout(() => ov.querySelector('#piText').focus(), 0);
 }
 
 function wirePlanTab(pane, cong) {
@@ -5155,6 +5371,23 @@ function wirePlanTab(pane, cong) {
   if (printBtn) printBtn.addEventListener('click', () => printPlan(state.planYear));
   const backupBtn = pane.querySelector('#planBackupBtn');
   if (backupBtn) backupBtn.addEventListener('click', () => openBackupChoice());
+  const imp = pane.querySelector('#planImportBtn');
+  if (imp) imp.addEventListener('click', openHistoryImport);
+  const olList = pane.querySelector('#planOutlineList');
+  if (olList) {
+    wirePlanOutlineRows(olList);
+    const olSearch = pane.querySelector('#planOutlineSearch');
+    olSearch.addEventListener('input', () => {
+      state.planOutlineQuery = olSearch.value;
+      olList.innerHTML = planOutlineRowsHtml(todayIso());
+      wirePlanOutlineRows(olList);
+    });
+    pane.querySelector('#planOutlineRetired').addEventListener('change', ev => {
+      state.planOutlineRetired = ev.target.checked;
+      olList.innerHTML = planOutlineRowsHtml(todayIso());
+      wirePlanOutlineRows(olList);
+    });
+  }
   const hist = pane.querySelector('#planHistorySearch');
   if (hist) {
     hist.addEventListener('input', () => {
@@ -5256,8 +5489,9 @@ function buildPlanEditor() {
   const hideAc = () => { ed.list.hidden = true; ed.acIndex = -1; ed.speaker.setAttribute('aria-expanded', 'false'); };
   const renderAc = () => {
     ed.list.innerHTML = ed.acItems.map((x, i) => `<button type="button" class="pe-ac-item ${i === ed.acIndex ? 'active' : ''}" data-ac="${i}" role="option">
-      <b>${escapeHtml(x.sp.name)}</b> <span class="subtle">${escapeHtml(x.sp.role)}</span>
-      <span class="pe-ac-meta">${escapeHtml([x.cong.name, distanceLabelForCong(x.cong)].filter(Boolean).join(' · '))}</span></button>`).join('');
+      <b>${escapeHtml(x.sp.name)}</b> <span class="subtle">${escapeHtml(x.sp.role)}</span>${x.has != null ? (x.has ? ` <span class="pe-has">✓ #${x.has}</span>` : ' <span class="pe-hasnt">does not give it</span>') : ''}
+      <span class="pe-ac-meta">${escapeHtml([x.cong.name, distanceLabelForCong(x.cong), participationIsStandard(x.sp) ? '' : participationLabel(x.sp)].filter(Boolean).join(' · '))}</span></button>`).join('');
+    if (ed.acHead && ed.acItems.length) ed.list.insertAdjacentHTML('afterbegin', `<div class="pe-ac-head">${escapeHtml(ed.acHead)}</div>`);
     ed.list.hidden = !ed.acItems.length;
     ed.speaker.setAttribute('aria-expanded', String(!ed.list.hidden));
     ed.list.querySelectorAll('[data-ac]').forEach(b => b.addEventListener('mousedown', ev => { ev.preventDefault(); pick(ed.acItems[Number(b.dataset.ac)]); }));
@@ -5265,6 +5499,20 @@ function buildPlanEditor() {
   const search = () => {
     const ds = state.dataset;
     const qv = normalizeText(ed.speaker.value);
+    /* v3.0.1: with an outline chosen, brothers who give it come first, nearest first –
+       an empty speaker field already lists them */
+    const outNo = parsePlanOutline(ed.outline.value).no;
+    ed.acHead = '';
+    if (ds && outNo != null && qv.length < 2 && !ed.picked) {
+      const holders = (outlineHolders().get(outNo) || []).map(sp => ({ sp, cong: congById(sp.congregationId), has: outNo })).filter(x => x.cong);
+      const dist = x => { const d = getDistanceKmForCong(x.cong); return d == null ? Infinity : d; };
+      holders.sort((a, b) => dist(a) - dist(b) || a.sp.name.localeCompare(b.sp.name));
+      ed.acItems = holders.slice(0, 8);
+      ed.acHead = holders.length ? `${holders.length} speaker${holders.length === 1 ? '' : 's'} give #${outNo} – nearest first` : '';
+      ed.acIndex = -1;
+      renderAc();
+      return;
+    }
     if (!ds || qv.length < 2) { ed.acItems = []; hideAc(); return; }
     const scored = [];
     for (const sp of ds.speakers) {
@@ -5278,7 +5526,8 @@ function buildPlanEditor() {
       else if (normalizeText(cong.name + ' ' + cong.city).includes(qv)) score = 3;
       if (score >= 0) scored.push({ sp, cong, score });
     }
-    scored.sort((a, b) => a.score - b.score || a.sp.name.localeCompare(b.sp.name));
+    if (outNo != null) scored.forEach(x => { x.has = (x.sp.outlines || []).includes(outNo) ? outNo : 0; });
+    scored.sort((a, b) => (outNo != null ? (b.has ? 1 : 0) - (a.has ? 1 : 0) : 0) || a.score - b.score || a.sp.name.localeCompare(b.sp.name));
     ed.acItems = scored.slice(0, 8);
     ed.acIndex = ed.acItems.length ? 0 : -1;
     renderAc();
@@ -5301,6 +5550,7 @@ function buildPlanEditor() {
   });
   ed.speaker.addEventListener('keydown', e => {
     if (ed.list.hidden || !ed.acItems.length) return;
+    if (ed.acIndex < 0 && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); ed.acIndex = 0; renderAc(); return; }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       ed.acIndex = (ed.acIndex + (e.key === 'ArrowDown' ? 1 : -1) + ed.acItems.length) % ed.acItems.length;
@@ -5311,6 +5561,7 @@ function buildPlanEditor() {
     }
   });
   ed.speaker.addEventListener('blur', () => setTimeout(hideAc, 120));
+  ed.speaker.addEventListener('focus', () => { if (!ed.speaker.value.trim()) search(); });
   const updateSource = () => {
     const sp = ed.picked ? speakerByNotesKey(ed.picked.key) : null;
     ed.source.innerHTML = sp
@@ -5430,6 +5681,7 @@ function openPlanEditor(opts = {}) {
     ed.cong.value = e.congName || '';
   }
   ed.outline.value = e.outlineNo != null ? '#' + e.outlineNo + (e.outlineTitle ? ' – ' + e.outlineTitle : '') : (e.outlineTitle || '');
+  if (!existing && opts.outlineNo != null) ed.outline.value = '#' + opts.outlineNo + (outlineTitle(opts.outlineNo) ? ' – ' + outlineTitle(opts.outlineNo) : '');
   ed.title.textContent = 'Talk plan · ' + planDateLabel(date);
   ed.sub.textContent = [home.name, existing ? 'edit entry' : 'new entry'].join(' · ');
   ed.del.classList.toggle('hidden', !existing);
@@ -5441,7 +5693,7 @@ function openPlanEditor(opts = {}) {
   ed.overlay.style.display = 'block';
   ed.overlay.setAttribute('aria-hidden', 'false');
   syncBodyScrollLock();
-  setTimeout(() => (pre ? ed.outline : ed.speaker).focus(), 0);
+  setTimeout(() => (pre && !existing ? ed.outline : ed.speaker).focus(), 0);
 }
 
 function closePlanEditor() {
@@ -5519,7 +5771,7 @@ function isSpeakerModalOpen() {
 }
 
 function syncBodyScrollLock() {
-  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay', 'changeLogOverlay', 'planEditorOverlay']
+  const anyOpen = ['speakerOverlay', 'outlineOverlay', 'helpOverlay', 'printOverlay', 'changeLogOverlay', 'planEditorOverlay', 'planImportOverlay']
     .map(id => document.getElementById(id))
     .some(el => el && el.style.display === 'block');
   document.body.style.overflow = anyOpen ? 'hidden' : '';
@@ -6856,7 +7108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="help-head">
       <div>
         <h2>Help</h2>
-        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v3.0.0</div>
+        <div class="help-sub">PTC Tool – English Public Speakers (EU) · Quick guide for v3.0.1</div>
       </div>
       <button type="button" class="ghost" id="closeHelpBtn">Close</button>
     </div>
@@ -6924,7 +7176,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <li>Click a date to plan it. Start typing a name or congregation and pick a brother from the master list – or simply write any name that is not in the list. The outline field offers that brother’s outlines, or all outlines for a free-text name.</li>
             <li>Everything is saved <b>as text</b>: name, congregation and outline title as they were at that moment. A later master import never changes or breaks an entry, even if the brother is no longer listed.</li>
             <li>While you edit, the tool points out an outline that was already in your plan within two years, a brother planned twice within a year, an outline that is retired on that date, or an outline the brother does not hold according to the master.</li>
-            <li><b>History</b> lists every past entry, newest first, with its own search – for example by outline number.</li>
+            <li><b>History</b> lists every past entry, newest first, with its own search – for example by outline number. <b>Add past talks…</b> lets you paste earlier years (date ; outline ; speaker ; congregation – straight from a spreadsheet).</li>
+            <li><b>Outlines</b> thinks from the talk: every outline of S-99, sorted by when it was last given in your congregation – never first, then the longest ago. You see how many speakers give it; <b>Plan</b> opens the next free date with the outline filled in, and the speaker field suggests the brothers who give it, nearest first.</li>
             <li>In every speaker card you find <b>Add to talk plan</b> and the dates he is planned; result cards show a <b>Planned</b> chip.</li>
             <li><b>Print</b> prints the year shown as a plain table for the notice board. Unconfirmed entries carry an asterisk.</li>
           </ul>
