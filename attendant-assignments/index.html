@@ -29,6 +29,9 @@
       --warn-soft: #fff7e0;
       --warn-border: #ecd9a0;
       --tabbar: rgba(255, 255, 255, .92);
+      --danger: #b3261e;
+      --danger-soft: #fbeceb;
+      --danger-border: #efc2be;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -53,6 +56,9 @@
         --warn-soft: #2f2a1a;
         --warn-border: #5a4d26;
         --tabbar: rgba(30, 34, 39, .94);
+        --danger: #f2b8b5;
+        --danger-soft: #3a2120;
+        --danger-border: #6a3532;
       }
     }
 
@@ -260,8 +266,7 @@
 
     /* POSITIONS */
 
-    .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 14px; scrollbar-width: none; }
-    .chips::-webkit-scrollbar { display: none; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0 14px; }
     .chip {
       flex: 0 0 auto;
       min-height: 42px;
@@ -363,16 +368,24 @@
     .map-inline img { display: block; width: 100%; border-radius: 14px; border: 1px solid var(--border); cursor: zoom-in; }
 
     .rot {
-      display: grid;
-      grid-template-columns: 104px 1fr;
-      gap: 12px;
-      align-items: center;
-      width: 100%;
+      display: flex;
+      align-items: stretch;
       margin-bottom: 8px;
-      padding: 13px 14px;
       border: 1px solid var(--border);
       border-radius: 14px;
       background: var(--card);
+      overflow: hidden;
+    }
+    .rot-main {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+      border: 0;
+      background: none;
       text-align: left;
     }
     .rot.now { background: var(--on-soft); border-color: var(--on-border); }
@@ -382,6 +395,17 @@
     .rot-name { font-weight: 650; }
     .rot-name.open { color: var(--soon); }
     .rot-remark { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .rot-edit {
+      flex: 0 0 auto;
+      margin: 8px 8px 8px 0;
+      padding: 0 12px;
+      border: 1px solid var(--accent-border);
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 650;
+    }
 
     /* IMAGE OVERLAY */
 
@@ -417,7 +441,7 @@
       border-top: 1px solid var(--border);
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
-    .tabbar-in { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 760px; margin: 0 auto; }
+    .tabbar-in { display: grid; grid-template-columns: repeat(var(--tabs, 4), 1fr); max-width: 760px; margin: 0 auto; }
     .tab {
       display: flex;
       flex-direction: column;
@@ -450,6 +474,128 @@
       .panel { transition: none; }
       .icon-btn.busy svg { animation: none; }
     }
+  
+    /* ACCESS / LOCK */
+
+    body.locked .tabbar, body.locked .top-actions { display: none; }
+    body.locked { padding-bottom: 24px; }
+    .top-actions { display: flex; gap: 8px; }
+    .lock { max-width: 380px; margin: 36px auto 0; text-align: center; }
+    .lock-icon { font-size: 34px; }
+    .lock h2 { margin: 8px 0 6px; font-size: 24px; }
+    .lock input, .field {
+      width: 100%;
+      height: 54px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      font-size: 19px;
+      text-align: center;
+      letter-spacing: .06em;
+      outline: none;
+    }
+    .lock input:focus, .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .show-code { display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 16px; color: var(--muted); font-size: 14px; }
+    .lock-error { min-height: 1.4em; margin-top: 12px; color: var(--danger); font-size: 14px; line-height: 1.4; }
+    .muted { color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .intro h2 { margin: 6px 2px 4px; font-size: 24px; }
+    .intro p { margin: 0 2px 14px; }
+    .notme { margin: -4px 2px 14px; color: var(--muted); font-size: 14px; }
+    .notme .linkish { padding: 6px 2px; }
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; }
+    .form-card { margin-bottom: 12px; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+    .form-card p { margin: 6px 0 0; }
+    .form-row { display: flex; gap: 8px; margin-top: 12px; }
+    .form-row input {
+      flex: 1;
+      min-width: 0;
+      height: 46px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      outline: none;
+    }
+    .form-row input:focus { border-color: var(--accent); }
+    .code-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .code-state { font-size: 13px; font-weight: 700; }
+    .code-state.set { color: var(--on); }
+    .code-state.unset { color: var(--muted); }
+    .btn.danger { background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger); }
+    .btn[disabled] { opacity: .6; }
+    .chip .dot { margin-right: 6px; }
+    .chip-count { margin-left: 4px; opacity: .7; font-weight: 600; }
+    .result-sub.busy { color: var(--soon); }
+
+    /* CHECK-IN */
+
+    .ci-summary { margin-bottom: 14px; padding: 16px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; }
+    .ci-big { font-size: 34px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .ci-big span { color: var(--muted); font-size: 18px; font-weight: 650; letter-spacing: 0; }
+    .bar { height: 8px; margin-top: 10px; border-radius: 999px; background: var(--chip); overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--on); border-radius: 999px; }
+    .seg { display: inline-flex; margin-bottom: 12px; padding: 3px; border-radius: 12px; background: var(--chip); }
+    .seg button { min-height: 38px; padding: 0 16px; border: 0; border-radius: 10px; background: none; color: var(--muted); font-weight: 650; }
+    .seg button.active { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+    .ci-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 16px; border-bottom: 1px solid var(--border); }
+    .ci-row:last-child { border-bottom: 0; }
+    .ci-main { flex: 1; min-width: 0; padding: 6px 0; border: 0; background: none; text-align: left; }
+    .ci-main .dot { width: 8px; height: 8px; margin-right: 4px; }
+    .ci-btn {
+      flex: 0 0 auto;
+      min-width: 108px;
+      min-height: 48px;
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 750;
+    }
+    .ci-btn.in { background: var(--on); border-color: var(--on); color: var(--card); }
+    .ci-btn[disabled] { opacity: .6; }
+
+    /* MODAL + TOAST */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+      background: rgba(0, 0, 0, .45);
+    }
+    .modal[hidden] { display: none; }
+    .modal-box { width: 100%; max-width: 440px; padding: 20px; border-radius: 20px; background: var(--card); }
+    .modal-box h3 { margin: 0 0 6px; font-size: 20px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .modal-actions .btn { flex: 1; }
+    .warn-list { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--soon-soft); border: 1px solid var(--soon-border); font-size: 14px; line-height: 1.45; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+      z-index: 80;
+      max-width: calc(100% - 32px);
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 15px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.error { background: var(--danger); color: #fff; }
+
+    @media (min-width: 620px) {
+      .modal { align-items: center; }
+    }
   </style>
 </head>
 
@@ -459,17 +605,22 @@
     <div class="wrap top-in">
       <div class="brand">
         <h1>Attendant Assignments <span class="version" id="version"></span></h1>
-        <div class="event-line" id="eventLine">Loading the schedule…</div>
+        <div class="event-line" id="eventLine">Loading…</div>
       </div>
-      <button class="icon-btn" id="refreshBtn" type="button" data-act="refresh" aria-label="Refresh the schedule">
-        <svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>
-      </button>
+      <div class="top-actions">
+        <button class="icon-btn" type="button" data-act="access" aria-label="Access and settings">
+          <svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12 20 3M16 7l3 3M14 9l2 2"/></svg>
+        </button>
+        <button class="icon-btn" id="refreshBtn" type="button" data-act="refresh" aria-label="Refresh the schedule">
+          <svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
   <div class="wrap">
     <div class="banner" id="banner"></div>
-    <main id="main"><div class="empty">Loading the schedule…</div></main>
+    <main id="main"><div class="empty">Loading…</div></main>
     <footer class="footer" id="footer"></footer>
   </div>
 
@@ -480,25 +631,21 @@
     <img id="overlayImg" src="" alt="">
   </div>
 
-  <nav class="tabbar" aria-label="Sections">
-    <div class="tabbar-in">
-      <button class="tab" type="button" data-act="tab" data-tab="me">
-        <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-        My duty
-      </button>
-      <button class="tab" type="button" data-act="tab" data-tab="positions">
-        <svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-        Positions
-      </button>
-      <button class="tab" type="button" data-act="tab" data-tab="teams">
-        <svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2.4.6 4 2.3 4 5.2"/></svg>
-        Teams
-      </button>
-      <button class="tab" type="button" data-act="tab" data-tab="maps">
-        <svg class="i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
-        Maps
-      </button>
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle"></h3>
+      <div id="modalText"></div>
+      <div class="modal-actions">
+        <button class="btn" type="button" data-act="modal-cancel">Cancel</button>
+        <button class="btn primary" type="button" data-act="modal-ok" id="modalOk">OK</button>
+      </div>
     </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <nav class="tabbar" aria-label="Sections">
+    <div class="tabbar-in" id="tabbarIn"></div>
   </nav>
 
 <script>
@@ -509,21 +656,17 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.3.0';
+const VERSION = '0.4.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
-// Nur nötig, wenn in Apps Script die Eigenschaft READ_KEY gesetzt ist.
-const READ_KEY = '';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const CACHE_KEY = 'aa-cache-v1';
-const ME_KEY = 'aa-me-v1';
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1' };
 const FEEDBACK_MAIL = 'cryptopower@outlook.de';
 
-// Lagepläne – Zuordnung wie bisher in TestIndex:
-// zuerst Stichworte (in dieser Reihenfolge), dann Nummernbereiche.
+// Lagepläne: zuerst Stichworte (in dieser Reihenfolge), dann Nummernbereiche.
 const MAPS = [
   { id: 'auditorium', title: 'Auditorium', file: 'positions-auditorium.jpg',
     text: 'Auditorium, Main Entrance / Lobby and Welcome positions.',
@@ -547,6 +690,39 @@ const TEAM_COLORS = {
   STAGE: '#38761d'
 };
 
+const ROLE_LEVEL = { viewer: 1, checkin: 2, editor: 3, admin: 4 };
+const ROLE_LABEL = { viewer: 'View', checkin: 'Check-in', editor: 'Shift editor', admin: 'Admin' };
+const ROLE_DESC = {
+  viewer: 'See the schedule, positions and teams.',
+  checkin: 'View + check attendants in (Welcome team).',
+  editor: 'Check-in + assign shifts to another attendant.',
+  admin: 'Everything + manage these codes.'
+};
+
+const ERR = {
+  unauthorized: 'This access code is not valid.',
+  locked: 'Too many wrong codes. Please wait 5 minutes and try again.',
+  forbidden: 'Your access code does not allow this.',
+  conflict: 'Someone changed this shift in the meantime.',
+  not_found: 'Attendant not found in the schedule.',
+  unknown_attendant: 'This attendant is not in the Attendants list.',
+  not_a_shift: 'This row is no longer a shift.',
+  too_short: 'The code is too short (at least 4 characters, admin code at least 6).',
+  duplicate: 'This code is already used for another access level.',
+  required: 'This code cannot be removed.',
+  bad_request: 'The request was incomplete.'
+};
+
+const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
+const TAB_LABEL = { me: 'My duty', positions: 'Positions', teams: 'Teams', maps: 'Maps', checkin: 'Check-in' };
+const TAB_ICON = {
+  me: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  positions: '<svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  teams: '<svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2.4.6 4 2.3 4 5.2"/></svg>',
+  maps: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>',
+  checkin: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.7 2.7L16.5 9.5"/></svg>'
+};
+
 // =====================================================
 // STATE
 // =====================================================
@@ -564,16 +740,25 @@ const store = {
 let D = null;
 const S = {
   tab: 'me',
-  viewId: null,
-  me: store.get(ME_KEY),
-  query: '',
-  area: null,
+  me: store.get(KEY.me),
+  pin: DEMO ? 'demo' : store.get(KEY.pin),
+  role: DEMO ? 'admin' : null,
   loadedAt: null,
-  offline: false,
   error: null,
-  panel: null,
+  lockError: '',
+  busy: false,
+  pending: {},
+  stack: [],
+  ignorePop: false,
   panelMap: false,
-  busy: false
+  area: null,
+  team: null,
+  meQuery: '',
+  teamQuery: '',
+  ciQuery: '',
+  ciFilter: 'open',
+  pickQuery: '',
+  admin: null
 };
 
 const $ = sel => document.querySelector(sel);
@@ -599,6 +784,12 @@ function toMin(t) {
 
 function fmtMin(m) {
   return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+
+const byName = (a, b) => a.name.localeCompare(b.name);
+
+function can(min) {
+  return (ROLE_LEVEL[S.role] || 0) >= ROLE_LEVEL[min];
 }
 
 function tzNow(tz) {
@@ -642,11 +833,12 @@ function dayDiff(a, b) {
   return Math.round((p(b) - p(a)) / 86400000);
 }
 
-function fmtDate(iso) {
+function fmtDate(iso, long) {
   const x = iso.split('-').map(Number);
-  return new Date(Date.UTC(x[0], x[1] - 1, x[2])).toLocaleDateString('en-GB', {
-    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
-  });
+  const opts = long
+    ? { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }
+    : { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' };
+  return new Date(Date.UTC(x[0], x[1] - 1, x[2])).toLocaleDateString('en-GB', opts);
 }
 
 function fmtClock(ts) {
@@ -657,6 +849,10 @@ function teamColor(team) {
   const u = String(team || '').toUpperCase();
   for (const k in TEAM_COLORS) if (u.includes(k)) return TEAM_COLORS[k];
   return 'var(--done)';
+}
+
+function teamLine(team) {
+  return '<span class="team-line"><span class="dot" style="background:' + teamColor(team) + '"></span>' + esc(team || 'No team') + '</span>';
 }
 
 function nameOf(id) {
@@ -682,6 +878,47 @@ function mapFor(pos) {
   return null;
 }
 
+function friendly(err) {
+  const t = String(err && err.message || err);
+  if (/Failed to fetch|NetworkError|Load failed/i.test(t)) return 'No connection to the schedule';
+  return 'Something went wrong (' + t + ')';
+}
+
+function errorText(err) {
+  const code = err && err.code;
+  return code && ERR[code] ? ERR[code] : friendly(err);
+}
+
+function apiError(code) {
+  const e = new Error(code);
+  e.code = code;
+  return e;
+}
+
+let toastTimer = null;
+function toast(msg, kind) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind === 'error' ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3200);
+}
+
+let modalAction = null;
+function confirmBox(title, html, okLabel, onOk) {
+  $('#modalTitle').textContent = title;
+  $('#modalText').innerHTML = html || '';
+  $('#modalOk').textContent = okLabel || 'OK';
+  modalAction = onOk;
+  $('#modal').hidden = false;
+  $('#modalOk').focus();
+}
+
+function hideModal() {
+  $('#modal').hidden = true;
+  modalAction = null;
+}
+
 // =====================================================
 // DATA
 // =====================================================
@@ -699,8 +936,8 @@ function indexData(src) {
   d.attendants.forEach(a => { d.att[a.id] = a; });
 
   d.positions.forEach(p => {
-    if (!p.key) p.key = (p.area || 'Other') + '||' + p.label;
     if (!p.area) p.area = 'Other';
+    if (!p.key) p.key = p.area + '||' + p.label;
     p.slots.forEach(s => {
       s.pos = p;
       s.s = toMin(s.start);
@@ -717,52 +954,95 @@ function indexData(src) {
   return d;
 }
 
+function teamsMap() {
+  const g = {};
+  D.attendants.forEach(a => {
+    const t = String(a.team || '').trim();
+    if (!t || t.toUpperCase() === 'N.A.') return;
+    (g[t] = g[t] || []).push(a);
+  });
+  Object.keys(g).forEach(t => g[t].sort(byName));
+  return g;
+}
+
+function findSlot(row) {
+  for (const p of D.positions) {
+    const s = p.slots.find(x => x.row === row);
+    if (s) return s;
+  }
+  return null;
+}
+
+function positionTeam(p) {
+  const count = {};
+  p.slots.forEach(s => {
+    const a = s.id && D.att[s.id];
+    if (a && a.team) count[a.team] = (count[a.team] || 0) + 1;
+  });
+  let best = null;
+  Object.keys(count).forEach(t => { if (!best || count[t] > count[best]) best = t; });
+  return best;
+}
+
+function overlaps(id, slot) {
+  if (slot.s === null) return [];
+  return (D.byId[id] || []).filter(x => x !== slot && x.s !== null && x.s < slot.e && slot.s < x.e);
+}
+
+function isCaptain(id) {
+  return (D.byId[id] || []).some(s => s.pos.type === 'tc');
+}
+
 function readCache() {
   try {
-    const c = JSON.parse(store.get(CACHE_KEY) || 'null');
+    const c = JSON.parse(store.get(KEY.cache) || 'null');
     return c && c.data ? c : null;
   } catch (e) { return null; }
 }
 
-function friendly(err) {
-  const t = String(err && err.message || err);
-  if (t === 'unauthorized') return 'The access key is missing or wrong';
-  if (/Failed to fetch|NetworkError|Load failed/i.test(t)) return 'No connection to the schedule';
-  return 'The schedule could not be loaded (' + t + ')';
+// =====================================================
+// API
+// =====================================================
+
+async function api(action, payload, pinOverride) {
+  if (DEMO) return demoApi(action, payload || {});
+
+  const body = JSON.stringify(Object.assign({ action: action, pin: pinOverride || S.pin }, payload || {}));
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: body,
+    cache: 'no-store'
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const json = await res.json();
+  if (!json.ok) throw apiError(json.error || 'unknown');
+  return json;
 }
 
 async function load(force) {
-  if (DEMO) {
-    D = indexData(demoData());
-    S.loadedAt = Date.now();
-    render();
-    return;
-  }
+  if (!S.pin) { render(); return; }
 
   setBusy(true);
   try {
-    let url = API_URL + (API_URL.includes('?') ? '&' : '?') + 'action=bootstrap';
-    if (READ_KEY) url += '&key=' + encodeURIComponent(READ_KEY);
-    if (force) url += '&nocache=1';
-
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const json = JSON.parse(text);
-    if (!json.ok) throw new Error(json.error || 'unknown error');
-
-    store.set(CACHE_KEY, JSON.stringify({ at: Date.now(), data: json }));
+    const json = await api('bootstrap', { nocache: !!force });
+    S.role = json.role || S.role;
+    if (!DEMO) {
+      store.set(KEY.pin, S.pin);
+      store.set(KEY.cache, JSON.stringify({ at: Date.now(), data: json }));
+    }
     D = indexData(json);
     S.loadedAt = Date.now();
-    S.offline = false;
     S.error = null;
-
+    S.lockError = '';
   } catch (err) {
-    S.error = friendly(err);
-    S.offline = true;
-    if (!D) {
-      const c = readCache();
-      if (c) { D = indexData(c.data); S.loadedAt = c.at; }
+    if (err.code === 'unauthorized') {
+      logout('This access code is not valid. Please enter the current code.');
+    } else if (err.code === 'locked' && !D) {
+      S.pin = null;
+      S.lockError = ERR.locked;
+    } else {
+      S.error = errorText(err);
     }
   } finally {
     setBusy(false);
@@ -773,6 +1053,112 @@ async function load(force) {
 function setBusy(on) {
   S.busy = on;
   $('#refreshBtn').classList.toggle('busy', on);
+}
+
+function logout(message) {
+  clearPanels();
+  S.pin = null;
+  S.role = null;
+  S.admin = null;
+  S.error = null;
+  S.lockError = message || '';
+  D = null;
+  store.del(KEY.pin);
+  store.del(KEY.cache);
+  render();
+}
+
+async function doCheckin(id, value) {
+  const a = D.att[id];
+  if (!a || S.pending[id]) return;
+  const before = a.checkedIn;
+  a.checkedIn = value;
+  S.pending[id] = true;
+  render();
+
+  try {
+    await api('checkin', { id: id, value: value, by: S.me || '' });
+    toast(value ? a.name + ' checked in' : 'Check-in undone for ' + a.name);
+    if (value && S.tab === 'checkin' && S.ciQuery) {
+      S.ciQuery = '';
+      const q = $('#ciQ');
+      if (q) q.value = '';
+    }
+  } catch (err) {
+    a.checkedIn = before;
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  } finally {
+    delete S.pending[id];
+    render();
+  }
+}
+
+async function doAssign(slot, newId) {
+  try {
+    await api('assign', { row: slot.row, expectedId: slot.id || '', newId: newId, by: S.me || '' });
+    toast(newId ? nameOf(newId) + ' assigned' : 'The shift is open now');
+    backPanel();
+    await load(true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    if (err.code === 'conflict') {
+      toast(ERR.conflict + ' The schedule was reloaded.', 'error');
+      await load(true);
+      return;
+    }
+    toast(errorText(err), 'error');
+  }
+}
+
+async function upgradeCode() {
+  const input = $('#upgradeInput');
+  const msg = $('#upgradeMsg');
+  const v = input ? input.value.trim() : '';
+  if (!v) return;
+  msg.textContent = 'Checking…';
+  try {
+    const json = await api('bootstrap', {}, v);
+    S.pin = v;
+    S.role = json.role;
+    S.admin = null;
+    if (!DEMO) {
+      store.set(KEY.pin, v);
+      store.set(KEY.cache, JSON.stringify({ at: Date.now(), data: json }));
+    }
+    D = indexData(json);
+    S.loadedAt = Date.now();
+    toast('Access level: ' + ROLE_LABEL[S.role]);
+    render();
+    renderPanel(clock(), true);
+  } catch (err) {
+    msg.textContent = errorText(err);
+  }
+}
+
+async function loadAdmin() {
+  try {
+    S.admin = await api('adminStatus');
+  } catch (err) {
+    S.admin = { pins: null, error: errorText(err) };
+  }
+  if (topPanel() && topPanel().type === 'access') renderPanel(clock(), true);
+}
+
+async function savePin(role, value) {
+  try {
+    const res = await api('setPin', { target: role, newPin: value });
+    S.admin = { pins: res.pins };
+    if (role === S.role && value) {
+      S.pin = value;
+      if (!DEMO) store.set(KEY.pin, value);
+    }
+    toast(value ? ROLE_LABEL[role] + ' code saved' : ROLE_LABEL[role] + ' code removed');
+    renderPanel(clock(), true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
 }
 
 // =====================================================
@@ -844,21 +1230,96 @@ function positionNowNext(p, c) {
 }
 
 // =====================================================
+// SHARED HTML PIECES
+// =====================================================
+
+function heroHtml(id, c) {
+  const st = personStatus(id, c);
+  const s = st.slot;
+  const labels = {
+    on: 'Right now', soon: 'Starting soon', next: 'Next shift', first: 'First shift',
+    allday: c.mode === 'before' ? 'Assignment' : 'Today',
+    done: c.mode === 'after' ? 'Event finished' : 'Today', none: ''
+  };
+  const big = {
+    on: 'On duty', soon: s && s.start, next: s && s.start, first: s && s.start,
+    allday: 'All day', done: 'Done', none: 'No assignment'
+  };
+
+  let sub = '';
+  if (s) {
+    sub = '<div class="hero-pos">' + esc(s.pos.label) + '</div>' +
+      '<div class="hero-sub">' + esc(s.pos.area) + (st.kind === 'on' ? ', until ' + esc(s.end) : '') + '</div>';
+  } else if (st.kind === 'done') {
+    sub = '<div class="hero-sub">All shifts are over. Thank you!</div>';
+  }
+
+  return '<div class="hero k-' + st.kind + '">' +
+    (labels[st.kind] ? '<div class="hero-label">' + esc(labels[st.kind]) + '</div>' : '') +
+    '<div class="hero-big">' + esc(big[st.kind] || '') + '</div>' + sub + '</div>';
+}
+
+function slotsHtml(id, c) {
+  const list = D.byId[id] || [];
+  if (!list.length) return '<div class="empty">No assignments in the schedule.</div>';
+  return list.map(x => {
+    const state = slotState(x, c);
+    return '<button class="slot ' + state + '" type="button" data-act="pos" data-key="' + esc(x.pos.key) + '" data-row="' + x.row + '">' +
+      '<div class="slot-time">' + esc(timeText(x)) + (state === 'now' ? '<span class="tag now">Now</span>' : '') + '</div>' +
+      '<div class="slot-pos">' + esc(x.pos.label) + '</div>' +
+      '<div class="slot-area">' + esc(x.pos.area) + '</div>' +
+      (x.remark ? '<div class="slot-remark">' + esc(x.remark) + '</div>' : '') +
+      '</button>';
+  }).join('');
+}
+
+function memberRow(m, c, showTeam) {
+  const st = personStatus(m.id, c);
+  return '<button class="member" type="button" data-act="person" data-id="' + esc(m.id) + '">' +
+    '<span class="member-main"><span class="member-name">' + esc(m.name) + '</span>' +
+    '<span class="member-status k-' + st.kind + '">' + (showTeam ? esc(m.team || 'No team') + ' · ' : '') + esc(statusLine(st)) + '</span></span>' +
+    '<span class="tick' + (m.checkedIn ? '' : ' no') + '" aria-label="' + (m.checkedIn ? 'Checked in' : 'Not checked in') + '">✓</span>' +
+    '</button>';
+}
+
+function teamBlock(team, members, c) {
+  const inCount = members.filter(m => m.checkedIn).length;
+  return '<section class="team-block" style="--team:' + teamColor(team) + '">' +
+    '<div class="team-head"><span class="team-name">' + esc(team) + '</span>' +
+    '<span class="team-count">' + inCount + ' of ' + members.length + ' checked in</span></div>' +
+    members.map(m => memberRow(m, c, false)).join('') + '</section>';
+}
+
+function resultsHtml(list, act) {
+  return '<div class="results">' + list.map(a =>
+    '<button class="result" type="button" data-act="' + act + '" data-id="' + esc(a.id) + '">' +
+    '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+    '<span><span class="result-name">' + esc(a.name) + '</span>' +
+    '<span class="result-sub">' + esc(a.team || 'No team') + '</span></span></button>'
+  ).join('') + '</div>';
+}
+
+function backBar() {
+  return '<div class="panel-bar"><button class="btn" type="button" data-act="back">← Back</button></div>';
+}
+
+// =====================================================
 // RENDER
 // =====================================================
 
 function render() {
-  const c = D ? clock() : null;
+  const locked = !S.pin;
+  document.body.classList.toggle('locked', locked);
 
-  renderHeader(c);
-  renderBanner(c);
+  renderHeader();
+  renderBanner();
   renderFooter();
+  renderTabbar();
 
-  document.querySelectorAll('.tab').forEach(b =>
-    b.classList.toggle('active', b.dataset.tab === S.tab));
+  if (locked) { renderLock(); return; }
 
   if (!D) {
-    main.dataset.tab = '';
+    main.dataset.view = 'loading';
     main.innerHTML = S.error
       ? '<div class="empty"><strong>' + esc(S.error) + '</strong>Check the connection and try again.<br><br>' +
         '<button class="btn primary" type="button" data-act="refresh">Try again</button></div>'
@@ -866,159 +1327,163 @@ function render() {
     return;
   }
 
+  const c = clock();
+  if (S.tab === 'checkin' && !can('checkin')) S.tab = 'me';
+
   if (S.tab === 'me') renderMe(c);
   else if (S.tab === 'positions') renderPositions(c);
   else if (S.tab === 'teams') renderTeams(c);
+  else if (S.tab === 'checkin') renderCheckin(c);
   else renderMaps();
 
-  if (S.panel) renderPanel(c);
+  if (S.stack.length) renderPanel(c);
 }
 
-function renderHeader(c) {
+function renderHeader() {
   $('#version').textContent = 'V' + VERSION;
   const line = $('#eventLine');
+  if (!S.pin) { line.textContent = 'Please enter your access code'; return; }
   if (!D) { line.textContent = S.error ? 'Schedule not available' : 'Loading the schedule…'; return; }
+
+  const c = clock();
   if (c.noDate) { line.textContent = 'No event date set'; return; }
 
-  let rel = '';
-  if (c.mode === 'live') rel = 'today';
-  else if (c.mode === 'after') rel = 'finished';
-  else {
+  let rel = 'today';
+  if (c.mode === 'after') rel = 'finished';
+  else if (c.mode === 'before') {
     const n = dayDiff(c.date, D.event.date);
     rel = n === 1 ? 'tomorrow' : 'in ' + n + ' days';
   }
-  line.innerHTML = '<strong>' + esc(fmtDate(D.event.date)) + '</strong> ' + esc(rel);
+  line.innerHTML = '<strong>' + esc(fmtDate(D.event.date, true)) + '</strong> · ' + esc(rel);
 }
 
-function renderBanner(c) {
+function renderBanner() {
   const notes = [];
   if (DEMO) notes.push(API_URL
     ? 'Demo data. Remove ?demo from the address to load the live schedule.'
     : 'Demo data. Add the Apps Script address (API_URL) in the file to load the live schedule.');
-  if (NOW_PARAM && c) notes.push('Test time: ' + fmtDate(c.date) + ', ' + fmtMin(c.min) + '. Remove ?now from the address for the real time.');
-  if (S.error && D) notes.push(S.error + '. Showing the schedule from ' + fmtClock(S.loadedAt) + '.');
-  if (c && c.noDate && !DEMO) notes.push('No event date in the sheet. Times are shown as if the event were today.');
+  if (S.pin && D) {
+    const c = clock();
+    if (NOW_PARAM) notes.push('Test time: ' + fmtDate(c.date) + ', ' + fmtMin(c.min) + '. Remove ?now from the address for the real time.');
+    if (S.error) notes.push(S.error + '. Showing the schedule from ' + fmtClock(S.loadedAt) + '.');
+    if (c.noDate && !DEMO) notes.push('No event date in the sheet. Times are shown as if the event were today.');
+  }
   $('#banner').innerHTML = notes.map(n => '<div class="note">' + esc(n) + '</div>').join('');
 }
 
 function renderFooter() {
   const subject = encodeURIComponent('Feedback: ' + APP_NAME + ' V' + VERSION);
   $('#footer').innerHTML =
-    (S.loadedAt ? 'Schedule updated ' + esc(fmtClock(S.loadedAt)) + '<br>' : '') +
+    (S.loadedAt && S.pin ? 'Schedule updated ' + esc(fmtClock(S.loadedAt)) +
+      (S.role ? ' · Access: ' + esc(ROLE_LABEL[S.role]) : '') + '<br>' : '') +
     esc(APP_NAME) + ' · V' + esc(VERSION) + ' · Made with Love © · ' +
     '<a href="mailto:' + FEEDBACK_MAIL + '?subject=' + subject + '">✉ Feedback</a>';
+}
+
+function renderTabbar() {
+  const tabs = TABS.filter(t => t !== 'checkin' || can('checkin'));
+  const bar = $('#tabbarIn');
+  bar.style.setProperty('--tabs', tabs.length);
+  bar.innerHTML = tabs.map(t =>
+    '<button class="tab' + (t === S.tab ? ' active' : '') + '" type="button" data-act="tab" data-tab="' + t + '">' +
+    TAB_ICON[t] + TAB_LABEL[t] + '</button>'
+  ).join('');
+}
+
+// ---------- LOCK ----------
+
+function renderLock() {
+  if (main.dataset.view !== 'lock') {
+    main.dataset.view = 'lock';
+    main.innerHTML =
+      '<form class="lock" id="lockForm" autocomplete="off">' +
+        '<div class="lock-icon">🔒</div>' +
+        '<h2>Access code</h2>' +
+        '<p class="muted">Enter the code you received from the attendant department.</p>' +
+        '<input id="lockInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Access code">' +
+        '<label class="show-code"><input type="checkbox" id="lockShow"> Show code</label>' +
+        '<button class="btn primary block" type="submit" id="lockBtn">Open</button>' +
+        '<div class="lock-error" id="lockError" role="alert"></div>' +
+      '</form>';
+
+    $('#lockShow').addEventListener('change', e => {
+      $('#lockInput').type = e.target.checked ? 'text' : 'password';
+    });
+    $('#lockForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const v = $('#lockInput').value.trim();
+      if (!v) return;
+      S.pin = v;
+      S.lockError = '';
+      S.error = null;
+      $('#lockBtn').disabled = true;
+      load(true);
+    });
+  }
+  $('#lockError').textContent = S.lockError || '';
+  $('#lockBtn').disabled = false;
 }
 
 // ---------- MY DUTY ----------
 
 function renderMe(c) {
-  if (main.dataset.tab !== 'me') {
-    main.dataset.tab = 'me';
-    main.innerHTML =
-      '<div class="search"><input id="q" type="search" placeholder="Search a name" ' +
-      'autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
-      '<div id="meBody"></div>';
-    const q = $('#q');
-    q.value = S.query;
-    q.addEventListener('input', () => { S.query = q.value; renderMe(clock()); });
+  if (!S.me || !D.att[S.me]) { renderIdentify(); return; }
+
+  main.dataset.view = 'me';
+  const a = D.att[S.me];
+  let html =
+    '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' + teamLine(a.team) + '</div>' +
+    (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
+    '<div class="notme">Not you? <button class="linkish" type="button" data-act="change-me">Change the name</button></div>' +
+    heroHtml(a.id, c) +
+    '<div class="h3">My assignments</div>' + slotsHtml(a.id, c);
+
+  if (isCaptain(a.id) && a.team) {
+    const members = (teamsMap()[a.team] || []);
+    if (members.length) html += '<div class="h3">My team</div>' + teamBlock(a.team, members, c);
   }
 
-  const body = $('#meBody');
-  const query = norm(S.query.trim());
-
-  if (query.length >= 2) {
-    const hits = D.attendants
-      .filter(a => norm(a.name).includes(query))
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .slice(0, 12);
-
-    body.innerHTML = hits.length
-      ? '<div class="results">' + hits.map(a => {
-          const st = personStatus(a.id, c);
-          return '<button class="result" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
-            '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
-            '<span><span class="result-name">' + esc(a.name) + '</span>' +
-            '<span class="result-sub">' + esc(a.team || 'No team') + ' · ' + esc(statusLine(st)) + '</span></span>' +
-            '</button>';
-        }).join('') + '</div>'
-      : '<div class="empty">No attendant found for “' + esc(S.query.trim()) + '”.</div>';
-    return;
-  }
-
-  const id = S.viewId || S.me;
-  if (!id || !D.att[id]) {
-    body.innerHTML =
-      '<div class="empty"><strong>Find your assignments</strong>' +
-      'Type at least two letters of your name.<br>Save it once and the app opens straight to your duty.</div>';
-    return;
-  }
-
-  body.innerHTML = personHtml(id, c);
+  main.innerHTML = html;
 }
 
-function personHtml(id, c) {
-  const a = D.att[id];
-  const st = personStatus(id, c);
-  const s = st.slot;
-  const list = D.byId[id] || [];
-
-  const labels = {
-    on: 'Right now', soon: 'Starting soon', next: 'Next shift', first: 'First shift',
-    allday: c.mode === 'before' ? 'Assignment' : 'Today', done: c.mode === 'after' ? 'Event finished' : 'Today', none: ''
-  };
-  const big = {
-    on: 'On duty', soon: s && s.start, next: s && s.start, first: s && s.start,
-    allday: 'All day', done: 'Done', none: 'No assignment'
-  };
-
-  let heroSub = '';
-  if (s) {
-    heroSub = '<div class="hero-pos">' + esc(s.pos.label) + '</div>' +
-      '<div class="hero-sub">' + esc(s.pos.area) + (st.kind === 'on' ? ', until ' + esc(s.end) : '') + '</div>';
-  } else if (st.kind === 'done') {
-    heroSub = '<div class="hero-sub">All shifts are over. Thank you!</div>';
+function renderIdentify() {
+  if (main.dataset.view !== 'identify') {
+    main.dataset.view = 'identify';
+    main.innerHTML =
+      '<div class="intro"><h2>Who are you?</h2>' +
+      '<p class="muted">Choose your own name once. This phone then opens straight to your duty.</p></div>' +
+      '<div class="search"><input id="meQ" type="search" placeholder="Type your name" autocomplete="off" spellcheck="false" aria-label="Type your name"></div>' +
+      '<div id="identifyList"></div>';
+    const q = $('#meQ');
+    q.value = S.meQuery;
+    q.addEventListener('input', () => { S.meQuery = q.value; renderIdentifyList(); });
   }
+  renderIdentifyList();
+}
 
-  let meRow;
-  if (S.me === id) {
-    meRow = '<div class="me-row"><span class="me-saved">Saved as you on this phone</span>' +
-      '<button class="linkish" type="button" data-act="forgetme">Forget</button></div>';
-  } else {
-    meRow = '<div class="me-row"><button class="btn primary" type="button" data-act="setme" data-id="' + esc(id) + '">This is me</button>' +
-      (S.me ? '<button class="btn" type="button" data-act="mine">Back to my duty</button>' : '') + '</div>';
+function renderIdentifyList() {
+  const box = $('#identifyList');
+  if (!box) return;
+  const q = norm(S.meQuery.trim());
+  if (q.length < 2) {
+    box.innerHTML = S.me && !D.att[S.me]
+      ? '<div class="empty">The saved name is no longer in the schedule. Please choose again.</div>'
+      : '';
+    return;
   }
-
-  const slots = list.length
-    ? list.map(x => {
-        const state = slotState(x, c);
-        return '<button class="slot ' + state + '" type="button" data-act="pos" data-key="' + esc(x.pos.key) + '" data-row="' + x.row + '">' +
-          '<div class="slot-time">' + esc(timeText(x)) + (state === 'now' ? '<span class="tag now">Now</span>' : '') + '</div>' +
-          '<div class="slot-pos">' + esc(x.pos.label) + '</div>' +
-          '<div class="slot-area">' + esc(x.pos.area) + '</div>' +
-          (x.remark ? '<div class="slot-remark">' + esc(x.remark) + '</div>' : '') +
-          '</button>';
-      }).join('')
-    : '<div class="empty">No assignments in the schedule.</div>';
-
-  return '<div class="person-head"><div>' +
-      '<h2>' + esc(a.name) + '</h2>' +
-      '<span class="team-line"><span class="dot" style="background:' + teamColor(a.team) + '"></span>' + esc(a.team || 'No team') + '</span>' +
-    '</div>' + (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
-    '<div class="hero k-' + st.kind + '">' +
-      (labels[st.kind] ? '<div class="hero-label">' + esc(labels[st.kind]) + '</div>' : '') +
-      '<div class="hero-big">' + esc(big[st.kind] || '') + '</div>' + heroSub +
-    '</div>' +
-    meRow +
-    '<div class="h3">Assignments</div>' + slots;
+  const hits = D.attendants.filter(a => norm(a.name).includes(q)).sort(byName).slice(0, 12);
+  box.innerHTML = hits.length
+    ? resultsHtml(hits, 'identify')
+    : '<div class="empty">No attendant found for “' + esc(S.meQuery.trim()) + '”.</div>';
 }
 
 // ---------- POSITIONS ----------
 
 function renderPositions(c) {
-  main.dataset.tab = 'positions';
+  main.dataset.view = 'positions';
   if (!S.area || D.areas.indexOf(S.area) < 0) S.area = D.areas[0];
 
-  const chips = '<div class="chips" role="tablist">' + D.areas.map(a =>
+  const chips = '<div class="chips">' + D.areas.map(a =>
     '<button class="chip' + (a === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(a) + '">' + esc(a) + '</button>'
   ).join('') + '</div>';
 
@@ -1031,8 +1496,7 @@ function renderPositions(c) {
          : '<div class="duo-name">—</div>') + '</div>';
 
     return '<button class="pos-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
-      '<div class="pos-title">' + esc(p.label) +
-        (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</div>' +
+      '<div class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</div>' +
       '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>' +
       '</button>';
   }).join('');
@@ -1043,40 +1507,107 @@ function renderPositions(c) {
 // ---------- TEAMS ----------
 
 function renderTeams(c) {
-  main.dataset.tab = 'teams';
-  const groups = {};
-  D.attendants.forEach(a => {
-    const t = String(a.team || '').trim();
-    if (!t || t.toUpperCase() === 'N.A.') return;
-    (groups[t] = groups[t] || []).push(a);
-  });
+  if (main.dataset.view !== 'teams') {
+    main.dataset.view = 'teams';
+    main.innerHTML =
+      '<div class="search"><input id="teamQ" type="search" placeholder="Search all attendants" autocomplete="off" spellcheck="false" aria-label="Search all attendants"></div>' +
+      '<div id="teamsBody"></div>';
+    const q = $('#teamQ');
+    q.value = S.teamQuery;
+    q.addEventListener('input', () => { S.teamQuery = q.value; renderTeamsBody(clock()); });
+  }
+  renderTeamsBody(c);
+}
 
+function renderTeamsBody(c) {
+  const box = $('#teamsBody');
+  if (!box) return;
+  const q = norm(S.teamQuery.trim());
+
+  if (q.length >= 2) {
+    const hits = D.attendants.filter(a => norm(a.name).includes(q)).sort(byName).slice(0, 30);
+    box.innerHTML = hits.length
+      ? '<div class="team-block">' + hits.map(m => memberRow(m, c, true)).join('') + '</div>'
+      : '<div class="empty">No attendant found for “' + esc(S.teamQuery.trim()) + '”.</div>';
+    return;
+  }
+
+  const groups = teamsMap();
   const names = Object.keys(groups).sort((a, b) => a.localeCompare(b));
-  if (!names.length) { main.innerHTML = '<div class="empty">No teams in the schedule.</div>'; return; }
+  if (!names.length) { box.innerHTML = '<div class="empty">No teams in the schedule.</div>'; return; }
 
-  main.innerHTML = names.map(t => {
-    const members = groups[t].slice().sort((a, b) => a.name.localeCompare(b.name));
-    const inCount = members.filter(m => m.checkedIn).length;
-    return '<section class="team-block" style="--team:' + teamColor(t) + '">' +
-      '<div class="team-head"><span class="team-name">' + esc(t) + '</span>' +
-      '<span class="team-count">' + inCount + ' of ' + members.length + ' checked in</span></div>' +
-      members.map(m => {
-        const st = personStatus(m.id, c);
-        return '<button class="member" type="button" data-act="person" data-id="' + esc(m.id) + '">' +
-          '<span class="member-main"><span class="member-name">' + esc(m.name) + '</span>' +
-          '<span class="member-status k-' + st.kind + '">' + esc(statusLine(st)) + '</span></span>' +
-          '<span class="tick' + (m.checkedIn ? '' : ' no') + '" aria-label="' + (m.checkedIn ? 'Checked in' : 'Not checked in') + '">✓</span>' +
-          '</button>';
-      }).join('') +
-      '</section>';
-  }).join('');
+  if (!S.team || !groups[S.team]) {
+    const mine = S.me && D.att[S.me] && D.att[S.me].team;
+    S.team = groups[mine] ? mine : names[0];
+  }
+
+  box.innerHTML = '<div class="chips">' + names.map(t =>
+    '<button class="chip' + (t === S.team ? ' active' : '') + '" type="button" data-act="team" data-team="' + esc(t) + '">' +
+    '<span class="dot" style="background:' + teamColor(t) + '"></span>' + esc(t) +
+    '<span class="chip-count">' + groups[t].length + '</span></button>'
+  ).join('') + '</div>' + teamBlock(S.team, groups[S.team], c);
+}
+
+// ---------- CHECK-IN ----------
+
+function renderCheckin(c) {
+  if (main.dataset.view !== 'checkin') {
+    main.dataset.view = 'checkin';
+    main.innerHTML =
+      '<div id="ciSummary"></div>' +
+      '<div class="search"><input id="ciQ" type="search" placeholder="Search a name to check in" autocomplete="off" spellcheck="false" aria-label="Search a name to check in"></div>' +
+      '<div class="seg"><button type="button" data-act="cifilter" data-f="open">Not yet</button><button type="button" data-act="cifilter" data-f="all">All</button></div>' +
+      '<div id="ciList"></div>';
+    const q = $('#ciQ');
+    q.value = S.ciQuery;
+    q.addEventListener('input', () => { S.ciQuery = q.value; renderCheckinBody(clock()); });
+  }
+  renderCheckinBody(c);
+}
+
+function renderCheckinBody(c) {
+  if (!$('#ciList')) return;
+  const all = D.attendants.filter(a => {
+    const t = String(a.team || '').trim();
+    return t && t.toUpperCase() !== 'N.A.';
+  });
+  const inCount = all.filter(a => a.checkedIn).length;
+  const pct = all.length ? Math.round(inCount / all.length * 100) : 0;
+
+  $('#ciSummary').innerHTML =
+    '<div class="ci-summary"><div class="ci-big">' + inCount + '<span> of ' + all.length + ' checked in</span></div>' +
+    '<div class="bar"><span style="width:' + pct + '%"></span></div></div>';
+
+  document.querySelectorAll('[data-act="cifilter"]').forEach(b =>
+    b.classList.toggle('active', b.dataset.f === S.ciFilter));
+
+  const q = norm(S.ciQuery.trim());
+  let list = all;
+  if (q) list = list.filter(a => norm(a.name).includes(q));
+  else if (S.ciFilter === 'open') list = list.filter(a => !a.checkedIn);
+  list = list.slice().sort(byName);
+
+  $('#ciList').innerHTML = list.length
+    ? '<div class="team-block">' + list.map(a => {
+        const st = personStatus(a.id, c);
+        const pend = !!S.pending[a.id];
+        return '<div class="ci-row">' +
+          '<button class="ci-main" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
+            '<span class="member-name">' + esc(a.name) + '</span>' +
+            '<span class="member-status k-' + st.kind + '"><span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+            esc(a.team) + ' · ' + esc(statusLine(st)) + '</span></button>' +
+          '<button class="ci-btn' + (a.checkedIn ? ' in' : '') + '" type="button" data-act="ci" data-id="' + esc(a.id) + '"' + (pend ? ' disabled' : '') + '>' +
+            (pend ? '…' : (a.checkedIn ? '✓ In' : 'Check in')) + '</button>' +
+          '</div>';
+      }).join('') + '</div>'
+    : '<div class="empty">' + (q ? 'No attendant found.' : 'Everyone is checked in. 🎉') + '</div>';
 }
 
 // ---------- MAPS ----------
 
 function renderMaps() {
-  if (main.dataset.tab === 'maps') return;
-  main.dataset.tab = 'maps';
+  if (main.dataset.view === 'maps') return;
+  main.dataset.view = 'maps';
   main.innerHTML = '<div class="maps">' + MAPS.map(m =>
     '<div class="map">' +
       '<button type="button" data-act="zoom" data-src="' + esc(m.file) + '" data-alt="' + esc(m.title) + ' position map" aria-label="Enlarge ' + esc(m.title) + ' map">' +
@@ -1089,38 +1620,97 @@ function renderMaps() {
   ).join('') + '</div>';
 }
 
-// ---------- POSITION PANEL ----------
+// =====================================================
+// PANELS (person / position / change shift / access)
+// =====================================================
 
-function openPanel(key, row) {
-  S.panel = { key: key, row: row ? Number(row) : null };
-  S.panelMap = false;
-  renderPanel(clock());
-  const panel = $('#panel');
-  panel.classList.add('open');
-  panel.setAttribute('aria-hidden', 'false');
-  panel.scrollTop = 0;
-  if (!(history.state && history.state.aaPanel)) history.pushState({ aaPanel: 1 }, '');
+function topPanel() {
+  return S.stack[S.stack.length - 1] || null;
 }
 
-function closePanel(fromPopstate) {
-  if (!S.panel) return;
-  S.panel = null;
-  const panel = $('#panel');
-  panel.classList.remove('open');
-  panel.setAttribute('aria-hidden', 'true');
-  if (!fromPopstate && history.state && history.state.aaPanel) history.back();
+function pushPanel(entry) {
+  const top = topPanel();
+  if (top && top.type === entry.type && top.id === entry.id && top.key === entry.key && top.row === entry.row) return;
+  S.stack.push(entry);
+  history.pushState({ aaPanel: S.stack.length }, '');
+  showPanel(true);
 }
 
-function renderPanel(c) {
-  const p = D.positions.find(x => x.key === S.panel.key);
-  if (!p) { closePanel(); return; }
+function popPanel() {
+  S.stack.pop();
+  showPanel(true);
+}
+
+function backPanel() {
+  if (history.state && history.state.aaPanel) history.back();
+  else popPanel();
+}
+
+function clearPanels() {
+  const n = S.stack.length;
+  if (!n) return;
+  S.stack = [];
+  showPanel(false);
+  if (history.state && history.state.aaPanel) {
+    S.ignorePop = true;
+    history.go(-n);
+  }
+}
+
+function showPanel(scrollTop) {
+  const panel = $('#panel');
+  if (S.stack.length && D) {
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    renderPanel(clock());
+    if (scrollTop) panel.scrollTop = 0;
+  } else {
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    $('#panelBody').dataset.view = '';
+  }
+}
+
+function renderPanel(c, force) {
+  const top = topPanel();
+  if (!top || !D) return;
+  const body = $('#panelBody');
+
+  if (top.type === 'pick') { renderPick(top, c, force); return; }
+  if (top.type === 'access') { renderAccess(force); return; }
+
+  body.dataset.view = top.type;
+  body.innerHTML = top.type === 'person' ? personPanelHtml(top, c) : posPanelHtml(top, c);
+}
+
+function personPanelHtml(top, c) {
+  const a = D.att[top.id];
+  if (!a) return backBar() + '<div class="empty">This attendant is no longer in the schedule.</div>';
+
+  let html = backBar() +
+    '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' + teamLine(a.team) + '</div>' +
+    (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
+    heroHtml(a.id, c);
+
+  if (can('checkin')) {
+    const pend = !!S.pending[a.id];
+    html += '<div class="me-row"><button class="btn ' + (a.checkedIn ? '' : 'primary') + ' block" type="button" data-act="ci" data-id="' + esc(a.id) + '"' + (pend ? ' disabled' : '') + '>' +
+      (pend ? '…' : (a.checkedIn ? 'Undo check-in' : 'Check in')) + '</button></div>';
+  }
+
+  return html + '<div class="h3">Assignments</div>' + slotsHtml(a.id, c);
+}
+
+function posPanelHtml(top, c) {
+  const p = D.positions.find(x => x.key === top.key);
+  if (!p) return backBar() + '<div class="empty">This position is no longer in the schedule.</div>';
 
   const nn = positionNowNext(p, c);
-  const selIndex = S.panel.row ? p.slots.findIndex(s => s.row === S.panel.row) : -1;
+  const selIndex = top.row ? p.slots.findIndex(s => s.row === top.row) : -1;
   const map = mapFor(p);
+  const editable = can('editor');
 
-  let html = '<div class="panel-bar"><button class="btn" type="button" data-act="close">← Back</button></div>' +
-    '<h2>' + esc(p.label) + '</h2><p class="sub">' + esc(p.area) + '</p>';
+  let html = backBar() + '<h2>' + esc(p.label) + '</h2><p class="sub">' + esc(p.area) + '</p>';
 
   if (nn.now) {
     html += '<div class="now-box"><div class="duo-label">On this position now</div>' +
@@ -1152,18 +1742,154 @@ function renderPanel(c) {
     const cls = ['rot', state, i === selIndex ? 'sel' : ''].join(' ');
     const tags = (state === 'now' ? '<span class="tag now">Now</span>' : '') +
       (i === selIndex ? '<span class="tag sel">Selected</span>' : '');
-    const inner = '<div class="rot-time">' + esc(timeText(s)) + '</div>' +
-      '<div><div class="rot-name' + (s.id ? '' : ' open') + '">' + esc(nameOf(s.id)) + tags + '</div>' +
-      (s.remark ? '<div class="rot-remark">' + esc(s.remark) + '</div>' : '') + '</div>';
-    return s.id
-      ? '<button class="' + cls + '" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
-      : '<div class="' + cls + '">' + inner + '</div>';
+    const inner = '<span class="rot-time">' + esc(timeText(s)) + '</span>' +
+      '<span><span class="rot-name' + (s.id ? '' : ' open') + '">' + esc(nameOf(s.id)) + tags + '</span>' +
+      (s.remark ? '<span class="rot-remark" style="display:block">' + esc(s.remark) + '</span>' : '') + '</span>';
+    const mainPart = s.id
+      ? '<button class="rot-main" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
+      : '<div class="rot-main">' + inner + '</div>';
+    const edit = editable
+      ? '<button class="rot-edit" type="button" data-act="edit-slot" data-row="' + s.row + '">Change</button>'
+      : '';
+    return '<div class="' + cls + '">' + mainPart + edit + '</div>';
   }).join('');
 
-  $('#panelBody').innerHTML = html;
+  return html;
 }
 
-// ---------- IMAGE OVERLAY ----------
+// ---------- CHANGE SHIFT ----------
+
+function renderPick(top, c, force) {
+  const body = $('#panelBody');
+  const slot = findSlot(top.row);
+  if (!slot) {
+    body.dataset.view = '';
+    body.innerHTML = backBar() + '<div class="empty">This shift is no longer in the schedule.</div>';
+    return;
+  }
+
+  const key = 'pick:' + top.row + ':' + slot.id;
+  if (body.dataset.view !== key || force) {
+    body.dataset.view = key;
+    body.innerHTML = backBar() +
+      '<h2>Change shift</h2>' +
+      '<p class="sub">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) + '</p>' +
+      '<div class="form-card"><div class="duo-label">Currently</div><div class="now-name">' + esc(nameOf(slot.id)) + '</div></div>' +
+      '<div class="search"><input id="pickQ" type="search" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
+      '<div id="pickList"></div>';
+    const q = $('#pickQ');
+    q.value = S.pickQuery;
+    q.addEventListener('input', () => { S.pickQuery = q.value; renderPickList(slot); });
+  }
+  renderPickList(slot);
+}
+
+function renderPickList(slot) {
+  const box = $('#pickList');
+  if (!box) return;
+  const team = positionTeam(slot.pos);
+  const q = norm(S.pickQuery.trim());
+
+  let list = q.length >= 2
+    ? D.attendants.filter(a => norm(a.name).includes(q))
+    : (team ? D.attendants.filter(a => a.team === team) : []);
+  list = list.filter(a => a.id !== slot.id).sort(byName).slice(0, 40);
+
+  let html = slot.id
+    ? '<button class="btn block" type="button" data-act="assign" data-id="">Leave this shift open</button>'
+    : '';
+
+  if (q.length < 2) {
+    html += '<div class="h3">' + (team ? 'Team ' + esc(team) + ' – or search any name above' : 'Type at least two letters') + '</div>';
+  }
+
+  if (list.length) {
+    html += '<div class="results">' + list.map(a => {
+      const busy = overlaps(a.id, slot);
+      return '<button class="result" type="button" data-act="assign" data-id="' + esc(a.id) + '">' +
+        '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+        '<span><span class="result-name">' + esc(a.name) + '</span>' +
+        '<span class="result-sub' + (busy.length ? ' busy' : '') + '">' + esc(a.team || 'No team') + ' · ' +
+        (busy.length ? 'Busy ' + esc(timeText(busy[0])) + ' at ' + esc(busy[0].pos.label) : 'Free at this time') +
+        '</span></span></button>';
+    }).join('') + '</div>';
+  } else if (q.length >= 2) {
+    html += '<div class="empty">No attendant found.</div>';
+  }
+
+  box.innerHTML = html;
+}
+
+function askAssign(id) {
+  const top = topPanel();
+  const slot = top && findSlot(top.row);
+  if (!slot) return;
+
+  const warnings = [];
+  if (id) {
+    const a = D.att[id];
+    overlaps(id, slot).forEach(x => warnings.push('Already on duty ' + timeText(x) + ' at ' + x.pos.label + '.'));
+    const team = positionTeam(slot.pos);
+    if (team && a.team && a.team !== team) warnings.push('He is in team ' + a.team + ', this position is usually team ' + team + '.');
+  }
+
+  const text = '<p class="muted">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) +
+    '<br>Currently: ' + esc(nameOf(slot.id)) + '</p>' +
+    (warnings.length ? '<div class="warn-list">' + warnings.map(esc).join('<br>') + '</div>' : '');
+
+  confirmBox(id ? 'Assign ' + D.att[id].name + '?' : 'Leave this shift open?', text,
+    id ? 'Assign' : 'Leave open', () => doAssign(slot, id));
+}
+
+// ---------- ACCESS ----------
+
+function renderAccess(force) {
+  const body = $('#panelBody');
+  if (body.dataset.view === 'access' && !force) return;
+  body.dataset.view = 'access';
+
+  const me = S.me && D.att[S.me];
+  let html = backBar() +
+    '<h2>Access</h2><p class="sub">This phone: <span class="role-badge">' + esc(ROLE_LABEL[S.role] || '—') + '</span></p>' +
+    '<div class="form-card"><strong>Your name</strong><p class="muted">' +
+      (me ? esc(me.name) + ' (' + esc(me.team || 'No team') + ')' : 'Not chosen yet. Choose it under My duty.') + '</p></div>' +
+    '<div class="form-card"><strong>Use another code</strong>' +
+      '<p class="muted">For example the check-in code for the Welcome team.</p>' +
+      '<div class="form-row"><input id="upgradeInput" type="password" autocomplete="off" autocapitalize="off" placeholder="Access code" aria-label="Access code">' +
+      '<button class="btn primary" type="button" data-act="upgrade">Use</button></div>' +
+      '<div class="lock-error" id="upgradeMsg" role="alert"></div></div>';
+
+  if (can('admin')) html += adminHtml();
+
+  html += '<button class="btn danger block" type="button" data-act="signout">Sign out on this phone</button>';
+  body.innerHTML = html;
+
+  if (can('admin') && !S.admin) loadAdmin();
+}
+
+function adminHtml() {
+  let h = '<div class="h3">Access codes · admin</div>';
+  if (!S.admin) return h + '<div class="empty">Loading…</div>';
+  if (!S.admin.pins) return h + '<div class="note">' + esc(S.admin.error || 'Could not load the codes.') + '</div>';
+
+  const pins = S.admin.pins;
+  h += '<p class="muted" style="margin:0 2px 12px">Codes are stored securely and cannot be shown again. Changing a code signs out every phone that uses the old one.</p>';
+  ['viewer', 'checkin', 'editor', 'admin'].forEach(r => {
+    h += '<div class="form-card"><div class="code-head"><strong>' + ROLE_LABEL[r] + '</strong>' +
+      '<span class="code-state ' + (pins[r] ? 'set' : 'unset') + '">' + (pins[r] ? 'Set' : 'Not set') + '</span></div>' +
+      '<p class="muted">' + ROLE_DESC[r] + '</p>' +
+      '<div class="form-row"><input id="pin-' + r + '" type="password" autocomplete="new-password" autocapitalize="off" placeholder="New code" aria-label="New ' + ROLE_LABEL[r] + ' code">' +
+      '<button class="btn primary" type="button" data-act="setpin" data-role="' + r + '">Save</button></div>' +
+      ((r === 'checkin' || r === 'editor') && pins[r]
+        ? '<button class="linkish" type="button" data-act="clearpin" data-role="' + r + '">Remove this code</button>' : '') +
+      '</div>';
+  });
+  return h;
+}
+
+// =====================================================
+// IMAGE OVERLAY
+// =====================================================
 
 function openOverlay(src, alt) {
   const img = $('#overlayImg');
@@ -1180,13 +1906,6 @@ function closeOverlay() {
 // EVENTS
 // =====================================================
 
-function setTab(tab) {
-  const valid = ['me', 'positions', 'teams', 'maps'];
-  S.tab = valid.indexOf(tab) >= 0 ? tab : 'me';
-  render();
-  window.scrollTo(0, 0);
-}
-
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]');
   if (!el) return;
@@ -1194,42 +1913,106 @@ document.addEventListener('click', e => {
 
   switch (act) {
     case 'tab':
-      if (S.panel) closePanel();
-      if (location.hash.slice(1) === el.dataset.tab) setTab(el.dataset.tab);
-      else location.hash = el.dataset.tab;
+      clearPanels();
+      S.tab = el.dataset.tab;
+      if (!S.ignorePop) history.replaceState(history.state, '', '#' + S.tab);
+      render();
+      window.scrollTo(0, 0);
       break;
 
-    case 'person': {
-      S.viewId = el.dataset.id;
-      S.query = '';
-      const q = $('#q');
-      if (q) { q.value = ''; q.blur(); }
-      if (S.panel) closePanel();
-      if (S.tab !== 'me') location.hash = 'me';
-      else { render(); window.scrollTo(0, 0); }
+    case 'person': pushPanel({ type: 'person', id: el.dataset.id }); break;
+
+    case 'pos':
+      S.panelMap = false;
+      pushPanel({ type: 'pos', key: el.dataset.key, row: el.dataset.row ? Number(el.dataset.row) : null });
+      break;
+
+    case 'edit-slot':
+      S.pickQuery = '';
+      pushPanel({ type: 'pick', row: Number(el.dataset.row) });
+      break;
+
+    case 'assign': askAssign(el.dataset.id); break;
+    case 'back': backPanel(); break;
+    case 'area': S.area = el.dataset.area; render(); break;
+    case 'team': S.team = el.dataset.team; renderTeamsBody(clock()); break;
+    case 'cifilter': S.ciFilter = el.dataset.f; renderCheckinBody(clock()); break;
+
+    case 'identify': {
+      const a = D.att[el.dataset.id];
+      if (!a) break;
+      confirmBox('Are you ' + a.name + '?',
+        '<p class="muted">Team: ' + esc(a.team || 'No team') + '<br>Only choose your own name. It is saved on this phone.</p>',
+        'Yes, that’s me', () => {
+          S.me = a.id;
+          store.set(KEY.me, a.id);
+          S.meQuery = '';
+          S.team = null;
+          render();
+          window.scrollTo(0, 0);
+        });
       break;
     }
 
-    case 'pos': openPanel(el.dataset.key, el.dataset.row); break;
-    case 'close': closePanel(); break;
-    case 'area': S.area = el.dataset.area; render(); break;
-
-    case 'setme':
-      S.me = el.dataset.id;
-      S.viewId = null;
-      store.set(ME_KEY, S.me);
-      render();
+    case 'change-me':
+      confirmBox('Change the name?',
+        '<p class="muted">Do this only if the wrong name was chosen or this is not your phone.</p>',
+        'Change name', () => {
+          S.me = null;
+          store.del(KEY.me);
+          S.meQuery = '';
+          render();
+          window.scrollTo(0, 0);
+        });
       break;
 
-    case 'forgetme':
-      S.me = null;
-      S.viewId = null;
-      store.del(ME_KEY);
-      render();
+    case 'ci': {
+      const a = D.att[el.dataset.id];
+      if (!a || S.pending[a.id]) break;
+      if (a.checkedIn) {
+        confirmBox('Undo check-in for ' + a.name + '?',
+          '<p class="muted">Only if he was checked in by mistake.</p>',
+          'Undo check-in', () => doCheckin(a.id, false));
+      } else {
+        doCheckin(a.id, true);
+      }
+      break;
+    }
+
+    case 'access':
+      if (!S.pin || !D) break;
+      S.admin = null;
+      pushPanel({ type: 'access' });
       break;
 
-    case 'mine': S.viewId = null; render(); break;
-    case 'refresh': if (!S.busy) load(true); break;
+    case 'upgrade': upgradeCode(); break;
+
+    case 'setpin': {
+      const r = el.dataset.role;
+      const input = $('#pin-' + r);
+      const v = input ? input.value.trim() : '';
+      if (!v) { toast('Enter the new code first', 'error'); break; }
+      confirmBox('Change the ' + ROLE_LABEL[r] + ' code?',
+        '<p class="muted">Phones using the old code are signed out and need the new one.</p>',
+        'Change code', () => savePin(r, v));
+      break;
+    }
+
+    case 'clearpin': {
+      const r = el.dataset.role;
+      confirmBox('Remove the ' + ROLE_LABEL[r] + ' code?',
+        '<p class="muted">Nobody can use this access level until a new code is set.</p>',
+        'Remove', () => savePin(r, ''));
+      break;
+    }
+
+    case 'signout':
+      confirmBox('Sign out on this phone?',
+        '<p class="muted">The access code will be needed again. The chosen name stays saved.</p>',
+        'Sign out', () => logout(''));
+      break;
+
+    case 'refresh': if (!S.busy && S.pin) load(true); break;
 
     case 'togglemap':
       S.panelMap = !S.panelMap;
@@ -1238,50 +2021,109 @@ document.addEventListener('click', e => {
 
     case 'zoom': openOverlay(el.dataset.src, el.dataset.alt); break;
     case 'overlay-close': closeOverlay(); break;
+
+    case 'modal-ok': {
+      const f = modalAction;
+      hideModal();
+      if (f) f();
+      break;
+    }
+    case 'modal-cancel': hideModal(); break;
   }
 });
 
 $('#overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeOverlay(); });
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') hideModal(); });
 
 document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'upgradeInput') { upgradeCode(); return; }
   if (e.key !== 'Escape') return;
-  if ($('#overlay').classList.contains('open')) closeOverlay();
-  else if (S.panel) closePanel();
+  if (!$('#modal').hidden) hideModal();
+  else if ($('#overlay').classList.contains('open')) closeOverlay();
+  else if (S.stack.length) backPanel();
 });
-
-window.addEventListener('hashchange', () => setTab(location.hash.slice(1)));
 
 window.addEventListener('popstate', () => {
   closeOverlay();
-  if (S.panel) closePanel(true);
+  hideModal();
+  if (S.ignorePop) { S.ignorePop = false; return; }
+  if (S.stack.length) popPanel();
 });
 
 window.addEventListener('scroll', () => {
   $('#top').classList.toggle('scrolled', window.scrollY > 4);
 }, { passive: true });
 
+function typing() {
+  const a = document.activeElement;
+  return a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA');
+}
+
 // Status jede halbe Minute neu berechnen (nicht während der Eingabe)
 setInterval(() => {
-  if (document.hidden || !D) return;
-  const q = $('#q');
-  if (q && document.activeElement === q) return;
+  if (document.hidden || !D || !S.pin || typing()) return;
   render();
 }, TICK_MS);
 
 // Daten regelmäßig neu laden
 setInterval(() => {
-  if (!document.hidden && !DEMO && !S.busy) load(false);
+  if (document.hidden || !S.pin || S.busy || DEMO || typing() || Object.keys(S.pending).length) return;
+  load(false);
 }, REFRESH_MS);
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden || DEMO || S.busy) return;
+  if (document.hidden || !S.pin || DEMO || S.busy) return;
   if (!S.loadedAt || Date.now() - S.loadedAt > REFRESH_MS) load(false);
   else render();
 });
 
 // =====================================================
-// DEMO DATA (nur ohne API_URL oder mit ?demo)
+// DEMO (nur ohne API_URL oder mit ?demo) – Änderungen bleiben im Browser
 // =====================================================
+
+let DEMO_SRC = null;
+let DEMO_PINS = { admin: true, editor: false, checkin: false, viewer: true };
+
+function demoApi(action, p) {
+  if (!DEMO_SRC) DEMO_SRC = demoData();
+  return new Promise((resolve, reject) => setTimeout(() => {
+    try {
+      switch (action) {
+        case 'bootstrap':
+          resolve(Object.assign(JSON.parse(JSON.stringify(DEMO_SRC)), { role: 'admin' }));
+          break;
+        case 'checkin': {
+          const a = DEMO_SRC.attendants.find(x => x.id === p.id);
+          if (!a) throw apiError('not_found');
+          a.checkedIn = p.value !== false;
+          resolve({ ok: true });
+          break;
+        }
+        case 'assign': {
+          let slot = null;
+          DEMO_SRC.positions.forEach(x => x.slots.forEach(s => { if (s.row === p.row) slot = s; }));
+          if (!slot) throw apiError('not_a_shift');
+          if ((slot.id || '') !== (p.expectedId || '')) throw apiError('conflict');
+          slot.id = p.newId || '';
+          resolve({ ok: true });
+          break;
+        }
+        case 'adminStatus':
+          resolve({ ok: true, pins: Object.assign({}, DEMO_PINS) });
+          break;
+        case 'setPin':
+          if (p.newPin && (p.newPin.length < 4 || (p.target === 'admin' && p.newPin.length < 6))) throw apiError('too_short');
+          DEMO_PINS[p.target] = !!p.newPin;
+          resolve({ ok: true, pins: Object.assign({}, DEMO_PINS) });
+          break;
+        default:
+          throw apiError('unknown_action');
+      }
+    } catch (err) {
+      reject(err);
+    }
+  }, 200));
+}
 
 function demoData() {
   const today = tzNow('Europe/Berlin').date;
@@ -1318,6 +2160,12 @@ function demoData() {
   const counters = {};
   const positions = [];
   let row = 3;
+
+  positions.push({
+    key: 'Main Entrance / Lobby||TEAM CAPTAIN', area: 'Main Entrance / Lobby', label: 'TEAM CAPTAIN', no: 'TC', type: 'tc', row: 2,
+    slots: [{ start: null, end: null, allDay: true, raw: '', id: pools.LOBBY[0], remark: 'counting Lobby / Block J', row: 2 }]
+  });
+
   plan.forEach(([area, label, team, limit]) => {
     const pool = pools[team];
     counters[team] = counters[team] || 0;
@@ -1331,8 +2179,8 @@ function demoData() {
     row++;
   });
 
-  positions[8].slots[5].id = '';
-  positions[0].slots[0].remark = 'Doors open at 07:30';
+  positions[9].slots[5].id = '';
+  positions[1].slots[0].remark = 'Doors open at 07:30';
 
   positions.push({
     key: 'Stage||Team Captain', area: 'Stage', label: 'Team Captain', no: 'TC', type: 'tc', row: row,
@@ -1344,7 +2192,7 @@ function demoData() {
     version: 'demo',
     generatedAt: new Date().toISOString(),
     event: { date: today, timeZone: 'Europe/Berlin', soonMinutes: 15 },
-    areas: ['Auditorium', 'Main Entrance / Lobby', 'Welcome', 'Cafeteria', 'Balcony', 'Stage'],
+    areas: ['Main Entrance / Lobby', 'Auditorium', 'Welcome', 'Cafeteria', 'Balcony', 'Stage'],
     attendants,
     positions
   };
@@ -1355,14 +2203,20 @@ function demoData() {
 // =====================================================
 
 (function start() {
-  S.tab = ['me', 'positions', 'teams', 'maps'].indexOf(location.hash.slice(1)) >= 0 ? location.hash.slice(1) : 'me';
+  store.del('aa-cache-v1'); // alte, ungeschützte Zwischenablage entfernen
+  const h = location.hash.slice(1);
+  if (TABS.indexOf(h) >= 0) S.tab = h;
 
-  if (!DEMO) {
+  if (S.pin && !DEMO) {
     const cached = readCache();
-    if (cached) { D = indexData(cached.data); S.loadedAt = cached.at; }
+    if (cached) {
+      D = indexData(cached.data);
+      S.role = cached.data.role || null;
+      S.loadedAt = cached.at;
+    }
   }
   render();
-  load(false);
+  if (S.pin) load(false);
 })();
 </script>
 </body>
