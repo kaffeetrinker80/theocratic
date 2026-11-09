@@ -309,6 +309,11 @@
       font-weight: 650;
     }
     .chip.active { background: var(--accent); border-color: var(--accent); color: var(--card); }
+    .chips.sub { margin-top: -4px; padding-bottom: 12px; }
+    .chips.sub .chip { min-height: 36px; padding: 0 13px; font-size: 14px; background: var(--chip); border-color: transparent; }
+    .chips.sub .chip.active { background: var(--text); color: var(--bg); }
+    .block-head { margin: 18px 2px 8px; font-size: 15px; font-weight: 800; letter-spacing: .01em; }
+    .block-head span { margin-left: 6px; color: var(--muted); font-weight: 600; font-size: 13px; }
 
     .pos-card {
       display: block;
@@ -475,20 +480,41 @@
     }
     .tabbar-in { display: grid; grid-template-columns: repeat(var(--tabs, 4), 1fr); max-width: 760px; margin: 0 auto; }
     .tab {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 3px;
-      min-height: 62px;
-      padding: 9px 4px 8px;
+      min-height: 64px;
+      padding: 8px 2px 8px;
       border: 0;
       background: none;
       color: var(--muted);
       font-size: 12px;
-      font-weight: 650;
+      font-weight: 600;
     }
-    .tab svg { width: 24px; height: 24px; }
-    .tab.active { color: var(--accent); }
+    .tab-ico {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 30px;
+      border-radius: 999px;
+      transition: background .15s ease;
+    }
+    .tab svg { width: 23px; height: 23px; }
+    .tab.active { color: var(--accent); font-weight: 800; }
+    .tab.active .tab-ico { background: var(--accent); color: var(--card); }
+    .tab.active svg { stroke-width: 2.2; }
+    .tab.active::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: 22%;
+      right: 22%;
+      height: 3px;
+      border-radius: 0 0 3px 3px;
+      background: var(--accent);
+    }
 
     /* FOOTER */
 
@@ -691,7 +717,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.5.0';
+const VERSION = '0.5.1';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -791,6 +817,7 @@ const S = {
   ignorePop: false,
   panelMap: false,
   area: null,
+  block: 'all',
   team: null,
   meQuery: '',
   teamQuery: '',
@@ -1446,7 +1473,7 @@ function renderTabbar() {
   bar.style.setProperty('--tabs', tabs.length);
   bar.innerHTML = tabs.map(t =>
     '<button class="tab' + (t === S.tab ? ' active' : '') + '" type="button" data-act="tab" data-tab="' + t + '">' +
-    TAB_ICON[t] + TAB_LABEL[t] + '</button>'
+    '<span class="tab-ico">' + TAB_ICON[t] + '</span>' + TAB_LABEL[t] + '</button>'
   ).join('');
 }
 
@@ -1539,29 +1566,86 @@ function renderIdentifyList() {
 
 // ---------- POSITIONS ----------
 
+// Positionen werden nach dem Team der eingeteilten Brüder gruppiert
+// (Block J mit Lobby-Brüdern landet so automatisch bei Lobby).
+// Ist eine Position noch ganz offen, zählt die Überschrift im Sheet.
+function blockOf(p) {
+  const m = /\bblock\s*([A-Z])\b/i.exec(p.label + ' ' + (p.area || ''));
+  return m ? m[1].toUpperCase() : '';
+}
+
+function positionGroups() {
+  const list = [];
+  const map = {};
+  D.positions.forEach(p => {
+    const team = positionTeam(p);
+    const key = team || p.area;
+    if (!map[key]) {
+      map[key] = { key: key, label: team || p.area, positions: [] };
+      list.push(map[key]);
+    }
+    map[key].positions.push(p);
+  });
+  return list;
+}
+
+function posCard(p, c) {
+  const nn = positionNowNext(p, c);
+  const open = p.slots.filter(s => !s.id).length;
+  const cell = (label, s, isNow) =>
+    '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
+    (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+       : '<div class="duo-name">—</div>') + '</div>';
+
+  return '<button class="pos-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
+    '<div class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</div>' +
+    '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>' +
+    '</button>';
+}
+
 function renderPositions(c) {
   main.dataset.view = 'positions';
-  if (!S.area || D.areas.indexOf(S.area) < 0) S.area = D.areas[0];
+  const groups = positionGroups();
+  if (!groups.length) { main.innerHTML = '<div class="empty">No positions in the schedule.</div>'; return; }
 
-  const chips = '<div class="chips">' + D.areas.map(a =>
-    '<button class="chip' + (a === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(a) + '">' + esc(a) + '</button>'
+  if (!S.area || !groups.some(g => g.key === S.area)) {
+    const mine = S.me && D.att[S.me] && D.att[S.me].team;
+    S.area = groups.some(g => g.key === mine) ? mine : groups[0].key;
+    S.block = 'all';
+  }
+  const group = groups.find(g => g.key === S.area);
+
+  let html = '<div class="chips">' + groups.map(g =>
+    '<button class="chip' + (g.key === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
+    '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) +
+    '<span class="chip-count">' + g.positions.length + '</span></button>'
   ).join('') + '</div>';
 
-  const cards = D.positions.filter(p => p.area === S.area).map(p => {
-    const nn = positionNowNext(p, c);
-    const open = p.slots.filter(s => !s.id).length;
-    const cell = (label, s, isNow) =>
-      '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
-      (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
-         : '<div class="duo-name">—</div>') + '</div>';
+  const blocks = Array.from(new Set(group.positions.map(blockOf).filter(Boolean))).sort();
+  if (S.block !== 'all' && blocks.indexOf(S.block) < 0) S.block = 'all';
 
-    return '<button class="pos-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
-      '<div class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</div>' +
-      '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>' +
-      '</button>';
-  }).join('');
+  if (blocks.length >= 2) {
+    html += '<div class="chips sub">' + ['all'].concat(blocks).map(b =>
+      '<button class="chip' + (b === S.block ? ' active' : '') + '" type="button" data-act="pblock" data-block="' + b + '">' +
+      (b === 'all' ? 'All' : 'Block ' + b) + '</button>'
+    ).join('') + '</div>';
+  }
 
-  main.innerHTML = chips + (cards || '<div class="empty">No positions in this area.</div>');
+  if (S.block !== 'all') {
+    html += group.positions.filter(p => blockOf(p) === S.block).map(p => posCard(p, c)).join('');
+  } else if (blocks.length) {
+    const loose = group.positions.filter(p => !blockOf(p));
+    html += loose.map(p => posCard(p, c)).join('');
+    blocks.forEach(b => {
+      const inBlock = group.positions.filter(p => blockOf(p) === b);
+      html += '<div class="block-head">Block ' + b + '<span>' + inBlock.length + (inBlock.length === 1 ? ' position' : ' positions') + '</span></div>' +
+        inBlock.map(p => posCard(p, c)).join('');
+    });
+  } else {
+    html += group.positions.map(p => posCard(p, c)).join('');
+  }
+
+  main.innerHTML = html;
 }
 
 // ---------- TEAMS ----------
@@ -2016,7 +2100,8 @@ document.addEventListener('click', e => {
 
     case 'assign': askAssign(el.dataset.id); break;
     case 'back': backPanel(); break;
-    case 'area': S.area = el.dataset.area; render(); break;
+    case 'area': S.area = el.dataset.area; S.block = 'all'; render(); window.scrollTo(0, 0); break;
+    case 'pblock': S.block = el.dataset.block; render(); break;
     case 'team': S.team = el.dataset.team; renderTeamsBody(clock()); break;
     case 'cifilter': S.ciFilter = el.dataset.f; renderCheckinBody(clock()); break;
 
@@ -2244,7 +2329,7 @@ function demoData() {
   const plan = [
     ['Auditorium', '1 - Block A', 'AUDITORIUM'], ['Auditorium', '2 - Block A', 'AUDITORIUM'],
     ['Auditorium', '3 - Block B', 'AUDITORIUM'], ['Auditorium', '4 - Block C', 'AUDITORIUM'],
-    ['Main Entrance / Lobby', 'Lobby 10', 'LOBBY'], ['Main Entrance / Lobby', 'Lobby 11', 'LOBBY'],
+    ['Main Entrance / Lobby', 'Lobby 10', 'LOBBY'], ['Auditorium', '30 - Block J', 'LOBBY'],
     ['Welcome', 'Welcome 20', 'WELCOME', 3],
     ['Cafeteria', 'Cafeteria 33', 'CAFETERIA'], ['Cafeteria', 'Cafeteria 34', 'CAFETERIA'],
     ['Balcony', '42 - Balcony', 'AUDITORIUM']
