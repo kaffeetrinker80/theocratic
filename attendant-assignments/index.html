@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" id="themeLight">
+  <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)" id="themeDark">
   <title>Attendant Assignments</title>
+  <script>
+    try {
+      var t = localStorage.getItem('aa-theme-v1');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
 
   <style>
     :root {
@@ -34,8 +40,34 @@
       --danger-border: #efc2be;
     }
 
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #15181c;
+      --card: #1e2227;
+      --text: #e8eaed;
+      --muted: #9aa3ad;
+      --border: #2e343b;
+      --chip: #2a2f35;
+      --accent: #8cb8d6;
+      --accent-soft: #22303a;
+      --accent-border: #3b5566;
+      --on: #7fc497;
+      --on-soft: #1b2b21;
+      --on-border: #2f5a3d;
+      --soon: #f0a860;
+      --soon-soft: #33271a;
+      --soon-border: #5e4526;
+      --done: #6f7780;
+      --warn-soft: #2f2a1a;
+      --warn-border: #5a4d26;
+      --tabbar: rgba(30, 34, 39, .94);
+      --danger: #f2b8b5;
+      --danger-soft: #3a2120;
+      --danger-border: #6a3532;
+    }
+
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-theme="light"]) {
         color-scheme: dark;
         --bg: #15181c;
         --card: #1e2227;
@@ -555,6 +587,9 @@
     .ci-btn.in { background: var(--on); border-color: var(--on); color: var(--card); }
     .ci-btn[disabled] { opacity: .6; }
 
+    .check-line { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-border); font-size: 15px; font-weight: 600; }
+    .check-line input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex: 0 0 auto; }
+
     /* MODAL + TOAST */
 
     .modal {
@@ -656,14 +691,17 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1' };
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1' };
+
+// Reserve-Brüder: Team in Spalte C (Großschreibung egal)
+const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
 const FEEDBACK_MAIL = 'cryptopower@outlook.de';
 
 // Lagepläne: zuerst Stichworte (in dieser Reihenfolge), dann Nummernbereiche.
@@ -691,11 +729,11 @@ const TEAM_COLORS = {
 };
 
 const ROLE_LEVEL = { viewer: 1, checkin: 2, editor: 3, admin: 4 };
-const ROLE_LABEL = { viewer: 'View', checkin: 'Check-in', editor: 'Shift editor', admin: 'Admin' };
+const ROLE_LABEL = { viewer: 'View', checkin: 'Check-in', editor: 'Co-Admin', admin: 'Admin' };
 const ROLE_DESC = {
   viewer: 'See the schedule, positions and teams.',
-  checkin: 'View + check attendants in (Welcome team).',
-  editor: 'Check-in + assign shifts to another attendant.',
+  checkin: 'View + check attendants in (Welcome team and team captains).',
+  editor: 'Check-in + change shifts. No access to these codes.',
   admin: 'Everything + manage these codes.'
 };
 
@@ -710,7 +748,8 @@ const ERR = {
   too_short: 'The code is too short (at least 4 characters, admin code at least 6).',
   duplicate: 'This code is already used for another access level.',
   required: 'This code cannot be removed.',
-  bad_request: 'The request was incomplete.'
+  bad_request: 'The request was incomplete.',
+  unknown_team: 'This team does not exist in the Attendants list.'
 };
 
 const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
@@ -787,6 +826,25 @@ function fmtMin(m) {
 }
 
 const byName = (a, b) => a.name.localeCompare(b.name);
+
+function isReserve(team) {
+  return RESERVE_TEAMS.indexOf(String(team || '').trim().toUpperCase()) >= 0;
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+  else delete root.dataset.theme;
+  const light = $('#themeLight'), dark = $('#themeDark');
+  if (theme === 'light' || theme === 'dark') {
+    const color = theme === 'dark' ? '#15181c' : '#f4f5f7';
+    light.setAttribute('content', color); light.removeAttribute('media');
+    dark.setAttribute('content', color); dark.removeAttribute('media');
+  } else {
+    light.setAttribute('content', '#f4f5f7'); light.setAttribute('media', '(prefers-color-scheme: light)');
+    dark.setAttribute('content', '#15181c'); dark.setAttribute('media', '(prefers-color-scheme: dark)');
+  }
+}
 
 function can(min) {
   return (ROLE_LEVEL[S.role] || 0) >= ROLE_LEVEL[min];
@@ -977,7 +1035,7 @@ function positionTeam(p) {
   const count = {};
   p.slots.forEach(s => {
     const a = s.id && D.att[s.id];
-    if (a && a.team) count[a.team] = (count[a.team] || 0) + 1;
+    if (a && a.team && !isReserve(a.team)) count[a.team] = (count[a.team] || 0) + 1;
   });
   let best = null;
   Object.keys(count).forEach(t => { if (!best || count[t] > count[best]) best = t; });
@@ -1094,10 +1152,12 @@ async function doCheckin(id, value) {
   }
 }
 
-async function doAssign(slot, newId) {
+async function doAssign(slot, newId, setTeam) {
   try {
-    await api('assign', { row: slot.row, expectedId: slot.id || '', newId: newId, by: S.me || '' });
-    toast(newId ? nameOf(newId) + ' assigned' : 'The shift is open now');
+    const res = await api('assign', { row: slot.row, expectedId: slot.id || '', newId: newId, by: S.me || '', setTeam: setTeam || '' });
+    toast(newId
+      ? nameOf(newId) + ' assigned' + (res && res.team ? ' · now in team ' + res.team : '')
+      : 'The shift is open now');
     backPanel();
     await load(true);
   } catch (err) {
@@ -1794,6 +1854,8 @@ function renderPickList(slot) {
     ? D.attendants.filter(a => norm(a.name).includes(q))
     : (team ? D.attendants.filter(a => a.team === team) : []);
   list = list.filter(a => a.id !== slot.id).sort(byName).slice(0, 40);
+  const reserves = q.length >= 2 ? [] :
+    D.attendants.filter(a => isReserve(a.team) && a.id !== slot.id && String(a.team || '').trim()).sort(byName);
 
   let html = slot.id
     ? '<button class="btn block" type="button" data-act="assign" data-id="">Leave this shift open</button>'
@@ -1803,8 +1865,7 @@ function renderPickList(slot) {
     html += '<div class="h3">' + (team ? 'Team ' + esc(team) + ' – or search any name above' : 'Type at least two letters') + '</div>';
   }
 
-  if (list.length) {
-    html += '<div class="results">' + list.map(a => {
+  const rowsHtml = arr => '<div class="results">' + arr.map(a => {
       const busy = overlaps(a.id, slot);
       return '<button class="result" type="button" data-act="assign" data-id="' + esc(a.id) + '">' +
         '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
@@ -1813,8 +1874,14 @@ function renderPickList(slot) {
         (busy.length ? 'Busy ' + esc(timeText(busy[0])) + ' at ' + esc(busy[0].pos.label) : 'Free at this time') +
         '</span></span></button>';
     }).join('') + '</div>';
+
+  if (list.length) {
+    html += rowsHtml(list);
   } else if (q.length >= 2) {
     html += '<div class="empty">No attendant found.</div>';
+  }
+  if (reserves.length) {
+    html += '<div class="h3">Reserve</div>' + rowsHtml(reserves);
   }
 
   box.innerHTML = html;
@@ -1826,19 +1893,28 @@ function askAssign(id) {
   if (!slot) return;
 
   const warnings = [];
+  let moveTeam = '';
   if (id) {
     const a = D.att[id];
     overlaps(id, slot).forEach(x => warnings.push('Already on duty ' + timeText(x) + ' at ' + x.pos.label + '.'));
     const team = positionTeam(slot.pos);
-    if (team && a.team && a.team !== team) warnings.push('He is in team ' + a.team + ', this position is usually team ' + team + '.');
+    if (team && isReserve(a.team)) {
+      moveTeam = team;
+    } else if (team && a.team && a.team !== team) {
+      warnings.push('He is in team ' + a.team + ', this position is usually team ' + team + '.');
+    }
   }
 
   const text = '<p class="muted">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) +
     '<br>Currently: ' + esc(nameOf(slot.id)) + '</p>' +
-    (warnings.length ? '<div class="warn-list">' + warnings.map(esc).join('<br>') + '</div>' : '');
+    (warnings.length ? '<div class="warn-list">' + warnings.map(esc).join('<br>') + '</div>' : '') +
+    (moveTeam ? '<label class="check-line"><input type="checkbox" id="moveTeam" checked> Also move him from reserve to team ' + esc(moveTeam) + '</label>' : '');
 
   confirmBox(id ? 'Assign ' + D.att[id].name + '?' : 'Leave this shift open?', text,
-    id ? 'Assign' : 'Leave open', () => doAssign(slot, id));
+    id ? 'Assign' : 'Leave open', () => {
+      const box = $('#moveTeam');
+      doAssign(slot, id, moveTeam && box && box.checked ? moveTeam : '');
+    });
 }
 
 // ---------- ACCESS ----------
@@ -1854,10 +1930,16 @@ function renderAccess(force) {
     '<div class="form-card"><strong>Your name</strong><p class="muted">' +
       (me ? esc(me.name) + ' (' + esc(me.team || 'No team') + ')' : 'Not chosen yet. Choose it under My duty.') + '</p></div>' +
     '<div class="form-card"><strong>Use another code</strong>' +
-      '<p class="muted">For example the check-in code for the Welcome team.</p>' +
+      '<p class="muted">For example the check-in code for the Welcome team and team captains.</p>' +
       '<div class="form-row"><input id="upgradeInput" type="password" autocomplete="off" autocapitalize="off" placeholder="Access code" aria-label="Access code">' +
       '<button class="btn primary" type="button" data-act="upgrade">Use</button></div>' +
       '<div class="lock-error" id="upgradeMsg" role="alert"></div></div>';
+
+  const theme = store.get(KEY.theme) || 'auto';
+  html += '<div class="form-card"><strong>Appearance</strong><p class="muted">Saved on this phone.</p>' +
+    '<div class="seg" style="margin:12px 0 0">' + [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].map(t =>
+      '<button type="button" class="' + (theme === t[0] ? 'active' : '') + '" data-act="theme" data-theme="' + t[0] + '">' + t[1] + '</button>'
+    ).join('') + '</div></div>';
 
   if (can('admin')) html += adminHtml();
 
@@ -1987,6 +2069,14 @@ document.addEventListener('click', e => {
 
     case 'upgrade': upgradeCode(); break;
 
+    case 'theme': {
+      const t = el.dataset.theme;
+      if (t === 'auto') store.del(KEY.theme); else store.set(KEY.theme, t);
+      applyTheme(t);
+      el.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === el));
+      break;
+    }
+
     case 'setpin': {
       const r = el.dataset.role;
       const input = $('#pin-' + r);
@@ -2105,7 +2195,10 @@ function demoApi(action, p) {
           if (!slot) throw apiError('not_a_shift');
           if ((slot.id || '') !== (p.expectedId || '')) throw apiError('conflict');
           slot.id = p.newId || '';
-          resolve({ ok: true });
+          let team = '';
+          const a = DEMO_SRC.attendants.find(x => x.id === p.newId);
+          if (a && p.setTeam && isReserve(a.team)) { a.team = p.setTeam; team = p.setTeam; }
+          resolve({ ok: true, team: team });
           break;
         }
         case 'adminStatus':
@@ -2132,7 +2225,7 @@ function demoData() {
     'Johnson', 'Kowalski', 'Lee', 'Mensah', 'Novak', 'Owusu', 'Peters', 'Quinn', 'Richter', 'Silva',
     'Turner', 'Usman', 'Vogel', 'Walker', 'Young', 'Zimmer', 'Bauer', 'Okafor', 'Rossi', 'Keller', 'Wagner',
     'Hoffmann', 'Schmidt'];
-  const teamsPlan = [['AUDITORIUM', 15], ['LOBBY', 6], ['WELCOME', 3], ['CAFETERIA', 6], ['STAGE', 2]];
+  const teamsPlan = [['AUDITORIUM', 15], ['LOBBY', 6], ['WELCOME', 3], ['CAFETERIA', 6], ['STAGE', 2], ['Unassigned', 3]];
 
   const attendants = [];
   const pools = {};
@@ -2203,6 +2296,7 @@ function demoData() {
 // =====================================================
 
 (function start() {
+  applyTheme(store.get(KEY.theme) || 'auto');
   store.del('aa-cache-v1'); // alte, ungeschützte Zwischenablage entfernen
   const h = location.hash.slice(1);
   if (TABS.indexOf(h) >= 0) S.tab = h;
