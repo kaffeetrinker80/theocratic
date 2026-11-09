@@ -2,643 +2,1368 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  >
-
-  <meta name="theme-color" content="#f4f5f7">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)">
   <title>Attendant Assignments</title>
 
   <style>
     :root {
+      color-scheme: light;
       --bg: #f4f5f7;
       --card: #ffffff;
       --text: #202124;
       --muted: #6b7280;
       --border: #e1e4e8;
-
+      --chip: #eef1f4;
       --accent: #315f7d;
-      --accent-light: #edf4f8;
-
-      --success: #39734a;
-      --success-bg: #edf7ef;
+      --accent-soft: #edf4f8;
+      --accent-border: #b8cbd7;
+      --on: #39734a;
+      --on-soft: #edf7ef;
+      --on-border: #b8d9bf;
+      --soon: #a85a0c;
+      --soon-soft: #fdf0e2;
+      --soon-border: #f0cfa6;
+      --done: #8a8f98;
+      --warn-soft: #fff7e0;
+      --warn-border: #ecd9a0;
+      --tabbar: rgba(255, 255, 255, .92);
     }
 
-    * {
-      box-sizing: border-box;
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --bg: #15181c;
+        --card: #1e2227;
+        --text: #e8eaed;
+        --muted: #9aa3ad;
+        --border: #2e343b;
+        --chip: #2a2f35;
+        --accent: #8cb8d6;
+        --accent-soft: #22303a;
+        --accent-border: #3b5566;
+        --on: #7fc497;
+        --on-soft: #1b2b21;
+        --on-border: #2f5a3d;
+        --soon: #f0a860;
+        --soon-soft: #33271a;
+        --soon-border: #5e4526;
+        --done: #6f7780;
+        --warn-soft: #2f2a1a;
+        --warn-border: #5a4d26;
+        --tabbar: rgba(30, 34, 39, .94);
+      }
     }
 
-    html {
-      -webkit-text-size-adjust: 100%;
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
 
     body {
       margin: 0;
+      min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
     }
 
-    a {
-      color: inherit;
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+    /* HEADER */
+
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      padding-top: env(safe-area-inset-top, 0px);
+      border-bottom: 1px solid transparent;
     }
+    .top.scrolled { border-bottom-color: var(--border); }
 
-    .app {
-      width: 100%;
-      max-width: 760px;
-      margin: 0 auto;
-
-      padding:
-        max(22px, env(safe-area-inset-top))
-        16px
-        max(40px, env(safe-area-inset-bottom));
-    }
-
-    /* HERO */
-
-    .hero {
-      margin-bottom: 24px;
-    }
-
-    .eyebrow {
-      margin-bottom: 7px;
-
-      color: var(--accent);
-
-      font-size: 12px;
-      font-weight: 800;
-
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-
-      font-size: 31px;
-      line-height: 1.08;
-      letter-spacing: -.02em;
-    }
-
-    .subtitle {
-      margin: 0;
-
-      color: var(--muted);
-
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    /* LIVE INFO */
-
-    .live-note {
+    .top-in {
       display: flex;
-      gap: 10px;
-      align-items: flex-start;
-
-      margin: 18px 0 26px;
-
-      padding: 13px 14px;
-
-      background: var(--success-bg);
-
-      border: 1px solid #c9dfce;
-      border-radius: 14px;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+      padding-bottom: 12px;
     }
 
-    .live-dot {
-      width: 9px;
-      height: 9px;
+    .brand { flex: 1; min-width: 0; }
 
+    .brand h1 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.15;
+      letter-spacing: -.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .event-line { margin-top: 3px; color: var(--muted); font-size: 14px; }
+    .event-line strong { color: var(--text); font-weight: 650; }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
       flex: 0 0 auto;
-
-      margin-top: 5px;
-
-      border-radius: 50%;
-
-      background: var(--success);
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--accent);
     }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .icon-btn.busy svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .live-note strong {
-      display: block;
+    svg.i { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-      margin-bottom: 2px;
+    /* BANNER */
 
-      font-size: 14px;
-    }
-
-    .live-note span {
-      display: block;
-
-      color: #526057;
-
+    .banner { display: grid; gap: 8px; margin: 4px 0 14px; }
+    .banner:empty { display: none; }
+    .note {
+      padding: 10px 13px;
+      border-radius: 12px;
+      background: var(--warn-soft);
+      border: 1px solid var(--warn-border);
       font-size: 13px;
       line-height: 1.4;
     }
 
-    /* SECTIONS */
+    /* GENERIC */
 
-    .section {
-      margin-top: 28px;
-    }
-
-    .section-heading {
-      margin: 0 2px 12px;
-
-      color: var(--muted);
-
-      font-size: 13px;
-      font-weight: 800;
-
-      text-transform: uppercase;
-      letter-spacing: .065em;
-    }
-
-    /* FEATURE CARDS */
-
-    .grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .feature {
-      display: block;
-      position: relative;
-
-      min-height: 132px;
-
-      padding: 18px;
-
+    .h3 { margin: 26px 2px 10px; color: var(--muted); font-size: 14px; font-weight: 700; }
+    .empty { padding: 34px 12px; color: var(--muted); text-align: center; line-height: 1.5; }
+    .empty strong { display: block; color: var(--text); font-size: 17px; margin-bottom: 4px; }
+    .btn {
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       background: var(--card);
+      font-weight: 650;
+    }
+    .btn.primary { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+    .btn.block { width: 100%; }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
 
+    /* SEARCH */
+
+    .search { margin: 2px 0 14px; }
+    .search input {
+      width: 100%;
+      height: 52px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      font-size: 17px;
+      outline: none;
+    }
+    .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+    .results { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .result {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 62px;
+      padding: 12px 16px;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      background: none;
+      text-align: left;
+    }
+    .result:last-child { border-bottom: 0; }
+    .result:active { background: var(--accent-soft); }
+    .result-name { display: block; font-size: 16px; font-weight: 650; }
+    .result-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 14px; }
+
+    /* PERSON */
+
+    .person-head { display: flex; align-items: flex-start; gap: 12px; margin: 6px 2px 14px; }
+    .person-head h2 { margin: 0 0 6px; font-size: 26px; line-height: 1.15; letter-spacing: -.01em; }
+    .team-line { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 15px; }
+    .checked { margin-left: auto; padding: 5px 10px; border-radius: 999px; background: var(--on-soft); color: var(--on); font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+    /* The one bold element: the live status of a person */
+    .hero {
+      position: relative;
+      padding: 18px 18px 18px 22px;
+      border-radius: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--accent); }
+    .hero-label { color: var(--muted); font-size: 14px; font-weight: 600; }
+    .hero-big { margin: 2px 0 6px; font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+    .hero-pos { font-size: 18px; font-weight: 700; }
+    .hero-sub { margin-top: 2px; color: var(--muted); font-size: 15px; }
+    .hero.k-on { background: var(--on-soft); border-color: var(--on-border); }
+    .hero.k-on::before { background: var(--on); }
+    .hero.k-on .hero-big { color: var(--on); }
+    .hero.k-soon { background: var(--soon-soft); border-color: var(--soon-border); }
+    .hero.k-soon::before { background: var(--soon); }
+    .hero.k-soon .hero-big { color: var(--soon); }
+    .hero.k-done::before, .hero.k-none::before { background: var(--done); }
+    .hero.k-done .hero-big, .hero.k-none .hero-big { color: var(--done); font-size: 30px; }
+
+    .me-row { display: flex; gap: 10px; margin-top: 12px; }
+    .me-row .btn { flex: 1; }
+    .me-saved { flex: 1; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+    .linkish { border: 0; background: none; color: var(--accent); font-weight: 650; padding: 10px 4px; }
+
+    .slot {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 15px 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      text-align: left;
+    }
+    .slot:active { background: var(--accent-soft); }
+    .slot-time { font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .slot-pos { margin-top: 3px; font-size: 16px; font-weight: 650; }
+    .slot-area { margin-top: 2px; color: var(--muted); font-size: 14px; }
+    .slot-remark { margin-top: 6px; color: var(--muted); font-size: 13px; font-style: italic; }
+    .slot.now { background: var(--on-soft); border-color: var(--on-border); }
+    .slot.past { opacity: .55; }
+
+    .tag { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; vertical-align: 2px; }
+    .tag.now { background: var(--on); color: var(--card); }
+    .tag.sel { background: var(--accent); color: var(--card); }
+    .tag.open { background: var(--soon-soft); color: var(--soon); border: 1px solid var(--soon-border); }
+
+    /* POSITIONS */
+
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 14px; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 0 15px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card);
+      font-weight: 650;
+    }
+    .chip.active { background: var(--accent); border-color: var(--accent); color: var(--card); }
+
+    .pos-card {
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 16px;
       border: 1px solid var(--border);
       border-radius: 18px;
-
-      text-decoration: none;
-
-      transition:
-        transform .12s ease,
-        border-color .12s ease,
-        background .12s ease;
+      background: var(--card);
+      text-align: left;
     }
+    .pos-card:active { background: var(--accent-soft); }
+    .pos-title { font-size: 18px; font-weight: 750; }
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .duo > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); min-width: 0; }
+    .duo > div.now { background: var(--on-soft); }
+    .duo-label { color: var(--muted); font-size: 12px; font-weight: 650; }
+    .duo > div.now .duo-label { color: var(--on); }
+    .duo-name { margin-top: 2px; font-weight: 700; overflow-wrap: anywhere; }
+    .duo-time { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
 
-    .feature:active {
-      transform: scale(.985);
+    /* TEAMS */
 
-      background: var(--accent-light);
-
-      border-color: #b8cbd7;
-    }
-
-    .feature-icon {
+    .team-block { margin-bottom: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+    .team-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--border); border-left: 6px solid var(--team, var(--done)); }
+    .team-name { flex: 1; font-size: 17px; font-weight: 750; }
+    .team-count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .member {
       display: flex;
-
-      width: 42px;
-      height: 42px;
-
       align-items: center;
-      justify-content: center;
-
-      margin-bottom: 13px;
-
-      border-radius: 12px;
-
-      background: var(--accent-light);
-
-      color: var(--accent);
-
-      font-size: 21px;
+      gap: 10px;
+      width: 100%;
+      min-height: 56px;
+      padding: 10px 16px;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      background: none;
+      text-align: left;
     }
-
-    .feature-title {
-      margin-bottom: 5px;
-
-      font-size: 18px;
-      font-weight: 750;
-    }
-
-    .feature-text {
-      max-width: 520px;
-
-      color: var(--muted);
-
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .status {
-      position: absolute;
-
-      top: 15px;
-      right: 15px;
-
-      padding: 4px 8px;
-
-      border-radius: 999px;
-
-      background: var(--success-bg);
-      color: var(--success);
-
-      font-size: 10px;
-      font-weight: 800;
-
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
+    .member:last-child { border-bottom: 0; }
+    .member:active { background: var(--accent-soft); }
+    .member-main { flex: 1; min-width: 0; }
+    .member-name { display: block; font-weight: 650; }
+    .member-status { display: block; margin-top: 1px; color: var(--muted); font-size: 13px; }
+    .member-status.k-on { color: var(--on); font-weight: 650; }
+    .member-status.k-soon { color: var(--soon); font-weight: 650; }
+    .member-status.k-done { color: var(--done); }
+    .tick { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--on-soft); color: var(--on); font-weight: 800; font-size: 14px; }
+    .tick.no { background: var(--chip); color: transparent; }
 
     /* MAPS */
 
-    .maps {
+    .maps { display: grid; gap: 12px; }
+    .map { overflow: hidden; background: var(--card); border: 1px solid var(--border); border-radius: 18px; }
+    .map button { display: block; width: 100%; padding: 0; border: 0; background: var(--chip); }
+    .map img { display: block; width: 100%; height: 190px; object-fit: cover; }
+    .map.no-img img { display: none; }
+    .map.no-img button::after { content: "Map image not found"; display: block; padding: 40px 10px; color: var(--muted); font-size: 14px; }
+    .map-info { padding: 13px 16px 15px; }
+    .map-title { font-size: 17px; font-weight: 750; }
+    .map-text { margin-top: 2px; color: var(--muted); font-size: 14px; line-height: 1.4; }
+
+    /* POSITION PANEL */
+
+    .panel {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      overflow-y: auto;
+      background: var(--bg);
+      transform: translateX(100%);
+      transition: transform .22s ease;
+      visibility: hidden;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+    }
+    .panel.open { transform: none; visibility: visible; }
+    .panel-bar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 12px 0; }
+    .panel h2 { margin: 6px 2px 2px; font-size: 27px; letter-spacing: -.01em; }
+    .panel .sub { margin: 0 2px 16px; color: var(--muted); }
+    .now-box { margin-bottom: 14px; padding: 15px; border-radius: 16px; background: var(--on-soft); border: 1px solid var(--on-border); }
+    .now-box .duo-label { color: var(--on); }
+    .now-name { margin-top: 2px; font-size: 19px; font-weight: 750; }
+    .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .trio > div { padding: 11px; border-radius: 13px; background: var(--card); border: 1px solid var(--border); min-width: 0; }
+    .trio > div.sel { background: var(--accent-soft); border-color: var(--accent-border); }
+    .trio .duo-name { font-size: 14px; }
+    .map-inline { margin: 10px 0 4px; }
+    .map-inline img { display: block; width: 100%; border-radius: 14px; border: 1px solid var(--border); cursor: zoom-in; }
+
+    .rot {
       display: grid;
+      grid-template-columns: 104px 1fr;
       gap: 12px;
-    }
-
-    .map-card {
-      overflow: hidden;
-
-      background: white;
-
-      border: 1px solid var(--border);
-      border-radius: 18px;
-    }
-
-    .map-card img {
-      display: block;
-
+      align-items: center;
       width: 100%;
-      height: 175px;
-
-      object-fit: cover;
-
-      background: #eef0f2;
+      margin-bottom: 8px;
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      text-align: left;
     }
+    .rot.now { background: var(--on-soft); border-color: var(--on-border); }
+    .rot.sel { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .rot.past { opacity: .55; }
+    .rot-time { font-weight: 750; font-variant-numeric: tabular-nums; }
+    .rot-name { font-weight: 650; }
+    .rot-name.open { color: var(--soon); }
+    .rot-remark { margin-top: 3px; color: var(--muted); font-size: 12px; }
 
-    .map-info {
-      padding: 14px 16px 16px;
-    }
+    /* IMAGE OVERLAY */
 
-    .map-title {
-      font-size: 17px;
-      font-weight: 750;
-    }
-
-    .map-text {
-      margin-top: 3px;
-
-      color: var(--muted);
-
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .map-link {
-      display: inline-block;
-
-      margin-top: 10px;
-
-      color: var(--accent);
-
-      font-size: 14px;
+    .overlay { display: none; position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .9); align-items: center; justify-content: center; padding: 14px; }
+    .overlay.open { display: flex; }
+    .overlay img { max-width: 100%; max-height: 92vh; object-fit: contain; }
+    .overlay-close {
+      position: absolute;
+      top: calc(14px + env(safe-area-inset-top, 0px));
+      right: 14px;
+      width: 46px;
+      height: 46px;
+      border: 0;
+      border-radius: 50%;
+      background: #fff;
+      color: #222;
+      font-size: 26px;
       font-weight: 700;
-
-      text-decoration: none;
+      line-height: 1;
     }
+
+    /* TAB BAR */
+
+    .tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      background: var(--tabbar);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .tabbar-in { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 760px; margin: 0 auto; }
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-height: 62px;
+      padding: 9px 4px 8px;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .tab svg { width: 24px; height: 24px; }
+    .tab.active { color: var(--accent); }
 
     /* FOOTER */
 
-    .footer {
-      margin-top: 34px;
-
-      padding-top: 20px;
-
-      border-top: 1px solid var(--border);
-
-      color: var(--muted);
-
-      font-size: 12px;
-      line-height: 1.5;
-    }
+    .footer { margin: 34px 2px 10px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .footer a { color: var(--accent); text-decoration: none; }
 
     @media (min-width: 620px) {
-      .app {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-
-      h1 {
-        font-size: 37px;
-      }
-
-      .grid {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
-      }
-
-      .maps {
-        grid-template-columns:
-          repeat(3, minmax(0, 1fr));
-      }
-
-      .map-card img {
-        height: 150px;
-      }
+      .wrap { padding: 0 24px; }
+      .maps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .map img { height: 160px; }
+      .hero-big { font-size: 46px; }
     }
 
-    @media (hover: hover) and (pointer: fine) {
-      .feature:hover {
-        border-color: #b8cbd7;
-        transform: translateY(-1px);
-      }
-
-      .map-link:hover {
-        text-decoration: underline;
-      }
+    @media (prefers-reduced-motion: reduce) {
+      .panel { transition: none; }
+      .icon-btn.busy svg { animation: none; }
     }
   </style>
 </head>
 
 <body>
 
-  <main class="app">
-
-    <section class="hero">
-
-      <div class="eyebrow">
-        Attendant Service
+  <header class="top" id="top">
+    <div class="wrap top-in">
+      <div class="brand">
+        <h1>Attendant Assignments <span class="version" id="version"></span></h1>
+        <div class="event-line" id="eventLine">Loading the schedule…</div>
       </div>
-
-      <h1>
-        Attendant Assignments
-      </h1>
-
-      <p class="subtitle">
-        Find assignments, check positions, browse teams
-        and view venue position plans.
-        Designed for Circuit Assemblies and Regional Conventions.
-      </p>
-
-    </section>
-
-
-    <div class="live-note">
-
-      <div class="live-dot"></div>
-
-      <div>
-        <strong>
-          Live event data
-        </strong>
-
-        <span>
-          Assignment and shift information is loaded
-          directly from the current event schedule.
-        </span>
-      </div>
-
+      <button class="icon-btn" id="refreshBtn" type="button" data-act="refresh" aria-label="Refresh the schedule">
+        <svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>
+      </button>
     </div>
-
-
-    <section class="section">
-
-      <h2 class="section-heading">
-        Event information
-      </h2>
-
-      <div class="grid">
-
-        <a
-          class="feature"
-          href="https://script.google.com/macros/s/AKfycbwjv-uTZOon8OiP_8NXhEz89wY_eESLNLwODDIZ5OME/dev?view=attendants"
-        >
-          <span class="status">Live</span>
-
-          <div class="feature-icon">👤</div>
-
-          <div class="feature-title">
-            Find Attendant
-          </div>
-
-          <div class="feature-text">
-            Search a brother and view his assignments,
-            current position, next shift and the full
-            rotation for his position.
-          </div>
-        </a>
-
-
-        <a
-          class="feature"
-          href="https://script.google.com/macros/s/AKfycbwjv-uTZOon8OiP_8NXhEz89wY_eESLNLwODDIZ5OME/dev?view=positions"
-        >
-          <span class="status">Live</span>
-
-          <div class="feature-icon">📍</div>
-
-          <div class="feature-title">
-            Positions
-          </div>
-
-          <div class="feature-text">
-            Browse positions by area and see who is
-            assigned now, who comes next and the full
-            daily rotation.
-          </div>
-        </a>
-
-
-        <a
-          class="feature"
-          href="https://script.google.com/macros/s/AKfycbwjv-uTZOon8OiP_8NXhEz89wY_eESLNLwODDIZ5OME/dev?view=teams"
-        >
-          <span class="status">Live</span>
-
-          <div class="feature-icon">👥</div>
-
-          <div class="feature-title">
-            Teams
-          </div>
-
-          <div class="feature-text">
-            Browse attendants by team such as Auditorium,
-            Main Entrance / Lobby, Welcome, Cafeteria,
-            Stage and Baptism.
-          </div>
-        </a>
-
-
-        <a
-          class="feature"
-          href="#position-maps"
-        >
-          <span class="status">Live</span>
-
-          <div class="feature-icon">🗺️</div>
-
-          <div class="feature-title">
-            Position Maps
-          </div>
-
-          <div class="feature-text">
-            Open the venue overview plans for
-            Auditorium, Cafeteria and Balcony.
-          </div>
-        </a>
-
-
-        <a
-          class="feature"
-          href="https://script.google.com/macros/s/AKfycbwjv-uTZOon8OiP_8NXhEz89wY_eESLNLwODDIZ5OME/dev?view=checkin"
-        >
-          <span class="status">Live</span>
-
-          <div class="feature-icon">✓</div>
-
-          <div class="feature-title">
-            Welcome Check-in
-          </div>
-
-          <div class="feature-text">
-            Quick attendant check-in for the authorized
-            Welcome Team at the Main Entrance / Lobby.
-          </div>
-        </a>
-
-      </div>
-
-    </section>
-
-
-    <section
-      class="section"
-      id="position-maps"
-    >
-
-      <h2 class="section-heading">
-        Position maps
-      </h2>
-
-      <div class="maps">
-
-        <div class="map-card">
-
-          <img
-            src="positions-auditorium.jpg"
-            alt="Auditorium position overview"
-          >
-
-          <div class="map-info">
-
-            <div class="map-title">
-              Auditorium
-            </div>
-
-            <div class="map-text">
-              Auditorium, Main Entrance / Lobby
-              and Welcome positions.
-            </div>
-
-            <a
-              class="map-link"
-              href="positions-auditorium.jpg"
-              target="_blank"
-              rel="noopener"
-            >
-              Open full map →
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <div class="map-card">
-
-          <img
-            src="positions-cafeteria.jpg"
-            alt="Cafeteria position overview"
-          >
-
-          <div class="map-info">
-
-            <div class="map-title">
-              Cafeteria
-            </div>
-
-            <div class="map-text">
-              Cafeteria, Stage and Baptism positions.
-            </div>
-
-            <a
-              class="map-link"
-              href="positions-cafeteria.jpg"
-              target="_blank"
-              rel="noopener"
-            >
-              Open full map →
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <div class="map-card">
-
-          <img
-            src="positions-balcony.jpg"
-            alt="Balcony position overview"
-          >
-
-          <div class="map-info">
-
-            <div class="map-title">
-              Balcony
-            </div>
-
-            <div class="map-text">
-              Balcony attendant positions.
-            </div>
-
-            <a
-              class="map-link"
-              href="positions-balcony.jpg"
-              target="_blank"
-              rel="noopener"
-            >
-              Open full map →
-            </a>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <footer class="footer">
-
-      Attendant Assignments<br>
-      Live event information is provided from the
-      current attendant shift schedule.
-
-    </footer>
-
-  </main>
-
+  </header>
+
+  <div class="wrap">
+    <div class="banner" id="banner"></div>
+    <main id="main"><div class="empty">Loading the schedule…</div></main>
+    <footer class="footer" id="footer"></footer>
+  </div>
+
+  <div class="panel" id="panel" aria-hidden="true"><div class="wrap" id="panelBody"></div></div>
+
+  <div class="overlay" id="overlay">
+    <button class="overlay-close" type="button" data-act="overlay-close" aria-label="Close map">×</button>
+    <img id="overlayImg" src="" alt="">
+  </div>
+
+  <nav class="tabbar" aria-label="Sections">
+    <div class="tabbar-in">
+      <button class="tab" type="button" data-act="tab" data-tab="me">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        My duty
+      </button>
+      <button class="tab" type="button" data-act="tab" data-tab="positions">
+        <svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Positions
+      </button>
+      <button class="tab" type="button" data-act="tab" data-tab="teams">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2.4.6 4 2.3 4 5.2"/></svg>
+        Teams
+      </button>
+      <button class="tab" type="button" data-act="tab" data-tab="maps">
+        <svg class="i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+        Maps
+      </button>
+    </div>
+  </nav>
+
+<script>
+'use strict';
+
+// =====================================================
+// SETTINGS
+// =====================================================
+
+const APP_NAME = 'Attendant Assignments';
+const VERSION = '0.3.0';
+
+// /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
+const API_URL = '';
+// Nur nötig, wenn in Apps Script die Eigenschaft READ_KEY gesetzt ist.
+const READ_KEY = '';
+
+const REFRESH_MS = 60 * 1000;   // Daten neu laden
+const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
+const CACHE_KEY = 'aa-cache-v1';
+const ME_KEY = 'aa-me-v1';
+const FEEDBACK_MAIL = 'cryptopower@outlook.de';
+
+// Lagepläne – Zuordnung wie bisher in TestIndex:
+// zuerst Stichworte (in dieser Reihenfolge), dann Nummernbereiche.
+const MAPS = [
+  { id: 'auditorium', title: 'Auditorium', file: 'positions-auditorium.jpg',
+    text: 'Auditorium, Main Entrance / Lobby and Welcome positions.',
+    keywords: ['auditorium', 'lobby', 'welcome', 'entrance'], from: 1, to: 32 },
+  { id: 'cafeteria', title: 'Cafeteria', file: 'positions-cafeteria.jpg',
+    text: 'Cafeteria, Stage and Baptism positions.',
+    keywords: ['cafeteria', 'stage', 'baptism'], from: 33, to: 41 },
+  { id: 'balcony', title: 'Balcony', file: 'positions-balcony.jpg',
+    text: 'Balcony attendant positions.',
+    keywords: ['balcony'], from: 42, to: 44 }
+];
+const MAP_KEYWORD_ORDER = ['cafeteria', 'balcony', 'auditorium'];
+
+// Teamfarben wie in Code.gs
+const TEAM_COLORS = {
+  LOBBY: '#FFA500',
+  CAFETERIA: '#93c47d',
+  AUDITORIUM: '#d4c21f',
+  WELCOME: '#ff94ff',
+  BAPTISM: '#9fc5e8',
+  STAGE: '#38761d'
+};
+
+// =====================================================
+// STATE
+// =====================================================
+
+const params = new URLSearchParams(location.search);
+const DEMO = params.has('demo') || !API_URL;
+const NOW_PARAM = params.get('now');
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+};
+
+let D = null;
+const S = {
+  tab: 'me',
+  viewId: null,
+  me: store.get(ME_KEY),
+  query: '',
+  area: null,
+  loadedAt: null,
+  offline: false,
+  error: null,
+  panel: null,
+  panelMap: false,
+  busy: false
+};
+
+const $ = sel => document.querySelector(sel);
+const main = $('#main');
+
+// =====================================================
+// HELPERS
+// =====================================================
+
+function esc(t) {
+  return String(t == null ? '' : t).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function norm(t) {
+  return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function toMin(t) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+
+function fmtMin(m) {
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+
+function tzNow(tz) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz || 'Europe/Berlin',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(new Date());
+    const g = type => parts.find(p => p.type === type).value;
+    return {
+      date: g('year') + '-' + g('month') + '-' + g('day'),
+      min: (Number(g('hour')) % 24) * 60 + Number(g('minute'))
+    };
+  } catch (e) {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return { date: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), min: d.getHours() * 60 + d.getMinutes() };
+  }
+}
+
+// Aktuelle Zeit in der Zeitzone der Tabelle.
+// Testen: ?now=10:30  oder  ?now=2026-11-15T10:30
+function clock() {
+  const ev = (D && D.event) || {};
+  let c = tzNow(ev.timeZone);
+  if (NOW_PARAM) {
+    const m = /^(?:(\d{4}-\d{2}-\d{2})[T ]?)?(\d{1,2}:\d{2})$/.exec(NOW_PARAM.trim());
+    if (m) c = { date: m[1] || ev.date || c.date, min: toMin(m[2]) };
+  }
+  let mode = 'live';
+  if (ev.date) {
+    if (c.date < ev.date) mode = 'before';
+    else if (c.date > ev.date) mode = 'after';
+  }
+  return { date: c.date, min: c.min, mode: mode, noDate: !ev.date };
+}
+
+function dayDiff(a, b) {
+  const p = s => { const x = s.split('-').map(Number); return Date.UTC(x[0], x[1] - 1, x[2]); };
+  return Math.round((p(b) - p(a)) / 86400000);
+}
+
+function fmtDate(iso) {
+  const x = iso.split('-').map(Number);
+  return new Date(Date.UTC(x[0], x[1] - 1, x[2])).toLocaleDateString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
+  });
+}
+
+function fmtClock(ts) {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function teamColor(team) {
+  const u = String(team || '').toUpperCase();
+  for (const k in TEAM_COLORS) if (u.includes(k)) return TEAM_COLORS[k];
+  return 'var(--done)';
+}
+
+function nameOf(id) {
+  if (!id) return 'Open';
+  const a = D.att[id];
+  return a ? a.name : 'Unknown ID ' + id;
+}
+
+function timeText(s) {
+  if (s.allDay) return 'All day';
+  if (s.start && s.end && s.start !== s.end) return s.start + '–' + s.end;
+  return s.start || s.raw || '—';
+}
+
+function mapFor(pos) {
+  const text = norm(pos.label + ' ' + pos.area);
+  for (const id of MAP_KEYWORD_ORDER) {
+    const m = MAPS.find(x => x.id === id);
+    if (m && m.keywords.some(k => text.includes(k))) return m;
+  }
+  const n = Number((String(pos.label).match(/\d+/) || [])[0]);
+  if (n) return MAPS.find(m => n >= m.from && n <= m.to) || null;
+  return null;
+}
+
+// =====================================================
+// DATA
+// =====================================================
+
+function indexData(src) {
+  const d = {
+    event: src.event || {},
+    areas: Array.isArray(src.areas) ? src.areas.slice() : [],
+    attendants: src.attendants || [],
+    positions: src.positions || [],
+    att: {},
+    byId: {}
+  };
+
+  d.attendants.forEach(a => { d.att[a.id] = a; });
+
+  d.positions.forEach(p => {
+    if (!p.key) p.key = (p.area || 'Other') + '||' + p.label;
+    if (!p.area) p.area = 'Other';
+    p.slots.forEach(s => {
+      s.pos = p;
+      s.s = toMin(s.start);
+      s.e = toMin(s.end);
+      if (s.e === null) s.e = s.s;
+      if (s.id) (d.byId[s.id] = d.byId[s.id] || []).push(s);
+    });
+    if (d.areas.indexOf(p.area) < 0) d.areas.push(p.area);
+  });
+
+  const order = s => (s.allDay ? -1 : (s.s === null ? 9999 : s.s));
+  Object.keys(d.byId).forEach(id => d.byId[id].sort((a, b) => order(a) - order(b)));
+  d.areas = d.areas.filter(a => d.positions.some(p => p.area === a));
+  return d;
+}
+
+function readCache() {
+  try {
+    const c = JSON.parse(store.get(CACHE_KEY) || 'null');
+    return c && c.data ? c : null;
+  } catch (e) { return null; }
+}
+
+function friendly(err) {
+  const t = String(err && err.message || err);
+  if (t === 'unauthorized') return 'The access key is missing or wrong';
+  if (/Failed to fetch|NetworkError|Load failed/i.test(t)) return 'No connection to the schedule';
+  return 'The schedule could not be loaded (' + t + ')';
+}
+
+async function load(force) {
+  if (DEMO) {
+    D = indexData(demoData());
+    S.loadedAt = Date.now();
+    render();
+    return;
+  }
+
+  setBusy(true);
+  try {
+    let url = API_URL + (API_URL.includes('?') ? '&' : '?') + 'action=bootstrap';
+    if (READ_KEY) url += '&key=' + encodeURIComponent(READ_KEY);
+    if (force) url += '&nocache=1';
+
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const json = JSON.parse(text);
+    if (!json.ok) throw new Error(json.error || 'unknown error');
+
+    store.set(CACHE_KEY, JSON.stringify({ at: Date.now(), data: json }));
+    D = indexData(json);
+    S.loadedAt = Date.now();
+    S.offline = false;
+    S.error = null;
+
+  } catch (err) {
+    S.error = friendly(err);
+    S.offline = true;
+    if (!D) {
+      const c = readCache();
+      if (c) { D = indexData(c.data); S.loadedAt = c.at; }
+    }
+  } finally {
+    setBusy(false);
+    render();
+  }
+}
+
+function setBusy(on) {
+  S.busy = on;
+  $('#refreshBtn').classList.toggle('busy', on);
+}
+
+// =====================================================
+// STATUS LOGIC
+// =====================================================
+
+function personStatus(id, c) {
+  const list = D.byId[id] || [];
+  if (!list.length) return { kind: 'none' };
+
+  const timed = list.filter(s => s.s !== null);
+  const allDay = list.find(s => s.allDay);
+
+  if (c.mode === 'after') return { kind: 'done' };
+
+  if (c.mode === 'before') {
+    if (timed[0]) return { kind: 'first', slot: timed[0] };
+    if (allDay) return { kind: 'allday', slot: allDay };
+    return { kind: 'none' };
+  }
+
+  const running = timed.find(s => s.s <= c.min && c.min < s.e);
+  if (running) return { kind: 'on', slot: running };
+
+  const next = timed.find(s => s.s > c.min);
+  if (next) {
+    const soon = next.s - c.min <= (D.event.soonMinutes || 15);
+    return { kind: soon ? 'soon' : 'next', slot: next };
+  }
+
+  if (allDay) return { kind: 'allday', slot: allDay };
+  return { kind: 'done' };
+}
+
+function statusLine(st) {
+  const s = st.slot;
+  switch (st.kind) {
+    case 'on': return 'On duty at ' + s.pos.label + ' until ' + s.end;
+    case 'soon': return 'Starts ' + s.start + ' at ' + s.pos.label;
+    case 'next': return 'Next ' + s.start + ' at ' + s.pos.label;
+    case 'first': return 'First shift ' + s.start + ' at ' + s.pos.label;
+    case 'allday': return 'All day at ' + s.pos.label;
+    case 'done': return 'Done for today';
+    default: return 'No assignment';
+  }
+}
+
+function slotState(s, c) {
+  if (c.mode === 'after') return 'past';
+  if (c.mode === 'before') return '';
+  if (s.allDay) return 'now';
+  if (s.s === null) return '';
+  if (c.min >= s.e) return 'past';
+  if (s.s <= c.min) return 'now';
+  return '';
+}
+
+function positionNowNext(p, c) {
+  const timed = p.slots.filter(s => s.s !== null).sort((a, b) => a.s - b.s);
+  const allDay = p.slots.find(s => s.allDay) || null;
+
+  if (c.mode === 'after') return { now: null, next: null };
+  if (c.mode === 'before') return { now: null, next: timed[0] || allDay };
+
+  return {
+    now: timed.find(s => s.s <= c.min && c.min < s.e) || allDay,
+    next: timed.find(s => s.s > c.min) || null
+  };
+}
+
+// =====================================================
+// RENDER
+// =====================================================
+
+function render() {
+  const c = D ? clock() : null;
+
+  renderHeader(c);
+  renderBanner(c);
+  renderFooter();
+
+  document.querySelectorAll('.tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === S.tab));
+
+  if (!D) {
+    main.dataset.tab = '';
+    main.innerHTML = S.error
+      ? '<div class="empty"><strong>' + esc(S.error) + '</strong>Check the connection and try again.<br><br>' +
+        '<button class="btn primary" type="button" data-act="refresh">Try again</button></div>'
+      : '<div class="empty">Loading the schedule…</div>';
+    return;
+  }
+
+  if (S.tab === 'me') renderMe(c);
+  else if (S.tab === 'positions') renderPositions(c);
+  else if (S.tab === 'teams') renderTeams(c);
+  else renderMaps();
+
+  if (S.panel) renderPanel(c);
+}
+
+function renderHeader(c) {
+  $('#version').textContent = 'V' + VERSION;
+  const line = $('#eventLine');
+  if (!D) { line.textContent = S.error ? 'Schedule not available' : 'Loading the schedule…'; return; }
+  if (c.noDate) { line.textContent = 'No event date set'; return; }
+
+  let rel = '';
+  if (c.mode === 'live') rel = 'today';
+  else if (c.mode === 'after') rel = 'finished';
+  else {
+    const n = dayDiff(c.date, D.event.date);
+    rel = n === 1 ? 'tomorrow' : 'in ' + n + ' days';
+  }
+  line.innerHTML = '<strong>' + esc(fmtDate(D.event.date)) + '</strong> ' + esc(rel);
+}
+
+function renderBanner(c) {
+  const notes = [];
+  if (DEMO) notes.push(API_URL
+    ? 'Demo data. Remove ?demo from the address to load the live schedule.'
+    : 'Demo data. Add the Apps Script address (API_URL) in the file to load the live schedule.');
+  if (NOW_PARAM && c) notes.push('Test time: ' + fmtDate(c.date) + ', ' + fmtMin(c.min) + '. Remove ?now from the address for the real time.');
+  if (S.error && D) notes.push(S.error + '. Showing the schedule from ' + fmtClock(S.loadedAt) + '.');
+  if (c && c.noDate && !DEMO) notes.push('No event date in the sheet. Times are shown as if the event were today.');
+  $('#banner').innerHTML = notes.map(n => '<div class="note">' + esc(n) + '</div>').join('');
+}
+
+function renderFooter() {
+  const subject = encodeURIComponent('Feedback: ' + APP_NAME + ' V' + VERSION);
+  $('#footer').innerHTML =
+    (S.loadedAt ? 'Schedule updated ' + esc(fmtClock(S.loadedAt)) + '<br>' : '') +
+    esc(APP_NAME) + ' · V' + esc(VERSION) + ' · Made with Love © · ' +
+    '<a href="mailto:' + FEEDBACK_MAIL + '?subject=' + subject + '">✉ Feedback</a>';
+}
+
+// ---------- MY DUTY ----------
+
+function renderMe(c) {
+  if (main.dataset.tab !== 'me') {
+    main.dataset.tab = 'me';
+    main.innerHTML =
+      '<div class="search"><input id="q" type="search" placeholder="Search a name" ' +
+      'autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
+      '<div id="meBody"></div>';
+    const q = $('#q');
+    q.value = S.query;
+    q.addEventListener('input', () => { S.query = q.value; renderMe(clock()); });
+  }
+
+  const body = $('#meBody');
+  const query = norm(S.query.trim());
+
+  if (query.length >= 2) {
+    const hits = D.attendants
+      .filter(a => norm(a.name).includes(query))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 12);
+
+    body.innerHTML = hits.length
+      ? '<div class="results">' + hits.map(a => {
+          const st = personStatus(a.id, c);
+          return '<button class="result" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
+            '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+            '<span><span class="result-name">' + esc(a.name) + '</span>' +
+            '<span class="result-sub">' + esc(a.team || 'No team') + ' · ' + esc(statusLine(st)) + '</span></span>' +
+            '</button>';
+        }).join('') + '</div>'
+      : '<div class="empty">No attendant found for “' + esc(S.query.trim()) + '”.</div>';
+    return;
+  }
+
+  const id = S.viewId || S.me;
+  if (!id || !D.att[id]) {
+    body.innerHTML =
+      '<div class="empty"><strong>Find your assignments</strong>' +
+      'Type at least two letters of your name.<br>Save it once and the app opens straight to your duty.</div>';
+    return;
+  }
+
+  body.innerHTML = personHtml(id, c);
+}
+
+function personHtml(id, c) {
+  const a = D.att[id];
+  const st = personStatus(id, c);
+  const s = st.slot;
+  const list = D.byId[id] || [];
+
+  const labels = {
+    on: 'Right now', soon: 'Starting soon', next: 'Next shift', first: 'First shift',
+    allday: c.mode === 'before' ? 'Assignment' : 'Today', done: c.mode === 'after' ? 'Event finished' : 'Today', none: ''
+  };
+  const big = {
+    on: 'On duty', soon: s && s.start, next: s && s.start, first: s && s.start,
+    allday: 'All day', done: 'Done', none: 'No assignment'
+  };
+
+  let heroSub = '';
+  if (s) {
+    heroSub = '<div class="hero-pos">' + esc(s.pos.label) + '</div>' +
+      '<div class="hero-sub">' + esc(s.pos.area) + (st.kind === 'on' ? ', until ' + esc(s.end) : '') + '</div>';
+  } else if (st.kind === 'done') {
+    heroSub = '<div class="hero-sub">All shifts are over. Thank you!</div>';
+  }
+
+  let meRow;
+  if (S.me === id) {
+    meRow = '<div class="me-row"><span class="me-saved">Saved as you on this phone</span>' +
+      '<button class="linkish" type="button" data-act="forgetme">Forget</button></div>';
+  } else {
+    meRow = '<div class="me-row"><button class="btn primary" type="button" data-act="setme" data-id="' + esc(id) + '">This is me</button>' +
+      (S.me ? '<button class="btn" type="button" data-act="mine">Back to my duty</button>' : '') + '</div>';
+  }
+
+  const slots = list.length
+    ? list.map(x => {
+        const state = slotState(x, c);
+        return '<button class="slot ' + state + '" type="button" data-act="pos" data-key="' + esc(x.pos.key) + '" data-row="' + x.row + '">' +
+          '<div class="slot-time">' + esc(timeText(x)) + (state === 'now' ? '<span class="tag now">Now</span>' : '') + '</div>' +
+          '<div class="slot-pos">' + esc(x.pos.label) + '</div>' +
+          '<div class="slot-area">' + esc(x.pos.area) + '</div>' +
+          (x.remark ? '<div class="slot-remark">' + esc(x.remark) + '</div>' : '') +
+          '</button>';
+      }).join('')
+    : '<div class="empty">No assignments in the schedule.</div>';
+
+  return '<div class="person-head"><div>' +
+      '<h2>' + esc(a.name) + '</h2>' +
+      '<span class="team-line"><span class="dot" style="background:' + teamColor(a.team) + '"></span>' + esc(a.team || 'No team') + '</span>' +
+    '</div>' + (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
+    '<div class="hero k-' + st.kind + '">' +
+      (labels[st.kind] ? '<div class="hero-label">' + esc(labels[st.kind]) + '</div>' : '') +
+      '<div class="hero-big">' + esc(big[st.kind] || '') + '</div>' + heroSub +
+    '</div>' +
+    meRow +
+    '<div class="h3">Assignments</div>' + slots;
+}
+
+// ---------- POSITIONS ----------
+
+function renderPositions(c) {
+  main.dataset.tab = 'positions';
+  if (!S.area || D.areas.indexOf(S.area) < 0) S.area = D.areas[0];
+
+  const chips = '<div class="chips" role="tablist">' + D.areas.map(a =>
+    '<button class="chip' + (a === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(a) + '">' + esc(a) + '</button>'
+  ).join('') + '</div>';
+
+  const cards = D.positions.filter(p => p.area === S.area).map(p => {
+    const nn = positionNowNext(p, c);
+    const open = p.slots.filter(s => !s.id).length;
+    const cell = (label, s, isNow) =>
+      '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
+      (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+         : '<div class="duo-name">—</div>') + '</div>';
+
+    return '<button class="pos-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
+      '<div class="pos-title">' + esc(p.label) +
+        (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</div>' +
+      '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>' +
+      '</button>';
+  }).join('');
+
+  main.innerHTML = chips + (cards || '<div class="empty">No positions in this area.</div>');
+}
+
+// ---------- TEAMS ----------
+
+function renderTeams(c) {
+  main.dataset.tab = 'teams';
+  const groups = {};
+  D.attendants.forEach(a => {
+    const t = String(a.team || '').trim();
+    if (!t || t.toUpperCase() === 'N.A.') return;
+    (groups[t] = groups[t] || []).push(a);
+  });
+
+  const names = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+  if (!names.length) { main.innerHTML = '<div class="empty">No teams in the schedule.</div>'; return; }
+
+  main.innerHTML = names.map(t => {
+    const members = groups[t].slice().sort((a, b) => a.name.localeCompare(b.name));
+    const inCount = members.filter(m => m.checkedIn).length;
+    return '<section class="team-block" style="--team:' + teamColor(t) + '">' +
+      '<div class="team-head"><span class="team-name">' + esc(t) + '</span>' +
+      '<span class="team-count">' + inCount + ' of ' + members.length + ' checked in</span></div>' +
+      members.map(m => {
+        const st = personStatus(m.id, c);
+        return '<button class="member" type="button" data-act="person" data-id="' + esc(m.id) + '">' +
+          '<span class="member-main"><span class="member-name">' + esc(m.name) + '</span>' +
+          '<span class="member-status k-' + st.kind + '">' + esc(statusLine(st)) + '</span></span>' +
+          '<span class="tick' + (m.checkedIn ? '' : ' no') + '" aria-label="' + (m.checkedIn ? 'Checked in' : 'Not checked in') + '">✓</span>' +
+          '</button>';
+      }).join('') +
+      '</section>';
+  }).join('');
+}
+
+// ---------- MAPS ----------
+
+function renderMaps() {
+  if (main.dataset.tab === 'maps') return;
+  main.dataset.tab = 'maps';
+  main.innerHTML = '<div class="maps">' + MAPS.map(m =>
+    '<div class="map">' +
+      '<button type="button" data-act="zoom" data-src="' + esc(m.file) + '" data-alt="' + esc(m.title) + ' position map" aria-label="Enlarge ' + esc(m.title) + ' map">' +
+        '<img src="' + esc(m.file) + '" alt="' + esc(m.title) + ' position map" loading="lazy" ' +
+        'onerror="this.closest(\'.map\').classList.add(\'no-img\')">' +
+      '</button>' +
+      '<div class="map-info"><div class="map-title">' + esc(m.title) + '</div>' +
+      '<div class="map-text">' + esc(m.text) + '</div></div>' +
+    '</div>'
+  ).join('') + '</div>';
+}
+
+// ---------- POSITION PANEL ----------
+
+function openPanel(key, row) {
+  S.panel = { key: key, row: row ? Number(row) : null };
+  S.panelMap = false;
+  renderPanel(clock());
+  const panel = $('#panel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  panel.scrollTop = 0;
+  if (!(history.state && history.state.aaPanel)) history.pushState({ aaPanel: 1 }, '');
+}
+
+function closePanel(fromPopstate) {
+  if (!S.panel) return;
+  S.panel = null;
+  const panel = $('#panel');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  if (!fromPopstate && history.state && history.state.aaPanel) history.back();
+}
+
+function renderPanel(c) {
+  const p = D.positions.find(x => x.key === S.panel.key);
+  if (!p) { closePanel(); return; }
+
+  const nn = positionNowNext(p, c);
+  const selIndex = S.panel.row ? p.slots.findIndex(s => s.row === S.panel.row) : -1;
+  const map = mapFor(p);
+
+  let html = '<div class="panel-bar"><button class="btn" type="button" data-act="close">← Back</button></div>' +
+    '<h2>' + esc(p.label) + '</h2><p class="sub">' + esc(p.area) + '</p>';
+
+  if (nn.now) {
+    html += '<div class="now-box"><div class="duo-label">On this position now</div>' +
+      '<div class="now-name">' + esc(nameOf(nn.now.id)) + '</div>' +
+      '<div class="duo-time">' + esc(timeText(nn.now)) + '</div></div>';
+  }
+
+  if (selIndex >= 0) {
+    const cell = (label, s, cls) => '<div class="' + cls + '"><div class="duo-label">' + label + '</div>' +
+      (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+         : '<div class="duo-name">—</div>') + '</div>';
+    html += '<div class="trio">' +
+      cell('Before', p.slots[selIndex - 1], '') +
+      cell('Selected', p.slots[selIndex], 'sel') +
+      cell('After', p.slots[selIndex + 1], '') + '</div>';
+  }
+
+  if (map) {
+    html += '<button class="btn primary block" type="button" data-act="togglemap">' +
+      (S.panelMap ? 'Hide position map' : 'Show position map') + '</button>';
+    if (S.panelMap) {
+      html += '<div class="map-inline"><img src="' + esc(map.file) + '" alt="' + esc(map.title) + ' position map" ' +
+        'data-act="zoom" data-src="' + esc(map.file) + '" data-alt="' + esc(map.title) + ' position map"></div>';
+    }
+  }
+
+  html += '<div class="h3">Full rotation</div>' + p.slots.map((s, i) => {
+    const state = slotState(s, c);
+    const cls = ['rot', state, i === selIndex ? 'sel' : ''].join(' ');
+    const tags = (state === 'now' ? '<span class="tag now">Now</span>' : '') +
+      (i === selIndex ? '<span class="tag sel">Selected</span>' : '');
+    const inner = '<div class="rot-time">' + esc(timeText(s)) + '</div>' +
+      '<div><div class="rot-name' + (s.id ? '' : ' open') + '">' + esc(nameOf(s.id)) + tags + '</div>' +
+      (s.remark ? '<div class="rot-remark">' + esc(s.remark) + '</div>' : '') + '</div>';
+    return s.id
+      ? '<button class="' + cls + '" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
+      : '<div class="' + cls + '">' + inner + '</div>';
+  }).join('');
+
+  $('#panelBody').innerHTML = html;
+}
+
+// ---------- IMAGE OVERLAY ----------
+
+function openOverlay(src, alt) {
+  const img = $('#overlayImg');
+  img.src = src;
+  img.alt = alt || '';
+  $('#overlay').classList.add('open');
+}
+
+function closeOverlay() {
+  $('#overlay').classList.remove('open');
+}
+
+// =====================================================
+// EVENTS
+// =====================================================
+
+function setTab(tab) {
+  const valid = ['me', 'positions', 'teams', 'maps'];
+  S.tab = valid.indexOf(tab) >= 0 ? tab : 'me';
+  render();
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+
+  switch (act) {
+    case 'tab':
+      if (S.panel) closePanel();
+      if (location.hash.slice(1) === el.dataset.tab) setTab(el.dataset.tab);
+      else location.hash = el.dataset.tab;
+      break;
+
+    case 'person': {
+      S.viewId = el.dataset.id;
+      S.query = '';
+      const q = $('#q');
+      if (q) { q.value = ''; q.blur(); }
+      if (S.panel) closePanel();
+      if (S.tab !== 'me') location.hash = 'me';
+      else { render(); window.scrollTo(0, 0); }
+      break;
+    }
+
+    case 'pos': openPanel(el.dataset.key, el.dataset.row); break;
+    case 'close': closePanel(); break;
+    case 'area': S.area = el.dataset.area; render(); break;
+
+    case 'setme':
+      S.me = el.dataset.id;
+      S.viewId = null;
+      store.set(ME_KEY, S.me);
+      render();
+      break;
+
+    case 'forgetme':
+      S.me = null;
+      S.viewId = null;
+      store.del(ME_KEY);
+      render();
+      break;
+
+    case 'mine': S.viewId = null; render(); break;
+    case 'refresh': if (!S.busy) load(true); break;
+
+    case 'togglemap':
+      S.panelMap = !S.panelMap;
+      renderPanel(clock());
+      break;
+
+    case 'zoom': openOverlay(el.dataset.src, el.dataset.alt); break;
+    case 'overlay-close': closeOverlay(); break;
+  }
+});
+
+$('#overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeOverlay(); });
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('#overlay').classList.contains('open')) closeOverlay();
+  else if (S.panel) closePanel();
+});
+
+window.addEventListener('hashchange', () => setTab(location.hash.slice(1)));
+
+window.addEventListener('popstate', () => {
+  closeOverlay();
+  if (S.panel) closePanel(true);
+});
+
+window.addEventListener('scroll', () => {
+  $('#top').classList.toggle('scrolled', window.scrollY > 4);
+}, { passive: true });
+
+// Status jede halbe Minute neu berechnen (nicht während der Eingabe)
+setInterval(() => {
+  if (document.hidden || !D) return;
+  const q = $('#q');
+  if (q && document.activeElement === q) return;
+  render();
+}, TICK_MS);
+
+// Daten regelmäßig neu laden
+setInterval(() => {
+  if (!document.hidden && !DEMO && !S.busy) load(false);
+}, REFRESH_MS);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || DEMO || S.busy) return;
+  if (!S.loadedAt || Date.now() - S.loadedAt > REFRESH_MS) load(false);
+  else render();
+});
+
+// =====================================================
+// DEMO DATA (nur ohne API_URL oder mit ?demo)
+// =====================================================
+
+function demoData() {
+  const today = tzNow('Europe/Berlin').date;
+  const first = ['John', 'Samuel', 'David', 'Daniel', 'Michael', 'Peter', 'Thomas', 'Andrew'];
+  const last = ['Adams', 'Baker', 'Clarke', 'Davies', 'Evans', 'Fischer', 'Green', 'Hughes', 'Ibrahim',
+    'Johnson', 'Kowalski', 'Lee', 'Mensah', 'Novak', 'Owusu', 'Peters', 'Quinn', 'Richter', 'Silva',
+    'Turner', 'Usman', 'Vogel', 'Walker', 'Young', 'Zimmer', 'Bauer', 'Okafor', 'Rossi', 'Keller', 'Wagner',
+    'Hoffmann', 'Schmidt'];
+  const teamsPlan = [['AUDITORIUM', 15], ['LOBBY', 6], ['WELCOME', 3], ['CAFETERIA', 6], ['STAGE', 2]];
+
+  const attendants = [];
+  const pools = {};
+  let n = 0;
+  teamsPlan.forEach(([team, count]) => {
+    pools[team] = [];
+    for (let i = 0; i < count; i++) {
+      const id = String(101 + n);
+      attendants.push({ id, name: last[n % last.length] + ', ' + first[(n * 3) % first.length], team, checkedIn: n % 4 !== 0, row: n + 2 });
+      pools[team].push(id);
+      n++;
+    }
+  });
+
+  const times = ['07:30 - 09:00', '09:00 - 10:30', '10:30 - 12:00', '12:00 - 13:30', '13:30 - 15:00', '15:00 - 16:30'];
+  const plan = [
+    ['Auditorium', '1 - Block A', 'AUDITORIUM'], ['Auditorium', '2 - Block A', 'AUDITORIUM'],
+    ['Auditorium', '3 - Block B', 'AUDITORIUM'], ['Auditorium', '4 - Block C', 'AUDITORIUM'],
+    ['Main Entrance / Lobby', 'Lobby 10', 'LOBBY'], ['Main Entrance / Lobby', 'Lobby 11', 'LOBBY'],
+    ['Welcome', 'Welcome 20', 'WELCOME', 3],
+    ['Cafeteria', 'Cafeteria 33', 'CAFETERIA'], ['Cafeteria', 'Cafeteria 34', 'CAFETERIA'],
+    ['Balcony', '42 - Balcony', 'AUDITORIUM']
+  ];
+
+  const counters = {};
+  const positions = [];
+  let row = 3;
+  plan.forEach(([area, label, team, limit]) => {
+    const pool = pools[team];
+    counters[team] = counters[team] || 0;
+    const slots = times.slice(0, limit || times.length).map(t => {
+      const k = counters[team]++;
+      const id = pool[(k + Math.floor(k / pool.length)) % pool.length];
+      const [start, end] = t.split(' - ');
+      return { start, end, allDay: false, raw: t, id, remark: '', row: row++ };
+    });
+    positions.push({ key: area + '||' + label, area, label, no: (label.match(/\d+/) || ['?'])[0], type: 'position', row: slots[0].row, slots });
+    row++;
+  });
+
+  positions[8].slots[5].id = '';
+  positions[0].slots[0].remark = 'Doors open at 07:30';
+
+  positions.push({
+    key: 'Stage||Team Captain', area: 'Stage', label: 'Team Captain', no: 'TC', type: 'tc', row: row,
+    slots: pools.STAGE.map((id, i) => ({ start: null, end: null, allDay: true, raw: '', id, remark: i ? 'Backup' : '', row: row + i }))
+  });
+
+  return {
+    ok: true,
+    version: 'demo',
+    generatedAt: new Date().toISOString(),
+    event: { date: today, timeZone: 'Europe/Berlin', soonMinutes: 15 },
+    areas: ['Auditorium', 'Main Entrance / Lobby', 'Welcome', 'Cafeteria', 'Balcony', 'Stage'],
+    attendants,
+    positions
+  };
+}
+
+// =====================================================
+// START
+// =====================================================
+
+(function start() {
+  S.tab = ['me', 'positions', 'teams', 'maps'].indexOf(location.hash.slice(1)) >= 0 ? location.hash.slice(1) : 'me';
+
+  if (!DEMO) {
+    const cached = readCache();
+    if (cached) { D = indexData(cached.data); S.loadedAt = cached.at; }
+  }
+  render();
+  load(false);
+})();
+</script>
 </body>
 </html>
