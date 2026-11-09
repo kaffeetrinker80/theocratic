@@ -717,7 +717,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.5.1';
+const VERSION = '0.5.2';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -743,6 +743,13 @@ const MAPS = [
     keywords: ['balcony'], from: 42, to: 44 }
 ];
 const MAP_KEYWORD_ORDER = ['cafeteria', 'balcony', 'auditorium'];
+
+// Feste Zuordnung einzelner Positionen zu einem Lageplan (geht vor allen Regeln).
+// Bezeichnung wie in Spalte A, Groß-/Kleinschreibung egal.
+const MAP_OVERRIDES = {
+  'Welcome Team 45': 'cafeteria',   // UG, Seiteneingang bei der First Aid
+  'Welcome Team 46': 'cafeteria'    // UG, Seiteneingang bei der First Aid
+};
 
 // Teamfarben wie in Code.gs
 const TEAM_COLORS = {
@@ -953,6 +960,10 @@ function timeText(s) {
 }
 
 function mapFor(pos) {
+  const label = norm(pos.label).replace(/\s+/g, ' ').trim();
+  for (const k in MAP_OVERRIDES) {
+    if (norm(k) === label) return MAPS.find(m => m.id === MAP_OVERRIDES[k]) || null;
+  }
   const text = norm(pos.label + ' ' + pos.area);
   for (const id of MAP_KEYWORD_ORDER) {
     const m = MAPS.find(x => x.id === id);
