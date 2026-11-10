@@ -1712,6 +1712,62 @@
     }
 
 
+    /* ---------- v1.47: larger, bolder print – space goes to the counters ---------- */
+    @media print {
+      body.slips-print-mode .slip-page .slip { display: flex; flex-direction: column; }
+      body.slips-print-mode .slip-page .slip-body { display: flex; flex-direction: column; flex: 1; }
+      body.slips-print-mode .slip-page .counters { flex: 1; align-items: stretch; }
+      body.slips-print-mode .slip-page .counter-box { display: flex; flex-direction: column; border: 1.5px solid #7f8b95; }
+      body.slips-print-mode .slip-page .counter-value { flex: 1; }
+      body.slips-print-mode .slip-page .counter-title { color: #1f2a33; font-weight: 800; letter-spacing: .04em; }
+      body.slips-print-mode .slip-page .field { border: 1.2px solid #9aa5ae; }
+      body.slips-print-mode .slip-page .field label { color: #3c4852; font-weight: 800; }
+      body.slips-print-mode .slip-page .field input { color: #1f2a33; font-weight: 600; }
+      body.slips-print-mode .slip-page .slip-type { font-weight: 800; }
+      body.slips-print-mode .slip-page .slip-title { font-weight: 800; color: #14212b; }
+      body.slips-print-mode .slip-page .slip-subtitle { color: #3c4852; }
+      body.slips-print-mode .slip-page .guideline { color: #3c4852; }
+
+      /* ½ A4 */
+      body.slips-print-mode .size-half .slip { padding: 7mm 9mm 6mm; }
+      body.slips-print-mode .size-half .slip-head { padding: 12px 14px 10px; padding-right: 110px; }
+      body.slips-print-mode .size-half .slip-type { font-size: 13px; margin-bottom: 4px; }
+      body.slips-print-mode .size-half .slip-shift { font-size: 11px; padding: 1px 9px; }
+      body.slips-print-mode .size-half .slip-day { font-size: 14px; }
+      body.slips-print-mode .size-half .slip-title { font-size: 32px; line-height: 1.08; }
+      body.slips-print-mode .size-half .slip-subtitle { font-size: 15px; margin-top: 5px; }
+      body.slips-print-mode .size-half .slip-no { top: 10px; right: 16px; font-size: 60px; }
+      body.slips-print-mode .size-half .slip-body { padding: 12px 14px 10px; gap: 10px; }
+      body.slips-print-mode .size-half .counters { gap: 12px; }
+      body.slips-print-mode .size-half .counter-box { padding: 10px 12px; }
+      body.slips-print-mode .size-half .counter-title { font-size: 18px; margin-bottom: 4px; }
+      body.slips-print-mode .size-half .field { min-height: 60px; padding: 9px 12px; }
+      body.slips-print-mode .size-half .field label { font-size: 12px; margin-bottom: 5px; }
+      body.slips-print-mode .size-half .field input { font-size: 17px; }
+      body.slips-print-mode .size-half .guideline { font-size: 12.5px; line-height: 1.35; padding: 8px 12px; }
+      body.slips-print-mode .size-half .guideline-ref { font-size: 11px; }
+      body.slips-print-mode .size-half .slip-footer { font-size: 12px; padding-top: 6px; }
+
+      /* ¼ A4 */
+      body.slips-print-mode .size-quarter .slip-head { padding: 8px 10px 7px; padding-right: 60px; }
+      body.slips-print-mode .size-quarter .slip-type { font-size: 10px; margin-bottom: 3px; }
+      body.slips-print-mode .size-quarter .slip-shift { font-size: 8px; }
+      body.slips-print-mode .size-quarter .slip-day { font-size: 11px; }
+      body.slips-print-mode .size-quarter .slip-title { font-size: 22px; line-height: 1.08; }
+      body.slips-print-mode .size-quarter .slip-subtitle { font-size: 11px; margin-top: 3px; }
+      body.slips-print-mode .size-quarter .slip-no { top: 8px; right: 10px; font-size: 38px; }
+      body.slips-print-mode .size-quarter .slip-body { padding: 8px 10px 7px; gap: 7px; }
+      body.slips-print-mode .size-quarter .counters { gap: 7px; }
+      body.slips-print-mode .size-quarter .counter-box { padding: 7px 9px; }
+      body.slips-print-mode .size-quarter .counter-title { font-size: 13px; margin-bottom: 2px; }
+      body.slips-print-mode .size-quarter .field { min-height: 42px; padding: 6px 9px; }
+      body.slips-print-mode .size-quarter .field label { font-size: 9px; }
+      body.slips-print-mode .size-quarter .field input { font-size: 12px; }
+      body.slips-print-mode .size-quarter .guideline { font-size: 8.5px; line-height: 1.3; }
+      body.slips-print-mode .size-quarter .guideline-ref { font-size: 8px; }
+      body.slips-print-mode .size-quarter .slip-footer { font-size: 9px; }
+    }
+
     @media (max-width: 1180px), (max-height: 820px) {
       .add-position { grid-template-columns: 84px 1fr; }
       .add-position #newPositionSubtitle { grid-column: 1 / -1; }
@@ -1844,7 +1900,7 @@
       </aside>
     </div>
   </div>
-  <div class="app-footer screen-only">Counting Munich · V1.46 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.46">✉ Feedback</a></div>
+  <div class="app-footer screen-only">Counting Munich · V1.47 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.47">✉ Feedback</a></div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1889,7 +1945,7 @@
 
   <script>
     /* ------------------------------------------------------------------
-       Counting Munich v1.46
+       Counting Munich v1.47
        One tool, two independent event slots:
          - assembly   : 1 day
          - convention : 3 days
@@ -1899,7 +1955,7 @@
     ------------------------------------------------------------------ */
 
     const MODE_KEY = 'counting-munich:mode';
-    const APP_VERSION = '1.46';
+    const APP_VERSION = '1.47';
     const STREAM_ID = 'jw-stream';
     const LEGACY_STREAM_RE = /(^|\b)(jw\s*stream|live\s*stream|livestream|streaming|stream)(\b|$)/i;
     const streamGuidelineText = 'JW Stream: Please enter the JW Stream figure at each counting time and return this slip to the Attendance Counting Department.';
