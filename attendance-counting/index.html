@@ -1844,7 +1844,7 @@
       </aside>
     </div>
   </div>
-  <div class="app-footer screen-only">Counting Munich · V1.45 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.45">✉ Feedback</a></div>
+  <div class="app-footer screen-only">Counting Munich · V1.46 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.46">✉ Feedback</a></div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1889,7 +1889,7 @@
 
   <script>
     /* ------------------------------------------------------------------
-       Counting Munich v1.45
+       Counting Munich v1.46
        One tool, two independent event slots:
          - assembly   : 1 day
          - convention : 3 days
@@ -1899,7 +1899,7 @@
     ------------------------------------------------------------------ */
 
     const MODE_KEY = 'counting-munich:mode';
-    const APP_VERSION = '1.45';
+    const APP_VERSION = '1.46';
     const STREAM_ID = 'jw-stream';
     const LEGACY_STREAM_RE = /(^|\b)(jw\s*stream|live\s*stream|livestream|streaming|stream)(\b|$)/i;
     const streamGuidelineText = 'JW Stream: Please enter the JW Stream figure at each counting time and return this slip to the Attendance Counting Department.';
@@ -3127,14 +3127,29 @@
       renderPrintDayOptions();
     }
 
+    // Set while the modal prints one single position instead of a whole day.
+    let modalPositionId = null;
+
     function renderPrintDayOptions() {
       document.querySelectorAll('#printDayModal .size-option').forEach(btn => {
         const on = btn.dataset.size === state.slipSize;
         btn.classList.toggle('active', on);
         btn.setAttribute('aria-checked', on ? 'true' : 'false');
       });
-      const slips = slipCount();
+      const single = modalPositionId ? state.positions.find(p => p.id === modalPositionId) : null;
+      const slips = single ? (single.split && !single.stream ? 2 : 1) : slipCount();
       const sheets = Math.ceil(slips / slipsPerPage());
+      document.getElementById('printDayTitle').textContent = single ? `Print slip – ${single.title}` : 'Print slips';
+      if (single) {
+        const day = getActiveDay();
+        document.getElementById('printDayHint').textContent = 'Dashed lines mark where to cut.';
+        document.getElementById('printDayOptions').innerHTML = `
+          <button type="button" class="modal-day-option" onclick="printSinglePosition()">
+            <span style="text-align: left;"><strong>🖨 ${escapeHtml(single.type)} · ${escapeHtml(single.title)}</strong><br><span style="color: var(--muted);">${isMultiDay() ? escapeHtml(day.label) + ' · ' : ''}${escapeHtml(day.time1)} / ${escapeHtml(day.time2)}</span></span>
+            <span style="color: var(--muted); text-align: right;">${slips} ${slips === 1 ? 'slip' : 'slips'}<br>1 sheet A4</span>
+          </button>`;
+        return;
+      }
       document.getElementById('printDayHint').textContent = isMultiDay()
         ? 'Select the day to print. Dashed lines mark where to cut.'
         : 'Dashed lines mark where to cut.';
@@ -3147,6 +3162,7 @@
     }
 
     function openPrintDayModal() {
+      modalPositionId = null;
       renderPrintDayOptions();
       document.getElementById('printDayModal').classList.add('open');
     }
@@ -3158,6 +3174,14 @@
     // Reprint the slip(s) of a single position for the active day,
     // e.g. the JW Stream slip for the A/V Department or a lost slip.
     function printPositionSlips(positionId) {
+      modalPositionId = positionId;
+      renderPrintDayOptions();
+      document.getElementById('printDayModal').classList.add('open');
+    }
+
+    function printSinglePosition() {
+      const positionId = modalPositionId;
+      closePrintDayModal();
       saveState();
       pendingPrintDayId = getActiveDay().id;
       pendingPrintPositionId = positionId;
