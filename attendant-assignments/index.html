@@ -153,6 +153,9 @@
     }
 
     .brand { flex: 1; min-width: 0; }
+    .brand-mark { display: none; flex: 0 0 auto; height: 40px; width: auto; border-radius: 10px; }
+    @media (min-width: 620px) { .brand-mark { display: block; } }
+    .lock-logo { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; border-radius: 22px; box-shadow: 0 8px 28px rgba(19, 75, 157, .28); }
 
     .brand h1 {
       margin: 0;
@@ -571,7 +574,8 @@
 
     /* DESKTOP / LAPTOP */
 
-    .pos-grid { display: block; }
+    .pos-flow { display: block; }
+    .block-head:first-child { margin-top: 4px; }
 
     @media (min-width: 1000px) {
       body { padding-bottom: 0; padding-left: 216px; }
@@ -608,12 +612,15 @@
       .top-in { padding-top: 20px; padding-bottom: 16px; }
       .brand h1 { font-size: 24px; }
 
-      .pos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; align-items: start; }
-      .pos-grid .pos-card { margin-bottom: 0; }
-      .block-head { margin-top: 24px; }
+      .pos-flow { columns: 320px 4; column-gap: 16px; }
+      .pos-sec { margin-bottom: 6px; }
+      .pos-sec.blocked { break-inside: avoid; }
+      .pos-card { break-inside: avoid; }
+      .block-head { margin-top: 10px; break-after: avoid; }
 
-      .members { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
-      .members > * { border-right: 1px solid var(--border); }
+      .members { columns: 300px 4; column-gap: 0; column-rule: 1px solid var(--border); }
+      .members > * { break-inside: avoid; }
+      .brand-mark { height: 46px; border-radius: 11px; }
 
       .me-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px; align-items: start; }
       .me-right .h3:first-child { margin-top: 6px; }
@@ -647,7 +654,7 @@
     .lock { max-width: 380px; margin: 36px auto 0; text-align: center; }
     .lock-icon { font-size: 34px; }
     .lock h2 { margin: 8px 0 6px; font-size: 24px; }
-    .lock input, .field {
+    .lock input:not([type="checkbox"]), .field {
       width: 100%;
       height: 54px;
       padding: 0 14px;
@@ -659,7 +666,9 @@
       letter-spacing: .06em;
       outline: none;
     }
-    .lock input:focus, .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .lock input:not([type="checkbox"]):focus, .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .show-code input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+    body.locked .brand-mark { display: none; }
     .show-code { display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 16px; color: var(--muted); font-size: 14px; }
     .lock-error { min-height: 1.4em; margin-top: 12px; color: var(--danger); font-size: 14px; line-height: 1.4; }
     .muted { color: var(--muted); font-size: 14px; line-height: 1.45; }
@@ -781,6 +790,7 @@
 
   <header class="top" id="top">
     <div class="wrap top-in">
+      <img class="brand-mark" src="logo-mark.jpg" alt="" onerror="this.remove()">
       <div class="brand">
         <h1>Attendant Assignments</h1>
         <div class="event-line" id="eventLine">Loading…</div>
@@ -834,7 +844,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.7.2';
+const VERSION = '0.7.3';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1658,7 +1668,8 @@ function renderLock() {
     main.dataset.view = 'lock';
     main.innerHTML =
       '<form class="lock" id="lockForm" autocomplete="off">' +
-        '<div class="lock-icon">🔒</div>' +
+        '<img class="lock-logo" src="logo.jpg" alt="Circuit Assembly Attendants" ' +
+          'onerror="this.outerHTML=\'<div class=&quot;lock-icon&quot;>🔒</div>\'">' +
         '<h2>Access code</h2>' +
         '<p class="muted">Enter the code you received from the attendant department.</p>' +
         '<input id="lockInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Access code">' +
@@ -1907,19 +1918,24 @@ function renderPositions(c) {
     ).join('') + '</div>';
   }
 
-  const grid = list => list.length ? '<div class="pos-grid">' + list.map(p => posCard(p, c)).join('') + '</div>' : '';
+  // Am PC fließen die Abschnitte spaltenweise von oben nach unten.
+  const section = (list, head) => list.length
+    ? '<section class="pos-sec' + (head ? ' blocked' : '') + '">' + (head ? '<div class="block-head">' + head + '</div>' : '') +
+      list.map(p => posCard(p, c)).join('') + '</section>'
+    : '';
 
+  html += '<div class="pos-flow">';
   if (S.block !== 'all') {
-    html += grid(group.positions.filter(p => blockOf(p) === S.block));
+    html += section(group.positions.filter(p => blockOf(p) === S.block), '');
   } else if (blocks.length) {
-    html += grid(group.positions.filter(p => !blockOf(p)));
+    html += section(group.positions.filter(p => !blockOf(p)), '');
     blocks.forEach(b => {
-      html += '<div class="block-head">Block ' + b + '</div>' +
-        grid(group.positions.filter(p => blockOf(p) === b));
+      html += section(group.positions.filter(p => blockOf(p) === b), 'Block ' + b);
     });
   } else {
-    html += grid(group.positions);
+    html += section(group.positions, '');
   }
+  html += '</div>';
 
   main.innerHTML = html;
 }
