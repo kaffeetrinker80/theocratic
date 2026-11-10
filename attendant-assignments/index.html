@@ -863,7 +863,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.7.4';
+const VERSION = '0.7.5';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1134,6 +1134,29 @@ function slotName(s) {
 
 function nameClass(s) {
   return s.id ? '' : (isNoShift(s) ? ' noshift' : ' open');
+}
+
+// Browser-Autofill (gespeicherte Logins anderer Tools auf derselben Domain) fernhalten:
+// Suchfelder sind bis zur ersten Berührung schreibgeschützt, Passwort-Manager überspringen sie.
+function guardSearch(input) {
+  if (!input || input.dataset.guarded) return;
+  input.dataset.guarded = '1';
+  const unlock = () => { input.readOnly = false; };
+  input.addEventListener('pointerdown', unlock);
+  input.addEventListener('focus', unlock);
+  input.addEventListener('keydown', unlock);
+  // falls ein Browser trotzdem etwas einträgt: sofort wieder leeren
+  const wipe = () => {
+    if (/@/.test(input.value)) { input.value = ''; input.dispatchEvent(new Event('input')); }
+  };
+  setTimeout(wipe, 400);
+  setTimeout(wipe, 1500);
+}
+
+// Namen enthalten nie ein @ – eine E-Mail-Adresse kommt nur vom Autofill
+function cleanQuery(input) {
+  if (/@/.test(input.value)) input.value = '';
+  return input.value;
 }
 
 function timeText(s) {
@@ -1692,7 +1715,7 @@ function renderLock() {
           'onerror="this.outerHTML=\'<div class=&quot;lock-icon&quot;>🔒</div>\'">' +
         '<h2>Access code</h2>' +
         '<p class="muted">Enter the code you received from the attendant department.</p>' +
-        '<input id="lockInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Access code">' +
+        '<input id="lockInput" name="aa-access-code" type="password" autocomplete="one-time-code" data-lpignore="true" autocapitalize="off" spellcheck="false" aria-label="Access code">' +
         '<label class="show-code"><input type="checkbox" id="lockShow"> Show code</label>' +
         '<button class="btn primary block" type="submit" id="lockBtn">Open</button>' +
         '<div class="lock-error" id="lockError" role="alert"></div>' +
@@ -1803,14 +1826,15 @@ function renderIdentify() {
     main.innerHTML =
       '<div class="intro"><h2>Who are you?</h2>' +
       '<p class="muted">Choose your own name once. This phone then opens straight to your duty.</p></div>' +
-      '<div class="search"><input id="meQ" type="search" placeholder="Type your name" autocomplete="off" spellcheck="false" aria-label="Type your name"></div>' +
+      '<div class="search"><input id="meQ" name="aa-meQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Type your name" autocomplete="off" spellcheck="false" aria-label="Type your name"></div>' +
       '<div id="identifyList"></div>' +
       '<div class="guest-box"><strong>Not on the schedule?</strong>' +
       '<p class="muted">For example safety or other departments who only want to see what is going on.</p>' +
       '<button class="btn block" type="button" data-act="guest">Continue as guest</button></div>';
     const q = $('#meQ');
     q.value = S.meQuery;
-    q.addEventListener('input', () => { S.meQuery = q.value; renderIdentifyList(); });
+    guardSearch(q);
+    q.addEventListener('input', () => { S.meQuery = cleanQuery(q); renderIdentifyList(); });
   }
   renderIdentifyList();
 }
@@ -1967,11 +1991,12 @@ function renderTeams(c) {
   if (main.dataset.view !== 'teams') {
     main.dataset.view = 'teams';
     main.innerHTML =
-      '<div class="search"><input id="teamQ" type="search" placeholder="Search all attendants" autocomplete="off" spellcheck="false" aria-label="Search all attendants"></div>' +
+      '<div class="search"><input id="teamQ" name="aa-teamQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search all attendants" autocomplete="off" spellcheck="false" aria-label="Search all attendants"></div>' +
       '<div id="teamsBody"></div>';
     const q = $('#teamQ');
     q.value = S.teamQuery;
-    q.addEventListener('input', () => { S.teamQuery = q.value; renderTeamsBody(clock()); });
+    guardSearch(q);
+    q.addEventListener('input', () => { S.teamQuery = cleanQuery(q); renderTeamsBody(clock()); });
   }
   renderTeamsBody(c);
 }
@@ -2012,12 +2037,13 @@ function renderCheckin(c) {
     main.dataset.view = 'checkin';
     main.innerHTML =
       '<div id="ciSummary"></div>' +
-      '<div class="search"><input id="ciQ" type="search" placeholder="Search a name to check in" autocomplete="off" spellcheck="false" aria-label="Search a name to check in"></div>' +
+      '<div class="search"><input id="ciQ" name="aa-ciQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search a name to check in" autocomplete="off" spellcheck="false" aria-label="Search a name to check in"></div>' +
       '<div class="seg"><button type="button" data-act="cifilter" data-f="open">Not yet</button><button type="button" data-act="cifilter" data-f="in">Checked in</button><button type="button" data-act="cifilter" data-f="all">All</button></div>' +
       '<div id="ciList"></div>';
     const q = $('#ciQ');
     q.value = S.ciQuery;
-    q.addEventListener('input', () => { S.ciQuery = q.value; renderCheckinBody(clock()); });
+    guardSearch(q);
+    q.addEventListener('input', () => { S.ciQuery = cleanQuery(q); renderCheckinBody(clock()); });
   }
   renderCheckinBody(c);
 }
@@ -2234,11 +2260,12 @@ function renderPick(top, c, force) {
       '<h2>Change shift</h2>' +
       '<p class="sub">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) + '</p>' +
       '<div class="form-card"><div class="duo-label">Currently</div><div class="now-name">' + esc(slotName(slot)) + '</div></div>' +
-      '<div class="search"><input id="pickQ" type="search" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
+      '<div class="search"><input id="pickQ" name="aa-pickQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
       '<div id="pickList"></div>';
     const q = $('#pickQ');
     q.value = S.pickQuery;
-    q.addEventListener('input', () => { S.pickQuery = q.value; renderPickList(slot); });
+    guardSearch(q);
+    q.addEventListener('input', () => { S.pickQuery = cleanQuery(q); renderPickList(slot); });
   }
   renderPickList(slot);
 }
@@ -2330,7 +2357,7 @@ function renderAccess(force) {
       (me ? esc(me.name) + ' (' + esc(me.team || 'No team') + ')' : (isGuest() ? 'Guest – not on the schedule.' : 'Not chosen yet. Choose it under My duty.')) + '</p></div>' +
     '<div class="form-card"><strong>Use another code</strong>' +
       '<p class="muted">For example the check-in code for the Welcome team and team captains.</p>' +
-      '<div class="form-row"><input id="upgradeInput" type="password" autocomplete="off" autocapitalize="off" placeholder="Access code" aria-label="Access code">' +
+      '<div class="form-row"><input id="upgradeInput" name="aa-access-code-2" type="password" autocomplete="one-time-code" data-lpignore="true" autocapitalize="off" placeholder="Access code" aria-label="Access code">' +
       '<button class="btn primary" type="button" data-act="upgrade">Use</button></div>' +
       '<div class="lock-error" id="upgradeMsg" role="alert"></div></div>';
 
@@ -2366,7 +2393,7 @@ function adminHtml() {
     h += '<div class="form-card"><div class="code-head"><strong>' + ROLE_LABEL[r] + '</strong>' +
       '<span class="code-state ' + (pins[r] ? 'set' : 'unset') + '">' + (pins[r] ? 'Set' : 'Not set') + '</span></div>' +
       '<p class="muted">' + ROLE_DESC[r] + '</p>' +
-      '<div class="form-row"><input id="pin-' + r + '" type="password" autocomplete="new-password" autocapitalize="off" placeholder="New code" aria-label="New ' + ROLE_LABEL[r] + ' code">' +
+      '<div class="form-row"><input id="pin-' + r + '" name="aa-new-code-' + r + '" type="password" autocomplete="new-password" data-lpignore="true" autocapitalize="off" placeholder="New code" aria-label="New ' + ROLE_LABEL[r] + ' code">' +
       '<button class="btn primary" type="button" data-act="setpin" data-role="' + r + '">Save</button></div>' +
       ((r === 'checkin' || r === 'editor') && pins[r]
         ? '<button class="linkish" type="button" data-act="clearpin" data-role="' + r + '">Remove this code</button>' : '') +
