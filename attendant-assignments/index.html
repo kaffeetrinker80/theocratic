@@ -153,13 +153,29 @@
     }
 
     .brand { flex: 1; min-width: 0; }
-    .brand-mark { display: none; flex: 0 0 auto; height: 40px; width: auto; border-radius: 10px; }
-    @media (min-width: 620px) { .brand-mark { display: block; } }
+    .brand-mark { display: block; flex: 0 0 auto; height: 34px; width: auto; border-radius: 8px; }
+    .d-short { display: none; }
+    @media (max-width: 479px) {
+      .d-long { display: none; }
+      .d-short { display: inline; }
+      .top-in { gap: 10px; }
+      .top-actions { gap: 6px; }
+      .icon-btn { width: 38px; height: 38px; border-radius: 11px; }
+      .brand h1 { font-size: 16px; letter-spacing: -.015em; }
+      .brand-mark { height: 30px; border-radius: 7px; }
+    }
+    @media (min-width: 620px) {
+      .brand-mark { height: 40px; border-radius: 10px; }
+      .brand h1 { font-size: 21px; }
+    }
     .lock-logo { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; border-radius: 22px; box-shadow: 0 8px 28px rgba(19, 75, 157, .28); }
 
     .brand h1 {
       margin: 0;
-      font-size: 21px;
+      font-size: 17px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       line-height: 1.15;
       letter-spacing: -.01em;
       display: flex;
@@ -176,12 +192,12 @@
       font-weight: 700;
     }
 
-    .event-line { margin-top: 3px; color: var(--muted); font-size: 14px; }
+    .event-line { margin-top: 2px; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-line strong { color: var(--text); font-weight: 650; }
 
     .icon-btn {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       flex: 0 0 auto;
       display: grid;
       place-items: center;
@@ -261,23 +277,26 @@
 
     /* PERSON */
 
-    .person-head { display: flex; align-items: flex-start; gap: 12px; margin: 6px 2px 14px; }
-    .person-head h2 { margin: 0 0 6px; font-size: 26px; line-height: 1.15; letter-spacing: -.01em; }
-    .team-line { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 15px; }
+    .person-head { display: flex; align-items: flex-start; gap: 12px; margin: 4px 2px 12px; }
+    .person-head h2 { margin: 0 0 4px; font-size: 20px; line-height: 1.2; letter-spacing: -.01em; }
+    .team-line { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 14px; }
+    .person-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: 14px; }
+    .person-meta .linkish { padding: 2px 0; font-size: 14px; }
+    .person-meta .checked { margin-left: 0; padding: 2px 9px; font-size: 12px; }
     .checked { margin-left: auto; padding: 5px 10px; border-radius: 999px; background: var(--on-soft); color: var(--on); font-size: 13px; font-weight: 700; white-space: nowrap; }
 
     /* The one bold element: the live status of a person */
     .hero {
       position: relative;
-      padding: 18px 18px 18px 22px;
-      border-radius: 20px;
+      padding: 14px 16px 14px 20px;
+      border-radius: 18px;
       background: var(--card);
       border: 1px solid var(--border);
       overflow: hidden;
     }
     .hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--accent); }
     .hero-label { color: var(--muted); font-size: 14px; font-weight: 600; }
-    .hero-big { margin: 2px 0 6px; font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+    .hero-big { margin: 2px 0 4px; font-size: 34px; line-height: 1.05; font-weight: 800; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
     .hero-pos { font-size: 18px; font-weight: 700; }
     .hero-sub { margin-top: 2px; color: var(--muted); font-size: 15px; }
     .hero.k-on { background: var(--on-soft); border-color: var(--on-border); }
@@ -844,7 +863,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.7.3';
+const VERSION = '0.7.4';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1627,7 +1646,8 @@ function renderHeader() {
     const n = dayDiff(c.date, D.event.date);
     rel = n === 1 ? 'tomorrow' : 'in ' + n + ' days';
   }
-  line.innerHTML = '<strong>' + esc(fmtDate(D.event.date, true)) + '</strong> · ' + esc(rel);
+  line.innerHTML = '<strong><span class="d-long">' + esc(fmtDate(D.event.date, true)) + '</span>' +
+    '<span class="d-short">' + esc(fmtDate(D.event.date)) + '</span></strong> · ' + esc(rel);
 }
 
 function renderBanner() {
@@ -1705,9 +1725,10 @@ function renderMe(c) {
   main.dataset.view = 'me';
   const a = D.att[S.me];
   let html = '<div class="me-grid"><div class="me-left">' +
-    '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' + teamLine(a.team) + '</div>' +
-    (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
-    '<div class="notme">Not you? <button class="linkish" type="button" data-act="change-me">Change the name</button></div>' +
+    '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' +
+    '<div class="person-meta">' + teamLine(a.team) + '<span>·</span>' +
+    '<button class="linkish" type="button" data-act="change-me">Not you?</button>' +
+    (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div></div></div>' +
     heroHtml(a.id, c) + '</div><div class="me-right">' +
     '<div class="h3">My assignments</div>' + slotsHtml(a.id, c) + '</div></div>';
 
