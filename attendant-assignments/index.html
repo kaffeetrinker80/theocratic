@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" id="themeLight">
   <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)" id="themeDark">
+
+  <!-- Icons + Manifest -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Attendant Assignments">
+  <meta name="application-name" content="Attendant Assignments">
+
+  <!-- Link-Vorschau -->
+  <meta name="description" content="Shift schedule, positions and Check-in during an Assembly Day">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Attendant Assignments">
+  <meta property="og:description" content="Shift schedule, positions and Check-in during an Assembly Day">
+  <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/">
+  <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <title>Attendant Assignments</title>
   <script>
     try {
@@ -688,7 +706,7 @@
   <header class="top" id="top">
     <div class="wrap top-in">
       <div class="brand">
-        <h1>Attendant Assignments <span class="version" id="version"></span></h1>
+        <h1>Attendant Assignments</h1>
         <div class="event-line" id="eventLine">Loading…</div>
       </div>
       <div class="top-actions">
@@ -740,7 +758,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.6.1';
+const VERSION = '0.6.4';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -765,6 +783,12 @@ const MAPS = [
     keywords: ['balcony'], from: 42, to: 44 }
 ];
 const MAP_KEYWORD_ORDER = ['cafeteria', 'balcony', 'auditorium'];
+
+// Positionen fest einem Team-Tab zuordnen (geht vor der automatischen Zuordnung).
+// Prüft Positionsbezeichnung und Sheet-Überschrift. Team wie in Spalte C, Groß-/Kleinschreibung egal.
+const GROUP_RULES = [
+  { match: /\bblock\s*j\b|allergic/i, team: 'LOBBY' }   // Block J / Allergic Room unten bei Lobby
+];
 
 // Feste Zuordnung einzelner Positionen zu einem Lageplan (geht vor allen Regeln).
 // Bezeichnung wie in Spalte A, Groß-/Kleinschreibung egal.
@@ -1479,7 +1503,6 @@ function render() {
 }
 
 function renderHeader() {
-  $('#version').textContent = 'V' + VERSION;
   const line = $('#eventLine');
   if (!S.pin) { line.textContent = 'Please enter your access code'; return; }
   if (!D) { line.textContent = S.error ? 'Schedule not available' : 'Loading the schedule…'; return; }
@@ -1627,8 +1650,13 @@ function blockOf(p) {
 function positionGroups() {
   const list = [];
   const map = {};
+  const teams = {};
+  D.attendants.forEach(a => { if (a.team) teams[String(a.team).trim().toUpperCase()] = String(a.team).trim(); });
+
   D.positions.forEach(p => {
-    const team = positionTeam(p);
+    const rule = GROUP_RULES.find(r => r.match.test(p.label + ' ' + p.area));
+    const forced = rule ? (teams[rule.team.toUpperCase()] || rule.team) : '';
+    const team = forced || positionTeam(p);
     const key = team || p.area;
     if (!map[key]) {
       map[key] = { key: key, label: team || p.area, positions: [] };
