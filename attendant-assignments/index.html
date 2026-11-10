@@ -457,7 +457,7 @@
       flex: 1;
       min-width: 0;
       display: grid;
-      grid-template-columns: 96px 1fr;
+      grid-template-columns: 108px 1fr;
       gap: 12px;
       align-items: center;
       padding: 13px 14px;
@@ -468,7 +468,7 @@
     .rot.now { background: var(--on-soft); border-color: var(--on-border); }
     .rot.sel { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
     .rot.past { opacity: .55; }
-    .rot-time { font-weight: 750; font-variant-numeric: tabular-nums; }
+    .rot-time { font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .rot-name { font-weight: 650; }
     .rot-name.open { color: var(--soon); }
     .rot-name.noshift, .pos-line .n.noshift { color: var(--muted); font-style: italic; font-weight: 600; }
@@ -567,6 +567,71 @@
       .maps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .map img { height: 160px; }
       .hero-big { font-size: 46px; }
+    }
+
+    /* DESKTOP / LAPTOP */
+
+    .pos-grid { display: block; }
+
+    @media (min-width: 1000px) {
+      body { padding-bottom: 0; padding-left: 216px; }
+      body.locked { padding-left: 0; }
+      .wrap { max-width: 1240px; padding: 0 32px; }
+
+      .tabbar {
+        top: 0;
+        right: auto;
+        bottom: 0;
+        width: 216px;
+        padding: calc(88px + env(safe-area-inset-top, 0px)) 12px 20px;
+        border-top: 0;
+        border-right: 1px solid var(--border);
+        background: var(--card);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      .tabbar-in { display: flex; flex-direction: column; gap: 4px; max-width: none; }
+      .tab {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        min-height: 48px;
+        padding: 6px 10px;
+        border-radius: 12px;
+        font-size: 15px;
+      }
+      .tab:hover { background: var(--chip); color: var(--text); }
+      .tab-ico { width: 40px; height: 32px; border-radius: 10px; }
+      .tab.active { background: var(--accent-soft); }
+      .tab.active::before { display: none; }
+
+      .top-in { padding-top: 20px; padding-bottom: 16px; }
+      .brand h1 { font-size: 24px; }
+
+      .pos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; align-items: start; }
+      .pos-grid .pos-card { margin-bottom: 0; }
+      .block-head { margin-top: 24px; }
+
+      .members { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+      .members > * { border-right: 1px solid var(--border); }
+
+      .me-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px; align-items: start; }
+      .me-right .h3:first-child { margin-top: 6px; }
+
+      .search, .seg { max-width: 560px; }
+      .ci-summary { max-width: 560px; }
+      .map img { height: 240px; }
+
+      .panel {
+        left: auto;
+        width: min(560px, 50vw);
+        border-left: 1px solid var(--border);
+        box-shadow: -12px 0 40px rgba(0, 0, 0, .14);
+      }
+      .panel .wrap { padding: 0 28px; }
+
+      .toast { bottom: 28px; left: calc(50% + 108px); }
+      .lock { margin-top: 80px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -758,7 +823,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.6.4';
+const VERSION = '0.7.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1450,7 +1515,7 @@ function teamBlock(team, members, c) {
   return '<section class="team-block" style="--team:' + teamColor(team) + '">' +
     '<div class="team-head"><span class="team-name">' + esc(team) + '</span>' +
     '<span class="team-count">' + inCount + ' of ' + members.length + ' checked in</span></div>' +
-    members.map(m => memberRow(m, c, false)).join('') + '</section>';
+    '<div class="members">' + members.map(m => memberRow(m, c, false)).join('') + '</div></section>';
 }
 
 function resultsHtml(list, act) {
@@ -1591,12 +1656,12 @@ function renderMe(c) {
 
   main.dataset.view = 'me';
   const a = D.att[S.me];
-  let html =
+  let html = '<div class="me-grid"><div class="me-left">' +
     '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' + teamLine(a.team) + '</div>' +
     (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
     '<div class="notme">Not you? <button class="linkish" type="button" data-act="change-me">Change the name</button></div>' +
-    heroHtml(a.id, c) +
-    '<div class="h3">My assignments</div>' + slotsHtml(a.id, c);
+    heroHtml(a.id, c) + '</div><div class="me-right">' +
+    '<div class="h3">My assignments</div>' + slotsHtml(a.id, c) + '</div></div>';
 
   if (isCaptain(a.id) && a.team) {
     const members = (teamsMap()[a.team] || []);
@@ -1745,18 +1810,18 @@ function renderPositions(c) {
     ).join('') + '</div>';
   }
 
+  const grid = list => list.length ? '<div class="pos-grid">' + list.map(p => posCard(p, c)).join('') + '</div>' : '';
+
   if (S.block !== 'all') {
-    html += group.positions.filter(p => blockOf(p) === S.block).map(p => posCard(p, c)).join('');
+    html += grid(group.positions.filter(p => blockOf(p) === S.block));
   } else if (blocks.length) {
-    const loose = group.positions.filter(p => !blockOf(p));
-    html += loose.map(p => posCard(p, c)).join('');
+    html += grid(group.positions.filter(p => !blockOf(p)));
     blocks.forEach(b => {
-      const inBlock = group.positions.filter(p => blockOf(p) === b);
       html += '<div class="block-head">Block ' + b + '</div>' +
-        inBlock.map(p => posCard(p, c)).join('');
+        grid(group.positions.filter(p => blockOf(p) === b));
     });
   } else {
-    html += group.positions.map(p => posCard(p, c)).join('');
+    html += grid(group.positions);
   }
 
   main.innerHTML = html;
@@ -1785,7 +1850,7 @@ function renderTeamsBody(c) {
   if (q.length >= 2) {
     const hits = D.attendants.filter(a => norm(a.name).includes(q)).sort(byName).slice(0, 30);
     box.innerHTML = hits.length
-      ? '<div class="team-block">' + hits.map(m => memberRow(m, c, true)).join('') + '</div>'
+      ? '<div class="team-block"><div class="members">' + hits.map(m => memberRow(m, c, true)).join('') + '</div></div>'
       : '<div class="empty">No attendant found for “' + esc(S.teamQuery.trim()) + '”.</div>';
     return;
   }
@@ -1847,7 +1912,7 @@ function renderCheckinBody(c) {
   list = list.slice().sort(byName);
 
   $('#ciList').innerHTML = list.length
-    ? '<div class="team-block">' + list.map(a => {
+    ? '<div class="team-block"><div class="members">' + list.map(a => {
         const st = personStatus(a.id, c);
         const pend = !!S.pending[a.id];
         return '<div class="ci-row">' +
@@ -1858,7 +1923,7 @@ function renderCheckinBody(c) {
           '<button class="ci-btn' + (a.checkedIn ? ' in' : '') + '" type="button" data-act="ci" data-id="' + esc(a.id) + '"' + (pend ? ' disabled' : '') + '>' +
             (pend ? '…' : (a.checkedIn ? '✓ In' : 'Check in')) + '</button>' +
           '</div>';
-      }).join('') + '</div>'
+      }).join('') + '</div></div>'
     : '<div class="empty">' + (q ? 'No attendant found.' : (S.ciFilter === 'in' ? 'Nobody is checked in yet.' : 'Everyone is checked in. 🎉')) + '</div>';
 }
 
