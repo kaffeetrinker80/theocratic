@@ -1768,6 +1768,31 @@
       body.slips-print-mode .size-quarter .slip-footer { font-size: 9px; }
     }
 
+    /* ---------- v1.48: fixed title area, wrapping event line ---------- */
+    .field-value { color: var(--ink); font-size: 15px; line-height: 1.25; min-height: 1.25em; overflow-wrap: anywhere; }
+    @media print {
+      /* fixed head: counters start at the same height on every slip */
+      body.slips-print-mode .slip-page .slip-head { flex: none; overflow: hidden; }
+      body.slips-print-mode .slip-page .slip-type,
+      body.slips-print-mode .slip-page .slip-day { display: inline-block; vertical-align: baseline; }
+      body.slips-print-mode .slip-page .slip-day { margin: 0 0 0 8px; color: #3c4852; }
+      body.slips-print-mode .slip-page .slip-title {
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      }
+      body.slips-print-mode .slip-page .slip-subtitle {
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      }
+      body.slips-print-mode .size-half .slip-head { height: 156px; }
+      body.slips-print-mode .size-quarter .slip-head { height: 112px; }
+
+      body.slips-print-mode .slip-page .field-value { color: #1f2a33; font-weight: 600; }
+      body.slips-print-mode .slip-page .field-value.event { font-weight: 500; color: #3c4852; }
+      body.slips-print-mode .size-half .field-value { font-size: 17px; }
+      body.slips-print-mode .size-half .field-value.event { font-size: 13px; }
+      body.slips-print-mode .size-quarter .field-value { font-size: 12px; }
+      body.slips-print-mode .size-quarter .field-value.event { font-size: 9.5px; line-height: 1.3; }
+    }
+
     @media (max-width: 1180px), (max-height: 820px) {
       .add-position { grid-template-columns: 84px 1fr; }
       .add-position #newPositionSubtitle { grid-column: 1 / -1; }
@@ -1900,7 +1925,7 @@
       </aside>
     </div>
   </div>
-  <div class="app-footer screen-only">Counting Munich · V1.47 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.47">✉ Feedback</a></div>
+  <div class="app-footer screen-only">Counting Munich · V1.48 · Made with Love © · <a href="mailto:cryptopower@outlook.de?subject=Feedback%3A%20Counting%20Munich%20V1.48">✉ Feedback</a></div>
 
   <div id="printDayModal" class="modal-backdrop screen-only" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="printDayTitle">
@@ -1945,7 +1970,7 @@
 
   <script>
     /* ------------------------------------------------------------------
-       Counting Munich v1.47
+       Counting Munich v1.48
        One tool, two independent event slots:
          - assembly   : 1 day
          - convention : 3 days
@@ -1955,7 +1980,7 @@
     ------------------------------------------------------------------ */
 
     const MODE_KEY = 'counting-munich:mode';
-    const APP_VERSION = '1.47';
+    const APP_VERSION = '1.48';
     const STREAM_ID = 'jw-stream';
     const LEGACY_STREAM_RE = /(^|\b)(jw\s*stream|live\s*stream|livestream|streaming|stream)(\b|$)/i;
     const streamGuidelineText = 'JW Stream: Please enter the JW Stream figure at each counting time and return this slip to the Attendance Counting Department.';
@@ -2906,11 +2931,11 @@
             <div class="meta">
               <div class="field">
                 <label>${p.stream ? 'Reported by' : 'Name'}</label>
-                <input type="text" value="${escapeAttr(name)}" readonly />
+                <div class="field-value">${escapeHtml(name)}</div>
               </div>
               <div class="field">
                 <label>Event${isMultiDay() ? ' / day' : ''}</label>
-                <input type="text" value="${escapeAttr(eventText)}" readonly />
+                <div class="field-value event">${escapeHtml(eventText)}</div>
               </div>
             </div>
             ${p.stream ? guideline(streamGuidelineText, '') : guideline(guidelineText, defaultGuidelineRef)}
