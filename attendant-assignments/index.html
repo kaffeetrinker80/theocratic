@@ -276,18 +276,19 @@
     .slot {
       display: block;
       width: 100%;
-      margin-bottom: 10px;
-      padding: 15px 16px;
+      margin-bottom: 8px;
+      padding: 10px 14px;
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       background: var(--card);
       text-align: left;
     }
     .slot:active { background: var(--accent-soft); }
-    .slot-time { font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
-    .slot-pos { margin-top: 3px; font-size: 16px; font-weight: 650; }
-    .slot-area { margin-top: 2px; color: var(--muted); font-size: 14px; }
-    .slot-remark { margin-top: 6px; color: var(--muted); font-size: 13px; font-style: italic; }
+    .slot-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .slot-time { font-size: 16px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .slot-pos { font-size: 15px; font-weight: 650; text-align: right; }
+    .slot-area { margin-top: 1px; color: var(--muted); font-size: 13px; }
+    .slot-remark { margin-top: 3px; color: var(--muted); font-size: 12px; font-style: italic; }
     .slot.now { background: var(--on-soft); border-color: var(--on-border); }
     .slot.past { opacity: .55; }
 
@@ -316,19 +317,40 @@
     .block-head span { margin-left: 6px; color: var(--muted); font-weight: 600; font-size: 13px; }
 
     .pos-card {
-      display: block;
-      width: 100%;
-      margin-bottom: 12px;
-      padding: 16px;
+      margin-bottom: 10px;
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: 16px;
       background: var(--card);
+      overflow: hidden;
+    }
+    .pos-card.tc { background: var(--accent-soft); border-color: var(--accent-border); }
+    .pos-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 14px 0;
+      border: 0;
+      background: none;
       text-align: left;
     }
-    .pos-card:active { background: var(--accent-soft); }
-    .pos-title { font-size: 18px; font-weight: 750; }
+    .pos-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 750; }
+    .pos-chev { flex: 0 0 auto; color: var(--muted); font-size: 13px; font-weight: 650; white-space: nowrap; }
+    .pos-card .duo { margin: 8px 14px 12px; }
+    .pos-card .single { margin: 8px 14px 12px; }
+    .pos-list { margin: 0 14px 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+    .pos-line { display: flex; align-items: baseline; gap: 10px; width: 100%; padding: 6px 2px; border: 0; background: none; text-align: left; font-size: 14px; }
+    .pos-line.now { color: var(--on); font-weight: 750; }
+    .pos-line.past { opacity: .5; }
+    .pos-line .t { flex: 0 0 96px; font-variant-numeric: tabular-nums; }
+    .pos-line .n { flex: 1; min-width: 0; font-weight: 650; }
+    .pos-line .n.open { color: var(--soon); }
+    .pos-more { display: block; width: 100%; margin-top: 6px; padding: 9px; border: 1px solid var(--accent-border); border-radius: 10px; background: var(--card); color: var(--accent); font-weight: 650; font-size: 14px; }
     .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-    .duo > div { padding: 10px 12px; border-radius: 12px; background: var(--chip); min-width: 0; }
+    .duo > div, .single { padding: 8px 11px; border-radius: 11px; background: var(--chip); min-width: 0; }
+    .single.now { background: var(--on-soft); }
+    .single.now .duo-label { color: var(--on); }
+    .single .duo-name + .duo-name { margin-top: 4px; }
     .duo > div.now { background: var(--on-soft); }
     .duo-label { color: var(--muted); font-size: 12px; font-weight: 650; }
     .duo > div.now .duo-label { color: var(--on); }
@@ -717,7 +739,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.5.2';
+const VERSION = '0.6.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -728,7 +750,6 @@ const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa
 
 // Reserve-Brüder: Team in Spalte C (Großschreibung egal)
 const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
-const FEEDBACK_MAIL = 'cryptopower@outlook.de';
 
 // Lagepläne: zuerst Stichworte (in dieser Reihenfolge), dann Nummernbereiche.
 const MAPS = [
@@ -825,6 +846,7 @@ const S = {
   panelMap: false,
   area: null,
   block: 'all',
+  openPos: {},
   team: null,
   meQuery: '',
   teamQuery: '',
@@ -1363,8 +1385,8 @@ function slotsHtml(id, c) {
   return list.map(x => {
     const state = slotState(x, c);
     return '<button class="slot ' + state + '" type="button" data-act="pos" data-key="' + esc(x.pos.key) + '" data-row="' + x.row + '">' +
-      '<div class="slot-time">' + esc(timeText(x)) + (state === 'now' ? '<span class="tag now">Now</span>' : '') + '</div>' +
-      '<div class="slot-pos">' + esc(x.pos.label) + '</div>' +
+      '<div class="slot-top"><span class="slot-time">' + esc(timeText(x)) + (state === 'now' ? '<span class="tag now">Now</span>' : '') + '</span>' +
+      '<span class="slot-pos">' + esc(x.pos.label) + '</span></div>' +
       '<div class="slot-area">' + esc(x.pos.area) + '</div>' +
       (x.remark ? '<div class="slot-remark">' + esc(x.remark) + '</div>' : '') +
       '</button>';
@@ -1470,12 +1492,10 @@ function renderBanner() {
 }
 
 function renderFooter() {
-  const subject = encodeURIComponent('Feedback: ' + APP_NAME + ' V' + VERSION);
   $('#footer').innerHTML =
     (S.loadedAt && S.pin ? 'Schedule updated ' + esc(fmtClock(S.loadedAt)) +
       (S.role ? ' · Access: ' + esc(ROLE_LABEL[S.role]) : '') + '<br>' : '') +
-    esc(APP_NAME) + ' · V' + esc(VERSION) + ' · Made with Love © · ' +
-    '<a href="mailto:' + FEEDBACK_MAIL + '?subject=' + subject + '">✉ Feedback</a>';
+    esc(APP_NAME) + ' · V' + esc(VERSION) + ' · Made with Love ©';
 }
 
 function renderTabbar() {
@@ -1600,18 +1620,55 @@ function positionGroups() {
   return list;
 }
 
-function posCard(p, c) {
-  const nn = positionNowNext(p, c);
-  const open = p.slots.filter(s => !s.id).length;
-  const cell = (label, s, isNow) =>
-    '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
-    (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
-       : '<div class="duo-name">—</div>') + '</div>';
+// Rotationsposition = mindestens eine Schicht mit Uhrzeit.
+// Team Captain und Block-Attendants (ganztags, nur eine Person) sind keine Rotation.
+function isRotation(p) {
+  return p.slots.some(s => s.s !== null);
+}
 
-  return '<button class="pos-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
-    '<div class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</div>' +
-    '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>' +
+function posCard(p, c) {
+  const open = p.slots.filter(s => !s.id).length;
+  const expanded = !!S.openPos[p.key];
+  const rotation = isRotation(p);
+
+  let html = '<div class="pos-card' + (p.type === 'tc' ? ' tc' : '') + '">' +
+    '<button class="pos-head" type="button" data-act="ptoggle" data-key="' + esc(p.key) + '" aria-expanded="' + expanded + '">' +
+      '<span class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</span>' +
+      '<span class="pos-chev">' + (expanded ? 'Hide ▴' : (rotation ? 'All shifts ▾' : 'Details ▾')) + '</span>' +
     '</button>';
+
+  if (rotation) {
+    const nn = positionNowNext(p, c);
+    const cell = (label, s, isNow) =>
+      '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
+      (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+         : '<div class="duo-name">—</div>') + '</div>';
+    html += '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>';
+  } else {
+    const live = c.mode === 'live';
+    html += '<div class="single' + (live ? ' now' : '') + '"><div class="duo-label">' + (live ? 'On this position today' : 'Assigned') + ' · All day</div>' +
+      p.slots.map(s => '<div class="duo-name">' + esc(nameOf(s.id)) + '</div>').join('') + '</div>';
+  }
+
+  if (expanded) {
+    html += '<div class="pos-list">';
+    if (rotation) {
+      html += p.slots.map(s => {
+        const state = slotState(s, c);
+        const inner = '<span class="t">' + esc(timeText(s)) + '</span><span class="n' + (s.id ? '' : ' open') + '">' + esc(nameOf(s.id)) + '</span>';
+        return s.id
+          ? '<button class="pos-line ' + state + '" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
+          : '<div class="pos-line ' + state + '">' + inner + '</div>';
+      }).join('');
+    } else {
+      html += p.slots.filter(s => s.remark).map(s =>
+        '<div class="pos-line"><span class="n">' + esc(nameOf(s.id)) + '</span><span class="muted">' + esc(s.remark) + '</span></div>'
+      ).join('');
+    }
+    html += '<button class="pos-more" type="button" data-act="pos" data-key="' + esc(p.key) + '">Details, map' + (can('editor') ? ' & changes' : '') + ' →</button></div>';
+  }
+
+  return html + '</div>';
 }
 
 function renderPositions(c) {
@@ -1628,8 +1685,7 @@ function renderPositions(c) {
 
   let html = '<div class="chips">' + groups.map(g =>
     '<button class="chip' + (g.key === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
-    '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) +
-    '<span class="chip-count">' + g.positions.length + '</span></button>'
+    '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) + '</button>'
   ).join('') + '</div>';
 
   const blocks = Array.from(new Set(group.positions.map(blockOf).filter(Boolean))).sort();
@@ -1649,7 +1705,7 @@ function renderPositions(c) {
     html += loose.map(p => posCard(p, c)).join('');
     blocks.forEach(b => {
       const inBlock = group.positions.filter(p => blockOf(p) === b);
-      html += '<div class="block-head">Block ' + b + '<span>' + inBlock.length + (inBlock.length === 1 ? ' position' : ' positions') + '</span></div>' +
+      html += '<div class="block-head">Block ' + b + '</div>' +
         inBlock.map(p => posCard(p, c)).join('');
     });
   } else {
@@ -1711,7 +1767,7 @@ function renderCheckin(c) {
     main.innerHTML =
       '<div id="ciSummary"></div>' +
       '<div class="search"><input id="ciQ" type="search" placeholder="Search a name to check in" autocomplete="off" spellcheck="false" aria-label="Search a name to check in"></div>' +
-      '<div class="seg"><button type="button" data-act="cifilter" data-f="open">Not yet</button><button type="button" data-act="cifilter" data-f="all">All</button></div>' +
+      '<div class="seg"><button type="button" data-act="cifilter" data-f="open">Not yet</button><button type="button" data-act="cifilter" data-f="in">Checked in</button><button type="button" data-act="cifilter" data-f="all">All</button></div>' +
       '<div id="ciList"></div>';
     const q = $('#ciQ');
     q.value = S.ciQuery;
@@ -1740,6 +1796,7 @@ function renderCheckinBody(c) {
   let list = all;
   if (q) list = list.filter(a => norm(a.name).includes(q));
   else if (S.ciFilter === 'open') list = list.filter(a => !a.checkedIn);
+  else if (S.ciFilter === 'in') list = list.filter(a => a.checkedIn);
   list = list.slice().sort(byName);
 
   $('#ciList').innerHTML = list.length
@@ -1755,7 +1812,7 @@ function renderCheckinBody(c) {
             (pend ? '…' : (a.checkedIn ? '✓ In' : 'Check in')) + '</button>' +
           '</div>';
       }).join('') + '</div>'
-    : '<div class="empty">' + (q ? 'No attendant found.' : 'Everyone is checked in. 🎉') + '</div>';
+    : '<div class="empty">' + (q ? 'No attendant found.' : (S.ciFilter === 'in' ? 'Nobody is checked in yet.' : 'Everyone is checked in. 🎉')) + '</div>';
 }
 
 // ---------- MAPS ----------
@@ -1861,13 +1918,14 @@ function posPanelHtml(top, c) {
   if (!p) return backBar() + '<div class="empty">This position is no longer in the schedule.</div>';
 
   const nn = positionNowNext(p, c);
-  const selIndex = top.row ? p.slots.findIndex(s => s.row === top.row) : -1;
+  const rotation = isRotation(p);
+  const selIndex = top.row && rotation ? p.slots.findIndex(s => s.row === top.row) : -1;
   const map = mapFor(p);
   const editable = can('editor');
 
   let html = backBar() + '<h2>' + esc(p.label) + '</h2><p class="sub">' + esc(p.area) + '</p>';
 
-  if (nn.now) {
+  if (nn.now && rotation) {
     html += '<div class="now-box"><div class="duo-label">On this position now</div>' +
       '<div class="now-name">' + esc(nameOf(nn.now.id)) + '</div>' +
       '<div class="duo-time">' + esc(timeText(nn.now)) + '</div></div>';
@@ -1892,7 +1950,7 @@ function posPanelHtml(top, c) {
     }
   }
 
-  html += '<div class="h3">Full rotation</div>' + p.slots.map((s, i) => {
+  html += '<div class="h3">' + (rotation ? 'Full rotation' : 'Assigned · all day') + '</div>' + p.slots.map((s, i) => {
     const state = slotState(s, c);
     const cls = ['rot', state, i === selIndex ? 'sel' : ''].join(' ');
     const tags = (state === 'now' ? '<span class="tag now">Now</span>' : '') +
@@ -2113,6 +2171,12 @@ document.addEventListener('click', e => {
     case 'back': backPanel(); break;
     case 'area': S.area = el.dataset.area; S.block = 'all'; render(); window.scrollTo(0, 0); break;
     case 'pblock': S.block = el.dataset.block; render(); break;
+    case 'ptoggle': {
+      const k = el.dataset.key;
+      if (S.openPos[k]) delete S.openPos[k]; else S.openPos[k] = true;
+      render();
+      break;
+    }
     case 'team': S.team = el.dataset.team; renderTeamsBody(clock()); break;
     case 'cifilter': S.ciFilter = el.dataset.f; renderCheckinBody(clock()); break;
 
