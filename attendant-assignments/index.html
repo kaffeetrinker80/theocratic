@@ -453,6 +453,7 @@
     .rot-time { font-weight: 750; font-variant-numeric: tabular-nums; }
     .rot-name { font-weight: 650; }
     .rot-name.open { color: var(--soon); }
+    .rot-name.noshift, .pos-line .n.noshift { color: var(--muted); font-style: italic; font-weight: 600; }
     .rot-remark { margin-top: 3px; color: var(--muted); font-size: 12px; }
     .rot-edit {
       flex: 0 0 auto;
@@ -739,7 +740,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.6.0';
+const VERSION = '0.6.1';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -973,6 +974,24 @@ function nameOf(id) {
   if (!id) return 'Open';
   const a = D.att[id];
   return a ? a.name : 'Unknown ID ' + id;
+}
+
+// Bewusst nicht besetzt: "no shift" in Spalte E und keine ID
+function isNoShift(s) {
+  return !s.id && /no\s*shift/i.test(s.remark || '');
+}
+
+function isOpen(s) {
+  return !s.id && !isNoShift(s);
+}
+
+function slotName(s) {
+  if (s.id) return nameOf(s.id);
+  return isNoShift(s) ? 'No shift' : 'Open';
+}
+
+function nameClass(s) {
+  return s.id ? '' : (isNoShift(s) ? ' noshift' : ' open');
 }
 
 function timeText(s) {
@@ -1627,7 +1646,7 @@ function isRotation(p) {
 }
 
 function posCard(p, c) {
-  const open = p.slots.filter(s => !s.id).length;
+  const open = p.slots.filter(isOpen).length;
   const expanded = !!S.openPos[p.key];
   const rotation = isRotation(p);
 
@@ -1641,13 +1660,13 @@ function posCard(p, c) {
     const nn = positionNowNext(p, c);
     const cell = (label, s, isNow) =>
       '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
-      (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+      (s ? '<div class="duo-name">' + esc(slotName(s)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
          : '<div class="duo-name">—</div>') + '</div>';
     html += '<div class="duo">' + cell('Now', nn.now, true) + cell(c.mode === 'before' ? 'First' : 'Next', nn.next, false) + '</div>';
   } else {
     const live = c.mode === 'live';
     html += '<div class="single' + (live ? ' now' : '') + '"><div class="duo-label">' + (live ? 'On this position today' : 'Assigned') + ' · All day</div>' +
-      p.slots.map(s => '<div class="duo-name">' + esc(nameOf(s.id)) + '</div>').join('') + '</div>';
+      p.slots.map(s => '<div class="duo-name">' + esc(slotName(s)) + '</div>').join('') + '</div>';
   }
 
   if (expanded) {
@@ -1655,14 +1674,14 @@ function posCard(p, c) {
     if (rotation) {
       html += p.slots.map(s => {
         const state = slotState(s, c);
-        const inner = '<span class="t">' + esc(timeText(s)) + '</span><span class="n' + (s.id ? '' : ' open') + '">' + esc(nameOf(s.id)) + '</span>';
+        const inner = '<span class="t">' + esc(timeText(s)) + '</span><span class="n' + nameClass(s) + '">' + esc(slotName(s)) + '</span>';
         return s.id
           ? '<button class="pos-line ' + state + '" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
           : '<div class="pos-line ' + state + '">' + inner + '</div>';
       }).join('');
     } else {
       html += p.slots.filter(s => s.remark).map(s =>
-        '<div class="pos-line"><span class="n">' + esc(nameOf(s.id)) + '</span><span class="muted">' + esc(s.remark) + '</span></div>'
+        '<div class="pos-line"><span class="n">' + esc(slotName(s)) + '</span><span class="muted">' + esc(s.remark) + '</span></div>'
       ).join('');
     }
     html += '<button class="pos-more" type="button" data-act="pos" data-key="' + esc(p.key) + '">Details, map' + (can('editor') ? ' & changes' : '') + ' →</button></div>';
@@ -1927,13 +1946,13 @@ function posPanelHtml(top, c) {
 
   if (nn.now && rotation) {
     html += '<div class="now-box"><div class="duo-label">On this position now</div>' +
-      '<div class="now-name">' + esc(nameOf(nn.now.id)) + '</div>' +
+      '<div class="now-name">' + esc(slotName(nn.now)) + '</div>' +
       '<div class="duo-time">' + esc(timeText(nn.now)) + '</div></div>';
   }
 
   if (selIndex >= 0) {
     const cell = (label, s, cls) => '<div class="' + cls + '"><div class="duo-label">' + label + '</div>' +
-      (s ? '<div class="duo-name">' + esc(nameOf(s.id)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+      (s ? '<div class="duo-name">' + esc(slotName(s)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
          : '<div class="duo-name">—</div>') + '</div>';
     html += '<div class="trio">' +
       cell('Before', p.slots[selIndex - 1], '') +
@@ -1956,7 +1975,7 @@ function posPanelHtml(top, c) {
     const tags = (state === 'now' ? '<span class="tag now">Now</span>' : '') +
       (i === selIndex ? '<span class="tag sel">Selected</span>' : '');
     const inner = '<span class="rot-time">' + esc(timeText(s)) + '</span>' +
-      '<span><span class="rot-name' + (s.id ? '' : ' open') + '">' + esc(nameOf(s.id)) + tags + '</span>' +
+      '<span><span class="rot-name' + nameClass(s) + '">' + esc(slotName(s)) + tags + '</span>' +
       (s.remark ? '<span class="rot-remark" style="display:block">' + esc(s.remark) + '</span>' : '') + '</span>';
     const mainPart = s.id
       ? '<button class="rot-main" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
@@ -1987,7 +2006,7 @@ function renderPick(top, c, force) {
     body.innerHTML = backBar() +
       '<h2>Change shift</h2>' +
       '<p class="sub">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) + '</p>' +
-      '<div class="form-card"><div class="duo-label">Currently</div><div class="now-name">' + esc(nameOf(slot.id)) + '</div></div>' +
+      '<div class="form-card"><div class="duo-label">Currently</div><div class="now-name">' + esc(slotName(slot)) + '</div></div>' +
       '<div class="search"><input id="pickQ" type="search" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
       '<div id="pickList"></div>';
     const q = $('#pickQ');
@@ -2059,7 +2078,7 @@ function askAssign(id) {
   }
 
   const text = '<p class="muted">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) +
-    '<br>Currently: ' + esc(nameOf(slot.id)) + '</p>' +
+    '<br>Currently: ' + esc(slotName(slot)) + '</p>' +
     (warnings.length ? '<div class="warn-list">' + warnings.map(esc).join('<br>') + '</div>' : '') +
     (moveTeam ? '<label class="check-line"><input type="checkbox" id="moveTeam" checked> Also move him from reserve to team ' + esc(moveTeam) + '</label>' : '');
 
