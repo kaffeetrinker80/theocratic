@@ -722,6 +722,17 @@
     .check-line { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-border); font-size: 15px; font-weight: 600; }
     .check-line input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex: 0 0 auto; }
 
+    .guest-box { margin-top: 26px; padding: 16px; border: 1px dashed var(--border); border-radius: 16px; }
+    .guest-box p { margin: 4px 0 12px; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); min-width: 0; }
+    .stat-big { font-size: 26px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .stat-big span { color: var(--muted); font-size: 15px; font-weight: 650; }
+    .stat-label { margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 650; }
+    .stat.on { background: var(--on-soft); border-color: var(--on-border); }
+    .stat.on .stat-big { color: var(--on); }
+    .stat.soon .stat-big { color: var(--soon); }
+
     /* MODAL + TOAST */
 
     .modal {
@@ -823,7 +834,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.7.0';
+const VERSION = '0.7.2';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -893,7 +904,8 @@ const ERR = {
   duplicate: 'This code is already used for another access level.',
   required: 'This code cannot be removed.',
   bad_request: 'The request was incomplete.',
-  unknown_team: 'This team does not exist in the Attendants list.'
+  unknown_team: 'This team does not exist in the Attendants list.',
+  bad_date: 'Please choose a valid date.'
 };
 
 const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
@@ -972,6 +984,18 @@ function fmtMin(m) {
 }
 
 const byName = (a, b) => a.name.localeCompare(b.name);
+
+// Gast = jemand, der nicht im Schichtplan steht (z. B. Safety, Beobachter)
+const GUEST = '__guest__';
+
+function isGuest() {
+  return S.me === GUEST;
+}
+
+// ID des gewählten Bruders – leer bei Gast oder ohne Auswahl
+function myId() {
+  return S.me && S.me !== GUEST && D && D.att[S.me] ? S.me : '';
+}
 
 function isReserve(team) {
   return RESERVE_TEAMS.indexOf(String(team || '').trim().toUpperCase()) >= 0;
@@ -1303,7 +1327,7 @@ async function doCheckin(id, value) {
   render();
 
   try {
-    await api('checkin', { id: id, value: value, by: S.me || '' });
+    await api('checkin', { id: id, value: value, by: myId() });
     toast(value ? a.name + ' checked in' : 'Check-in undone for ' + a.name);
     if (value && S.tab === 'checkin' && S.ciQuery) {
       S.ciQuery = '';
@@ -1322,7 +1346,7 @@ async function doCheckin(id, value) {
 
 async function doAssign(slot, newId, setTeam) {
   try {
-    const res = await api('assign', { row: slot.row, expectedId: slot.id || '', newId: newId, by: S.me || '', setTeam: setTeam || '' });
+    const res = await api('assign', { row: slot.row, expectedId: slot.id || '', newId: newId, by: myId(), setTeam: setTeam || '' });
     toast(newId
       ? nameOf(newId) + ' assigned' + (res && res.team ? ' · now in team ' + res.team : '')
       : 'The shift is open now');
@@ -1371,6 +1395,18 @@ async function loadAdmin() {
     S.admin = { pins: null, error: errorText(err) };
   }
   if (topPanel() && topPanel().type === 'access') renderPanel(clock(), true);
+}
+
+async function saveEventDate(date) {
+  try {
+    await api('setEventDate', { date: date, by: myId() });
+    toast('Assembly day set to ' + fmtDate(date, true));
+    await load(true);
+    renderPanel(clock(), true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
 }
 
 async function savePin(role, value) {
@@ -1611,7 +1647,7 @@ function renderTabbar() {
   bar.style.setProperty('--tabs', tabs.length);
   bar.innerHTML = tabs.map(t =>
     '<button class="tab' + (t === S.tab ? ' active' : '') + '" type="button" data-act="tab" data-tab="' + t + '">' +
-    '<span class="tab-ico">' + TAB_ICON[t] + '</span>' + TAB_LABEL[t] + '</button>'
+    '<span class="tab-ico">' + TAB_ICON[t] + '</span>' + (t === 'me' && isGuest() ? 'Overview' : TAB_LABEL[t]) + '</button>'
   ).join('');
 }
 
@@ -1652,6 +1688,7 @@ function renderLock() {
 // ---------- MY DUTY ----------
 
 function renderMe(c) {
+  if (isGuest()) { renderGuest(c); return; }
   if (!S.me || !D.att[S.me]) { renderIdentify(); return; }
 
   main.dataset.view = 'me';
@@ -1671,6 +1708,63 @@ function renderMe(c) {
   main.innerHTML = html;
 }
 
+function renderGuest(c) {
+  main.dataset.view = 'guest';
+  const all = D.attendants.filter(a => {
+    const t = String(a.team || '').trim();
+    return t && t.toUpperCase() !== 'N.A.';
+  });
+  const inCount = all.filter(a => a.checkedIn).length;
+  const groups = positionGroups();
+  const teams = teamsMap();
+
+  let onDuty = 0, openTotal = 0;
+  groups.forEach(g => g.positions.forEach(p => {
+    const nn = positionNowNext(p, c);
+    if (nn.now && nn.now.id) onDuty++;
+    openTotal += p.slots.filter(isOpen).length;
+  }));
+
+  const stat = (big, label, cls) => '<div class="stat' + (cls ? ' ' + cls : '') + '"><div class="stat-big">' + big + '</div><div class="stat-label">' + label + '</div></div>';
+
+  let html =
+    '<div class="intro"><h2>Overview</h2>' +
+    '<p class="muted">Guest view · <button class="linkish" type="button" data-act="change-me">Choose a name instead</button></p></div>' +
+    '<div class="stats">' +
+      stat(c.mode === 'live' ? onDuty : '—', c.mode === 'live' ? 'On duty now' : (c.mode === 'before' ? 'Event not started' : 'Event finished'), c.mode === 'live' ? 'on' : '') +
+      stat(inCount + '<span> / ' + all.length + '</span>', 'Checked in') +
+      stat(openTotal, 'Open shifts', openTotal ? 'soon' : '') +
+    '</div>';
+
+  html += '<div class="h3">Teams</div><div class="team-block"><div class="members">' + groups.map(g => {
+    const staffed = g.positions.filter(p => { const nn = positionNowNext(p, c); return nn.now && nn.now.id; }).length;
+    const members = teams[g.label] || [];
+    const ci = members.filter(m => m.checkedIn).length;
+    return '<button class="member" type="button" data-act="goto-pos" data-area="' + esc(g.key) + '">' +
+      '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' +
+      '<span class="member-main"><span class="member-name">' + esc(g.label) + '</span>' +
+      '<span class="member-status">' +
+        (c.mode === 'live' ? staffed + ' of ' + g.positions.length + ' positions staffed now' : g.positions.length + ' positions') +
+        (members.length ? ' · ' + ci + ' of ' + members.length + ' checked in' : '') +
+      '</span></span><span class="pos-chev">›</span></button>';
+  }).join('') + '</div></div>';
+
+  const captains = [];
+  D.positions.filter(p => p.type === 'tc').forEach(p => p.slots.forEach(s => { if (s.id) captains.push({ s: s, p: p }); }));
+  if (captains.length) {
+    html += '<div class="h3">Team captains</div><div class="team-block"><div class="members">' + captains.map(x => {
+      const a = D.att[x.s.id];
+      return '<button class="member" type="button" data-act="person" data-id="' + esc(x.s.id) + '">' +
+        '<span class="dot" style="background:' + teamColor(a && a.team) + '"></span>' +
+        '<span class="member-main"><span class="member-name">' + esc(slotName(x.s)) + '</span>' +
+        '<span class="member-status">' + esc((a && a.team) || x.p.area) + '</span></span>' +
+        '<span class="tick' + (a && a.checkedIn ? '' : ' no') + '">✓</span></button>';
+    }).join('') + '</div></div>';
+  }
+
+  main.innerHTML = html;
+}
+
 function renderIdentify() {
   if (main.dataset.view !== 'identify') {
     main.dataset.view = 'identify';
@@ -1678,7 +1772,10 @@ function renderIdentify() {
       '<div class="intro"><h2>Who are you?</h2>' +
       '<p class="muted">Choose your own name once. This phone then opens straight to your duty.</p></div>' +
       '<div class="search"><input id="meQ" type="search" placeholder="Type your name" autocomplete="off" spellcheck="false" aria-label="Type your name"></div>' +
-      '<div id="identifyList"></div>';
+      '<div id="identifyList"></div>' +
+      '<div class="guest-box"><strong>Not on the schedule?</strong>' +
+      '<p class="muted">For example safety or other departments who only want to see what is going on.</p>' +
+      '<button class="btn block" type="button" data-act="guest">Continue as guest</button></div>';
     const q = $('#meQ');
     q.value = S.meQuery;
     q.addEventListener('input', () => { S.meQuery = q.value; renderIdentifyList(); });
@@ -1789,7 +1886,7 @@ function renderPositions(c) {
   if (!groups.length) { main.innerHTML = '<div class="empty">No positions in the schedule.</div>'; return; }
 
   if (!S.area || !groups.some(g => g.key === S.area)) {
-    const mine = S.me && D.att[S.me] && D.att[S.me].team;
+    const mine = myId() && D.att[myId()].team;
     S.area = groups.some(g => g.key === mine) ? mine : groups[0].key;
     S.block = 'all';
   }
@@ -1860,7 +1957,7 @@ function renderTeamsBody(c) {
   if (!names.length) { box.innerHTML = '<div class="empty">No teams in the schedule.</div>'; return; }
 
   if (!S.team || !groups[S.team]) {
-    const mine = S.me && D.att[S.me] && D.att[S.me].team;
+    const mine = myId() && D.att[myId()].team;
     S.team = groups[mine] ? mine : names[0];
   }
 
@@ -2189,11 +2286,11 @@ function renderAccess(force) {
   if (body.dataset.view === 'access' && !force) return;
   body.dataset.view = 'access';
 
-  const me = S.me && D.att[S.me];
+  const me = myId() && D.att[myId()];
   let html = backBar() +
     '<h2>Access</h2><p class="sub">This phone: <span class="role-badge">' + esc(ROLE_LABEL[S.role] || '—') + '</span></p>' +
     '<div class="form-card"><strong>Your name</strong><p class="muted">' +
-      (me ? esc(me.name) + ' (' + esc(me.team || 'No team') + ')' : 'Not chosen yet. Choose it under My duty.') + '</p></div>' +
+      (me ? esc(me.name) + ' (' + esc(me.team || 'No team') + ')' : (isGuest() ? 'Guest – not on the schedule.' : 'Not chosen yet. Choose it under My duty.')) + '</p></div>' +
     '<div class="form-card"><strong>Use another code</strong>' +
       '<p class="muted">For example the check-in code for the Welcome team and team captains.</p>' +
       '<div class="form-row"><input id="upgradeInput" type="password" autocomplete="off" autocapitalize="off" placeholder="Access code" aria-label="Access code">' +
@@ -2215,7 +2312,14 @@ function renderAccess(force) {
 }
 
 function adminHtml() {
-  let h = '<div class="h3">Access codes · admin</div>';
+  const current = D && D.event && D.event.date ? D.event.date : '';
+  let h = '<div class="h3">Event · admin</div>' +
+    '<div class="form-card"><div class="code-head"><strong>Assembly day</strong>' +
+    '<span class="code-state ' + (current ? 'set' : 'unset') + '">' + (current ? esc(fmtDate(current)) : 'Not set') + '</span></div>' +
+    '<p class="muted">Controls “today”, Now/Next and the countdown. Saved straight into the sheet.</p>' +
+    '<div class="form-row"><input id="eventDateInput" type="date" value="' + esc(current) + '" aria-label="Assembly day">' +
+    '<button class="btn primary" type="button" data-act="seteventdate">Save</button></div></div>';
+  h += '<div class="h3">Access codes · admin</div>';
   if (!S.admin) return h + '<div class="empty">Loading…</div>';
   if (!S.admin.pins) return h + '<div class="note">' + esc(S.admin.error || 'Could not load the codes.') + '</div>';
 
@@ -2308,7 +2412,34 @@ document.addEventListener('click', e => {
       break;
     }
 
+    case 'guest':
+      S.me = GUEST;
+      store.set(KEY.me, GUEST);
+      S.meQuery = '';
+      S.area = null;
+      S.team = null;
+      render();
+      window.scrollTo(0, 0);
+      break;
+
+    case 'goto-pos':
+      S.tab = 'positions';
+      S.area = el.dataset.area;
+      S.block = 'all';
+      history.replaceState(history.state, '', '#positions');
+      render();
+      window.scrollTo(0, 0);
+      break;
+
     case 'change-me':
+      if (isGuest()) {
+        S.me = null;
+        store.del(KEY.me);
+        S.meQuery = '';
+        render();
+        window.scrollTo(0, 0);
+        break;
+      }
       confirmBox('Change the name?',
         '<p class="muted">Do this only if the wrong name was chosen or this is not your phone.</p>',
         'Change name', () => {
@@ -2357,6 +2488,18 @@ document.addEventListener('click', e => {
       confirmBox('Change the ' + ROLE_LABEL[r] + ' code?',
         '<p class="muted">Phones using the old code are signed out and need the new one.</p>',
         'Change code', () => savePin(r, v));
+      break;
+    }
+
+    case 'seteventdate': {
+      const input = $('#eventDateInput');
+      const v = input ? input.value : '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { toast(ERR.bad_date, 'error'); break; }
+      if (D.event && v === D.event.date) { toast('This is already the assembly day'); break; }
+      confirmBox('Change the assembly day?',
+        '<p class="muted">New date: <strong>' + esc(fmtDate(v, true)) + '</strong><br>' +
+        'Positions!D89 in the sheet is updated and Next Shift is recalculated.</p>',
+        'Change date', () => saveEventDate(v));
       break;
     }
 
@@ -2473,6 +2616,11 @@ function demoApi(action, p) {
           resolve({ ok: true, team: team });
           break;
         }
+        case 'setEventDate':
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(p.date || '')) throw apiError('bad_date');
+          DEMO_SRC.event.date = p.date;
+          resolve({ ok: true, date: p.date });
+          break;
         case 'adminStatus':
           resolve({ ok: true, pins: Object.assign({}, DEMO_PINS) });
           break;
