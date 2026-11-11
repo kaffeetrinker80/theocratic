@@ -826,6 +826,20 @@
     .tab-ico { position: relative; }
     .tab-dot { position: absolute; top: 1px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--soon); border: 2px solid var(--card); }
 
+    .count-card { margin-top: 10px; padding: 11px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); }
+    .count-card.soon { background: var(--soon-soft); border-color: var(--soon-border); }
+    .count-card.now { background: var(--on-soft); border-color: var(--on-border); }
+    .count-head { margin-bottom: 4px; font-weight: 750; font-size: 15px; }
+    .count-head span { color: var(--muted); font-weight: 600; }
+    .count-row { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; font-size: 14px; }
+    .count-label { flex: 0 0 82px; color: var(--muted); }
+    .count-time { flex: 0 0 52px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .count-st { flex: 1; color: var(--muted); }
+    .count-row.soon .count-st { color: var(--soon); font-weight: 700; }
+    .count-row.now .count-st, .count-row.now .count-time { color: var(--on); font-weight: 800; }
+    .count-row.done { opacity: .55; }
+    .time-field { flex: 1; display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 13px; font-weight: 600; }
+
     /* MODAL + TOAST */
 
     .modal {
@@ -930,14 +944,14 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.9.2';
+const VERSION = '0.10.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1' };
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1' };
 
 // Reserve-Brüder: Team in Spalte C (Großschreibung egal)
 const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
@@ -1007,7 +1021,8 @@ const ERR = {
   busy: 'You are already on duty at that time.',
   already_offered: 'Someone else has already offered to take this shift.',
   request_not_found: 'This help request no longer exists.',
-  request_not_offered: 'Nobody has offered to take this shift yet.'
+  request_not_offered: 'Nobody has offered to take this shift yet.',
+  bad_time: 'Please enter a valid time.'
 };
 
 const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
@@ -1306,6 +1321,7 @@ function indexData(src) {
     positions: src.positions || [],
     att: {},
     byId: {},
+    counting: src.counting || {},
     requests: (src.requests || []).filter(r => r.status === 'open' || r.status === 'offered'),
     reqByRow: {}
   };
@@ -1330,6 +1346,70 @@ function indexData(src) {
   Object.keys(d.byId).forEach(id => d.byId[id].sort((a, b) => order(a) - order(b)));
   d.areas = d.areas.filter(a => d.positions.some(p => p.area === a));
   return d;
+}
+
+// ---------- ZÄHLEN ----------
+// Wer in Spalte E "counting …" stehen hat, bekommt die Zählzeiten angezeigt.
+// Ganztags-Einteilung → beide Zeiten; Rotationsschicht → nur Zeiten innerhalb der Schicht.
+const COUNT_LABEL = { morning: 'Morning', afternoon: 'Afternoon' };
+
+function countReminders(id) {
+  const jobs = (D.byId[id] || []).filter(s => /count/i.test(s.remark || ''));
+  if (!jobs.length) return [];
+  const out = [];
+  ['morning', 'afternoon'].forEach(k => {
+    const t = D.counting[k] || null;
+    const m = toMin(t);
+    const job = jobs.find(s => s.allDay || s.s === null || m === null || (s.s <= m && m < s.e));
+    if (job) out.push({ key: k, label: COUNT_LABEL[k], time: t, m: m, what: job.remark });
+  });
+  return out;
+}
+
+function countState(r, c) {
+  if (r.m === null) return { cls: '', text: 'time not set yet' };
+  if (c.mode === 'after') return { cls: 'done', text: 'done' };
+  if (c.mode === 'before') return { cls: '', text: '' };
+  const d = r.m - c.min;
+  if (d > 60) return { cls: '', text: 'in ' + Math.floor(d / 60) + ' h ' + (d % 60 ? (d % 60) + ' min' : '') };
+  if (d > 15) return { cls: '', text: 'in ' + d + ' min' };
+  if (d > 0) return { cls: 'soon', text: 'in ' + d + ' min – get ready' };
+  if (d >= -15) return { cls: 'now', text: 'now – please count' };
+  return { cls: 'done', text: 'done ✓' };
+}
+
+function countCardHtml(id, c) {
+  const list = countReminders(id);
+  if (!list.length) return '';
+  const states = list.map(r => ({ r: r, st: countState(r, c) }));
+  const top = states.some(x => x.st.cls === 'now') ? 'now' : (states.some(x => x.st.cls === 'soon') ? 'soon' : '');
+  const what = Array.from(new Set(list.map(r => r.what))).join(' · ');
+  return '<div class="count-card ' + top + '"><div class="count-head">🔢 Counting · <span>' + esc(what) + '</span></div>' +
+    states.map(x =>
+      '<div class="count-row ' + x.st.cls + '"><span class="count-label">' + x.r.label + '</span>' +
+      '<span class="count-time">' + esc(x.r.time || '–') + '</span>' +
+      '<span class="count-st">' + esc(x.st.text) + '</span></div>'
+    ).join('') + '</div>';
+}
+
+// 5 Minuten vorher einmal vibrieren + Hinweis (nur am Kongresstag, nur einmal je Zeit)
+function countAlerts() {
+  if (!D || !S.pin || isGuest() || !myId()) return;
+  const c = clock();
+  if (c.mode !== 'live') return;
+  let done = [];
+  try { done = JSON.parse(store.get(KEY.countAlert) || '[]'); } catch (e) { done = []; }
+  countReminders(myId()).forEach(r => {
+    if (r.m === null) return;
+    const d = r.m - c.min;
+    const key = c.date + ':' + r.key;
+    if (d <= 5 && d >= -2 && done.indexOf(key) < 0) {
+      done.push(key);
+      buzz([220, 110, 220, 110, 220]);
+      toast('🔢 Counting ' + (d > 0 ? 'in ' + d + ' min' : 'now') + ' · ' + r.what);
+    }
+  });
+  store.set(KEY.countAlert, JSON.stringify(done.slice(-10)));
 }
 
 // ---------- ERSATZ SUCHEN ----------
@@ -1524,6 +1604,7 @@ async function load(force) {
     S.error = null;
     S.lockError = '';
     notifyRequests();
+    countAlerts();
   } catch (err) {
     if (err.code === 'unauthorized') {
       logout('This access code is not valid. Please enter the current code.');
@@ -1965,7 +2046,7 @@ function renderMe(c) {
     '<div class="person-meta">' + teamLine(a.team) + '<span>·</span>' +
     '<button class="linkish" type="button" data-act="change-me">Not you?</button>' +
     (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div></div></div>' +
-    heroHtml(a.id, c) + '</div><div class="me-right">' +
+    heroHtml(a.id, c) + countCardHtml(a.id, c) + '</div><div class="me-right">' +
     '<div class="h3">My assignments</div>' + slotsHtml(a.id, c) + '</div></div>';
 
   if (isCaptain(a.id) && a.team) {
@@ -2612,6 +2693,15 @@ function adminHtml() {
     '<p class="muted">Controls “today”, Now/Next and the countdown. Saved straight into the sheet.</p>' +
     '<div class="form-row"><input id="eventDateInput" type="date" value="' + esc(current) + '" aria-label="Assembly day">' +
     '<button class="btn primary" type="button" data-act="seteventdate">Save</button></div></div>';
+  const ct = (D && D.counting) || {};
+  h += '<div class="form-card"><div class="code-head"><strong>Counting times</strong>' +
+    '<span class="code-state ' + (ct.morning && ct.afternoon ? 'set' : 'unset') + '">' + esc((ct.morning || '–') + ' / ' + (ct.afternoon || '–')) + '</span></div>' +
+    '<p class="muted">Attendants with “counting” in their remark see these times and get a short vibration 5 minutes before.</p>' +
+    '<div class="form-row">' +
+      '<label class="time-field"><span>Morning</span><input id="countMorning" type="time" value="' + esc(ct.morning || '') + '"></label>' +
+      '<label class="time-field"><span>Afternoon</span><input id="countAfternoon" type="time" value="' + esc(ct.afternoon || '') + '"></label>' +
+    '</div>' +
+    '<button class="btn primary block" type="button" data-act="setcounttimes" style="margin-top:10px">Save counting times</button></div>';
   h += '<div class="form-card"><div class="code-head"><strong>Check-ins</strong>' +
     '<span class="code-state set">Auto reset after midnight</span></div>' +
     '<p class="muted">All check-ins are cleared automatically on the next day. Use this to start fresh right now.</p>' +
@@ -2790,6 +2880,25 @@ document.addEventListener('click', e => {
 
     case 'print-map': printMap(el.dataset.src, el.dataset.title); break;
 
+    case 'setcounttimes': {
+      const mo = ($('#countMorning') || {}).value || '';
+      const af = ($('#countAfternoon') || {}).value || '';
+      if ((mo && !/^\d{2}:\d{2}$/.test(mo)) || (af && !/^\d{2}:\d{2}$/.test(af)) || (!mo && !af)) { toast(ERR.bad_time, 'error'); break; }
+      (async () => {
+        try {
+          await api('setCountTimes', { morning: mo, afternoon: af, by: myId() });
+          buzz(60);
+          toast('Counting times saved');
+          await load(true);
+          renderPanel(clock(), true);
+        } catch (err) {
+          if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+          toast(errorText(err), 'error');
+        }
+      })();
+      break;
+    }
+
     case 'help-request': {
       const row = Number(el.dataset.row);
       confirmBox('Ask everyone for help?',
@@ -2911,6 +3020,7 @@ function typing() {
 
 // Status jede halbe Minute neu berechnen (nicht während der Eingabe)
 setInterval(() => {
+  if (!document.hidden) countAlerts();
   if (document.hidden || !D || !S.pin || typing()) return;
   render();
 }, TICK_MS);
@@ -2997,6 +3107,11 @@ function demoApi(action, p) {
           resolve({ ok: true });
           break;
         }
+        case 'setCountTimes':
+          if (p.morning) DEMO_SRC.counting.morning = p.morning;
+          if (p.afternoon) DEMO_SRC.counting.afternoon = p.afternoon;
+          resolve({ ok: true, counting: DEMO_SRC.counting });
+          break;
         case 'resetCheckins': {
           let n = 0;
           DEMO_SRC.attendants.forEach(a => { if (a.checkedIn) { a.checkedIn = false; n++; } });
@@ -3092,6 +3207,7 @@ function demoData() {
     version: 'demo',
     generatedAt: new Date().toISOString(),
     event: { date: today, timeZone: 'Europe/Berlin', soonMinutes: 15 },
+    counting: { morning: '10:15', afternoon: '14:30' },
     areas: ['Main Entrance / Lobby', 'Auditorium', 'Welcome', 'Cafeteria', 'Balcony', 'Stage'],
     attendants,
     positions
