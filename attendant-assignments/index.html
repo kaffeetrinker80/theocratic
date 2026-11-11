@@ -761,6 +761,48 @@
     .stat.on .stat-big { color: var(--on); }
     .stat.soon .stat-big { color: var(--soon); }
 
+    .map-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border: 1px solid var(--accent-border);
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .map-print svg { width: 17px; height: 17px; }
+    #printArea { display: none; }
+
+    @media print {
+      @page { margin: 10mm; }
+      body { padding: 0 !important; background: #fff !important; }
+      body > *:not(#printArea) { display: none !important; }
+      #printArea { display: block !important; color: #000; font-family: inherit; }
+      #printArea h1 { margin: 0 0 8px; font-size: 18pt; }
+      #printArea p { margin: 0 0 10px; font-size: 10pt; color: #444; }
+      #printArea img { display: block; max-width: 100%; max-height: 250mm; margin: 0 auto; }
+    }
+
+    .help-box { margin: 0 0 16px; padding: 12px 14px; border-radius: 16px; background: var(--soon-soft); border: 1px solid var(--soon-border); }
+    .help-head { margin-bottom: 4px; color: var(--soon); font-weight: 800; }
+    .help-item { padding: 10px 0; border-top: 1px solid var(--soon-border); }
+    .help-head + .help-item { border-top: 0; padding-top: 4px; }
+    .help-title { font-weight: 750; }
+    .help-sub { margin: 1px 0 8px; color: var(--muted); font-size: 13px; }
+    .help-wait { color: var(--muted); font-size: 14px; }
+    .help-wait.ok { color: var(--on); font-weight: 650; }
+    .help-offer { font-size: 15px; }
+    .help-btns { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .help-btns .btn { flex: 1; min-height: 42px; }
+    .tag.help { background: var(--soon); color: var(--card); }
+    .tag.from { background: var(--chip); color: var(--muted); border: 1px solid var(--border); font-weight: 650; }
+    .tab-ico { position: relative; }
+    .tab-dot { position: absolute; top: 1px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--soon); border: 2px solid var(--card); }
+
     /* MODAL + TOAST */
 
     .modal {
@@ -851,6 +893,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <div id="printArea" aria-hidden="true"></div>
+
   <nav class="tabbar" aria-label="Sections">
     <div class="tabbar-in" id="tabbarIn"></div>
   </nav>
@@ -863,7 +907,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.7.5';
+const VERSION = '0.9.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -934,7 +978,13 @@ const ERR = {
   required: 'This code cannot be removed.',
   bad_request: 'The request was incomplete.',
   unknown_team: 'This team does not exist in the Attendants list.',
-  bad_date: 'Please choose a valid date.'
+  bad_date: 'Please choose a valid date.',
+  already_requested: 'There is already a help request for this shift.',
+  identify_first: 'Please choose your name under My duty first.',
+  busy: 'You are already on duty at that time.',
+  already_offered: 'Someone else has already offered to take this shift.',
+  request_not_found: 'This help request no longer exists.',
+  request_not_offered: 'Nobody has offered to take this shift yet.'
 };
 
 const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
@@ -1232,8 +1282,11 @@ function indexData(src) {
     attendants: src.attendants || [],
     positions: src.positions || [],
     att: {},
-    byId: {}
+    byId: {},
+    requests: (src.requests || []).filter(r => r.status === 'open' || r.status === 'offered'),
+    reqByRow: {}
   };
+  d.requests.forEach(r => { d.reqByRow[r.row] = r; });
 
   d.attendants.forEach(a => { d.att[a.id] = a; });
 
@@ -1254,6 +1307,75 @@ function indexData(src) {
   Object.keys(d.byId).forEach(id => d.byId[id].sort((a, b) => order(a) - order(b)));
   d.areas = d.areas.filter(a => d.positions.some(p => p.area === a));
   return d;
+}
+
+// ---------- ERSATZ SUCHEN ----------
+
+function activeRequests(c) {
+  return D.requests
+    .map(r => ({ r: r, slot: findSlot(r.row) }))
+    .filter(x => x.slot && slotState(x.slot, c) !== 'past');
+}
+
+function fromTeam(s, p) {
+  if (!s.id) return '';
+  const a = D.att[s.id];
+  const home = positionTeam(p);
+  if (!a || !a.team || !home || isReserve(a.team) || a.team === home) return '';
+  return a.team;
+}
+
+function helpBoxHtml(c) {
+  const list = activeRequests(c);
+  if (!list.length) return '';
+  const me = myId();
+  const manage = can('editor');
+
+  const items = list.map(({ r, slot }) => {
+    let action = '';
+    if (manage) {
+      action = r.status === 'offered'
+        ? '<div class="help-offer"><strong>' + esc(nameOf(r.offerId)) + '</strong> can take it' +
+          (fromTeam({ id: r.offerId }, slot.pos) ? ' <span class="tag from">from ' + esc(D.att[r.offerId].team) + '</span>' : '') + '</div>' +
+          '<div class="help-btns"><button class="btn primary" type="button" data-act="help-confirm" data-id="' + esc(r.id) + '">Confirm</button>' +
+          '<button class="btn" type="button" data-act="help-decline" data-id="' + esc(r.id) + '">Decline</button></div>'
+        : '<div class="help-wait">Waiting for volunteers …</div>' +
+          '<div class="help-btns"><button class="linkish" type="button" data-act="help-cancel" data-id="' + esc(r.id) + '">Cancel request</button></div>';
+    } else if (me) {
+      if (r.status === 'offered') {
+        action = r.offerId === me
+          ? '<div class="help-wait ok">Thank you! Waiting for confirmation.</div>'
+          : '<div class="help-wait">Someone has already offered.</div>';
+      } else if (slot.id === me) {
+        action = '<div class="help-wait">This is your shift.</div>';
+      } else if (overlaps(me, slot).length) {
+        action = '<div class="help-wait">You are on duty at that time.</div>';
+      } else {
+        action = '<button class="btn primary block" type="button" data-act="help-offer" data-id="' + esc(r.id) + '">I can take it</button>';
+      }
+    } else {
+      action = '<div class="help-wait">Choose your name to offer help.</div>';
+    }
+
+    return '<div class="help-item">' +
+      '<div class="help-title">' + esc(slot.pos.label) + ' · ' + esc(timeText(slot)) + '</div>' +
+      '<div class="help-sub">' + esc(slot.pos.area) + (slot.id ? ' · currently ' + esc(nameOf(slot.id)) : ' · open') + '</div>' +
+      action + '</div>';
+  }).join('');
+
+  return '<section class="help-box"><div class="help-head">🙋 Help needed</div>' + items + '</section>';
+}
+
+async function helpAction(action, payload, message) {
+  try {
+    await api(action, Object.assign({ by: myId() }, payload));
+    toast(message);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
+  await load(true);
+  if (S.stack.length) renderPanel(clock(), true);
 }
 
 function teamsMap() {
@@ -1447,6 +1569,29 @@ async function loadAdmin() {
     S.admin = { pins: null, error: errorText(err) };
   }
   if (topPanel() && topPanel().type === 'access') renderPanel(clock(), true);
+}
+
+function printMap(src, title) {
+  const area = $('#printArea');
+  area.innerHTML = '<h1>' + esc(title) + ' · Position map</h1>' +
+    '<p>' + esc(APP_NAME) + (D && D.event && D.event.date ? ' · ' + esc(fmtDate(D.event.date, true)) : '') + '</p>' +
+    '<img alt="' + esc(title) + ' position map">';
+  const img = area.querySelector('img');
+  img.onload = () => setTimeout(() => window.print(), 50);
+  img.onerror = () => toast('The map image could not be loaded', 'error');
+  img.src = src;
+}
+
+async function resetCheckins() {
+  try {
+    const res = await api('resetCheckins', { by: myId() });
+    toast('All check-ins reset' + (res && typeof res.count === 'number' ? ' (' + res.count + ')' : ''));
+    await load(true);
+    renderPanel(clock(), true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
 }
 
 async function saveEventDate(date) {
@@ -1696,11 +1841,14 @@ function renderFooter() {
 
 function renderTabbar() {
   const tabs = TABS.filter(t => t !== 'checkin' || can('checkin'));
+  const helpDot = !!(D && S.pin && !isGuest() && activeRequests(clock()).some(x =>
+    can('editor') ? x.r.status === 'offered' : (x.r.status === 'open' && myId() && x.slot.id !== myId() && !overlaps(myId(), x.slot).length)));
   const bar = $('#tabbarIn');
   bar.style.setProperty('--tabs', tabs.length);
   bar.innerHTML = tabs.map(t =>
     '<button class="tab' + (t === S.tab ? ' active' : '') + '" type="button" data-act="tab" data-tab="' + t + '">' +
-    '<span class="tab-ico">' + TAB_ICON[t] + '</span>' + (t === 'me' && isGuest() ? 'Overview' : TAB_LABEL[t]) + '</button>'
+    '<span class="tab-ico">' + TAB_ICON[t] + (t === 'me' && helpDot ? '<span class="tab-dot"></span>' : '') + '</span>' +
+    (t === 'me' && isGuest() ? 'Overview' : TAB_LABEL[t]) + '</button>'
   ).join('');
 }
 
@@ -1714,7 +1862,7 @@ function renderLock() {
         '<img class="lock-logo" src="logo.jpg" alt="Circuit Assembly Attendants" ' +
           'onerror="this.outerHTML=\'<div class=&quot;lock-icon&quot;>🔒</div>\'">' +
         '<h2>Access code</h2>' +
-        '<p class="muted">Enter the code you received from the attendant department.</p>' +
+        '<p class="muted">Enter the code you received from the attendant department.<br>No code yet? Please ask your team captain.</p>' +
         '<input id="lockInput" name="aa-access-code" type="password" autocomplete="one-time-code" data-lpignore="true" autocapitalize="off" spellcheck="false" aria-label="Access code">' +
         '<label class="show-code"><input type="checkbox" id="lockShow"> Show code</label>' +
         '<button class="btn primary block" type="submit" id="lockBtn">Open</button>' +
@@ -1747,7 +1895,7 @@ function renderMe(c) {
 
   main.dataset.view = 'me';
   const a = D.att[S.me];
-  let html = '<div class="me-grid"><div class="me-left">' +
+  let html = helpBoxHtml(c) + '<div class="me-grid"><div class="me-left">' +
     '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' +
     '<div class="person-meta">' + teamLine(a.team) + '<span>·</span>' +
     '<button class="linkish" type="button" data-act="change-me">Not you?</button>' +
@@ -1898,7 +2046,8 @@ function posCard(p, c) {
 
   let html = '<div class="pos-card' + (p.type === 'tc' ? ' tc' : '') + '">' +
     '<button class="pos-head" type="button" data-act="ptoggle" data-key="' + esc(p.key) + '" aria-expanded="' + expanded + '">' +
-      '<span class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') + '</span>' +
+      '<span class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') +
+        (p.slots.some(x => D.reqByRow[x.row]) ? '<span class="tag help">Help needed</span>' : '') + '</span>' +
       '<span class="pos-chev">' + (expanded ? 'Hide ▴' : (rotation ? 'All shifts ▾' : 'Details ▾')) + '</span>' +
     '</button>';
 
@@ -1920,7 +2069,10 @@ function posCard(p, c) {
     if (rotation) {
       html += p.slots.map(s => {
         const state = slotState(s, c);
-        const inner = '<span class="t">' + esc(timeText(s)) + '</span><span class="n' + nameClass(s) + '">' + esc(slotName(s)) + '</span>';
+        const from = fromTeam(s, p);
+        const inner = '<span class="t">' + esc(timeText(s)) + '</span><span class="n' + nameClass(s) + '">' + esc(slotName(s)) +
+          (from ? '<span class="tag from">from ' + esc(from) + '</span>' : '') +
+          (D.reqByRow[s.row] ? '<span class="tag help">Help</span>' : '') + '</span>';
         return s.id
           ? '<button class="pos-line ' + state + '" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
           : '<div class="pos-line ' + state + '">' + inner + '</div>';
@@ -1948,7 +2100,7 @@ function renderPositions(c) {
   }
   const group = groups.find(g => g.key === S.area);
 
-  let html = '<div class="chips">' + groups.map(g =>
+  let html = (can('editor') ? helpBoxHtml(c) : '') + '<div class="chips">' + groups.map(g =>
     '<button class="chip' + (g.key === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
     '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) + '</button>'
   ).join('') + '</div>';
@@ -2099,7 +2251,9 @@ function renderMaps() {
         'onerror="this.closest(\'.map\').classList.add(\'no-img\')">' +
       '</button>' +
       '<div class="map-info"><div class="map-title">' + esc(m.title) + '</div>' +
-      '<div class="map-text">' + esc(m.text) + '</div></div>' +
+      '<div class="map-text">' + esc(m.text) + '</div>' +
+      '<button class="map-print" type="button" data-act="print-map" data-src="' + esc(m.file) + '" data-title="' + esc(m.title) + '">' +
+        '<svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>Print</button></div>' +
     '</div>'
   ).join('') + '</div>';
 }
@@ -2218,15 +2372,20 @@ function posPanelHtml(top, c) {
       (S.panelMap ? 'Hide position map' : 'Show position map') + '</button>';
     if (S.panelMap) {
       html += '<div class="map-inline"><img src="' + esc(map.file) + '" alt="' + esc(map.title) + ' position map" ' +
-        'data-act="zoom" data-src="' + esc(map.file) + '" data-alt="' + esc(map.title) + ' position map"></div>';
+        'data-act="zoom" data-src="' + esc(map.file) + '" data-alt="' + esc(map.title) + ' position map">' +
+        '<button class="map-print" type="button" data-act="print-map" data-src="' + esc(map.file) + '" data-title="' + esc(map.title) + '">' +
+        '<svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>Print map</button></div>';
     }
   }
 
   html += '<div class="h3">' + (rotation ? 'Full rotation' : 'Assigned · all day') + '</div>' + p.slots.map((s, i) => {
     const state = slotState(s, c);
     const cls = ['rot', state, i === selIndex ? 'sel' : ''].join(' ');
+    const from = fromTeam(s, p);
     const tags = (state === 'now' ? '<span class="tag now">Now</span>' : '') +
-      (i === selIndex ? '<span class="tag sel">Selected</span>' : '');
+      (i === selIndex ? '<span class="tag sel">Selected</span>' : '') +
+      (from ? '<span class="tag from">from ' + esc(from) + '</span>' : '') +
+      (D.reqByRow[s.row] ? '<span class="tag help">Help needed</span>' : '');
     const inner = '<span class="rot-time">' + esc(timeText(s)) + '</span>' +
       '<span><span class="rot-name' + nameClass(s) + '">' + esc(slotName(s)) + tags + '</span>' +
       (s.remark ? '<span class="rot-remark" style="display:block">' + esc(s.remark) + '</span>' : '') + '</span>';
@@ -2253,13 +2412,18 @@ function renderPick(top, c, force) {
     return;
   }
 
-  const key = 'pick:' + top.row + ':' + slot.id;
+  const key = 'pick:' + top.row + ':' + slot.id + ':' + (D.reqByRow[slot.row] ? D.reqByRow[slot.row].status : '');
   if (body.dataset.view !== key || force) {
     body.dataset.view = key;
     body.innerHTML = backBar() +
       '<h2>Change shift</h2>' +
       '<p class="sub">' + esc(timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) + '</p>' +
       '<div class="form-card"><div class="duo-label">Currently</div><div class="now-name">' + esc(slotName(slot)) + '</div></div>' +
+      (D.reqByRow[slot.row]
+        ? '<div class="note" style="margin-bottom:12px">A help request for this shift is ' + (D.reqByRow[slot.row].status === 'offered' ? 'answered – confirm it under My duty.' : 'open. Waiting for volunteers.') + '</div>'
+        : '<button class="btn block" type="button" data-act="help-request" data-row="' + slot.row + '" style="margin-bottom:6px">🙋 Ask everyone for help</button>' +
+          '<p class="muted" style="margin:0 2px 14px">All attendants see this shift. Whoever is free can offer to take it, then you confirm. His team stays the same.</p>') +
+      '<div class="h3" style="margin-top:6px">Or choose someone directly</div>' +
       '<div class="search"><input id="pickQ" name="aa-pickQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
       '<div id="pickList"></div>';
     const q = $('#pickQ');
@@ -2383,6 +2547,10 @@ function adminHtml() {
     '<p class="muted">Controls “today”, Now/Next and the countdown. Saved straight into the sheet.</p>' +
     '<div class="form-row"><input id="eventDateInput" type="date" value="' + esc(current) + '" aria-label="Assembly day">' +
     '<button class="btn primary" type="button" data-act="seteventdate">Save</button></div></div>';
+  h += '<div class="form-card"><div class="code-head"><strong>Check-ins</strong>' +
+    '<span class="code-state set">Auto reset after midnight</span></div>' +
+    '<p class="muted">All check-ins are cleared automatically on the next day. Use this to start fresh right now.</p>' +
+    '<button class="btn danger block" type="button" data-act="resetcheckins" style="margin-top:12px">Reset all check-ins now</button></div>';
   h += '<div class="h3">Access codes · admin</div>';
   if (!S.admin) return h + '<div class="empty">Loading…</div>';
   if (!S.admin.pins) return h + '<div class="note">' + esc(S.admin.error || 'Could not load the codes.') + '</div>';
@@ -2555,6 +2723,54 @@ document.addEventListener('click', e => {
       break;
     }
 
+    case 'print-map': printMap(el.dataset.src, el.dataset.title); break;
+
+    case 'help-request': {
+      const row = Number(el.dataset.row);
+      confirmBox('Ask everyone for help?',
+        '<p class="muted">All attendants will see this shift. Whoever is free can offer to take it. You confirm before anything changes.</p>',
+        'Send request', () => helpAction('requestHelp', { row: row }, 'Help request sent to all attendants'));
+      break;
+    }
+
+    case 'help-offer': {
+      const r = D.requests.find(x => x.id === el.dataset.id);
+      const slot = r && findSlot(r.row);
+      if (!slot) break;
+      confirmBox('Take this shift?',
+        '<p class="muted"><strong>' + esc(slot.pos.label) + ' · ' + esc(timeText(slot)) + '</strong><br>' + esc(slot.pos.area) +
+        '<br>The attendant department will confirm it. Your team stays the same.</p>',
+        'Yes, I can take it', () => helpAction('offerHelp', { reqId: r.id }, 'Thank you! Waiting for confirmation.'));
+      break;
+    }
+
+    case 'help-confirm': {
+      const r = D.requests.find(x => x.id === el.dataset.id);
+      const slot = r && findSlot(r.row);
+      if (!slot) break;
+      const from = fromTeam({ id: r.offerId }, slot.pos);
+      confirmBox('Assign ' + nameOf(r.offerId) + '?',
+        '<p class="muted">' + esc(slot.pos.label) + ' · ' + esc(timeText(slot)) + '<br>Currently: ' + esc(slotName(slot)) +
+        (from ? '<br>He helps out from team ' + esc(from) + ' – his team stays the same.' : '') + '</p>',
+        'Confirm', () => helpAction('confirmHelp', { reqId: r.id }, nameOf(r.offerId) + ' assigned'));
+      break;
+    }
+
+    case 'help-decline':
+      helpAction('declineHelp', { reqId: el.dataset.id }, 'Offer declined – the request is open again');
+      break;
+
+    case 'help-cancel':
+      confirmBox('Cancel this help request?', '<p class="muted">Nobody will see it any more.</p>', 'Cancel request',
+        () => helpAction('cancelHelp', { reqId: el.dataset.id }, 'Help request cancelled'));
+      break;
+
+    case 'resetcheckins':
+      confirmBox('Reset all check-ins?',
+        '<p class="muted">Every attendant will be shown as not checked in. This cannot be undone.</p>',
+        'Reset all', () => resetCheckins());
+      break;
+
     case 'seteventdate': {
       const input = $('#eventDateInput');
       const v = input ? input.value : '';
@@ -2678,6 +2894,48 @@ function demoApi(action, p) {
           const a = DEMO_SRC.attendants.find(x => x.id === p.newId);
           if (a && p.setTeam && isReserve(a.team)) { a.team = p.setTeam; team = p.setTeam; }
           resolve({ ok: true, team: team });
+          break;
+        }
+        case 'requestHelp': {
+          DEMO_SRC.requests = DEMO_SRC.requests || [];
+          if (DEMO_SRC.requests.some(r => r.row === p.row && (r.status === 'open' || r.status === 'offered'))) throw apiError('already_requested');
+          DEMO_SRC.requests.push({ id: 'r' + Date.now(), row: p.row, status: 'open', offerId: '' });
+          resolve({ ok: true });
+          break;
+        }
+        case 'offerHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (!r) throw apiError('request_not_found');
+          if (!p.by) throw apiError('identify_first');
+          if (r.status !== 'open') throw apiError('already_offered');
+          r.status = 'offered'; r.offerId = p.by;
+          resolve({ ok: true });
+          break;
+        }
+        case 'confirmHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (!r || r.status !== 'offered') throw apiError('request_not_offered');
+          DEMO_SRC.positions.forEach(x => x.slots.forEach(s => { if (s.row === r.row) s.id = r.offerId; }));
+          r.status = 'done';
+          resolve({ ok: true });
+          break;
+        }
+        case 'declineHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (r) { r.status = 'open'; r.offerId = ''; }
+          resolve({ ok: true });
+          break;
+        }
+        case 'cancelHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (r) r.status = 'cancelled';
+          resolve({ ok: true });
+          break;
+        }
+        case 'resetCheckins': {
+          let n = 0;
+          DEMO_SRC.attendants.forEach(a => { if (a.checkedIn) { a.checkedIn = false; n++; } });
+          resolve({ ok: true, count: n });
           break;
         }
         case 'setEventDate':
