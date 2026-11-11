@@ -907,14 +907,14 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.9.0';
+const VERSION = '0.9.1';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1' };
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1' };
 
 // Reserve-Brüder: Team in Spalte C (Großschreibung egal)
 const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
@@ -1366,9 +1366,50 @@ function helpBoxHtml(c) {
   return '<section class="help-box"><div class="help-head">🙋 Help needed</div>' + items + '</section>';
 }
 
+// Kurz vibrieren (Android; iPhone/Safari unterstützt das nicht und ignoriert es)
+function buzz(pattern) {
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { /* ignore */ }
+}
+
+// Neue, für diesen Bruder relevante Anfragen melden:
+//   Brüder  → neue offene Anfrage, zu der sie Zeit haben
+//   Admin/Co-Admin → jemand hat sich gemeldet und wartet auf Bestätigung
+function notifyRequests() {
+  if (!D || !S.pin || isGuest()) return;
+  const c = clock();
+  const me = myId();
+  const manage = can('editor');
+  let seen = [];
+  try { seen = JSON.parse(store.get(KEY.seen) || '[]'); } catch (e) { seen = []; }
+
+  const keys = [];
+  const fresh = [];
+  activeRequests(c).forEach(x => {
+    const relevant = manage
+      ? x.r.status === 'offered'
+      : (x.r.status === 'open' && me && x.slot.id !== me && !overlaps(me, x.slot).length);
+    if (!relevant) return;
+    const k = x.r.id + ':' + x.r.status + ':' + (x.r.offerId || '');
+    keys.push(k);
+    if (seen.indexOf(k) < 0) fresh.push(x);
+  });
+  store.set(KEY.seen, JSON.stringify(keys));
+
+  // beim Öffnen der App nicht vibrieren – der Kasten ist dann ohnehin sichtbar
+  if (!fresh.length || !S.notifyReady) { S.notifyReady = true; return; }
+
+  buzz([140, 90, 140]);
+  const x = fresh[0];
+  const what = x.slot.pos.label + ' · ' + timeText(x.slot);
+  toast(manage
+    ? nameOf(x.r.offerId) + ' can take ' + what + (fresh.length > 1 ? ' (+' + (fresh.length - 1) + ')' : '')
+    : '🙋 Help needed: ' + what + (fresh.length > 1 ? ' (+' + (fresh.length - 1) + ')' : ''));
+}
+
 async function helpAction(action, payload, message) {
   try {
     await api(action, Object.assign({ by: myId() }, payload));
+    buzz(60);
     toast(message);
   } catch (err) {
     if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
@@ -1459,6 +1500,7 @@ async function load(force) {
     S.loadedAt = Date.now();
     S.error = null;
     S.lockError = '';
+    notifyRequests();
   } catch (err) {
     if (err.code === 'unauthorized') {
       logout('This access code is not valid. Please enter the current code.');
