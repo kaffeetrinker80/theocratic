@@ -976,7 +976,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.11.0';
+const VERSION = '0.11.1';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1459,16 +1459,28 @@ function countOpen() {
   return !!(D && D.countSession && D.countSession.status === 'open');
 }
 
-// Zähl-Einteilungen, deren Schicht zur Startzeit der Zählung läuft (ganztags immer)
+// Zähl-Einteilungen für die laufende Zählung.
+// Maßgeblich ist die eingestellte Zählzeit (Morning/Afternoon), nicht der Startzeitpunkt.
+// Je Position: ganztags immer; sonst die Schicht, die die Zählzeit abdeckt,
+// notfalls die nächstgelegene (bis 90 Min. Abstand).
 function countJobsNow() {
   const sess = D.countSession;
   if (!sess) return [];
-  const m = toMin(sess.at);
+  const ref = toMin(D.counting[sess.label]) !== null ? toMin(D.counting[sess.label]) : toMin(sess.at);
   const jobs = [];
-  D.positions.forEach(p => p.slots.forEach(s => {
-    if (!/count/i.test(s.remark || '')) return;
-    if (s.allDay || s.s === null || m === null || (s.s <= m && m < s.e)) jobs.push(s);
-  }));
+  D.positions.forEach(p => {
+    const cs = p.slots.filter(s => /count/i.test(s.remark || ''));
+    if (!cs.length) return;
+    cs.filter(s => s.allDay || s.s === null).forEach(s => jobs.push(s));
+    const timed = cs.filter(s => !s.allDay && s.s !== null);
+    if (!timed.length) return;
+    if (ref === null) { timed.forEach(s => jobs.push(s)); return; }
+    const cover = timed.filter(s => s.s <= ref && ref < s.e);
+    if (cover.length) { cover.forEach(s => jobs.push(s)); return; }
+    const dist = s => (ref < s.s ? s.s - ref : ref - s.e);
+    const best = timed.slice().sort((a, b) => dist(a) - dist(b))[0];
+    if (dist(best) <= 90) jobs.push(best);
+  });
   return jobs;
 }
 
