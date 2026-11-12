@@ -871,6 +871,9 @@
     .cnt-v { min-width: 64px; text-align: right; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
     .cnt-line.ok .cnt-v { color: var(--text); font-size: 17px; font-weight: 800; }
     .cnt-pre { white-space: pre-wrap; font-size: 14px; }
+    .cnt-btns .btn { padding: 0 8px; font-size: 14px; }
+    .cnt-btns .btn.active { background: var(--chip); }
+    .cnt-result { margin-top: 12px; }
 
     /* MODAL + TOAST */
 
@@ -976,7 +979,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.11.1';
+const VERSION = '0.11.2';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1109,6 +1112,7 @@ const S = {
   ciQuery: '',
   ciFilter: 'open',
   countDraft: {},
+  countSummary: false,
   pickQuery: '',
   admin: null
 };
@@ -1518,10 +1522,15 @@ function countAdminHtml() {
   const head = '<div class="cnt-head">🔢 Counting</div>';
 
   if (!sess || sess.status !== 'open') {
+    const closed = sess && sess.status === 'closed';
     let html = '<section class="cnt-admin">' + head +
-      '<div class="help-btns"><button class="btn primary" type="button" data-act="count-start" data-label="morning">Start morning count</button>' +
-      '<button class="btn primary" type="button" data-act="count-start" data-label="afternoon">Start afternoon count</button></div>';
-    if (sess && sess.status === 'closed') html += countResultHtml(sess, false);
+      '<p class="muted" style="margin:0 0 2px">Start a count:</p><div class="help-btns cnt-btns">' +
+        '<button class="btn primary" type="button" data-act="count-start" data-label="morning">▶ Morning</button>' +
+        '<button class="btn primary" type="button" data-act="count-start" data-label="afternoon">▶ Afternoon</button>' +
+        (closed ? '<button class="btn' + (S.countSummary ? ' active' : '') + '" type="button" data-act="count-summary" aria-expanded="' + S.countSummary + '">' +
+          'Summary ' + (S.countSummary ? '▴' : '▾') + '</button>' : '') +
+      '</div>';
+    if (closed && S.countSummary) html += '<div class="cnt-result">' + countResultHtml(sess, false) + '</div>';
     return html + '</section>';
   }
 
@@ -3084,8 +3093,13 @@ document.addEventListener('click', e => {
     }
 
     case 'count-end':
-      confirmBox('End counting?', '<p class="muted">Nobody can send numbers for this count any more. The result stays visible today.</p>',
-        'End counting', () => countAction('countEnd', {}, 'Counting ended · total ' + countTotal(countJobsNow())));
+      confirmBox('End counting?', '<p class="muted">Nobody can send numbers for this count any more. The result stays available under “Summary” today.</p>',
+        'End counting', () => { S.countSummary = false; countAction('countEnd', {}, 'Counting ended · total ' + countTotal(countJobsNow())); });
+      break;
+
+    case 'count-summary':
+      S.countSummary = !S.countSummary;
+      render();
       break;
 
     case 'count-copy': {
