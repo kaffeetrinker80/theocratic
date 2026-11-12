@@ -882,6 +882,7 @@
     .cnt-table td:not(:first-child) { width: 64px; font-weight: 700; }
     .cnt-table tfoot td { font-weight: 800; border-bottom: 0; }
     .cnt-table tfoot tr.grand td { padding-top: 10px; font-size: 18px; border-top: 2px solid var(--text); }
+    .cnt-table tfoot tr.grand td:not(:first-child) { width: 64px; }
 
     /* MODAL + TOAST */
 
@@ -987,7 +988,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.12.0';
+const VERSION = '0.12.1';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1601,8 +1602,8 @@ function countDayHtml() {
   return '<div class="cnt-table-wrap"><table class="cnt-table"><thead><tr><th></th>' +
       d.cols.map(c => '<th>' + esc(c.head) + '</th>').join('') + '</tr></thead><tbody>' +
       d.rows.map(r => '<tr><td>' + esc(r.name) + '</td>' + d.cols.map(c => '<td>' + cell(r, c) + '</td>').join('') + '</tr>').join('') +
-    '</tbody><tfoot><tr><td>Total</td>' + d.cols.map(c => '<td>' + (c.entry ? c.total : '–') + '</td>').join('') + '</tr>' +
-      '<tr class="grand"><td>Grand total</td><td colspan="2">' + d.grand + '</td></tr></tfoot></table></div>' +
+    '</tbody><tfoot><tr class="grand"><td>Total</td>' + d.cols.map(c => '<td>' + (c.entry ? c.total : '–') + '</td>').join('') + '</tr>' +
+    '</tfoot></table></div>' +
     '<div class="help-btns"><button class="btn" type="button" data-act="count-copy" data-mode="day">Copy summary</button></div>';
 }
 
@@ -1611,8 +1612,7 @@ function countDayText() {
   const day = fmtDate(D.event.date || tzNow().date);
   const lines = ['*Counting – ' + day + '*', '(' + d.cols.map(c => c.head).join(' / ') + ')'];
   d.rows.forEach(r => lines.push(r.name + ': ' + d.cols.map(c => r.vals[c.key] != null ? r.vals[c.key] : '–').join(' / ')));
-  lines.push('Total: ' + d.cols.map(c => c.entry ? c.total : '–').join(' / '));
-  lines.push('*Grand total: ' + d.grand + '*');
+  d.cols.forEach(c => lines.push('*Total ' + c.head + ': ' + (c.entry ? c.total : '–') + '*'));
   return lines.join('\n');
 }
 
