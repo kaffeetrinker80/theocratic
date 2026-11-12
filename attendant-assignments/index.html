@@ -840,6 +840,38 @@
     .count-row.done { opacity: .55; }
     .time-field { flex: 1; display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 13px; font-weight: 600; }
 
+    .cnt-box, .cnt-admin { margin: 0 0 16px; padding: 12px 14px; border-radius: 16px; background: var(--on-soft); border: 1px solid var(--on-border); }
+    .cnt-admin { background: var(--card); border-color: var(--border); }
+    .cnt-admin.open { background: var(--accent-soft); border-color: var(--accent-border); }
+    .cnt-head { margin-bottom: 6px; font-weight: 800; }
+    .cnt-item + .cnt-item { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--on-border); }
+    .cnt-sent { margin-bottom: 6px; color: var(--on); font-size: 14px; }
+    .cnt-form { display: flex; gap: 8px; margin: 6px 0 4px; }
+    .cnt-input {
+      flex: 1;
+      min-width: 0;
+      height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      font-size: 20px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+    }
+    .cnt-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .cnt-sum { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 8px; }
+    .cnt-total { font-size: 30px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .cnt-list { border-top: 1px solid var(--border); }
+    .cnt-line { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .cnt-l { flex: 1; min-width: 0; }
+    .cnt-l strong { display: block; font-size: 14px; }
+    .cnt-l span { color: var(--muted); font-size: 12px; }
+    .cnt-v { min-width: 64px; text-align: right; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+    .cnt-line.ok .cnt-v { color: var(--text); font-size: 17px; font-weight: 800; }
+    .cnt-pre { white-space: pre-wrap; font-size: 14px; }
+
     /* MODAL + TOAST */
 
     .modal {
@@ -944,14 +976,14 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.10.0';
+const VERSION = '0.11.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1' };
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1', countSeen: 'aa-count-session-v1' };
 
 // Reserve-Brüder: Team in Spalte C (Großschreibung egal)
 const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
@@ -1022,7 +1054,12 @@ const ERR = {
   already_offered: 'Someone else has already offered to take this shift.',
   request_not_found: 'This help request no longer exists.',
   request_not_offered: 'Nobody has offered to take this shift yet.',
-  bad_time: 'Please enter a valid time.'
+  bad_time: 'Please enter a valid time.',
+  count_open: 'A count is already running. End it first.',
+  count_closed: 'This count has already been ended.',
+  bad_count: 'Please enter a whole number.',
+  not_counting: 'This position has no counting assignment.',
+  not_your_position: 'You can only send the number for your own position.'
 };
 
 const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
@@ -1071,6 +1108,7 @@ const S = {
   teamQuery: '',
   ciQuery: '',
   ciFilter: 'open',
+  countDraft: {},
   pickQuery: '',
   admin: null
 };
@@ -1322,10 +1360,13 @@ function indexData(src) {
     att: {},
     byId: {},
     counting: src.counting || {},
+    countSession: src.countSession || null,
+    countByRow: {},
     requests: (src.requests || []).filter(r => r.status === 'open' || r.status === 'offered'),
     reqByRow: {}
   };
   d.requests.forEach(r => { d.reqByRow[r.row] = r; });
+  (src.counts || []).forEach(x => { d.countByRow[x.row] = x; });
 
   d.attendants.forEach(a => { d.att[a.id] = a; });
 
@@ -1410,6 +1451,128 @@ function countAlerts() {
     }
   });
   store.set(KEY.countAlert, JSON.stringify(done.slice(-10)));
+}
+
+// ---------- ZÄHLUNG ÜBER DIE APP ----------
+
+function countOpen() {
+  return !!(D && D.countSession && D.countSession.status === 'open');
+}
+
+// Zähl-Einteilungen, deren Schicht zur Startzeit der Zählung läuft (ganztags immer)
+function countJobsNow() {
+  const sess = D.countSession;
+  if (!sess) return [];
+  const m = toMin(sess.at);
+  const jobs = [];
+  D.positions.forEach(p => p.slots.forEach(s => {
+    if (!/count/i.test(s.remark || '')) return;
+    if (s.allDay || s.s === null || m === null || (s.s <= m && m < s.e)) jobs.push(s);
+  }));
+  return jobs;
+}
+
+function countTotal(jobs) {
+  return jobs.reduce((n, s) => n + (D.countByRow[s.row] ? D.countByRow[s.row].count : 0), 0);
+}
+
+function countInput(s, label) {
+  const sent = D.countByRow[s.row];
+  const draft = S.countDraft[s.row] != null ? S.countDraft[s.row] : '';
+  return '<div class="cnt-form"><input class="cnt-input" type="number" inputmode="numeric" min="0" step="1" ' +
+    'data-row="' + s.row + '" value="' + esc(draft) + '" placeholder="' + (sent ? esc(sent.count) : 'Number') + '" aria-label="Count ' + esc(s.remark) + '">' +
+    '<button class="btn primary" type="button" data-act="count-submit" data-row="' + s.row + '">' + (label || (sent ? 'Update' : 'Send')) + '</button></div>';
+}
+
+// Karte für die zählenden Brüder
+function countNowHtml() {
+  if (!countOpen() || !myId()) return '';
+  const mine = countJobsNow().filter(s => s.id === myId());
+  if (!mine.length) return '';
+  return '<section class="cnt-box"><div class="cnt-head">🔢 Counting now · ' + esc(COUNT_LABEL[D.countSession.label] || '') + '</div>' +
+    mine.map(s => {
+      const sent = D.countByRow[s.row];
+      return '<div class="cnt-item"><div class="help-title">' + esc(s.remark) + '</div>' +
+        '<div class="help-sub">' + esc(s.pos.label) + ' · ' + esc(s.pos.area) + '</div>' +
+        (sent ? '<div class="cnt-sent">✓ Sent: <strong>' + esc(sent.count) + '</strong> · you can still correct it</div>' : '') +
+        countInput(s) + '</div>';
+    }).join('') + '</section>';
+}
+
+// Steuerung + Auswertung für Admin/Co-Admin
+function countAdminHtml() {
+  if (!can('editor')) return '';
+  const sess = D.countSession;
+  const head = '<div class="cnt-head">🔢 Counting</div>';
+
+  if (!sess || sess.status !== 'open') {
+    let html = '<section class="cnt-admin">' + head +
+      '<div class="help-btns"><button class="btn primary" type="button" data-act="count-start" data-label="morning">Start morning count</button>' +
+      '<button class="btn primary" type="button" data-act="count-start" data-label="afternoon">Start afternoon count</button></div>';
+    if (sess && sess.status === 'closed') html += countResultHtml(sess, false);
+    return html + '</section>';
+  }
+
+  return '<section class="cnt-admin open">' + head + countResultHtml(sess, true) +
+    '<div class="help-btns"><button class="btn" type="button" data-act="count-copy">Copy summary</button>' +
+    '<button class="btn primary" type="button" data-act="count-end">End counting</button></div></section>';
+}
+
+function countResultHtml(sess, open) {
+  const jobs = countJobsNow();
+  const done = jobs.filter(s => D.countByRow[s.row]).length;
+  let html = '<div class="cnt-sum"><div><span class="cnt-total">' + countTotal(jobs) + '</span> total</div>' +
+    '<div class="muted">' + esc(COUNT_LABEL[sess.label] || '') + ' · started ' + esc(sess.at) + ' · ' + done + ' of ' + jobs.length + ' sent' +
+    (open ? '' : ' · ended') + '</div></div>';
+  html += '<div class="cnt-list">' + jobs.map(s => {
+    const sent = D.countByRow[s.row];
+    return '<div class="cnt-line' + (sent ? ' ok' : '') + '">' +
+      '<div class="cnt-l"><strong>' + esc(s.remark) + '</strong><span>' + esc(slotName(s)) + '</span></div>' +
+      '<div class="cnt-v">' + (sent ? esc(sent.count) : (open ? 'waiting…' : '–')) + '</div>' +
+      (open ? '<button class="linkish" type="button" data-act="count-manual" data-row="' + s.row + '">' + (sent ? 'Edit' : 'Enter') + '</button>' : '') +
+      '</div>' + (open && S.countDraft['m' + s.row] ? countInput(s, 'Save') : '');
+  }).join('') + '</div>';
+  if (!open) html += '<div class="help-btns"><button class="btn" type="button" data-act="count-copy">Copy summary</button></div>';
+  return html;
+}
+
+function countSummaryText() {
+  const sess = D.countSession;
+  const jobs = countJobsNow();
+  const lines = ['*Counting – ' + (COUNT_LABEL[sess.label] || '') + '* (' + fmtDate(D.event.date || sess.started.slice(0, 10)) + ', ' + sess.at + ')'];
+  jobs.forEach(s => lines.push(s.remark + ': ' + (D.countByRow[s.row] ? D.countByRow[s.row].count : '–')));
+  lines.push('*Total: ' + countTotal(jobs) + '*');
+  return lines.join('\n');
+}
+
+async function countAction(action, payload, message) {
+  try {
+    await api(action, Object.assign({ by: myId() }, payload));
+    buzz(60);
+    if (message) toast(message);
+    return true;
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return false; }
+    toast(errorText(err), 'error');
+    return false;
+  } finally {
+    await load(true);
+  }
+}
+
+// Brüder mit Zähl-Einteilung: einmal vibrieren, wenn eine Zählung startet
+function notifyCount() {
+  if (!countOpen() || !myId()) { S.countNotifyReady = true; return; }
+  const mine = countJobsNow().filter(s => s.id === myId() && !D.countByRow[s.row]);
+  const seen = store.get(KEY.countSeen);
+  if (mine.length && seen !== D.countSession.id) {
+    store.set(KEY.countSeen, D.countSession.id);
+    if (S.countNotifyReady) {
+      buzz([220, 110, 220, 110, 220]);
+      toast('🔢 Counting started – please send your number');
+    }
+  }
+  S.countNotifyReady = true;
 }
 
 // ---------- ERSATZ SUCHEN ----------
@@ -1605,6 +1768,7 @@ async function load(force) {
     S.lockError = '';
     notifyRequests();
     countAlerts();
+    notifyCount();
   } catch (err) {
     if (err.code === 'unauthorized') {
       logout('This access code is not valid. Please enter the current code.');
@@ -1987,7 +2151,8 @@ function renderFooter() {
 
 function renderTabbar() {
   const tabs = TABS.filter(t => t !== 'checkin' || can('checkin'));
-  const helpDot = !!(D && S.pin && !isGuest() && activeRequests(clock()).some(x =>
+  const countDot = !!(D && S.pin && countOpen() && myId() && countJobsNow().some(s => s.id === myId() && !D.countByRow[s.row]));
+  const helpDot = countDot || !!(D && S.pin && !isGuest() && activeRequests(clock()).some(x =>
     can('editor') ? x.r.status === 'offered' : (x.r.status === 'open' && myId() && x.slot.id !== myId() && !overlaps(myId(), x.slot).length)));
   const bar = $('#tabbarIn');
   bar.style.setProperty('--tabs', tabs.length);
@@ -2041,12 +2206,12 @@ function renderMe(c) {
 
   main.dataset.view = 'me';
   const a = D.att[S.me];
-  let html = helpBoxHtml(c) + '<div class="me-grid"><div class="me-left">' +
+  let html = countNowHtml() + countAdminHtml() + helpBoxHtml(c) + '<div class="me-grid"><div class="me-left">' +
     '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' +
     '<div class="person-meta">' + teamLine(a.team) + '<span>·</span>' +
     '<button class="linkish" type="button" data-act="change-me">Not you?</button>' +
     (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div></div></div>' +
-    heroHtml(a.id, c) + countCardHtml(a.id, c) + '</div><div class="me-right">' +
+    heroHtml(a.id, c) + (countNowHtml() ? '' : countCardHtml(a.id, c)) + '</div><div class="me-right">' +
     '<div class="h3">My assignments</div>' + slotsHtml(a.id, c) + '</div></div>';
 
   if (isCaptain(a.id) && a.team) {
@@ -2246,7 +2411,7 @@ function renderPositions(c) {
   }
   const group = groups.find(g => g.key === S.area);
 
-  let html = (can('editor') ? helpBoxHtml(c) : '') + '<div class="chips">' + groups.map(g =>
+  let html = (can('editor') ? countAdminHtml() + helpBoxHtml(c) : '') + '<div class="chips">' + groups.map(g =>
     '<button class="chip' + (g.key === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
     '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) + '</button>'
   ).join('') + '</div>';
@@ -2880,6 +3045,45 @@ document.addEventListener('click', e => {
 
     case 'print-map': printMap(el.dataset.src, el.dataset.title); break;
 
+    case 'count-start': {
+      const label = el.dataset.label;
+      confirmBox('Start the ' + COUNT_LABEL[label].toLowerCase() + ' count?',
+        '<p class="muted">Everyone with a counting assignment now sees an input field and gets a short vibration.</p>',
+        'Start counting', () => countAction('countStart', { label: label, at: fmtMin(clock().min) }, 'Counting started'));
+      break;
+    }
+
+    case 'count-submit': {
+      const row = Number(el.dataset.row);
+      const input = el.parentNode.querySelector('.cnt-input');
+      const v = input ? input.value.trim() : '';
+      if (!/^\d+$/.test(v)) { toast(ERR.bad_count, 'error'); break; }
+      el.disabled = true;
+      countAction('countSubmit', { sessionId: D.countSession.id, row: row, count: Number(v) }, 'Thank you! Number sent: ' + v)
+        .then(ok => { if (ok) { delete S.countDraft[row]; delete S.countDraft['m' + row]; render(); } });
+      break;
+    }
+
+    case 'count-manual': {
+      const k = 'm' + el.dataset.row;
+      if (S.countDraft[k]) delete S.countDraft[k]; else S.countDraft[k] = ' ';
+      render();
+      break;
+    }
+
+    case 'count-end':
+      confirmBox('End counting?', '<p class="muted">Nobody can send numbers for this count any more. The result stays visible today.</p>',
+        'End counting', () => countAction('countEnd', {}, 'Counting ended · total ' + countTotal(countJobsNow())));
+      break;
+
+    case 'count-copy': {
+      const text = countSummaryText();
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+        .then(() => toast('Summary copied – paste it into WhatsApp'))
+        .catch(() => { confirmBox('Summary', '<pre class="cnt-pre">' + esc(text) + '</pre>', 'OK', null); });
+      break;
+    }
+
     case 'setcounttimes': {
       const mo = ($('#countMorning') || {}).value || '';
       const af = ($('#countAfternoon') || {}).value || '';
@@ -2992,6 +3196,19 @@ document.addEventListener('click', e => {
 });
 
 $('#overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeOverlay(); });
+
+// Zählfeld: Eingabe merken, damit sie beim automatischen Aktualisieren nicht verloren geht
+document.addEventListener('input', e => {
+  if (e.target && e.target.classList && e.target.classList.contains('cnt-input')) {
+    S.countDraft[e.target.dataset.row] = e.target.value;
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.classList && e.target.classList.contains('cnt-input')) {
+    const btn = e.target.parentNode.querySelector('[data-act="count-submit"]');
+    if (btn) btn.click();
+  }
+});
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') hideModal(); });
 
 document.addEventListener('keydown', e => {
@@ -3026,10 +3243,12 @@ setInterval(() => {
 }, TICK_MS);
 
 // Daten regelmäßig neu laden
+// während einer Zählung alle 20 Sekunden, sonst jede Minute
 setInterval(() => {
   if (document.hidden || !S.pin || S.busy || DEMO || typing() || Object.keys(S.pending).length) return;
-  load(false);
-}, REFRESH_MS);
+  const every = countOpen() ? 20 * 1000 : REFRESH_MS;
+  if (!S.loadedAt || Date.now() - S.loadedAt >= every - 1000) load(false);
+}, 20 * 1000);
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden || !S.pin || DEMO || S.busy) return;
@@ -3107,6 +3326,23 @@ function demoApi(action, p) {
           resolve({ ok: true });
           break;
         }
+        case 'countStart':
+          if (DEMO_SRC.countSession && DEMO_SRC.countSession.status === 'open') throw apiError('count_open');
+          DEMO_SRC.countSession = { id: 'c' + Date.now(), label: p.label, at: p.at, status: 'open', started: tzNow().date + 'T' + p.at };
+          DEMO_SRC.counts = [];
+          resolve({ ok: true });
+          break;
+        case 'countSubmit': {
+          if (!DEMO_SRC.countSession || DEMO_SRC.countSession.status !== 'open') throw apiError('count_closed');
+          DEMO_SRC.counts = (DEMO_SRC.counts || []).filter(x => x.row !== p.row).concat([{ row: p.row, count: p.count }]);
+          resolve({ ok: true });
+          break;
+        }
+        case 'countEnd':
+          if (!DEMO_SRC.countSession || DEMO_SRC.countSession.status !== 'open') throw apiError('count_closed');
+          DEMO_SRC.countSession.status = 'closed';
+          resolve({ ok: true });
+          break;
         case 'setCountTimes':
           if (p.morning) DEMO_SRC.counting.morning = p.morning;
           if (p.afternoon) DEMO_SRC.counting.afternoon = p.afternoon;
