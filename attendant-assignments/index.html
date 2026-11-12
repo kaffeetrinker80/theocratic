@@ -874,6 +874,14 @@
     .cnt-btns .btn { padding: 0 8px; font-size: 14px; }
     .cnt-btns .btn.active { background: var(--chip); }
     .cnt-result { margin-top: 12px; }
+    .cnt-table-wrap { overflow-x: auto; }
+    .cnt-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .cnt-table th, .cnt-table td { padding: 7px 4px; border-bottom: 1px solid var(--border); text-align: right; }
+    .cnt-table th:first-child, .cnt-table td:first-child { text-align: left; padding-left: 0; }
+    .cnt-table th { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .cnt-table td:not(:first-child) { width: 64px; font-weight: 700; }
+    .cnt-table tfoot td { font-weight: 800; border-bottom: 0; }
+    .cnt-table tfoot tr.grand td { padding-top: 10px; font-size: 18px; border-top: 2px solid var(--text); }
 
     /* MODAL + TOAST */
 
@@ -979,7 +987,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.11.2';
+const VERSION = '0.12.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1365,6 +1373,7 @@ function indexData(src) {
     byId: {},
     counting: src.counting || {},
     countSession: src.countSession || null,
+    countDay: src.countDay || [],
     countByRow: {},
     requests: (src.requests || []).filter(r => r.status === 'open' || r.status === 'offered'),
     reqByRow: {}
@@ -1468,7 +1477,10 @@ function countOpen() {
 // Je Position: ganztags immer; sonst die Schicht, die die Zählzeit abdeckt,
 // notfalls die nächstgelegene (bis 90 Min. Abstand).
 function countJobsNow() {
-  const sess = D.countSession;
+  return countJobsFor(D.countSession);
+}
+
+function countJobsFor(sess) {
   if (!sess) return [];
   const ref = toMin(D.counting[sess.label]) !== null ? toMin(D.counting[sess.label]) : toMin(sess.at);
   const jobs = [];
@@ -1522,7 +1534,7 @@ function countAdminHtml() {
   const head = '<div class="cnt-head">🔢 Counting</div>';
 
   if (!sess || sess.status !== 'open') {
-    const closed = sess && sess.status === 'closed';
+    const closed = D.countDay.length > 0;
     let html = '<section class="cnt-admin">' + head +
       '<p class="muted" style="margin:0 0 2px">Start a count:</p><div class="help-btns cnt-btns">' +
         '<button class="btn primary" type="button" data-act="count-start" data-label="morning">▶ Morning</button>' +
@@ -1530,7 +1542,7 @@ function countAdminHtml() {
         (closed ? '<button class="btn' + (S.countSummary ? ' active' : '') + '" type="button" data-act="count-summary" aria-expanded="' + S.countSummary + '">' +
           'Summary ' + (S.countSummary ? '▴' : '▾') + '</button>' : '') +
       '</div>';
-    if (closed && S.countSummary) html += '<div class="cnt-result">' + countResultHtml(sess, false) + '</div>';
+    if (closed && S.countSummary) html += '<div class="cnt-result">' + countDayHtml() + '</div>';
     return html + '</section>';
   }
 
@@ -1555,6 +1567,53 @@ function countResultHtml(sess, open) {
   }).join('') + '</div>';
   if (!open) html += '<div class="help-btns"><button class="btn" type="button" data-act="count-copy">Copy summary</button></div>';
   return html;
+}
+
+// Tagesübersicht: je Zählposition Vormittag | Nachmittag, Summen und Grand total
+function countDayData() {
+  const cols = ['morning', 'afternoon'].map(k => {
+    const entry = D.countDay.find(x => x.session.label === k) || null;
+    return { key: k, head: D.counting[k] || (entry ? entry.session.at : COUNT_LABEL[k]), entry: entry, total: 0 };
+  });
+  const rows = {};
+  const order = [];
+  const ensure = (key, name, sortRow) => {
+    if (!rows[key]) { rows[key] = { name: name, sort: sortRow, vals: {} }; order.push(key); }
+    return rows[key];
+  };
+  cols.forEach(col => {
+    if (!col.entry) return;
+    countJobsFor(col.entry.session).forEach(s => ensure(s.pos.key, s.remark, s.pos.row));
+    col.entry.counts.forEach(x => {
+      const s = findSlot(x.row);
+      const r = ensure(s ? s.pos.key : 'row' + x.row, s ? s.remark : 'Row ' + x.row, s ? s.pos.row : 99999);
+      r.vals[col.key] = x.count;
+      col.total += x.count;
+    });
+  });
+  order.sort((a, b) => rows[a].sort - rows[b].sort);
+  return { cols: cols, rows: order.map(k => rows[k]), grand: cols.reduce((n, c) => n + c.total, 0) };
+}
+
+function countDayHtml() {
+  const d = countDayData();
+  const cell = (r, col) => col.entry ? (r.vals[col.key] != null ? esc(r.vals[col.key]) : '–') : '';
+  return '<div class="cnt-table-wrap"><table class="cnt-table"><thead><tr><th></th>' +
+      d.cols.map(c => '<th>' + esc(c.head) + '</th>').join('') + '</tr></thead><tbody>' +
+      d.rows.map(r => '<tr><td>' + esc(r.name) + '</td>' + d.cols.map(c => '<td>' + cell(r, c) + '</td>').join('') + '</tr>').join('') +
+    '</tbody><tfoot><tr><td>Total</td>' + d.cols.map(c => '<td>' + (c.entry ? c.total : '–') + '</td>').join('') + '</tr>' +
+      '<tr class="grand"><td>Grand total</td><td colspan="2">' + d.grand + '</td></tr></tfoot></table></div>' +
+    '<div class="help-btns"><button class="btn" type="button" data-act="count-copy" data-mode="day">Copy summary</button></div>';
+}
+
+function countDayText() {
+  const d = countDayData();
+  const day = fmtDate(D.event.date || tzNow().date);
+  const lines = ['*Counting – ' + day + '*', '(' + d.cols.map(c => c.head).join(' / ') + ')'];
+  d.rows.forEach(r => lines.push(r.name + ': ' + d.cols.map(c => r.vals[c.key] != null ? r.vals[c.key] : '–').join(' / ')));
+  lines.push('Total: ' + d.cols.map(c => c.entry ? c.total : '–').join(' / '));
+  lines.push('*Grand total: ' + d.grand + '*');
+  return lines.join('\n');
 }
 
 function countSummaryText() {
@@ -3103,7 +3162,7 @@ document.addEventListener('click', e => {
       break;
 
     case 'count-copy': {
-      const text = countSummaryText();
+      const text = el.dataset.mode === 'day' ? countDayText() : countSummaryText();
       (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
         .then(() => toast('Summary copied – paste it into WhatsApp'))
         .catch(() => { confirmBox('Summary', '<pre class="cnt-pre">' + esc(text) + '</pre>', 'OK', null); });
@@ -3367,6 +3426,8 @@ function demoApi(action, p) {
         case 'countEnd':
           if (!DEMO_SRC.countSession || DEMO_SRC.countSession.status !== 'open') throw apiError('count_closed');
           DEMO_SRC.countSession.status = 'closed';
+          DEMO_SRC.countDay = (DEMO_SRC.countDay || []).filter(x => x.session.label !== DEMO_SRC.countSession.label)
+            .concat([{ session: Object.assign({}, DEMO_SRC.countSession), counts: (DEMO_SRC.counts || []).slice() }]);
           resolve({ ok: true });
           break;
         case 'setCountTimes':
