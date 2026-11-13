@@ -1054,7 +1054,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.0';
+const VERSION = '0.13.1';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1281,6 +1281,15 @@ function fmtMin(m) {
 }
 
 const byName = (a, b) => a.name.localeCompare(b.name);
+
+// Namenssuche: jedes eingegebene Wort muss vorkommen, Reihenfolge egal
+// ("Daniel Eiter" findet "Eiter Daniel, Munich"; auch "eit dan" funktioniert)
+function nameMatch(name, q) {
+  const words = norm(q).split(/[\s,]+/).filter(Boolean);
+  if (!words.length) return false;
+  const n = norm(name);
+  return words.every(w => n.includes(w));
+}
 
 // Gast = jemand, der nicht im Schichtplan steht (z. B. Safety, Beobachter)
 const GUEST = '__guest__';
@@ -2644,7 +2653,7 @@ function renderIdentifyList() {
       : '';
     return;
   }
-  const hits = D.attendants.filter(a => norm(a.name).includes(q)).sort(byName).slice(0, 12);
+  const hits = D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 12);
   box.innerHTML = hits.length
     ? resultsHtml(hits, 'identify')
     : '<div class="empty">No attendant found for “' + esc(S.meQuery.trim()) + '”.</div>';
@@ -2806,7 +2815,7 @@ function renderTeamsBody(c) {
   const q = norm(S.teamQuery.trim());
 
   if (q.length >= 2) {
-    const hits = D.attendants.filter(a => norm(a.name).includes(q)).sort(byName).slice(0, 30);
+    const hits = D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 30);
     box.innerHTML = hits.length
       ? '<div class="team-block"><div class="members">' + hits.map(m => memberRow(m, c, true)).join('') + '</div></div>'
       : '<div class="empty">No attendant found for “' + esc(S.teamQuery.trim()) + '”.</div>';
@@ -2865,7 +2874,7 @@ function renderCheckinBody(c) {
 
   const q = norm(S.ciQuery.trim());
   let list = all;
-  if (q) list = list.filter(a => norm(a.name).includes(q));
+  if (q) list = list.filter(a => nameMatch(a.name, q));
   else if (S.ciFilter === 'open') list = list.filter(a => !a.checkedIn);
   else if (S.ciFilter === 'in') list = list.filter(a => a.checkedIn);
   list = list.slice().sort(byName);
@@ -3095,7 +3104,7 @@ function renderPickList(slot) {
   const q = norm(S.pickQuery.trim());
 
   let list = q.length >= 2
-    ? D.attendants.filter(a => norm(a.name).includes(q))
+    ? D.attendants.filter(a => nameMatch(a.name, q))
     : (team ? D.attendants.filter(a => a.team === team) : []);
   list = list.filter(a => a.id !== slot.id).sort(byName).slice(0, 40);
   const reserves = q.length >= 2 ? [] :
