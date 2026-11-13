@@ -667,7 +667,7 @@
   
     /* ACCESS / LOCK */
 
-    body.locked .tabbar, body.locked .top-actions { display: none; }
+    body.locked .tabbar, body.locked .top-actions, body.locked .em-fab { display: none; }
     body.locked { padding-bottom: 24px; }
     .top-actions { display: flex; gap: 8px; }
     .lock { max-width: 380px; margin: 36px auto 0; text-align: center; }
@@ -884,6 +884,68 @@
     .cnt-table tfoot tr.grand td { padding-top: 10px; font-size: 18px; border-top: 2px solid var(--text); }
     .cnt-table tfoot tr.grand td:not(:first-child) { width: 64px; }
 
+    /* EMERGENCY */
+    .em-fab {
+      position: fixed;
+      right: 14px;
+      bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+      z-index: 35;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: #c62828;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(198, 40, 40, .35);
+    }
+    .em-fab svg { width: 26px; height: 26px; stroke-width: 2.2; }
+    .panel.open ~ .em-fab { display: none; }
+    body { padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px)); }
+    .em-first { margin: 4px 0 14px; padding: 14px 16px; border-radius: 16px; background: #fff4e5; border: 1px solid #f3c98b; color: #3d2a06; font-size: 16px; font-weight: 700; line-height: 1.7; }
+    .em-first p { margin: 6px 0 0; font-size: 13px; font-weight: 500; opacity: .8; }
+    .em-calls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+    .em-call { display: flex; flex-direction: column; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); color: var(--text); text-decoration: none; }
+    .em-call strong { font-size: 15px; }
+    .em-call span { margin-top: 2px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .em-call.main { grid-column: 1 / -1; border-color: var(--accent-border); background: var(--accent-soft); }
+    .em-call.police strong, .em-call.fire strong { color: #c62828; }
+    .ap { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fff; vertical-align: 1px; }
+    .ap-W { background: #2e7d32; }
+    .ap-E { background: #c62828; }
+    .evac-card { margin-bottom: 8px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); }
+    .evac-card.current { border-color: var(--on-border); background: var(--on-soft); }
+    .evac-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .evac-pos { font-weight: 750; }
+    .evac-t { margin-top: 4px; font-size: 15px; line-height: 1.45; }
+    .evac-where { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .evac-card .linkish { padding: 6px 0 0; }
+    .evac-leaders { display: grid; gap: 6px; margin-top: 4px; padding: 10px 2px; color: var(--muted); font-size: 14px; }
+    .evac-leaders strong { color: var(--text); }
+    .evac-plans { display: flex; gap: 16px; }
+    .evac-plans .linkish { padding: 2px 0; }
+    .em-report { padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); font-size: 15px; line-height: 1.7; }
+    .em-case { margin-bottom: 8px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); }
+    .em-case summary { padding: 12px 14px; font-weight: 750; cursor: pointer; list-style: none; }
+    .em-case summary::-webkit-details-marker { display: none; }
+    .em-case summary::after { content: '▾'; float: right; color: var(--muted); }
+    .em-case[open] summary::after { content: '▴'; }
+    .em-case ul { margin: 0; padding: 0 16px 12px 34px; font-size: 15px; line-height: 1.6; }
+    .evac-line { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); font-size: 14px; font-weight: 650; text-align: left; }
+    .evac-line span:not(.ap) { color: var(--muted); font-weight: 600; }
+    .evac-line .evac-more { margin-left: auto; font-size: 18px; }
+    .evac-check { margin: 0 0 16px; padding: 12px 14px; border-radius: 16px; background: #fff4e5; border: 1px solid #f3c98b; }
+    .evac-check .btn { margin-top: 4px; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .em-first, :root:not([data-theme="light"]) .evac-check { background: #3a2a12; border-color: #6b4c1c; color: #f5deb3; }
+    }
+    :root[data-theme="dark"] .em-first, :root[data-theme="dark"] .evac-check { background: #3a2a12; border-color: #6b4c1c; color: #f5deb3; }
+    @media (min-width: 1000px) {
+      .em-fab { bottom: 28px; right: 28px; }
+      body { padding-bottom: 0; }
+    }
+
     /* MODAL + TOAST */
 
     .modal {
@@ -976,6 +1038,10 @@
 
   <div id="printArea" aria-hidden="true"></div>
 
+  <button class="em-fab" type="button" data-act="emergency" aria-label="Emergency">
+    <svg class="i" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4"/><path d="M12 17.2v.1"/></svg>
+  </button>
+
   <nav class="tabbar" aria-label="Sections">
     <div class="tabbar-in" id="tabbarIn"></div>
   </nav>
@@ -988,14 +1054,14 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.12.1';
+const VERSION = '0.13.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1', countSeen: 'aa-count-session-v1' };
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1', countSeen: 'aa-count-session-v1', evacAck: 'aa-evac-ack-v1' };
 
 // Reserve-Brüder: Team in Spalte C (Großschreibung egal)
 const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
@@ -1010,9 +1076,71 @@ const MAPS = [
     keywords: ['cafeteria', 'stage', 'baptism'], from: 33, to: 41 },
   { id: 'balcony', title: 'Balcony', file: 'positions-balcony.jpg',
     text: 'Balcony attendant positions.',
-    keywords: ['balcony'], from: 42, to: 44 }
+    keywords: ['balcony'], from: 42, to: 44 },
+  { id: 'evac-eg', title: 'Evacuation · Ground floor', file: 'evacuation-eg.jpg',
+    text: 'Auditorium, foyer and stage – exits and assembly points WEST / EAST.', keywords: [] },
+  { id: 'evac-ug', title: 'Evacuation · Lower floor', file: 'evacuation-ug.jpg',
+    text: 'Cafeteria, First Aid and baptism area – exits and assembly points.', keywords: [] }
 ];
 const MAP_KEYWORD_ORDER = ['cafeteria', 'balcony', 'auditorium'];
+
+// =====================================================
+// EVACUATION – Kongresssaal München (Positionsnummer → Sammelstelle + Aufgabe)
+// W = assembly point WEST (towards the O2 tower), E = assembly point EAST (car park, back corner)
+// =====================================================
+const ASSEMBLY = {
+  W: { name: 'WEST', where: 'towards the O2 tower' },
+  E: { name: 'EAST', where: 'car park in the back corner' }
+};
+const UG_NOTE = ' Ask everyone in the middle of the cafeteria to come along with you.';
+const EVAC = {
+  1: { ap: 'W', t: 'Secure the evacuation to the west through the foyer.' },
+  2: { ap: 'W', t: 'Secure the evacuation to the west through the foyer.' },
+  3: { ap: 'W', t: 'Secure the evacuation to the west through the foyer.' },
+  4: { ap: 'W', t: 'Only staffed at times. Guide everyone west.' },
+  5: { ap: 'W', t: 'Only staffed at times. Guide everyone west.' },
+  6: { ap: 'W', t: 'Welcome – usually only in the morning. If on duty: guide everyone west.' },
+  7: { ap: 'W', t: 'Welcome – usually only in the morning. If on duty: guide everyone west.' },
+  8: { ap: 'W', t: 'Welcome – usually only in the morning. If on duty: guide everyone west.' },
+  9: { ap: 'E', t: 'Purple exit (north-east).' },
+  10: { ap: 'E', t: 'Purple exit (north-east).' },
+  11: { ap: 'E', t: 'Purple exit (north-east).' },
+  12: { ap: 'W', t: 'Green exit to the rear.' },
+  13: { ap: 'W', t: 'Last attendant to the rear: send everyone in front of you to the purple exit, then clear your block to the rear and go with them.' },
+  14: { ap: 'E', t: 'Purple exit (north-east).' },
+  15: { ap: 'W', t: 'Green exit to the rear.' },
+  16: { ap: 'W', t: 'Green exit to the rear.' },
+  17: { ap: 'W', t: 'Last attendant to the rear: send everyone in front of you to the red exit, then clear your block to the rear and go with them.' },
+  18: { ap: 'W', t: 'Green exit to the rear.' },
+  19: { ap: 'W', t: 'Rearmost attendant: open the doors to the allergy room / Block J, then the outside doors. Stay at the door and show the way.' },
+  20: { ap: 'W', t: 'Last attendant of green: everyone behind you leaves to the rear, everyone in front follows forward. You leave to the rear.' },
+  21: { ap: 'E', t: 'Secure the border green / red. Stay on the red side – last attendant forward right (stage right).' },
+  22: { ap: 'W', t: 'Rearmost attendant: open the doors to the allergy room / Block J, then the outside doors. Stay at the door and show the way.' },
+  23: { ap: 'W', t: 'Last attendant of green: everyone behind you leaves to the rear, everyone in front follows forward. You leave to the rear.' },
+  24: { ap: 'W', t: 'Rearmost attendant: open the doors to the allergy room / Block J, then the outside doors. Stay at the door and show the way.' },
+  25: { ap: 'W', t: 'Last attendant to the rear (green).' },
+  26: { ap: 'E', t: 'Red exit forward right.' },
+  27: { ap: 'W', t: 'Green exit to the rear.' },
+  28: { ap: 'E', t: 'Very last attendant forward right (red).' },
+  29: { ap: 'E', t: 'Red exit forward right.' },
+  30: { ap: 'E', t: 'Red exit forward right.' },
+  31: { ap: 'E', t: 'Red exit forward right.' },
+  32: { ap: 'E', t: 'Red exit forward right.' },
+  33: { ap: 'E', t: 'Check the restrooms and the mother & child room, then leave via the north exit at First Aid. Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  34: { ap: 'E', t: 'Last attendant at the north exit (First Aid). Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  35: { ap: 'E', t: 'North-east exit at the ramp. Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  36: { ap: 'E', t: 'Stage access: south via the staircase to Georg-Brauchle-Ring. Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  37: { ap: 'W', t: 'Through the cafeteria to the training room (emergency doors are always open). Join the leader WEST.' + UG_NOTE, map: 'evac-ug' },
+  38: { ap: 'E', t: 'Clear the whole stage to the north-east (meets purple outside). Keep the south staircase free for the cafeteria.' },
+  39: { ap: 'E', t: 'Baptism: last attendant, leave via the First Aid exit. Join the leader EAST.', map: 'evac-ug' },
+  40: { ap: 'W', t: 'Baptism: green exit to the west.', map: 'evac-ug' },
+  41: { ap: 'W', t: 'Baptism: green exit to the west.', map: 'evac-ug' },
+  42: { ap: 'W', t: 'Balcony: official staircase down from the upper floor.' },
+  43: { ap: 'W', t: 'Balcony: official staircase down from the upper floor.' },
+  44: { ap: 'W', t: 'Balcony: official staircase if possible. If blocked: through the guest apartments to the north driveway → assembly point EAST.' },
+  45: { ap: 'E', t: 'Welcome side entrance – usually only in the morning. If on duty: north exit at First Aid. Join the leader EAST.', map: 'evac-ug' },
+  46: { ap: 'E', t: 'Welcome side entrance – usually only in the morning. If on duty: north exit at First Aid. Join the leader EAST.', map: 'evac-ug' }
+};
 
 // Positionen fest einem Team-Tab zuordnen (geht vor der automatischen Zuordnung).
 // Prüft Positionsbezeichnung und Sheet-Überschrift. Team wie in Spalte C, Groß-/Kleinschreibung egal.
@@ -1070,6 +1198,7 @@ const ERR = {
   count_open: 'A count is already running. End it first.',
   count_closed: 'This count has already been ended.',
   bad_count: 'Please enter a whole number.',
+  bad_phone: 'Please enter a valid phone number.',
   not_counting: 'This position has no counting assignment.',
   not_your_position: 'You can only send the number for your own position.'
 };
@@ -1375,6 +1504,7 @@ function indexData(src) {
     counting: src.counting || {},
     countSession: src.countSession || null,
     countDay: src.countDay || [],
+    contacts: src.contacts || {},
     countByRow: {},
     requests: (src.requests || []).filter(r => r.status === 'open' || r.status === 'offered'),
     reqByRow: {}
@@ -1465,6 +1595,132 @@ function countAlerts() {
     }
   });
   store.set(KEY.countAlert, JSON.stringify(done.slice(-10)));
+}
+
+// ---------- EVACUATION ----------
+
+function evacFor(pos) {
+  if (!pos) return null;
+  const txt = norm(pos.label + ' ' + pos.area);
+  if (pos.type === 'tc') {
+    if (/lobby|entrance/.test(txt)) return { ap: 'W', lead: true, t: 'Evacuation leader WEST: secure the routes, coordinate the direction and lead the assembly point WEST.' };
+    if (/auditorium/.test(txt)) return { ap: 'E', lead: true, t: 'Evacuation leader EAST: secure the routes, coordinate the direction and lead the assembly point EAST.' };
+    return { ap: '', t: 'Team captain: make sure your team follows their routes, then join the leader of your assembly point.' };
+  }
+  const n = Number(pos.no);
+  const e = EVAC[n];
+  if (!e) return null;
+  return { ap: e.ap, t: e.t, map: e.map || (n === 42 || n === 43 || n === 44 ? '' : 'evac-eg') };
+}
+
+function evacLeaders() {
+  const out = {};
+  D.positions.filter(p => p.type === 'tc').forEach(p => {
+    const e = evacFor(p);
+    if (!e || !e.lead) return;
+    const s = p.slots.find(x => x.id);
+    if (s) out[e.ap] = nameOf(s.id);
+  });
+  return out;
+}
+
+function apBadge(ap) {
+  if (!ap) return '';
+  return '<span class="ap ap-' + ap + '">' + ASSEMBLY[ap].name + '</span>';
+}
+
+// Meine Positionen für den Fluchtweg: laufende Schicht zuerst, sonst alle (ohne Doppelungen)
+function myEvacSlots(c) {
+  const me = myId();
+  if (!me) return [];
+  const list = D.byId[me] || [];
+  const st = personStatus(me, c);
+  const seen = {};
+  const out = [];
+  const add = s => { if (s && !seen[s.pos.key]) { seen[s.pos.key] = 1; out.push(s); } };
+  if (st.slot) add(st.slot);
+  list.forEach(s => { if (slotState(s, c) !== 'past') add(s); });
+  return out;
+}
+
+function evacCardHtml(s, current) {
+  const e = evacFor(s.pos);
+  if (!e) return '<div class="evac-card"><div class="evac-pos">' + esc(s.pos.label) + '</div><div class="evac-t">Follow the instructions of your team captain.</div></div>';
+  const map = e.map ? MAPS.find(m => m.id === e.map) : null;
+  return '<div class="evac-card' + (current ? ' current' : '') + '">' +
+    '<div class="evac-top"><span class="evac-pos">' + esc(s.pos.label) + (current ? ' <span class="tag now">Now</span>' : '') + '</span>' + apBadge(e.ap) + '</div>' +
+    '<div class="evac-t">' + esc(e.t) + '</div>' +
+    (e.ap ? '<div class="evac-where">Assembly point ' + ASSEMBLY[e.ap].name + ' – ' + esc(ASSEMBLY[e.ap].where) + '</div>' : '') +
+    (map ? '<button class="linkish" type="button" data-act="zoom" data-src="' + esc(map.file) + '" data-alt="' + esc(map.title) + '">Show evacuation plan</button>' : '') +
+    '</div>';
+}
+
+// Kurze Zeile unter der Statuskarte (My duty)
+function evacLineHtml(id, c) {
+  const st = personStatus(id, c);
+  const s = st.slot || (D.byId[id] || [])[0];
+  const e = s && evacFor(s.pos);
+  if (!e || !e.ap) return '';
+  return '<button class="evac-line" type="button" data-act="emergency">🚪 If evacuation: ' + apBadge(e.ap) +
+    '<span>' + esc(s.pos.label) + '</span><span class="evac-more">›</span></button>';
+}
+
+// Einmal am Kongresstag: eigenen Fluchtweg kurz bestätigen
+function evacCheckHtml(c) {
+  if (c.mode !== 'live' || !myId()) return '';
+  if (store.get(KEY.evacAck) === c.date) return '';
+  const slots = myEvacSlots(c);
+  if (!slots.length) return '';
+  return '<section class="evac-check"><div class="cnt-head">🚪 Before doors open: check your evacuation route</div>' +
+    slots.slice(0, 3).map((s, i) => evacCardHtml(s, i === 0 && slotState(s, c) === 'now')).join('') +
+    '<button class="btn primary block" type="button" data-act="evac-ack">Got it</button></section>';
+}
+
+// Notfallseite
+function emergencyHtml(c) {
+  const ct = (D && D.contacts) || {};
+  const me = myId() && D.att[myId()];
+  const slots = myEvacSlots(c);
+  const leaders = evacLeaders();
+  const call = (href, label, sub, cls) => '<a class="em-call ' + (cls || '') + '" href="tel:' + esc(href.replace(/[^+0-9]/g, '')) + '">' +
+    '<strong>' + esc(label) + '</strong><span>' + esc(sub) + '</span></a>';
+
+  let html = backBar() + '<h2>🚨 Emergency</h2>' +
+    '<div class="em-first"><div>🦺 Put on your safety vest</div><div>🫶 Stay calm</div><div>📢 Wait for instructions – team captain / attendant overseer</div>' +
+    '<p>Only in acute danger you may have to decide yourself.</p></div>';
+
+  html += '<div class="em-calls">' +
+    (ct.overseer ? call(ct.overseer, 'Attendant overseer', ct.overseer, 'main') : '') +
+    (ct.assistant ? call(ct.assistant, 'Assistant', ct.assistant, 'main') : '') +
+    (ct.firstaid ? call(ct.firstaid, 'First Aid', ct.firstaid, 'main') : '') +
+    call('110', 'Police', '110', 'police') + call('112', 'Fire / Ambulance', '112', 'fire') + '</div>';
+
+  html += '<div class="h3">Your evacuation route</div>';
+  html += slots.length
+    ? slots.map((s, i) => evacCardHtml(s, i === 0 && slotState(s, c) === 'now')).join('')
+    : '<div class="muted" style="margin:0 2px 8px">Choose your name under My duty to see your own route.</div>';
+  html += '<div class="evac-leaders">' +
+    '<div>' + apBadge('W') + ' ' + esc(ASSEMBLY.W.where) + (leaders.W ? ' · leader <strong>' + esc(leaders.W) + '</strong>' : '') + '</div>' +
+    '<div>' + apBadge('E') + ' ' + esc(ASSEMBLY.E.where) + (leaders.E ? ' · leader <strong>' + esc(leaders.E) + '</strong>' : '') + '</div>' +
+    '<div class="evac-plans"><button class="linkish" type="button" data-act="zoom" data-src="evacuation-eg.jpg" data-alt="Evacuation · Ground floor">Plan ground floor</button>' +
+    '<button class="linkish" type="button" data-act="zoom" data-src="evacuation-ug.jpg" data-alt="Evacuation · Lower floor">Plan lower floor</button></div></div>';
+
+  const pos = slots[0] ? slots[0].pos.label + ' (' + slots[0].pos.area + ')' : '';
+  html += '<div class="h3">How to report</div><div class="em-report">' +
+    '<div>1. What happened – how serious?</div><div>2. Where exactly?</div>' +
+    '<div>3. Your name, phone and position' + (me ? ': <strong>' + esc(me.name) + (pos ? ', ' + esc(pos) : '') + '</strong>' : '') + '</div>' +
+    '<div>4. Any other helpful details</div></div>';
+
+  const box = (icon, title, lines, open) => '<details class="em-case"' + (open ? ' open' : '') + '><summary>' + icon + ' ' + esc(title) + '</summary><ul>' +
+    lines.map(l => '<li>' + l + '</li>').join('') + '</ul></details>';
+  html += '<div class="h3">Situations</div>' +
+    box('🩺', 'Medical', ['Contact <strong>First Aid</strong> immediately', 'First Aid calls the ambulance if needed', 'Keep the area calm and clear']) +
+    box('⚠️', 'Other emergency (fire, power failure …)', ['Contact the <strong>attendant overseer</strong> or his assistant – wait for direction', 'Keep your flashlight ready', 'Know your exit and assembly point (above)']) +
+    box('🧒', 'Lost or missing person', ['Found child: bring to <strong>Lost &amp; Found / Checkroom</strong>', 'Missing person: inform the attendant overseer immediately', 'Then get a description and a photo']) +
+    box('💣', 'Bomb threat', ['Take it seriously – report everything to the attendant overseer', '<strong>Do not</strong> activate the fire alarm']) +
+    box('🗣️', 'Disruptive person', ['Ignore minor disturbances', 'Approach calmly, two attendants, outside the auditorium', 'If it continues: ask him to leave, inform the overseer', 'No force, no physical contact']) +
+    box('🚨', 'Violent individual', ['<strong>Avoid – Deny – Defend</strong>', 'Call the police <strong>110</strong> (anyone may), then inform the overseer', 'Lock and block doors, guide people to safe exits – or hide', 'Follow the police instructions']);
+  return html;
 }
 
 // ---------- ZÄHLUNG ÜBER DIE APP ----------
@@ -2286,12 +2542,12 @@ function renderMe(c) {
 
   main.dataset.view = 'me';
   const a = D.att[S.me];
-  let html = countNowHtml() + countAdminHtml() + helpBoxHtml(c) + '<div class="me-grid"><div class="me-left">' +
+  let html = evacCheckHtml(c) + countNowHtml() + countAdminHtml() + helpBoxHtml(c) + '<div class="me-grid"><div class="me-left">' +
     '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' +
     '<div class="person-meta">' + teamLine(a.team) + '<span>·</span>' +
     '<button class="linkish" type="button" data-act="change-me">Not you?</button>' +
     (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div></div></div>' +
-    heroHtml(a.id, c) + (countNowHtml() ? '' : countCardHtml(a.id, c)) + '</div><div class="me-right">' +
+    heroHtml(a.id, c) + evacLineHtml(a.id, c) + (countNowHtml() ? '' : countCardHtml(a.id, c)) + '</div><div class="me-right">' +
     '<div class="h3">My assignments</div>' + slotsHtml(a.id, c) + '</div></div>';
 
   if (isCaptain(a.id) && a.team) {
@@ -2707,6 +2963,12 @@ function renderPanel(c, force) {
 
   if (top.type === 'pick') { renderPick(top, c, force); return; }
   if (top.type === 'access') { renderAccess(force); return; }
+  if (top.type === 'emergency') {
+    if (body.dataset.view === 'emergency' && !force) return;   // aufgeklappte Fälle bleiben offen
+    body.dataset.view = 'emergency';
+    body.innerHTML = emergencyHtml(c);
+    return;
+  }
 
   body.dataset.view = top.type;
   body.innerHTML = top.type === 'person' ? personPanelHtml(top, c) : posPanelHtml(top, c);
@@ -2741,6 +3003,7 @@ function posPanelHtml(top, c) {
   const editable = can('editor');
 
   let html = backBar() + '<h2>' + esc(p.label) + '</h2><p class="sub">' + esc(p.area) + '</p>';
+  if (evacFor(p)) html += evacCardHtml({ pos: p }, false);
 
   if (nn.now && rotation) {
     html += '<div class="now-box"><div class="duo-label">On this position now</div>' +
@@ -2938,6 +3201,15 @@ function adminHtml() {
     '<p class="muted">Controls “today”, Now/Next and the countdown. Saved straight into the sheet.</p>' +
     '<div class="form-row"><input id="eventDateInput" type="date" value="' + esc(current) + '" aria-label="Assembly day">' +
     '<button class="btn primary" type="button" data-act="seteventdate">Save</button></div></div>';
+  const ec = (D && D.contacts) || {};
+  h += '<div class="form-card"><div class="code-head"><strong>Emergency contacts (today only)</strong>' +
+    '<span class="code-state ' + (Object.keys(ec).length ? 'set' : 'unset') + '">' + (Object.keys(ec).length ? 'Set' : 'Not set') + '</span></div>' +
+    '<p class="muted">Shown on the emergency page today and deleted automatically after midnight. Empty fields are not shown.</p>' +
+    [['overseer', 'Attendant overseer'], ['assistant', 'Assistant'], ['firstaid', 'First Aid']].map(x =>
+      '<label class="time-field" style="margin-top:10px"><span>' + x[1] + '</span>' +
+      '<input id="ec-' + x[0] + '" type="tel" inputmode="tel" autocomplete="off" value="' + esc(ec[x[0]] || '') + '" placeholder="+49 …"></label>'
+    ).join('') +
+    '<button class="btn primary block" type="button" data-act="setcontacts" style="margin-top:12px">Save contacts</button></div>';
   const ct = (D && D.counting) || {};
   h += '<div class="form-card"><div class="code-head"><strong>Counting times</strong>' +
     '<span class="code-state ' + (ct.morning && ct.afternoon ? 'set' : 'unset') + '">' + esc((ct.morning || '–') + ' / ' + (ct.afternoon || '–')) + '</span></div>' +
@@ -3093,6 +3365,34 @@ document.addEventListener('click', e => {
       } else {
         doCheckin(a.id, true);
       }
+      break;
+    }
+
+    case 'emergency':
+      if (!S.pin || !D) break;
+      pushPanel({ type: 'emergency' });
+      break;
+
+    case 'evac-ack':
+      store.set(KEY.evacAck, clock().date);
+      render();
+      break;
+
+    case 'setcontacts': {
+      const val = k => (($('#ec-' + k) || {}).value || '').trim();
+      const payload = { overseer: val('overseer'), assistant: val('assistant'), firstaid: val('firstaid') };
+      (async () => {
+        try {
+          await api('setContacts', payload);
+          buzz(60);
+          toast('Emergency contacts saved for today');
+          await load(true);
+          renderPanel(clock(), true);
+        } catch (err) {
+          if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+          toast(errorText(err), 'error');
+        }
+      })();
       break;
     }
 
@@ -3429,6 +3729,11 @@ function demoApi(action, p) {
           DEMO_SRC.countDay = (DEMO_SRC.countDay || []).filter(x => x.session.label !== DEMO_SRC.countSession.label)
             .concat([{ session: Object.assign({}, DEMO_SRC.countSession), counts: (DEMO_SRC.counts || []).slice() }]);
           resolve({ ok: true });
+          break;
+        case 'setContacts':
+          DEMO_SRC.contacts = {};
+          ['overseer', 'assistant', 'firstaid'].forEach(k => { if (p[k]) DEMO_SRC.contacts[k] = p[k]; });
+          resolve({ ok: true, contacts: DEMO_SRC.contacts });
           break;
         case 'setCountTimes':
           if (p.morning) DEMO_SRC.counting.morning = p.morning;
