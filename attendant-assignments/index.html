@@ -885,6 +885,34 @@
     .cnt-table tfoot tr.grand td:not(:first-child) { width: 64px; }
 
     .icon-btn[hidden] { display: none; }
+    /* HEADER (Handy): Titel oben über die volle Breite, Datum + Symbole in der zweiten Zeile */
+    @media (max-width: 619px) {
+      .top-in {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "logo title title" "logo date actions";
+        align-items: center;
+        column-gap: 12px;
+        row-gap: 2px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .brand { display: contents; }
+      .brand-mark { grid-area: logo; height: 44px; border-radius: 9px; }
+      .brand h1 { grid-area: title; font-size: 19px; }
+      .event-line { grid-area: date; margin: 0; }
+      .top-actions { grid-area: actions; gap: 4px; }
+      .icon-btn { width: 34px; height: 34px; border-radius: 10px; border-color: transparent; background: var(--chip); }
+      .icon-btn svg { width: 18px; height: 18px; }
+    }
+
+    /* Zählkarte (eingeklappt) kompakt in einer Zeile */
+    .cnt-admin:not(.open) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; }
+    .cnt-admin:not(.open) > .cnt-head { flex: 1 1 auto; margin: 0; }
+    .cnt-admin:not(.open) > .cnt-btns { flex: 0 0 auto; margin: 0; gap: 6px; }
+    .cnt-admin:not(.open) > .cnt-btns .btn { flex: 0 0 auto; min-height: 36px; padding: 0 12px; font-size: 13px; }
+    .cnt-admin:not(.open) > .cnt-result { flex: 1 1 100%; margin-top: 4px; }
+
     /* FIND */
     .find-card { display: block; width: 100%; margin-bottom: 8px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; }
     .find-card:active { background: var(--accent-soft); }
@@ -1070,7 +1098,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.2';
+const VERSION = '0.13.3';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1819,7 +1847,7 @@ function countAdminHtml() {
   if (!sess || sess.status !== 'open') {
     const closed = D.countDay.length > 0;
     let html = '<section class="cnt-admin">' + head +
-      '<p class="muted" style="margin:0 0 2px">Start a count:</p><div class="help-btns cnt-btns">' +
+      '<div class="help-btns cnt-btns">' +
         '<button class="btn primary" type="button" data-act="count-start" data-label="morning">▶ Morning</button>' +
         '<button class="btn primary" type="button" data-act="count-start" data-label="afternoon">▶ Afternoon</button>' +
         (closed ? '<button class="btn' + (S.countSummary ? ' active' : '') + '" type="button" data-act="count-summary" aria-expanded="' + S.countSummary + '">' +
