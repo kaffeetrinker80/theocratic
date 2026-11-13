@@ -922,6 +922,7 @@
     .find-slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .find-slot { padding: 3px 8px; border-radius: 8px; background: var(--chip); font-size: 13px; }
     .find-slot b { font-variant-numeric: tabular-nums; }
+    .find-area { color: var(--muted); font-size: 13px; text-align: right; }
     .find-slot.now { background: var(--on-soft); color: var(--on); }
     .find-slot.past { opacity: .5; }
 
@@ -1098,7 +1099,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.3';
+const VERSION = '0.13.4';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -3120,9 +3121,9 @@ function renderFind(c, force) {
   if (body.dataset.view !== 'find' || force) {
     body.dataset.view = 'find';
     body.innerHTML = backBar() + '<h2>Find attendant</h2>' +
-      '<p class="sub">Where is a brother scheduled? Name or city, any order.</p>' +
+      '<p class="sub">Name, city or position – e.g. “Eiter”, “12”, “Block A”, “Lobby”.</p>' +
       '<div class="search"><input id="findQ" name="aa-find-search" type="search" inputmode="search" readonly data-lpignore="true" ' +
-      'data-form-type="other" autocapitalize="off" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
+      'data-form-type="other" autocapitalize="off" placeholder="Name or position" autocomplete="off" spellcheck="false" aria-label="Search a name or position"></div>' +
       '<div id="findList"></div>';
     const q = $('#findQ');
     q.value = S.findQuery;
@@ -3133,18 +3134,52 @@ function renderFind(c, force) {
   renderFindList(c);
 }
 
+// Position passt, wenn jedes Suchwort in Bezeichnung, Bereich oder Bemerkung vorkommt.
+// Zahlen müssen als ganze Zahl passen ("12" findet "12 - Block A", aber nicht "112").
+function posMatch(p, q) {
+  const words = norm(q).split(/[\s,]+/).filter(Boolean);
+  if (!words.length) return false;
+  const label = norm(p.label);
+  const text = norm(p.label + ' ' + p.area + ' ' + p.slots.map(s => s.remark || '').join(' '));
+  return words.every(w => /^\d+$/.test(w)
+    ? new RegExp('(^|\\D)' + w + '(\\D|$)').test(label)
+    : text.includes(w));
+}
+
+function findPosCard(p, c) {
+  const nn = positionNowNext(p, c);
+  const lead = isRotation(p)
+    ? (nn.now ? 'Now: ' + slotName(nn.now) : '') + (nn.next ? (nn.now ? ' · ' : '') + (c.mode === 'before' ? 'First: ' : 'Next: ') + slotName(nn.next) : '')
+    : p.slots.map(slotName).join(', ') + ' · all day';
+  return '<button class="find-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
+    '<div class="find-top"><span class="member-name">' + esc(p.label) + '</span>' +
+      '<span class="find-area">' + esc(p.area) + '</span></div>' +
+    (lead ? '<div class="member-status">' + esc(lead) + '</div>' : '') +
+    (isRotation(p)
+      ? '<div class="find-slots">' + p.slots.map(x =>
+          '<span class="find-slot ' + slotState(x, c) + '"><b>' + esc(timeText(x)) + '</b> ' + esc(slotName(x)) + '</span>'
+        ).join('') + '</div>'
+      : '') +
+    '</button>';
+}
+
 function renderFindList(c) {
   const box = $('#findList');
   if (!box) return;
   const q = S.findQuery.trim();
-  if (norm(q).length < 2) {
-    box.innerHTML = '<div class="empty">Type at least two letters.</div>';
+  const nq = norm(q);
+  if (nq.length < 2 && !/^\d+$/.test(nq)) {
+    box.innerHTML = '<div class="empty">Type a name or a position.</div>';
     return;
   }
-  const hits = D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 25);
-  if (!hits.length) { box.innerHTML = '<div class="empty">No attendant found.</div>'; return; }
+  const hits = /^[\d\s]+$/.test(nq) ? [] : D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 25);
+  const posHits = D.positions.filter(p => posMatch(p, q)).slice(0, 20);
+  if (!hits.length && !posHits.length) { box.innerHTML = '<div class="empty">Nothing found.</div>'; return; }
 
-  box.innerHTML = hits.map(a => {
+  box.innerHTML =
+    (posHits.length ? '<div class="h3" style="margin-top:4px">Positions</div>' + posHits.map(p => findPosCard(p, c)).join('') : '') +
+    (hits.length ? '<div class="h3"' + (posHits.length ? '' : ' style="margin-top:4px"') + '>Attendants</div>' : '') +
+    hits.map(a => {
     const list = D.byId[a.id] || [];
     const st = personStatus(a.id, c);
     return '<button class="find-card" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
