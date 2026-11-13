@@ -884,6 +884,19 @@
     .cnt-table tfoot tr.grand td { padding-top: 10px; font-size: 18px; border-top: 2px solid var(--text); }
     .cnt-table tfoot tr.grand td:not(:first-child) { width: 64px; }
 
+    .icon-btn[hidden] { display: none; }
+    /* FIND */
+    .find-card { display: block; width: 100%; margin-bottom: 8px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; }
+    .find-card:active { background: var(--accent-soft); }
+    .find-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .find-top .checked { margin: 0; padding: 2px 8px; font-size: 12px; }
+    .find-card .member-status { margin-top: 2px; }
+    .find-slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .find-slot { padding: 3px 8px; border-radius: 8px; background: var(--chip); font-size: 13px; }
+    .find-slot b { font-variant-numeric: tabular-nums; }
+    .find-slot.now { background: var(--on-soft); color: var(--on); }
+    .find-slot.past { opacity: .5; }
+
     /* EMERGENCY */
     .em-fab {
       position: fixed;
@@ -1000,6 +1013,9 @@
         <div class="event-line" id="eventLine">Loading…</div>
       </div>
       <div class="top-actions">
+        <button class="icon-btn" id="findBtn" type="button" data-act="find" aria-label="Find an attendant" hidden>
+          <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        </button>
         <button class="icon-btn" type="button" data-act="access" aria-label="Access and settings">
           <svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12 20 3M16 7l3 3M14 9l2 2"/></svg>
         </button>
@@ -1054,7 +1070,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.1';
+const VERSION = '0.13.2';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1252,6 +1268,7 @@ const S = {
   countDraft: {},
   countSummary: false,
   pickQuery: '',
+  findQuery: '',
   admin: null
 };
 
@@ -2456,6 +2473,7 @@ function render() {
 }
 
 function renderHeader() {
+  $('#findBtn').hidden = !(S.pin && D && can('checkin'));
   const line = $('#eventLine');
   if (!S.pin) { line.textContent = 'Please enter your access code'; return; }
   if (!D) { line.textContent = S.error ? 'Schedule not available' : 'Loading the schedule…'; return; }
@@ -2972,6 +2990,7 @@ function renderPanel(c, force) {
 
   if (top.type === 'pick') { renderPick(top, c, force); return; }
   if (top.type === 'access') { renderAccess(force); return; }
+  if (top.type === 'find') { renderFind(c, force); return; }
   if (top.type === 'emergency') {
     if (body.dataset.view === 'emergency' && !force) return;   // aufgeklappte Fälle bleiben offen
     body.dataset.view = 'emergency';
@@ -3065,6 +3084,54 @@ function posPanelHtml(top, c) {
 }
 
 // ---------- CHANGE SHIFT ----------
+
+// ---------- SCHNELLSUCHE (Check-in, Co-Admin, Admin) ----------
+
+function renderFind(c, force) {
+  const body = $('#panelBody');
+  if (body.dataset.view !== 'find' || force) {
+    body.dataset.view = 'find';
+    body.innerHTML = backBar() + '<h2>Find attendant</h2>' +
+      '<p class="sub">Where is a brother scheduled? Name or city, any order.</p>' +
+      '<div class="search"><input id="findQ" name="aa-find-search" type="search" inputmode="search" readonly data-lpignore="true" ' +
+      'data-form-type="other" autocapitalize="off" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
+      '<div id="findList"></div>';
+    const q = $('#findQ');
+    q.value = S.findQuery;
+    guardSearch(q);
+    q.addEventListener('input', () => { S.findQuery = cleanQuery(q); renderFindList(clock()); });
+    setTimeout(() => { q.readOnly = false; q.focus(); }, 250);
+  }
+  renderFindList(c);
+}
+
+function renderFindList(c) {
+  const box = $('#findList');
+  if (!box) return;
+  const q = S.findQuery.trim();
+  if (norm(q).length < 2) {
+    box.innerHTML = '<div class="empty">Type at least two letters.</div>';
+    return;
+  }
+  const hits = D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 25);
+  if (!hits.length) { box.innerHTML = '<div class="empty">No attendant found.</div>'; return; }
+
+  box.innerHTML = hits.map(a => {
+    const list = D.byId[a.id] || [];
+    const st = personStatus(a.id, c);
+    return '<button class="find-card" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
+      '<div class="find-top"><span class="member-name">' + esc(a.name) + '</span>' +
+        (a.checkedIn ? '<span class="checked">✓ In</span>' : '') + '</div>' +
+      '<div class="member-status k-' + st.kind + '"><span class="dot" style="background:' + teamColor(a.team) + '"></span> ' +
+        esc(a.team || 'No team') + ' · ' + esc(statusLine(st)) + '</div>' +
+      (list.length
+        ? '<div class="find-slots">' + list.map(x =>
+            '<span class="find-slot ' + slotState(x, c) + '"><b>' + esc(timeText(x)) + '</b> ' + esc(x.pos.label) + '</span>'
+          ).join('') + '</div>'
+        : '<div class="find-slots"><span class="find-slot">No assignment</span></div>') +
+      '</button>';
+  }).join('');
+}
 
 function renderPick(top, c, force) {
   const body = $('#panelBody');
@@ -3376,6 +3443,11 @@ document.addEventListener('click', e => {
       }
       break;
     }
+
+    case 'find':
+      if (!S.pin || !D) break;
+      pushPanel({ type: 'find' });
+      break;
 
     case 'emergency':
       if (!S.pin || !D) break;
