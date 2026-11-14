@@ -874,6 +874,29 @@
     .cnt-btns .btn { padding: 0 8px; font-size: 14px; }
     .cnt-btns .btn.active { background: var(--chip); }
     .cnt-result { margin-top: 12px; }
+    .cnt-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .cnt-head-row .cnt-head { margin: 0; }
+    .cnt-head-row .linkish { padding: 4px 0; font-size: 14px; }
+    .cnt-mini {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin: 0 0 14px;
+      padding: 10px 14px;
+      border: 1px solid var(--accent-border);
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--text);
+      font-size: 14px;
+      text-align: left;
+    }
+    .cnt-mini strong { white-space: nowrap; }
+    .cnt-mini-info { flex: 1; min-width: 0; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cnt-mini-open { color: var(--accent); font-weight: 650; white-space: nowrap; }
+    .cnt-live { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--on); animation: cntPulse 1.6s ease-in-out infinite; }
+    @keyframes cntPulse { 50% { opacity: .3; } }
+    @media (prefers-reduced-motion: reduce) { .cnt-live { animation: none; } }
     .cnt-table-wrap { overflow-x: auto; }
     .cnt-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
     .cnt-table th, .cnt-table td { padding: 7px 4px; border-bottom: 1px solid var(--border); text-align: right; }
@@ -1102,14 +1125,14 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.10';
+const VERSION = '0.13.11';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
 
 const REFRESH_MS = 60 * 1000;   // Daten neu laden
 const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
-const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1', countSeen: 'aa-count-session-v1', evacAck: 'aa-evac-ack-v1' };
+const KEY = { cache: 'aa-cache-v2', me: 'aa-me-v1', pin: 'aa-pin-v1', theme: 'aa-theme-v1', seen: 'aa-seen-req-v1', countAlert: 'aa-count-alert-v1', countSeen: 'aa-count-session-v1', countMin: 'aa-count-min-v1', evacAck: 'aa-evac-ack-v1' };
 
 // Reserve-Brüder: Team in Spalte C (Großschreibung egal)
 const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
@@ -1863,7 +1886,18 @@ function countAdminHtml() {
     return html + '</section>';
   }
 
-  return '<section class="cnt-admin open">' + head + countResultHtml(sess, true) +
+  // Minimiert: eine Zeile mit Stand, die Zählung läuft im Hintergrund weiter
+  if (store.get(KEY.countMin) === sess.id) {
+    const jobs = countJobsNow();
+    const done = jobs.filter(s => D.countByRow[s.row]).length;
+    return '<button class="cnt-mini" type="button" data-act="count-max">' +
+      '<span class="cnt-live"></span><strong>Counting ' + esc((COUNT_LABEL[sess.label] || '').toLowerCase()) + '</strong>' +
+      '<span class="cnt-mini-info">' + done + ' / ' + jobs.length + ' sent · total ' + countTotal(jobs) + '</span>' +
+      '<span class="cnt-mini-open">Show ▾</span></button>';
+  }
+
+  return '<section class="cnt-admin open"><div class="cnt-head-row">' + head +
+    '<button class="linkish" type="button" data-act="count-min">Minimize ▴</button></div>' + countResultHtml(sess, true) +
     '<div class="help-btns"><button class="btn" type="button" data-act="count-copy">Copy summary</button>' +
     '<button class="btn primary" type="button" data-act="count-end">End counting</button></div></section>';
 }
@@ -3670,6 +3704,16 @@ document.addEventListener('click', e => {
     case 'count-end':
       confirmBox('End counting?', '<p class="muted">Nobody can send numbers for this count any more. The result stays available under “Summary” today.</p>',
         'End counting', () => { S.countSummary = false; countAction('countEnd', {}, 'Counting ended · total ' + countTotal(countJobsNow())); });
+      break;
+
+    case 'count-min':
+      if (D.countSession) store.set(KEY.countMin, D.countSession.id);
+      render();
+      break;
+
+    case 'count-max':
+      store.del(KEY.countMin);
+      render();
       break;
 
     case 'count-summary':
