@@ -1102,7 +1102,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.9';
+const VERSION = '0.13.10';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1661,9 +1661,11 @@ function evacFor(pos) {
   if (!pos) return null;
   const txt = norm(pos.label + ' ' + pos.area);
   if (pos.type === 'tc') {
-    if (/lobby|entrance/.test(txt)) return { ap: 'W', lead: true, t: 'Evacuation leader WEST: secure the routes, coordinate the direction and lead the assembly point WEST.' };
-    if (/auditorium/.test(txt)) return { ap: 'E', lead: true, t: 'Evacuation leader EAST: secure the routes, coordinate the direction and lead the assembly point EAST.' };
-    return { ap: '', t: 'Team captain: make sure your team follows their routes, then join the leader of your assembly point.' };
+    // Evakuierungsleiter über das Team der Position (nicht über die Überschrift im Sheet)
+    const team = norm(positionTeam(pos) || '') + ' ' + txt;
+    if (/lobby|entrance/.test(team)) return { ap: 'W', lead: true, t: 'Evacuation leader WEST: secure the routes, coordinate the direction and lead the assembly point WEST.' };
+    if (/auditorium/.test(team)) return { ap: 'E', lead: true, t: 'Evacuation leader EAST: secure the routes, coordinate the direction and lead the assembly point EAST.' };
+    return { ap: '', t: 'Team captain: make sure your team follows their routes. Each attendant joins the leader of the assembly point that belongs to his position.' };
   }
   const n = Number(pos.no);
   const e = EVAC[n];
