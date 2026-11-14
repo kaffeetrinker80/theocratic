@@ -913,6 +913,8 @@
     .cnt-admin:not(.open) > .cnt-btns .btn { flex: 0 0 auto; min-height: 36px; padding: 0 12px; font-size: 13px; }
     .cnt-admin:not(.open) > .cnt-result { flex: 1 1 100%; margin-top: 4px; }
 
+    .team-block.helpers { border-style: dashed; }
+
     /* FIND */
     .find-card { display: block; width: 100%; margin-bottom: 8px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; }
     .find-card:active { background: var(--accent-soft); }
@@ -1099,7 +1101,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.4';
+const VERSION = '0.13.5';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -2444,6 +2446,31 @@ function memberRow(m, c, showTeam) {
     '</button>';
 }
 
+// Brüder aus anderen Teams, die heute auf Positionen dieses Teams eingeteilt sind
+function helpersHtml(team, c) {
+  const rows = [];
+  D.positions.forEach(p => {
+    if (positionTeam(p) !== team) return;
+    p.slots.forEach(s => {
+      const a = s.id && D.att[s.id];
+      if (!a || a.team === team || isReserve(a.team)) return;
+      rows.push({ a: a, s: s });
+    });
+  });
+  if (!rows.length) return '';
+  rows.sort((x, y) => (x.s.s == null ? -1 : x.s.s) - (y.s.s == null ? -1 : y.s.s));
+  return '<div class="h3">Helping today · from other teams</div><section class="team-block helpers"><div class="members">' +
+    rows.map(r => {
+      const state = slotState(r.s, c);
+      return '<button class="member" type="button" data-act="person" data-id="' + esc(r.a.id) + '">' +
+        '<span class="member-main"><span class="member-name">' + esc(r.a.name) +
+          ' <span class="tag from">from ' + esc(r.a.team) + '</span></span>' +
+        '<span class="member-status' + (state === 'now' ? ' k-on' : (state === 'past' ? ' k-done' : '')) + '">' +
+          esc(timeText(r.s)) + ' · ' + esc(r.s.pos.label) + (state === 'now' ? ' · now' : '') + '</span></span>' +
+        '<span class="tick' + (r.a.checkedIn ? '' : ' no') + '">✓</span></button>';
+    }).join('') + '</div></section>';
+}
+
 function teamBlock(team, members, c) {
   const inCount = members.filter(m => m.checkedIn).length;
   return '<section class="team-block" style="--team:' + teamColor(team) + '">' +
@@ -2609,6 +2636,7 @@ function renderMe(c) {
   if (isCaptain(a.id) && a.team) {
     const members = (teamsMap()[a.team] || []);
     if (members.length) html += '<div class="h3">My team</div>' + teamBlock(a.team, members, c);
+    html += helpersHtml(a.team, c);
   }
 
   main.innerHTML = html;
