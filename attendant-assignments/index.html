@@ -914,6 +914,7 @@
     .cnt-admin:not(.open) > .cnt-result { flex: 1 1 100%; margin-top: 4px; }
 
     .team-block.helpers { border-style: dashed; }
+    .member.unassigned { opacity: .5; }
 
     /* FIND */
     .find-card { display: block; width: 100%; margin-bottom: 8px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; }
@@ -1101,7 +1102,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.5';
+const VERSION = '0.13.6';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -2097,7 +2098,32 @@ function findSlot(row) {
   return null;
 }
 
+// Heimat-Team einer Position – unabhängig davon, wer gerade aushilft:
+// 1. Teamname in der Positionsbezeichnung ("Lobby 10", "Cafeteria 33")
+// 2. feste Regeln (GROUP_RULES, z. B. Block J → Lobby)
+// 3. Teamname in der Sheet-Überschrift ("Auditorium", "Main Entrance / Lobby")
+// 4. sonst: Team der meisten eingeteilten Brüder
 function positionTeam(p) {
+  if (p._team !== undefined) return p._team;
+  const teams = {};
+  D.attendants.forEach(a => {
+    const t = String(a.team || '').trim();
+    if (t && !isReserve(t)) teams[t.toUpperCase()] = t;
+  });
+  const findIn = text => {
+    const n = norm(text);
+    const hit = Object.keys(teams).find(T => new RegExp('\\b' + norm(T) + '\\b').test(n));
+    return hit ? teams[hit] : null;
+  };
+  const rule = GROUP_RULES.find(r => r.match.test(p.label + ' ' + p.area));
+  p._team = findIn(p.label) ||
+    (rule ? (teams[rule.team.toUpperCase()] || rule.team) : null) ||
+    findIn(p.area) ||
+    majorityTeam(p);
+  return p._team;
+}
+
+function majorityTeam(p) {
   const count = {};
   p.slots.forEach(s => {
     const a = s.id && D.att[s.id];
@@ -2439,7 +2465,7 @@ function slotsHtml(id, c) {
 
 function memberRow(m, c, showTeam) {
   const st = personStatus(m.id, c);
-  return '<button class="member" type="button" data-act="person" data-id="' + esc(m.id) + '">' +
+  return '<button class="member' + (st.kind === 'none' ? ' unassigned' : '') + '" type="button" data-act="person" data-id="' + esc(m.id) + '">' +
     '<span class="member-main"><span class="member-name">' + esc(m.name) + '</span>' +
     '<span class="member-status k-' + st.kind + '">' + (showTeam ? esc(m.team || 'No team') + ' · ' : '') + esc(statusLine(st)) + '</span></span>' +
     '<span class="tick' + (m.checkedIn ? '' : ' no') + '" aria-label="' + (m.checkedIn ? 'Checked in' : 'Not checked in') + '">✓</span>' +
@@ -2472,6 +2498,8 @@ function helpersHtml(team, c) {
 }
 
 function teamBlock(team, members, c) {
+  members = members.slice().sort((a, b) =>
+    ((D.byId[a.id] || []).length ? 0 : 1) - ((D.byId[b.id] || []).length ? 0 : 1) || a.name.localeCompare(b.name));
   const inCount = members.filter(m => m.checkedIn).length;
   return '<section class="team-block" style="--team:' + teamColor(team) + '">' +
     '<div class="team-head"><span class="team-name">' + esc(team) + '</span>' +
@@ -2751,9 +2779,7 @@ function positionGroups() {
   D.attendants.forEach(a => { if (a.team) teams[String(a.team).trim().toUpperCase()] = String(a.team).trim(); });
 
   D.positions.forEach(p => {
-    const rule = GROUP_RULES.find(r => r.match.test(p.label + ' ' + p.area));
-    const forced = rule ? (teams[rule.team.toUpperCase()] || rule.team) : '';
-    const team = forced || positionTeam(p);
+    const team = positionTeam(p);
     const key = team || p.area;
     if (!map[key]) {
       map[key] = { key: key, label: team || p.area, positions: [] };
@@ -2910,7 +2936,7 @@ function renderTeamsBody(c) {
     '<button class="chip' + (t === S.team ? ' active' : '') + '" type="button" data-act="team" data-team="' + esc(t) + '">' +
     '<span class="dot" style="background:' + teamColor(t) + '"></span>' + esc(t) +
     '<span class="chip-count">' + groups[t].length + '</span></button>'
-  ).join('') + '</div>' + teamBlock(S.team, groups[S.team], c);
+  ).join('') + '</div>' + teamBlock(S.team, groups[S.team], c) + helpersHtml(S.team, c);
 }
 
 // ---------- CHECK-IN ----------
