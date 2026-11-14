@@ -1102,7 +1102,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.6';
+const VERSION = '0.13.7';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -2102,7 +2102,8 @@ function findSlot(row) {
 // 1. Teamname in der Positionsbezeichnung ("Lobby 10", "Cafeteria 33")
 // 2. feste Regeln (GROUP_RULES, z. B. Block J → Lobby)
 // 3. Teamname in der Sheet-Überschrift ("Auditorium", "Main Entrance / Lobby")
-// 4. sonst: Team der meisten eingeteilten Brüder
+// 4. Mehrheit im ganzen Bereich (z. B. alle Positionen unter "Block D")
+// 5. sonst: Team der meisten eingeteilten Brüder auf der Position
 function positionTeam(p) {
   if (p._team !== undefined) return p._team;
   const teams = {};
@@ -2119,8 +2120,23 @@ function positionTeam(p) {
   p._team = findIn(p.label) ||
     (rule ? (teams[rule.team.toUpperCase()] || rule.team) : null) ||
     findIn(p.area) ||
+    areaTeam(p.area) ||
     majorityTeam(p);
   return p._team;
+}
+
+function areaTeam(area) {
+  const count = {};
+  D.positions.forEach(q => {
+    if (q.area !== area || q.type === 'tc') return;
+    q.slots.forEach(s => {
+      const a = s.id && D.att[s.id];
+      if (a && a.team && !isReserve(a.team)) count[a.team] = (count[a.team] || 0) + 1;
+    });
+  });
+  let best = null;
+  Object.keys(count).forEach(t => { if (!best || count[t] > count[best]) best = t; });
+  return best;
 }
 
 function majorityTeam(p) {
