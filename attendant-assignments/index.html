@@ -1102,7 +1102,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.7';
+const VERSION = '0.13.8';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -1332,7 +1332,7 @@ function fmtMin(m) {
 const byName = (a, b) => a.name.localeCompare(b.name);
 
 // Namenssuche: jedes eingegebene Wort muss vorkommen, Reihenfolge egal
-// ("Daniel Eiter" findet "Eiter Daniel, Munich"; auch "eit dan" funktioniert)
+// ("Daniel Charles" findet "Charles Daniel, Munich"; auch "cha dan" funktioniert)
 function nameMatch(name, q) {
   const words = norm(q).split(/[\s,]+/).filter(Boolean);
   if (!words.length) return false;
@@ -3191,7 +3191,7 @@ function renderFind(c, force) {
   if (body.dataset.view !== 'find' || force) {
     body.dataset.view = 'find';
     body.innerHTML = backBar() + '<h2>Find attendant</h2>' +
-      '<p class="sub">Name, city or position – e.g. “Eiter”, “12”, “Block A”, “Lobby”.</p>' +
+      '<p class="sub">Name, city or position – e.g. “Charles”, “12”, “Block A”, “Lobby”.</p>' +
       '<div class="search"><input id="findQ" name="aa-find-search" type="search" inputmode="search" readonly data-lpignore="true" ' +
       'data-form-type="other" autocapitalize="off" placeholder="Name or position" autocomplete="off" spellcheck="false" aria-label="Search a name or position"></div>' +
       '<div id="findList"></div>';
