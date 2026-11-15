@@ -874,6 +874,8 @@
     .cnt-btns .btn { padding: 0 8px; font-size: 14px; }
     .cnt-btns .btn.active { background: var(--chip); }
     .cnt-result { margin-top: 12px; }
+    .pos-tools { display: flex; justify-content: flex-end; margin: -6px 2px 6px; }
+    .pos-tools .linkish { padding: 4px 0; font-size: 14px; }
     .cnt-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .cnt-head-row .cnt-head { margin: 0; }
     .cnt-head-row .linkish { padding: 4px 0; font-size: 14px; }
@@ -1125,7 +1127,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.11';
+const VERSION = '0.13.12';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -2917,6 +2919,12 @@ function renderPositions(c) {
   const blocks = Array.from(new Set(group.positions.map(blockOf).filter(Boolean))).sort();
   if (S.block !== 'all' && blocks.indexOf(S.block) < 0) S.block = 'all';
 
+  // Alle aufklappen / zuklappen – nur für die Positionen im aktuellen Reiter (und Block)
+  const visible = group.positions.filter(p => S.block === 'all' || blockOf(p) === S.block);
+  const allOpen = visible.length > 0 && visible.every(p => S.openPos[p.key]);
+  html += '<div class="pos-tools"><button class="linkish" type="button" data-act="pexpand" data-open="' + (allOpen ? '0' : '1') + '">' +
+    (allOpen ? 'Collapse all ▴' : 'Expand all ▾') + '</button></div>';
+
   if (blocks.length >= 2) {
     html += '<div class="chips sub">' + ['all'].concat(blocks).map(b =>
       '<button class="chip' + (b === S.block ? ' active' : '') + '" type="button" data-act="pblock" data-block="' + b + '">' +
@@ -3536,6 +3544,19 @@ document.addEventListener('click', e => {
     case 'back': backPanel(); break;
     case 'area': S.area = el.dataset.area; S.block = 'all'; render(); window.scrollTo(0, 0); break;
     case 'pblock': S.block = el.dataset.block; render(); break;
+    case 'pexpand': {
+      const groups = positionGroups();
+      const group = groups.find(g => g.key === S.area);
+      if (!group) break;
+      const open = el.dataset.open === '1';
+      group.positions.forEach(p => {
+        if (S.block !== 'all' && blockOf(p) !== S.block) return;
+        if (open) S.openPos[p.key] = true; else delete S.openPos[p.key];
+      });
+      render();
+      break;
+    }
+
     case 'ptoggle': {
       const k = el.dataset.key;
       if (S.openPos[k]) delete S.openPos[k]; else S.openPos[k] = true;
