@@ -422,6 +422,24 @@
     font-size:13px;box-shadow:0 10px 26px rgba(20,34,53,.32);transition:.2s ease
   }
   .status.show{opacity:1;transform:translate(-50%,0)}
+  .planning-summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px}
+  .planning-stat{padding:9px 13px;border:1px solid #dce3eb;border-radius:10px;background:#f7f9fc;font-size:12px;color:#344052}
+  .planning-stat strong{display:block;font-size:20px;color:#1a2f47}
+  .planning-group{margin:16px 0 6px;font-size:12px;font-weight:700;color:var(--navy);padding:7px 9px;background:#e9eef5;border-radius:7px}
+  .planning-row{display:grid;grid-template-columns:minmax(130px,1.15fr) minmax(130px,1.4fr) minmax(155px,1fr);align-items:center;gap:9px;padding:9px 10px;border-bottom:1px solid #e8ecf1;font-size:12.5px}
+  .planning-row:nth-child(even){background:#fbfcfd}
+  .planning-row .role{color:#506073;font-weight:600}
+  .planning-row .who{font-weight:600;color:#24364b}
+  .planning-row .who small{display:block;font-weight:400;color:#6b7684;margin-top:2px}
+  .planning-row select{max-width:230px;padding:7px;font-size:12px}
+  .planning-row select:disabled{opacity:.55}
+  .planning-row[data-status="confirmed"]{border-left:3px solid #238456}
+  .planning-row[data-status="requested"]{border-left:3px solid #c18b26}
+  .planning-row[data-status="declined"]{border-left:3px solid #c54e4e}
+  .plan-chip{font-size:10px;font-weight:700;display:inline-block;margin-left:7px;padding:2px 5px;border-radius:5px;background:#fff1d7;color:#916217;vertical-align:middle}
+  .plan-chip.confirmed{background:#e0f4e9;color:#237349}
+  .plan-chip.declined{background:#fee6e6;color:#a73535}
+  @media(max-width:700px){.planning-row{grid-template-columns:1fr;gap:4px}.planning-row select{max-width:none}}
   .hidden-file{display:none}
   .modal-backdrop{
     position:fixed;inset:0;z-index:120;display:none;place-items:center;
@@ -602,12 +620,13 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.9.5</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.0</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
   <div class="toolbar">
     <button class="personnel-count" id="personnelCount" type="button" title="Open the personnel master (contact table)">Personnel: 0</button>
+    <button class="btn primary" id="planningBtn" type="button">Planning <span id="planningCount"></span></button>
     <button class="btn" id="toggleEditor">Edit data</button>
     <button class="btn" id="importBtn">Import</button>
     <button class="btn" id="exportBtn">Export personnel</button>
@@ -673,7 +692,7 @@
       <div class="field-grid">
         <label>Last name<input type="text" id="pm-lastName"></label>
         <label>First name<input type="text" id="pm-firstName"></label>
-        <label>Congregation<input type="text" id="pm-congregation"></label>
+        <label>Congregation<input type="text" id="pm-congregation" list="knownCongregations" autocomplete="off"><datalist id="knownCongregations"></datalist></label>
         <label>Congregation / group
           <select id="pm-congType">
             <option value="">—</option>
@@ -681,7 +700,7 @@
             <option value="Group">Group</option>
           </select>
         </label>
-        <label>Circuit<input type="text" id="pm-circuit"></label>
+        <label>Circuit<input type="text" id="pm-circuit" list="knownCircuits" autocomplete="off"><datalist id="knownCircuits"></datalist></label>
         <label>Phone<input type="text" id="pm-phone"></label>
         <label>JW email<input type="text" id="pm-jwEmail"></label>
         <label>Private email<input type="text" id="pm-privateEmail"></label>
@@ -718,6 +737,21 @@
       </div>
       <p class="people-meta" id="peopleMeta"></p>
       <div class="table-wrap" id="peopleTableWrap"></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="planningModal" aria-hidden="true">
+  <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="planningTitle">
+    <div class="modal-head">
+      <div><h3 id="planningTitle">Assignment planning</h3><p>Plan your selections, request acceptance, and confirm each assignment individually. Only a confirmed acceptance is final.</p></div>
+      <button class="btn icon-btn" id="closePlanning" type="button" aria-label="Close planning">×</button>
+    </div>
+    <div class="modal-body">
+      <label style="flex-direction:row;align-items:center;gap:8px;margin:0 0 10px"><input id="planningView" type="checkbox" style="width:auto"> Show planning status in on-screen chart preview (not printed)</label><div class="planning-summary" id="planningSummary"></div>
+      <div class="people-toolbar"><input id="planningSearch" type="search" class="people-search" placeholder="Search department or person…"><select id="planningFilter" style="width:auto"><option value="all">All positions</option><option value="open">Open positions</option><option value="proposed">Proposed</option><option value="requested">Awaiting acceptance</option><option value="confirmed">Confirmed</option><option value="declined">Declined</option></select><button class="btn small" id="planningEdit" type="button">Edit assignments</button></div>
+      <div id="planningRows"></div>
+      <p class="helper" style="margin-top:12px">Status is stored per position in your local chart and included in a full JSON backup. Assigning a different person automatically resets that position to “Proposed”. The personnel-only export does not contain planning data.</p>
     </div>
   </section>
 </div>
@@ -861,6 +895,9 @@
         <li><span class="tag">Expand all</span> / <span class="tag">Collapse all</span> at the top of this panel open or close every section &mdash; top-level tabs and nested ones &mdash; in one click.</li>
       </ul>
 
+      <h4>Planning &amp; acceptance</h4>
+      <p>Use <span class="tag">Planning</span> to see all overseer and assistant positions. New assignments start as Proposed. Move them to Awaiting acceptance when contacted, then Confirmed only after receiving a clear acceptance. Declined is available if someone cannot serve. Each position keeps its own status in the full backup. Older charts are treated as already confirmed.</p>
+      <p>When adding a person, the Congregation and Circuit fields suggest existing entries while still accepting new names.</p>
       <h4>Hierarchy &amp; assignments</h4>
       <ul>
         <li>Open <span class="tag">Edit data</span>. Under <strong>Convention committee</strong>, each committee role (coordinator, program overseer, rooming overseer, &hellip;) has its own colour and its own <strong>Departments</strong> list &mdash; expand a role to assign its departments.</li>
@@ -994,7 +1031,8 @@
       {id:uid('overview'), title:'2  CONTRACT REPRESENTATIVE', people:blankSlots(2)},
       {id:uid('overview'), title:'3  CONVENTION CHAIRMAN', people:blankSlots(2)}
     ],
-    people:[]
+    people:[],
+    assignmentStatus:{}
   };
 
   let data = loadData();
@@ -1036,6 +1074,7 @@
       ? COLUMN_DEFS.map(c=>c.key).filter(k => input.settings.printColumns.includes(k)) : base.settings.printColumns.slice();
     if(!input.settings.printColumns.length) input.settings.printColumns = base.settings.printColumns.slice();
 
+    input.assignmentStatus = input.assignmentStatus && typeof input.assignmentStatus==='object' && !Array.isArray(input.assignmentStatus) ? input.assignmentStatus : {};
     input.people = Array.isArray(input.people) ? input.people.map(normalizePerson) : base.people;
 
     input.portfolios = Array.isArray(input.portfolios) && input.portfolios.length ? input.portfolios.map((p,idx) => ({
@@ -1063,6 +1102,11 @@
     })) : base.overviewSections;
 
     cleanBrokenAssignments(input);
+    // A legacy chart already had final assignments and no planning status information.
+    // Preserve that meaning rather than silently treating historic assignments as requests.
+    for(const item of collectAssignments(input)){
+      if(item.personId && !Object.prototype.hasOwnProperty.call(input.assignmentStatus,item.key)) input.assignmentStatus[item.key]='confirmed';
+    }
     return input;
   }
 
@@ -1113,6 +1157,37 @@
     }));
   }
 
+  function collectAssignments(source=data){
+    const entries=[];
+    source.portfolios.forEach(p=>{
+      entries.push({key:`portfolio:${p.id}:member`,label:p.role+' — Committee member',group:'Convention committee',personId:p.memberId||''});
+      entries.push({key:`portfolio:${p.id}:assistant`,label:p.role+' — Committee assistant',group:'Convention committee assistants',personId:p.assistantId||''});
+      p.departments.forEach(d=>d.people.forEach((slot,i)=>entries.push({
+        key:`slot:${slot.id}`,label:`${d.number ? d.number+' · ' : ''}${d.name} — ${i===0?'Overseer':'Assistant '+i}`,
+        group:p.role,personId:slot.personId||''
+      })));
+    });
+    source.overviewSections.forEach(section=>section.people.forEach((slot,i)=>entries.push({
+      key:`slot:${slot.id}`,label:section.title+' — '+(i===0?'Lead':'Assistant '+i),group:'Other positions',personId:slot.personId||''
+    })));
+    return entries;
+  }
+  const PLAN_OPTIONS=[['proposed','Proposed'],['requested','Awaiting acceptance'],['confirmed','Confirmed ✓'],['declined','Declined']];
+  function assignmentKey(path){
+    const portfolio=/^portfolios\.(\d+)\.(memberId|assistantId)$/.exec(path);
+    if(portfolio){const p=data.portfolios[+portfolio[1]]; return p?`portfolio:${p.id}:${portfolio[2]==='memberId'?'member':'assistant'}`:'';}
+    const dept=/^portfolios\.(\d+)\.departments\.(\d+)\.people\.(\d+)\.personId$/.exec(path);
+    if(dept) return `slot:${data.portfolios[+dept[1]]?.departments[+dept[2]]?.people[+dept[3]]?.id||''}`;
+    const overview=/^overviewSections\.(\d+)\.people\.(\d+)\.personId$/.exec(path);
+    if(overview) return `slot:${data.overviewSections[+overview[1]]?.people[+overview[2]]?.id||''}`;
+    return '';
+  }
+  function setAssignment(path,personId){
+    const oldId=getByPath(data,path)||'';
+    setByPath(data,path,personId);
+    const key=assignmentKey(path);
+    if(key && oldId!==personId) data.assignmentStatus[key]=personId?'proposed':'';
+  }
   function saveData(){
     try{
       localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
@@ -1224,7 +1299,7 @@
     return `<div class="cell"${raw?` title="${esc(raw)}"`:''}>${chip}${html}</div>`;
   }
 
-  function personRow(personId,{prefix='',markerColor=null,forceLead=null}={}){
+  function personRow(personId,{prefix='',markerColor=null,forceLead=null,statusKey=''}={}){
     const person = personById(personId);
     const classes = ['person-row'];
     if(forceLead) classes.push('lead');
@@ -1234,6 +1309,7 @@
     return `
       <div class="${classes.join(' ')}"${rowStyle}>
         ${visibleColumns().map((c,i)=>personCell(person,c,i===0?chip:'')).join('')}
+        ${person && data.settings.planningView && statusKey ? `<div class="screen-only" style="grid-column:1/-1;font-size:10px;color:#7b673d">Planning: ${esc(PLAN_OPTIONS.find(x=>x[0]===data.assignmentStatus[statusKey])?.[1]||'Proposed')}</div>` : ''}
         <div class="screen-only">${person?`<button class="info-btn" data-person-details="${esc(person.id)}" title="Show stored details">i</button>`:''}</div>
         ${personExtra(person)}
       </div>`;
@@ -1336,7 +1412,7 @@
   function renderOverviewSection(section){
     return `
       <div class="group-title major"><span>${showValue(section.title,'OVERVIEW SECTION')}</span></div>
-      ${section.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0})).join('')}
+      ${section.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0,statusKey:'slot:'+slot.id})).join('')}
     `;
   }
 
@@ -1354,7 +1430,7 @@
               <span class="number">${showValue(d.number,'—')}</span>
               <span>${showValue(d.name,'Department')}</span>
             </div>
-            ${d.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0})).join('')}
+            ${d.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0,statusKey:'slot:'+slot.id})).join('')}
           </section>
         `).join('') : (portfolio.departments.length===0 ? '<div class="empty-note">No departments yet.</div>' : '')}
       </div>`;
@@ -1378,10 +1454,10 @@
         <div class="hierarchy-note">Each committee member below has their own colour and letter; departments on the following pages are grouped under the matching committee member.</div>
 
         <div class="group-title sub">${showValue(data.settings.committeeTitle,'CONVENTION COMMITTEE')}</div>
-        ${data.portfolios.map(p=>personRow(p.memberId,{prefix:p.overviewLetter,markerColor:p.color,forceLead:false})).join('')}
+        ${data.portfolios.map(p=>personRow(p.memberId,{prefix:p.overviewLetter,markerColor:p.color,forceLead:false,statusKey:`portfolio:${p.id}:member`})).join('')}
 
         <div class="group-title sub">${showValue(data.settings.assistantsTitle,'CONVENTION COMMITTEE ASSISTANTS')}</div>
-        ${data.portfolios.map(p=>personRow(p.assistantId,{prefix:p.overviewLetter,markerColor:p.color,forceLead:false})).join('')}
+        ${data.portfolios.map(p=>personRow(p.assistantId,{prefix:p.overviewLetter,markerColor:p.color,forceLead:false,statusKey:`portfolio:${p.id}:assistant`})).join('')}
 
         ${(overviewPages[0]||[]).map(renderOverviewSection).join('')}
       </section>`;
@@ -1802,6 +1878,8 @@
     renderPreview();
     if(editorToo) renderEditor({state:editorState,focusSelector});
     updatePersonnelCount();
+    updatePlanningCount();
+    if(planningModal?.classList.contains('open')) renderPlanning();
   }
 
   function refreshPersonOptionLabels(){
@@ -1929,8 +2007,9 @@
     const personId = option.dataset.personId || '';
     const path = comboEl.dataset.path;
 
-    setByPath(data,path,personId);
+    setAssignment(path,personId);
     saveData();
+    updatePlanningCount();
     renderPreview();
     inputEl.dataset.currentId = personId;
     const person = personById(personId);
@@ -2083,6 +2162,11 @@
   const personModalSubtitle = document.getElementById('personModalSubtitle');
   let personModalState = {mode:'new', personId:'', targetPath:''};
 
+  function populateKnownPlaces(){
+    const values=(key)=>[...new Set(data.people.map(p=>String(p[key]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'en',{sensitivity:'base'}));
+    document.getElementById('knownCongregations').innerHTML=values('congregation').map(x=>`<option value="${esc(x)}"></option>`).join('');
+    document.getElementById('knownCircuits').innerHTML=values('circuit').map(x=>`<option value="${esc(x)}"></option>`).join('');
+  }
   function fillPersonModalFields(person){
     document.getElementById('pm-lastName').value = person?.lastName || '';
     document.getElementById('pm-firstName').value = person?.firstName || '';
@@ -2098,6 +2182,7 @@
   }
 
   function openPersonModal({mode,personId,targetPath}){
+    populateKnownPlaces();
     personModalState = {mode,personId,targetPath};
     if(mode==='edit'){
       const person = personById(personId);
@@ -2164,7 +2249,7 @@
       const person = normalizePerson({id:uid('person'), ...fields});
       data.people.push(person);
       savedId = person.id;
-      if(personModalState.targetPath) setByPath(data,personModalState.targetPath,person.id);
+      if(personModalState.targetPath) setAssignment(personModalState.targetPath,person.id);
       focusSelector = personModalState.targetPath ? `.person-combo[data-path="${personModalState.targetPath}"]` : '';
     }
 
@@ -2175,6 +2260,53 @@
     if(isOpen(peopleModal)) renderPeopleTable();
     toast((personModalState.mode==='edit' ? 'Person updated' : 'Person added') + (synced ? ` · ${synced} more updated` : ''));
   });
+
+  const planningModal=document.getElementById('planningModal');
+  function updatePlanningCount(){
+    const assignments=collectAssignments();
+    const assigned=assignments.filter(x=>x.personId);
+    const pending=assigned.filter(x=>data.assignmentStatus[x.key]!=='confirmed').length;
+    document.getElementById('planningCount').textContent=pending?`(${pending} to confirm)`:'';
+  }
+  function openPlanning(){document.getElementById('planningView').checked=!!data.settings.planningView;renderPlanning();openModal(planningModal);}
+  document.getElementById('planningView').addEventListener('change',e=>{data.settings.planningView=e.target.checked;saveData();renderPreview();});
+  function renderPlanning(){
+    const entries=collectAssignments();
+    const assigned=entries.filter(x=>x.personId);
+    const count=(status)=>assigned.filter(x=>data.assignmentStatus[x.key]===status).length;
+    document.getElementById('planningSummary').innerHTML=[
+      ['Positions',entries.length],['Open',entries.length-assigned.length],['Proposed',count('proposed')],
+      ['Awaiting acceptance',count('requested')],['Confirmed',count('confirmed')],['Declined',count('declined')]
+    ].map(([name,num])=>`<div class="planning-stat"><strong>${num}</strong>${name}</div>`).join('');
+    const search=document.getElementById('planningSearch').value.trim().toLowerCase();
+    const filter=document.getElementById('planningFilter').value;
+    let html='',lastGroup='',n=0;
+    entries.forEach(item=>{
+      const person=personById(item.personId);
+      const status=person?(data.assignmentStatus[item.key]||'proposed'):'open';
+      if(filter!=='all' && status!==filter)return;
+      if(search && ![item.label,item.group,person?.firstName,person?.lastName,person?.congregation].join(' ').toLowerCase().includes(search))return;
+      if(item.group!==lastGroup){html+=`<div class="planning-group">${esc(item.group)}</div>`;lastGroup=item.group;}
+      const fullname=person?[person.firstName,person.lastName].filter(Boolean).join(' '):'Not assigned';
+      const options=PLAN_OPTIONS.map(([value,label])=>`<option value="${value}" ${status===value?'selected':''}>${esc(label)}</option>`).join('');
+      html+=`<div class="planning-row" data-status="${esc(status)}"><div class="role">${esc(item.label)}</div><div class="who">${esc(fullname)}${person?`<small>${esc(congregationLabel(person))}</small>`:''}</div><div>${person?`<select data-plan-key="${esc(item.key)}" aria-label="Acceptance status for ${esc(item.label)}">${options}</select>`:'<span class="placeholder">Assign in Edit data</span>'}</div></div>`;
+      n++;
+    });
+    document.getElementById('planningRows').innerHTML=html||'<div class="people-empty">No positions match the current filter.</div>';
+    updatePlanningCount();
+  }
+  document.getElementById('planningBtn').addEventListener('click',openPlanning);
+  document.getElementById('closePlanning').addEventListener('click',()=>closeModal(planningModal));
+  planningModal.addEventListener('click',e=>{if(e.target===planningModal)closeModal(planningModal);});
+  document.getElementById('planningSearch').addEventListener('input',renderPlanning);
+  document.getElementById('planningFilter').addEventListener('change',renderPlanning);
+  document.getElementById('planningRows').addEventListener('change',e=>{
+    if(!e.target.matches('[data-plan-key]'))return;
+    data.assignmentStatus[e.target.dataset.planKey]=e.target.value;
+    saveData();renderPlanning();renderPreview();
+    toast(e.target.value==='confirmed'?'Assignment confirmed':'Planning status updated');
+  });
+  document.getElementById('planningEdit').addEventListener('click',()=>{closeModal(planningModal);toggleEditor(true);});
 
   // ---- Congregation / group consistency ----
   // Same congregation name (case/space-insensitive) should carry the same type for everyone.
@@ -2243,6 +2375,7 @@
     if(e.key!=='Escape') return;
     if(!personComboList.hidden){ closeComboList(); return; }
     if(isOpen(personModal)){ closePersonModal(); return; }
+    if(isOpen(planningModal)){ closeModal(planningModal); return; }
     if(isOpen(detailsModal)){ closePersonDetails(); return; }
     if(isOpen(csvModal)){ closeModal(csvModal); return; }
     if(isOpen(printModal)){ closeModal(printModal); return; }
