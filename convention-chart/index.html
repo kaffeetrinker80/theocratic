@@ -434,7 +434,17 @@
   .planning-row select{max-width:230px;padding:7px;font-size:12px}
   .planning-row select:disabled{opacity:.55}
   .planning-row[data-status="confirmed"]{border-left:3px solid #238456}
-  .planning-row[data-status="requested"]{border-left:3px solid #c18b26}
+  .planning-row[data-status="proposed"]{
+    border-left:4px solid #d59a2a;
+    background:#fff8e9;
+  }
+  .planning-row[data-status="proposed"]:nth-child(even){background:#fff4dd}
+  .planning-row[data-status="proposed"] .who{color:#775018}
+  .planning-row[data-status="proposed"] select{background:#fff0cf;border-color:#dfb35d;color:#80571c;font-weight:650}
+  .planning-row[data-status="confirmed"]{background:#f2fbf5}
+  .planning-row[data-status="confirmed"]:nth-child(even){background:#ecf8f0}
+  .planning-row[data-status="declined"]{background:#fff3f2}
+  .planning-row[data-status="declined"]:nth-child(even){background:#ffedeb}
   .planning-row[data-status="declined"]{border-left:3px solid #c54e4e}
   .plan-chip{font-size:10px;font-weight:700;display:inline-block;margin-left:7px;padding:2px 5px;border-radius:5px;background:#fff1d7;color:#916217;vertical-align:middle}
   .plan-chip.confirmed{background:#e0f4e9;color:#237349}
@@ -620,7 +630,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.10.0</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.1</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -744,14 +754,14 @@
 <div class="modal-backdrop" id="planningModal" aria-hidden="true">
   <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="planningTitle">
     <div class="modal-head">
-      <div><h3 id="planningTitle">Assignment planning</h3><p>Plan your selections, request acceptance, and confirm each assignment individually. Only a confirmed acceptance is final.</p></div>
+      <div><h3 id="planningTitle">Assignment planning</h3><p>Plan candidates awaiting acceptance, then confirm each assignment when the brother agrees.</p></div>
       <button class="btn icon-btn" id="closePlanning" type="button" aria-label="Close planning">×</button>
     </div>
     <div class="modal-body">
       <label style="flex-direction:row;align-items:center;gap:8px;margin:0 0 10px"><input id="planningView" type="checkbox" style="width:auto"> Show planning status in on-screen chart preview (not printed)</label><div class="planning-summary" id="planningSummary"></div>
-      <div class="people-toolbar"><input id="planningSearch" type="search" class="people-search" placeholder="Search department or person…"><select id="planningFilter" style="width:auto"><option value="all">All positions</option><option value="open">Open positions</option><option value="proposed">Proposed</option><option value="requested">Awaiting acceptance</option><option value="confirmed">Confirmed</option><option value="declined">Declined</option></select><button class="btn small" id="planningEdit" type="button">Edit assignments</button></div>
+      <div class="people-toolbar"><input id="planningSearch" type="search" class="people-search" placeholder="Search department or person…"><select id="planningFilter" style="width:auto"><option value="all">All positions</option><option value="open">Open positions</option><option value="proposed">Proposed / Awaiting acceptance</option><option value="confirmed">Confirmed</option><option value="declined">Declined</option></select><button class="btn small" id="planningEdit" type="button">Edit assignments</button></div>
       <div id="planningRows"></div>
-      <p class="helper" style="margin-top:12px">Status is stored per position in your local chart and included in a full JSON backup. Assigning a different person automatically resets that position to “Proposed”. The personnel-only export does not contain planning data.</p>
+      <p class="helper" style="margin-top:12px">Status is stored per position in your local chart and included in a full JSON backup. Assigning a different person automatically resets that position to “Proposed / Awaiting acceptance”. The personnel-only export does not contain planning data.</p>
     </div>
   </section>
 </div>
@@ -896,7 +906,7 @@
       </ul>
 
       <h4>Planning &amp; acceptance</h4>
-      <p>Use <span class="tag">Planning</span> to see all overseer and assistant positions. New assignments start as Proposed. Move them to Awaiting acceptance when contacted, then Confirmed only after receiving a clear acceptance. Declined is available if someone cannot serve. Each position keeps its own status in the full backup. Older charts are treated as already confirmed.</p>
+      <p>Use <span class="tag">Planning</span> to see all overseer and assistant positions. New assignments start as Proposed / Awaiting acceptance and move directly to Confirmed after receiving a clear acceptance. Declined is available if someone cannot serve. Each position keeps its own status in the full backup. Older charts are treated as already confirmed.</p>
       <p>When adding a person, the Congregation and Circuit fields suggest existing entries while still accepting new names.</p>
       <h4>Hierarchy &amp; assignments</h4>
       <ul>
@@ -1075,6 +1085,10 @@
     if(!input.settings.printColumns.length) input.settings.printColumns = base.settings.printColumns.slice();
 
     input.assignmentStatus = input.assignmentStatus && typeof input.assignmentStatus==='object' && !Array.isArray(input.assignmentStatus) ? input.assignmentStatus : {};
+    // Backward compatibility: the old requested status is now part of proposed.
+    for(const key of Object.keys(input.assignmentStatus)){
+      if(input.assignmentStatus[key]==='requested') input.assignmentStatus[key]='proposed';
+    }
     input.people = Array.isArray(input.people) ? input.people.map(normalizePerson) : base.people;
 
     input.portfolios = Array.isArray(input.portfolios) && input.portfolios.length ? input.portfolios.map((p,idx) => ({
@@ -1172,7 +1186,7 @@
     })));
     return entries;
   }
-  const PLAN_OPTIONS=[['proposed','Proposed'],['requested','Awaiting acceptance'],['confirmed','Confirmed ✓'],['declined','Declined']];
+  const PLAN_OPTIONS=[['proposed','Proposed / Awaiting acceptance'],['confirmed','Confirmed ✓'],['declined','Declined']];
   function assignmentKey(path){
     const portfolio=/^portfolios\.(\d+)\.(memberId|assistantId)$/.exec(path);
     if(portfolio){const p=data.portfolios[+portfolio[1]]; return p?`portfolio:${p.id}:${portfolio[2]==='memberId'?'member':'assistant'}`:'';}
@@ -1309,7 +1323,7 @@
     return `
       <div class="${classes.join(' ')}"${rowStyle}>
         ${visibleColumns().map((c,i)=>personCell(person,c,i===0?chip:'')).join('')}
-        ${person && data.settings.planningView && statusKey ? `<div class="screen-only" style="grid-column:1/-1;font-size:10px;color:#7b673d">Planning: ${esc(PLAN_OPTIONS.find(x=>x[0]===data.assignmentStatus[statusKey])?.[1]||'Proposed')}</div>` : ''}
+        ${person && data.settings.planningView && statusKey ? `<div class="screen-only" style="grid-column:1/-1;font-size:10px;color:#7b673d">Planning: ${esc(PLAN_OPTIONS.find(x=>x[0]===data.assignmentStatus[statusKey])?.[1]||'Proposed / Awaiting acceptance')}</div>` : ''}
         <div class="screen-only">${person?`<button class="info-btn" data-person-details="${esc(person.id)}" title="Show stored details">i</button>`:''}</div>
         ${personExtra(person)}
       </div>`;
@@ -2275,8 +2289,8 @@
     const assigned=entries.filter(x=>x.personId);
     const count=(status)=>assigned.filter(x=>data.assignmentStatus[x.key]===status).length;
     document.getElementById('planningSummary').innerHTML=[
-      ['Positions',entries.length],['Open',entries.length-assigned.length],['Proposed',count('proposed')],
-      ['Awaiting acceptance',count('requested')],['Confirmed',count('confirmed')],['Declined',count('declined')]
+      ['Positions',entries.length],['Open',entries.length-assigned.length],
+      ['Proposed / Awaiting acceptance',count('proposed')],['Confirmed',count('confirmed')],['Declined',count('declined')]
     ].map(([name,num])=>`<div class="planning-stat"><strong>${num}</strong>${name}</div>`).join('');
     const search=document.getElementById('planningSearch').value.trim().toLowerCase();
     const filter=document.getElementById('planningFilter').value;
