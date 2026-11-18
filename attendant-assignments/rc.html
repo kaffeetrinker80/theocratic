@@ -1,0 +1,4362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" id="themeLight">
+  <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)" id="themeDark">
+
+  <!-- Icons + Manifest -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Attendant Assignments">
+  <meta name="application-name" content="Attendant Assignments">
+
+  <!-- Link-Vorschau -->
+  <meta name="description" content="Shift schedule, positions and check-in during the Regional Convention">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Attendant Assignments · Regional Convention">
+  <meta property="og:description" content="Shift schedule, positions and check-in during the Regional Convention">
+  <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/rc.html">
+  <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Attendant Assignments</title>
+  <script>
+    try {
+      var t = localStorage.getItem('aa-theme-v1');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --text: #202124;
+      --muted: #6b7280;
+      --border: #e1e4e8;
+      --chip: #eef1f4;
+      --accent: #315f7d;
+      --accent-soft: #edf4f8;
+      --accent-border: #b8cbd7;
+      --on: #39734a;
+      --on-soft: #edf7ef;
+      --on-border: #b8d9bf;
+      --soon: #a85a0c;
+      --soon-soft: #fdf0e2;
+      --soon-border: #f0cfa6;
+      --done: #8a8f98;
+      --warn-soft: #fff7e0;
+      --warn-border: #ecd9a0;
+      --tabbar: rgba(255, 255, 255, .92);
+      --danger: #b3261e;
+      --danger-soft: #fbeceb;
+      --danger-border: #efc2be;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #15181c;
+      --card: #1e2227;
+      --text: #e8eaed;
+      --muted: #9aa3ad;
+      --border: #2e343b;
+      --chip: #2a2f35;
+      --accent: #8cb8d6;
+      --accent-soft: #22303a;
+      --accent-border: #3b5566;
+      --on: #7fc497;
+      --on-soft: #1b2b21;
+      --on-border: #2f5a3d;
+      --soon: #f0a860;
+      --soon-soft: #33271a;
+      --soon-border: #5e4526;
+      --done: #6f7780;
+      --warn-soft: #2f2a1a;
+      --warn-border: #5a4d26;
+      --tabbar: rgba(30, 34, 39, .94);
+      --danger: #f2b8b5;
+      --danger-soft: #3a2120;
+      --danger-border: #6a3532;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #15181c;
+        --card: #1e2227;
+        --text: #e8eaed;
+        --muted: #9aa3ad;
+        --border: #2e343b;
+        --chip: #2a2f35;
+        --accent: #8cb8d6;
+        --accent-soft: #22303a;
+        --accent-border: #3b5566;
+        --on: #7fc497;
+        --on-soft: #1b2b21;
+        --on-border: #2f5a3d;
+        --soon: #f0a860;
+        --soon-soft: #33271a;
+        --soon-border: #5e4526;
+        --done: #6f7780;
+        --warn-soft: #2f2a1a;
+        --warn-border: #5a4d26;
+        --tabbar: rgba(30, 34, 39, .94);
+        --danger: #f2b8b5;
+        --danger-soft: #3a2120;
+        --danger-border: #6a3532;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    }
+
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+    /* HEADER */
+
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      padding-top: env(safe-area-inset-top, 0px);
+      border-bottom: 1px solid transparent;
+    }
+    .top.scrolled { border-bottom-color: var(--border); }
+
+    .top-in {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+      padding-bottom: 12px;
+    }
+
+    .brand { flex: 1; min-width: 0; }
+    .brand-mark { display: block; flex: 0 0 auto; height: 34px; width: auto; border-radius: 8px; }
+    .d-short { display: none; }
+    @media (max-width: 479px) {
+      .d-long { display: none; }
+      .d-short { display: inline; }
+      .top-in { gap: 10px; }
+      .top-actions { gap: 6px; }
+      .icon-btn { width: 38px; height: 38px; border-radius: 11px; }
+      .brand h1 { font-size: 16px; letter-spacing: -.015em; }
+      .brand-mark { height: 30px; border-radius: 7px; }
+    }
+    @media (min-width: 620px) {
+      .brand-mark { height: 40px; border-radius: 10px; }
+      .brand h1 { font-size: 21px; }
+    }
+    .lock-logo { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; border-radius: 22px; box-shadow: 0 8px 28px rgba(19, 75, 157, .28); }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 17px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.15;
+      letter-spacing: -.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .event-line { margin-top: 2px; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-line strong { color: var(--text); font-weight: 650; }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--accent);
+    }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .icon-btn.busy svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    svg.i { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* BANNER */
+
+    .banner { display: grid; gap: 8px; margin: 4px 0 14px; }
+    .banner:empty { display: none; }
+    .note {
+      padding: 10px 13px;
+      border-radius: 12px;
+      background: var(--warn-soft);
+      border: 1px solid var(--warn-border);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* GENERIC */
+
+    .h3 { margin: 26px 2px 10px; color: var(--muted); font-size: 14px; font-weight: 700; }
+    .empty { padding: 34px 12px; color: var(--muted); text-align: center; line-height: 1.5; }
+    .empty strong { display: block; color: var(--text); font-size: 17px; margin-bottom: 4px; }
+    .btn {
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      font-weight: 650;
+    }
+    .btn.primary { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+    .btn.block { width: 100%; }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+
+    /* SEARCH */
+
+    .search { margin: 2px 0 14px; }
+    .search input {
+      width: 100%;
+      height: 52px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      font-size: 17px;
+      outline: none;
+    }
+    .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+    .results { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .result {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 62px;
+      padding: 12px 16px;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      background: none;
+      text-align: left;
+    }
+    .result:last-child { border-bottom: 0; }
+    .result:active { background: var(--accent-soft); }
+    .result-name { display: block; font-size: 16px; font-weight: 650; }
+    .result-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 14px; }
+
+    /* PERSON */
+
+    .person-head { display: flex; align-items: flex-start; gap: 12px; margin: 4px 2px 12px; }
+    .person-head h2 { margin: 0 0 4px; font-size: 20px; line-height: 1.2; letter-spacing: -.01em; }
+    .team-line { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 14px; }
+    .person-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--muted); font-size: 14px; }
+    .person-meta .linkish { padding: 2px 0; font-size: 14px; }
+    .person-meta .checked { margin-left: 0; padding: 2px 9px; font-size: 12px; }
+    .checked { margin-left: auto; padding: 5px 10px; border-radius: 999px; background: var(--on-soft); color: var(--on); font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+    /* The one bold element: the live status of a person */
+    .hero {
+      position: relative;
+      padding: 14px 16px 14px 20px;
+      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--accent); }
+    .hero-label { color: var(--muted); font-size: 14px; font-weight: 600; }
+    .hero-big { margin: 2px 0 4px; font-size: 34px; line-height: 1.05; font-weight: 800; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+    .hero-pos { font-size: 18px; font-weight: 700; }
+    .hero-sub { margin-top: 2px; color: var(--muted); font-size: 15px; }
+    .hero.k-on { background: var(--on-soft); border-color: var(--on-border); }
+    .hero.k-on::before { background: var(--on); }
+    .hero.k-on .hero-big { color: var(--on); }
+    .hero.k-soon { background: var(--soon-soft); border-color: var(--soon-border); }
+    .hero.k-soon::before { background: var(--soon); }
+    .hero.k-soon .hero-big { color: var(--soon); }
+    .hero.k-done::before, .hero.k-none::before { background: var(--done); }
+    .hero.k-done .hero-big, .hero.k-none .hero-big { color: var(--done); font-size: 30px; }
+
+    .me-row { display: flex; gap: 10px; margin-top: 12px; }
+    .me-row .btn { flex: 1; }
+    .me-saved { flex: 1; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+    .linkish { border: 0; background: none; color: var(--accent); font-weight: 650; padding: 10px 4px; }
+
+    .slot {
+      display: block;
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      text-align: left;
+    }
+    .slot:active { background: var(--accent-soft); }
+    .slot-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .slot-time { font-size: 16px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .slot-pos { font-size: 15px; font-weight: 650; text-align: right; }
+    .slot-area { margin-top: 1px; color: var(--muted); font-size: 13px; }
+    .slot-remark { margin-top: 3px; color: var(--muted); font-size: 12px; font-style: italic; }
+    .slot.now { background: var(--on-soft); border-color: var(--on-border); }
+    .slot.past { opacity: .55; }
+
+    .tag { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; vertical-align: 2px; }
+    .tag.now { background: var(--on); color: var(--card); }
+    .tag.sel { background: var(--accent); color: var(--card); }
+    .tag.open { background: var(--soon-soft); color: var(--soon); border: 1px solid var(--soon-border); }
+
+    /* POSITIONS */
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0 14px; }
+    .chip {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 0 15px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card);
+      font-weight: 650;
+    }
+    .chip.active { background: var(--accent); border-color: var(--accent); color: var(--card); }
+    .chips.sub { margin-top: -4px; padding-bottom: 12px; }
+    .chips.sub .chip { min-height: 36px; padding: 0 13px; font-size: 14px; background: var(--chip); border-color: transparent; }
+    .chips.sub .chip.active { background: var(--text); color: var(--bg); }
+    .block-head { margin: 18px 2px 8px; font-size: 15px; font-weight: 800; letter-spacing: .01em; }
+    .block-head span { margin-left: 6px; color: var(--muted); font-weight: 600; font-size: 13px; }
+
+    .pos-card {
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      overflow: hidden;
+    }
+    .pos-card.tc { background: var(--accent-soft); border-color: var(--accent-border); }
+    .pos-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 14px 0;
+      border: 0;
+      background: none;
+      text-align: left;
+    }
+    .pos-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 750; }
+    .pos-chev { flex: 0 0 auto; color: var(--muted); font-size: 13px; font-weight: 650; white-space: nowrap; }
+    .pos-card .duo { margin: 8px 14px 12px; }
+    .pos-card .single { margin: 8px 14px 12px; }
+    .pos-list { margin: 0 14px 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+    .pos-line { display: flex; align-items: baseline; gap: 10px; width: 100%; padding: 6px 2px; border: 0; background: none; text-align: left; font-size: 14px; }
+    .pos-line.now { color: var(--on); font-weight: 750; }
+    .pos-line.past { opacity: .5; }
+    .pos-line .t { flex: 0 0 96px; font-variant-numeric: tabular-nums; }
+    .pos-line .n { flex: 1; min-width: 0; font-weight: 650; }
+    .pos-line .n.open { color: var(--soon); }
+    .pos-more { display: block; width: 100%; margin-top: 6px; padding: 9px; border: 1px solid var(--accent-border); border-radius: 10px; background: var(--card); color: var(--accent); font-weight: 650; font-size: 14px; }
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .duo > div, .single { padding: 8px 11px; border-radius: 11px; background: var(--chip); min-width: 0; }
+    .single.now { background: var(--on-soft); }
+    .single.now .duo-label { color: var(--on); }
+    .single .duo-name + .duo-name { margin-top: 4px; }
+    .duo > div.now { background: var(--on-soft); }
+    .duo-label { color: var(--muted); font-size: 12px; font-weight: 650; }
+    .duo > div.now .duo-label { color: var(--on); }
+    .duo-name { margin-top: 2px; font-weight: 700; overflow-wrap: anywhere; }
+    .duo-time { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+    /* TEAMS */
+
+    .team-block { margin-bottom: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+    .team-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--border); border-left: 6px solid var(--team, var(--done)); }
+    .team-name { flex: 1; font-size: 17px; font-weight: 750; }
+    .team-count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .member {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 56px;
+      padding: 10px 16px;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      background: none;
+      text-align: left;
+    }
+    .member:last-child { border-bottom: 0; }
+    .member:active { background: var(--accent-soft); }
+    .member-main { flex: 1; min-width: 0; }
+    .member-name { display: block; font-weight: 650; }
+    .member-status { display: block; margin-top: 1px; color: var(--muted); font-size: 13px; }
+    .member-status.k-on { color: var(--on); font-weight: 650; }
+    .member-status.k-soon { color: var(--soon); font-weight: 650; }
+    .member-status.k-done { color: var(--done); }
+    .tick { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--on-soft); color: var(--on); font-weight: 800; font-size: 14px; }
+    .tick.no { background: var(--chip); color: transparent; }
+
+    /* MAPS */
+
+    .maps { display: grid; gap: 12px; }
+    .map { overflow: hidden; background: var(--card); border: 1px solid var(--border); border-radius: 18px; }
+    .map button { display: block; width: 100%; padding: 0; border: 0; background: var(--chip); }
+    .map img { display: block; width: 100%; height: 190px; object-fit: cover; }
+    .map.no-img img { display: none; }
+    .map.no-img button::after { content: "Map image not found"; display: block; padding: 40px 10px; color: var(--muted); font-size: 14px; }
+    .map-info { padding: 13px 16px 15px; }
+    .map-title { font-size: 17px; font-weight: 750; }
+    .map-text { margin-top: 2px; color: var(--muted); font-size: 14px; line-height: 1.4; }
+
+    /* POSITION PANEL */
+
+    .panel {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      overflow-y: auto;
+      background: var(--bg);
+      transform: translateX(100%);
+      transition: transform .22s ease;
+      visibility: hidden;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+    }
+    .panel.open { transform: none; visibility: visible; }
+    .panel-bar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 12px 0; }
+    .panel h2 { margin: 6px 2px 2px; font-size: 27px; letter-spacing: -.01em; }
+    .panel .sub { margin: 0 2px 16px; color: var(--muted); }
+    .now-box { margin-bottom: 14px; padding: 15px; border-radius: 16px; background: var(--on-soft); border: 1px solid var(--on-border); }
+    .now-box .duo-label { color: var(--on); }
+    .now-name { margin-top: 2px; font-size: 19px; font-weight: 750; }
+    .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .trio > div { padding: 11px; border-radius: 13px; background: var(--card); border: 1px solid var(--border); min-width: 0; }
+    .trio > div.sel { background: var(--accent-soft); border-color: var(--accent-border); }
+    .trio .duo-name { font-size: 14px; }
+    .map-inline { margin: 10px 0 4px; }
+    .map-inline img { display: block; width: 100%; border-radius: 14px; border: 1px solid var(--border); cursor: zoom-in; }
+
+    .rot {
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      overflow: hidden;
+    }
+    .rot-main {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 108px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+      border: 0;
+      background: none;
+      text-align: left;
+    }
+    .rot.now { background: var(--on-soft); border-color: var(--on-border); }
+    .rot.sel { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .rot.past { opacity: .55; }
+    .rot-time { font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .rot-name { font-weight: 650; }
+    .rot-name.open { color: var(--soon); }
+    .rot-name.noshift, .pos-line .n.noshift { color: var(--muted); font-style: italic; font-weight: 600; }
+    .rot-remark { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .rot-edit {
+      flex: 0 0 auto;
+      margin: 8px 8px 8px 0;
+      padding: 0 12px;
+      border: 1px solid var(--accent-border);
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    /* IMAGE OVERLAY */
+
+    .overlay { display: none; position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .9); align-items: center; justify-content: center; padding: 14px; }
+    .overlay.open { display: flex; }
+    .overlay img { max-width: 100%; max-height: 92vh; object-fit: contain; }
+    .overlay-close {
+      position: absolute;
+      top: calc(14px + env(safe-area-inset-top, 0px));
+      right: 14px;
+      width: 46px;
+      height: 46px;
+      border: 0;
+      border-radius: 50%;
+      background: #fff;
+      color: #222;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    /* TAB BAR */
+
+    .tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      background: var(--tabbar);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .tabbar-in { display: grid; grid-template-columns: repeat(var(--tabs, 4), 1fr); max-width: 760px; margin: 0 auto; }
+    .tab {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-height: 64px;
+      padding: 8px 2px 8px;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tab-ico {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 30px;
+      border-radius: 999px;
+      transition: background .15s ease;
+    }
+    .tab svg { width: 23px; height: 23px; }
+    .tab.active { color: var(--accent); font-weight: 800; }
+    .tab.active .tab-ico { background: var(--accent); color: var(--card); }
+    .tab.active svg { stroke-width: 2.2; }
+    .tab.active::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: 22%;
+      right: 22%;
+      height: 3px;
+      border-radius: 0 0 3px 3px;
+      background: var(--accent);
+    }
+
+    /* FOOTER */
+
+    .footer { margin: 34px 2px 10px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    @media (min-width: 620px) {
+      .wrap { padding: 0 24px; }
+      .maps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .map img { height: 160px; }
+      .hero-big { font-size: 46px; }
+    }
+
+    /* DESKTOP / LAPTOP */
+
+    .pos-flow { display: block; }
+    .block-head:first-child { margin-top: 4px; }
+
+    @media (min-width: 1000px) {
+      body { padding-bottom: 0; padding-left: 216px; }
+      body.locked { padding-left: 0; }
+      .wrap { max-width: 1240px; padding: 0 32px; }
+
+      .tabbar {
+        top: 0;
+        right: auto;
+        bottom: 0;
+        width: 216px;
+        padding: calc(88px + env(safe-area-inset-top, 0px)) 12px 20px;
+        border-top: 0;
+        border-right: 1px solid var(--border);
+        background: var(--card);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      .tabbar-in { display: flex; flex-direction: column; gap: 4px; max-width: none; }
+      .tab {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+        min-height: 48px;
+        padding: 6px 10px;
+        border-radius: 12px;
+        font-size: 15px;
+      }
+      .tab:hover { background: var(--chip); color: var(--text); }
+      .tab-ico { width: 40px; height: 32px; border-radius: 10px; }
+      .tab.active { background: var(--accent-soft); }
+      .tab.active::before { display: none; }
+
+      .top-in { padding-top: 20px; padding-bottom: 16px; }
+      .brand h1 { font-size: 24px; }
+
+      .pos-flow { columns: 320px 4; column-gap: 16px; }
+      .pos-sec { margin-bottom: 6px; }
+      .pos-sec.blocked { break-inside: avoid; }
+      .pos-card { break-inside: avoid; }
+      .block-head { margin-top: 10px; break-after: avoid; }
+
+      .members { columns: 300px 4; column-gap: 0; column-rule: 1px solid var(--border); }
+      .members > * { break-inside: avoid; }
+      .brand-mark { height: 46px; border-radius: 11px; }
+
+      .me-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 32px; align-items: start; }
+      .me-right .h3:first-child { margin-top: 6px; }
+
+      .search, .seg { max-width: 560px; }
+      .ci-summary { max-width: 560px; }
+      .map img { height: 240px; }
+
+      .panel {
+        left: auto;
+        width: min(560px, 50vw);
+        border-left: 1px solid var(--border);
+        box-shadow: -12px 0 40px rgba(0, 0, 0, .14);
+      }
+      .panel .wrap { padding: 0 28px; }
+
+      .toast { bottom: 28px; left: calc(50% + 108px); }
+      .lock { margin-top: 80px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .panel { transition: none; }
+      .icon-btn.busy svg { animation: none; }
+    }
+  
+    /* ACCESS / LOCK */
+
+    body.locked .tabbar, body.locked .top-actions, body.locked .em-fab { display: none; }
+    body.locked { padding-bottom: 24px; }
+    .top-actions { display: flex; gap: 8px; }
+    .lock { max-width: 380px; margin: 36px auto 0; text-align: center; }
+    .lock-icon { font-size: 34px; }
+    .lock h2 { margin: 8px 0 6px; font-size: 24px; }
+    .lock input:not([type="checkbox"]), .field {
+      width: 100%;
+      height: 54px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      font-size: 19px;
+      text-align: center;
+      letter-spacing: .06em;
+      outline: none;
+    }
+    .lock input:not([type="checkbox"]):focus, .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .show-code input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+    body.locked .brand-mark { display: none; }
+    .show-code { display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 16px; color: var(--muted); font-size: 14px; }
+    .lock-error { min-height: 1.4em; margin-top: 12px; color: var(--danger); font-size: 14px; line-height: 1.4; }
+    .muted { color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .intro h2 { margin: 6px 2px 4px; font-size: 24px; }
+    .intro p { margin: 0 2px 14px; }
+    .notme { margin: -4px 2px 14px; color: var(--muted); font-size: 14px; }
+    .notme .linkish { padding: 6px 2px; }
+    .role-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; }
+    .form-card { margin-bottom: 12px; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+    .form-card p { margin: 6px 0 0; }
+    .form-row { display: flex; gap: 8px; margin-top: 12px; }
+    .form-row input {
+      flex: 1;
+      min-width: 0;
+      height: 46px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      outline: none;
+    }
+    .form-row input:focus { border-color: var(--accent); }
+    .code-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .code-state { font-size: 13px; font-weight: 700; }
+    .code-state.set { color: var(--on); }
+    .code-state.unset { color: var(--muted); }
+    .btn.danger { background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger); }
+    .btn[disabled] { opacity: .6; }
+    .chip .dot { margin-right: 6px; }
+    .chip-count { margin-left: 4px; opacity: .7; font-weight: 600; }
+    .result-sub.busy { color: var(--soon); }
+
+    /* CHECK-IN */
+
+    .ci-summary { margin-bottom: 14px; padding: 16px 18px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; }
+    .ci-big { font-size: 34px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .ci-big span { color: var(--muted); font-size: 18px; font-weight: 650; letter-spacing: 0; }
+    .bar { height: 8px; margin-top: 10px; border-radius: 999px; background: var(--chip); overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--on); border-radius: 999px; }
+    .seg { display: inline-flex; margin-bottom: 12px; padding: 3px; border-radius: 12px; background: var(--chip); }
+    .seg button { min-height: 38px; padding: 0 16px; border: 0; border-radius: 10px; background: none; color: var(--muted); font-weight: 650; }
+    .seg button.active { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+    .ci-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 16px; border-bottom: 1px solid var(--border); }
+    .ci-row:last-child { border-bottom: 0; }
+    .ci-main { flex: 1; min-width: 0; padding: 6px 0; border: 0; background: none; text-align: left; }
+    .ci-main .dot { width: 8px; height: 8px; margin-right: 4px; }
+    .ci-btn {
+      flex: 0 0 auto;
+      min-width: 108px;
+      min-height: 48px;
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 750;
+    }
+    .ci-btn.in { background: var(--on); border-color: var(--on); color: var(--card); }
+    .ci-btn[disabled] { opacity: .6; }
+
+    .check-line { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-border); font-size: 15px; font-weight: 600; }
+    .check-line input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex: 0 0 auto; }
+
+    .guest-box { margin-top: 26px; padding: 16px; border: 1px dashed var(--border); border-radius: 16px; }
+    .guest-box p { margin: 4px 0 12px; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); min-width: 0; }
+    .stat-big { font-size: 26px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .stat-big span { color: var(--muted); font-size: 15px; font-weight: 650; }
+    .stat-label { margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 650; }
+    .stat.on { background: var(--on-soft); border-color: var(--on-border); }
+    .stat.on .stat-big { color: var(--on); }
+    .stat.soon .stat-big { color: var(--soon); }
+
+    .map-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border: 1px solid var(--accent-border);
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .map-print svg { width: 17px; height: 17px; }
+    #printArea { display: none; }
+
+    /* Druck: genau eine Seite A4 quer – Überschrift + Plan */
+    @page { size: A4 landscape; margin: 10mm; }
+    @media print {
+      html, body {
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+      body > *:not(#printArea) { display: none !important; }
+      #printArea {
+        display: block !important;
+        color: #000;
+        font-family: inherit;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
+      #printArea h1 { margin: 0 0 2mm; font-size: 16pt; line-height: 1.2; }
+      #printArea p { margin: 0 0 4mm; font-size: 9pt; color: #444; }
+      /* A4 quer: 190 mm nutzbare Höhe – abzüglich Überschrift bleiben ~165 mm für den Plan */
+      #printArea img {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 162mm;
+        margin: 0 auto;
+        object-fit: contain;
+      }
+    }
+
+    .help-box { margin: 0 0 16px; padding: 12px 14px; border-radius: 16px; background: var(--soon-soft); border: 1px solid var(--soon-border); }
+    .help-head { margin-bottom: 4px; color: var(--soon); font-weight: 800; }
+    .help-item { padding: 10px 0; border-top: 1px solid var(--soon-border); }
+    .help-head + .help-item { border-top: 0; padding-top: 4px; }
+    .help-title { font-weight: 750; }
+    .help-sub { margin: 1px 0 8px; color: var(--muted); font-size: 13px; }
+    .help-wait { color: var(--muted); font-size: 14px; }
+    .help-wait.ok { color: var(--on); font-weight: 650; }
+    .help-offer { font-size: 15px; }
+    .help-btns { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .help-btns .btn { flex: 1; min-height: 42px; }
+    .tag.help { background: var(--soon); color: var(--card); }
+    .tag.from { background: var(--chip); color: var(--muted); border: 1px solid var(--border); font-weight: 650; }
+    .tab-ico { position: relative; }
+    .tab-dot { position: absolute; top: 1px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--soon); border: 2px solid var(--card); }
+
+    .count-card { margin-top: 10px; padding: 11px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); }
+    .count-card.soon { background: var(--soon-soft); border-color: var(--soon-border); }
+    .count-card.now { background: var(--on-soft); border-color: var(--on-border); }
+    .count-head { margin-bottom: 4px; font-weight: 750; font-size: 15px; }
+    .count-head span { color: var(--muted); font-weight: 600; }
+    .count-row { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; font-size: 14px; }
+    .count-label { flex: 0 0 82px; color: var(--muted); }
+    .count-time { flex: 0 0 52px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .count-st { flex: 1; color: var(--muted); }
+    .count-row.soon .count-st { color: var(--soon); font-weight: 700; }
+    .count-row.now .count-st, .count-row.now .count-time { color: var(--on); font-weight: 800; }
+    .count-row.done { opacity: .55; }
+    .time-field { flex: 1; display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 13px; font-weight: 600; }
+
+    .cnt-box, .cnt-admin { margin: 0 0 16px; padding: 12px 14px; border-radius: 16px; background: var(--on-soft); border: 1px solid var(--on-border); }
+    .cnt-admin { background: var(--card); border-color: var(--border); }
+    .cnt-admin.open { background: var(--accent-soft); border-color: var(--accent-border); }
+    .cnt-head { margin-bottom: 6px; font-weight: 800; }
+    .cnt-item + .cnt-item { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--on-border); }
+    .cnt-sent { margin-bottom: 6px; color: var(--on); font-size: 14px; }
+    .cnt-form { display: flex; gap: 8px; margin: 6px 0 4px; }
+    .cnt-input {
+      flex: 1;
+      min-width: 0;
+      height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      font-size: 20px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+    }
+    .cnt-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .cnt-sum { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 8px; }
+    .cnt-total { font-size: 30px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .cnt-list { border-top: 1px solid var(--border); }
+    .cnt-line { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .cnt-l { flex: 1; min-width: 0; }
+    .cnt-l strong { display: block; font-size: 14px; }
+    .cnt-l span { color: var(--muted); font-size: 12px; }
+    .cnt-v { min-width: 64px; text-align: right; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+    .cnt-line.ok .cnt-v { color: var(--text); font-size: 17px; font-weight: 800; }
+    .cnt-pre { white-space: pre-wrap; font-size: 14px; }
+    .cnt-btns .btn { padding: 0 8px; font-size: 14px; }
+    .cnt-btns .btn.active { background: var(--chip); }
+    .cnt-result { margin-top: 12px; }
+    .pos-tools { display: flex; justify-content: flex-end; margin: -6px 2px 6px; }
+    .pos-tools .linkish { padding: 4px 0; font-size: 14px; }
+    .cnt-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .cnt-head-row .cnt-head { margin: 0; }
+    .cnt-head-row .linkish { padding: 4px 0; font-size: 14px; }
+    .cnt-mini {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      margin: 0 0 14px;
+      padding: 10px 14px;
+      border: 1px solid var(--accent-border);
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--text);
+      font-size: 14px;
+      text-align: left;
+    }
+    .cnt-mini strong { white-space: nowrap; }
+    .cnt-mini-info { flex: 1; min-width: 0; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cnt-mini-open { color: var(--accent); font-weight: 650; white-space: nowrap; }
+    .cnt-live { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--on); animation: cntPulse 1.6s ease-in-out infinite; }
+    @keyframes cntPulse { 50% { opacity: .3; } }
+    @media (prefers-reduced-motion: reduce) { .cnt-live { animation: none; } }
+    .cnt-table-wrap { overflow-x: auto; }
+    .cnt-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .cnt-table th, .cnt-table td { padding: 7px 4px; border-bottom: 1px solid var(--border); text-align: right; }
+    .cnt-table th:first-child, .cnt-table td:first-child { text-align: left; padding-left: 0; }
+    .cnt-table th { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .cnt-table td:not(:first-child) { width: 64px; font-weight: 700; }
+    .cnt-table tfoot td { font-weight: 800; border-bottom: 0; }
+    .cnt-table tfoot tr.grand td { padding-top: 10px; font-size: 18px; border-top: 2px solid var(--text); }
+    .cnt-table tfoot tr.grand td:not(:first-child) { width: 64px; }
+
+    .icon-btn[hidden] { display: none; }
+    /* HEADER (Handy): Titel oben über die volle Breite, Datum + Symbole in der zweiten Zeile */
+    @media (max-width: 619px) {
+      .top-in {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "logo title title" "logo date actions";
+        align-items: center;
+        column-gap: 12px;
+        row-gap: 2px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .brand { display: contents; }
+      .brand-mark { grid-area: logo; height: 44px; border-radius: 9px; }
+      .brand h1 { grid-area: title; font-size: 19px; }
+      .event-line { grid-area: date; margin: 0; }
+      .top-actions { grid-area: actions; gap: 4px; }
+      .icon-btn { width: 34px; height: 34px; border-radius: 10px; border-color: transparent; background: var(--chip); }
+      .icon-btn svg { width: 18px; height: 18px; }
+    }
+
+    /* Zählkarte (eingeklappt) kompakt in einer Zeile */
+    .cnt-admin:not(.open) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; }
+    .cnt-admin:not(.open) > .cnt-head { flex: 1 1 auto; margin: 0; }
+    .cnt-admin:not(.open) > .cnt-btns { flex: 0 0 auto; margin: 0; gap: 6px; }
+    .cnt-admin:not(.open) > .cnt-btns .btn { flex: 0 0 auto; min-height: 36px; padding: 0 12px; font-size: 13px; }
+    .cnt-admin:not(.open) > .cnt-result { flex: 1 1 100%; margin-top: 4px; }
+
+    .team-block.helpers { border-style: dashed; }
+    .member.unassigned { opacity: .5; }
+
+    /* FIND */
+    .find-card { display: block; width: 100%; margin-bottom: 8px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; }
+    .find-card:active { background: var(--accent-soft); }
+    .find-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .find-top .checked { margin: 0; padding: 2px 8px; font-size: 12px; }
+    .find-card .member-status { margin-top: 2px; }
+    .find-slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .find-slot { padding: 3px 8px; border-radius: 8px; background: var(--chip); font-size: 13px; }
+    .find-slot b { font-variant-numeric: tabular-nums; }
+    .find-area { color: var(--muted); font-size: 13px; text-align: right; }
+    .find-slot.now { background: var(--on-soft); color: var(--on); }
+    .find-slot.past { opacity: .5; }
+
+    /* EMERGENCY */
+    .em-fab {
+      position: fixed;
+      right: 14px;
+      bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+      z-index: 35;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: #c62828;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(198, 40, 40, .35);
+    }
+    .em-fab svg { width: 26px; height: 26px; stroke-width: 2.2; }
+    .panel.open ~ .em-fab { display: none; }
+    body { padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px)); }
+    .em-first { margin: 4px 0 14px; padding: 14px 16px; border-radius: 16px; background: #fff4e5; border: 1px solid #f3c98b; color: #3d2a06; font-size: 16px; font-weight: 700; line-height: 1.7; }
+    .em-first p { margin: 6px 0 0; font-size: 13px; font-weight: 500; opacity: .8; }
+    .em-calls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+    .em-call { display: flex; flex-direction: column; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); color: var(--text); text-decoration: none; }
+    .em-call strong { font-size: 15px; }
+    .em-call span { margin-top: 2px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .em-call.main { grid-column: 1 / -1; border-color: var(--accent-border); background: var(--accent-soft); }
+    .em-call.police strong, .em-call.fire strong { color: #c62828; }
+    .ap { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fff; vertical-align: 1px; }
+    .ap-W { background: #2e7d32; }
+    .ap-E { background: #c62828; }
+    .evac-card { margin-bottom: 8px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); }
+    .evac-card.current { border-color: var(--on-border); background: var(--on-soft); }
+    .evac-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .evac-pos { font-weight: 750; }
+    .evac-t { margin-top: 4px; font-size: 15px; line-height: 1.45; }
+    .evac-where { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .evac-card .linkish { padding: 6px 0 0; }
+    .evac-leaders { display: grid; gap: 6px; margin-top: 4px; padding: 10px 2px; color: var(--muted); font-size: 14px; }
+    .evac-leaders strong { color: var(--text); }
+    .evac-plans { display: flex; gap: 16px; }
+    .evac-plans .linkish { padding: 2px 0; }
+    .em-report { padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); font-size: 15px; line-height: 1.7; }
+    .em-case { margin-bottom: 8px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); }
+    .em-case summary { padding: 12px 14px; font-weight: 750; cursor: pointer; list-style: none; }
+    .em-case summary::-webkit-details-marker { display: none; }
+    .em-case summary::after { content: '▾'; float: right; color: var(--muted); }
+    .em-case[open] summary::after { content: '▴'; }
+    .em-case ul { margin: 0; padding: 0 16px 12px 34px; font-size: 15px; line-height: 1.6; }
+    .evac-line { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); font-size: 14px; font-weight: 650; text-align: left; }
+    .evac-line span:not(.ap) { color: var(--muted); font-weight: 600; }
+    .evac-line .evac-more { margin-left: auto; font-size: 18px; }
+    .evac-check { margin: 0 0 16px; padding: 12px 14px; border-radius: 16px; background: #fff4e5; border: 1px solid #f3c98b; }
+    .evac-check .btn { margin-top: 4px; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .em-first, :root:not([data-theme="light"]) .evac-check { background: #3a2a12; border-color: #6b4c1c; color: #f5deb3; }
+    }
+    :root[data-theme="dark"] .em-first, :root[data-theme="dark"] .evac-check { background: #3a2a12; border-color: #6b4c1c; color: #f5deb3; }
+    @media (min-width: 1000px) {
+      .em-fab { bottom: 28px; right: 28px; }
+      body { padding-bottom: 0; }
+    }
+
+    /* DAYS (RC) */
+    .chips.days { padding-bottom: 10px; }
+    .chips.days .chip { min-height: 38px; padding: 0 14px; }
+    .chips.days .chip .today-mark { margin-left: 6px; font-size: 12px; font-weight: 700; opacity: .8; }
+    .day-head { margin: 16px 2px 6px; color: var(--muted); font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .day-head:first-child { margin-top: 2px; }
+    .day-head.today { color: var(--on); }
+    .day-head.past { opacity: .6; }
+    .slot-day { margin-right: 6px; color: var(--muted); font-weight: 700; }
+    .count-days { display: grid; gap: 8px; margin-top: 10px; }
+    .count-day { display: flex; align-items: flex-end; gap: 8px; }
+    .count-day > span { flex: 0 0 74px; padding-bottom: 12px; font-weight: 700; }
+
+    /* MODAL + TOAST */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+      background: rgba(0, 0, 0, .45);
+    }
+    .modal[hidden] { display: none; }
+    .modal-box { width: 100%; max-width: 440px; padding: 20px; border-radius: 20px; background: var(--card); }
+    .modal-box h3 { margin: 0 0 6px; font-size: 20px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .modal-actions .btn { flex: 1; }
+    .warn-list { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--soon-soft); border: 1px solid var(--soon-border); font-size: 14px; line-height: 1.45; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+      z-index: 80;
+      max-width: calc(100% - 32px);
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 15px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.error { background: var(--danger); color: #fff; }
+
+    @media (min-width: 620px) {
+      .modal { align-items: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="top" id="top">
+    <div class="wrap top-in">
+      <img class="brand-mark" src="logo-mark.jpg" alt="" onerror="this.remove()">
+      <div class="brand">
+        <h1>Attendant Assignments</h1>
+        <div class="event-line" id="eventLine">Loading…</div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="findBtn" type="button" data-act="find" aria-label="Find an attendant" hidden>
+          <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        </button>
+        <button class="icon-btn" type="button" data-act="access" aria-label="Access and settings">
+          <svg class="i" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12 20 3M16 7l3 3M14 9l2 2"/></svg>
+        </button>
+        <button class="icon-btn" id="refreshBtn" type="button" data-act="refresh" aria-label="Refresh the schedule">
+          <svg class="i" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="banner" id="banner"></div>
+    <main id="main"><div class="empty">Loading…</div></main>
+    <footer class="footer" id="footer"></footer>
+  </div>
+
+  <div class="panel" id="panel" aria-hidden="true"><div class="wrap" id="panelBody"></div></div>
+
+  <div class="overlay" id="overlay">
+    <button class="overlay-close" type="button" data-act="overlay-close" aria-label="Close map">×</button>
+    <img id="overlayImg" src="" alt="">
+  </div>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle"></h3>
+      <div id="modalText"></div>
+      <div class="modal-actions">
+        <button class="btn" type="button" data-act="modal-cancel">Cancel</button>
+        <button class="btn primary" type="button" data-act="modal-ok" id="modalOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div id="printArea" aria-hidden="true"></div>
+
+  <button class="em-fab" type="button" data-act="emergency" aria-label="Emergency">
+    <svg class="i" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4"/><path d="M12 17.2v.1"/></svg>
+  </button>
+
+  <nav class="tabbar" aria-label="Sections">
+    <div class="tabbar-in" id="tabbarIn"></div>
+  </nav>
+
+<script>
+'use strict';
+
+// =====================================================
+// SETTINGS
+// =====================================================
+
+const APP_NAME = 'Attendant Assignments';
+const VERSION = '0.14.0 RC';
+
+// /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
+const API_URL = 'https://script.google.com/macros/s/AKfycbzNlOKik8MBwrRQP4TggotEZ3j3PiEhg-EFU1xx3Whk8sSZP1Kasqy4-4uXmhkBgb-3/exec';
+
+const REFRESH_MS = 60 * 1000;   // Daten neu laden
+const TICK_MS = 30 * 1000;      // Status (Now/Next) neu berechnen
+// Eigene Schlüssel für die RC-Version: liegt sie im selben Ordner wie die Assembly-Version,
+// teilen sich beide den Browser-Speicher – Code, Name und Cache dürfen sich nicht überschreiben.
+const KEY = { cache: 'aarc-cache-v1', me: 'aarc-me-v1', pin: 'aarc-pin-v1', theme: 'aa-theme-v1', seen: 'aarc-seen-req-v1', countAlert: 'aarc-count-alert-v1', countSeen: 'aarc-count-session-v1', countMin: 'aarc-count-min-v1', evacAck: 'aarc-evac-ack-v1' };
+
+// Reserve-Brüder: Team in Spalte C (Großschreibung egal)
+const RESERVE_TEAMS = ['', 'UNASSIGNED', 'N.A.'];
+
+// Lagepläne: zuerst Stichworte (in dieser Reihenfolge), dann Nummernbereiche.
+const MAPS = [
+  { id: 'auditorium', title: 'Auditorium', file: 'positions-auditorium.jpg',
+    text: 'Auditorium, Main Entrance / Lobby and Welcome positions.',
+    keywords: ['auditorium', 'lobby', 'welcome', 'entrance'], from: 1, to: 32 },
+  { id: 'cafeteria', title: 'Cafeteria', file: 'positions-cafeteria.jpg',
+    text: 'Cafeteria, Stage and Baptism positions.',
+    keywords: ['cafeteria', 'stage', 'baptism'], from: 33, to: 41 },
+  { id: 'balcony', title: 'Balcony', file: 'positions-balcony.jpg',
+    text: 'Balcony attendant positions.',
+    keywords: ['balcony'], from: 42, to: 44 },
+  { id: 'evac-eg', title: 'Evacuation · Ground floor', file: 'evacuation-eg.jpg',
+    text: 'Auditorium, foyer and stage – exits and assembly points WEST / EAST.', keywords: [] },
+  { id: 'evac-ug', title: 'Evacuation · Lower floor', file: 'evacuation-ug.jpg',
+    text: 'Cafeteria, First Aid and baptism area – exits and assembly points.', keywords: [] }
+];
+const MAP_KEYWORD_ORDER = ['cafeteria', 'balcony', 'auditorium'];
+
+// =====================================================
+// EVACUATION – Kongresssaal München (Positionsnummer → Sammelstelle + Aufgabe)
+// W = assembly point WEST (towards the O2 tower), E = assembly point EAST (car park, back corner)
+// =====================================================
+const ASSEMBLY = {
+  W: { name: 'WEST', where: 'towards the O2 tower' },
+  E: { name: 'EAST', where: 'car park in the back corner' }
+};
+const UG_NOTE = ' Ask everyone in the middle of the cafeteria to come along with you.';
+const EVAC = {
+  1: { ap: 'W', t: 'Secure the evacuation to the west through the foyer.' },
+  2: { ap: 'W', t: 'Secure the evacuation to the west through the foyer.' },
+  3: { ap: 'W', t: 'Secure the evacuation to the west through the foyer.' },
+  4: { ap: 'W', t: 'Only staffed at times. Guide everyone west.' },
+  5: { ap: 'W', t: 'Only staffed at times. Guide everyone west.' },
+  6: { ap: 'W', t: 'Welcome – usually only in the morning. If on duty: guide everyone west.' },
+  7: { ap: 'W', t: 'Welcome – usually only in the morning. If on duty: guide everyone west.' },
+  8: { ap: 'W', t: 'Welcome – usually only in the morning. If on duty: guide everyone west.' },
+  9: { ap: 'E', t: 'Purple exit (north-east).' },
+  10: { ap: 'E', t: 'Purple exit (north-east).' },
+  11: { ap: 'E', t: 'Purple exit (north-east).' },
+  12: { ap: 'W', t: 'Green exit to the rear.' },
+  13: { ap: 'W', t: 'Last attendant to the rear: send everyone in front of you to the purple exit, then clear your block to the rear and go with them.' },
+  14: { ap: 'E', t: 'Purple exit (north-east).' },
+  15: { ap: 'W', t: 'Green exit to the rear.' },
+  16: { ap: 'W', t: 'Green exit to the rear.' },
+  17: { ap: 'W', t: 'Last attendant to the rear: send everyone in front of you to the red exit, then clear your block to the rear and go with them.' },
+  18: { ap: 'W', t: 'Green exit to the rear.' },
+  19: { ap: 'W', t: 'Rearmost attendant: open the doors to the allergy room / Block J, then the outside doors. Stay at the door and show the way.' },
+  20: { ap: 'W', t: 'Last attendant of green: everyone behind you leaves to the rear, everyone in front follows forward. You leave to the rear.' },
+  21: { ap: 'E', t: 'Secure the border green / red. Stay on the red side – last attendant forward right (stage right).' },
+  22: { ap: 'W', t: 'Rearmost attendant: open the doors to the allergy room / Block J, then the outside doors. Stay at the door and show the way.' },
+  23: { ap: 'W', t: 'Last attendant of green: everyone behind you leaves to the rear, everyone in front follows forward. You leave to the rear.' },
+  24: { ap: 'W', t: 'Rearmost attendant: open the doors to the allergy room / Block J, then the outside doors. Stay at the door and show the way.' },
+  25: { ap: 'W', t: 'Last attendant to the rear (green).' },
+  26: { ap: 'E', t: 'Red exit forward right.' },
+  27: { ap: 'W', t: 'Green exit to the rear.' },
+  28: { ap: 'E', t: 'Very last attendant forward right (red).' },
+  29: { ap: 'E', t: 'Red exit forward right.' },
+  30: { ap: 'E', t: 'Red exit forward right.' },
+  31: { ap: 'E', t: 'Red exit forward right.' },
+  32: { ap: 'E', t: 'Red exit forward right.' },
+  33: { ap: 'E', t: 'Check the restrooms and the mother & child room, then leave via the north exit at First Aid. Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  34: { ap: 'E', t: 'Last attendant at the north exit (First Aid). Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  35: { ap: 'E', t: 'North-east exit at the ramp. Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  36: { ap: 'E', t: 'Stage access: south via the staircase to Georg-Brauchle-Ring. Join the leader EAST.' + UG_NOTE, map: 'evac-ug' },
+  37: { ap: 'W', t: 'Go straight through the small cafeteria of the training room (separate area, not used by us) to its emergency exit – the doors are always open. Join the leader WEST.' + UG_NOTE, map: 'evac-ug' },
+  38: { ap: 'E', t: 'Clear the whole stage to the north-east (meets purple outside). Keep the south staircase free for the cafeteria.' },
+  39: { ap: 'E', t: 'Baptism: last attendant, leave via the First Aid exit. Join the leader EAST.', map: 'evac-ug' },
+  40: { ap: 'W', t: 'Baptism: green exit to the west.', map: 'evac-ug' },
+  41: { ap: 'W', t: 'Baptism: green exit to the west.', map: 'evac-ug' },
+  42: { ap: 'W', t: 'Balcony: official staircase down from the upper floor.' },
+  43: { ap: 'W', t: 'Balcony: official staircase down from the upper floor.' },
+  44: { ap: 'W', t: 'Balcony: official staircase if possible. If blocked: through the guest apartments to the north driveway → assembly point EAST.' },
+  45: { ap: 'E', t: 'Welcome side entrance – usually only in the morning. If on duty: north exit at First Aid. Join the leader EAST.', map: 'evac-ug' },
+  46: { ap: 'E', t: 'Welcome side entrance – usually only in the morning. If on duty: north exit at First Aid. Join the leader EAST.', map: 'evac-ug' }
+};
+
+// Positionen fest einem Team-Tab zuordnen (geht vor der automatischen Zuordnung).
+// Prüft Positionsbezeichnung und Sheet-Überschrift. Team wie in Spalte C, Groß-/Kleinschreibung egal.
+const GROUP_RULES = [
+  { match: /\bblock\s*j\b|allergic/i, team: 'LOBBY' }   // Block J / Allergic Room unten bei Lobby
+];
+
+// Feste Zuordnung einzelner Positionen zu einem Lageplan (geht vor allen Regeln).
+// Bezeichnung wie in Spalte A, Groß-/Kleinschreibung egal.
+const MAP_OVERRIDES = {
+  'Welcome Team 45': 'cafeteria',   // UG, Seiteneingang bei der First Aid
+  'Welcome Team 46': 'cafeteria'    // UG, Seiteneingang bei der First Aid
+};
+
+// Teamfarben wie in Code.gs
+const TEAM_COLORS = {
+  LOBBY: '#FFA500',
+  CAFETERIA: '#93c47d',
+  AUDITORIUM: '#d4c21f',
+  WELCOME: '#ff94ff',
+  BAPTISM: '#9fc5e8',
+  STAGE: '#38761d'
+};
+
+const ROLE_LEVEL = { viewer: 1, checkin: 2, editor: 3, admin: 4 };
+const ROLE_LABEL = { viewer: 'View', checkin: 'Check-in', editor: 'Co-Admin', admin: 'Admin' };
+const ROLE_DESC = {
+  viewer: 'See the schedule, positions and teams.',
+  checkin: 'View + check attendants in (Welcome team and team captains).',
+  editor: 'Check-in + change shifts. No access to these codes.',
+  admin: 'Everything + manage these codes.'
+};
+
+const ERR = {
+  unauthorized: 'This access code is not valid.',
+  locked: 'Too many wrong codes. Please wait 5 minutes and try again.',
+  forbidden: 'Your access code does not allow this.',
+  conflict: 'Someone changed this shift in the meantime.',
+  not_found: 'Attendant not found in the schedule.',
+  unknown_attendant: 'This attendant is not in the Attendants list.',
+  not_a_shift: 'This row is no longer a shift.',
+  too_short: 'The code is too short (at least 4 characters, admin code at least 6).',
+  duplicate: 'This code is already used for another access level.',
+  required: 'This code cannot be removed.',
+  bad_request: 'The request was incomplete.',
+  unknown_team: 'This team does not exist in the Attendants list.',
+  bad_date: 'Please choose a valid date.',
+  already_requested: 'There is already a help request for this shift.',
+  identify_first: 'Please choose your name under My duty first.',
+  busy: 'You are already on duty at that time.',
+  already_offered: 'Someone else has already offered to take this shift.',
+  request_not_found: 'This help request no longer exists.',
+  request_not_offered: 'Nobody has offered to take this shift yet.',
+  bad_time: 'Please enter a valid time.',
+  count_open: 'A count is already running. End it first.',
+  count_closed: 'This count has already been ended.',
+  bad_count: 'Please enter a whole number.',
+  bad_phone: 'Please enter a valid phone number.',
+  not_counting: 'This position has no counting assignment.',
+  not_your_position: 'You can only send the number for your own position.',
+  unknown_day: 'This convention day is not in the counting table.'
+};
+
+const TABS = ['me', 'positions', 'teams', 'maps', 'checkin'];
+const TAB_LABEL = { me: 'My duty', positions: 'Positions', teams: 'Teams', maps: 'Maps', checkin: 'Check-in' };
+const TAB_ICON = {
+  me: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  positions: '<svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  teams: '<svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2.4.6 4 2.3 4 5.2"/></svg>',
+  maps: '<svg class="i" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>',
+  checkin: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.7 2.7L16.5 9.5"/></svg>'
+};
+
+// =====================================================
+// STATE
+// =====================================================
+
+const params = new URLSearchParams(location.search);
+const DEMO = params.has('demo') || !API_URL;
+const NOW_PARAM = params.get('now');
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+};
+
+let D = null;
+const S = {
+  tab: 'me',
+  me: store.get(KEY.me),
+  pin: DEMO ? 'demo' : store.get(KEY.pin),
+  role: DEMO ? 'admin' : null,
+  loadedAt: null,
+  error: null,
+  lockError: '',
+  busy: false,
+  pending: {},
+  stack: [],
+  ignorePop: false,
+  panelMap: false,
+  area: null,
+  day: null,        // gewählter Tag in Positionen/Teams (null = heute)
+  block: 'all',
+  openPos: {},
+  team: null,
+  meQuery: '',
+  teamQuery: '',
+  ciQuery: '',
+  ciFilter: 'open',
+  countDraft: {},
+  countSummary: false,
+  pickQuery: '',
+  findQuery: '',
+  admin: null
+};
+
+const $ = sel => document.querySelector(sel);
+const main = $('#main');
+
+// =====================================================
+// HELPERS
+// =====================================================
+
+function esc(t) {
+  return String(t == null ? '' : t).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function norm(t) {
+  return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function toMin(t) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+
+function fmtMin(m) {
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+
+const byName = (a, b) => a.name.localeCompare(b.name);
+
+// Namenssuche: jedes eingegebene Wort muss vorkommen, Reihenfolge egal
+// ("Daniel Charles" findet "Charles Daniel, Munich"; auch "cha dan" funktioniert)
+function nameMatch(name, q) {
+  const words = norm(q).split(/[\s,]+/).filter(Boolean);
+  if (!words.length) return false;
+  const n = norm(name);
+  return words.every(w => n.includes(w));
+}
+
+// Gast = jemand, der nicht im Schichtplan steht (z. B. Safety, Beobachter)
+const GUEST = '__guest__';
+
+function isGuest() {
+  return S.me === GUEST;
+}
+
+// ID des gewählten Bruders – leer bei Gast oder ohne Auswahl
+function myId() {
+  return S.me && S.me !== GUEST && D && D.att[S.me] ? S.me : '';
+}
+
+function isReserve(team) {
+  return RESERVE_TEAMS.indexOf(String(team || '').trim().toUpperCase()) >= 0;
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+  else delete root.dataset.theme;
+  const light = $('#themeLight'), dark = $('#themeDark');
+  if (theme === 'light' || theme === 'dark') {
+    const color = theme === 'dark' ? '#15181c' : '#f4f5f7';
+    light.setAttribute('content', color); light.removeAttribute('media');
+    dark.setAttribute('content', color); dark.removeAttribute('media');
+  } else {
+    light.setAttribute('content', '#f4f5f7'); light.setAttribute('media', '(prefers-color-scheme: light)');
+    dark.setAttribute('content', '#15181c'); dark.setAttribute('media', '(prefers-color-scheme: dark)');
+  }
+}
+
+function can(min) {
+  return (ROLE_LEVEL[S.role] || 0) >= ROLE_LEVEL[min];
+}
+
+function tzNow(tz) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz || 'Europe/Berlin',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(new Date());
+    const g = type => parts.find(p => p.type === type).value;
+    return {
+      date: g('year') + '-' + g('month') + '-' + g('day'),
+      min: (Number(g('hour')) % 24) * 60 + Number(g('minute'))
+    };
+  } catch (e) {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return { date: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), min: d.getHours() * 60 + d.getMinutes() };
+  }
+}
+
+// Aktuelle Zeit in der Zeitzone der Tabelle.
+// Testen: ?now=10:30  oder  ?now=2026-11-15T10:30
+function clock() {
+  const ev = (D && D.event) || {};
+  let c = tzNow(ev.timeZone);
+  if (NOW_PARAM) {
+    const m = /^(?:(\d{4}-\d{2}-\d{2})[T ]?)?(\d{1,2}:\d{2})$/.exec(NOW_PARAM.trim());
+    if (m) c = { date: m[1] || ev.date || c.date, min: toMin(m[2]) };
+  }
+  const ds = (ev.days && ev.days.length) ? ev.days : null;
+  const first = ds ? ds[0].date : ev.date;
+  const last = ds ? ds[ds.length - 1].date : ev.date;
+  let mode = 'live';
+  if (first) {
+    if (c.date < first) mode = 'before';
+    else if (c.date > last) mode = 'after';
+  }
+  return { date: c.date, min: c.min, mode: mode, noDate: !first };
+}
+
+function dayDiff(a, b) {
+  const p = s => { const x = s.split('-').map(Number); return Date.UTC(x[0], x[1] - 1, x[2]); };
+  return Math.round((p(b) - p(a)) / 86400000);
+}
+
+function addDaysIso(iso, n) {
+  const x = iso.split('-').map(Number);
+  return new Date(Date.UTC(x[0], x[1] - 1, x[2] + n)).toISOString().slice(0, 10);
+}
+
+// =====================================================
+// KONGRESSTAGE (RC: Friday / Saturday / Sunday)
+// =====================================================
+
+function days() {
+  const ev = (D && D.event) || {};
+  return ev.days && ev.days.length ? ev.days : [{ sheet: 'Day', label: 'Day', date: ev.date || null }];
+}
+
+function dayInfo(sheet) {
+  return days().find(d => d.sheet === sheet) || null;
+}
+
+function dayIdx(sheet) {
+  const i = days().findIndex(d => d.sheet === sheet);
+  return i < 0 ? 0 : i;
+}
+
+function dayShort(sheet) {
+  const d = dayInfo(sheet);
+  return d ? d.label : (sheet || '');
+}
+
+// Index des heutigen Tages: -1 vor dem Kongress, Anzahl Tage danach.
+// Ohne Datum im Sheet zählt der Tag, den der Server als "today" meldet (erster Tag).
+function todayIdx(c) {
+  const ds = days();
+  if (!ds[0].date) return dayIdx(D && D.event && D.event.today);
+  if (c.date < ds[0].date) return -1;
+  const i = ds.findIndex(d => d.date === c.date);
+  return i >= 0 ? i : ds.length;
+}
+
+// Der Kongresstag, der "jetzt" gilt: heute; vorher der erste, danach der letzte
+function currentDay(c) {
+  const ds = days();
+  const i = todayIdx(c || clock());
+  return ds[Math.max(0, Math.min(ds.length - 1, i))].sheet;
+}
+
+// Der Tag, der in Positionen / Teams / Suche angezeigt wird
+function viewDay(c) {
+  return S.day && dayInfo(S.day) ? S.day : currentDay(c);
+}
+
+function posDayIdx(p) {
+  return typeof p.dayIndex === 'number' ? p.dayIndex : dayIdx(p.day);
+}
+
+// -1 = Tag ist vorbei, 0 = heute, 1 = kommt noch
+function dayRel(p, c) {
+  const t = todayIdx(c);
+  const i = posDayIdx(p);
+  return i < t ? -1 : (i > t ? 1 : 0);
+}
+
+function fmtDayMonth(iso) {
+  const x = iso.split('-').map(Number);
+  return new Date(Date.UTC(x[0], x[1] - 1, x[2])).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+}
+
+function dayTitle(sheet) {
+  const d = dayInfo(sheet);
+  return (sheet || '') + (d && d.date ? ' · ' + fmtDayMonth(d.date) : '');
+}
+
+function countingFor(day) {
+  return (D.countingByDay && D.countingByDay[day]) || D.counting || {};
+}
+
+function dayChipsHtml(c) {
+  const ds = days();
+  if (ds.length < 2) return '';
+  const cur = viewDay(c);
+  const t = todayIdx(c);
+  return '<div class="chips days">' + ds.map((d, i) =>
+    '<button class="chip' + (d.sheet === cur ? ' active' : '') + '" type="button" data-act="day" data-day="' + esc(d.sheet) + '">' +
+    esc(d.sheet) + (d.date ? ' <span class="chip-count">' + esc(fmtDayMonth(d.date)) + '</span>' : '') +
+    (i === t ? '<span class="today-mark">· today</span>' : '') + '</button>'
+  ).join('') + '</div>';
+}
+
+function fmtDate(iso, long) {
+  const x = iso.split('-').map(Number);
+  const opts = long
+    ? { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }
+    : { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' };
+  return new Date(Date.UTC(x[0], x[1] - 1, x[2])).toLocaleDateString('en-GB', opts);
+}
+
+function fmtClock(ts) {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function teamColor(team) {
+  const u = String(team || '').toUpperCase();
+  for (const k in TEAM_COLORS) if (u.includes(k)) return TEAM_COLORS[k];
+  return 'var(--done)';
+}
+
+function teamLine(team) {
+  return '<span class="team-line"><span class="dot" style="background:' + teamColor(team) + '"></span>' + esc(team || 'No team') + '</span>';
+}
+
+function nameOf(id) {
+  if (!id) return 'Open';
+  const a = D.att[id];
+  return a ? a.name : 'Unknown ID ' + id;
+}
+
+// Bewusst nicht besetzt: "no shift" in Spalte E und keine ID
+function isNoShift(s) {
+  return !s.id && /no\s*shift/i.test(s.remark || '');
+}
+
+function isOpen(s) {
+  return !s.id && !isNoShift(s);
+}
+
+function slotName(s) {
+  if (s.id) return nameOf(s.id);
+  return isNoShift(s) ? 'No shift' : 'Open';
+}
+
+function nameClass(s) {
+  return s.id ? '' : (isNoShift(s) ? ' noshift' : ' open');
+}
+
+// Browser-Autofill (gespeicherte Logins anderer Tools auf derselben Domain) fernhalten:
+// Suchfelder sind bis zur ersten Berührung schreibgeschützt, Passwort-Manager überspringen sie.
+function guardSearch(input) {
+  if (!input || input.dataset.guarded) return;
+  input.dataset.guarded = '1';
+  const unlock = () => { input.readOnly = false; };
+  input.addEventListener('pointerdown', unlock);
+  input.addEventListener('focus', unlock);
+  input.addEventListener('keydown', unlock);
+  // falls ein Browser trotzdem etwas einträgt: sofort wieder leeren
+  const wipe = () => {
+    if (/@/.test(input.value)) { input.value = ''; input.dispatchEvent(new Event('input')); }
+  };
+  setTimeout(wipe, 400);
+  setTimeout(wipe, 1500);
+}
+
+// Namen enthalten nie ein @ – eine E-Mail-Adresse kommt nur vom Autofill
+function cleanQuery(input) {
+  if (/@/.test(input.value)) input.value = '';
+  return input.value;
+}
+
+function timeText(s) {
+  if (s.allDay) return 'All day';
+  if (s.start && s.end && s.start !== s.end) return s.start + '–' + s.end;
+  return s.start || s.raw || '—';
+}
+
+function mapFor(pos) {
+  const label = norm(pos.label).replace(/\s+/g, ' ').trim();
+  for (const k in MAP_OVERRIDES) {
+    if (norm(k) === label) return MAPS.find(m => m.id === MAP_OVERRIDES[k]) || null;
+  }
+  const text = norm(pos.label + ' ' + pos.area);
+  for (const id of MAP_KEYWORD_ORDER) {
+    const m = MAPS.find(x => x.id === id);
+    if (m && m.keywords.some(k => text.includes(k))) return m;
+  }
+  const n = Number((String(pos.label).match(/\d+/) || [])[0]);
+  if (n) return MAPS.find(m => n >= m.from && n <= m.to) || null;
+  return null;
+}
+
+function friendly(err) {
+  const t = String(err && err.message || err);
+  if (/Failed to fetch|NetworkError|Load failed/i.test(t)) return 'No connection to the schedule';
+  return 'Something went wrong (' + t + ')';
+}
+
+function errorText(err) {
+  const code = err && err.code;
+  return code && ERR[code] ? ERR[code] : friendly(err);
+}
+
+function apiError(code) {
+  const e = new Error(code);
+  e.code = code;
+  return e;
+}
+
+let toastTimer = null;
+function toast(msg, kind) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind === 'error' ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3200);
+}
+
+let modalAction = null;
+function confirmBox(title, html, okLabel, onOk) {
+  $('#modalTitle').textContent = title;
+  $('#modalText').innerHTML = html || '';
+  $('#modalOk').textContent = okLabel || 'OK';
+  modalAction = onOk;
+  $('#modal').hidden = false;
+  $('#modalOk').focus();
+}
+
+function hideModal() {
+  $('#modal').hidden = true;
+  modalAction = null;
+}
+
+// =====================================================
+// DATA
+// =====================================================
+
+function indexData(src) {
+  const d = {
+    event: src.event || {},
+    areas: Array.isArray(src.areas) ? src.areas.slice() : [],
+    attendants: src.attendants || [],
+    positions: src.positions || [],
+    att: {},
+    byId: {},
+    counting: src.counting || {},
+    countSession: src.countSession || null,
+    countDay: src.countDay || [],
+    contacts: src.contacts || {},
+    countByRef: {},
+    countingByDay: src.countingByDay || null,
+    requests: (src.requests || []).filter(r => r.status === 'open' || r.status === 'offered'),
+    reqByRef: {}
+  };
+  d.requests.forEach(r => { d.reqByRef[r.ref] = r; });
+  (src.counts || []).forEach(x => { d.countByRef[x.ref] = x; });
+
+  d.attendants.forEach(a => { d.att[a.id] = a; });
+
+  const dayList = (d.event.days && d.event.days.length) ? d.event.days : [{ sheet: 'Day' }];
+  d.positions.forEach(p => {
+    if (!p.area) p.area = 'Other';
+    if (!p.day) p.day = dayList[0].sheet;
+    if (typeof p.dayIndex !== 'number') p.dayIndex = Math.max(0, dayList.findIndex(x => x.sheet === p.day));
+    if (!p.key) p.key = p.day + '||' + p.area + '||' + p.label;
+    p.slots.forEach(s => {
+      s.pos = p;
+      if (!s.ref) s.ref = p.day + '!' + s.row;
+      s.allDay = !!s.allDay;
+      s.remark = s.remark || '';
+      s.raw = s.raw || '';
+      s.s = toMin(s.start);
+      s.e = toMin(s.end);
+      if (s.e === null) s.e = s.s;
+      if (s.id) (d.byId[s.id] = d.byId[s.id] || []).push(s);
+    });
+    if (d.areas.indexOf(p.area) < 0) d.areas.push(p.area);
+  });
+
+  // je Bruder: nach Tag, darin ganztags zuerst, dann nach Uhrzeit
+  const order = s => s.pos.dayIndex * 10000 + (s.allDay ? -1 : (s.s === null ? 9999 : s.s));
+  Object.keys(d.byId).forEach(id => d.byId[id].sort((a, b) => order(a) - order(b)));
+  d.areas = d.areas.filter(a => d.positions.some(p => p.area === a));
+  return d;
+}
+
+// ---------- ZÄHLEN ----------
+// Wer in Spalte E "counting …" stehen hat, bekommt die Zählzeiten angezeigt.
+// Ganztags-Einteilung → beide Zeiten; Rotationsschicht → nur Zeiten innerhalb der Schicht.
+const COUNT_LABEL = { morning: 'Morning', afternoon: 'Afternoon' };
+
+function countReminders(id, c) {
+  // nur Zähl-Einteilungen des aktuellen Kongresstages
+  const day = currentDay(c || clock());
+  const jobs = (D.byId[id] || []).filter(s => s.pos.day === day && /count/i.test(s.remark || ''));
+  if (!jobs.length) return [];
+  const counting = countingFor(day);
+  const out = [];
+  ['morning', 'afternoon'].forEach(k => {
+    const t = counting[k] || null;
+    const m = toMin(t);
+    const job = jobs.find(s => s.allDay || s.s === null || m === null || (s.s <= m && m < s.e));
+    if (job) out.push({ key: k, label: COUNT_LABEL[k], time: t, m: m, what: job.remark });
+  });
+  return out;
+}
+
+function countState(r, c) {
+  if (r.m === null) return { cls: '', text: 'time not set yet' };
+  if (c.mode === 'after') return { cls: 'done', text: 'done' };
+  if (c.mode === 'before') return { cls: '', text: dayShort(currentDay(c)) };
+  const d = r.m - c.min;
+  if (d > 60) return { cls: '', text: 'in ' + Math.floor(d / 60) + ' h ' + (d % 60 ? (d % 60) + ' min' : '') };
+  if (d > 15) return { cls: '', text: 'in ' + d + ' min' };
+  if (d > 0) return { cls: 'soon', text: 'in ' + d + ' min – get ready' };
+  if (d >= -15) return { cls: 'now', text: 'now – please count' };
+  return { cls: 'done', text: 'done ✓' };
+}
+
+function countCardHtml(id, c) {
+  const list = countReminders(id, c);
+  if (!list.length) return '';
+  const states = list.map(r => ({ r: r, st: countState(r, c) }));
+  const top = states.some(x => x.st.cls === 'now') ? 'now' : (states.some(x => x.st.cls === 'soon') ? 'soon' : '');
+  const what = Array.from(new Set(list.map(r => r.what))).join(' · ');
+  return '<div class="count-card ' + top + '"><div class="count-head">🔢 Counting · <span>' + esc(what) + '</span></div>' +
+    states.map(x =>
+      '<div class="count-row ' + x.st.cls + '"><span class="count-label">' + x.r.label + '</span>' +
+      '<span class="count-time">' + esc(x.r.time || '–') + '</span>' +
+      '<span class="count-st">' + esc(x.st.text) + '</span></div>'
+    ).join('') + '</div>';
+}
+
+// 5 Minuten vorher einmal vibrieren + Hinweis (nur am Kongresstag, nur einmal je Zeit)
+function countAlerts() {
+  if (!D || !S.pin || isGuest() || !myId()) return;
+  const c = clock();
+  if (c.mode !== 'live') return;
+  let done = [];
+  try { done = JSON.parse(store.get(KEY.countAlert) || '[]'); } catch (e) { done = []; }
+  countReminders(myId(), c).forEach(r => {
+    if (r.m === null) return;
+    const d = r.m - c.min;
+    const key = c.date + ':' + r.key;
+    if (d <= 5 && d >= -2 && done.indexOf(key) < 0) {
+      done.push(key);
+      buzz([220, 110, 220, 110, 220]);
+      toast('🔢 Counting ' + (d > 0 ? 'in ' + d + ' min' : 'now') + ' · ' + r.what);
+    }
+  });
+  store.set(KEY.countAlert, JSON.stringify(done.slice(-10)));
+}
+
+// ---------- EVACUATION ----------
+
+function evacFor(pos) {
+  if (!pos) return null;
+  const txt = norm(pos.label + ' ' + pos.area);
+  if (pos.type === 'tc') {
+    // Evakuierungsleiter über das Team der Position (nicht über die Überschrift im Sheet)
+    const team = norm(positionTeam(pos) || '') + ' ' + txt;
+    if (/lobby|entrance/.test(team)) return { ap: 'W', lead: true, t: 'Evacuation leader WEST: secure the routes, coordinate the direction and lead the assembly point WEST.' };
+    if (/auditorium/.test(team)) return { ap: 'E', lead: true, t: 'Evacuation leader EAST: secure the routes, coordinate the direction and lead the assembly point EAST.' };
+    return { ap: '', t: 'Team captain: make sure your team follows their routes. Each attendant joins the leader of the assembly point that belongs to his position.' };
+  }
+  const n = Number(pos.no);
+  const e = EVAC[n];
+  if (!e) return null;
+  return { ap: e.ap, t: e.t, map: e.map || (n === 42 || n === 43 || n === 44 ? '' : 'evac-eg') };
+}
+
+function evacLeaders() {
+  const out = {};
+  const day = currentDay(clock());
+  D.positions.filter(p => p.type === 'tc' && p.day === day).forEach(p => {
+    const e = evacFor(p);
+    if (!e || !e.lead) return;
+    const s = p.slots.find(x => x.id);
+    if (s) out[e.ap] = nameOf(s.id);
+  });
+  return out;
+}
+
+function apBadge(ap) {
+  if (!ap) return '';
+  return '<span class="ap ap-' + ap + '">' + ASSEMBLY[ap].name + '</span>';
+}
+
+// Meine Positionen für den Fluchtweg: laufende Schicht zuerst, sonst alle (ohne Doppelungen)
+function myEvacSlots(c) {
+  const me = myId();
+  if (!me) return [];
+  const list = D.byId[me] || [];
+  const st = personStatus(me, c);
+  const seen = {};
+  const out = [];
+  const add = s => { if (s && !seen[s.pos.key]) { seen[s.pos.key] = 1; out.push(s); } };
+  // nur der aktuelle Kongresstag (vor dem Kongress: der erste Tag)
+  const day = currentDay(c);
+  if (st.slot && st.slot.pos.day === day) add(st.slot);
+  list.forEach(s => { if (s.pos.day === day && slotState(s, c) !== 'past') add(s); });
+  return out;
+}
+
+function evacCardHtml(s, current) {
+  const e = evacFor(s.pos);
+  if (!e) return '<div class="evac-card"><div class="evac-pos">' + esc(s.pos.label) + '</div><div class="evac-t">Follow the instructions of your team captain.</div></div>';
+  const map = e.map ? MAPS.find(m => m.id === e.map) : null;
+  return '<div class="evac-card' + (current ? ' current' : '') + '">' +
+    '<div class="evac-top"><span class="evac-pos">' + esc(s.pos.label) + (current ? ' <span class="tag now">Now</span>' : '') + '</span>' + apBadge(e.ap) + '</div>' +
+    '<div class="evac-t">' + esc(e.t) + '</div>' +
+    (e.ap ? '<div class="evac-where">Assembly point ' + ASSEMBLY[e.ap].name + ' – ' + esc(ASSEMBLY[e.ap].where) + '</div>' : '') +
+    (map ? '<button class="linkish" type="button" data-act="zoom" data-src="' + esc(map.file) + '" data-alt="' + esc(map.title) + '">Show evacuation plan</button>' : '') +
+    '</div>';
+}
+
+// Kurze Zeile unter der Statuskarte (My duty)
+function evacLineHtml(id, c) {
+  const st = personStatus(id, c);
+  const s = st.slot || (D.byId[id] || [])[0];
+  const e = s && evacFor(s.pos);
+  if (!e || !e.ap) return '';
+  return '<button class="evac-line" type="button" data-act="emergency">🚪 If evacuation: ' + apBadge(e.ap) +
+    '<span>' + esc(s.pos.label) + '</span><span class="evac-more">›</span></button>';
+}
+
+// Einmal am Kongresstag: eigenen Fluchtweg kurz bestätigen
+function evacCheckHtml(c) {
+  if (c.mode !== 'live' || !myId()) return '';
+  if (store.get(KEY.evacAck) === c.date) return '';
+  const slots = myEvacSlots(c);
+  if (!slots.length) return '';
+  return '<section class="evac-check"><div class="cnt-head">🚪 Before doors open: check your evacuation route</div>' +
+    slots.slice(0, 3).map((s, i) => evacCardHtml(s, i === 0 && slotState(s, c) === 'now')).join('') +
+    '<button class="btn primary block" type="button" data-act="evac-ack">Got it</button></section>';
+}
+
+// Notfallseite
+function emergencyHtml(c) {
+  const ct = (D && D.contacts) || {};
+  const me = myId() && D.att[myId()];
+  const slots = myEvacSlots(c);
+  const leaders = evacLeaders();
+  const call = (href, label, sub, cls) => '<a class="em-call ' + (cls || '') + '" href="tel:' + esc(href.replace(/[^+0-9]/g, '')) + '">' +
+    '<strong>' + esc(label) + '</strong><span>' + esc(sub) + '</span></a>';
+
+  let html = backBar() + '<h2>🚨 Emergency</h2>' +
+    '<div class="em-first"><div>🦺 Put on your safety vest</div><div>🫶 Stay calm</div><div>📢 Wait for instructions – team captain / attendant overseer</div>' +
+    '<p>Only in acute danger you may have to decide yourself.</p></div>';
+
+  html += '<div class="em-calls">' +
+    (ct.overseer ? call(ct.overseer, 'Attendant overseer', ct.overseer, 'main') : '') +
+    (ct.assistant ? call(ct.assistant, 'Assistant', ct.assistant, 'main') : '') +
+    (ct.firstaid ? call(ct.firstaid, 'First Aid', ct.firstaid, 'main') : '') +
+    call('110', 'Police', '110', 'police') + call('112', 'Fire / Ambulance', '112', 'fire') + '</div>';
+
+  html += '<div class="h3">Your evacuation route</div>';
+  html += slots.length
+    ? slots.map((s, i) => evacCardHtml(s, i === 0 && slotState(s, c) === 'now')).join('')
+    : '<div class="muted" style="margin:0 2px 8px">Choose your name under My duty to see your own route.</div>';
+  html += '<div class="evac-leaders">' +
+    '<div>' + apBadge('W') + ' ' + esc(ASSEMBLY.W.where) + (leaders.W ? ' · leader <strong>' + esc(leaders.W) + '</strong>' : '') + '</div>' +
+    '<div>' + apBadge('E') + ' ' + esc(ASSEMBLY.E.where) + (leaders.E ? ' · leader <strong>' + esc(leaders.E) + '</strong>' : '') + '</div>' +
+    '<div class="evac-plans"><button class="linkish" type="button" data-act="zoom" data-src="evacuation-eg.jpg" data-alt="Evacuation · Ground floor">Plan ground floor</button>' +
+    '<button class="linkish" type="button" data-act="zoom" data-src="evacuation-ug.jpg" data-alt="Evacuation · Lower floor">Plan lower floor</button></div></div>';
+
+  const pos = slots[0] ? slots[0].pos.label + ' (' + slots[0].pos.area + ')' : '';
+  html += '<div class="h3">How to report</div><div class="em-report">' +
+    '<div>1. What happened – how serious?</div><div>2. Where exactly?</div>' +
+    '<div>3. Your name, phone and position' + (me ? ': <strong>' + esc(me.name) + (pos ? ', ' + esc(pos) : '') + '</strong>' : '') + '</div>' +
+    '<div>4. Any other helpful details</div></div>';
+
+  const box = (icon, title, lines, open) => '<details class="em-case"' + (open ? ' open' : '') + '><summary>' + icon + ' ' + esc(title) + '</summary><ul>' +
+    lines.map(l => '<li>' + l + '</li>').join('') + '</ul></details>';
+  html += '<div class="h3">Situations</div>' +
+    box('🩺', 'Medical', ['Contact <strong>First Aid</strong> immediately', 'First Aid calls the ambulance if needed', 'Keep the area calm and clear']) +
+    box('⚠️', 'Other emergency (fire, power failure …)', ['Contact the <strong>attendant overseer</strong> or his assistant – wait for direction', 'Keep your flashlight ready', 'Know your exit and assembly point (above)']) +
+    box('🧒', 'Lost or missing person', ['Found child: bring to <strong>Lost &amp; Found / Checkroom</strong>', 'Missing person: inform the attendant overseer immediately', 'Then get a description and a photo']) +
+    box('💣', 'Bomb threat', ['Take it seriously – report everything to the attendant overseer', '<strong>Do not</strong> activate the fire alarm']) +
+    box('🗣️', 'Disruptive person', ['Ignore minor disturbances', 'Approach calmly, two attendants, outside the auditorium', 'If it continues: ask him to leave, inform the overseer', 'No force, no physical contact']) +
+    box('🚨', 'Violent individual', ['<strong>Avoid – Deny – Defend</strong>', 'Call the police <strong>110</strong> (anyone may), then inform the overseer', 'Lock and block doors, guide people to safe exits – or hide', 'Follow the police instructions']);
+  return html;
+}
+
+// ---------- ZÄHLUNG ÜBER DIE APP ----------
+
+function countOpen() {
+  return !!(D && D.countSession && D.countSession.status === 'open');
+}
+
+// Zähl-Einteilungen für die laufende Zählung.
+// Maßgeblich ist die eingestellte Zählzeit (Morning/Afternoon), nicht der Startzeitpunkt.
+// Je Position: ganztags immer; sonst die Schicht, die die Zählzeit abdeckt,
+// notfalls die nächstgelegene (bis 90 Min. Abstand).
+function countJobsNow() {
+  return countJobsFor(D.countSession);
+}
+
+function countJobsFor(sess) {
+  if (!sess) return [];
+  const day = sess.day || currentDay(clock());
+  const counting = countingFor(day);
+  const ref = toMin(counting[sess.label]) !== null ? toMin(counting[sess.label]) : toMin(sess.at);
+  const jobs = [];
+  D.positions.forEach(p => {
+    if (p.day !== day) return;
+    const cs = p.slots.filter(s => /count/i.test(s.remark || ''));
+    if (!cs.length) return;
+    cs.filter(s => s.allDay || s.s === null).forEach(s => jobs.push(s));
+    const timed = cs.filter(s => !s.allDay && s.s !== null);
+    if (!timed.length) return;
+    if (ref === null) { timed.forEach(s => jobs.push(s)); return; }
+    const cover = timed.filter(s => s.s <= ref && ref < s.e);
+    if (cover.length) { cover.forEach(s => jobs.push(s)); return; }
+    const dist = s => (ref < s.s ? s.s - ref : ref - s.e);
+    const best = timed.slice().sort((a, b) => dist(a) - dist(b))[0];
+    if (dist(best) <= 90) jobs.push(best);
+  });
+  return jobs;
+}
+
+function countTotal(jobs) {
+  return jobs.reduce((n, s) => n + (D.countByRef[s.ref] ? D.countByRef[s.ref].count : 0), 0);
+}
+
+function countInput(s, label) {
+  const sent = D.countByRef[s.ref];
+  const draft = S.countDraft[s.ref] != null ? S.countDraft[s.ref] : '';
+  return '<div class="cnt-form"><input class="cnt-input" type="number" inputmode="numeric" min="0" step="1" ' +
+    'data-ref="' + esc(s.ref) + '" value="' + esc(draft) + '" placeholder="' + (sent ? esc(sent.count) : 'Number') + '" aria-label="Count ' + esc(s.remark) + '">' +
+    '<button class="btn primary" type="button" data-act="count-submit" data-ref="' + esc(s.ref) + '">' + (label || (sent ? 'Update' : 'Send')) + '</button></div>';
+}
+
+// Karte für die zählenden Brüder
+function countNowHtml() {
+  if (!countOpen() || !myId()) return '';
+  const mine = countJobsNow().filter(s => s.id === myId());
+  if (!mine.length) return '';
+  return '<section class="cnt-box"><div class="cnt-head">🔢 Counting now · ' + esc((D.countSession.day ? D.countSession.day + ' ' : '') + (COUNT_LABEL[D.countSession.label] || '').toLowerCase()) + '</div>' +
+    mine.map(s => {
+      const sent = D.countByRef[s.ref];
+      return '<div class="cnt-item"><div class="help-title">' + esc(s.remark) + '</div>' +
+        '<div class="help-sub">' + esc(s.pos.label) + ' · ' + esc(s.pos.area) + '</div>' +
+        (sent ? '<div class="cnt-sent">✓ Sent: <strong>' + esc(sent.count) + '</strong> · you can still correct it</div>' : '') +
+        countInput(s) + '</div>';
+    }).join('') + '</section>';
+}
+
+// Steuerung + Auswertung für Admin/Co-Admin
+function countAdminHtml() {
+  if (!can('editor')) return '';
+  const sess = D.countSession;
+  const head = '<div class="cnt-head">🔢 Counting</div>';
+
+  if (!sess || sess.status !== 'open') {
+    const closed = D.countDay.length > 0;
+    let html = '<section class="cnt-admin">' + head +
+      '<div class="help-btns cnt-btns">' +
+        '<button class="btn primary" type="button" data-act="count-start" data-label="morning">▶ Morning</button>' +
+        '<button class="btn primary" type="button" data-act="count-start" data-label="afternoon">▶ Afternoon</button>' +
+        (closed ? '<button class="btn' + (S.countSummary ? ' active' : '') + '" type="button" data-act="count-summary" aria-expanded="' + S.countSummary + '">' +
+          'Summary ' + (S.countSummary ? '▴' : '▾') + '</button>' : '') +
+      '</div>';
+    if (closed && S.countSummary) html += '<div class="cnt-result">' + countDayHtml() + '</div>';
+    return html + '</section>';
+  }
+
+  // Minimiert: eine Zeile mit Stand, die Zählung läuft im Hintergrund weiter
+  if (store.get(KEY.countMin) === sess.id) {
+    const jobs = countJobsNow();
+    const done = jobs.filter(s => D.countByRef[s.ref]).length;
+    return '<button class="cnt-mini" type="button" data-act="count-max">' +
+      '<span class="cnt-live"></span><strong>Counting ' + esc((COUNT_LABEL[sess.label] || '').toLowerCase()) + '</strong>' +
+      '<span class="cnt-mini-info">' + done + ' / ' + jobs.length + ' sent · total ' + countTotal(jobs) + '</span>' +
+      '<span class="cnt-mini-open">Show ▾</span></button>';
+  }
+
+  return '<section class="cnt-admin open"><div class="cnt-head-row">' + head +
+    '<button class="linkish" type="button" data-act="count-min">Minimize ▴</button></div>' + countResultHtml(sess, true) +
+    '<div class="help-btns"><button class="btn" type="button" data-act="count-copy">Copy summary</button>' +
+    '<button class="btn primary" type="button" data-act="count-end">End counting</button></div></section>';
+}
+
+function countResultHtml(sess, open) {
+  const jobs = countJobsNow();
+  const done = jobs.filter(s => D.countByRef[s.ref]).length;
+  let html = '<div class="cnt-sum"><div><span class="cnt-total">' + countTotal(jobs) + '</span> total</div>' +
+    '<div class="muted">' + esc((sess.day ? sess.day + ' · ' : '') + (COUNT_LABEL[sess.label] || '')) + ' · started ' + esc(sess.at) + ' · ' + done + ' of ' + jobs.length + ' sent' +
+    (open ? '' : ' · ended') + '</div></div>';
+  html += '<div class="cnt-list">' + jobs.map(s => {
+    const sent = D.countByRef[s.ref];
+    return '<div class="cnt-line' + (sent ? ' ok' : '') + '">' +
+      '<div class="cnt-l"><strong>' + esc(s.remark) + '</strong><span>' + esc(slotName(s)) + '</span></div>' +
+      '<div class="cnt-v">' + (sent ? esc(sent.count) : (open ? 'waiting…' : '–')) + '</div>' +
+      (open ? '<button class="linkish" type="button" data-act="count-manual" data-ref="' + esc(s.ref) + '">' + (sent ? 'Edit' : 'Enter') + '</button>' : '') +
+      '</div>' + (open && S.countDraft['m' + s.ref] ? countInput(s, 'Save') : '');
+  }).join('') + '</div>';
+  if (!open) html += '<div class="help-btns"><button class="btn" type="button" data-act="count-copy">Copy summary</button></div>';
+  return html;
+}
+
+// Tagesübersicht: je Zählposition Vormittag | Nachmittag, Summen und Grand total
+function countDayData() {
+  const cols = ['morning', 'afternoon'].map(k => {
+    const entry = D.countDay.find(x => x.session.label === k) || null;
+    return { key: k, head: countingFor(currentDay(clock()))[k] || (entry ? entry.session.at : COUNT_LABEL[k]), entry: entry, total: 0 };
+  });
+  const rows = {};
+  const order = [];
+  const ensure = (key, name, sortRow) => {
+    if (!rows[key]) { rows[key] = { name: name, sort: sortRow, vals: {} }; order.push(key); }
+    return rows[key];
+  };
+  cols.forEach(col => {
+    if (!col.entry) return;
+    countJobsFor(col.entry.session).forEach(s => ensure(s.pos.key, s.remark, s.pos.row));
+    col.entry.counts.forEach(x => {
+      const s = findSlot(x.ref);
+      const r = ensure(s ? s.pos.key : 'ref' + x.ref, s ? s.remark : x.ref, s ? s.pos.row : 99999);
+      r.vals[col.key] = x.count;
+      col.total += x.count;
+    });
+  });
+  order.sort((a, b) => rows[a].sort - rows[b].sort);
+  return { cols: cols, rows: order.map(k => rows[k]), grand: cols.reduce((n, c) => n + c.total, 0) };
+}
+
+function countDayHtml() {
+  const d = countDayData();
+  const cell = (r, col) => col.entry ? (r.vals[col.key] != null ? esc(r.vals[col.key]) : '–') : '';
+  return '<div class="cnt-table-wrap"><table class="cnt-table"><thead><tr><th></th>' +
+      d.cols.map(c => '<th>' + esc(c.head) + '</th>').join('') + '</tr></thead><tbody>' +
+      d.rows.map(r => '<tr><td>' + esc(r.name) + '</td>' + d.cols.map(c => '<td>' + cell(r, c) + '</td>').join('') + '</tr>').join('') +
+    '</tbody><tfoot><tr class="grand"><td>Total</td>' + d.cols.map(c => '<td>' + (c.entry ? c.total : '–') + '</td>').join('') + '</tr>' +
+    '</tfoot></table></div>' +
+    '<div class="help-btns"><button class="btn" type="button" data-act="count-copy" data-mode="day">Copy summary</button></div>';
+}
+
+function countDayText() {
+  const d = countDayData();
+  const cd = dayInfo(currentDay(clock()));
+  const day = cd && cd.date ? cd.sheet + ', ' + fmtDayMonth(cd.date) : fmtDate(tzNow().date);
+  const lines = ['*Counting – ' + day + '*', '(' + d.cols.map(c => c.head).join(' / ') + ')'];
+  d.rows.forEach(r => lines.push(r.name + ': ' + d.cols.map(c => r.vals[c.key] != null ? r.vals[c.key] : '–').join(' / ')));
+  d.cols.forEach(c => lines.push('*Total ' + c.head + ': ' + (c.entry ? c.total : '–') + '*'));
+  return lines.join('\n');
+}
+
+function countSummaryText() {
+  const sess = D.countSession;
+  const jobs = countJobsNow();
+  const lines = ['*Counting – ' + (COUNT_LABEL[sess.label] || '') + '* (' + (sess.day || '') + ' ' + fmtDayMonth(sess.started.slice(0, 10)) + ', ' + sess.at + ')'];
+  jobs.forEach(s => lines.push(s.remark + ': ' + (D.countByRef[s.ref] ? D.countByRef[s.ref].count : '–')));
+  lines.push('*Total: ' + countTotal(jobs) + '*');
+  return lines.join('\n');
+}
+
+async function countAction(action, payload, message) {
+  try {
+    await api(action, Object.assign({ by: myId() }, payload));
+    buzz(60);
+    if (message) toast(message);
+    return true;
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return false; }
+    toast(errorText(err), 'error');
+    return false;
+  } finally {
+    await load(true);
+  }
+}
+
+// Brüder mit Zähl-Einteilung: einmal vibrieren, wenn eine Zählung startet
+function notifyCount() {
+  if (!countOpen() || !myId()) { S.countNotifyReady = true; return; }
+  const mine = countJobsNow().filter(s => s.id === myId() && !D.countByRef[s.ref]);
+  const seen = store.get(KEY.countSeen);
+  if (mine.length && seen !== D.countSession.id) {
+    store.set(KEY.countSeen, D.countSession.id);
+    if (S.countNotifyReady) {
+      buzz([220, 110, 220, 110, 220]);
+      toast('🔢 Counting started – please send your number');
+    }
+  }
+  S.countNotifyReady = true;
+}
+
+// ---------- ERSATZ SUCHEN ----------
+
+function activeRequests(c) {
+  return D.requests
+    .map(r => ({ r: r, slot: findSlot(r.ref) }))
+    .filter(x => x.slot && slotState(x.slot, c) !== 'past');
+}
+
+function fromTeam(s, p) {
+  if (!s.id) return '';
+  const a = D.att[s.id];
+  const home = positionTeam(p);
+  if (!a || !a.team || !home || isReserve(a.team) || a.team === home) return '';
+  return a.team;
+}
+
+function helpBoxHtml(c) {
+  const list = activeRequests(c);
+  if (!list.length) return '';
+  const me = myId();
+  const manage = can('editor');
+
+  const items = list.map(({ r, slot }) => {
+    let action = '';
+    if (manage) {
+      action = r.status === 'offered'
+        ? '<div class="help-offer"><strong>' + esc(nameOf(r.offerId)) + '</strong> can take it' +
+          (fromTeam({ id: r.offerId }, slot.pos) ? ' <span class="tag from">from ' + esc(D.att[r.offerId].team) + '</span>' : '') + '</div>' +
+          '<div class="help-btns"><button class="btn primary" type="button" data-act="help-confirm" data-id="' + esc(r.id) + '">Confirm</button>' +
+          '<button class="btn" type="button" data-act="help-decline" data-id="' + esc(r.id) + '">Decline</button></div>'
+        : '<div class="help-wait">Waiting for volunteers …</div>' +
+          '<div class="help-btns"><button class="linkish" type="button" data-act="help-cancel" data-id="' + esc(r.id) + '">Cancel request</button></div>';
+    } else if (me) {
+      if (r.status === 'offered') {
+        action = r.offerId === me
+          ? '<div class="help-wait ok">Thank you! Waiting for confirmation.</div>'
+          : '<div class="help-wait">Someone has already offered.</div>';
+      } else if (slot.id === me) {
+        action = '<div class="help-wait">This is your shift.</div>';
+      } else if (overlaps(me, slot).length) {
+        action = '<div class="help-wait">You are on duty at that time.</div>';
+      } else {
+        action = '<button class="btn primary block" type="button" data-act="help-offer" data-id="' + esc(r.id) + '">I can take it</button>';
+      }
+    } else {
+      action = '<div class="help-wait">Choose your name to offer help.</div>';
+    }
+
+    return '<div class="help-item">' +
+      '<div class="help-title">' + esc(slot.pos.label) + ' · ' + esc(dayShort(slot.pos.day) + ' ' + timeText(slot)) + '</div>' +
+      '<div class="help-sub">' + esc(slot.pos.area) + (slot.id ? ' · currently ' + esc(nameOf(slot.id)) : ' · open') + '</div>' +
+      action + '</div>';
+  }).join('');
+
+  return '<section class="help-box"><div class="help-head">🙋 Help needed</div>' + items + '</section>';
+}
+
+// Kurz vibrieren (Android; iPhone/Safari unterstützt das nicht und ignoriert es)
+function buzz(pattern) {
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { /* ignore */ }
+}
+
+// Neue, für diesen Bruder relevante Anfragen melden:
+//   Brüder  → neue offene Anfrage, zu der sie Zeit haben
+//   Admin/Co-Admin → jemand hat sich gemeldet und wartet auf Bestätigung
+function notifyRequests() {
+  if (!D || !S.pin || isGuest()) return;
+  const c = clock();
+  const me = myId();
+  const manage = can('editor');
+  let seen = [];
+  try { seen = JSON.parse(store.get(KEY.seen) || '[]'); } catch (e) { seen = []; }
+
+  const keys = [];
+  const fresh = [];
+  activeRequests(c).forEach(x => {
+    const relevant = manage
+      ? x.r.status === 'offered'
+      : (x.r.status === 'open' && me && x.slot.id !== me && !overlaps(me, x.slot).length);
+    if (!relevant) return;
+    const k = x.r.id + ':' + x.r.status + ':' + (x.r.offerId || '');
+    keys.push(k);
+    if (seen.indexOf(k) < 0) fresh.push(x);
+  });
+  store.set(KEY.seen, JSON.stringify(keys));
+
+  // beim Öffnen der App nicht vibrieren – der Kasten ist dann ohnehin sichtbar
+  if (!fresh.length || !S.notifyReady) { S.notifyReady = true; return; }
+
+  buzz([140, 90, 140]);
+  const x = fresh[0];
+  const what = x.slot.pos.label + ' · ' + dayShort(x.slot.pos.day) + ' ' + timeText(x.slot);
+  toast(manage
+    ? nameOf(x.r.offerId) + ' can take ' + what + (fresh.length > 1 ? ' (+' + (fresh.length - 1) + ')' : '')
+    : '🙋 Help needed: ' + what + (fresh.length > 1 ? ' (+' + (fresh.length - 1) + ')' : ''));
+}
+
+async function helpAction(action, payload, message) {
+  try {
+    await api(action, Object.assign({ by: myId() }, payload));
+    buzz(60);
+    toast(message);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
+  await load(true);
+  if (S.stack.length) renderPanel(clock(), true);
+}
+
+function teamsMap() {
+  const g = {};
+  D.attendants.forEach(a => {
+    const t = String(a.team || '').trim();
+    if (!t || t.toUpperCase() === 'N.A.') return;
+    (g[t] = g[t] || []).push(a);
+  });
+  Object.keys(g).forEach(t => g[t].sort(byName));
+  return g;
+}
+
+function findSlot(ref) {
+  for (const p of D.positions) {
+    const s = p.slots.find(x => x.ref === ref);
+    if (s) return s;
+  }
+  return null;
+}
+
+// Heimat-Team einer Position – unabhängig davon, wer gerade aushilft:
+// 1. Teamname in der Positionsbezeichnung ("Lobby 10", "Cafeteria 33")
+// 2. feste Regeln (GROUP_RULES, z. B. Block J → Lobby)
+// 3. Teamname in der Sheet-Überschrift ("Auditorium", "Main Entrance / Lobby")
+// 4. Mehrheit im ganzen Bereich (z. B. alle Positionen unter "Block D")
+// 5. sonst: Team der meisten eingeteilten Brüder auf der Position
+function positionTeam(p) {
+  if (p._team !== undefined) return p._team;
+  const teams = {};
+  D.attendants.forEach(a => {
+    const t = String(a.team || '').trim();
+    if (t && !isReserve(t)) teams[t.toUpperCase()] = t;
+  });
+  const findIn = text => {
+    const n = norm(text);
+    const hit = Object.keys(teams).find(T => new RegExp('\\b' + norm(T) + '\\b').test(n));
+    return hit ? teams[hit] : null;
+  };
+  const rule = GROUP_RULES.find(r => r.match.test(p.label + ' ' + p.area));
+  p._team = findIn(p.label) ||
+    (rule ? (teams[rule.team.toUpperCase()] || rule.team) : null) ||
+    findIn(p.area) ||
+    areaTeam(p.area) ||
+    majorityTeam(p);
+  return p._team;
+}
+
+function areaTeam(area) {
+  const count = {};
+  D.positions.forEach(q => {
+    if (q.area !== area || q.type === 'tc') return;
+    q.slots.forEach(s => {
+      const a = s.id && D.att[s.id];
+      if (a && a.team && !isReserve(a.team)) count[a.team] = (count[a.team] || 0) + 1;
+    });
+  });
+  let best = null;
+  Object.keys(count).forEach(t => { if (!best || count[t] > count[best]) best = t; });
+  return best;
+}
+
+function majorityTeam(p) {
+  const count = {};
+  p.slots.forEach(s => {
+    const a = s.id && D.att[s.id];
+    if (a && a.team && !isReserve(a.team)) count[a.team] = (count[a.team] || 0) + 1;
+  });
+  let best = null;
+  Object.keys(count).forEach(t => { if (!best || count[t] > count[best]) best = t; });
+  return best;
+}
+
+// Überschneidung nur am selben Kongresstag
+function overlaps(id, slot) {
+  if (slot.s === null) return [];
+  return (D.byId[id] || []).filter(x => x !== slot && x.pos.day === slot.pos.day && x.s !== null && x.s < slot.e && slot.s < x.e);
+}
+
+function isCaptain(id) {
+  return (D.byId[id] || []).some(s => s.pos.type === 'tc');
+}
+
+function readCache() {
+  try {
+    const c = JSON.parse(store.get(KEY.cache) || 'null');
+    return c && c.data ? c : null;
+  } catch (e) { return null; }
+}
+
+// =====================================================
+// API
+// =====================================================
+
+async function api(action, payload, pinOverride) {
+  if (DEMO) return demoApi(action, payload || {});
+
+  const body = JSON.stringify(Object.assign({ action: action, pin: pinOverride || S.pin }, payload || {}));
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: body,
+    cache: 'no-store'
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const json = await res.json();
+  if (!json.ok) throw apiError(json.error || 'unknown');
+  return json;
+}
+
+async function load(force) {
+  if (!S.pin) { render(); return; }
+
+  setBusy(true);
+  try {
+    const json = await api('bootstrap', { nocache: !!force });
+    S.role = json.role || S.role;
+    if (!DEMO) {
+      store.set(KEY.pin, S.pin);
+      store.set(KEY.cache, JSON.stringify({ at: Date.now(), data: json }));
+    }
+    D = indexData(json);
+    S.loadedAt = Date.now();
+    S.error = null;
+    S.lockError = '';
+    notifyRequests();
+    countAlerts();
+    notifyCount();
+  } catch (err) {
+    if (err.code === 'unauthorized') {
+      logout('This access code is not valid. Please enter the current code.');
+    } else if (err.code === 'locked' && !D) {
+      S.pin = null;
+      S.lockError = ERR.locked;
+    } else {
+      S.error = errorText(err);
+    }
+  } finally {
+    setBusy(false);
+    render();
+  }
+}
+
+function setBusy(on) {
+  S.busy = on;
+  $('#refreshBtn').classList.toggle('busy', on);
+}
+
+function logout(message) {
+  clearPanels();
+  S.pin = null;
+  S.role = null;
+  S.admin = null;
+  S.error = null;
+  S.lockError = message || '';
+  D = null;
+  store.del(KEY.pin);
+  store.del(KEY.cache);
+  render();
+}
+
+async function doCheckin(id, value) {
+  const a = D.att[id];
+  if (!a || S.pending[id]) return;
+  const before = a.checkedIn;
+  a.checkedIn = value;
+  S.pending[id] = true;
+  render();
+
+  try {
+    await api('checkin', { id: id, value: value, by: myId() });
+    toast(value ? a.name + ' checked in' : 'Check-in undone for ' + a.name);
+    if (value && S.tab === 'checkin' && S.ciQuery) {
+      S.ciQuery = '';
+      const q = $('#ciQ');
+      if (q) q.value = '';
+    }
+  } catch (err) {
+    a.checkedIn = before;
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  } finally {
+    delete S.pending[id];
+    render();
+  }
+}
+
+async function doAssign(slot, newId, setTeam) {
+  try {
+    const res = await api('assign', { ref: slot.ref, expectedId: slot.id || '', newId: newId, by: myId(), setTeam: setTeam || '' });
+    toast(newId
+      ? nameOf(newId) + ' assigned' + (res && res.team ? ' · now in team ' + res.team : '')
+      : 'The shift is open now');
+    backPanel();
+    await load(true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    if (err.code === 'conflict') {
+      toast(ERR.conflict + ' The schedule was reloaded.', 'error');
+      await load(true);
+      return;
+    }
+    toast(errorText(err), 'error');
+  }
+}
+
+async function upgradeCode() {
+  const input = $('#upgradeInput');
+  const msg = $('#upgradeMsg');
+  const v = input ? input.value.trim() : '';
+  if (!v) return;
+  msg.textContent = 'Checking…';
+  try {
+    const json = await api('bootstrap', {}, v);
+    S.pin = v;
+    S.role = json.role;
+    S.admin = null;
+    if (!DEMO) {
+      store.set(KEY.pin, v);
+      store.set(KEY.cache, JSON.stringify({ at: Date.now(), data: json }));
+    }
+    D = indexData(json);
+    S.loadedAt = Date.now();
+    toast('Access level: ' + ROLE_LABEL[S.role]);
+    render();
+    renderPanel(clock(), true);
+  } catch (err) {
+    msg.textContent = errorText(err);
+  }
+}
+
+async function loadAdmin() {
+  try {
+    S.admin = await api('adminStatus');
+  } catch (err) {
+    S.admin = { pins: null, error: errorText(err) };
+  }
+  if (topPanel() && topPanel().type === 'access') renderPanel(clock(), true);
+}
+
+function printMap(src, title) {
+  const area = $('#printArea');
+  area.innerHTML = '<h1>' + esc(title) + ' · Position map</h1>' +
+    '<p>' + esc(APP_NAME) + (D && D.event && D.event.date ? ' · ' + esc(fmtDate(D.event.date, true)) : '') + '</p>' +
+    '<img alt="' + esc(title) + ' position map">';
+  const img = area.querySelector('img');
+  img.onload = () => setTimeout(() => window.print(), 50);
+  img.onerror = () => toast('The map image could not be loaded', 'error');
+  img.src = src;
+}
+
+async function resetCheckins() {
+  try {
+    const res = await api('resetCheckins', { by: myId() });
+    toast('All check-ins reset' + (res && typeof res.count === 'number' ? ' (' + res.count + ')' : ''));
+    await load(true);
+    renderPanel(clock(), true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
+}
+
+async function saveEventDate(date) {
+  try {
+    await api('setEventDate', { date: date, by: myId() });
+    toast('First convention day set to ' + fmtDate(date, true));
+    await load(true);
+    renderPanel(clock(), true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
+}
+
+async function savePin(role, value) {
+  try {
+    const res = await api('setPin', { target: role, newPin: value });
+    S.admin = { pins: res.pins };
+    if (role === S.role && value) {
+      S.pin = value;
+      if (!DEMO) store.set(KEY.pin, value);
+    }
+    toast(value ? ROLE_LABEL[role] + ' code saved' : ROLE_LABEL[role] + ' code removed');
+    renderPanel(clock(), true);
+  } catch (err) {
+    if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+    toast(errorText(err), 'error');
+  }
+}
+
+// =====================================================
+// STATUS LOGIC
+// =====================================================
+
+function personStatus(id, c) {
+  const list = D.byId[id] || [];
+  if (!list.length) return { kind: 'none' };
+
+  const t = todayIdx(c);
+  if (t >= days().length) return { kind: 'done' };
+  const di = s => s.pos.dayIndex;
+
+  // erster Einsatz an einem anderen Tag (vor dem Kongress / heute fertig, morgen wieder)
+  const firstOn = (d, kind) => {
+    const timed = list.find(s => di(s) === d && s.s !== null);
+    if (timed) return { kind: kind, slot: timed };
+    const a = list.filter(s => di(s) === d && s.allDay).sort(tcLast)[0];
+    return a ? { kind: 'allday', slot: a, other: true } : { kind: 'none' };
+  };
+
+  if (t < 0) return firstOn(Math.min.apply(null, list.map(di)), 'first');
+
+  const today = list.filter(s => di(s) === t);
+  const timed = today.filter(s => s.s !== null);
+  const allDay = today.filter(s => s.allDay).sort(tcLast)[0];
+
+  const running = timed.filter(s => s.s <= c.min && c.min < s.e).sort((a, b) => a.e - b.e)[0];
+  if (running) return { kind: 'on', slot: running };
+
+  const next = timed.find(s => s.s > c.min);
+  if (next && next.s - c.min <= (D.event.soonMinutes || 15)) return { kind: 'soon', slot: next };
+  if (allDay) return { kind: 'allday', slot: allDay, then: next || null };
+  if (next) return { kind: 'next', slot: next };
+
+  const later = list.filter(s => di(s) > t);
+  if (later.length) return firstOn(Math.min.apply(null, later.map(di)), 'later');
+  return { kind: 'done' };
+}
+
+// Ganztags: echte Position vor Team Captain
+function tcLast(a, b) {
+  return (a.pos.type === 'tc' ? 1 : 0) - (b.pos.type === 'tc' ? 1 : 0);
+}
+
+function statusLine(st) {
+  const s = st.slot;
+  const d = s ? dayShort(s.pos.day) + ' ' : '';
+  switch (st.kind) {
+    case 'on': return 'On duty at ' + s.pos.label + ' until ' + s.end;
+    case 'soon': return 'Starts ' + s.start + ' at ' + s.pos.label;
+    case 'next': return 'Next ' + s.start + ' at ' + s.pos.label;
+    case 'first': return 'First shift ' + d + s.start + ' at ' + s.pos.label;
+    case 'later': return 'Next ' + d + s.start + ' at ' + s.pos.label;
+    case 'allday': return (st.other ? d : '') + 'All day at ' + s.pos.label + (st.then ? ' · then ' + st.then.start + ' ' + st.then.pos.label : '');
+    case 'done': return 'Done';
+    default: return 'No assignment';
+  }
+}
+
+function slotState(s, c) {
+  const r = dayRel(s.pos, c);
+  if (r < 0) return 'past';
+  if (r > 0) return '';
+  if (s.allDay) return 'now';
+  if (s.s === null) return '';
+  if (c.min >= s.e) return 'past';
+  if (s.s <= c.min) return 'now';
+  return '';
+}
+
+function positionNowNext(p, c) {
+  const timed = p.slots.filter(s => s.s !== null).sort((a, b) => a.s - b.s);
+  const allDay = p.slots.find(s => s.allDay) || null;
+  const r = dayRel(p, c);
+
+  if (r < 0) return { now: null, next: null };
+  if (r > 0) return { now: null, next: timed[0] || allDay, first: true };
+
+  return {
+    now: timed.find(s => s.s <= c.min && c.min < s.e) || allDay,
+    next: timed.find(s => s.s > c.min) || null
+  };
+}
+
+// =====================================================
+// SHARED HTML PIECES
+// =====================================================
+
+function heroHtml(id, c) {
+  const st = personStatus(id, c);
+  const s = st.slot;
+  const dayName = s ? s.pos.day : '';
+  const labels = {
+    on: 'Right now', soon: 'Starting soon', next: 'Next shift',
+    first: 'First shift · ' + dayName, later: 'Next shift · ' + dayName,
+    allday: st.other ? 'Assignment · ' + dayName : 'Today',
+    done: c.mode === 'after' ? 'Convention finished' : 'Today', none: ''
+  };
+  const big = {
+    on: 'On duty', soon: s && s.start, next: s && s.start, first: s && s.start, later: s && s.start,
+    allday: 'All day', done: 'Done', none: 'No assignment'
+  };
+
+  let sub = '';
+  if (s) {
+    sub = '<div class="hero-pos">' + esc(s.pos.label) + '</div>' +
+      '<div class="hero-sub">' + esc(s.pos.area) + (st.kind === 'on' ? ', until ' + esc(s.end) : '') +
+      (st.then ? ' · then ' + esc(st.then.start) + ' at ' + esc(st.then.pos.label) : '') + '</div>';
+  } else if (st.kind === 'done') {
+    sub = '<div class="hero-sub">' + (c.mode === 'after' ? 'All shifts are over. Thank you!' : 'No more shifts at this convention. Thank you!') + '</div>';
+  }
+
+  return '<div class="hero k-' + st.kind + '">' +
+    (labels[st.kind] ? '<div class="hero-label">' + esc(labels[st.kind]) + '</div>' : '') +
+    '<div class="hero-big">' + esc(big[st.kind] || '') + '</div>' + sub + '</div>';
+}
+
+// Alle Einsätze eines Bruders, nach Kongresstag gegliedert
+function slotsHtml(id, c) {
+  const list = D.byId[id] || [];
+  if (!list.length) return '<div class="empty">No assignments in the schedule.</div>';
+  let html = '';
+  let cur = null;
+  list.forEach(x => {
+    if (x.pos.day !== cur) {
+      cur = x.pos.day;
+      const r = dayRel(x.pos, c);
+      html += '<div class="day-head' + (r === 0 && c.mode === 'live' ? ' today' : (r < 0 ? ' past' : '')) + '">' +
+        esc(dayTitle(cur)) + (r === 0 && c.mode === 'live' ? ' · today' : '') + '</div>';
+    }
+    const state = slotState(x, c);
+    html += '<button class="slot ' + state + '" type="button" data-act="pos" data-key="' + esc(x.pos.key) + '" data-ref="' + esc(x.ref) + '">' +
+      '<div class="slot-top"><span class="slot-time">' + esc(timeText(x)) + (state === 'now' ? '<span class="tag now">Now</span>' : '') + '</span>' +
+      '<span class="slot-pos">' + esc(x.pos.label) + '</span></div>' +
+      '<div class="slot-area">' + esc(x.pos.area) + '</div>' +
+      (x.remark ? '<div class="slot-remark">' + esc(x.remark) + '</div>' : '') +
+      '</button>';
+  });
+  return html;
+}
+
+function memberRow(m, c, showTeam) {
+  const st = personStatus(m.id, c);
+  return '<button class="member' + (st.kind === 'none' ? ' unassigned' : '') + '" type="button" data-act="person" data-id="' + esc(m.id) + '">' +
+    '<span class="member-main"><span class="member-name">' + esc(m.name) + '</span>' +
+    '<span class="member-status k-' + st.kind + '">' + (showTeam ? esc(m.team || 'No team') + ' · ' : '') + esc(statusLine(st)) + '</span></span>' +
+    '<span class="tick' + (m.checkedIn ? '' : ' no') + '" aria-label="' + (m.checkedIn ? 'Checked in' : 'Not checked in') + '">✓</span>' +
+    '</button>';
+}
+
+// Brüder aus anderen Teams, die heute auf Positionen dieses Teams eingeteilt sind
+function helpersHtml(team, c) {
+  const day = viewDay(c);
+  const any = D.positions.some(p => positionTeam(p) === team && p.slots.some(s => {
+    const a = s.id && D.att[s.id];
+    return a && a.team !== team && !isReserve(a.team);
+  }));
+  if (!any) return '';
+  const rows = [];
+  D.positions.forEach(p => {
+    if (p.day !== day || positionTeam(p) !== team) return;
+    p.slots.forEach(s => {
+      const a = s.id && D.att[s.id];
+      if (!a || a.team === team || isReserve(a.team)) return;
+      rows.push({ a: a, s: s });
+    });
+  });
+  const head = '<div class="h3">Helping · from other teams</div>' + dayChipsHtml(c);
+  if (!rows.length) return head + '<div class="empty" style="padding:14px 12px">Nobody from other teams on ' + esc(day) + '.</div>';
+  rows.sort((x, y) => (x.s.s == null ? -1 : x.s.s) - (y.s.s == null ? -1 : y.s.s));
+  return head + '<section class="team-block helpers"><div class="members">' +
+    rows.map(r => {
+      const state = slotState(r.s, c);
+      return '<button class="member" type="button" data-act="person" data-id="' + esc(r.a.id) + '">' +
+        '<span class="member-main"><span class="member-name">' + esc(r.a.name) +
+          ' <span class="tag from">from ' + esc(r.a.team) + '</span></span>' +
+        '<span class="member-status' + (state === 'now' ? ' k-on' : (state === 'past' ? ' k-done' : '')) + '">' +
+          esc(timeText(r.s)) + ' · ' + esc(r.s.pos.label) + (state === 'now' ? ' · now' : '') + '</span></span>' +
+        '<span class="tick' + (r.a.checkedIn ? '' : ' no') + '">✓</span></button>';
+    }).join('') + '</div></section>';
+}
+
+function teamBlock(team, members, c) {
+  members = members.slice().sort((a, b) =>
+    ((D.byId[a.id] || []).length ? 0 : 1) - ((D.byId[b.id] || []).length ? 0 : 1) || a.name.localeCompare(b.name));
+  const inCount = members.filter(m => m.checkedIn).length;
+  return '<section class="team-block" style="--team:' + teamColor(team) + '">' +
+    '<div class="team-head"><span class="team-name">' + esc(team) + '</span>' +
+    '<span class="team-count">' + inCount + ' of ' + members.length + ' checked in</span></div>' +
+    '<div class="members">' + members.map(m => memberRow(m, c, false)).join('') + '</div></section>';
+}
+
+function resultsHtml(list, act) {
+  return '<div class="results">' + list.map(a =>
+    '<button class="result" type="button" data-act="' + act + '" data-id="' + esc(a.id) + '">' +
+    '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+    '<span><span class="result-name">' + esc(a.name) + '</span>' +
+    '<span class="result-sub">' + esc(a.team || 'No team') + '</span></span></button>'
+  ).join('') + '</div>';
+}
+
+function backBar() {
+  return '<div class="panel-bar"><button class="btn" type="button" data-act="back">← Back</button></div>';
+}
+
+// =====================================================
+// RENDER
+// =====================================================
+
+function render() {
+  const locked = !S.pin;
+  document.body.classList.toggle('locked', locked);
+
+  renderHeader();
+  renderBanner();
+  renderFooter();
+  renderTabbar();
+
+  if (locked) { renderLock(); return; }
+
+  if (!D) {
+    main.dataset.view = 'loading';
+    main.innerHTML = S.error
+      ? '<div class="empty"><strong>' + esc(S.error) + '</strong>Check the connection and try again.<br><br>' +
+        '<button class="btn primary" type="button" data-act="refresh">Try again</button></div>'
+      : '<div class="empty">Loading the schedule…</div>';
+    return;
+  }
+
+  const c = clock();
+  if (S.tab === 'checkin' && !can('checkin')) S.tab = 'me';
+
+  if (S.tab === 'me') renderMe(c);
+  else if (S.tab === 'positions') renderPositions(c);
+  else if (S.tab === 'teams') renderTeams(c);
+  else if (S.tab === 'checkin') renderCheckin(c);
+  else renderMaps();
+
+  if (S.stack.length) renderPanel(c);
+}
+
+function renderHeader() {
+  $('#findBtn').hidden = !(S.pin && D && can('checkin'));
+  const line = $('#eventLine');
+  if (!S.pin) { line.textContent = 'Please enter your access code'; return; }
+  if (!D) { line.textContent = S.error ? 'Schedule not available' : 'Loading the schedule…'; return; }
+
+  const c = clock();
+  if (c.noDate) { line.textContent = 'No convention date set'; return; }
+
+  const ds = days();
+  const first = ds[0].date, last = ds[ds.length - 1].date;
+  let rel;
+  if (c.mode === 'after') rel = 'finished';
+  else if (c.mode === 'before') {
+    const n = dayDiff(c.date, first);
+    rel = n === 1 ? 'starts tomorrow' : 'in ' + n + ' days';
+  } else {
+    rel = currentDay(c) + ' · day ' + (todayIdx(c) + 1) + '/' + ds.length;
+  }
+  const range = first === last ? fmtDayMonth(first) : fmtDayMonth(first) + ' – ' + fmtDayMonth(last);
+  line.innerHTML = '<strong><span class="d-long">' + esc(range + ' ' + first.slice(0, 4)) + '</span>' +
+    '<span class="d-short">' + esc(range) + '</span></strong> · ' + esc(rel);
+}
+
+function renderBanner() {
+  const notes = [];
+  if (DEMO) notes.push(API_URL
+    ? 'Demo data. Remove ?demo from the address to load the live schedule.'
+    : 'Demo data. Add the Apps Script address (API_URL) in the file to load the live schedule.');
+  if (S.pin && D) {
+    const c = clock();
+    if (NOW_PARAM) notes.push('Test time: ' + fmtDate(c.date) + ', ' + fmtMin(c.min) + '. Remove ?now from the address for the real time.');
+    if (S.error) notes.push(S.error + '. Showing the schedule from ' + fmtClock(S.loadedAt) + '.');
+    if (c.noDate && !DEMO) notes.push('No convention date in the sheet (Positions!C98). Times are shown as if today were the first day.');
+  }
+  $('#banner').innerHTML = notes.map(n => '<div class="note">' + esc(n) + '</div>').join('');
+}
+
+function renderFooter() {
+  $('#footer').innerHTML =
+    (S.loadedAt && S.pin ? 'Schedule updated ' + esc(fmtClock(S.loadedAt)) +
+      (S.role ? ' · Access: ' + esc(ROLE_LABEL[S.role]) : '') + '<br>' : '') +
+    esc(APP_NAME) + ' · Regional Convention · V' + esc(VERSION) + ' · Made with Love ©';
+}
+
+function renderTabbar() {
+  const tabs = TABS.filter(t => t !== 'checkin' || can('checkin'));
+  const countDot = !!(D && S.pin && countOpen() && myId() && countJobsNow().some(s => s.id === myId() && !D.countByRef[s.ref]));
+  const helpDot = countDot || !!(D && S.pin && !isGuest() && activeRequests(clock()).some(x =>
+    can('editor') ? x.r.status === 'offered' : (x.r.status === 'open' && myId() && x.slot.id !== myId() && !overlaps(myId(), x.slot).length)));
+  const bar = $('#tabbarIn');
+  bar.style.setProperty('--tabs', tabs.length);
+  bar.innerHTML = tabs.map(t =>
+    '<button class="tab' + (t === S.tab ? ' active' : '') + '" type="button" data-act="tab" data-tab="' + t + '">' +
+    '<span class="tab-ico">' + TAB_ICON[t] + (t === 'me' && helpDot ? '<span class="tab-dot"></span>' : '') + '</span>' +
+    (t === 'me' && isGuest() ? 'Overview' : TAB_LABEL[t]) + '</button>'
+  ).join('');
+}
+
+// ---------- LOCK ----------
+
+function renderLock() {
+  if (main.dataset.view !== 'lock') {
+    main.dataset.view = 'lock';
+    main.innerHTML =
+      '<form class="lock" id="lockForm" autocomplete="off">' +
+        '<img class="lock-logo" src="logo.jpg" alt="Attendants" ' +
+          'onerror="this.outerHTML=\'<div class=&quot;lock-icon&quot;>🔒</div>\'">' +
+        '<h2>Access code</h2>' +
+        '<p class="muted">Enter the code you received from the attendant department.<br>No code yet? Please ask your team captain.</p>' +
+        '<input id="lockInput" name="aa-access-code" type="password" autocomplete="one-time-code" data-lpignore="true" autocapitalize="off" spellcheck="false" aria-label="Access code">' +
+        '<label class="show-code"><input type="checkbox" id="lockShow"> Show code</label>' +
+        '<button class="btn primary block" type="submit" id="lockBtn">Open</button>' +
+        '<div class="lock-error" id="lockError" role="alert"></div>' +
+      '</form>';
+
+    $('#lockShow').addEventListener('change', e => {
+      $('#lockInput').type = e.target.checked ? 'text' : 'password';
+    });
+    $('#lockForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const v = $('#lockInput').value.trim();
+      if (!v) return;
+      S.pin = v;
+      S.lockError = '';
+      S.error = null;
+      $('#lockBtn').disabled = true;
+      load(true);
+    });
+  }
+  $('#lockError').textContent = S.lockError || '';
+  $('#lockBtn').disabled = false;
+}
+
+// ---------- MY DUTY ----------
+
+function renderMe(c) {
+  if (isGuest()) { renderGuest(c); return; }
+  if (!S.me || !D.att[S.me]) { renderIdentify(); return; }
+
+  main.dataset.view = 'me';
+  const a = D.att[S.me];
+  let html = evacCheckHtml(c) + countNowHtml() + countAdminHtml() + helpBoxHtml(c) + '<div class="me-grid"><div class="me-left">' +
+    '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' +
+    '<div class="person-meta">' + teamLine(a.team) + '<span>·</span>' +
+    '<button class="linkish" type="button" data-act="change-me">Not you?</button>' +
+    (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div></div></div>' +
+    heroHtml(a.id, c) + evacLineHtml(a.id, c) + (countNowHtml() ? '' : countCardHtml(a.id, c)) + '</div><div class="me-right">' +
+    '<div class="h3">My assignments</div>' + slotsHtml(a.id, c) + '</div></div>';
+
+  if (isCaptain(a.id) && a.team) {
+    const members = (teamsMap()[a.team] || []);
+    if (members.length) html += '<div class="h3">My team</div>' + teamBlock(a.team, members, c);
+    html += helpersHtml(a.team, c);
+  }
+
+  main.innerHTML = html;
+}
+
+function renderGuest(c) {
+  main.dataset.view = 'guest';
+  const all = D.attendants.filter(a => {
+    const t = String(a.team || '').trim();
+    return t && t.toUpperCase() !== 'N.A.';
+  });
+  const inCount = all.filter(a => a.checkedIn).length;
+  const today = currentDay(c);
+  const groups = positionGroups(today);
+  const teams = teamsMap();
+
+  let onDuty = 0, openTotal = 0;
+  groups.forEach(g => g.positions.forEach(p => {
+    const nn = positionNowNext(p, c);
+    if (nn.now && nn.now.id) onDuty++;
+    openTotal += p.slots.filter(isOpen).length;
+  }));
+
+  const stat = (big, label, cls) => '<div class="stat' + (cls ? ' ' + cls : '') + '"><div class="stat-big">' + big + '</div><div class="stat-label">' + label + '</div></div>';
+
+  let html =
+    '<div class="intro"><h2>Overview</h2>' +
+    '<p class="muted">Guest view · ' + esc(dayTitle(today)) + ' · <button class="linkish" type="button" data-act="change-me">Choose a name instead</button></p></div>' +
+    '<div class="stats">' +
+      stat(c.mode === 'live' ? onDuty : '—', c.mode === 'live' ? 'On duty now' : (c.mode === 'before' ? 'Not started yet' : 'Convention finished'), c.mode === 'live' ? 'on' : '') +
+      stat(inCount + '<span> / ' + all.length + '</span>', 'Checked in') +
+      stat(openTotal, 'Open shifts', openTotal ? 'soon' : '') +
+    '</div>';
+
+  html += '<div class="h3">Teams</div><div class="team-block"><div class="members">' + groups.map(g => {
+    const staffed = g.positions.filter(p => { const nn = positionNowNext(p, c); return nn.now && nn.now.id; }).length;
+    const members = teams[g.label] || [];
+    const ci = members.filter(m => m.checkedIn).length;
+    return '<button class="member" type="button" data-act="goto-pos" data-area="' + esc(g.key) + '">' +
+      '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' +
+      '<span class="member-main"><span class="member-name">' + esc(g.label) + '</span>' +
+      '<span class="member-status">' +
+        (c.mode === 'live' ? staffed + ' of ' + g.positions.length + ' positions staffed now' : g.positions.length + ' positions') +
+        (members.length ? ' · ' + ci + ' of ' + members.length + ' checked in' : '') +
+      '</span></span><span class="pos-chev">›</span></button>';
+  }).join('') + '</div></div>';
+
+  const captains = [];
+  D.positions.filter(p => p.type === 'tc' && p.day === today).forEach(p => p.slots.forEach(s => { if (s.id) captains.push({ s: s, p: p }); }));
+  if (captains.length) {
+    html += '<div class="h3">Team captains</div><div class="team-block"><div class="members">' + captains.map(x => {
+      const a = D.att[x.s.id];
+      return '<button class="member" type="button" data-act="person" data-id="' + esc(x.s.id) + '">' +
+        '<span class="dot" style="background:' + teamColor(a && a.team) + '"></span>' +
+        '<span class="member-main"><span class="member-name">' + esc(slotName(x.s)) + '</span>' +
+        '<span class="member-status">' + esc((a && a.team) || x.p.area) + '</span></span>' +
+        '<span class="tick' + (a && a.checkedIn ? '' : ' no') + '">✓</span></button>';
+    }).join('') + '</div></div>';
+  }
+
+  main.innerHTML = html;
+}
+
+function renderIdentify() {
+  if (main.dataset.view !== 'identify') {
+    main.dataset.view = 'identify';
+    main.innerHTML =
+      '<div class="intro"><h2>Who are you?</h2>' +
+      '<p class="muted">Choose your own name once. This phone then opens straight to your duty.</p></div>' +
+      '<div class="search"><input id="meQ" name="aa-meQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Type your name" autocomplete="off" spellcheck="false" aria-label="Type your name"></div>' +
+      '<div id="identifyList"></div>' +
+      '<div class="guest-box"><strong>Not on the schedule?</strong>' +
+      '<p class="muted">For example safety or other departments who only want to see what is going on.</p>' +
+      '<button class="btn block" type="button" data-act="guest">Continue as guest</button></div>';
+    const q = $('#meQ');
+    q.value = S.meQuery;
+    guardSearch(q);
+    q.addEventListener('input', () => { S.meQuery = cleanQuery(q); renderIdentifyList(); });
+  }
+  renderIdentifyList();
+}
+
+function renderIdentifyList() {
+  const box = $('#identifyList');
+  if (!box) return;
+  const q = norm(S.meQuery.trim());
+  if (q.length < 2) {
+    box.innerHTML = S.me && !D.att[S.me]
+      ? '<div class="empty">The saved name is no longer in the schedule. Please choose again.</div>'
+      : '';
+    return;
+  }
+  const hits = D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 12);
+  box.innerHTML = hits.length
+    ? resultsHtml(hits, 'identify')
+    : '<div class="empty">No attendant found for “' + esc(S.meQuery.trim()) + '”.</div>';
+}
+
+// ---------- POSITIONS ----------
+
+// Positionen werden nach dem Team der eingeteilten Brüder gruppiert
+// (Block J mit Lobby-Brüdern landet so automatisch bei Lobby).
+// Ist eine Position noch ganz offen, zählt die Überschrift im Sheet.
+function blockOf(p) {
+  const m = /\bblock\s*([A-Z])\b/i.exec(p.label + ' ' + (p.area || ''));
+  return m ? m[1].toUpperCase() : '';
+}
+
+function positionGroups(day) {
+  const list = [];
+  const map = {};
+  day = day || viewDay(clock());
+
+  D.positions.forEach(p => {
+    if (p.day !== day) return;
+    const team = positionTeam(p);
+    const key = team || p.area;
+    if (!map[key]) {
+      map[key] = { key: key, label: team || p.area, positions: [] };
+      list.push(map[key]);
+    }
+    map[key].positions.push(p);
+  });
+  return list;
+}
+
+// Rotationsposition = mindestens eine Schicht mit Uhrzeit.
+// Team Captain und Block-Attendants (ganztags, nur eine Person) sind keine Rotation.
+function isRotation(p) {
+  return p.slots.some(s => s.s !== null);
+}
+
+function posCard(p, c) {
+  const open = p.slots.filter(isOpen).length;
+  const expanded = !!S.openPos[p.key];
+  const rotation = isRotation(p);
+
+  let html = '<div class="pos-card' + (p.type === 'tc' ? ' tc' : '') + '">' +
+    '<button class="pos-head" type="button" data-act="ptoggle" data-key="' + esc(p.key) + '" aria-expanded="' + expanded + '">' +
+      '<span class="pos-title">' + esc(p.label) + (open ? '<span class="tag open">' + open + ' open</span>' : '') +
+        (p.slots.some(x => D.reqByRef[x.ref]) ? '<span class="tag help">Help needed</span>' : '') + '</span>' +
+      '<span class="pos-chev">' + (expanded ? 'Hide ▴' : (rotation ? 'All shifts ▾' : 'Details ▾')) + '</span>' +
+    '</button>';
+
+  if (rotation) {
+    const nn = positionNowNext(p, c);
+    const cell = (label, s, isNow) =>
+      '<div' + (isNow && s ? ' class="now"' : '') + '><div class="duo-label">' + label + '</div>' +
+      (s ? '<div class="duo-name">' + esc(slotName(s)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+         : '<div class="duo-name">—</div>') + '</div>';
+    html += '<div class="duo">' + cell('Now', nn.now, true) + cell(nn.first ? 'First' : 'Next', nn.next, false) + '</div>';
+  } else {
+    const live = c.mode === 'live' && dayRel(p, c) === 0;
+    html += '<div class="single' + (live ? ' now' : '') + '"><div class="duo-label">' + (live ? 'On this position today' : 'Assigned') + ' · All day</div>' +
+      p.slots.map(s => '<div class="duo-name">' + esc(slotName(s)) + '</div>').join('') + '</div>';
+  }
+
+  if (expanded) {
+    html += '<div class="pos-list">';
+    if (rotation) {
+      html += p.slots.map(s => {
+        const state = slotState(s, c);
+        const from = fromTeam(s, p);
+        const inner = '<span class="t">' + esc(timeText(s)) + '</span><span class="n' + nameClass(s) + '">' + esc(slotName(s)) +
+          (from ? '<span class="tag from">from ' + esc(from) + '</span>' : '') +
+          (D.reqByRef[s.ref] ? '<span class="tag help">Help</span>' : '') + '</span>';
+        return s.id
+          ? '<button class="pos-line ' + state + '" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
+          : '<div class="pos-line ' + state + '">' + inner + '</div>';
+      }).join('');
+    } else {
+      html += p.slots.filter(s => s.remark).map(s =>
+        '<div class="pos-line"><span class="n">' + esc(slotName(s)) + '</span><span class="muted">' + esc(s.remark) + '</span></div>'
+      ).join('');
+    }
+    html += '<button class="pos-more" type="button" data-act="pos" data-key="' + esc(p.key) + '">Details, map' + (can('editor') ? ' & changes' : '') + ' →</button></div>';
+  }
+
+  return html + '</div>';
+}
+
+function renderPositions(c) {
+  main.dataset.view = 'positions';
+  const day = viewDay(c);
+  const groups = positionGroups(day);
+  const top = (can('editor') ? countAdminHtml() + helpBoxHtml(c) : '') + dayChipsHtml(c);
+  if (!groups.length) { main.innerHTML = top + '<div class="empty">No positions on ' + esc(day) + '.</div>'; return; }
+
+  if (!S.area || !groups.some(g => g.key === S.area)) {
+    const mine = myId() && D.att[myId()].team;
+    S.area = groups.some(g => g.key === mine) ? mine : groups[0].key;
+    S.block = 'all';
+  }
+  const group = groups.find(g => g.key === S.area);
+
+  let html = top + '<div class="chips">' + groups.map(g =>
+    '<button class="chip' + (g.key === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
+    '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) + '</button>'
+  ).join('') + '</div>';
+
+  const blocks = Array.from(new Set(group.positions.map(blockOf).filter(Boolean))).sort();
+  if (S.block !== 'all' && blocks.indexOf(S.block) < 0) S.block = 'all';
+
+  // Alle aufklappen / zuklappen – nur für die Positionen im aktuellen Reiter (und Block)
+  const visible = group.positions.filter(p => S.block === 'all' || blockOf(p) === S.block);
+  const allOpen = visible.length > 0 && visible.every(p => S.openPos[p.key]);
+  html += '<div class="pos-tools"><button class="linkish" type="button" data-act="pexpand" data-open="' + (allOpen ? '0' : '1') + '">' +
+    (allOpen ? 'Collapse all ▴' : 'Expand all ▾') + '</button></div>';
+
+  if (blocks.length >= 2) {
+    html += '<div class="chips sub">' + ['all'].concat(blocks).map(b =>
+      '<button class="chip' + (b === S.block ? ' active' : '') + '" type="button" data-act="pblock" data-block="' + b + '">' +
+      (b === 'all' ? 'All' : 'Block ' + b) + '</button>'
+    ).join('') + '</div>';
+  }
+
+  // Am PC fließen die Abschnitte spaltenweise von oben nach unten.
+  const section = (list, head) => list.length
+    ? '<section class="pos-sec' + (head ? ' blocked' : '') + '">' + (head ? '<div class="block-head">' + head + '</div>' : '') +
+      list.map(p => posCard(p, c)).join('') + '</section>'
+    : '';
+
+  html += '<div class="pos-flow">';
+  if (S.block !== 'all') {
+    html += section(group.positions.filter(p => blockOf(p) === S.block), '');
+  } else if (blocks.length) {
+    html += section(group.positions.filter(p => !blockOf(p)), '');
+    blocks.forEach(b => {
+      html += section(group.positions.filter(p => blockOf(p) === b), 'Block ' + b);
+    });
+  } else {
+    html += section(group.positions, '');
+  }
+  html += '</div>';
+
+  main.innerHTML = html;
+}
+
+// ---------- TEAMS ----------
+
+function renderTeams(c) {
+  if (main.dataset.view !== 'teams') {
+    main.dataset.view = 'teams';
+    main.innerHTML =
+      '<div class="search"><input id="teamQ" name="aa-teamQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search all attendants" autocomplete="off" spellcheck="false" aria-label="Search all attendants"></div>' +
+      '<div id="teamsBody"></div>';
+    const q = $('#teamQ');
+    q.value = S.teamQuery;
+    guardSearch(q);
+    q.addEventListener('input', () => { S.teamQuery = cleanQuery(q); renderTeamsBody(clock()); });
+  }
+  renderTeamsBody(c);
+}
+
+function renderTeamsBody(c) {
+  const box = $('#teamsBody');
+  if (!box) return;
+  const q = norm(S.teamQuery.trim());
+
+  if (q.length >= 2) {
+    const hits = D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 30);
+    box.innerHTML = hits.length
+      ? '<div class="team-block"><div class="members">' + hits.map(m => memberRow(m, c, true)).join('') + '</div></div>'
+      : '<div class="empty">No attendant found for “' + esc(S.teamQuery.trim()) + '”.</div>';
+    return;
+  }
+
+  const groups = teamsMap();
+  const names = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+  if (!names.length) { box.innerHTML = '<div class="empty">No teams in the schedule.</div>'; return; }
+
+  if (!S.team || !groups[S.team]) {
+    const mine = myId() && D.att[myId()].team;
+    S.team = groups[mine] ? mine : names[0];
+  }
+
+  box.innerHTML = '<div class="chips">' + names.map(t =>
+    '<button class="chip' + (t === S.team ? ' active' : '') + '" type="button" data-act="team" data-team="' + esc(t) + '">' +
+    '<span class="dot" style="background:' + teamColor(t) + '"></span>' + esc(t) +
+    '<span class="chip-count">' + groups[t].length + '</span></button>'
+  ).join('') + '</div>' + teamBlock(S.team, groups[S.team], c) + helpersHtml(S.team, c);
+}
+
+// ---------- CHECK-IN ----------
+
+function renderCheckin(c) {
+  if (main.dataset.view !== 'checkin') {
+    main.dataset.view = 'checkin';
+    main.innerHTML =
+      '<div id="ciSummary"></div>' +
+      '<div class="search"><input id="ciQ" name="aa-ciQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search a name to check in" autocomplete="off" spellcheck="false" aria-label="Search a name to check in"></div>' +
+      '<div class="seg"><button type="button" data-act="cifilter" data-f="open">Not yet</button><button type="button" data-act="cifilter" data-f="in">Checked in</button><button type="button" data-act="cifilter" data-f="all">All</button></div>' +
+      '<div id="ciList"></div>';
+    const q = $('#ciQ');
+    q.value = S.ciQuery;
+    guardSearch(q);
+    q.addEventListener('input', () => { S.ciQuery = cleanQuery(q); renderCheckinBody(clock()); });
+  }
+  renderCheckinBody(c);
+}
+
+function renderCheckinBody(c) {
+  if (!$('#ciList')) return;
+  const all = D.attendants.filter(a => {
+    const t = String(a.team || '').trim();
+    return t && t.toUpperCase() !== 'N.A.';
+  });
+  const inCount = all.filter(a => a.checkedIn).length;
+  const pct = all.length ? Math.round(inCount / all.length * 100) : 0;
+
+  $('#ciSummary').innerHTML =
+    '<div class="ci-summary"><div class="ci-big">' + inCount + '<span> of ' + all.length + ' checked in</span></div>' +
+    '<div class="bar"><span style="width:' + pct + '%"></span></div></div>';
+
+  document.querySelectorAll('[data-act="cifilter"]').forEach(b =>
+    b.classList.toggle('active', b.dataset.f === S.ciFilter));
+
+  const q = norm(S.ciQuery.trim());
+  let list = all;
+  if (q) list = list.filter(a => nameMatch(a.name, q));
+  else if (S.ciFilter === 'open') list = list.filter(a => !a.checkedIn);
+  else if (S.ciFilter === 'in') list = list.filter(a => a.checkedIn);
+  list = list.slice().sort(byName);
+
+  $('#ciList').innerHTML = list.length
+    ? '<div class="team-block"><div class="members">' + list.map(a => {
+        const st = personStatus(a.id, c);
+        const pend = !!S.pending[a.id];
+        return '<div class="ci-row">' +
+          '<button class="ci-main" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
+            '<span class="member-name">' + esc(a.name) + '</span>' +
+            '<span class="member-status k-' + st.kind + '"><span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+            esc(a.team) + ' · ' + esc(statusLine(st)) + '</span></button>' +
+          '<button class="ci-btn' + (a.checkedIn ? ' in' : '') + '" type="button" data-act="ci" data-id="' + esc(a.id) + '"' + (pend ? ' disabled' : '') + '>' +
+            (pend ? '…' : (a.checkedIn ? '✓ In' : 'Check in')) + '</button>' +
+          '</div>';
+      }).join('') + '</div></div>'
+    : '<div class="empty">' + (q ? 'No attendant found.' : (S.ciFilter === 'in' ? 'Nobody is checked in yet.' : 'Everyone is checked in. 🎉')) + '</div>';
+}
+
+// ---------- MAPS ----------
+
+function renderMaps() {
+  if (main.dataset.view === 'maps') return;
+  main.dataset.view = 'maps';
+  main.innerHTML = '<div class="maps">' + MAPS.map(m =>
+    '<div class="map">' +
+      '<button type="button" data-act="zoom" data-src="' + esc(m.file) + '" data-alt="' + esc(m.title) + ' position map" aria-label="Enlarge ' + esc(m.title) + ' map">' +
+        '<img src="' + esc(m.file) + '" alt="' + esc(m.title) + ' position map" loading="lazy" ' +
+        'onerror="this.closest(\'.map\').classList.add(\'no-img\')">' +
+      '</button>' +
+      '<div class="map-info"><div class="map-title">' + esc(m.title) + '</div>' +
+      '<div class="map-text">' + esc(m.text) + '</div>' +
+      '<button class="map-print" type="button" data-act="print-map" data-src="' + esc(m.file) + '" data-title="' + esc(m.title) + '">' +
+        '<svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>Print</button></div>' +
+    '</div>'
+  ).join('') + '</div>';
+}
+
+// =====================================================
+// PANELS (person / position / change shift / access)
+// =====================================================
+
+function topPanel() {
+  return S.stack[S.stack.length - 1] || null;
+}
+
+function pushPanel(entry) {
+  const top = topPanel();
+  if (top && top.type === entry.type && top.id === entry.id && top.key === entry.key && top.ref === entry.ref) return;
+  S.stack.push(entry);
+  history.pushState({ aaPanel: S.stack.length }, '');
+  showPanel(true);
+}
+
+function popPanel() {
+  S.stack.pop();
+  showPanel(true);
+}
+
+function backPanel() {
+  if (history.state && history.state.aaPanel) history.back();
+  else popPanel();
+}
+
+function clearPanels() {
+  const n = S.stack.length;
+  if (!n) return;
+  S.stack = [];
+  showPanel(false);
+  if (history.state && history.state.aaPanel) {
+    S.ignorePop = true;
+    history.go(-n);
+  }
+}
+
+function showPanel(scrollTop) {
+  const panel = $('#panel');
+  if (S.stack.length && D) {
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    renderPanel(clock());
+    if (scrollTop) panel.scrollTop = 0;
+  } else {
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    $('#panelBody').dataset.view = '';
+  }
+}
+
+function renderPanel(c, force) {
+  const top = topPanel();
+  if (!top || !D) return;
+  const body = $('#panelBody');
+
+  if (top.type === 'pick') { renderPick(top, c, force); return; }
+  if (top.type === 'access') { renderAccess(force); return; }
+  if (top.type === 'find') { renderFind(c, force); return; }
+  if (top.type === 'emergency') {
+    if (body.dataset.view === 'emergency' && !force) return;   // aufgeklappte Fälle bleiben offen
+    body.dataset.view = 'emergency';
+    body.innerHTML = emergencyHtml(c);
+    return;
+  }
+
+  body.dataset.view = top.type;
+  body.innerHTML = top.type === 'person' ? personPanelHtml(top, c) : posPanelHtml(top, c);
+}
+
+function personPanelHtml(top, c) {
+  const a = D.att[top.id];
+  if (!a) return backBar() + '<div class="empty">This attendant is no longer in the schedule.</div>';
+
+  let html = backBar() +
+    '<div class="person-head"><div><h2>' + esc(a.name) + '</h2>' + teamLine(a.team) + '</div>' +
+    (a.checkedIn ? '<span class="checked">✓ Checked in</span>' : '') + '</div>' +
+    heroHtml(a.id, c);
+
+  if (can('checkin')) {
+    const pend = !!S.pending[a.id];
+    html += '<div class="me-row"><button class="btn ' + (a.checkedIn ? '' : 'primary') + ' block" type="button" data-act="ci" data-id="' + esc(a.id) + '"' + (pend ? ' disabled' : '') + '>' +
+      (pend ? '…' : (a.checkedIn ? 'Undo check-in' : 'Check in')) + '</button></div>';
+  }
+
+  return html + '<div class="h3">Assignments</div>' + slotsHtml(a.id, c);
+}
+
+function posPanelHtml(top, c) {
+  const p = D.positions.find(x => x.key === top.key);
+  if (!p) return backBar() + '<div class="empty">This position is no longer in the schedule.</div>';
+
+  const nn = positionNowNext(p, c);
+  const rotation = isRotation(p);
+  const selIndex = top.ref && rotation ? p.slots.findIndex(s => s.ref === top.ref) : -1;
+  const map = mapFor(p);
+  const editable = can('editor');
+
+  let html = backBar() + '<h2>' + esc(p.label) + '</h2><p class="sub">' + esc(p.area) + ' · ' + esc(dayTitle(p.day)) + '</p>';
+  if (evacFor(p)) html += evacCardHtml({ pos: p }, false);
+
+  if (nn.now && rotation) {
+    html += '<div class="now-box"><div class="duo-label">On this position now</div>' +
+      '<div class="now-name">' + esc(slotName(nn.now)) + '</div>' +
+      '<div class="duo-time">' + esc(timeText(nn.now)) + '</div></div>';
+  }
+
+  if (selIndex >= 0) {
+    const cell = (label, s, cls) => '<div class="' + cls + '"><div class="duo-label">' + label + '</div>' +
+      (s ? '<div class="duo-name">' + esc(slotName(s)) + '</div><div class="duo-time">' + esc(timeText(s)) + '</div>'
+         : '<div class="duo-name">—</div>') + '</div>';
+    html += '<div class="trio">' +
+      cell('Before', p.slots[selIndex - 1], '') +
+      cell('Selected', p.slots[selIndex], 'sel') +
+      cell('After', p.slots[selIndex + 1], '') + '</div>';
+  }
+
+  if (map) {
+    html += '<button class="btn primary block" type="button" data-act="togglemap">' +
+      (S.panelMap ? 'Hide position map' : 'Show position map') + '</button>';
+    if (S.panelMap) {
+      html += '<div class="map-inline"><img src="' + esc(map.file) + '" alt="' + esc(map.title) + ' position map" ' +
+        'data-act="zoom" data-src="' + esc(map.file) + '" data-alt="' + esc(map.title) + ' position map">' +
+        '<button class="map-print" type="button" data-act="print-map" data-src="' + esc(map.file) + '" data-title="' + esc(map.title) + '">' +
+        '<svg class="i" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>Print map</button></div>';
+    }
+  }
+
+  html += '<div class="h3">' + (rotation ? 'Full rotation' : 'Assigned · all day') + '</div>' + p.slots.map((s, i) => {
+    const state = slotState(s, c);
+    const cls = ['rot', state, i === selIndex ? 'sel' : ''].join(' ');
+    const from = fromTeam(s, p);
+    const tags = (state === 'now' ? '<span class="tag now">Now</span>' : '') +
+      (i === selIndex ? '<span class="tag sel">Selected</span>' : '') +
+      (from ? '<span class="tag from">from ' + esc(from) + '</span>' : '') +
+      (D.reqByRef[s.ref] ? '<span class="tag help">Help needed</span>' : '');
+    const inner = '<span class="rot-time">' + esc(timeText(s)) + '</span>' +
+      '<span><span class="rot-name' + nameClass(s) + '">' + esc(slotName(s)) + tags + '</span>' +
+      (s.remark ? '<span class="rot-remark" style="display:block">' + esc(s.remark) + '</span>' : '') + '</span>';
+    const mainPart = s.id
+      ? '<button class="rot-main" type="button" data-act="person" data-id="' + esc(s.id) + '">' + inner + '</button>'
+      : '<div class="rot-main">' + inner + '</div>';
+    const edit = editable
+      ? '<button class="rot-edit" type="button" data-act="edit-slot" data-ref="' + esc(s.ref) + '">Change</button>'
+      : '';
+    return '<div class="' + cls + '">' + mainPart + edit + '</div>';
+  }).join('');
+
+  return html;
+}
+
+// ---------- CHANGE SHIFT ----------
+
+// ---------- SCHNELLSUCHE (Check-in, Co-Admin, Admin) ----------
+
+function renderFind(c, force) {
+  const body = $('#panelBody');
+  if (body.dataset.view !== 'find' || force) {
+    body.dataset.view = 'find';
+    body.innerHTML = backBar() + '<h2>Find attendant</h2>' +
+      '<p class="sub">Name, city or position – e.g. “Charles”, “12”, “Block A”, “Lobby”. Positions are shown for the selected day.</p>' +
+      '<div id="findDays"></div>' +
+      '<div class="search"><input id="findQ" name="aa-find-search" type="search" inputmode="search" readonly data-lpignore="true" ' +
+      'data-form-type="other" autocapitalize="off" placeholder="Name or position" autocomplete="off" spellcheck="false" aria-label="Search a name or position"></div>' +
+      '<div id="findList"></div>';
+    const q = $('#findQ');
+    q.value = S.findQuery;
+    guardSearch(q);
+    q.addEventListener('input', () => { S.findQuery = cleanQuery(q); renderFindList(clock()); });
+    setTimeout(() => { q.readOnly = false; q.focus(); }, 250);
+  }
+  renderFindList(c);
+}
+
+// Position passt, wenn jedes Suchwort in Bezeichnung, Bereich oder Bemerkung vorkommt.
+// Zahlen müssen als ganze Zahl passen ("12" findet "12 - Block A", aber nicht "112").
+function posMatch(p, q) {
+  const words = norm(q).split(/[\s,]+/).filter(Boolean);
+  if (!words.length) return false;
+  const label = norm(p.label);
+  const text = norm(p.label + ' ' + p.area + ' ' + p.slots.map(s => s.remark || '').join(' '));
+  return words.every(w => /^\d+$/.test(w)
+    ? new RegExp('(^|\\D)' + w + '(\\D|$)').test(label)
+    : text.includes(w));
+}
+
+function findPosCard(p, c) {
+  const nn = positionNowNext(p, c);
+  const lead = isRotation(p)
+    ? (nn.now ? 'Now: ' + slotName(nn.now) : '') + (nn.next ? (nn.now ? ' · ' : '') + (nn.first ? 'First: ' : 'Next: ') + slotName(nn.next) : '')
+    : p.slots.map(slotName).join(', ') + ' · all day';
+  return '<button class="find-card" type="button" data-act="pos" data-key="' + esc(p.key) + '">' +
+    '<div class="find-top"><span class="member-name">' + esc(p.label) + '</span>' +
+      '<span class="find-area">' + esc(p.area) + '</span></div>' +
+    (lead ? '<div class="member-status">' + esc(lead) + '</div>' : '') +
+    (isRotation(p)
+      ? '<div class="find-slots">' + p.slots.map(x =>
+          '<span class="find-slot ' + slotState(x, c) + '"><b>' + esc(timeText(x)) + '</b> ' + esc(slotName(x)) + '</span>'
+        ).join('') + '</div>'
+      : '') +
+    '</button>';
+}
+
+function renderFindList(c) {
+  const box = $('#findList');
+  if (!box) return;
+  const dbox = $('#findDays');
+  if (dbox) dbox.innerHTML = dayChipsHtml(c);
+  const q = S.findQuery.trim();
+  const nq = norm(q);
+  if (nq.length < 2 && !/^\d+$/.test(nq)) {
+    box.innerHTML = '<div class="empty">Type a name or a position.</div>';
+    return;
+  }
+  const hits = /^[\d\s]+$/.test(nq) ? [] : D.attendants.filter(a => nameMatch(a.name, q)).sort(byName).slice(0, 25);
+  const day = viewDay(c);
+  const posHits = D.positions.filter(p => p.day === day && posMatch(p, q)).slice(0, 20);
+  if (!hits.length && !posHits.length) { box.innerHTML = '<div class="empty">Nothing found.</div>'; return; }
+
+  box.innerHTML =
+    (posHits.length ? '<div class="h3" style="margin-top:4px">Positions · ' + esc(day) + '</div>' + posHits.map(p => findPosCard(p, c)).join('') : '') +
+    (hits.length ? '<div class="h3"' + (posHits.length ? '' : ' style="margin-top:4px"') + '>Attendants</div>' : '') +
+    hits.map(a => {
+    const list = D.byId[a.id] || [];
+    const st = personStatus(a.id, c);
+    return '<button class="find-card" type="button" data-act="person" data-id="' + esc(a.id) + '">' +
+      '<div class="find-top"><span class="member-name">' + esc(a.name) + '</span>' +
+        (a.checkedIn ? '<span class="checked">✓ In</span>' : '') + '</div>' +
+      '<div class="member-status k-' + st.kind + '"><span class="dot" style="background:' + teamColor(a.team) + '"></span> ' +
+        esc(a.team || 'No team') + ' · ' + esc(statusLine(st)) + '</div>' +
+      (list.length
+        ? '<div class="find-slots">' + list.map(x =>
+            '<span class="find-slot ' + slotState(x, c) + '"><b>' + esc(dayShort(x.pos.day) + ' ' + timeText(x)) + '</b> ' + esc(x.pos.label) + '</span>'
+          ).join('') + '</div>'
+        : '<div class="find-slots"><span class="find-slot">No assignment</span></div>') +
+      '</button>';
+  }).join('');
+}
+
+function renderPick(top, c, force) {
+  const body = $('#panelBody');
+  const slot = findSlot(top.ref);
+  if (!slot) {
+    body.dataset.view = '';
+    body.innerHTML = backBar() + '<div class="empty">This shift is no longer in the schedule.</div>';
+    return;
+  }
+
+  const key = 'pick:' + top.ref + ':' + slot.id + ':' + (D.reqByRef[slot.ref] ? D.reqByRef[slot.ref].status : '');
+  if (body.dataset.view !== key || force) {
+    body.dataset.view = key;
+    body.innerHTML = backBar() +
+      '<h2>Change shift</h2>' +
+      '<p class="sub">' + esc(slot.pos.day + ' ' + timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) + '</p>' +
+      '<div class="form-card"><div class="duo-label">Currently</div><div class="now-name">' + esc(slotName(slot)) + '</div></div>' +
+      (D.reqByRef[slot.ref]
+        ? '<div class="note" style="margin-bottom:12px">A help request for this shift is ' + (D.reqByRef[slot.ref].status === 'offered' ? 'answered – confirm it under My duty.' : 'open. Waiting for volunteers.') + '</div>'
+        : '<button class="btn block" type="button" data-act="help-request" data-ref="' + esc(slot.ref) + '" style="margin-bottom:6px">🙋 Ask everyone for help</button>' +
+          '<p class="muted" style="margin:0 2px 14px">All attendants see this shift. Whoever is free can offer to take it, then you confirm. His team stays the same.</p>') +
+      '<div class="h3" style="margin-top:6px">Or choose someone directly</div>' +
+      '<div class="search"><input id="pickQ" name="aa-pickQ-search" type="search" inputmode="search" readonly data-guard="1" data-lpignore="true" data-form-type="other" autocapitalize="off" placeholder="Search a name" autocomplete="off" spellcheck="false" aria-label="Search a name"></div>' +
+      '<div id="pickList"></div>';
+    const q = $('#pickQ');
+    q.value = S.pickQuery;
+    guardSearch(q);
+    q.addEventListener('input', () => { S.pickQuery = cleanQuery(q); renderPickList(slot); });
+  }
+  renderPickList(slot);
+}
+
+function renderPickList(slot) {
+  const box = $('#pickList');
+  if (!box) return;
+  const team = positionTeam(slot.pos);
+  const q = norm(S.pickQuery.trim());
+
+  let list = q.length >= 2
+    ? D.attendants.filter(a => nameMatch(a.name, q))
+    : (team ? D.attendants.filter(a => a.team === team) : []);
+  list = list.filter(a => a.id !== slot.id).sort(byName).slice(0, 40);
+  const reserves = q.length >= 2 ? [] :
+    D.attendants.filter(a => isReserve(a.team) && a.id !== slot.id && String(a.team || '').trim()).sort(byName);
+
+  let html = slot.id
+    ? '<button class="btn block" type="button" data-act="assign" data-id="">Leave this shift open</button>'
+    : '';
+
+  if (q.length < 2) {
+    html += '<div class="h3">' + (team ? 'Team ' + esc(team) + ' – or search any name above' : 'Type at least two letters') + '</div>';
+  }
+
+  const rowsHtml = arr => '<div class="results">' + arr.map(a => {
+      const busy = overlaps(a.id, slot);
+      return '<button class="result" type="button" data-act="assign" data-id="' + esc(a.id) + '">' +
+        '<span class="dot" style="background:' + teamColor(a.team) + '"></span>' +
+        '<span><span class="result-name">' + esc(a.name) + '</span>' +
+        '<span class="result-sub' + (busy.length ? ' busy' : '') + '">' + esc(a.team || 'No team') + ' · ' +
+        (busy.length ? 'Busy ' + esc(timeText(busy[0])) + ' at ' + esc(busy[0].pos.label) : 'Free at this time') +
+        '</span></span></button>';
+    }).join('') + '</div>';
+
+  if (list.length) {
+    html += rowsHtml(list);
+  } else if (q.length >= 2) {
+    html += '<div class="empty">No attendant found.</div>';
+  }
+  if (reserves.length) {
+    html += '<div class="h3">Reserve</div>' + rowsHtml(reserves);
+  }
+
+  box.innerHTML = html;
+}
+
+function askAssign(id) {
+  const top = topPanel();
+  const slot = top && findSlot(top.ref);
+  if (!slot) return;
+
+  const warnings = [];
+  let moveTeam = '';
+  if (id) {
+    const a = D.att[id];
+    overlaps(id, slot).forEach(x => warnings.push('Already on duty ' + timeText(x) + ' at ' + x.pos.label + '.'));
+    const team = positionTeam(slot.pos);
+    if (team && isReserve(a.team)) {
+      moveTeam = team;
+    } else if (team && a.team && a.team !== team) {
+      warnings.push('He is in team ' + a.team + ', this position is usually team ' + team + '.');
+    }
+  }
+
+  const text = '<p class="muted">' + esc(slot.pos.day + ' ' + timeText(slot)) + ' · ' + esc(slot.pos.label) + ' · ' + esc(slot.pos.area) +
+    '<br>Currently: ' + esc(slotName(slot)) + '</p>' +
+    (warnings.length ? '<div class="warn-list">' + warnings.map(esc).join('<br>') + '</div>' : '') +
+    (moveTeam ? '<label class="check-line"><input type="checkbox" id="moveTeam" checked> Also move him from reserve to team ' + esc(moveTeam) + '</label>' : '');
+
+  confirmBox(id ? 'Assign ' + D.att[id].name + '?' : 'Leave this shift open?', text,
+    id ? 'Assign' : 'Leave open', () => {
+      const box = $('#moveTeam');
+      doAssign(slot, id, moveTeam && box && box.checked ? moveTeam : '');
+    });
+}
+
+// ---------- ACCESS ----------
+
+function renderAccess(force) {
+  const body = $('#panelBody');
+  if (body.dataset.view === 'access' && !force) return;
+  body.dataset.view = 'access';
+
+  const me = myId() && D.att[myId()];
+  let html = backBar() +
+    '<h2>Access</h2><p class="sub">This phone: <span class="role-badge">' + esc(ROLE_LABEL[S.role] || '—') + '</span></p>' +
+    '<div class="form-card"><strong>Your name</strong><p class="muted">' +
+      (me ? esc(me.name) + ' (' + esc(me.team || 'No team') + ')' : (isGuest() ? 'Guest – not on the schedule.' : 'Not chosen yet. Choose it under My duty.')) + '</p></div>' +
+    '<div class="form-card"><strong>Use another code</strong>' +
+      '<p class="muted">For example the check-in code for the Welcome team and team captains.</p>' +
+      '<div class="form-row"><input id="upgradeInput" name="aa-access-code-2" type="password" autocomplete="one-time-code" data-lpignore="true" autocapitalize="off" placeholder="Access code" aria-label="Access code">' +
+      '<button class="btn primary" type="button" data-act="upgrade">Use</button></div>' +
+      '<div class="lock-error" id="upgradeMsg" role="alert"></div></div>';
+
+  const theme = store.get(KEY.theme) || 'auto';
+  html += '<div class="form-card"><strong>Appearance</strong><p class="muted">Saved on this phone.</p>' +
+    '<div class="seg" style="margin:12px 0 0">' + [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].map(t =>
+      '<button type="button" class="' + (theme === t[0] ? 'active' : '') + '" data-act="theme" data-theme="' + t[0] + '">' + t[1] + '</button>'
+    ).join('') + '</div></div>';
+
+  if (can('admin')) html += adminHtml();
+
+  html += '<button class="btn danger block" type="button" data-act="signout">Sign out on this phone</button>';
+  body.innerHTML = html;
+
+  if (can('admin') && !S.admin) loadAdmin();
+}
+
+function adminHtml() {
+  const current = D && D.event && D.event.date ? D.event.date : '';
+  const ds = days();
+  let h = '<div class="h3">Convention · admin</div>' +
+    '<div class="form-card"><div class="code-head"><strong>First convention day (' + esc(ds[0].sheet) + ')</strong>' +
+    '<span class="code-state ' + (current ? 'set' : 'unset') + '">' + (current ? esc(fmtDate(current)) : 'Not set') + '</span></div>' +
+    '<p class="muted">' + (ds.length > 1 ? esc(ds.slice(1).map(d => d.sheet).join(' and ')) + ' follow automatically. ' : '') +
+    'Controls “today”, Now/Next and the countdown. Saved straight into the sheet (Positions!C98).</p>' +
+    '<div class="form-row"><input id="eventDateInput" type="date" value="' + esc(current) + '" aria-label="First convention day">' +
+    '<button class="btn primary" type="button" data-act="seteventdate">Save</button></div></div>';
+  const ec = (D && D.contacts) || {};
+  h += '<div class="form-card"><div class="code-head"><strong>Emergency contacts (today only)</strong>' +
+    '<span class="code-state ' + (Object.keys(ec).length ? 'set' : 'unset') + '">' + (Object.keys(ec).length ? 'Set' : 'Not set') + '</span></div>' +
+    '<p class="muted">Shown on the emergency page today and deleted automatically after midnight. Empty fields are not shown.</p>' +
+    [['overseer', 'Attendant overseer'], ['assistant', 'Assistant'], ['firstaid', 'First Aid']].map(x =>
+      '<label class="time-field" style="margin-top:10px"><span>' + x[1] + '</span>' +
+      '<input id="ec-' + x[0] + '" type="tel" inputmode="tel" autocomplete="off" value="' + esc(ec[x[0]] || '') + '" placeholder="+49 …"></label>'
+    ).join('') +
+    '<button class="btn primary block" type="button" data-act="setcontacts" style="margin-top:12px">Save contacts</button></div>';
+  const allSet = ds.every(d => countingFor(d.sheet).morning && countingFor(d.sheet).afternoon);
+  h += '<div class="form-card"><div class="code-head"><strong>Counting times</strong>' +
+    '<span class="code-state ' + (allSet ? 'set' : 'unset') + '">' + (allSet ? 'All days set' : 'Not complete') + '</span></div>' +
+    '<p class="muted">Attendants with “counting” in their remark see the times of the current day and get a short vibration 5 minutes before.</p>' +
+    '<div class="count-days">' + ds.map(d => {
+      const ct = countingFor(d.sheet);
+      return '<div class="count-day"><span>' + esc(d.label) + '</span>' +
+        '<label class="time-field"><span>Morning</span><input id="countMorning-' + esc(d.sheet) + '" type="time" value="' + esc(ct.morning || '') + '"></label>' +
+        '<label class="time-field"><span>Afternoon</span><input id="countAfternoon-' + esc(d.sheet) + '" type="time" value="' + esc(ct.afternoon || '') + '"></label></div>';
+    }).join('') + '</div>' +
+    '<button class="btn primary block" type="button" data-act="setcounttimes" style="margin-top:12px">Save counting times</button></div>';
+  h += '<div class="form-card"><div class="code-head"><strong>Check-ins</strong>' +
+    '<span class="code-state set">Auto reset after midnight</span></div>' +
+    '<p class="muted">All check-ins are cleared automatically on the next day. Use this to start fresh right now.</p>' +
+    '<button class="btn danger block" type="button" data-act="resetcheckins" style="margin-top:12px">Reset all check-ins now</button></div>';
+  h += '<div class="h3">Access codes · admin</div>';
+  if (!S.admin) return h + '<div class="empty">Loading…</div>';
+  if (!S.admin.pins) return h + '<div class="note">' + esc(S.admin.error || 'Could not load the codes.') + '</div>';
+
+  const pins = S.admin.pins;
+  h += '<p class="muted" style="margin:0 2px 12px">Codes are stored securely and cannot be shown again. Changing a code signs out every phone that uses the old one.</p>';
+  ['viewer', 'checkin', 'editor', 'admin'].forEach(r => {
+    h += '<div class="form-card"><div class="code-head"><strong>' + ROLE_LABEL[r] + '</strong>' +
+      '<span class="code-state ' + (pins[r] ? 'set' : 'unset') + '">' + (pins[r] ? 'Set' : 'Not set') + '</span></div>' +
+      '<p class="muted">' + ROLE_DESC[r] + '</p>' +
+      '<div class="form-row"><input id="pin-' + r + '" name="aa-new-code-' + r + '" type="password" autocomplete="new-password" data-lpignore="true" autocapitalize="off" placeholder="New code" aria-label="New ' + ROLE_LABEL[r] + ' code">' +
+      '<button class="btn primary" type="button" data-act="setpin" data-role="' + r + '">Save</button></div>' +
+      ((r === 'checkin' || r === 'editor') && pins[r]
+        ? '<button class="linkish" type="button" data-act="clearpin" data-role="' + r + '">Remove this code</button>' : '') +
+      '</div>';
+  });
+  return h;
+}
+
+// =====================================================
+// IMAGE OVERLAY
+// =====================================================
+
+function openOverlay(src, alt) {
+  const img = $('#overlayImg');
+  img.src = src;
+  img.alt = alt || '';
+  $('#overlay').classList.add('open');
+}
+
+function closeOverlay() {
+  $('#overlay').classList.remove('open');
+}
+
+// =====================================================
+// EVENTS
+// =====================================================
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+
+  switch (act) {
+    case 'tab':
+      clearPanels();
+      S.tab = el.dataset.tab;
+      if (!S.ignorePop) history.replaceState(history.state, '', '#' + S.tab);
+      render();
+      window.scrollTo(0, 0);
+      break;
+
+    case 'person': pushPanel({ type: 'person', id: el.dataset.id }); break;
+
+    case 'pos':
+      S.panelMap = false;
+      pushPanel({ type: 'pos', key: el.dataset.key, ref: el.dataset.ref || null });
+      break;
+
+    case 'edit-slot':
+      S.pickQuery = '';
+      pushPanel({ type: 'pick', ref: el.dataset.ref });
+      break;
+
+    case 'assign': askAssign(el.dataset.id); break;
+    case 'back': backPanel(); break;
+    case 'area': S.area = el.dataset.area; S.block = 'all'; render(); window.scrollTo(0, 0); break;
+    case 'day':
+      S.day = el.dataset.day === currentDay(clock()) ? null : el.dataset.day;
+      S.block = 'all';
+      render();
+      break;
+    case 'pblock': S.block = el.dataset.block; render(); break;
+    case 'pexpand': {
+      const groups = positionGroups(viewDay(clock()));
+      const group = groups.find(g => g.key === S.area);
+      if (!group) break;
+      const open = el.dataset.open === '1';
+      group.positions.forEach(p => {
+        if (S.block !== 'all' && blockOf(p) !== S.block) return;
+        if (open) S.openPos[p.key] = true; else delete S.openPos[p.key];
+      });
+      render();
+      break;
+    }
+
+    case 'ptoggle': {
+      const k = el.dataset.key;
+      if (S.openPos[k]) delete S.openPos[k]; else S.openPos[k] = true;
+      render();
+      break;
+    }
+    case 'team': S.team = el.dataset.team; renderTeamsBody(clock()); break;
+    case 'cifilter': S.ciFilter = el.dataset.f; renderCheckinBody(clock()); break;
+
+    case 'identify': {
+      const a = D.att[el.dataset.id];
+      if (!a) break;
+      confirmBox('Are you ' + a.name + '?',
+        '<p class="muted">Team: ' + esc(a.team || 'No team') + '<br>Only choose your own name. It is saved on this phone.</p>',
+        'Yes, that’s me', () => {
+          S.me = a.id;
+          store.set(KEY.me, a.id);
+          S.meQuery = '';
+          S.team = null;
+          render();
+          window.scrollTo(0, 0);
+        });
+      break;
+    }
+
+    case 'guest':
+      S.me = GUEST;
+      store.set(KEY.me, GUEST);
+      S.meQuery = '';
+      S.area = null;
+      S.team = null;
+      render();
+      window.scrollTo(0, 0);
+      break;
+
+    case 'goto-pos':
+      S.tab = 'positions';
+      S.area = el.dataset.area;
+      S.block = 'all';
+      history.replaceState(history.state, '', '#positions');
+      render();
+      window.scrollTo(0, 0);
+      break;
+
+    case 'change-me':
+      if (isGuest()) {
+        S.me = null;
+        store.del(KEY.me);
+        S.meQuery = '';
+        render();
+        window.scrollTo(0, 0);
+        break;
+      }
+      confirmBox('Change the name?',
+        '<p class="muted">Do this only if the wrong name was chosen or this is not your phone.</p>',
+        'Change name', () => {
+          S.me = null;
+          store.del(KEY.me);
+          S.meQuery = '';
+          render();
+          window.scrollTo(0, 0);
+        });
+      break;
+
+    case 'ci': {
+      const a = D.att[el.dataset.id];
+      if (!a || S.pending[a.id]) break;
+      if (a.checkedIn) {
+        confirmBox('Undo check-in for ' + a.name + '?',
+          '<p class="muted">Only if he was checked in by mistake.</p>',
+          'Undo check-in', () => doCheckin(a.id, false));
+      } else {
+        doCheckin(a.id, true);
+      }
+      break;
+    }
+
+    case 'find':
+      if (!S.pin || !D) break;
+      pushPanel({ type: 'find' });
+      break;
+
+    case 'emergency':
+      if (!S.pin || !D) break;
+      pushPanel({ type: 'emergency' });
+      break;
+
+    case 'evac-ack':
+      store.set(KEY.evacAck, clock().date);
+      render();
+      break;
+
+    case 'setcontacts': {
+      const val = k => (($('#ec-' + k) || {}).value || '').trim();
+      const payload = { overseer: val('overseer'), assistant: val('assistant'), firstaid: val('firstaid') };
+      (async () => {
+        try {
+          await api('setContacts', payload);
+          buzz(60);
+          toast('Emergency contacts saved for today');
+          await load(true);
+          renderPanel(clock(), true);
+        } catch (err) {
+          if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+          toast(errorText(err), 'error');
+        }
+      })();
+      break;
+    }
+
+    case 'access':
+      if (!S.pin || !D) break;
+      S.admin = null;
+      pushPanel({ type: 'access' });
+      break;
+
+    case 'upgrade': upgradeCode(); break;
+
+    case 'theme': {
+      const t = el.dataset.theme;
+      if (t === 'auto') store.del(KEY.theme); else store.set(KEY.theme, t);
+      applyTheme(t);
+      el.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === el));
+      break;
+    }
+
+    case 'setpin': {
+      const r = el.dataset.role;
+      const input = $('#pin-' + r);
+      const v = input ? input.value.trim() : '';
+      if (!v) { toast('Enter the new code first', 'error'); break; }
+      confirmBox('Change the ' + ROLE_LABEL[r] + ' code?',
+        '<p class="muted">Phones using the old code are signed out and need the new one.</p>',
+        'Change code', () => savePin(r, v));
+      break;
+    }
+
+    case 'print-map': printMap(el.dataset.src, el.dataset.title); break;
+
+    case 'count-start': {
+      const label = el.dataset.label;
+      confirmBox('Start the ' + COUNT_LABEL[label].toLowerCase() + ' count · ' + currentDay(clock()) + '?',
+        '<p class="muted">Everyone with a counting assignment now sees an input field and gets a short vibration.</p>',
+        'Start counting', () => countAction('countStart', { label: label, at: fmtMin(clock().min) }, 'Counting started'));
+      break;
+    }
+
+    case 'count-submit': {
+      const ref = el.dataset.ref;
+      const input = el.parentNode.querySelector('.cnt-input');
+      const v = input ? input.value.trim() : '';
+      if (!/^\d+$/.test(v)) { toast(ERR.bad_count, 'error'); break; }
+      el.disabled = true;
+      countAction('countSubmit', { sessionId: D.countSession.id, ref: ref, count: Number(v) }, 'Thank you! Number sent: ' + v)
+        .then(ok => { if (ok) { delete S.countDraft[ref]; delete S.countDraft['m' + ref]; render(); } });
+      break;
+    }
+
+    case 'count-manual': {
+      const k = 'm' + el.dataset.ref;
+      if (S.countDraft[k]) delete S.countDraft[k]; else S.countDraft[k] = ' ';
+      render();
+      break;
+    }
+
+    case 'count-end':
+      confirmBox('End counting?', '<p class="muted">Nobody can send numbers for this count any more. The result stays available under “Summary” today.</p>',
+        'End counting', () => { S.countSummary = false; countAction('countEnd', {}, 'Counting ended · total ' + countTotal(countJobsNow())); });
+      break;
+
+    case 'count-min':
+      if (D.countSession) store.set(KEY.countMin, D.countSession.id);
+      render();
+      break;
+
+    case 'count-max':
+      store.del(KEY.countMin);
+      render();
+      break;
+
+    case 'count-summary':
+      S.countSummary = !S.countSummary;
+      render();
+      break;
+
+    case 'count-copy': {
+      const text = el.dataset.mode === 'day' ? countDayText() : countSummaryText();
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+        .then(() => toast('Summary copied – paste it into WhatsApp'))
+        .catch(() => { confirmBox('Summary', '<pre class="cnt-pre">' + esc(text) + '</pre>', 'OK', null); });
+      break;
+    }
+
+    case 'setcounttimes': {
+      const val = id => { const x = document.getElementById(id); return x ? x.value : ''; };
+      const jobs = [];
+      let bad = false;
+      days().forEach(d => {
+        const mo = val('countMorning-' + d.sheet), af = val('countAfternoon-' + d.sheet);
+        if ((mo && !/^\d{2}:\d{2}$/.test(mo)) || (af && !/^\d{2}:\d{2}$/.test(af))) bad = true;
+        const ct = countingFor(d.sheet);
+        if ((mo && mo !== ct.morning) || (af && af !== ct.afternoon)) jobs.push({ day: d.sheet, morning: mo, afternoon: af });
+      });
+      if (bad) { toast(ERR.bad_time, 'error'); break; }
+      if (!jobs.length) { toast('Nothing changed'); break; }
+      (async () => {
+        try {
+          for (const j of jobs) await api('setCountTimes', Object.assign({ by: myId() }, j));
+          buzz(60);
+          toast('Counting times saved');
+          await load(true);
+          renderPanel(clock(), true);
+        } catch (err) {
+          if (err.code === 'unauthorized') { logout(ERR.unauthorized); return; }
+          toast(errorText(err), 'error');
+        }
+      })();
+      break;
+    }
+
+    case 'help-request': {
+      const ref = el.dataset.ref;
+      confirmBox('Ask everyone for help?',
+        '<p class="muted">All attendants will see this shift. Whoever is free can offer to take it. You confirm before anything changes.</p>',
+        'Send request', () => helpAction('requestHelp', { ref: ref }, 'Help request sent to all attendants'));
+      break;
+    }
+
+    case 'help-offer': {
+      const r = D.requests.find(x => x.id === el.dataset.id);
+      const slot = r && findSlot(r.ref);
+      if (!slot) break;
+      confirmBox('Take this shift?',
+        '<p class="muted"><strong>' + esc(slot.pos.label) + ' · ' + esc(slot.pos.day + ' ' + timeText(slot)) + '</strong><br>' + esc(slot.pos.area) +
+        '<br>The attendant department will confirm it. Your team stays the same.</p>',
+        'Yes, I can take it', () => helpAction('offerHelp', { reqId: r.id }, 'Thank you! Waiting for confirmation.'));
+      break;
+    }
+
+    case 'help-confirm': {
+      const r = D.requests.find(x => x.id === el.dataset.id);
+      const slot = r && findSlot(r.ref);
+      if (!slot) break;
+      const from = fromTeam({ id: r.offerId }, slot.pos);
+      confirmBox('Assign ' + nameOf(r.offerId) + '?',
+        '<p class="muted">' + esc(slot.pos.label) + ' · ' + esc(slot.pos.day + ' ' + timeText(slot)) + '<br>Currently: ' + esc(slotName(slot)) +
+        (from ? '<br>He helps out from team ' + esc(from) + ' – his team stays the same.' : '') + '</p>',
+        'Confirm', () => helpAction('confirmHelp', { reqId: r.id }, nameOf(r.offerId) + ' assigned'));
+      break;
+    }
+
+    case 'help-decline':
+      helpAction('declineHelp', { reqId: el.dataset.id }, 'Offer declined – the request is open again');
+      break;
+
+    case 'help-cancel':
+      confirmBox('Cancel this help request?', '<p class="muted">Nobody will see it any more.</p>', 'Cancel request',
+        () => helpAction('cancelHelp', { reqId: el.dataset.id }, 'Help request cancelled'));
+      break;
+
+    case 'resetcheckins':
+      confirmBox('Reset all check-ins?',
+        '<p class="muted">Every attendant will be shown as not checked in. This cannot be undone.</p>',
+        'Reset all', () => resetCheckins());
+      break;
+
+    case 'seteventdate': {
+      const input = $('#eventDateInput');
+      const v = input ? input.value : '';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { toast(ERR.bad_date, 'error'); break; }
+      if (D.event && v === D.event.date) { toast('This is already the first convention day'); break; }
+      confirmBox('Change the convention dates?',
+        '<p class="muted">' + days().map((d, i) => esc(d.sheet) + ': <strong>' + esc(fmtDate(addDaysIso(v, i))) + '</strong>').join('<br>') + '<br><br>' +
+        'Positions!C98 in the sheet is updated and Next Shift is recalculated.</p>',
+        'Change date', () => saveEventDate(v));
+      break;
+    }
+
+    case 'clearpin': {
+      const r = el.dataset.role;
+      confirmBox('Remove the ' + ROLE_LABEL[r] + ' code?',
+        '<p class="muted">Nobody can use this access level until a new code is set.</p>',
+        'Remove', () => savePin(r, ''));
+      break;
+    }
+
+    case 'signout':
+      confirmBox('Sign out on this phone?',
+        '<p class="muted">The access code will be needed again. The chosen name stays saved.</p>',
+        'Sign out', () => logout(''));
+      break;
+
+    case 'refresh': if (!S.busy && S.pin) load(true); break;
+
+    case 'togglemap':
+      S.panelMap = !S.panelMap;
+      renderPanel(clock());
+      break;
+
+    case 'zoom': openOverlay(el.dataset.src, el.dataset.alt); break;
+    case 'overlay-close': closeOverlay(); break;
+
+    case 'modal-ok': {
+      const f = modalAction;
+      hideModal();
+      if (f) f();
+      break;
+    }
+    case 'modal-cancel': hideModal(); break;
+  }
+});
+
+$('#overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeOverlay(); });
+
+// Zählfeld: Eingabe merken, damit sie beim automatischen Aktualisieren nicht verloren geht
+document.addEventListener('input', e => {
+  if (e.target && e.target.classList && e.target.classList.contains('cnt-input')) {
+    S.countDraft[e.target.dataset.ref] = e.target.value;
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.classList && e.target.classList.contains('cnt-input')) {
+    const btn = e.target.parentNode.querySelector('[data-act="count-submit"]');
+    if (btn) btn.click();
+  }
+});
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') hideModal(); });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target && e.target.id === 'upgradeInput') { upgradeCode(); return; }
+  if (e.key !== 'Escape') return;
+  if (!$('#modal').hidden) hideModal();
+  else if ($('#overlay').classList.contains('open')) closeOverlay();
+  else if (S.stack.length) backPanel();
+});
+
+window.addEventListener('popstate', () => {
+  closeOverlay();
+  hideModal();
+  if (S.ignorePop) { S.ignorePop = false; return; }
+  if (S.stack.length) popPanel();
+});
+
+window.addEventListener('scroll', () => {
+  $('#top').classList.toggle('scrolled', window.scrollY > 4);
+}, { passive: true });
+
+function typing() {
+  const a = document.activeElement;
+  return a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA');
+}
+
+// Status jede halbe Minute neu berechnen (nicht während der Eingabe)
+setInterval(() => {
+  if (!document.hidden) countAlerts();
+  if (document.hidden || !D || !S.pin || typing()) return;
+  render();
+}, TICK_MS);
+
+// Daten regelmäßig neu laden
+// während einer Zählung alle 20 Sekunden, sonst jede Minute
+setInterval(() => {
+  if (document.hidden || !S.pin || S.busy || DEMO || typing() || Object.keys(S.pending).length) return;
+  const every = countOpen() ? 20 * 1000 : REFRESH_MS;
+  if (!S.loadedAt || Date.now() - S.loadedAt >= every - 1000) load(false);
+}, 20 * 1000);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || !S.pin || DEMO || S.busy) return;
+  if (!S.loadedAt || Date.now() - S.loadedAt > REFRESH_MS) load(false);
+  else render();
+});
+
+// =====================================================
+// DEMO (nur ohne API_URL oder mit ?demo) – Änderungen bleiben im Browser
+// =====================================================
+
+let DEMO_SRC = null;
+let DEMO_PINS = { admin: true, editor: false, checkin: false, viewer: true };
+
+function demoFindSlot(ref) {
+  let slot = null;
+  DEMO_SRC.positions.forEach(x => x.slots.forEach(s => { if (s.ref === ref) slot = s; }));
+  return slot;
+}
+
+function demoApi(action, p) {
+  if (!DEMO_SRC) DEMO_SRC = demoData();
+  return new Promise((resolve, reject) => setTimeout(() => {
+    try {
+      switch (action) {
+        case 'bootstrap':
+          resolve(Object.assign(JSON.parse(JSON.stringify(DEMO_SRC)), { role: 'admin' }));
+          break;
+        case 'checkin': {
+          const a = DEMO_SRC.attendants.find(x => x.id === p.id);
+          if (!a) throw apiError('not_found');
+          a.checkedIn = p.value !== false;
+          resolve({ ok: true });
+          break;
+        }
+        case 'assign': {
+          const slot = demoFindSlot(p.ref);
+          if (!slot) throw apiError('not_a_shift');
+          if ((slot.id || '') !== (p.expectedId || '')) throw apiError('conflict');
+          slot.id = p.newId || '';
+          let team = '';
+          const a = DEMO_SRC.attendants.find(x => x.id === p.newId);
+          if (a && p.setTeam && isReserve(a.team)) { a.team = p.setTeam; team = p.setTeam; }
+          resolve({ ok: true, team: team });
+          break;
+        }
+        case 'requestHelp': {
+          DEMO_SRC.requests = DEMO_SRC.requests || [];
+          if (DEMO_SRC.requests.some(r => r.ref === p.ref && (r.status === 'open' || r.status === 'offered'))) throw apiError('already_requested');
+          DEMO_SRC.requests.push({ id: 'r' + Date.now(), ref: p.ref, status: 'open', offerId: '' });
+          resolve({ ok: true });
+          break;
+        }
+        case 'offerHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (!r) throw apiError('request_not_found');
+          if (!p.by) throw apiError('identify_first');
+          if (r.status !== 'open') throw apiError('already_offered');
+          r.status = 'offered'; r.offerId = p.by;
+          resolve({ ok: true });
+          break;
+        }
+        case 'confirmHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (!r || r.status !== 'offered') throw apiError('request_not_offered');
+          const slot = demoFindSlot(r.ref);
+          if (slot) slot.id = r.offerId;
+          r.status = 'done';
+          resolve({ ok: true });
+          break;
+        }
+        case 'declineHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (r) { r.status = 'open'; r.offerId = ''; }
+          resolve({ ok: true });
+          break;
+        }
+        case 'cancelHelp': {
+          const r = (DEMO_SRC.requests || []).find(x => x.id === p.reqId);
+          if (r) r.status = 'cancelled';
+          resolve({ ok: true });
+          break;
+        }
+        case 'countStart':
+          if (DEMO_SRC.countSession && DEMO_SRC.countSession.status === 'open') throw apiError('count_open');
+          DEMO_SRC.countSession = { id: 'c' + Date.now(), day: DEMO_SRC.event.today, label: p.label, at: p.at, status: 'open', started: tzNow().date + 'T' + p.at };
+          DEMO_SRC.counts = [];
+          resolve({ ok: true });
+          break;
+        case 'countSubmit': {
+          if (!DEMO_SRC.countSession || DEMO_SRC.countSession.status !== 'open') throw apiError('count_closed');
+          DEMO_SRC.counts = (DEMO_SRC.counts || []).filter(x => x.ref !== p.ref).concat([{ ref: p.ref, count: p.count }]);
+          resolve({ ok: true });
+          break;
+        }
+        case 'countEnd':
+          if (!DEMO_SRC.countSession || DEMO_SRC.countSession.status !== 'open') throw apiError('count_closed');
+          DEMO_SRC.countSession.status = 'closed';
+          DEMO_SRC.countDay = (DEMO_SRC.countDay || []).filter(x => x.session.label !== DEMO_SRC.countSession.label)
+            .concat([{ session: Object.assign({}, DEMO_SRC.countSession), counts: (DEMO_SRC.counts || []).slice() }]);
+          resolve({ ok: true });
+          break;
+        case 'setContacts':
+          DEMO_SRC.contacts = {};
+          ['overseer', 'assistant', 'firstaid'].forEach(k => { if (p[k]) DEMO_SRC.contacts[k] = p[k]; });
+          resolve({ ok: true, contacts: DEMO_SRC.contacts });
+          break;
+        case 'setCountTimes': {
+          const ct = DEMO_SRC.countingByDay[p.day];
+          if (!ct) throw apiError('unknown_day');
+          if (p.morning) ct.morning = p.morning;
+          if (p.afternoon) ct.afternoon = p.afternoon;
+          DEMO_SRC.counting = DEMO_SRC.countingByDay[DEMO_SRC.event.today];
+          resolve({ ok: true, counting: ct });
+          break;
+        }
+        case 'resetCheckins': {
+          let n = 0;
+          DEMO_SRC.attendants.forEach(a => { if (a.checkedIn) { a.checkedIn = false; n++; } });
+          resolve({ ok: true, count: n });
+          break;
+        }
+        case 'setEventDate':
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(p.date || '')) throw apiError('bad_date');
+          DEMO_SRC.event.date = p.date;
+          DEMO_SRC.event.days.forEach((d, i) => { d.date = addDaysIso(p.date, i); });
+          resolve({ ok: true, date: p.date });
+          break;
+        case 'adminStatus':
+          resolve({ ok: true, pins: Object.assign({}, DEMO_PINS) });
+          break;
+        case 'setPin':
+          if (p.newPin && (p.newPin.length < 4 || (p.target === 'admin' && p.newPin.length < 6))) throw apiError('too_short');
+          DEMO_PINS[p.target] = !!p.newPin;
+          resolve({ ok: true, pins: Object.assign({}, DEMO_PINS) });
+          break;
+        default:
+          throw apiError('unknown_action');
+      }
+    } catch (err) {
+      reject(err);
+    }
+  }, 200));
+}
+
+// Demo: drei Kongresstage, heute = Freitag
+function demoData() {
+  const today = tzNow('Europe/Berlin').date;
+  const dayList = [
+    { sheet: 'Friday', label: 'Fri', date: today },
+    { sheet: 'Saturday', label: 'Sat', date: addDaysIso(today, 1) },
+    { sheet: 'Sunday', label: 'Sun', date: addDaysIso(today, 2) }
+  ];
+  const first = ['John', 'Samuel', 'David', 'Daniel', 'Michael', 'Peter', 'Thomas', 'Andrew'];
+  const last = ['Adams', 'Baker', 'Clarke', 'Davies', 'Evans', 'Fischer', 'Green', 'Hughes', 'Ibrahim',
+    'Johnson', 'Kowalski', 'Lee', 'Mensah', 'Novak', 'Owusu', 'Peters', 'Quinn', 'Richter', 'Silva',
+    'Turner', 'Usman', 'Vogel', 'Walker', 'Young', 'Zimmer', 'Bauer', 'Okafor', 'Rossi', 'Keller', 'Wagner',
+    'Hoffmann', 'Schmidt'];
+  const teamsPlan = [['Auditorium', 12], ['Lobby', 6], ['Welcome', 3], ['Cafeteria', 6], ['Stage', 2], ['Unassigned', 3]];
+
+  const attendants = [];
+  const pools = {};
+  let n = 0;
+  teamsPlan.forEach(([team, count]) => {
+    pools[team] = [];
+    for (let i = 0; i < count; i++) {
+      const id = String(1 + n);
+      attendants.push({ id, name: last[n % last.length] + ' ' + first[(n * 3) % first.length] + ', Munich', team, checkedIn: n % 4 !== 0, row: n + 2 });
+      pools[team].push(id);
+      n++;
+    }
+  });
+
+  const lobbyTimes = ['07:45 - 09:00', '09:00 - 09:45', '09:45 - 10:30', '10:30 - 11:15', '11:15 - 12:00', '12:00 - 12:45', '12:45 - 13:30', '13:30 - 14:15', '14:15 - 15:00', '15:00 - 16:00', '16:00 - 17:30'];
+  const cafTimes = ['07:45 - 08:45', '08:45 - 09:45', '09:45 - 10:45', '10:45 - 11:45', '11:45 - 12:45', '12:45 - 13:45', '13:45 - 14:45', '14:45 - 15:45', '15:45 - 16:45'];
+  const positions = [];
+
+  dayList.forEach((d, di) => {
+    let row = 9;
+    const add = (area, label, type, slots) => {
+      const pos = { key: d.sheet + '||' + area + '||' + label, day: d.sheet, dayLabel: d.label, dayIndex: di, area, label,
+        no: type === 'tc' ? 'TC' : (label.match(/\d+/) || ['?'])[0], type, row: row, slots: [] };
+      slots.forEach(s => { pos.slots.push(Object.assign({ ref: d.sheet + '!' + row, row: row }, s)); row++; });
+      row++;
+      positions.push(pos);
+    };
+    const rot = (pool, times, offset) => times.map((t, i) => {
+      const [start, end] = t.split(' - ');
+      return { start, end, raw: t, id: pool[(i + offset + di) % pool.length] };
+    });
+
+    add('Main Entrance / Lobby', 'TEAM CAPTAIN', 'tc', [{ allDay: true, id: pools.Lobby[0], remark: 'counting Lobby / Block J' }]);
+    add('Main Entrance / Lobby', 'Lobby 1', 'position', rot(pools.Lobby, lobbyTimes, 0));
+    add('Main Entrance / Lobby', 'Lobby 2', 'position', rot(pools.Lobby, lobbyTimes, 2));
+    add('Block J (Allergy Room)', 'Block J - 4', 'position', [{ allDay: true, id: pools.Lobby[5] }]);
+    add('Welcome Team', 'TEAM CAPTAIN', 'tc', [{ allDay: true, id: pools.Welcome[0] }]);
+    add('Welcome Team', 'Welcome Team 6', 'position', rot(pools.Auditorium, ['07:50 - 08:40', '08:40 - 09:20'], 3));
+    add('Welcome Team', 'Welcome Team 45', 'position', rot(pools.Cafeteria, ['07:30 - 08:15'], 1));
+    add('Auditorium', 'TEAM CAPTAIN', 'tc', [{ allDay: true, id: pools.Auditorium[0] }]);
+    pools.Auditorium.slice(1, 7).forEach((id, i) =>
+      add('Block A', (9 + i) + ' - Block A', 'position', [{ allDay: true, id: pools.Auditorium[(i + 1 + di) % pools.Auditorium.length], remark: i === 3 ? 'counting A' : '' }]));
+    add('Cafeteria / Stage', 'TEAM CAPTAIN', 'tc', [{ allDay: true, id: pools.Cafeteria[0], remark: 'counting Restrooms' }]);
+    add('Cafeteria / Stage', 'Cafeteria 33', 'position', rot(pools.Cafeteria, cafTimes, 1));
+    const c34 = rot(pools.Cafeteria, cafTimes, 3);
+    c34[0].id = ''; c34[0].remark = 'no shift';
+    c34[4].id = '';
+    add('Cafeteria / Stage', 'Cafeteria 34', 'position', c34);
+    add('Cafeteria / Stage', 'Stage 38', 'position', rot(pools.Stage, cafTimes, 0));
+    if (d.sheet === 'Saturday') add('Baptism', '39', 'position', [{ start: '12:00', end: '13:00', raw: '12:00 - 13:00', id: pools.Unassigned[0], remark: 'leads candidates out' }]);
+  });
+
+  const countingByDay = {};
+  dayList.forEach(d => { countingByDay[d.sheet] = { morning: '10:30', afternoon: '14:30' }; });
+
+  return {
+    ok: true,
+    version: 'demo',
+    edition: 'rc',
+    generatedAt: new Date().toISOString(),
+    event: { date: today, days: dayList, today: 'Friday', timeZone: 'Europe/Berlin', soonMinutes: 15 },
+    countingByDay,
+    counting: countingByDay.Friday,
+    areas: Array.from(new Set(positions.map(p => p.area))),
+    attendants,
+    positions,
+    requests: []
+  };
+}
+
+// =====================================================
+// START
+// =====================================================
+
+(function start() {
+  applyTheme(store.get(KEY.theme) || 'auto');
+  store.del('aa-cache-v1'); // alte, ungeschützte Zwischenablage entfernen
+  const h = location.hash.slice(1);
+  if (TABS.indexOf(h) >= 0) S.tab = h;
+
+  if (S.pin && !DEMO) {
+    const cached = readCache();
+    if (cached) {
+      D = indexData(cached.data);
+      S.role = cached.data.role || null;
+      S.loadedAt = cached.at;
+    }
+  }
+  render();
+  if (S.pin) load(false);
+})();
+</script>
+</body>
+</html>
