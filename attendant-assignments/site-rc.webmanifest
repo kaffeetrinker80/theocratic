@@ -1,0 +1,13 @@
+{
+  "name": "Attendant Assignments – Regional Convention",
+  "short_name": "Att. Assign RC",
+  "start_url": "rc.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f8079",
+  "theme_color": "#0f8079",
+  "icons": [
+    { "src": "icon-rc-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-rc-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
