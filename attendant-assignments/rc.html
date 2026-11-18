@@ -7,13 +7,12 @@
   <meta name="theme-color" content="#15181c" media="(prefers-color-scheme: dark)" id="themeDark">
 
   <!-- Icons + Manifest -->
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="apple-mobile-web-app-title" content="Attendant Assignments">
-  <meta name="application-name" content="Attendant Assignments">
+  <!-- RC: eigene Icons, eigenes Manifest (Startseite rc.html) – liegt im selben Ordner wie die Assembly-Version -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-rc.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-rc-32x32.png">
+  <link rel="manifest" href="site-rc.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Att. Assign RC">
+  <meta name="application-name" content="Att. Assign RC">
 
   <!-- Link-Vorschau -->
   <meta name="description" content="Shift schedule, positions and check-in during the Regional Convention">
@@ -21,9 +20,9 @@
   <meta property="og:title" content="Attendant Assignments · Regional Convention">
   <meta property="og:description" content="Shift schedule, positions and check-in during the Regional Convention">
   <meta property="og:url" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/rc.html">
-  <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/og-image.png">
+  <meta property="og:image" content="https://kaffeetrinker80.github.io/theocratic/attendant-assignments/og-image-rc.png">
   <meta name="twitter:card" content="summary_large_image">
-  <title>Attendant Assignments</title>
+  <title>Attendant Assignments – Regional Convention</title>
   <script>
     try {
       var t = localStorage.getItem('aa-theme-v1');
@@ -168,7 +167,7 @@
       .brand-mark { height: 40px; border-radius: 10px; }
       .brand h1 { font-size: 21px; }
     }
-    .lock-logo { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; border-radius: 22px; box-shadow: 0 8px 28px rgba(19, 75, 157, .28); }
+    .lock-logo { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; border-radius: 22px; box-shadow: 0 8px 28px rgba(15, 128, 121, .28); }
 
     .brand h1 {
       margin: 0;
@@ -924,7 +923,7 @@
       }
       .brand { display: contents; }
       .brand-mark { grid-area: logo; height: 44px; border-radius: 9px; }
-      .brand h1 { grid-area: title; font-size: 19px; }
+      .brand h1 { grid-area: title; font-size: 17px; white-space: normal; display: block; }
       .event-line { grid-area: date; margin: 0; }
       .top-actions { grid-area: actions; gap: 4px; }
       .icon-btn { width: 34px; height: 34px; border-radius: 10px; border-color: transparent; background: var(--chip); }
@@ -1077,9 +1076,9 @@
 
   <header class="top" id="top">
     <div class="wrap top-in">
-      <img class="brand-mark" src="logo-mark.jpg" alt="" onerror="this.remove()">
+      <img class="brand-mark" src="logo-mark-rc.jpg" alt="" onerror="this.remove()">
       <div class="brand">
-        <h1>Attendant Assignments</h1>
+        <h1><span class="d-long">Attendant Assignments · Regional Convention</span><span class="d-short">Att. Assign · Regional Convention</span></h1>
         <div class="event-line" id="eventLine">Loading…</div>
       </div>
       <div class="top-actions">
@@ -1139,8 +1138,8 @@
 // SETTINGS
 // =====================================================
 
-const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.14.0 RC';
+const APP_NAME = 'Attendant Assignments – Regional Convention';
+const VERSION = '0.14.1 RC';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbzNlOKik8MBwrRQP4TggotEZ3j3PiEhg-EFU1xx3Whk8sSZP1Kasqy4-4uXmhkBgb-3/exec';
@@ -2815,7 +2814,7 @@ function renderFooter() {
   $('#footer').innerHTML =
     (S.loadedAt && S.pin ? 'Schedule updated ' + esc(fmtClock(S.loadedAt)) +
       (S.role ? ' · Access: ' + esc(ROLE_LABEL[S.role]) : '') + '<br>' : '') +
-    esc(APP_NAME) + ' · Regional Convention · V' + esc(VERSION) + ' · Made with Love ©';
+    esc(APP_NAME) + ' · V' + esc(VERSION) + ' · Made with Love ©';
 }
 
 function renderTabbar() {
@@ -2839,7 +2838,7 @@ function renderLock() {
     main.dataset.view = 'lock';
     main.innerHTML =
       '<form class="lock" id="lockForm" autocomplete="off">' +
-        '<img class="lock-logo" src="logo.jpg" alt="Attendants" ' +
+        '<img class="lock-logo" src="logo-rc.jpg" alt="Regional Convention Attendants" ' +
           'onerror="this.outerHTML=\'<div class=&quot;lock-icon&quot;>🔒</div>\'">' +
         '<h2>Access code</h2>' +
         '<p class="muted">Enter the code you received from the attendant department.<br>No code yet? Please ask your team captain.</p>' +
