@@ -228,6 +228,8 @@
     color:var(--navy);font-size:.78em;font-weight:700
   }
   .department.subdepartment .person-row{margin-left:24px}
+  .position-label{font-size:clamp(10px,.9vw,13px);font-weight:650;color:#44546a;padding:5px 14px 1px 18px;background:#f8fafc;letter-spacing:.005em}
+  @media print{.position-label{font-size:8pt;padding:2px 9px 0 11px;background:transparent;color:#3e4b59}}
   .empty-note{padding:16px;color:var(--muted);font-size:14px}
   .editor{
     position:sticky;top:58px;height:calc(100vh - 58px);overflow:auto;
@@ -630,7 +632,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.10.1</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.2</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -1018,11 +1020,13 @@
         sectionHeading:'DEPARTMENTS UNDER THE DIRECTION OF THE PROGRAM OVERSEER',
         color:'#cf0000', printPage:3, memberId:'', assistantId:'',
         departments:[
-          {id:uid('department'),number:'10',name:'Audio / Video',sub:false,people:blankSlots(1)},
+          {id:uid('department'),number:'10',name:'Audio / Video',sub:false,people:blankSlots(2)},
           {id:uid('department'),number:'10.1',name:'Audio Team',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'10.2',name:'Video Team',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'10.3',name:'Stage Team',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'10.4',name:'IT Overseer',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.5',name:'Streaming Crew',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.6',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'11',name:'Baptism',sub:false,people:blankSlots(2)}
         ]
       },
@@ -1073,6 +1077,43 @@
     return arr.map(slot => ({id:(slot && slot.id) || uid('slot'), personId:(slot && slot.personId) || ''}));
   }
 
+  // Official convention assignment titles. Department labels and IDs remain editable.
+  const OFFICIAL_ROLE_NAMES = {
+    '9':['Safety Coordinator','Safety Coordinator Assistant'],
+    '10':['Audio/Video Overseer','Audio/Video Overseer Assistant'],
+    '10.1':['Audio Crew Coordinator'],
+    '10.2':['Video Crew Coordinator'],
+    '10.3':['Stage Crew Coordinator'],
+    '10.5':['Streaming Crew Coordinator'],
+    '10.6':['Streaming Crew Technician(s)'],
+    '12':['Lost and Found / Checkroom Overseer','Lost and Found / Checkroom Overseer Assistant']
+  };
+  function departmentPosition(dept,index){
+    const names=OFFICIAL_ROLE_NAMES[String(dept.number||'').trim()];
+    return names?.[index] || (index===0?'Department overseer':'Assistant '+index);
+  }
+  function ensureConventionRoles(target){
+    // Add positions without replacing people, IDs or existing acceptance statuses.
+    // Match the original built-in departments by number AND recognisable name;
+    // unrelated custom departments are never changed.
+    const program=target.portfolios.find(p=>p.departments.some(d=>String(d.number)==='10' && /audio\s*\/?\s*video/i.test(d.name)));
+    if(program){
+      const av=program.departments.find(d=>String(d.number)==='10' && /audio\s*\/?\s*video/i.test(d.name));
+      if(av && av.people.length===1) av.people.push({id:uid('slot'),personId:''});
+      const hasStreaming=program.departments.some(d=>/streaming/i.test(d.name));
+      if(!hasStreaming){
+        const itIdx=program.departments.findIndex(d=>String(d.number)==='10.4' && /IT Overseer/i.test(d.name));
+        const additions=[
+          {id:uid('department'),number:'10.5',name:'Streaming Crew',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.6',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)}
+        ];
+        program.departments.splice(itIdx>=0?itIdx+1:program.departments.length,0,...additions);
+      }else if(!program.departments.some(d=>String(d.number)==='10.6' || /Streaming Crew Technicians/i.test(d.name))){
+        program.departments.push({id:uid('department'),number:'10.6',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)});
+      }
+    }
+  }
+
   function migrate(input){
     const base = clone(ORIGINAL_DATA);
     if(!input || typeof input !== 'object') return base;
@@ -1115,6 +1156,7 @@
       people:normalizeSlots(s.people,1)
     })) : base.overviewSections;
 
+    ensureConventionRoles(input);
     cleanBrokenAssignments(input);
     // A legacy chart already had final assignments and no planning status information.
     // Preserve that meaning rather than silently treating historic assignments as requests.
@@ -1177,7 +1219,7 @@
       entries.push({key:`portfolio:${p.id}:member`,label:p.role+' — Committee member',group:'Convention committee',personId:p.memberId||''});
       entries.push({key:`portfolio:${p.id}:assistant`,label:p.role+' — Committee assistant',group:'Convention committee assistants',personId:p.assistantId||''});
       p.departments.forEach(d=>d.people.forEach((slot,i)=>entries.push({
-        key:`slot:${slot.id}`,label:`${d.number ? d.number+' · ' : ''}${d.name} — ${i===0?'Overseer':'Assistant '+i}`,
+        key:`slot:${slot.id}`,label:`${d.number ? d.number+' · ' : ''}${departmentPosition(d,i)}`,
         group:p.role,personId:slot.personId||''
       })));
     });
@@ -1368,7 +1410,7 @@
     return data.settings.repeatPageHeader ? 3 : 0;
   }
   function departmentUnits(d){
-    return 1.3 + d.people.length;
+    return 1.3 + d.people.length + (OFFICIAL_ROLE_NAMES[String(d.number||'').trim()] ? d.people.length * .55 : 0);
   }
   function overviewSectionUnits(s){
     return 1.4 + s.people.length;
@@ -1444,7 +1486,10 @@
               <span class="number">${showValue(d.number,'—')}</span>
               <span>${showValue(d.name,'Department')}</span>
             </div>
-            ${d.people.map((slot,i)=>personRow(slot.personId,{forceLead:i===0,statusKey:'slot:'+slot.id})).join('')}
+            ${d.people.map((slot,i)=>`
+              ${OFFICIAL_ROLE_NAMES[String(d.number||'').trim()]?.[i] ? `<div class="position-label">${esc(departmentPosition(d,i))}</div>` : ''}
+              ${personRow(slot.personId,{forceLead:i===0,statusKey:'slot:'+slot.id})}
+            `).join('')}
           </section>
         `).join('') : (portfolio.departments.length===0 ? '<div class="empty-note">No departments yet.</div>' : '')}
       </div>`;
@@ -1611,7 +1656,7 @@
       if(p.memberId===personId) labels.push(`${p.role} — Committee member`);
       if(p.assistantId===personId) labels.push(`${p.role} — Committee assistant`);
       p.departments.forEach(d => d.people.forEach((slot,i) => {
-        if(slot.personId===personId) labels.push(`${d.name} — ${i===0?'Department overseer':'Assistant '+i}`);
+        if(slot.personId===personId) labels.push(`${departmentPosition(d,i)}`);
       }));
     });
     data.overviewSections.forEach(s => s.people.forEach((slot,i) => {
@@ -1681,7 +1726,7 @@
         ${d.people.map((slot,slotIndex)=>`
           <div class="slot-editor" data-slot-id="${esc(slot.id)}">
             <div class="slot-head">
-              <strong>${slotIndex===0?'Department overseer':'Assistant '+slotIndex}</strong>
+              <strong>${esc(departmentPosition(d,slotIndex))}</strong>
               <span class="inline-actions">
                 <button class="btn small icon-btn" data-action="move-department-person-up" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" title="Move up" ${slotIndex===0?'disabled':''}>↑</button>
                 <button class="btn small icon-btn" data-action="move-department-person-down" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" title="Move down" ${slotIndex===d.people.length-1?'disabled':''}>↓</button>
@@ -2624,7 +2669,7 @@
     data.overviewSections.forEach(s => s.people.forEach((slot,i) =>
       out.push({section:s.title, number:'', unit:s.title, position:i===0?'Lead':'Assistant '+i, personId:slot.personId})));
     data.portfolios.forEach(p => p.departments.forEach(d => d.people.forEach((slot,i) =>
-      out.push({section:p.role, number:d.number, unit:d.name, position:i===0?'Department overseer':'Assistant '+i, personId:slot.personId}))));
+      out.push({section:p.role, number:d.number, unit:d.name, position:departmentPosition(d,i), personId:slot.personId}))));
     return out;
   }
   function personField(person,key){
