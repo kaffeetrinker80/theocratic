@@ -167,6 +167,8 @@
       .brand-mark { height: 40px; border-radius: 10px; }
       .brand h1 { font-size: 21px; }
     }
+    /* Titel: am PC in einer Zeile mit Trenner, am Handy zweizeilig (siehe HEADER Handy) */
+    .brand h1 .t-sub::before { content: " · "; }
     .lock-logo { display: block; width: 100%; max-width: 300px; margin: 0 auto 10px; border-radius: 22px; box-shadow: 0 8px 28px rgba(15, 128, 121, .28); }
 
     .brand h1 {
@@ -914,24 +916,28 @@
       .top-in {
         display: grid;
         grid-template-columns: auto 1fr auto;
-        grid-template-areas: "logo title title" "logo date actions";
+        grid-template-areas: "logo title title" "date date actions";
         align-items: center;
         column-gap: 12px;
-        row-gap: 2px;
+        row-gap: 10px;
         padding-top: 10px;
         padding-bottom: 10px;
       }
       .brand { display: contents; }
       .brand-mark { grid-area: logo; height: 44px; border-radius: 9px; }
-      .brand h1 { grid-area: title; font-size: 17px; white-space: normal; display: block; }
-      /* Datum + Status dürfen auf zwei Zeilen umbrechen statt abgeschnitten zu werden */
+      /* Zeile 1–2: "Attendant Assignments" / "Regional Convention" neben dem Logo
+         Zeile 3: Datum + Status (zweizeilig) links, große Buttons rechts */
+      .brand h1 { grid-area: title; font-size: 18px; white-space: normal; display: block; overflow: visible; }
+      .brand h1 .t-main, .brand h1 .t-sub { display: block; white-space: nowrap; }
+      .brand h1 .t-sub { margin-top: 1px; color: var(--muted); font-size: 15px; font-weight: 600; letter-spacing: 0; }
+      .brand h1 .t-sub::before { content: none; }
       .event-line { grid-area: date; margin: 0; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.3; }
       .event-line strong { white-space: nowrap; }
       .event-line .ev-dot { display: none; }
       .event-line .ev-rel { display: block; }
-      .top-actions { grid-area: actions; gap: 4px; align-self: start; }
-      .icon-btn { width: 34px; height: 34px; border-radius: 10px; border-color: transparent; background: var(--chip); }
-      .icon-btn svg { width: 18px; height: 18px; }
+      .top-actions { grid-area: actions; gap: 8px; }
+      .icon-btn { width: 44px; height: 44px; border-radius: 13px; border-color: transparent; background: var(--chip); }
+      .icon-btn svg { width: 21px; height: 21px; }
     }
 
     /* Zählkarte (eingeklappt) kompakt in einer Zeile */
@@ -1087,7 +1093,7 @@
     <div class="wrap top-in">
       <img class="brand-mark" src="logo-mark-rc.jpg" alt="" onerror="this.remove()">
       <div class="brand">
-        <h1><span class="d-long">Attendant Assignments · Regional Convention</span><span class="d-short">Att. Assign · Regional Convention</span></h1>
+        <h1><span class="t-main">Attendant Assignments</span><span class="t-sub">Regional Convention</span></h1>
         <div class="event-line" id="eventLine">Loading…</div>
       </div>
       <div class="top-actions">
@@ -1148,7 +1154,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments – Regional Convention';
-const VERSION = '0.14.3 RC';
+const VERSION = '0.14.4 RC';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbzNlOKik8MBwrRQP4TggotEZ3j3PiEhg-EFU1xx3Whk8sSZP1Kasqy4-4uXmhkBgb-3/exec';
