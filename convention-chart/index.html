@@ -632,7 +632,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.10.2</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.3</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -763,7 +763,7 @@
       <label style="flex-direction:row;align-items:center;gap:8px;margin:0 0 10px"><input id="planningView" type="checkbox" style="width:auto"> Show planning status in on-screen chart preview (not printed)</label><div class="planning-summary" id="planningSummary"></div>
       <div class="people-toolbar"><input id="planningSearch" type="search" class="people-search" placeholder="Search department or person…"><select id="planningFilter" style="width:auto"><option value="all">All positions</option><option value="open">Open positions</option><option value="proposed">Proposed / Awaiting acceptance</option><option value="confirmed">Confirmed</option><option value="declined">Declined</option></select><button class="btn small" id="planningEdit" type="button">Edit assignments</button></div>
       <div id="planningRows"></div>
-      <p class="helper" style="margin-top:12px">Status is stored per position in your local chart and included in a full JSON backup. Assigning a different person automatically resets that position to “Proposed / Awaiting acceptance”. The personnel-only export does not contain planning data.</p>
+      <p class="helper" style="margin-top:12px">Status is stored per position in your local chart and included in a full JSON backup (version 1.10.3 or newer). Assigning a different person automatically resets that position to “Proposed / Awaiting acceptance”. The personnel-only export does not contain planning data.</p>
     </div>
   </section>
 </div>
@@ -2768,7 +2768,8 @@
       settings:data.settings,
       portfolios:data.portfolios,
       overviewSections:data.overviewSections,
-      people:data.people.map(normalizePerson)
+      people:data.people.map(normalizePerson),
+      assignmentStatus:{...data.assignmentStatus}
     };
     downloadText(JSON.stringify(backupFile,null,2),`${titleSlug()}_backup_${fileStamp()}.json`,'application/json');
     toast('Full backup exported');
