@@ -874,6 +874,21 @@
     .cnt-btns .btn { padding: 0 8px; font-size: 14px; }
     .cnt-btns .btn.active { background: var(--chip); }
     .cnt-result { margin-top: 12px; }
+    .count-chip { border-style: dashed; }
+    .cc-table td { vertical-align: top; }
+    .cc-table { table-layout: fixed; }
+    .cc-table th:first-child, .cc-table td:first-child { width: 38%; }
+    .cc-table td:not(:first-child) { width: 31%; padding-left: 8px; text-align: left; font-weight: 600; }
+    .cc-table th:not(:first-child) { padding-left: 8px; }
+    .cc-table th:not(:first-child) { text-align: left; }
+    .cc-pos, .cc-name { padding: 0; border: 0; background: none; color: inherit; text-align: left; font: inherit; }
+    .cc-pos strong { display: block; font-size: 14px; }
+    .cc-pos span { color: var(--muted); font-size: 12px; font-weight: 500; }
+    .cc-name { font-weight: 650; }
+    .cc-open { color: var(--soon); }
+    .cc-empty { color: var(--muted); }
+    .cc-in { color: var(--on); font-weight: 800; }
+    .cc-val { margin-top: 2px; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
     .pos-tools { display: flex; justify-content: flex-end; margin: -6px 2px 6px; }
     .pos-tools .linkish { padding: 4px 0; font-size: 14px; }
     .cnt-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -1127,7 +1142,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments';
-const VERSION = '0.13.12';
+const VERSION = '0.14.0';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyEQE8l3X-tVolJ6P5wBn2uqe5I3hhYg2saNCWhioA04jGwFya9GMA8Tt1mpSRh8rHC6Q/exec';
@@ -2899,10 +2914,74 @@ function posCard(p, c) {
   return html + '</div>';
 }
 
+// ---------- ZÄHLPOSITIONEN (eigener Reiter ab Check-in-Zugang) ----------
+const COUNT_TAB = '__counting__';
+
+function countChip(active) {
+  return '<button class="chip count-chip' + (active ? ' active' : '') + '" type="button" data-act="area" data-area="' + COUNT_TAB + '">🔢 Counting</button>';
+}
+
+function renderCountTab(c, groups) {
+  const cols = ['morning', 'afternoon'].map(k => {
+    const jobs = countJobsFor({ label: k, at: D.counting[k] || '' });
+    const day = D.countDay.find(x => x.session.label === k);
+    const live = D.countSession && D.countSession.status === 'open' && D.countSession.label === k;
+    const vals = {};
+    (live ? Object.values(D.countByRow) : (day ? day.counts : [])).forEach(x => { vals[x.row] = x.count; });
+    return { key: k, head: D.counting[k] || COUNT_LABEL[k], jobs: jobs, vals: vals };
+  });
+
+  // eine Zeile je Zähl-Aufgabe (Bemerkung), sortiert nach Reihenfolge im Sheet
+  const rows = {};
+  const order = [];
+  cols.forEach(col => col.jobs.forEach(s => {
+    const key = s.pos.key + '|' + norm(s.remark);
+    if (!rows[key]) { rows[key] = { remark: s.remark, pos: s.pos, cells: {} }; order.push(key); }
+    rows[key].cells[col.key] = s;
+  }));
+  order.sort((a, b) => rows[a].pos.row - rows[b].pos.row);
+
+  const cell = (col, s) => {
+    if (!s) return '<td class="cc-empty">–</td>';
+    const v = col.vals[s.row];
+    const who = s.id
+      ? '<button class="cc-name" type="button" data-act="person" data-id="' + esc(s.id) + '">' + esc(nameOf(s.id)) + '</button>'
+      : '<span class="cc-open">' + esc(slotName(s)) + '</span>';
+    const a = s.id && D.att[s.id];
+    return '<td>' + who + (a && a.checkedIn ? ' <span class="cc-in">✓</span>' : '') +
+      (v != null ? '<div class="cc-val">' + esc(v) + '</div>' : '') + '</td>';
+  };
+
+  let html = (can('editor') ? countAdminHtml() + helpBoxHtml(c) : '') +
+    '<div class="chips">' + groups.map(g =>
+      '<button class="chip" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
+      '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) + '</button>'
+    ).join('') + countChip(true) + '</div>';
+
+  html += order.length
+    ? '<div class="cnt-table-wrap cc-wrap"><table class="cnt-table cc-table"><thead><tr><th>Counting</th>' +
+        cols.map(col => '<th>' + esc(col.head) + '</th>').join('') + '</tr></thead><tbody>' +
+        order.map(k => {
+          const r = rows[k];
+          return '<tr><td><button class="cc-pos" type="button" data-act="pos" data-key="' + esc(r.pos.key) + '">' +
+            '<strong>' + esc(r.remark) + '</strong><span>' + esc(r.pos.label) + '</span></button></td>' +
+            cols.map(col => cell(col, r.cells[col.key])).join('') + '</tr>';
+        }).join('') +
+      '</tbody></table></div>' +
+      '<p class="muted" style="margin:10px 2px 0">Who counts at which time. Numbers appear as soon as they are sent. ✓ = checked in.</p>'
+    : '<div class="empty">No counting assignments in the schedule.</div>';
+
+  main.dataset.view = 'positions';
+  main.innerHTML = html;
+}
+
 function renderPositions(c) {
   main.dataset.view = 'positions';
   const groups = positionGroups();
   if (!groups.length) { main.innerHTML = '<div class="empty">No positions in the schedule.</div>'; return; }
+
+  const countTab = can('checkin') && D.positions.some(p => p.slots.some(x => /count/i.test(x.remark || '')));
+  if (S.area === COUNT_TAB && countTab) { renderCountTab(c, groups); return; }
 
   if (!S.area || !groups.some(g => g.key === S.area)) {
     const mine = myId() && D.att[myId()].team;
@@ -2914,7 +2993,7 @@ function renderPositions(c) {
   let html = (can('editor') ? countAdminHtml() + helpBoxHtml(c) : '') + '<div class="chips">' + groups.map(g =>
     '<button class="chip' + (g.key === S.area ? ' active' : '') + '" type="button" data-act="area" data-area="' + esc(g.key) + '">' +
     '<span class="dot" style="background:' + teamColor(g.label) + '"></span>' + esc(g.label) + '</button>'
-  ).join('') + '</div>';
+  ).join('') + (countTab ? countChip(false) : '') + '</div>';
 
   const blocks = Array.from(new Set(group.positions.map(blockOf).filter(Boolean))).sort();
   if (S.block !== 'all' && blocks.indexOf(S.block) < 0) S.block = 'all';
