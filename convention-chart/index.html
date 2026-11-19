@@ -632,7 +632,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.10.3</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.4</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -1079,14 +1079,21 @@
 
   // Official convention assignment titles. Department labels and IDs remain editable.
   const OFFICIAL_ROLE_NAMES = {
-    '9':['Safety Coordinator','Safety Coordinator Assistant'],
-    '10':['Audio/Video Overseer','Audio/Video Overseer Assistant'],
+    // Titles aligned with the Responsibilities list; only departments already in this chart.
+    '4':['Accounts Overseer','Accounts Overseer Assistant'],
+    '5':['Attendant Overseer','Attendant Overseer Assistant(s)'],
+    '6':['First Aid Overseer','First Aid Overseer Assistant(s)'],
+    '7':['Parking Overseer','Parking Overseer Assistant(s)'],
+    '9':['Safety Coordinator','Safety Coordinator Assistant(s)'],
+    '10':['Audio/Video Overseer','Audio/Video Overseer Assistant(s)'],
     '10.1':['Audio Crew Coordinator'],
     '10.2':['Video Crew Coordinator'],
     '10.3':['Stage Crew Coordinator'],
     '10.5':['Streaming Crew Coordinator'],
     '10.6':['Streaming Crew Technician(s)'],
-    '12':['Lost and Found / Checkroom Overseer','Lost and Found / Checkroom Overseer Assistant']
+    '11':['Baptism Overseer','Baptism Overseer Assistant(s)'],
+    '12':['Lost and Found and Checkroom Overseer','Lost and Found and Checkroom Overseer Assistant(s)'],
+    '13':['Cleaning Overseer','Cleaning Overseer Assistant(s)']
   };
   function departmentPosition(dept,index){
     const names=OFFICIAL_ROLE_NAMES[String(dept.number||'').trim()];
@@ -1216,8 +1223,8 @@
   function collectAssignments(source=data){
     const entries=[];
     source.portfolios.forEach(p=>{
-      entries.push({key:`portfolio:${p.id}:member`,label:p.role+' — Committee member',group:'Convention committee',personId:p.memberId||''});
-      entries.push({key:`portfolio:${p.id}:assistant`,label:p.role+' — Committee assistant',group:'Convention committee assistants',personId:p.assistantId||''});
+      entries.push({key:`portfolio:${p.id}:member`,label:p.role,group:'Convention committee',personId:p.memberId||''});
+      entries.push({key:`portfolio:${p.id}:assistant`,label:p.role+' Assistant',group:'Convention committee assistants',personId:p.assistantId||''});
       p.departments.forEach(d=>d.people.forEach((slot,i)=>entries.push({
         key:`slot:${slot.id}`,label:`${d.number ? d.number+' · ' : ''}${departmentPosition(d,i)}`,
         group:p.role,personId:slot.personId||''
