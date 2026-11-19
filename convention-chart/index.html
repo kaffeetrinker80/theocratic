@@ -632,7 +632,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.10.5</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.6</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -1073,8 +1073,14 @@
   }
 
   function normalizeSlots(list,fallbackCount=1){
-    const arr = Array.isArray(list) && list.length ? list : blankSlots(fallbackCount);
-    return arr.map(slot => ({id:(slot && slot.id) || uid('slot'), personId:(slot && slot.personId) || ''}));
+    // An explicit empty array means the positions were intentionally deleted.
+    // Only an absent field in a legacy file receives template defaults.
+    const arr = Array.isArray(list) ? list : blankSlots(fallbackCount);
+    return arr.map((slot,index) => ({
+      id:(slot && slot.id) || uid('slot'),
+      personId:(slot && slot.personId) || '',
+      roleIndex:Number.isInteger(slot?.roleIndex) && slot.roleIndex>=0 ? slot.roleIndex : index
+    }));
   }
 
   // Responsibility titles are matched to department NAMES, not department numbers.
@@ -1118,7 +1124,26 @@
   }
   function departmentRoleNames(dept){return OFFICIAL_ROLE_NAMES[departmentRoleKind(dept)]||[];}
   function departmentPosition(dept,index){
-    return departmentRoleNames(dept)[index] || (index===0?'Department overseer':'Assistant '+index);
+    const slot=dept.people?.[index];
+    const roleIndex=Number.isInteger(slot?.roleIndex) && slot.roleIndex>=0 ? slot.roleIndex : index;
+    return departmentRoleNames(dept)[roleIndex] || (roleIndex===0?'Department overseer':'Assistant '+roleIndex);
+  }
+  function prepareRoleIndices(dept){
+    // Capture existing indices BEFORE deletion so the remaining roles never shift.
+    dept.people.forEach((slot,index)=>{
+      if(!Number.isInteger(slot.roleIndex) || slot.roleIndex<0) slot.roleIndex=index;
+    });
+  }
+  function addDepartmentPosition(dept){
+    prepareRoleIndices(dept);
+    const used=new Set(dept.people.map(slot=>slot.roleIndex));
+    let roleIndex=0;
+    while(used.has(roleIndex)) roleIndex++;
+    const slot={id:uid('slot'),personId:'',roleIndex};
+    const next=dept.people.findIndex(item=>item.roleIndex>roleIndex);
+    if(next<0) dept.people.push(slot);
+    else dept.people.splice(next,0,slot);
+    return slot;
   }
   function ensureConventionRoles(target){
     // Older builds introduced an unwanted IT Overseer row. Remove only that
@@ -1504,8 +1529,8 @@
               <span>${showValue(d.name,'Department')}</span>
             </div>
             ${d.people.map((slot,i)=>`
-              ${departmentRoleNames(d)[i] ? `<div class="position-label">${esc(departmentPosition(d,i))}</div>` : ''}
-              ${personRow(slot.personId,{forceLead:i===0,statusKey:'slot:'+slot.id})}
+              ${departmentRoleNames(d)[Number.isInteger(slot.roleIndex)?slot.roleIndex:i] ? `<div class="position-label">${esc(departmentPosition(d,i))}</div>` : ''}
+              ${personRow(slot.personId,{forceLead:(Number.isInteger(slot.roleIndex)?slot.roleIndex:i)===0,statusKey:'slot:'+slot.id})}
             `).join('')}
           </section>
         `).join('') : (portfolio.departments.length===0 ? '<div class="empty-note">No departments yet.</div>' : '')}
@@ -1747,13 +1772,13 @@
               <span class="inline-actions">
                 <button class="btn small icon-btn" data-action="move-department-person-up" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" title="Move up" ${slotIndex===0?'disabled':''}>↑</button>
                 <button class="btn small icon-btn" data-action="move-department-person-down" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" title="Move down" ${slotIndex===d.people.length-1?'disabled':''}>↓</button>
-                <button class="btn small danger" data-action="remove-department-person" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}" ${d.people.length===1?'disabled':''}>Remove</button>
+                <button class="btn small danger" data-action="remove-department-person" data-pindex="${pIndex}" data-dindex="${dIndex}" data-slotindex="${slotIndex}">Remove</button>
               </span>
             </div>
             ${selectPersonField('Person',`portfolios.${pIndex}.departments.${dIndex}.people.${slotIndex}.personId`,slot.personId)}
           </div>
         `).join('')}
-        <button class="btn small" style="margin-top:8px" data-action="add-department-person" data-pindex="${pIndex}" data-dindex="${dIndex}">+ Add person</button>
+        <button class="btn small" style="margin-top:8px" data-action="add-department-person" data-pindex="${pIndex}" data-dindex="${dIndex}">+ Add position</button>
       </div>`;
   }
 
@@ -1819,13 +1844,13 @@
               <span class="inline-actions">
                 <button class="btn small icon-btn" data-action="move-overview-person-up" data-sindex="${sIndex}" data-slotindex="${slotIndex}" title="Move up" ${slotIndex===0?'disabled':''}>↑</button>
                 <button class="btn small icon-btn" data-action="move-overview-person-down" data-sindex="${sIndex}" data-slotindex="${slotIndex}" title="Move down" ${slotIndex===s.people.length-1?'disabled':''}>↓</button>
-                <button class="btn small danger" data-action="remove-overview-person" data-sindex="${sIndex}" data-slotindex="${slotIndex}" ${s.people.length===1?'disabled':''}>Remove</button>
+                <button class="btn small danger" data-action="remove-overview-person" data-sindex="${sIndex}" data-slotindex="${slotIndex}">Remove</button>
               </span>
             </div>
             ${selectPersonField('Person',`overviewSections.${sIndex}.people.${slotIndex}.personId`,slot.personId)}
           </div>
         `).join('')}
-        <button class="btn small" style="margin-top:8px" data-action="add-overview-person" data-sindex="${sIndex}">+ Add person</button>
+        <button class="btn small" style="margin-top:8px" data-action="add-overview-person" data-sindex="${sIndex}">+ Add position</button>
       </div>`;
   }
 
@@ -2148,12 +2173,14 @@
     if(action==='move-department-up') move(data.portfolios[pIndex].departments,dIndex,dIndex-1);
     if(action==='move-department-down') move(data.portfolios[pIndex].departments,dIndex,dIndex+1);
     if(action==='add-department-person'){
-      const slot = {id:uid('slot'),personId:''};
-      data.portfolios[pIndex].departments[dIndex].people.push(slot);
+      const slot=addDepartmentPosition(data.portfolios[pIndex].departments[dIndex]);
       focusSelector = `[data-slot-id="${slot.id}"]`;
     }
-    if(action==='remove-department-person' && data.portfolios[pIndex].departments[dIndex].people.length>1){
-      data.portfolios[pIndex].departments[dIndex].people.splice(slotIndex,1);
+    if(action==='remove-department-person'){
+      const dept=data.portfolios[pIndex].departments[dIndex];
+      prepareRoleIndices(dept);
+      const removed=dept.people.splice(slotIndex,1)[0];
+      if(removed) delete data.assignmentStatus['slot:'+removed.id];
     }
     if(action==='add-overview-section'){
       const section = {id:uid('overview'),title:'NEW OVERVIEW SECTION',people:blankSlots(1)};
@@ -2174,8 +2201,9 @@
       data.overviewSections[sIndex].people.push(slot);
       focusSelector = `[data-slot-id="${slot.id}"]`;
     }
-    if(action==='remove-overview-person' && data.overviewSections[sIndex].people.length>1){
-      data.overviewSections[sIndex].people.splice(slotIndex,1);
+    if(action==='remove-overview-person'){
+      const removed=data.overviewSections[sIndex].people.splice(slotIndex,1)[0];
+      if(removed) delete data.assignmentStatus['slot:'+removed.id];
     }
     updateAll({editorToo:true,editorState,focusSelector});
   });
