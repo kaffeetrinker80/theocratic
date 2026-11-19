@@ -632,7 +632,7 @@
   <div class="brand">
     <span class="brand-dot" aria-hidden="true"></span>
     <div style="min-width:0">
-      <h1>Convention Organization Chart <span class="ver">v1.10.4</span></h1>
+      <h1>Convention Organization Chart <span class="ver">v1.10.5</span></h1>
       <p>Editable English template · separate personnel master JSON · local autosave · A4 landscape print</p>
     </div>
   </div>
@@ -1024,9 +1024,8 @@
           {id:uid('department'),number:'10.1',name:'Audio Team',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'10.2',name:'Video Team',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'10.3',name:'Stage Team',sub:true,people:blankSlots(1)},
-          {id:uid('department'),number:'10.4',name:'IT Overseer',sub:true,people:blankSlots(1)},
-          {id:uid('department'),number:'10.5',name:'Streaming Crew',sub:true,people:blankSlots(1)},
-          {id:uid('department'),number:'10.6',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.4',name:'Streaming Crew',sub:true,people:blankSlots(1)},
+          {id:uid('department'),number:'10.5',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)},
           {id:uid('department'),number:'11',name:'Baptism',sub:false,people:blankSlots(2)}
         ]
       },
@@ -1049,7 +1048,8 @@
     assignmentStatus:{}
   };
 
-  let data = loadData();
+  // Data must be loaded only after all role mappings have been initialized.
+  let data;
 
   const preview = document.getElementById('preview');
   const editor = document.getElementById('editor');
@@ -1077,48 +1077,56 @@
     return arr.map(slot => ({id:(slot && slot.id) || uid('slot'), personId:(slot && slot.personId) || ''}));
   }
 
-  // Official convention assignment titles. Department labels and IDs remain editable.
+  // Responsibility titles are matched to department NAMES, not department numbers.
+  // Numbers are user-editable and may differ between convention organizations.
   const OFFICIAL_ROLE_NAMES = {
-    // Titles aligned with the Responsibilities list; only departments already in this chart.
-    '4':['Accounts Overseer','Accounts Overseer Assistant'],
-    '5':['Attendant Overseer','Attendant Overseer Assistant(s)'],
-    '6':['First Aid Overseer','First Aid Overseer Assistant(s)'],
-    '7':['Parking Overseer','Parking Overseer Assistant(s)'],
-    '9':['Safety Coordinator','Safety Coordinator Assistant(s)'],
-    '10':['Audio/Video Overseer','Audio/Video Overseer Assistant(s)'],
-    '10.1':['Audio Crew Coordinator'],
-    '10.2':['Video Crew Coordinator'],
-    '10.3':['Stage Crew Coordinator'],
-    '10.5':['Streaming Crew Coordinator'],
-    '10.6':['Streaming Crew Technician(s)'],
-    '11':['Baptism Overseer','Baptism Overseer Assistant(s)'],
-    '12':['Lost and Found and Checkroom Overseer','Lost and Found and Checkroom Overseer Assistant(s)'],
-    '13':['Cleaning Overseer','Cleaning Overseer Assistant(s)']
+    'accounts':['Accounts Overseer','Accounts Overseer Assistant'],
+    'attendants':['Attendant Overseer','Attendant Overseer Assistant(s)'],
+    'firstAid':['First Aid Overseer','First Aid Overseer Assistant(s)'],
+    'parking':['Parking Overseer','Parking Overseer Assistant(s)'],
+    'safety':['Safety Coordinator','Safety Coordinator Assistant(s)'],
+    'audioVideo':['Audio/Video Overseer','Audio/Video Overseer Assistant(s)'],
+    'audioCrew':['Audio Crew Coordinator'],
+    'videoCrew':['Video Crew Coordinator'],
+    'stageCrew':['Stage Crew Coordinator'],
+    'streaming':['Streaming Crew Coordinator'],
+    'streamingTech':['Streaming Crew Technician(s)'],
+    'baptism':['Baptism Overseer','Baptism Overseer Assistant(s)'],
+    'infoVolunteer':['Information and Volunteer Service Overseer','Information and Volunteer Service Overseer Assistant(s)'],
+    'lostFound':['Lost and Found and Checkroom Overseer','Lost and Found and Checkroom Overseer Assistant(s)'],
+    'cleaning':['Cleaning Overseer','Cleaning Overseer Assistant(s)']
   };
+  function departmentRoleKind(dept){
+    const name=String(dept.name||'').toLowerCase().replace(/&/g,'and').replace(/\s+/g,' ').trim();
+    // Test more specific roles first, especially Streaming technicians and AV crews.
+    if(/streaming/.test(name) && /tech/.test(name)) return 'streamingTech';
+    if(/streaming/.test(name)) return 'streaming';
+    if(/lost\s*(and|\/)\s*found|checkroom|cloakroom/.test(name)) return 'lostFound';
+    if(/information|volunteer service/.test(name)) return 'infoVolunteer';
+    if(/cleaning/.test(name)) return 'cleaning';
+    if(/baptis/.test(name)) return 'baptism';
+    if(/safety|fire protection/.test(name)) return 'safety';
+    if(/first aid|mother and child/.test(name)) return 'firstAid';
+    if(/parking/.test(name)) return 'parking';
+    if(/attendant/.test(name)) return 'attendants';
+    if(/account/.test(name)) return 'accounts';
+    if(/stage (crew|team)/.test(name)) return 'stageCrew';
+    if(/video (crew|team)/.test(name) && !/audio/.test(name)) return 'videoCrew';
+    if(/audio (crew|team)/.test(name) && !/video/.test(name)) return 'audioCrew';
+    if(/audio\s*\/?\s*video|audio.video/.test(name)) return 'audioVideo';
+    return '';
+  }
+  function departmentRoleNames(dept){return OFFICIAL_ROLE_NAMES[departmentRoleKind(dept)]||[];}
   function departmentPosition(dept,index){
-    const names=OFFICIAL_ROLE_NAMES[String(dept.number||'').trim()];
-    return names?.[index] || (index===0?'Department overseer':'Assistant '+index);
+    return departmentRoleNames(dept)[index] || (index===0?'Department overseer':'Assistant '+index);
   }
   function ensureConventionRoles(target){
-    // Add positions without replacing people, IDs or existing acceptance statuses.
-    // Match the original built-in departments by number AND recognisable name;
-    // unrelated custom departments are never changed.
-    const program=target.portfolios.find(p=>p.departments.some(d=>String(d.number)==='10' && /audio\s*\/?\s*video/i.test(d.name)));
-    if(program){
-      const av=program.departments.find(d=>String(d.number)==='10' && /audio\s*\/?\s*video/i.test(d.name));
-      if(av && av.people.length===1) av.people.push({id:uid('slot'),personId:''});
-      const hasStreaming=program.departments.some(d=>/streaming/i.test(d.name));
-      if(!hasStreaming){
-        const itIdx=program.departments.findIndex(d=>String(d.number)==='10.4' && /IT Overseer/i.test(d.name));
-        const additions=[
-          {id:uid('department'),number:'10.5',name:'Streaming Crew',sub:true,people:blankSlots(1)},
-          {id:uid('department'),number:'10.6',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)}
-        ];
-        program.departments.splice(itIdx>=0?itIdx+1:program.departments.length,0,...additions);
-      }else if(!program.departments.some(d=>String(d.number)==='10.6' || /Streaming Crew Technicians/i.test(d.name))){
-        program.departments.push({id:uid('department'),number:'10.6',name:'Streaming Crew Technicians',sub:true,people:blankSlots(1)});
-      }
+    // Older builds introduced an unwanted IT Overseer row. Remove only that
+    // specific obsolete row; never reassign its person to another responsibility.
+    for(const portfolio of target.portfolios){
+      portfolio.departments=portfolio.departments.filter(d=>!/^IT Overseer$/i.test(String(d.name||'').trim()));
     }
+    // Do not create other departments. Existing slots and IDs are preserved.
   }
 
   function migrate(input){
@@ -1236,6 +1244,8 @@
     return entries;
   }
   const PLAN_OPTIONS=[['proposed','Proposed / Awaiting acceptance'],['confirmed','Confirmed ✓'],['declined','Declined']];
+  // Initialize after the role lookup has been defined (fixes reload/autosave).
+  data = loadData();
   function assignmentKey(path){
     const portfolio=/^portfolios\.(\d+)\.(memberId|assistantId)$/.exec(path);
     if(portfolio){const p=data.portfolios[+portfolio[1]]; return p?`portfolio:${p.id}:${portfolio[2]==='memberId'?'member':'assistant'}`:'';}
@@ -1417,7 +1427,7 @@
     return data.settings.repeatPageHeader ? 3 : 0;
   }
   function departmentUnits(d){
-    return 1.3 + d.people.length + (OFFICIAL_ROLE_NAMES[String(d.number||'').trim()] ? d.people.length * .55 : 0);
+    return 1.3 + d.people.length + (departmentRoleNames(d).length ? d.people.length * .55 : 0);
   }
   function overviewSectionUnits(s){
     return 1.4 + s.people.length;
@@ -1494,7 +1504,7 @@
               <span>${showValue(d.name,'Department')}</span>
             </div>
             ${d.people.map((slot,i)=>`
-              ${OFFICIAL_ROLE_NAMES[String(d.number||'').trim()]?.[i] ? `<div class="position-label">${esc(departmentPosition(d,i))}</div>` : ''}
+              ${departmentRoleNames(d)[i] ? `<div class="position-label">${esc(departmentPosition(d,i))}</div>` : ''}
               ${personRow(slot.personId,{forceLead:i===0,statusKey:'slot:'+slot.id})}
             `).join('')}
           </section>
