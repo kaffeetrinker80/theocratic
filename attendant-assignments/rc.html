@@ -924,8 +924,12 @@
       .brand { display: contents; }
       .brand-mark { grid-area: logo; height: 44px; border-radius: 9px; }
       .brand h1 { grid-area: title; font-size: 17px; white-space: normal; display: block; }
-      .event-line { grid-area: date; margin: 0; }
-      .top-actions { grid-area: actions; gap: 4px; }
+      /* Datum + Status dürfen auf zwei Zeilen umbrechen statt abgeschnitten zu werden */
+      .event-line { grid-area: date; margin: 0; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.3; }
+      .event-line strong { white-space: nowrap; }
+      .event-line .ev-dot { display: none; }
+      .event-line .ev-rel { display: block; }
+      .top-actions { grid-area: actions; gap: 4px; align-self: start; }
       .icon-btn { width: 34px; height: 34px; border-radius: 10px; border-color: transparent; background: var(--chip); }
       .icon-btn svg { width: 18px; height: 18px; }
     }
@@ -1144,7 +1148,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments – Regional Convention';
-const VERSION = '0.14.2 RC';
+const VERSION = '0.14.3 RC';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbzNlOKik8MBwrRQP4TggotEZ3j3PiEhg-EFU1xx3Whk8sSZP1Kasqy4-4uXmhkBgb-3/exec';
@@ -2798,7 +2802,7 @@ function renderHeader() {
   }
   const range = first === last ? fmtDayMonth(first) : fmtDayMonth(first) + ' – ' + fmtDayMonth(last);
   line.innerHTML = '<strong><span class="d-long">' + esc(range + ' ' + first.slice(0, 4)) + '</span>' +
-    '<span class="d-short">' + esc(range) + '</span></strong> · ' + esc(rel);
+    '<span class="d-short">' + esc(range) + '</span></strong><span class="ev-dot"> · </span><span class="ev-rel">' + esc(rel) + '</span>';
 }
 
 function renderBanner() {
