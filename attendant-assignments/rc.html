@@ -1154,7 +1154,7 @@
 // =====================================================
 
 const APP_NAME = 'Attendant Assignments – Regional Convention';
-const VERSION = '0.14.4 RC';
+const VERSION = '0.14.5 RC';
 
 // /exec-URL der Apps-Script-Bereitstellung. Leer = Demo-Daten.
 const API_URL = 'https://script.google.com/macros/s/AKfycbzNlOKik8MBwrRQP4TggotEZ3j3PiEhg-EFU1xx3Whk8sSZP1Kasqy4-4uXmhkBgb-3/exec';
@@ -2498,7 +2498,8 @@ async function loadAdmin() {
 function printMap(src, title) {
   const area = $('#printArea');
   area.innerHTML = '<h1>' + esc(title) + ' · Position map</h1>' +
-    '<p>' + esc(APP_NAME) + (D && D.event && D.event.date ? ' · ' + esc(fmtDate(D.event.date, true)) : '') + '</p>' +
+    // ohne Datum: die Lagepläne gelten unabhängig vom Kongress und werden wiederverwendet
+    '<p>' + esc(APP_NAME) + '</p>' +
     '<img alt="' + esc(title) + ' position map">';
   const img = area.querySelector('img');
   img.onload = () => setTimeout(() => window.print(), 50);
