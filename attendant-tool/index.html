@@ -108,6 +108,19 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .xi-hint{font-size:12px;color:#37474f;background:#f3f9ff;border:1px solid #cfe3f7;border-radius:11px;padding:9px 11px;line-height:1.45}
 .xi-count{font-size:12px;font-weight:800;color:#1565c0}
 .quick-add.xi{background:#fff3e0;color:#e65100;border-color:#ffcc80}
+.xi-top{background:#fff3e0;color:#e65100;border:1.5px solid #ffb74d;font-weight:800;display:inline-flex;align-items:center;gap:7px}
+.xi-top:hover{background:#ffe0b2;border-color:#fb8c00}
+.xi-top .badge{background:#ef6c00;color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px;min-width:20px;text-align:center}
+.xi-top .badge.zero{background:#ffcc80;color:#8d4a00}
+.xi-choice{display:grid;gap:10px}
+.xi-card{display:flex;gap:12px;align-items:center;text-align:left;width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;font:inherit;color:var(--text)}
+.xi-card:hover{border-color:#fb8c00;background:#fff8f0}
+.xi-card:disabled{opacity:.55;cursor:default;background:#fafafa;border-color:var(--line)}
+.xi-card .ic{font-size:24px;flex:0 0 auto}
+.xi-card b{display:block;font-size:14px}
+.xi-card small{display:block;color:var(--muted);font-size:12px;font-weight:600;margin-top:2px}
+.xi-card .badge{margin-left:auto;background:#ef6c00;color:#fff;border-radius:999px;font-size:12px;font-weight:800;padding:2px 9px;white-space:nowrap}
+.xi-card:disabled .badge{background:#cfd8dc;color:#546e7a}
 
 /* ── positions overview (maps) ── */
 .tab-btn.maps-btn{background:#fff;border:1px dashed #90a4ae;color:#37474f}
@@ -551,6 +564,7 @@ table.dash-table tbody tr:hover td{background:#fafcff}
   <div class="toolbar no-print">
     <button class="primary" onclick="openCongModal()">+ Congregation / Group</button>
     <button class="primary" onclick="openAttendantModal()">+ Attendant</button>
+    <button class="xi-top" id="xiTopBtn" onclick="openXiHub()" title="Take over congregations or attendants from the other event" style="display:none">⇩ From …</button>
     <button class="success" onclick="copyActiveAttendantsSummary(this)" title="Copies everyone with ✔ and A (available and answered), alphabetical – without the ones who never answered" style="display:inline-flex;align-items:center;gap:7px">
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block;flex:0 0 auto">
         <path fill="currentColor" d="M6 2h8l4 4v16H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" opacity=".95"/>
@@ -608,7 +622,6 @@ table.dash-table tbody tr:hover td{background:#fafcff}
       <div class="sf btn">
         <button class="secondary" onclick="applyBulkFollowup()">Apply</button>
         <button class="secondary" onclick="sortCongregationsManual()" title="Sort the congregation list alphabetically">Sort A–Z</button>
-        <button class="secondary" id="xiCongBtn" onclick="openCongImportModal()" title="Take over congregations (with coordinator and contacts) from the other event">⇩ Congregations from …</button>
       </div>
     </div>
     <div class="table-wrap-dash">
@@ -825,7 +838,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.10.1</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.10.2</div>
 </div>
 
 <script>
@@ -2815,9 +2828,39 @@ function xiCongButton(row){
 function refreshCrossEventUi(){
   const o=evShort(otherEventType());
   const has=!!loadEventData(otherEventType());
-  const cb=el('xiCongBtn');if(cb){cb.textContent=`⇩ Congregations from ${o}…`;cb.style.display=has?'':'none';}
+  const tb2=el('xiTopBtn');
+  if(tb2){
+    const n=has?xiMissingCongs().length+xiCandidates().length:0;
+    tb2.style.display=has?'':'none';
+    tb2.innerHTML=`⇩ From ${esc(o)} <span class="badge${n?'':' zero'}">${n}</span>`;
+    tb2.title=n?`${xiMissingCongs().length} congregation(s) and ${xiCandidates().length} active attendant(s) on the ${o} list are not here yet`:`Everything from the ${o} list is already here`;
+  }
   const ab=el('xiAttBtn');if(ab){ab.textContent=`⇩ Attendants from ${o}…`;ab.style.display=has?'':'none';}
   const tb=el('rcTplBtn');if(tb)tb.style.display=state.meta.eventType==='Regional Convention'?'':'none';
+}
+
+/* ── chooser behind the orange top button ── */
+function openXiHub(){
+  const other=otherEventType(),o=evShort(other),cur=evShort(state.meta.eventType);
+  if(!loadEventData(other)){flash(`No ${o} data in this browser yet`);return;}
+  const nc=xiMissingCongs().length,na=xiCandidates().length;
+  openOverlay('xiHubModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>Take over from ${esc(o)}</h3>
+        <div class="sub">Data you already have on the ${esc(o)} list – added to the ${esc(cur)} list</div></div>
+      <button class="modal-x" onclick="closeOverlay('xiHubModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="xi-choice">
+        <button class="xi-card" ${nc?'':'disabled'} onclick="closeOverlay('xiHubModal');openCongImportModal()">
+          <span class="ic">⛪</span><span><b>Congregations</b><small>${nc?`With coordinator, mobile and e-mails – to send the request`:`All ${esc(o)} congregations are already here`}</small></span>
+          <span class="badge">${nc} new</span></button>
+        <button class="xi-card" ${na?'':'disabled'} onclick="closeOverlay('xiHubModal');openAttImportModal()">
+          <span class="ic">👥</span><span><b>Attendants</b><small>${na?`Multi-select, e.g. once a congregation has confirmed its brothers`:`All active ${esc(o)} attendants are already here`}</small></span>
+          <span class="badge">${na} new</span></button>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="secondary" onclick="closeOverlay('xiHubModal')">Close</button></div>`);
 }
 
 /* ── 1) Congregations ── */
