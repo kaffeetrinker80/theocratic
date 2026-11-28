@@ -84,6 +84,30 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .pr-opt.sel{border-color:#1565c0;background:#eef6ff}
 .pr-opt small{display:block;font-weight:600;color:var(--muted);font-size:11px;margin-top:1px}
 
+/* ── cross-event import (Assembly ⇄ RC) ── */
+.xi-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.xi-tools input[type=search],.xi-tools select{width:auto;flex:1 1 180px;min-width:150px}
+.xi-tools label.inl{display:flex;gap:6px;align-items:center;font-size:12px;font-weight:700;color:#37474f;margin:0;text-transform:none;letter-spacing:0;white-space:nowrap}
+.xi-tools label.inl input{width:auto;margin:0}
+.xi-list{display:grid;gap:6px;max-height:52vh;overflow-y:auto;padding-right:2px}
+.xi-group{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.xi-ghead{display:flex;gap:9px;align-items:center;padding:8px 11px;background:#f4f7fa;border-bottom:1px solid var(--line);font-size:13px;font-weight:800;color:#263238;cursor:pointer;margin:0;text-transform:none;letter-spacing:0}
+.xi-ghead input{width:auto;margin:0}
+.xi-ghead .n{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+.xi-ghead .new{font-size:10px;font-weight:800;color:#ef6c00;background:#fff3e0;border-radius:6px;padding:1px 6px}
+.xi-row{display:flex;gap:9px;align-items:center;padding:6px 11px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;margin:0;text-transform:none;letter-spacing:0;border-top:1px solid #f0f3f6}
+.xi-row:first-of-type{border-top:0}
+.xi-row input{width:auto;margin:0}
+.xi-row:hover{background:#f3f9ff}
+.xi-row.sel{background:#eef6ff}
+.xi-row.dis{opacity:.5;cursor:default;background:#fafafa}
+.xi-row small{color:var(--muted);font-weight:600;font-size:11px}
+.xi-row .tag{margin-left:auto;font-size:10px;font-weight:800;border-radius:6px;padding:1px 6px;background:#e8f5e9;color:#2e7d32;white-space:nowrap}
+.xi-row .tag.off{background:#eceff1;color:#78909c}
+.xi-hint{font-size:12px;color:#37474f;background:#f3f9ff;border:1px solid #cfe3f7;border-radius:11px;padding:9px 11px;line-height:1.45}
+.xi-count{font-size:12px;font-weight:800;color:#1565c0}
+.quick-add.xi{background:#fff3e0;color:#e65100;border-color:#ffcc80}
+
 /* ── positions overview (maps) ── */
 .tab-btn.maps-btn{background:#fff;border:1px dashed #90a4ae;color:#37474f}
 .tab-btn.maps-btn:hover{background:#e8f4fb;border-style:solid;border-color:#42a5f5}
@@ -583,6 +607,7 @@ table.dash-table tbody tr:hover td{background:#fafcff}
       <div class="sf btn">
         <button class="secondary" onclick="applyBulkFollowup()">Apply</button>
         <button class="secondary" onclick="sortCongregationsManual()" title="Sort the congregation list alphabetically">Sort A–Z</button>
+        <button class="secondary" id="xiCongBtn" onclick="openCongImportModal()" title="Take over congregations (with coordinator and contacts) from the other event">⇩ Congregations from …</button>
       </div>
     </div>
     <div class="table-wrap-dash">
@@ -628,10 +653,12 @@ Thank you very much for your support.
 Loving greetings,
 
 [SENDER_SIGNATURE]</textarea>
-        <div class="footer-note" style="margin-top:8px">Formatting: Write <b>**text**</b> to make it bold in the preview and when copied into an email.</div>
+        <div class="footer-note" style="margin-top:8px">Formatting: Write <b>**text**</b> to make it bold in the preview and when copied into an email.<br>
+          Placeholders: [EVENT_DATE] · [ATTENDANT_LIST] · <b>[ASSEMBLY_LIST]</b> / <b>[RC_LIST]</b> (brothers of this congregation known from the Assembly / RC list) · [SENDER_SIGNATURE]</div>
         <div class="toolbar no-print">
           <button class="primary" onclick="copySelectedMessage()">Copy selected message</button>
           <button class="secondary" onclick="copyTemplateOnly()">Copy template only</button>
+          <button class="secondary" id="rcTplBtn" onclick="useSuggestedRcTemplate()" title="Replace the template with a text for the Regional Convention that lists the brothers already known from the assembly">✨ Use RC template</button>
         </div>
       </div>
       <div>
@@ -703,6 +730,7 @@ Loving greetings,
       <button class="primary small-btn" onclick="openPrintModal()" title="Print a follow-up list: who is available (✔) and who has answered (A)">🖨 Print list…</button>
       <button class="success small-btn" onclick="exportFilteredJson()" title="For the Team Captain Manager. No team in the filter: everyone assigned to Auditorium, Cafeteria, Lobby or Welcome, grouped by team. One team selected: only that team.">📥 Export filtered (JSON)</button>
       <button class="success small-btn" onclick="exportFilteredCsv()" title="Export currently visible attendants as CSV">📥 Export filtered (CSV)</button>
+      <button class="secondary small-btn" id="xiAttBtn" onclick="openAttImportModal()" title="Take over several attendants at once from the other event">⇩ Attendants from …</button>
       <span style="font-size:11px;color:var(--muted);margin-left:4px" id="filteredExportHint"></span>
     </div>
 
@@ -796,7 +824,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.9.8</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.10.0</div>
 </div>
 
 <script>
@@ -993,7 +1021,9 @@ function switchEventType(newType){
     }catch{state=defaultState();state.meta.eventType=newType;}
   }else{state=defaultState();state.meta.eventType=newType;}
   writeMetaToInputs();refreshHeader();updateMetrics();updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();renderMiniStats();renderCustomLists();
+  refreshCrossEventUi();
   flash(`Switched to ${newType}`);
+  setTimeout(maybeOfferCongImport,350);
 }
 
 function syncMeta(){
@@ -1085,6 +1115,7 @@ function renderCongTable(){
         ${names.length?names.map(a=>`<div class="att-link" onclick="openAttendantModal(${state.attendants.indexOf(a)})" title="Edit ${esc(dispName(a))}">${a.confirmed&&a.active!==false?'<span class="cdot a on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">A</span> ':''}${isPlanned(a)?'<span class="cdot t on" style="width:15px;height:15px;font-size:8px;display:inline-flex;vertical-align:middle;cursor:default">T</span> ':''}${a.sister?'<span class="pill sis">Sr.</span> ':''}${esc(dispName(a))}${a.active===false?' <span class="muted">(inactive)</span>':''}</div>`).join(''):'<span class="muted mini">no attendants yet</span>'}
         ${names.length?`<div class="conf-mini"><span class="a">A ${names.filter(a=>a.confirmed&&a.active!==false).length}</span> · <span class="t">T ${names.filter(isPlanned).length}</span> of ${names.length}</div>`:''}
         <button class="quick-add no-print" onclick="openAttendantModal(null,'${js(row.congregation||'')}')" title="Add an attendant to this congregation">+ Attendant</button>
+        ${xiCongButton(row)}
       </div></td>
       <td><div class="compact-stack">${followLabel(row)}
         <div class="check-row no-print">
@@ -1104,7 +1135,7 @@ function renderCongTable(){
     state.congregations=structuredClone(initialCongregations).map(normalizeCongregation);
     saveState();return renderCongTable();
   }
-  renderCongSummary();updateMetrics();
+  renderCongSummary();updateMetrics();refreshCrossEventUi();
 }
 function renderCongSummary(){
   el('congSummary').innerHTML=state.congregations.map(row=>{
@@ -1777,6 +1808,7 @@ function buildCongMessage(index){
   ).join('\n'):'[no attendants yet]';
   return(state.meta.messageTemplate||'')
     .replaceAll('[EVENT_DATE]',state.meta.eventDate||'').replaceAll('[ATTENDANT_LIST]',list)
+    .replaceAll('[ASSEMBLY_LIST]',eventListForCong('Assembly',row)).replaceAll('[RC_LIST]',eventListForCong('Regional Convention',row))
     .replaceAll('[SENDER_NAME]',state.meta.senderName||'').replaceAll('[SENDER_ROLE]',state.meta.senderRole||'')
     .replaceAll('[SENDER_SIGNATURE]',buildSignature());
 }
@@ -2136,7 +2168,7 @@ function openPreviewModal(index){
         </div>
         <div id="pmTemplateWrap" style="display:${pmTemplateOpen?'block':'none'};margin-bottom:9px">
           <textarea id="pmTemplate" style="min-height:160px;font-size:12px;line-height:1.45" oninput="onPmTemplateInput(${index})">${esc(state.meta.messageTemplate||'')}</textarea>
-          <div class="footer-note">Placeholders: [EVENT_DATE] · [ATTENDANT_LIST] · [SENDER_NAME] · [SENDER_ROLE] · [SENDER_SIGNATURE] · <b>**bold**</b>. Changes are saved to the template right away.</div>
+          <div class="footer-note">Placeholders: [EVENT_DATE] · [ATTENDANT_LIST] · [ASSEMBLY_LIST] · [RC_LIST] · [SENDER_NAME] · [SENDER_ROLE] · [SENDER_SIGNATURE] · <b>**bold**</b>. Changes are saved to the template right away.</div>
         </div>
         <div class="modal-msg" id="pmMessage">${messageToHtml(message)}</div>
       </div>
@@ -2730,6 +2762,279 @@ function onPmTemplateInput(index){
   const box=el('pmMessage');if(box)box.innerHTML=messageToHtml(buildCongMessage(index));
 }
 
+
+/* ══════════ CROSS-EVENT IMPORT (Assembly ⇄ Regional Convention) ══════════
+   Both events live in their own localStorage slot. These helpers read the
+   OTHER slot (read-only) so congregations and attendants can be taken over. */
+const XI_DISMISS_KEY='attendantPlanner_xiOfferDismissed_';
+function otherEventType(t){return (t||state.meta.eventType)==='Assembly'?'Regional Convention':'Assembly';}
+function evShort(t){return t==='Assembly'?'Assembly':'RC';}
+let _xiCache={key:null,raw:null,data:null};
+function loadEventData(type){
+  const key=storageKeyForType(type);
+  if(type===state.meta.eventType)return state;
+  let raw=null;try{raw=localStorage.getItem(key);}catch{}
+  if(!raw)return null;
+  if(_xiCache.key===key&&_xiCache.raw===raw)return _xiCache.data;
+  try{
+    const d=JSON.parse(raw);
+    const data={meta:{...(d.meta||{})},
+      congregations:(Array.isArray(d.congregations)?d.congregations:[]).map(normalizeCongregation)
+        .filter(c=>String(c.congregation||'').trim()&&c.congregation!=='Sample Congregation'),
+      attendants:(Array.isArray(d.attendants)?d.attendants:[]).map(normalizeAttendant)};
+    _xiCache={key,raw,data};return data;
+  }catch{return null;}
+}
+function norm(v){return String(v||'').trim().toLowerCase();}
+function sameAttendant(a,b){return norm(a.name)===norm(b.name)&&norm(a.firstName)===norm(b.firstName)&&matchCong(a.congregation,b.congregation);}
+function attExistsHere(a){return state.attendants.some(x=>sameAttendant(x,a));}
+function congExistsHere(name){return state.congregations.some(c=>matchCong(c.congregation,name));}
+function isOnlySample(){return state.congregations.length===1&&state.congregations[0].congregation==='Sample Congregation';}
+
+/* names of one congregation in a given event slot – used by [ASSEMBLY_LIST] / [RC_LIST] */
+function eventListForCong(type,row){
+  const data=loadEventData(type);
+  const who=sortByName((data?.attendants||[]).filter(a=>matchCong(a.congregation,row.congregation)&&a.active!==false));
+  if(!who.length)return `[no brothers known from the ${type==='Assembly'?'assembly':'convention'} yet]`;
+  return who.map(a=>`${dispName(a)}${a.sister?' (sister)':''}`).join('\n');
+}
+
+/* importable attendants of the other event (optionally only one congregation) */
+function xiCandidates(congName){
+  const src=loadEventData(otherEventType());
+  if(!src)return[];
+  return src.attendants.filter(a=>(!congName||matchCong(a.congregation,congName))&&a.active!==false&&!attExistsHere(a));
+}
+function xiCongButton(row){
+  const n=xiCandidates(row.congregation).length;
+  if(!n)return'';
+  const o=evShort(otherEventType());
+  return`<button class="quick-add xi no-print" onclick="openAttImportModal('${js(row.congregation||'')}',true)" title="${n} active brother(s) of this congregation are on the ${esc(o)} list but not here yet – take them over">⇩ ${n} from ${esc(o)}</button>`;
+}
+function refreshCrossEventUi(){
+  const o=evShort(otherEventType());
+  const has=!!loadEventData(otherEventType());
+  const cb=el('xiCongBtn');if(cb){cb.textContent=`⇩ Congregations from ${o}…`;cb.style.display=has?'':'none';}
+  const ab=el('xiAttBtn');if(ab){ab.textContent=`⇩ Attendants from ${o}…`;ab.style.display=has?'':'none';}
+  const tb=el('rcTplBtn');if(tb)tb.style.display=state.meta.eventType==='Regional Convention'?'':'none';
+}
+
+/* ── 1) Congregations ── */
+function xiMissingCongs(){
+  const src=loadEventData(otherEventType());
+  if(!src)return[];
+  return src.congregations.filter(c=>!congExistsHere(c.congregation))
+    .sort((a,b)=>a.congregation.localeCompare(b.congregation,'de'));
+}
+function maybeOfferCongImport(){
+  if(anyOverlay())return;
+  const miss=xiMissingCongs();
+  if(!miss.length)return;
+  let sig='';try{sig=localStorage.getItem(XI_DISMISS_KEY+state.meta.eventType)||'';}catch{}
+  const now=miss.map(c=>norm(c.congregation)).join('|');
+  if(sig===now)return; /* same list was already declined – don't nag */
+  openCongImportModal(true);
+}
+function openCongImportModal(auto){
+  const other=otherEventType(),o=evShort(other),cur=evShort(state.meta.eventType);
+  const src=loadEventData(other);
+  const miss=xiMissingCongs();
+  if(!src){flash(`No ${o} data in this browser yet`);return;}
+  if(!miss.length){flash(`All ${o} congregations are already on the ${cur} list`);return;}
+  const rows=miss.map((c,i)=>{
+    const n=src.attendants.filter(a=>matchCong(a.congregation,c.congregation)&&a.active!==false).length;
+    return`<label class="xi-row" data-hay="${esc(norm([c.congregation,c.coordinator,c.type].join(' ')))}">
+      <input type="checkbox" class="xiC" value="${i}" onchange="xiUpdate('cong')">
+      <span><b>${esc(c.congregation)}</b> <small>${esc(c.type)}${c.coordinator?' · '+esc(c.coordinator):''}</small></span>
+      <span class="tag${n?'':' off'}">${n} brother${n===1?'':'s'} known</span></label>`;
+  }).join('');
+  window._xiCongList=miss;
+  openOverlay('xiCongModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>Take over congregations from ${esc(o)}</h3>
+        <div class="sub">${miss.length} congregation(s) on the ${esc(o)} list are not on the ${esc(cur)} list yet</div></div>
+      <button class="modal-x" onclick="closeOverlay('xiCongModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      ${auto?`<div class="xi-hint">You already have contact details for these congregations from the <b>${esc(o)}</b>. Which ones should be added to the <b>${esc(cur)}</b>?</div>`:''}
+      <div class="xi-tools">
+        <input type="search" id="xiCongSearch" placeholder="Search congregation or coordinator…" oninput="xiFilter('cong')">
+        <button class="secondary small-btn" onclick="xiAll('cong',true)">Select all</button>
+        <button class="secondary small-btn" onclick="xiAll('cong',false)">None</button>
+      </div>
+      <div class="xi-list xi-group" style="display:block">${rows}</div>
+      <div class="mini">Taken over: name, type, coordinator, mobile and e-mails. Follow-up (contacted / replied) and remarks start fresh. Brothers are not copied here – you take them over later, once the congregation has confirmed.</div>
+    </div>
+    <div class="modal-foot">
+      <div class="left"><span class="xi-count" id="xiCongCount">0 selected</span></div>
+      <button class="secondary" onclick="xiDismissCong()">${auto?'Not now':'Cancel'}</button>
+      <button class="primary" id="xiCongGo" onclick="doCongImport()">Add selected</button>
+    </div>`);
+  xiUpdate('cong');
+  setTimeout(()=>el('xiCongSearch')?.focus(),50);
+}
+function xiDismissCong(){
+  const now=xiMissingCongs().map(c=>norm(c.congregation)).join('|');
+  try{localStorage.setItem(XI_DISMISS_KEY+state.meta.eventType,now);}catch{}
+  closeOverlay('xiCongModal');
+}
+function doCongImport(){
+  const picks=[...document.querySelectorAll('#xiCongModal .xiC:checked')].map(i=>window._xiCongList[Number(i.value)]).filter(Boolean);
+  if(!picks.length)return;
+  pushUndo({kind:'import',rows:structuredClone(state.attendants),congs:structuredClone(state.congregations),label:'congregation import',btn:'import'});
+  if(isOnlySample())state.congregations=[];
+  picks.forEach(c=>state.congregations.push(normalizeCongregation({
+    congregation:c.congregation,type:c.type,congJwpub:c.congJwpub,coordinator:c.coordinator,jwpub:c.jwpub,mobile:c.mobile,
+    contacted:false,replied:false,remarks:'',linkedAttendantIds:''})));
+  sortCongregations();
+  saveState();closeOverlay('xiCongModal');
+  updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+  flash(`${picks.length} congregation(s) added`);
+}
+
+/* ── 2) Attendants (multi-select) ── */
+function openAttImportModal(congName,preselect){
+  const other=otherEventType(),o=evShort(other),cur=evShort(state.meta.eventType);
+  const src=loadEventData(other);
+  if(!src||!src.attendants.length){flash(`No ${o} attendants in this browser yet`);return;}
+  const all=sortByName(src.attendants);
+  const congs=[...new Set(all.map(a=>String(a.congregation||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+  window._xiAttList=all;
+  const groups=congs.map(cn=>{
+    const list=all.filter(a=>matchCong(a.congregation,cn));
+    const isNew=!congExistsHere(cn);
+    const items=list.map(a=>{
+      const idx=all.indexOf(a),here=attExistsHere(a),inactive=a.active===false;
+      const pre=preselect&&!here&&!inactive&&matchCong(cn,congName);
+      return`<label class="xi-row${here?' dis':''}${pre?' sel':''}" data-inactive="${inactive?1:0}" data-hay="${esc(norm(attHay(a)))}">
+        <input type="checkbox" class="xiA" value="${idx}" ${here?'disabled':''} ${pre?'checked':''} onchange="xiUpdate('att')">
+        <span>${a.sister?'<span class="pill sis">Sr.</span> ':''}<b>${esc(dispName(a))}</b> <small>${esc(a.privilege||'')}${a.mobile?' · '+esc(a.mobile):''}</small></span>
+        ${here?`<span class="tag off">already on ${esc(cur)}</span>`:inactive?`<span class="tag off">inactive on ${esc(o)}</span>`:''}</label>`;
+    }).join('');
+    return`<div class="xi-group" data-cong="${esc(cn)}">
+      <label class="xi-ghead"><input type="checkbox" class="xiG" onchange="xiGroup(this)">${esc(cn)}
+        ${isNew?`<span class="new" title="Will be added to the ${esc(cur)} congregation list with its contact details">new congregation</span>`:''}
+        <span class="n">${list.filter(a=>!attExistsHere(a)&&a.active!==false).length} new · ${list.filter(attExistsHere).length} already here</span></label>
+      ${items}</div>`;
+  }).join('');
+  openOverlay('xiAttModal',`
+    <div class="modal-head">
+      <div style="flex:1;min-width:0"><h3>Take over attendants from ${esc(o)}</h3>
+        <div class="sub">Pick the brothers the congregation has confirmed – they are added to the ${esc(cur)} list</div></div>
+      <button class="modal-x" onclick="closeOverlay('xiAttModal')" title="Close (Esc)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="xi-tools">
+        <select id="xiAttCong" onchange="xiFilter('att')"><option value="">All congregations</option>${congs.map(c=>`<option value="${esc(c)}" ${matchCong(c,congName)?'selected':''}>${esc(c)}</option>`).join('')}</select>
+        <input type="search" id="xiAttSearch" placeholder="Search name…" oninput="xiFilter('att')">
+        <label class="inl"><input type="checkbox" id="xiHideInactive" checked onchange="xiFilter('att')">Hide inactive</label>
+        <label class="inl"><input type="checkbox" id="xiHideHere" checked onchange="xiFilter('att')">Hide already taken over</label>
+      </div>
+      <div class="xi-list" id="xiAttList">${groups}</div>
+      <div class="mini">Taken over: name, congregation, privilege, contacts, sister, flags and remarks. A, teams, roles and possible shifts start empty – they belong to this event. Can be undone with <b>↩ Undo import</b>.</div>
+    </div>
+    <div class="modal-foot">
+      <div class="left"><span class="xi-count" id="xiAttCount">0 selected</span>
+        <button class="secondary small-btn" onclick="xiAll('att',true)">Select all visible</button>
+        <button class="secondary small-btn" onclick="xiAll('att',false)">None</button></div>
+      <button class="secondary" onclick="closeOverlay('xiAttModal')">Cancel</button>
+      <button class="primary" id="xiAttGo" onclick="doAttImport()">Take over selected</button>
+    </div>`,'wide');
+  xiFilter('att');
+  setTimeout(()=>el('xiAttSearch')?.focus(),50);
+}
+function doAttImport(){
+  const picks=[...document.querySelectorAll('#xiAttModal .xiA:checked')].map(i=>window._xiAttList[Number(i.value)]).filter(a=>a&&!attExistsHere(a));
+  if(!picks.length)return;
+  pushUndo({kind:'import',rows:structuredClone(state.attendants),congs:structuredClone(state.congregations),label:'attendant import',btn:'import'});
+  const src=loadEventData(otherEventType());
+  let maxId=Math.max(0,...state.attendants.map(a=>Number(String(a.id).replace(/\D/g,''))).filter(Number.isFinite));
+  let newCongs=0;
+  picks.forEach(a=>{
+    if(!congExistsHere(a.congregation)){
+      const c=src?.congregations.find(x=>matchCong(x.congregation,a.congregation));
+      if(isOnlySample())state.congregations=[];
+      state.congregations.push(normalizeCongregation(c?{...c,contacted:false,replied:false,remarks:'',linkedAttendantIds:''}:{congregation:a.congregation}));
+      newCongs++;
+    }
+    state.attendants.push(normalizeAttendant({...a,id:String(++maxId),
+      active:true,confirmed:false,confirmedAt:'',teams:[],roles:[],shifts:[],customTags:[],otherDepartment:false}));
+  });
+  if(newCongs)sortCongregations();
+  saveState();closeOverlay('xiAttModal');
+  updateDatalist();refreshCongFilter();renderCongTable();renderAttendantTable();
+  flash(`${picks.length} attendant(s) taken over`+(newCongs?` · ${newCongs} congregation(s) added`:''));
+}
+
+/* ── shared list helpers ── */
+function xiFilter(kind){
+  if(kind==='cong'){
+    const q=norm(el('xiCongSearch')?.value);
+    document.querySelectorAll('#xiCongModal .xi-row').forEach(r=>{r.style.display=!q||r.dataset.hay.includes(q)?'':'none';});
+  }else{
+    const q=norm(el('xiAttSearch')?.value),cong=el('xiAttCong')?.value||'';
+    const hideIn=!!el('xiHideInactive')?.checked,hideHere=!!el('xiHideHere')?.checked;
+    document.querySelectorAll('#xiAttModal .xi-group').forEach(g=>{
+      let vis=0;
+      const okCong=!cong||matchCong(g.dataset.cong,cong);
+      g.querySelectorAll('.xi-row').forEach(r=>{
+        const inp=r.querySelector('input');
+        const show=okCong&&(!q||r.dataset.hay.includes(q)||norm(g.dataset.cong).includes(q))
+          &&!(hideIn&&r.dataset.inactive==='1')&&!(hideHere&&inp.disabled);
+        r.style.display=show?'':'none';if(show)vis++;
+      });
+      g.style.display=vis?'':'none';
+    });
+  }
+  xiUpdate(kind);
+}
+function xiAll(kind,on){
+  const sel=kind==='cong'?'#xiCongModal .xiC':'#xiAttModal .xiA';
+  document.querySelectorAll(sel).forEach(i=>{if(!i.disabled&&i.closest('.xi-row').style.display!=='none'&&(kind==='cong'||i.closest('.xi-group').style.display!=='none'))i.checked=on;});
+  xiUpdate(kind);
+}
+function xiGroup(box){
+  box.closest('.xi-group').querySelectorAll('.xiA').forEach(i=>{if(!i.disabled&&i.closest('.xi-row').style.display!=='none')i.checked=box.checked;});
+  xiUpdate('att');
+}
+function xiUpdate(kind){
+  const m=kind==='cong'?'#xiCongModal':'#xiAttModal',cls=kind==='cong'?'.xiC':'.xiA';
+  const boxes=[...document.querySelectorAll(`${m} ${cls}`)];
+  boxes.forEach(i=>i.closest('.xi-row').classList.toggle('sel',i.checked));
+  const n=boxes.filter(i=>i.checked).length;
+  const c=el(kind==='cong'?'xiCongCount':'xiAttCount');if(c)c.textContent=`${n} selected`;
+  const b=el(kind==='cong'?'xiCongGo':'xiAttGo');if(b){b.disabled=!n;b.style.opacity=n?'':'.45';}
+  if(kind==='att')document.querySelectorAll('#xiAttModal .xi-group').forEach(g=>{
+    const en=[...g.querySelectorAll('.xiA')].filter(i=>!i.disabled&&i.closest('.xi-row').style.display!=='none');
+    const gb=g.querySelector('.xiG');if(gb){gb.checked=en.length>0&&en.every(i=>i.checked);gb.indeterminate=en.some(i=>i.checked)&&!gb.checked;gb.disabled=!en.length;}
+  });
+}
+
+/* ── 3) Suggested RC request text ── */
+const RC_TEMPLATE=`Dear brothers,
+
+our Regional Convention is coming up ([EVENT_DATE]), and we are again looking for brothers to support the Attendant Department.
+
+For our circuit assemblies, we already know the following brothers from your congregation/group:
+[ASSEMBLY_LIST]
+
+Could you please check briefly:
+– Are these brothers available for the convention as well?
+– Has anything changed, or would anyone else like to help?
+
+If everything is fine, a short reply such as "We confirm" is sufficient.
+If there are changes or additions, please let us know briefly.
+
+Thank you very much for your support.
+Loving greetings,
+
+[SENDER_SIGNATURE]`;
+function useSuggestedRcTemplate(){
+  const t=el('messageTemplate');if(!t)return;
+  if(String(t.value||'').trim()&&t.value!==RC_TEMPLATE&&!confirm('Replace the current email template with the suggested RC text?\n\nIt lists the brothers already known from the assembly ([ASSEMBLY_LIST]) and asks the congregation to confirm or update them.'))return;
+  t.value=RC_TEMPLATE;saveState();flash('RC template inserted');
+}
+
 /* ══════════ UNDO DELETE ══════════ */
 let undoItem=null;
 function pushUndo(item){undoItem=item;updateUndoBtn();}
@@ -2744,6 +3049,9 @@ function undoDelete(){
   if(it.kind==='att'){
     const at=Math.min(it.index,state.attendants.length);
     state.attendants.splice(at,0,normalizeAttendant(it.row));
+  }else if(it.kind==='import'){
+    state.attendants=(it.rows||[]).map(normalizeAttendant);
+    state.congregations=(it.congs||[]).map(normalizeCongregation);
   }else if(it.kind==='attAll'){
     state.attendants=(it.rows||[]).map(normalizeAttendant);
   }else if(it.kind==='cong'){
