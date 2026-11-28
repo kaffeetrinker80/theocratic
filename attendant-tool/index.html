@@ -91,6 +91,7 @@ button:hover,.file-label:hover{transform:translateY(-1px)}
 .xi-tools label.inl input{width:auto;margin:0}
 .xi-list{display:grid;gap:6px;max-height:52vh;overflow-y:auto;padding-right:2px}
 .xi-group{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.xi-box{display:block;gap:0;border:1px solid var(--line);border-radius:12px;background:#fff;overscroll-behavior:contain}
 .xi-ghead{display:flex;gap:9px;align-items:center;padding:8px 11px;background:#f4f7fa;border-bottom:1px solid var(--line);font-size:13px;font-weight:800;color:#263238;cursor:pointer;margin:0;text-transform:none;letter-spacing:0}
 .xi-ghead input{width:auto;margin:0}
 .xi-ghead .n{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
@@ -824,7 +825,7 @@ Loving greetings,
 </div>
 
 <datalist id="congregationOptions"></datalist>
-<div class="footer-bar">Made with Love © – Attendant Department Planner v2.10.0</div>
+<div class="footer-bar">Made with Love © – Attendant Department Planner v2.10.1</div>
 </div>
 
 <script>
@@ -2862,7 +2863,7 @@ function openCongImportModal(auto){
         <button class="secondary small-btn" onclick="xiAll('cong',true)">Select all</button>
         <button class="secondary small-btn" onclick="xiAll('cong',false)">None</button>
       </div>
-      <div class="xi-list xi-group" style="display:block">${rows}</div>
+      <div class="xi-list xi-box">${rows}</div>
       <div class="mini">Taken over: name, type, coordinator, mobile and e-mails. Follow-up (contacted / replied) and remarks start fresh. Brothers are not copied here – you take them over later, once the congregation has confirmed.</div>
     </div>
     <div class="modal-foot">
